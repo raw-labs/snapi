@@ -234,10 +234,35 @@ You can choose to import as an "SBT" project, but we found that "BSP" with "SBT"
 
 If Intellij prompts you to use 'scalafmt', say "Yes" as this is our code formatter.
 
+As a contributor, you may want to add new files to the project.
+You will need to follow the copyright header information, as described in [this section](#copyright-headers).
+
 A few more settings are required (for Truffle):
 - Set "Enable Annotation Processing" to true (as Truffle uses annotations to generate code).
 - Edit the `Scalatest` Run/Debug configuration to add the following VM options:
-`-Dpolyglot.engine.Inlining=false -Dpolyglot.engine.CompileImmediately=true -Dpolyglot.engine.AllowExperimentalOptions=true -Dgraal.Dump=Truffle:2 -Dgraal.PrintGraph=Network -Dpolyglot.engine.BackgroundCompilation=false -Dpolyglot.engine.TraceCompilation=true -Dpolyglot.engine.TraceCompilationDetails=true -Dgraalvm.locatorDisabled=true --add-exports org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED --add-exports java.base/jdk.internal.module=ALL-UNNAMED`
+```
+-Dpolyglot.engine.Inlining=false \
+-Dpolyglot.engine.CompileImmediately=true \
+-Dpolyglot.engine.AllowExperimentalOptions=true \
+-Dgraal.Dump=Truffle:2 \
+-Dgraal.PrintGraph=Network \
+-Dpolyglot.engine.BackgroundCompilation=false \
+-Dpolyglot.engine.TraceCompilation=true \
+-Dpolyglot.engine.TraceCompilationDetails=true \
+-Dgraalvm.locatorDisabled=true \
+--add-exports org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED \
+--add-exports org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED \
+--add-exports java.base/jdk.internal.module=ALL-UNNAMED
+```
+
+If you want to learn more about these Truffle flags, refer to the [Truffle documentation](https://www.graalvm.org/latest/graalvm-as-a-platform/language-implementation-framework/Options/).
 
 ## Scala coding guidelines
 
@@ -256,9 +281,19 @@ sbt scalafmtAll
 
 The CI checks that the code follows the expected standard.
 
+## Copyright headers
+
+We use [sbt-header](https://github.com/sbt/sbt-header) to add the proper license headers to the files.
+
+To use it manually, run:
+```bash
+sbt headerCreateAll
+sbt headerCheckAll
+```
+
 The CI checks that Java and Scala files in the compiler folder follow the proper copyright.
 
-For this you may want to set Intellj to automatically add Copyright information.
+You may want to set Intellj to automatically add the header.
 To do so:
 - In Intellij settings, create a new "Copyright Profile". Call it "RAW Labs BSL". Add the following copyright template test to it:
 ```
@@ -274,4 +309,4 @@ licenses/APL.txt.
 ```
 - Then, under Copyright, make it the Default Profile.
 - Then, still under Copyright, create a new Scope, choose "All", and choose the RAW Labs BSL profile.
-- That is it; there is no need to configure how the Copyright is rendered in Scala or Java since Intellij's default options matches ours.
+- That's it. There's no need to configure how the Copyright is rendered in Scala or Java since Intellij's default options match ours.
