@@ -225,8 +225,6 @@ If you are interested in collaborating in any of these topics, [please get in to
 
 The following are some notes in setting up a development environment in IntelliJ.
 
-### First import
-
 Before starting:
 * You will need a GraalVM distribution installed in your machine. Refer to [Building and running Snapi](#building-and-running-snapi) for more information;
 * Install/Enable the Scala plugin in Intellij.
@@ -241,11 +239,11 @@ A few more settings are required (for Truffle):
 - Edit the `Scalatest` Run/Debug configuration to add the following VM options:
 `-Dpolyglot.engine.Inlining=false -Dpolyglot.engine.CompileImmediately=true -Dpolyglot.engine.AllowExperimentalOptions=true -Dgraal.Dump=Truffle:2 -Dgraal.PrintGraph=Network -Dpolyglot.engine.BackgroundCompilation=false -Dpolyglot.engine.TraceCompilation=true -Dpolyglot.engine.TraceCompilationDetails=true -Dgraalvm.locatorDisabled=true --add-exports org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED --add-exports java.base/jdk.internal.module=ALL-UNNAMED`
 
-### Scala coding guidelines
+## Scala coding guidelines
 
 For general Scala coding guidelines, refer to the [Databricks Scala Guide](https://github.com/databricks/scala-style-guide).
 
-### Scala code formatting
+## Scala code formatting
 
 We use [scalafmt](https://scalameta.org/scalafmt/) to format code.
 The scalafmt rules are defined [here](./.scalafmt.conf) and should be automatically loaded by sbt or IntelliJ.
