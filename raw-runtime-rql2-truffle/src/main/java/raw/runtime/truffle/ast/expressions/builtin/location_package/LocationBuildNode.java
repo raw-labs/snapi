@@ -14,6 +14,10 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2IntType;
 import raw.compiler.rql2.source.Rql2ListType;
@@ -22,6 +26,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.*;
@@ -74,39 +79,47 @@ public class LocationBuildNode extends ExpressionNode {
     }
 
     private LocationSettingValue buildLocationSettingValue(Object value, Rql2TypeWithProperties type) {
-        if (TypeGuards.isIntKind(type)) {
-            return new LocationIntSetting((Integer) value);
-        } else if (TypeGuards.isStringKind(type)) {
-            return new LocationStringSetting((String) value);
-        } else if (TypeGuards.isByteKind(type)) {
-            byte[] bytes = (byte[]) value;
-            VectorBuilder<Object> vec = new VectorBuilder<>();
-            for (byte aByte : bytes) {
-                vec = vec.$plus$eq(aByte);
+        try {
+            if (TypeGuards.isIntKind(type)) {
+                return new LocationIntSetting((Integer) value);
+            } else if (TypeGuards.isStringKind(type)) {
+                return new LocationStringSetting((String) value);
+            } else if (TypeGuards.isByteKind(type)) {
+                byte[] bytes = (byte[]) value;
+                VectorBuilder<Object> vec = new VectorBuilder<>();
+                for (byte aByte : bytes) {
+                    vec = vec.$plus$eq(aByte);
+                }
+                return new raw.sources.LocationBinarySetting(vec.result());
+            } else if (TypeGuards.isBooleanKind(type)) {
+                return new LocationBooleanSetting((Boolean) value);
+            } else if (TypeGuards.isIntervalKind(type)) {
+                return new LocationDurationSetting(Duration.ofMillis(((IntervalObject) value).toMillis()));
+            } else if (TypeGuards.isListKind(type)) {
+                ListLibrary listLibs = ListLibrary.getFactory().createDispatched(2);
+                InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
+                OptionLibrary options = OptionLibrary.getFactory().createDispatched(2);
+                VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
+                int size = (int) listLibs.size(value);
+                for (int i = 0; i < size; i++) {
+                    Object record = listLibs.get(value, i);
+                    Object keys = interops.getMembers(record);
+                    Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
+                    Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
+                    vec = vec.$plus$eq(Tuple2.apply((String) options.get(key), (String) options.get(val)));
+                }
+                return new raw.sources.LocationKVSetting(vec.result());
+            } else if (TypeGuards.isBinaryKind(type)) {
+                VectorBuilder<Object> vec = new VectorBuilder<>();
+                for (byte aByte : (byte[]) value) {
+                    vec = vec.$plus$eq(aByte);
+                }
+                return new raw.sources.LocationBinarySetting(vec.result());
+            } else {
+                throw new RawTruffleRuntimeException("Unsupported type for LocationSettingValue", this);
             }
-            return new raw.sources.LocationBinarySetting(vec.result());
-        } else if (TypeGuards.isBooleanKind(type)) {
-            return new LocationBooleanSetting((Boolean) value);
-        } else if (TypeGuards.isIntervalKind(type)) {
-            return new LocationDurationSetting(Duration.ofMillis(((IntervalObject) value).toMillis()));
-        } else if (TypeGuards.isListKind(type) && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
-            ListLibrary lists = ListLibrary.getFactory().create(value);
-            int[] ints = (int[]) lists.getInnerList(value);
-            return new raw.sources.LocationIntArraySetting(ints);
-        } else if (TypeGuards.isListKind(type)) {
-            ListLibrary listLibs = ListLibrary.getFactory().createDispatched(2);
-            Object lists = listLibs.getInnerList(value);
-            VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
-            int size = (int) listLibs.size(lists);
-            for (int i = 0; i < size; i++) {
-                Object list = listLibs.get(lists, i);
-                Object key = listLibs.get(list, 0);
-                Object val = listLibs.get(list, 1);
-                vec = vec.$plus$eq(Tuple2.apply((String) key, (String) val));
-            }
-            return new raw.sources.LocationKVSetting(vec.result());
-        } else {
-            throw new RawTruffleRuntimeException("Unsupported type for LocationSettingValue", this);
+        } catch (UnsupportedMessageException | UnknownIdentifierException | InvalidArrayIndexException e) {
+            throw new RawTruffleRuntimeException("Error while building LocationSettingValue", this);
         }
 
     }

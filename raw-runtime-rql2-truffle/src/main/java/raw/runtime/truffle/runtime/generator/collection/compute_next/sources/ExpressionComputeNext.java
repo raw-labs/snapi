@@ -55,7 +55,7 @@ public final class ExpressionComputeNext {
         }
         try {
             return exps[position].executeGeneric(frame);
-        } catch (Exception e) {
+        } catch (RawTruffleRuntimeException e) {
             return new RawTruffleRuntimeException(e.getMessage());
         } finally {
             position++;

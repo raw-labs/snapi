@@ -168,4 +168,12 @@ public class TypeGuards {
         }
         return false;
     }
+
+    public static boolean isBinaryKind(Rql2Type rql2Type) {
+        if (rql2Type instanceof Rql2TypeWithProperties) {
+            Rql2TypeWithProperties rql2TypeWithProperties = (Rql2TypeWithProperties) rql2Type;
+            return rql2TypeWithProperties instanceof Rql2BinaryType && rql2TypeWithProperties.props().isEmpty();
+        }
+        return false;
+    }
 }

@@ -29,8 +29,7 @@ import raw.testing.tags.TruffleTests
 // InvokeAfter
 // class FunctionPackageTruffleTest extends TruffleCompilerTestContext with FunctionPackageTest
 
-// Missing Http
-// class HttpPackageTruffleTest extends TruffleCompilerTestContext with HttpPackageTest
+@TruffleTests class HttpPackageTruffleTest extends TruffleCompilerTestContext with HttpPackageTest
 @TruffleTests class IntervalPackageTruffleTest extends TruffleCompilerTestContext with IntervalPackageTest
 @TruffleTests class IntPackageTruffleTest extends TruffleCompilerTestContext with IntPackageTest
 @TruffleTests class JsonPackageTruffleTest extends TruffleCompilerTestContext with JsonPackageTest

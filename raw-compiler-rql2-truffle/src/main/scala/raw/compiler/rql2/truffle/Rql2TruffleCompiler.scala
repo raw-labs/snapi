@@ -493,6 +493,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     case BinaryExp(Eq(), e1, e2) => new EqNode(recurseExp(e1), recurseExp(e2))
     case BinaryExp(Lt(), e1, e2) => new LtNode(recurseExp(e1), recurseExp(e2))
     case BinaryExp(Le(), e1, e2) => new LeNode(recurseExp(e1), recurseExp(e2))
+    case BinaryConst(bytes) => new BinaryConstNode(bytes)
     case UnaryExp(Neg(), e) => NegNodeGen.create(recurseExp(e))
     case UnaryExp(Not(), e) => NotNodeGen.create(recurseExp(e))
     case IdnExp(idn) => analyzer.entity(idn) match {
