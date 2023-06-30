@@ -8,7 +8,8 @@ import sbt.Keys._
 import sbt.Tests.{Group, SubProcess}
 import sbt._
 
-import java.io.BufferedOutputStream
+import java.io._
+import java.util.jar._
 import java.time.Year
 
 import Dependencies._
@@ -427,6 +428,8 @@ lazy val rawCompilerRql2 = (project in file("raw-compiler-rql2"))
     buildSettings // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
   )
 
+val dummyJavadocJarTask = taskKey[File]("Creates a dummy javadoc jar file")
+
 lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
   .dependsOn(
     rawCompilerRql2 % "compile->compile;test->test"
@@ -435,9 +438,39 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
     // Do not generate scala docs for this project.
     Compile / doc / sources := Seq.empty,
-    Compile / packageDoc / mappings := Seq.empty,
-    Compile / packageDoc / publishArtifact := false,
     libraryDependencies ++= truffleDeps ++ Seq(kryo, woodstox, commonsText) ++ poiDeps
+  )
+  .settings(
+    name := "raw-runtime-rql2-truffle",
+    dummyJavadocJarTask := {
+      val artifactName = "raw-runtime-rql2-truffle"
+      val targetDir = (Compile / target).value
+      val jarFile = targetDir / s"$artifactName-javadoc.jar"
+
+      val readme = new File(targetDir, "README")
+      val writer = new PrintWriter(readme)
+      writer.write("This is a placeholder for javadoc.")
+      writer.close()
+
+      val jar = new JarOutputStream(new FileOutputStream(jarFile))
+      val entry = new JarEntry("README")
+      jar.putNextEntry(entry)
+
+      val in = new FileInputStream(readme)
+      val buffer = new Array[Byte](1024)
+      var n = in.read(buffer)
+      while(n != -1) {
+        jar.write(buffer, 0, n)
+        n = in.read(buffer)
+      }
+      in.close()
+
+      jar.closeEntry()
+      jar.close()
+
+      jarFile
+    },
+    Compile / packageDoc := dummyJavadocJarTask.value
   )
 
 lazy val rawCompilerRql2Truffle = (project in file("raw-compiler-rql2-truffle"))
