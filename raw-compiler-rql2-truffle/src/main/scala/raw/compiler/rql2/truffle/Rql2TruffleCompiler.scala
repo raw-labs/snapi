@@ -25,13 +25,14 @@ import raw.compiler.common.source.{Exp, IdnExp, SourceNode, SourceProgram}
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonRecurse}
+import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonRecurse, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
 import raw.compiler.{CompilerException, ProgramSettings}
 import raw.runtime.Entrypoint
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
 import raw.runtime.truffle.ast._
+import raw.runtime.truffle.ast.binary.{BinaryBytesWriterNode, BinaryWriterNode}
 import raw.runtime.truffle.ast.controlflow._
 import raw.runtime.truffle.ast.csv.writer.{CsvIterableWriterNode, CsvListWriterNode}
 import raw.runtime.truffle.ast.expressions.binary._
@@ -258,6 +259,13 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             bodyExpNode,
             JsonRecurse.recurseJsonWriter(tree.analyzer.tipe(me.get).asInstanceOf[Rql2TypeWithProperties])
           )
+        )
+      case "binary" =>
+        val writer = TruffleBinaryWriter(tree.analyzer.tipe(me.get).asInstanceOf[Rql2BinaryType])
+        new ProgramStatementNode(
+          RawLanguage.getCurrentContext.getLanguage,
+          frameDescriptor,
+          new BinaryWriterNode(bodyExpNode, writer)
         )
       case null | "" => new ProgramExpressionNode(
           RawLanguage.getCurrentContext.getLanguage,
