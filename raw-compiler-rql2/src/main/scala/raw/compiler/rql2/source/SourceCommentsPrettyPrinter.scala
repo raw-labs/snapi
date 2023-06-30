@@ -12,15 +12,14 @@
 
 package raw.compiler.rql2.source
 
-import java.util
 import org.bitbucket.inkytonik.kiama.output.{LeftAssoc, NonAssoc, PrettyExpression, RightAssoc}
 import org.bitbucket.inkytonik.kiama.util.Trampolines.Done
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import raw.compiler.base.source.BaseNode
-import raw.compiler.common.source.{IdnDef, IdnExp}
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{CommentsSyntaxAnalyzer, NodeComments}
 
+import java.util
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 

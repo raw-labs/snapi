@@ -16,16 +16,14 @@ import com.oracle.truffle.api.frame.FrameDescriptor
 import raw.compiler.rql2.builtin.{BinaryBase64Entry, BinaryReadEntry, FromStringBinaryEntryExtension}
 import raw.compiler.rql2.source.{Rql2BinaryType, Rql2IsNullableTypeProperty, Rql2IsTryableTypeProperty}
 import raw.compiler.rql2.truffle.TruffleShortEntryExtension
-import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.ProgramStatementNode
 import raw.runtime.truffle.ast.binary.{BinaryBytesWriterNode, NullableBinaryWriterNode, TryableBinaryWriterNode}
 import raw.runtime.truffle.ast.expressions.builtin.binary_package.{
   BinaryBase64NodeGen,
-  BinaryFromStringNode,
   BinaryFromStringNodeGen,
   BinaryReadNodeGen
 }
-import raw.runtime.truffle.ast.expressions.literals.DoubleNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 
 class TruffleFromStringBinaryEntryExtension extends FromStringBinaryEntryExtension with TruffleShortEntryExtension {
 

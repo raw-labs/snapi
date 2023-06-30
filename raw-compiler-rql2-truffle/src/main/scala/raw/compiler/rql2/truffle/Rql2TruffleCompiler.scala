@@ -32,7 +32,7 @@ import raw.runtime.Entrypoint
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
 import raw.runtime.truffle.ast._
-import raw.runtime.truffle.ast.binary.{BinaryBytesWriterNode, BinaryWriterNode}
+import raw.runtime.truffle.ast.binary.BinaryWriterNode
 import raw.runtime.truffle.ast.controlflow._
 import raw.runtime.truffle.ast.csv.writer.{CsvIterableWriterNode, CsvListWriterNode}
 import raw.runtime.truffle.ast.expressions.binary._
@@ -411,8 +411,6 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
         case _: Rql2ListType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: FunType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: Rql2RecordType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case Rql2UndefinedType(props) if props.nonEmpty =>
-          getFrameDescriptorBuilder().addSlot(FrameSlotKind.Byte, getIdnName(entity), null)
       }
       addSlot(entity, slot)
       WriteLocalVariableNodeGen.create(recurseExp(e), slot, rql2Type)
