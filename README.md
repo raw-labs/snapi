@@ -218,3 +218,62 @@ The main areas of work are:
 * Improvements to the dynamic typing system and staged compiler.
 
 If you are interested in collaborating in any of these topics, [please get in touch](https://discord.com/invite/AwFHYThJeh).
+
+# Development notes for contributors
+
+## IntelliJ
+
+The following are some notes in setting up a development environment in IntelliJ.
+
+### First import
+
+Before starting:
+* You will need a GraalVM distribution installed in your machine. Refer to [Building and running Snapi](#building-and-running-snapi) for more information;
+* Install/Enable the Scala plugin in Intellij.
+
+To setup the project in Intellij, we recommend cloning the repo and opening it with "Import project from existing sources".
+You can choose to import as an "SBT" project, but we found that "BSP" with "SBT" also works well.
+
+If Intellij prompts you to use 'scalafmt', say "Yes" as this is our code formatter.
+
+A few more settings are required (for Truffle):
+- Set "Enable Annotation Processing" to true (as Truffle uses annotations to generate code).
+- Edit the `Scalatest` Run/Debug configuration to add the following VM options:
+`-Dpolyglot.engine.Inlining=false -Dpolyglot.engine.CompileImmediately=true -Dpolyglot.engine.AllowExperimentalOptions=true -Dgraal.Dump=Truffle:2 -Dgraal.PrintGraph=Network -Dpolyglot.engine.BackgroundCompilation=false -Dpolyglot.engine.TraceCompilation=true -Dpolyglot.engine.TraceCompilationDetails=true -Dgraalvm.locatorDisabled=true --add-exports org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED --add-exports org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED --add-exports java.base/jdk.internal.module=ALL-UNNAMED`
+
+### Scala coding guidelines
+
+For general Scala coding guidelines, refer to the [Databricks Scala Guide](https://github.com/databricks/scala-style-guide).
+
+### Scala code formatting
+
+We use [scalafmt](https://scalameta.org/scalafmt/) to format code.
+The scalafmt rules are defined [here](./.scalafmt.conf) and should be automatically loaded by sbt or IntelliJ.
+
+To use it manually, run:
+```bash
+sbt scalafmtCheckAll
+sbt scalafmtAll
+```
+
+The CI checks that the code follows the expected standard.
+
+The CI checks that Java and Scala files in the compiler folder follow the proper copyright.
+
+For this you may want to set Intellj to automatically add Copyright information.
+To do so:
+- In Intellij settings, create a new "Copyright Profile". Call it "RAW Labs BSL". Add the following copyright template test to it:
+```
+Copyright $today.year RAW Labs S.A.
+
+Use of this software is governed by the Business Source License
+included in the file licenses/BSL.txt.
+
+As of the Change Date specified in that file, in accordance with
+the Business Source License, use of this software will be governed
+by the Apache License, Version 2.0, included in the file
+licenses/APL.txt.
+```
+- Then, under Copyright, make it the Default Profile.
+- Then, still under Copyright, create a new Scope, choose "All", and choose the RAW Labs BSL profile.
+- That is it; there is no need to configure how the Copyright is rendered in Scala or Java since Intellij's default options matches ours.
