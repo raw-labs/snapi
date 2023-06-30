@@ -15,6 +15,9 @@ import Dependencies._
 
 publish / skip := true // don't publish the root project
 
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+
 val licenseHeader = s"""Copyright ${Year.now.getValue} RAW Labs S.A.
 
 Use of this software is governed by the Business Source License
@@ -68,8 +71,6 @@ lazy val buildSettings = Seq(
   licenses := List(
   "Business Source License 1.1" -> new URL("https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt")
   ),
-  sonatypeCredentialHost := "s01.oss.sonatype.org",
-  sonatypeRepository := "https://s01.oss.sonatype.org/service/local",
   startYear := Some(2023),
   headerLicense := Some(HeaderLicense.Custom(licenseHeader)),
   scalaVersion := Dependencies.scalacVersion,
