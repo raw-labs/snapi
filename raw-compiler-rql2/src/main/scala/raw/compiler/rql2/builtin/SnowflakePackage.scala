@@ -125,7 +125,7 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
+    val db = FunAppArg(StringConst(getStringValue(mandatoryArgs.head)), None)
     val schema = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val table = FunAppArg(StringConst(getStringValue(mandatoryArgs(2))), None)
     val readType = FunAppArg(TypeExp(t), None)
@@ -161,7 +161,7 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
       SqlTableInputFormatDescriptor(_, _, _, _, tipe) = inputFormatDescriptor
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      inferTypeToRql2Type(tipe, makeNullable = false, makeTryable = false)
     }
   }
 }
@@ -367,7 +367,7 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
       inputFormatDescriptor <- programContext.infer(inferrerProperties);
       SqlQueryInputFormatDescriptor(_, _, tipe) = inputFormatDescriptor
     ) yield {
-      inferTypeToRql2Type(tipe, false, false)
+      inferTypeToRql2Type(tipe, makeNullable = false, makeTryable = false)
     }
   }
 
@@ -378,7 +378,7 @@ class SnowflakeInferAndQueryEntry extends SugarEntryExtension with SqlTableExten
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val db = FunAppArg(StringConst(getStringValue(mandatoryArgs(0))), None)
+    val db = FunAppArg(StringConst(getStringValue(mandatoryArgs.head)), None)
     val query = FunAppArg(StringConst(getStringValue(mandatoryArgs(1))), None)
     val readType = FunAppArg(TypeExp(t), None)
     val optArgs = optionalArgs.map {

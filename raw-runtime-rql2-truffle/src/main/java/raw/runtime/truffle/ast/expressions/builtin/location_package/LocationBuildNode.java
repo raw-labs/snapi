@@ -19,8 +19,6 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.rql2.source.Rql2IntType;
-import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
@@ -42,7 +40,7 @@ import java.time.Duration;
 @NodeInfo(shortName = "Location.Build")
 public class LocationBuildNode extends ExpressionNode {
 
-    private String[] keys;
+    private final String[] keys;
     @Child
     private ExpressionNode url;
 

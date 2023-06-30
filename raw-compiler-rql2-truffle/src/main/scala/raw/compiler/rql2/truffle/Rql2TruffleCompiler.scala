@@ -308,15 +308,15 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
 
   private val entityDepth = mutable.HashMap[Entity, Int]()
 
-  def setEntityDepth(e: Entity): Unit = {
-    entityDepth.put(e, getCurrentDepth())
+  private def setEntityDepth(e: Entity): Unit = {
+    entityDepth.put(e, getCurrentDepth)
   }
 
-  def getEntityDepth(e: Entity): Int = {
+  private def getEntityDepth(e: Entity): Int = {
     entityDepth(e)
   }
 
-  def getCurrentDepth(): Int = {
+  private def getCurrentDepth: Int = {
     slotMapScope.length
   }
   private def getIdnName(entity: Entity): String = {
@@ -334,12 +334,12 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     frameDescriptorBuilder.build()
   }
 
-  private def getFrameDescriptorBuilder(): FrameDescriptor.Builder = {
-    frameDescriptorBuilderScope(0)
+  private def getFrameDescriptorBuilder: FrameDescriptor.Builder = {
+    frameDescriptorBuilderScope.head
   }
 
-  def addSlot(entity: Entity, slot: Int): Unit = {
-    slotMapScope(0).put(entity, slot)
+  private def addSlot(entity: Entity, slot: Int): Unit = {
+    slotMapScope.head.put(entity, slot)
   }
 
 //  def addParam(idn: String, idx: Int)
@@ -366,7 +366,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     funcMap.getOrElseUpdate(entity, { funcCounter += 1; s"func${uniqueID}_$funcCounter" })
   }
 
-  private def getLambdaFuncIdn(): String = {
+  private def getLambdaFuncIdn: String = {
     funcCounter += 1
     s"func${uniqueID}_$funcCounter"
   }
@@ -384,27 +384,27 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       }
 
       val slot = rql2Type match {
-        case _: Rql2UndefinedType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2ByteType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Byte, getIdnName(entity), null)
-        case _: Rql2ShortType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Int, getIdnName(entity), null)
-        case _: Rql2IntType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Int, getIdnName(entity), null)
-        case _: Rql2LongType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Long, getIdnName(entity), null)
-        case _: Rql2FloatType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Float, getIdnName(entity), null)
-        case _: Rql2DoubleType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Double, getIdnName(entity), null)
-        case _: Rql2DecimalType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2BoolType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Boolean, getIdnName(entity), null)
-        case _: Rql2StringType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2DateType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2TimeType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2TimestampType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2IntervalType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2BinaryType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2IterableType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2ListType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: FunType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
-        case _: Rql2RecordType => getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2UndefinedType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2ByteType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Byte, getIdnName(entity), null)
+        case _: Rql2ShortType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Int, getIdnName(entity), null)
+        case _: Rql2IntType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Int, getIdnName(entity), null)
+        case _: Rql2LongType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Long, getIdnName(entity), null)
+        case _: Rql2FloatType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Float, getIdnName(entity), null)
+        case _: Rql2DoubleType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Double, getIdnName(entity), null)
+        case _: Rql2DecimalType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2BoolType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Boolean, getIdnName(entity), null)
+        case _: Rql2StringType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2DateType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2TimeType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2TimestampType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2IntervalType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2BinaryType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2IterableType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2ListType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: FunType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2RecordType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case Rql2UndefinedType(props) if props.nonEmpty =>
-          getFrameDescriptorBuilder().addSlot(FrameSlotKind.Byte, getIdnName(entity), null)
+          getFrameDescriptorBuilder.addSlot(FrameSlotKind.Byte, getIdnName(entity), null)
       }
       addSlot(entity, slot)
       WriteLocalVariableNodeGen.create(recurseExp(e), slot, rql2Type)
@@ -415,7 +415,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       val functionLiteralNode = new ClosureNode(f)
 
       // Only then add to slot.
-      val slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+      val slot = getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
       addSlot(entity, slot)
 
       WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null)
@@ -424,7 +424,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       val funcName = getFuncIdn(entity)
 
       // Add first the slot to the frame.
-      val slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+      val slot = getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
       addSlot(entity, slot)
 
       val f = recurseFunProto(funcName, fp)
@@ -450,7 +450,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
   }
 
   override def recurseLambda(buildBody: () => ExpressionNode): ClosureNode = {
-    val name = getLambdaFuncIdn()
+    val name = getLambdaFuncIdn
 
     //    val funcFrameDescriptorBuilder = FrameDescriptor.newBuilder()
     addScope()
@@ -519,7 +519,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
             ReadClosureVariableNodeGen.create(depth, slot, analyzer.idnType(f.f.i).asInstanceOf[Rql2Type])
           }
         case f: FunParamEntity =>
-          val depth = getCurrentDepth() - getEntityDepth(f)
+          val depth = getCurrentDepth - getEntityDepth(f)
           if (depth == 0) {
             val tree.parent(FunProto(ps, _, _)) = f.f
             val idx = ps.indexOf(f.f)
@@ -534,7 +534,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     case Proj(r, f) => RecordProjNodeGen.create(recurseExp(r), new StringNode(f))
     case Let(decls, e) => new ExpBlockNode(decls.map(recurseLetDecl).toArray, recurseExp(e))
     case FunAbs(fp) =>
-      val funcName = getLambdaFuncIdn()
+      val funcName = getLambdaFuncIdn
       val f = recurseFunProto(funcName, fp)
       new ClosureNode(f)
     case f @ FunApp(e, args) if tipe(e).isInstanceOf[PackageEntryType] =>
@@ -545,16 +545,15 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
         .getPackage(pkgName)
         .get
         .getEntries(entName)
-        .collect {
+        .collectFirst {
           case e: TruffleEntryExtension =>
-//          if (e.isLowLevelTruffle) {
+            //          if (e.isLowLevelTruffle) {
             e.toTruffle(t, args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn)), this)
-//          } else {
-//            // Build all arguments and call it.
-//            e.toTruffle(t, args.map(arg => TruffleArg(recurseExp(arg.e), analyzer.tipe(arg.e), arg.idn)))
-//          }
+          //          } else {
+          //            // Build all arguments and call it.
+          //            e.toTruffle(t, args.map(arg => TruffleArg(recurseExp(arg.e), analyzer.tipe(arg.e), arg.idn)))
+          //          }
         }
-        .headOption
         .getOrElse(throw new Exception(s"Could not find package entry: $pkgName.$entName"))
     case FunApp(f, args) => new InvokeNode(recurseExp(f), args.map(arg => recurseExp(arg.e)).toArray)
   }

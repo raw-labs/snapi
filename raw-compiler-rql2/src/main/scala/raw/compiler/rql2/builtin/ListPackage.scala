@@ -13,7 +13,7 @@
 package raw.compiler.rql2.builtin
 
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
-import raw.compiler.base.errors.{BaseError, InvalidSemantic}
+import raw.compiler.base.errors.BaseError
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -64,7 +64,7 @@ class EmptyListEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val TypeArg(itemType) = mandatoryArgs(0)
+    val TypeArg(itemType) = mandatoryArgs.head
     Right(Rql2ListType(itemType))
   }
 
@@ -95,7 +95,7 @@ class BuildListEntry extends EntryExtension {
     idx match {
       case 0 => Right(ExpParam(AnythingType()))
       case _ =>
-        val ExpArg(_, t) = prevVarArgs(0)
+        val ExpArg(_, t) = prevVarArgs.head
         Right(ExpParam(MergeableType(t)))
     }
   }
@@ -152,7 +152,7 @@ class GetListEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2ListType(itemType, _)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2ListType(itemType, _)) = mandatoryArgs.head
     Right(addProp(itemType, Rql2IsTryableTypeProperty()))
   }
 
@@ -212,7 +212,7 @@ class FilterListEntry extends EntryExtension with PredicateNormalization with Li
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(flexiblePredicateOn(innerType)))
     }
@@ -223,7 +223,7 @@ class FilterListEntry extends EntryExtension with PredicateNormalization with Li
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, g) = mandatoryArgs(0)
+    val ExpArg(_, g) = mandatoryArgs.head
     Right(g)
   }
 
@@ -262,7 +262,7 @@ class TransformListEntry extends EntryExtension with ListToCollectionHint {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = idx match {
     case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
     case 1 =>
-      val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+      val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
       assert(props.isEmpty, "Should have been handled as per arg 0 definition")
       Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
   }
@@ -309,7 +309,7 @@ class TakeListEntry extends EntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, g) = mandatoryArgs(0)
+    val ExpArg(_, g) = mandatoryArgs.head
     Right(g)
   }
 
@@ -436,7 +436,7 @@ class FindFirstListEntry extends SugarEntryExtension with PredicateNormalization
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(flexiblePredicateOn(innerType)))
     }
@@ -447,7 +447,7 @@ class FindFirstListEntry extends SugarEntryExtension with PredicateNormalization
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2ListType(itemType, _)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2ListType(itemType, _)) = mandatoryArgs.head
     Right(addProp(itemType, Rql2IsNullableTypeProperty()))
   }
 
@@ -458,7 +458,7 @@ class FindFirstListEntry extends SugarEntryExtension with PredicateNormalization
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    ListPackageBuilder.First(ListPackageBuilder.Filter(args(0).e, args(1).e))
+    ListPackageBuilder.First(ListPackageBuilder.Filter(args.head.e, args(1).e))
   }
 
 }
@@ -515,7 +515,7 @@ class FindLastListEntry extends SugarEntryExtension with PredicateNormalization 
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(flexiblePredicateOn(innerType)))
     }
@@ -526,7 +526,7 @@ class FindLastListEntry extends SugarEntryExtension with PredicateNormalization 
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2ListType(itemType, _)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2ListType(itemType, _)) = mandatoryArgs.head
     Right(addProp(itemType, Rql2IsNullableTypeProperty()))
   }
 
@@ -537,7 +537,7 @@ class FindLastListEntry extends SugarEntryExtension with PredicateNormalization 
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    ListPackageBuilder.Last(ListPackageBuilder.Filter(args(0).e, args(1).e))
+    ListPackageBuilder.Last(ListPackageBuilder.Filter(args.head.e, args(1).e))
   }
 
 }
@@ -628,7 +628,7 @@ class ExplodeListEntry extends SugarEntryExtension with RecordMerging with ListT
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(
           ExpParam(
@@ -652,7 +652,7 @@ class ExplodeListEntry extends SugarEntryExtension with RecordMerging with ListT
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2ListType(leftRowType, props)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2ListType(leftRowType, props)) = mandatoryArgs.head
     val ExpArg(_, FunType(_, _, Rql2ListType(rightRowType, _), _)) = mandatoryArgs(1)
     val outRowType = rql2JoinOutputRowType(leftRowType, rightRowType)
     Right(Rql2ListType(outRowType, props))
@@ -665,8 +665,8 @@ class ExplodeListEntry extends SugarEntryExtension with RecordMerging with ListT
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val Rql2ListType(leftRowType, _) = mandatoryArgs(0).t
-    val left = CollectionPackageBuilder.From(args(0).e)
+    val Rql2ListType(leftRowType, _) = mandatoryArgs.head.t
+    val left = CollectionPackageBuilder.From(args.head.e)
     val unnestFunction = {
       val idn = IdnDef()
       FunAbs(
@@ -696,7 +696,7 @@ class UnnestListEntry extends SugarEntryExtension with ListToCollectionHint {
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(
           ExpParam(
@@ -720,7 +720,7 @@ class UnnestListEntry extends SugarEntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val Rql2ListType(_, props) = mandatoryArgs(0).t
+    val Rql2ListType(_, props) = mandatoryArgs.head.t
     assert(props.isEmpty, "Should have been handled as per arg 1 definition")
     val FunType(_, _, Rql2ListType(outputRowType, _), _) = mandatoryArgs(1).t
     Right(Rql2ListType(outputRowType))
@@ -733,8 +733,8 @@ class UnnestListEntry extends SugarEntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val Rql2ListType(leftRowType, _) = mandatoryArgs(0).t
-    val left = CollectionPackageBuilder.From(args(0).e)
+    val Rql2ListType(leftRowType, _) = mandatoryArgs.head.t
+    val left = CollectionPackageBuilder.From(args.head.e)
     val unnestFunction = {
       val idn = IdnDef()
       FunAbs(
@@ -776,7 +776,7 @@ class FromListEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2IterableType(itemType, _)) = mandatoryArgs.head
     Right(Rql2ListType(itemType, Set(Rql2IsTryableTypeProperty())))
   }
 
@@ -801,7 +801,7 @@ class UnsafeFromListEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2IterableType(itemType, _)) = mandatoryArgs.head
     Right(Rql2ListType(itemType))
   }
 
@@ -837,7 +837,7 @@ class GroupListEntry extends EntryExtension with ListToCollectionHint {
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
     }
@@ -849,7 +849,7 @@ class GroupListEntry extends EntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
-    val listType = mandatoryArgs(0).t
+    val listType = mandatoryArgs.head.t
     val ExpArg(keyFunction, FunType(_, _, keyType, props)) = mandatoryArgs(1)
     assert(props.isEmpty, "Should have been handled as per arg 1 definition")
     if (isComparable(keyType)) Right(
@@ -922,7 +922,7 @@ class JoinListEntry
     idx match {
       case 0 | 1 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 2 =>
-        val ExpArg(_, Rql2ListType(leftRowType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(leftRowType, _)) = prevMandatoryArgs.head
         val ExpArg(_, Rql2ListType(rightRowType, _)) = prevMandatoryArgs(1)
         val outType = rql2JoinOutputRowType(leftRowType, rightRowType)
         Right(ExpParam(OneOfType(flexiblePredicateOn(outType), flexiblePredicateOn(Vector(leftRowType, rightRowType)))))
@@ -934,7 +934,7 @@ class JoinListEntry
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val ExpArg(_, Rql2ListType(leftRowType, _)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2ListType(leftRowType, _)) = mandatoryArgs.head
     val ExpArg(_, Rql2ListType(rightRowType, _)) = mandatoryArgs(1)
     val outType = rql2JoinOutputRowType(leftRowType, rightRowType)
     Right(Rql2ListType(outType))
@@ -947,7 +947,7 @@ class JoinListEntry
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val left = CollectionPackageBuilder.From(args(0).e)
+    val left = CollectionPackageBuilder.From(args.head.e)
     val right = CollectionPackageBuilder.From(args(1).e)
     val predicate = args(2).e
     ListPackageBuilder.UnsafeFrom(CollectionPackageBuilder.Join(left, right, predicate))
@@ -998,7 +998,7 @@ class EquiJoinListEntry extends SugarEntryExtension with RecordMerging with List
     idx match {
       case 0 | 1 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 2 =>
-        val ExpArg(_, Rql2ListType(innerType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, _)) = prevMandatoryArgs.head
         Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
       case 3 =>
         val ExpArg(_, Rql2ListType(innerType, _)) = prevMandatoryArgs(1)
@@ -1013,7 +1013,7 @@ class EquiJoinListEntry extends SugarEntryExtension with RecordMerging with List
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
-    val ExpArg(_, Rql2ListType(leftRowType, _)) = mandatoryArgs(0)
+    val ExpArg(_, Rql2ListType(leftRowType, _)) = mandatoryArgs.head
     val ExpArg(_, Rql2ListType(rightRowType, _)) = mandatoryArgs(1)
     val ExpArg(keyFunction1, FunType(_, _, keyType1, _)) = mandatoryArgs(2)
     val ExpArg(keyFunction2, FunType(_, _, keyType2, _)) = mandatoryArgs(3)
@@ -1032,7 +1032,7 @@ class EquiJoinListEntry extends SugarEntryExtension with RecordMerging with List
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val left = CollectionPackageBuilder.From(args(0).e)
+    val left = CollectionPackageBuilder.From(args.head.e)
     val right = CollectionPackageBuilder.From(args(1).e)
     val leftKey = args(2).e
     val rightKey = args(3).e
@@ -1072,7 +1072,7 @@ class OrderByListEntry extends SugarEntryExtension with ListToCollectionHint {
   override def hasVarArgs: Boolean = true
 
   override def getVarParam(prevMandatoryArgs: Seq[Arg], prevVarArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+    val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
     assert(props.isEmpty, "Should have been handled as per arg 0 definition")
     if (idx % 2 == 0) Right(ExpParam(FunType(Vector(innerType), Vector.empty, AnythingType())))
     else Right(ValueParam(Rql2StringType()))
@@ -1087,15 +1087,15 @@ class OrderByListEntry extends SugarEntryExtension with ListToCollectionHint {
     val (orders, keyFunctions) = varArgs.partition(_.t.isInstanceOf[Rql2StringType])
     if (orders.size != keyFunctions.size) return Left(Seq(OrderSpecMustFollowOrderingFunction(node)))
     val keyErrors = for (
-      ExpArg(arg, FunType(_, _, keyType, _)) <- keyFunctions;
+      ExpArg(arg, FunType(_, _, keyType, _)) <- keyFunctions
       if !isComparable(keyType)
     ) yield KeyNotComparable(arg)
     val orderErrors = for (
-      ValueArg(value @ StringValue(order), _) <- orders;
+      ValueArg(value @ StringValue(order), _) <- orders
       if !Set("ASC", "DESC").contains(order.toUpperCase)
     ) yield InvalidOrderSpec(node, order)
     val errors = keyErrors ++ orderErrors
-    if (errors.isEmpty) Right(mandatoryArgs(0).t)
+    if (errors.isEmpty) Right(mandatoryArgs.head.t)
     else Left(errors)
   }
 
@@ -1146,8 +1146,8 @@ class DistinctListEntry extends SugarEntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
-    val ExpArg(list, Rql2ListType(itemType, _)) = mandatoryArgs(0)
-    if (isComparable(itemType)) Right(mandatoryArgs(0).t)
+    val ExpArg(list, Rql2ListType(itemType, _)) = mandatoryArgs.head
+    if (isComparable(itemType)) Right(mandatoryArgs.head.t)
     else Left(Seq(ItemsNotComparable(list)))
   }
 
@@ -1160,7 +1160,7 @@ class DistinctListEntry extends SugarEntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    ListPackageBuilder.UnsafeFrom(CollectionPackageBuilder.Distinct(CollectionPackageBuilder.From(args(0).e)))
+    ListPackageBuilder.UnsafeFrom(CollectionPackageBuilder.Distinct(CollectionPackageBuilder.From(args.head.e)))
   }
 }
 
@@ -1189,7 +1189,7 @@ class UnionListEntry extends SugarEntryExtension with ListToCollectionHint {
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, t) = prevMandatoryArgs(0)
+        val ExpArg(_, t) = prevMandatoryArgs.head
         Right(ExpParam(MergeableType(t)))
     }
   }
@@ -1199,7 +1199,7 @@ class UnionListEntry extends SugarEntryExtension with ListToCollectionHint {
       prevVarArgs: Seq[Arg],
       idx: Int
   ): Either[String, Param] = {
-    val ExpArg(_, t) = prevMandatoryArgs(0)
+    val ExpArg(_, t) = prevMandatoryArgs.head
     Right(ExpParam(MergeableType(t)))
   }
 
@@ -1269,7 +1269,7 @@ class AvgListEntry extends SugarEntryExtension with ListToCollectionHint {
   )(implicit programContext: ProgramContext): Exp = {
     val sumAndCount = IdnDef()
     Let(
-      Vector(LetBind(CollectionPackageBuilder.TupleAvg(CollectionPackageBuilder.From(args(0).e)), sumAndCount, None)),
+      Vector(LetBind(CollectionPackageBuilder.TupleAvg(CollectionPackageBuilder.From(args.head.e)), sumAndCount, None)),
       BinaryExp(Div(), Proj(IdnExp(sumAndCount), "sum"), Proj(IdnExp(sumAndCount), "count"))
     )
   }
@@ -1315,7 +1315,7 @@ class ExistsListEntry extends EntryExtension with PredicateNormalization with Li
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, props)) = prevMandatoryArgs.head
         assert(props.isEmpty, "Should have been handled as per arg 0 definition")
         Right(ExpParam(flexiblePredicateOn(innerType)))
     }
@@ -1359,7 +1359,7 @@ class ContainsListEntry extends SugarEntryExtension with ListToCollectionHint {
     idx match {
       case 0 => Right(ExpParam(Rql2ListType(AnythingType())))
       case 1 =>
-        val ExpArg(_, Rql2ListType(innerType, _)) = prevMandatoryArgs(0)
+        val ExpArg(_, Rql2ListType(innerType, _)) = prevMandatoryArgs.head
         Right(ExpParam(innerType))
     }
   }
@@ -1370,7 +1370,7 @@ class ContainsListEntry extends SugarEntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
-    val ExpArg(list, Rql2ListType(itemType, _)) = mandatoryArgs(0)
+    val ExpArg(list, Rql2ListType(itemType, _)) = mandatoryArgs.head
     if (isComparable(itemType)) Right(Rql2BoolType())
     else Left(Seq(ItemsNotComparable(list)))
   }
@@ -1382,7 +1382,7 @@ class ContainsListEntry extends SugarEntryExtension with ListToCollectionHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val list = args(0).e
+    val list = args.head.e
     val predicate = {
       val x = IdnDef()
       FunAbs(FunProto(Vector(FunParam(x, None, None)), None, FunBody(BinaryExp(Eq(), IdnExp(x), args(1).e))))
@@ -1432,7 +1432,7 @@ class ZipListEntry extends SugarEntryExtension with CollectionToListHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val Rql2ListType(itemType1, _) = mandatoryArgs(0).t
+    val Rql2ListType(itemType1, _) = mandatoryArgs.head.t
     val Rql2ListType(itemType2, _) = mandatoryArgs(1).t
     Right(Rql2ListType(Rql2RecordType(Vector(Rql2AttrType("_1", itemType1), Rql2AttrType("_2", itemType2)))))
   }
@@ -1444,7 +1444,7 @@ class ZipListEntry extends SugarEntryExtension with CollectionToListHint {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
-    val it1 = CollectionPackageBuilder.From(args(0).e)
+    val it1 = CollectionPackageBuilder.From(args.head.e)
     val it2 = CollectionPackageBuilder.From(args(1).e)
     ListPackageBuilder.UnsafeFrom(CollectionPackageBuilder.Zip(it1, it2))
   }
@@ -1511,7 +1511,7 @@ class MkStringListEntry extends SugarEntryExtension with ListToCollectionHint {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
     // Turn the list into a collection and call Collection.MkString.
-    val collection = FunAppArg(CollectionPackageBuilder.From(args(0).e), None)
+    val collection = FunAppArg(CollectionPackageBuilder.From(args.head.e), None)
     val fixedArgs = collection +: args.tail
     FunApp(Proj(PackageIdnExp("Collection"), "MkString"), fixedArgs.toVector)
   }
