@@ -98,10 +98,6 @@ lazy val buildSettings = Seq(
   ),
   // Use cached resolution of dependencies
   updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
-  // Do not generate docs
-  //Compile / doc / sources := Seq.empty,
-  Compile / packageDoc / mappings := Seq.empty,
-  Compile / packageDoc / publishArtifact := false,
   // Ensure Java annotations get compiled first, so that they are accessible from Scala.
   compileOrder := CompileOrder.JavaThenScala,
   // The tests are run in a forked JVM.
@@ -437,7 +433,10 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
   )
   .settings(
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
+    // Do not generate scala docs for this project.
     Compile / doc / sources := Seq.empty,
+    Compile / packageDoc / mappings := Seq.empty,
+    Compile / packageDoc / publishArtifact := false,
     libraryDependencies ++= truffleDeps ++ Seq(kryo, woodstox, commonsText) ++ poiDeps
   )
 
