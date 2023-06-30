@@ -1,0 +1,11 @@
+[
+    {"country": "CH",
+     "products": [
+         {"category": "Keyboard", "cost": 50},
+         {"category": "Keyboard", "cost": 70},
+         {"category": "Monitor", "cost": 450}]},
+    {"country": "US",
+     "products": [
+        {"category": "Keyboard", "cost": 20},
+        {"category": "Monitor", "cost": 200}]}
+]

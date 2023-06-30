@@ -1,0 +1,25 @@
+name: Pull Request ChatOps
+on:
+  issue_comment:
+    types: [created]
+jobs:
+  publish-slash-command-dispatch:
+    runs-on: self-hosted
+    if: |
+      startsWith(github.event.comment.body, '/') &&
+      endsWith(github.event.comment.body, 'publish')
+    steps:
+      # publish
+      - uses: peter-evans/slash-command-dispatch@v3
+        id: deliver
+        with:
+          commands: publish
+          event-type-suffix: ''
+          token: ${{ secrets.RAW_CI_PAT }}
+      - name: edit comment with error message
+        if: steps.deliver.outputs.error-message
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          comment-id: ${{ github.event.comment.id }}
+          body: |
+            > ${{ steps.deliver.outputs.error-message }}

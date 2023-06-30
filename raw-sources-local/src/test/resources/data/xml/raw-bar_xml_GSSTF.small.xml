@@ -1,0 +1,1247 @@
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.01.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.01.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2041512596</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 19:36:08</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:21Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-02</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-01</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.02.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.02.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2683647671</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 19:49:54</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:21Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-03</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-02</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.03.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.03.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3514752970</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 17:15:59</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:21Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-04</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-03</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.04.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.04.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3032744154</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 21:37:13</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:21Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-05</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-04</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.05.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.05.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>635874911</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 18:05:52</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:21Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-06</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-05</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.06.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.06.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3464090439</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 17:05:33</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:21Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-07</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-06</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.07.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.07.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>4289203951</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 17:26:38</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:22Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-08</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-07</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.08.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.08.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2772212498</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 19:09:34</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:22Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-09</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-08</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.09.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.09.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2484763938</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-16 01:11:40</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:22Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-10</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-09</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.10.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.10.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3338781963</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 23:14:00</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:22Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-11</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-10</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.11.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.11.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>588182724</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 15:40:06</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:22Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-12</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-11</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.12.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.12.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>1829673719</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 19:24:41</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:23Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-13</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-12</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.13.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.13.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3454207245</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 22:58:02</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:23Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-14</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-13</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.14.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.14.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>938697161</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 21:53:46</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:23Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-15</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-14</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.15.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.15.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>560068183</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 16:29:34</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:23Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-16</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-15</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.16.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.16.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2834099478</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 23:48:09</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:23Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-17</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-16</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.17.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.17.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3219088221</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-16 01:10:56</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:23Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-18</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-17</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.18.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.18.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3531721468</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 17:45:22</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:24Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-19</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-18</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.19.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.19.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>583849201</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 23:34:45</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:24Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-20</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-19</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.20.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.20.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>525624904</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 18:55:34</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:24Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-21</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-20</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.21.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.21.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>1563966109</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 20:55:03</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:24Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-22</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-21</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.22.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.22.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>3388695090</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 21:59:41</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:24Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-23</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-22</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.23.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.23.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>1262293</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 17:40:07</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:25Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-24</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-23</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.24.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.24.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2660977241</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-16 00:46:37</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:25Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-25</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-24</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.25.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.25.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>1268778478</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 17:25:31</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:25Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-26</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-25</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.26.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.26.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>1360077452</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 18:55:45</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:25Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-27</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-26</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.27.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.27.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2997993009</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 19:38:56</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:25Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-28</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-27</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.28.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.28.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2328505029</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 20:52:38</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:25Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-29</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-28</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1987.07.29.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1987.07.29.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>416536310</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 19:13:38</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:24:26Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1987-07-30</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1987-07-29</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>

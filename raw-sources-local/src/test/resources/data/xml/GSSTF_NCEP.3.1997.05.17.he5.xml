@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<?xml-stylesheet type="text/xsl" href="ftp://measures.gsfc.nasa.gov/data/s4pa/S4paGran2HTML.xsl"?>
+<S4PAGranuleMetaDataFile>
+  <CollectionMetaData>
+    <Description>NCEP/DOE Reanalysis II in HDF-EOS5, relevant to GSSTF 025x025 degree Daily Grid, V3, (GSSTF_NCEP) at GES DISC</Description>
+    <LongName>NCEP/DOE Reanalysis II, for GSSTF, Daily Grid</LongName>
+    <ShortName>GSSTF_NCEP</ShortName>
+    <VersionID>3</VersionID>
+    <URL xmlns:xlink="http://www.w3.org/1999/xlink" xlink:type="simple" xlink:href="ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml" xlink:show="new" xlink:actuate="onRequest" xlink:title="Click to view GSSTF_NCEP collection">ftp://measures.gsfc.nasa.gov/data/s4pa/GSSTF/GSSTF_NCEP.3/GES_DISC_GSSTF_NCEP_3_dif.xml</URL>
+  </CollectionMetaData>
+  <DataGranule>
+    <GranuleID>GSSTF_NCEP.3.1997.05.17.he5</GranuleID>
+    <LocalGranuleID>GSSTF_NCEP.3.1997.05.17.he5</LocalGranuleID>
+    <Format>HDF-EOS5</Format>
+    <CheckSum>
+      <CheckSumType>CRC32</CheckSumType>
+      <CheckSumValue>2292399308</CheckSumValue>
+    </CheckSum>
+    <SizeBytesDataGranule>16631632</SizeBytesDataGranule>
+    <InsertDateTime>2013-05-15 15:42:36</InsertDateTime>
+    <ProductionDateTime>2013-05-15T00:42:00Z</ProductionDateTime>
+  </DataGranule>
+  <RangeDateTime>
+    <RangeEndingDate>1997-05-18</RangeEndingDate>
+    <RangeEndingTime>00:00:00</RangeEndingTime>
+    <RangeBeginningDate>1997-05-17</RangeBeginningDate>
+    <RangeBeginningTime>00:00:00</RangeBeginningTime>
+  </RangeDateTime>
+  <SpatialDomainContainer>
+    <HorizontalSpatialDomainContainer>
+      <BoundingRectangle>
+        <WestBoundingCoordinate>-180.0</WestBoundingCoordinate>
+        <NorthBoundingCoordinate>90.0</NorthBoundingCoordinate>
+        <EastBoundingCoordinate>180.0</EastBoundingCoordinate>
+        <SouthBoundingCoordinate>-90.0</SouthBoundingCoordinate>
+      </BoundingRectangle>
+    </HorizontalSpatialDomainContainer>
+  </SpatialDomainContainer>
+  <PSAs>
+    <PSA>
+      <PSAName>identifier_product_doi</PSAName>
+      <PSAValue>10.5067/MEASURES/GSSTF/DATA302</PSAValue>
+    </PSA>
+  </PSAs>
+</S4PAGranuleMetaDataFile>

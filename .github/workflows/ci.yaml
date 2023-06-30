@@ -1,0 +1,67 @@
+name: CI
+on:
+  pull_request:
+    paths:
+      - raw-*/**
+      - build.sbt
+      - project/**
+      - .github/workflows/CI.yaml
+  workflow_dispatch:
+
+env:
+  SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
+
+jobs:
+  code-checks:
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v3
+      - run: sbt headerCheckAll
+      - run: sbt scalafmtCheckAll
+  tests:
+    needs: code-checks
+    runs-on: self-hosted
+    env:
+      SBT_FORK_OUTPUT_DIR : test-results
+      COURSIER_PROGRESS : false
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      options: --user 1001 --cpus 6 --memory 32g
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: keithweaver/aws-s3-github-action@v1.0.0
+        with:
+          command: cp
+          source: s3://rawlabs-credentials/tests/.env 
+          destination: ./.env
+          aws_access_key_id: ${{ secrets.GHA_AWS_ACCESS_KEY_ID }}
+          aws_secret_access_key: ${{ secrets.GHA_AWS_SECRET_ACCESS_KEY }}
+          aws_region: eu-west-1
+      - run: ./rebuild.sh
+      - run: ./tests.sh
+      - uses: mikepenz/action-junit-report@v3
+        if: success() || failure()
+        with:
+          report_paths: ./**/test-reports/*.xml
+          detailed_summary: true
+      - uses: actions/upload-artifact@v3
+        with:
+          name: executor-logs
+          path: test-results/executor-logs
+          retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v3
+        with:
+          name: heap-dumps
+          path: test-results/heap-dumps
+          retention-days: 7
+          if-no-files-found: ignore

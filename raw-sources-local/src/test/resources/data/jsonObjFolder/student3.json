@@ -1,0 +1,9 @@
+{
+  "name": "Jane",
+  "age": 17,
+  "scores": [
+    {"course": "math", "score": 16.3},
+    {"course": "english", "score": 9.1},
+    {"course": "geography", "score": 11.7}
+  ]
+}

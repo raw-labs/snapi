@@ -1,0 +1,14 @@
+<top_level>
+    <values>
+        <_string>E</_string><_int>5</_int><_double>1.23</_double><_long>100000000000000001</_long>
+    </values>
+    <values>
+        <_string>F</_string><_int>6</_int><_double>2.23</_double><_long>100000000000000002</_long>
+    </values>
+    <values>
+        <_string>G</_string><_int>7</_int><_double>3.23</_double><_long>100000000000000003</_long>
+    </values>
+    <values>
+        <_string>H</_string><_int>8</_int><_double>4.23</_double><_long>100000000000000004</_long>
+    </values>
+</top_level>

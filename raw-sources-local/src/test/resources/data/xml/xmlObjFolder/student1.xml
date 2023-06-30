@@ -1,0 +1,7 @@
+<student>
+    <name>John</name>
+    <age>18</age>
+    <course><name>math</name> <score>12.3</score></course>
+    <course><name>english</name> <score>14.1</score></course>
+    <course><name>geography</name> <score>13.7</score></course>
+</student>

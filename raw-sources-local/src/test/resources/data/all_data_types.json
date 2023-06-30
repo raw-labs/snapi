@@ -1,0 +1,64 @@
+[
+  {
+    "_string": "foo",
+    "_optString": "foo",
+    "_arrayString": [
+      "foo1",
+      "bar2"
+    ],
+    "_int": 1,
+    "_optInt": 1,
+    "_arrayInt": [
+      -1,
+      0,
+      1,
+      42424242
+    ],
+    "_double": 1.0,
+    "_optDouble": 1.0,
+    "_arrayDouble": [
+      -1.0,
+      0.0,
+      1.0,
+      42424242.0
+    ],
+    "_boolean": true,
+    "_optBoolean": true,
+    "_arrayBoolean": [
+      true,
+      false,
+      true
+    ]
+  },
+  {
+    "_string": "foo",
+    "_optString": null,
+    "_arrayString": [
+      "foo1",
+      "bar2"
+    ],
+    "_int": 1,
+    "_optInt": null,
+    "_arrayInt": [
+      -1,
+      0,
+      1,
+      42424242
+    ],
+    "_double": 1.0,
+    "_optDouble": null,
+    "_arrayDouble": [
+      -1.0,
+      0.0,
+      1.0,
+      42424242.0
+    ],
+    "_boolean": true,
+    "_optBoolean": null,
+    "_arrayBoolean": [
+      true,
+      false,
+      true
+    ]
+  }
+]

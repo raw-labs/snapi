@@ -1,0 +1,3018 @@
+{
+  "expand": "schema,names",
+  "startAt": 50,
+  "maxResults": 50,
+  "total": 67,
+  "issues": [
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20255",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20255",
+      "key": "TJA-25",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T16:39:11.131+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-25/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T16:39:10.433+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "customfield_10614": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10244",
+            "id": "10244",
+            "name": "1.14.26_pr_RD-2328-scalafmt.14.2ff0c4b",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T16:39:10.433+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "RqlQueryRequest(034ca1ea-2145-4d13-8651-5a5bb087ed60-3,1,Map(output-format -> raw))\nHost: nuno-desktop\n\n{noformat}java.lang.Throwable: Testing crash report\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.doWriteTo(SparkExecutorSession.scala:676)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo(CompilerExecutorQuery.scala:31)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo$(CompilerExecutorQuery.scala:26)\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.writeTo(SparkExecutorSession.scala:643)\n\tat raw.executor.server.servlets.QueryStream$$anon$1.write(QueryStream.scala:23)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:55)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:37)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.invokeWriteTo(WriterInterceptorExecutor.java:242)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.aroundWriteTo(WriterInterceptorExecutor.java:227)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.JsonWithPaddingInterceptor.aroundWriteTo(JsonWithPaddingInterceptor.java:85)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.MappableExceptionWrapperInterceptor.aroundWriteTo(MappableExceptionWrapperInterceptor.java:61)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.message.internal.MessageBodyFactory.writeTo(MessageBodyFactory.java:1116)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.writeResponse(ServerRuntime.java:638)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.processResponse(ServerRuntime.java:371)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.process(ServerRuntime.java:361)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder$3.run(ServerRuntime.java:860)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:292)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:274)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:244)\n\tat org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:892)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:848)\n\tat raw.executor.server.TimeLimitedRequestExecutor$$anon$1.run(TimeLimitedRequestExecutor.scala:31)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "customfield_10603": [],
+        "aggregatetimeestimate": null,
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "SparkExecutorSession crash report: java.lang.Throwable: Testing crash report",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10002": "1|i001q7:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10400": null,
+        "customfield_10004": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-25/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20254",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20254",
+      "key": "TJA-24",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T16:05:36.525+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10621": null,
+        "customfield_10500": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-24/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T16:05:35.986+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10244",
+            "id": "10244",
+            "name": "1.14.26_pr_RD-2328-scalafmt.14.2ff0c4b",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T16:05:35.986+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "RqlQueryRequest(c8647ab4-9e0d-4766-b2b5-9ff607c415b5-3,1,Map(output-format -> raw))\n\n{noformat}java.lang.Throwable: Testing crash report\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.doWriteTo(SparkExecutorSession.scala:676)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo(CompilerExecutorQuery.scala:31)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo$(CompilerExecutorQuery.scala:26)\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.writeTo(SparkExecutorSession.scala:643)\n\tat raw.executor.server.servlets.QueryStream$$anon$1.write(QueryStream.scala:23)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:55)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:37)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.invokeWriteTo(WriterInterceptorExecutor.java:242)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.aroundWriteTo(WriterInterceptorExecutor.java:227)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.JsonWithPaddingInterceptor.aroundWriteTo(JsonWithPaddingInterceptor.java:85)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.MappableExceptionWrapperInterceptor.aroundWriteTo(MappableExceptionWrapperInterceptor.java:61)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.message.internal.MessageBodyFactory.writeTo(MessageBodyFactory.java:1116)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.writeResponse(ServerRuntime.java:638)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.processResponse(ServerRuntime.java:371)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.process(ServerRuntime.java:361)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder$3.run(ServerRuntime.java:860)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:292)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:274)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:244)\n\tat org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:892)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:848)\n\tat raw.executor.server.TimeLimitedRequestExecutor$$anon$1.run(TimeLimitedRequestExecutor.scala:31)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "customfield_10603": [],
+        "aggregatetimeestimate": null,
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "SparkExecutorSession crash report:  java.lang.Throwable: Testing crash report",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10002": "1|i001pz:",
+        "customfield_10003": null,
+        "customfield_10400": null,
+        "customfield_10004": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-24/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20253",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20253",
+      "key": "TJA-23",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T16:03:21.285+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-23/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T16:03:20.825+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "customfield_10614": null,
+        "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10244",
+            "id": "10244",
+            "name": "1.14.26_pr_RD-2328-scalafmt.14.2ff0c4b",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T16:03:20.825+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "RqlQueryRequest(d603d38c-a382-4b94-8cd2-6026f5f4b04f-3,1,Map(output-format -> raw))\n\n{noformat}java.lang.Throwable: Testing crash report\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.doWriteTo(SparkExecutorSession.scala:676)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo(CompilerExecutorQuery.scala:31)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo$(CompilerExecutorQuery.scala:26)\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.writeTo(SparkExecutorSession.scala:643)\n\tat raw.executor.server.servlets.QueryStream$$anon$1.write(QueryStream.scala:23)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:55)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:37)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.invokeWriteTo(WriterInterceptorExecutor.java:242)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.aroundWriteTo(WriterInterceptorExecutor.java:227)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.JsonWithPaddingInterceptor.aroundWriteTo(JsonWithPaddingInterceptor.java:85)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.MappableExceptionWrapperInterceptor.aroundWriteTo(MappableExceptionWrapperInterceptor.java:61)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.message.internal.MessageBodyFactory.writeTo(MessageBodyFactory.java:1116)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.writeResponse(ServerRuntime.java:638)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.processResponse(ServerRuntime.java:371)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.process(ServerRuntime.java:361)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder$3.run(ServerRuntime.java:860)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:292)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:274)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:244)\n\tat org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:892)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:848)\n\tat raw.executor.server.TimeLimitedRequestExecutor$$anon$1.run(TimeLimitedRequestExecutor.scala:31)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Error executing query.:  java.lang.Throwable: Testing crash report",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10002": "1|i001pr:",
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-23/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20252",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20252",
+      "key": "TJA-22",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T15:47:22.358+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10621": null,
+        "customfield_10500": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-22/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T15:47:21.834+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10614": null,
+        "timeestimate": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10243",
+            "id": "10243",
+            "name": "v1.14.26+pr/RD-2328-scalafmt.14.2ff0c4b",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T15:47:21.834+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Query: RqlQueryRequest(eb3bfec2-c53e-4376-b614-e99bcac7f81a-3,1,Map(output-format -> raw))\n\n{noformat}java.lang.Throwable: Testing crash report\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.doWriteTo(SparkExecutorSession.scala:676)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo(CompilerExecutorQuery.scala:31)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo$(CompilerExecutorQuery.scala:26)\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.writeTo(SparkExecutorSession.scala:643)\n\tat raw.executor.server.servlets.QueryStream$$anon$1.write(QueryStream.scala:23)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:55)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:37)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.invokeWriteTo(WriterInterceptorExecutor.java:242)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.aroundWriteTo(WriterInterceptorExecutor.java:227)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.JsonWithPaddingInterceptor.aroundWriteTo(JsonWithPaddingInterceptor.java:85)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.MappableExceptionWrapperInterceptor.aroundWriteTo(MappableExceptionWrapperInterceptor.java:61)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.message.internal.MessageBodyFactory.writeTo(MessageBodyFactory.java:1116)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.writeResponse(ServerRuntime.java:638)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.processResponse(ServerRuntime.java:371)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.process(ServerRuntime.java:361)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder$3.run(ServerRuntime.java:860)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:292)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:274)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:244)\n\tat org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:892)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:848)\n\tat raw.executor.server.TimeLimitedRequestExecutor$$anon$1.run(TimeLimitedRequestExecutor.scala:31)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Error executing query.",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10002": "1|i001pj:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-22/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20250",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20250",
+      "key": "TJA-21",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T13:56:52.066+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-21/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T13:56:51.454+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10243",
+            "id": "10243",
+            "name": "v1.14.26+pr/RD-2328-scalafmt.14.2ff0c4b",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T13:56:51.454+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Query: RqlQueryRequest(c62f3e69-f2d9-4cfb-98f0-2495d808034b-3,1,Map(output-format -> raw))\n\n{noformat}java.lang.Throwable: Testing crash report\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.doWriteTo(SparkExecutorSession.scala:676)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo(CompilerExecutorQuery.scala:31)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo$(CompilerExecutorQuery.scala:26)\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.writeTo(SparkExecutorSession.scala:643)\n\tat raw.executor.server.servlets.QueryStream$$anon$1.write(QueryStream.scala:23)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:55)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:37)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.invokeWriteTo(WriterInterceptorExecutor.java:242)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.aroundWriteTo(WriterInterceptorExecutor.java:227)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.JsonWithPaddingInterceptor.aroundWriteTo(JsonWithPaddingInterceptor.java:85)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.MappableExceptionWrapperInterceptor.aroundWriteTo(MappableExceptionWrapperInterceptor.java:61)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.message.internal.MessageBodyFactory.writeTo(MessageBodyFactory.java:1116)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.writeResponse(ServerRuntime.java:638)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.processResponse(ServerRuntime.java:371)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.process(ServerRuntime.java:361)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder$3.run(ServerRuntime.java:860)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:292)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:274)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:244)\n\tat org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:892)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:848)\n\tat raw.executor.server.TimeLimitedRequestExecutor$$anon$1.run(TimeLimitedRequestExecutor.scala:31)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "customfield_10603": [],
+        "aggregatetimeestimate": null,
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Error executing query.",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10002": "1|i001pb:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-21/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20249",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20249",
+      "key": "TJA-20",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T13:52:17.251+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10621": null,
+        "customfield_10500": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-20/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T13:52:16.831+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "customfield_10614": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10243",
+            "id": "10243",
+            "name": "v1.14.26+pr/RD-2328-scalafmt.14.2ff0c4b",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T13:52:16.831+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description\n\n{noformat}java.lang.Throwable: Testing crash report\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.doWriteTo(SparkExecutorSession.scala:674)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo(CompilerExecutorQuery.scala:31)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo$(CompilerExecutorQuery.scala:26)\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.writeTo(SparkExecutorSession.scala:643)\n\tat raw.executor.server.servlets.QueryStream$$anon$1.write(QueryStream.scala:23)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:55)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:37)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.invokeWriteTo(WriterInterceptorExecutor.java:242)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.aroundWriteTo(WriterInterceptorExecutor.java:227)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.JsonWithPaddingInterceptor.aroundWriteTo(JsonWithPaddingInterceptor.java:85)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.MappableExceptionWrapperInterceptor.aroundWriteTo(MappableExceptionWrapperInterceptor.java:61)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.message.internal.MessageBodyFactory.writeTo(MessageBodyFactory.java:1116)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.writeResponse(ServerRuntime.java:638)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.processResponse(ServerRuntime.java:371)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.process(ServerRuntime.java:361)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder$3.run(ServerRuntime.java:860)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:292)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:274)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:244)\n\tat org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:892)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:848)\n\tat raw.executor.server.TimeLimitedRequestExecutor$$anon$1.run(TimeLimitedRequestExecutor.scala:31)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Error executing query.",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10002": "1|i001p3:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-20/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20248",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20248",
+      "key": "TJA-19",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T13:31:35.121+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-19/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2021-05-10T13:31:34.750+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "customfield_10614": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10243",
+            "id": "10243",
+            "name": "v1.14.26+pr/RD-2328-scalafmt.14.2ff0c4b",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T13:31:34.750+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description\n\n{noformat}java.lang.Throwable: Testing JIRA reporting\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo(CompilerExecutorQuery.scala:34)\n\tat raw.executor.compiler.CompilerExecutorQuery.writeTo$(CompilerExecutorQuery.scala:27)\n\tat raw.executor.spark.SparkExecutorSession$WebSocketExecutorQuery.writeTo(SparkExecutorSession.scala:642)\n\tat raw.executor.server.servlets.QueryStream$$anon$1.write(QueryStream.scala:23)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:55)\n\tat org.glassfish.jersey.message.internal.StreamingOutputProvider.writeTo(StreamingOutputProvider.java:37)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.invokeWriteTo(WriterInterceptorExecutor.java:242)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor$TerminalWriterInterceptor.aroundWriteTo(WriterInterceptorExecutor.java:227)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.JsonWithPaddingInterceptor.aroundWriteTo(JsonWithPaddingInterceptor.java:85)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.server.internal.MappableExceptionWrapperInterceptor.aroundWriteTo(MappableExceptionWrapperInterceptor.java:61)\n\tat org.glassfish.jersey.message.internal.WriterInterceptorExecutor.proceed(WriterInterceptorExecutor.java:139)\n\tat org.glassfish.jersey.message.internal.MessageBodyFactory.writeTo(MessageBodyFactory.java:1116)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.writeResponse(ServerRuntime.java:638)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.processResponse(ServerRuntime.java:371)\n\tat org.glassfish.jersey.server.ServerRuntime$Responder.process(ServerRuntime.java:361)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder$3.run(ServerRuntime.java:860)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:248)\n\tat org.glassfish.jersey.internal.Errors$1.call(Errors.java:244)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:292)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:274)\n\tat org.glassfish.jersey.internal.Errors.process(Errors.java:244)\n\tat org.glassfish.jersey.process.internal.RequestScope.runInScope(RequestScope.java:265)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:892)\n\tat org.glassfish.jersey.server.ServerRuntime$AsyncResponder.resume(ServerRuntime.java:848)\n\tat raw.executor.server.TimeLimitedRequestExecutor$$anon$1.run(TimeLimitedRequestExecutor.scala:31)\n\tat java.base/java.util.concurrent.Executors$RunnableAdapter.call(Executors.java:515)\n\tat java.base/java.util.concurrent.FutureTask.run(FutureTask.java:264)\n\tat java.base/java.util.concurrent.ScheduledThreadPoolExecutor$ScheduledFutureTask.run(ScheduledThreadPoolExecutor.java:304)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor.runWorker(ThreadPoolExecutor.java:1128)\n\tat java.base/java.util.concurrent.ThreadPoolExecutor$Worker.run(ThreadPoolExecutor.java:628)\n\tat java.base/java.lang.Thread.run(Thread.java:834)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Error executing query.",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10002": "1|i001ov:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-19/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20247",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20247",
+      "key": "TJA-18",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T11:54:03.351+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-18/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2021-05-10T11:54:02.704+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10241",
+            "id": "10241",
+            "name": "v0.5",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T11:54:02.704+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:106)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10002": "1|i001on:",
+        "customfield_10003": null,
+        "customfield_10400": null,
+        "customfield_10004": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-18/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20246",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20246",
+      "key": "TJA-17",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T11:15:56.094+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-17/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T11:15:55.595+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10614": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10241",
+            "id": "10241",
+            "name": "v0.5",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T11:15:55.595+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:112)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "customfield_10603": [],
+        "aggregatetimeestimate": null,
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10002": "1|i001of:",
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-17/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20245",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20245",
+      "key": "TJA-16",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T11:01:38.742+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10621": null,
+        "customfield_10500": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-16/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2021-05-10T11:01:38.389+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10241",
+            "id": "10241",
+            "name": "v0.5",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T11:01:38.389+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:111)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10002": "1|i001o7:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10400": null,
+        "customfield_10004": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-16/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20244",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20244",
+      "key": "TJA-15",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T11:01:11.096+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10621": null,
+        "customfield_10500": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-15/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2021-05-10T11:01:10.628+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10241",
+            "id": "10241",
+            "name": "v0.5",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T11:01:10.628+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:111)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10002": "1|i001nz:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10400": null,
+        "customfield_10004": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-15/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20243",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20243",
+      "key": "TJA-14",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T09:58:54.577+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10621": null,
+        "customfield_10500": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-14/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2021-05-10T09:58:54.156+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10241",
+            "id": "10241",
+            "name": "v0.5",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T09:58:54.156+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:111)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10002": "1|i001nr:",
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-14/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20242",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20242",
+      "key": "TJA-13",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T09:57:50.304+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10621": null,
+        "customfield_10500": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "lastViewed": null,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-13/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "created": "2021-05-10T09:57:49.935+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "aggregatetimeoriginalestimate": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10241",
+            "id": "10241",
+            "name": "v0.5",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T09:57:49.935+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:111)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "customfield_10601": null,
+        "security": null,
+        "customfield_10602": null,
+        "customfield_10603": [],
+        "aggregatetimeestimate": null,
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10002": "1|i001nj:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-13/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20241",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20241",
+      "key": "TJA-12",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T09:51:23.615+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-12/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T09:51:23.177+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "timeestimate": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10614": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10242",
+            "id": "10242",
+            "name": "v0.51",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T09:51:23.177+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:111)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10604": null,
+        "customfield_10648": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10002": "1|i001nb:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-12/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20240",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20240",
+      "key": "TJA-11",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T09:39:31.920+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-11/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T09:39:31.347+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "customfield_10620": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10614": null,
+        "timeestimate": null,
+        "customfield_10615": [],
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10241",
+            "id": "10241",
+            "name": "v0.5",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T09:39:31.347+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:127)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10002": "1|i001n3:",
+        "customfield_10003": null,
+        "customfield_10004": null,
+        "customfield_10400": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-11/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20239",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20239",
+      "key": "TJA-10",
+      "fields": {
+        "statuscategorychangedate": "2021-05-10T09:36:35.564+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "customfield_10627": null,
+        "resolutiondate": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-10/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-10T09:36:35.165+0200",
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "customfield_10100": null,
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "timeestimate": null,
+        "customfield_10614": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10239",
+            "id": "10239",
+            "name": "v0.3",
+            "archived": false,
+            "released": true
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-10T09:36:35.165+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:131)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "aggregatetimeestimate": null,
+        "customfield_10603": [],
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=557058%3Abd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "accountId": "557058:bd133801-d4c6-44ce-9198-f82e084cc1b4",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "24x24": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "16x16": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png",
+            "32x32": "https://secure.gravatar.com/avatar/7646a0d613343f8bac6831a7e289918f?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FNS-3.png"
+          },
+          "displayName": "Nuno Santos",
+          "active": false,
+          "timeZone": "Europe/Paris",
+          "accountType": "atlassian"
+        },
+        "customfield_10000": null,
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10001": null,
+        "customfield_10002": "1|i001mv:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10400": null,
+        "customfield_10004": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-10/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    },
+    {
+      "expand": "operations,versionedRepresentations,editmeta,customfield_10602.requestTypePractice,changelog,renderedFields",
+      "id": "20238",
+      "self": "https://raw-labs.atlassian.net/rest/api/latest/issue/20238",
+      "key": "TJA-9",
+      "fields": {
+        "statuscategorychangedate": "2021-05-07T17:49:52.697+0200",
+        "issuetype": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issuetype/10004",
+          "id": "10004",
+          "description": "A problem which impairs or prevents the functions of the product.",
+          "iconUrl": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/issuetype/avatar/10303?size=medium",
+          "name": "Bug",
+          "subtask": false,
+          "avatarId": 10303,
+          "hierarchyLevel": 0
+        },
+        "timespent": null,
+        "project": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/project/10102",
+          "id": "10102",
+          "key": "TJA",
+          "name": "Testing JIRA API",
+          "projectTypeKey": "software",
+          "simplified": false,
+          "avatarUrls": {
+            "48x48": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857",
+            "24x24": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=small",
+            "16x16": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=xsmall",
+            "32x32": "https://raw-labs.atlassian.net/rest/api/2/universal_avatar/view/type/project/avatar/10857?size=medium"
+          }
+        },
+        "fixVersions": [],
+        "aggregatetimespent": null,
+        "resolution": null,
+        "customfield_10630": null,
+        "customfield_10631": null,
+        "customfield_10500": null,
+        "customfield_10621": null,
+        "resolutiondate": null,
+        "customfield_10627": null,
+        "customfield_10628": null,
+        "customfield_10629": null,
+        "workratio": -1,
+        "watches": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-9/watchers",
+          "watchCount": 1,
+          "isWatching": false
+        },
+        "lastViewed": null,
+        "created": "2021-05-07T17:49:52.135+0200",
+        "customfield_10100": null,
+        "priority": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/priority/3",
+          "iconUrl": "https://raw-labs.atlassian.net/images/icons/priorities/medium.svg",
+          "name": "Medium",
+          "id": "3"
+        },
+        "labels": [
+          "auto-bug-report"
+        ],
+        "customfield_10620": null,
+        "customfield_10610": null,
+        "customfield_10611": null,
+        "customfield_10612": null,
+        "customfield_10613": null,
+        "aggregatetimeoriginalestimate": null,
+        "customfield_10614": null,
+        "timeestimate": null,
+        "versions": [
+          {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/version/10238",
+            "id": "10238",
+            "description": "",
+            "name": "v0.1",
+            "archived": false,
+            "released": false
+          }
+        ],
+        "customfield_10615": [],
+        "customfield_10616": null,
+        "customfield_10617": null,
+        "customfield_10618": null,
+        "customfield_10619": null,
+        "issuelinks": [],
+        "assignee": null,
+        "updated": "2021-05-07T17:52:37.328+0200",
+        "status": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/status/10000",
+          "description": "",
+          "iconUrl": "https://raw-labs.atlassian.net/",
+          "name": "To Do",
+          "id": "10000",
+          "statusCategory": {
+            "self": "https://raw-labs.atlassian.net/rest/api/2/statuscategory/2",
+            "id": 2,
+            "key": "new",
+            "colorName": "blue-gray",
+            "name": "To Do"
+          }
+        },
+        "components": [],
+        "timeoriginalestimate": null,
+        "description": "Description of issue\nanother line\n\n{noformat}java.lang.Throwable: some text message\n\tat test.JiraTest$.main(JiraTest.scala:115)\n\tat test.JiraTest.main(JiraTest.scala)\n{noformat}",
+        "customfield_10600": null,
+        "security": null,
+        "customfield_10601": null,
+        "customfield_10602": null,
+        "customfield_10603": [],
+        "aggregatetimeestimate": null,
+        "customfield_10648": null,
+        "customfield_10604": null,
+        "customfield_10605": null,
+        "customfield_10606": null,
+        "customfield_10607": null,
+        "customfield_10608": null,
+        "customfield_10609": null,
+        "summary": "Issue summary",
+        "creator": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=600acc7d58d5a2006939ab55",
+          "accountId": "600acc7d58d5a2006939ab55",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png",
+            "24x24": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png",
+            "16x16": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png",
+            "32x32": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png"
+          },
+          "displayName": "Continuous Integration",
+          "active": true,
+          "timeZone": "Europe/Berlin",
+          "accountType": "atlassian"
+        },
+        "subtasks": [],
+        "reporter": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/user?accountId=600acc7d58d5a2006939ab55",
+          "accountId": "600acc7d58d5a2006939ab55",
+          "avatarUrls": {
+            "48x48": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png",
+            "24x24": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png",
+            "16x16": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png",
+            "32x32": "https://secure.gravatar.com/avatar/af76052c24acfe4f68e024b62bdb01c6?d=https%3A%2F%2Favatar-management--avatars.us-west-2.prod.public.atl-paas.net%2Finitials%2FCI-4.png"
+          },
+          "displayName": "Continuous Integration",
+          "active": true,
+          "timeZone": "Europe/Berlin",
+          "accountType": "atlassian"
+        },
+        "aggregateprogress": {
+          "progress": 0,
+          "total": 0
+        },
+        "customfield_10000": null,
+        "customfield_10001": null,
+        "customfield_10002": "1|i001mn:",
+        "customfield_10200": {
+          "hasEpicLinkFieldDependency": false,
+          "showField": false,
+          "nonEditableReason": {
+            "reason": "PLUGIN_LICENSE_ERROR",
+            "message": "The Parent Link is only available to Jira Premium users."
+          }
+        },
+        "customfield_10003": null,
+        "customfield_10400": null,
+        "customfield_10004": null,
+        "environment": null,
+        "duedate": null,
+        "progress": {
+          "progress": 0,
+          "total": 0
+        },
+        "votes": {
+          "self": "https://raw-labs.atlassian.net/rest/api/2/issue/TJA-9/votes",
+          "votes": 0,
+          "hasVoted": false
+        }
+      }
+    }
+  ]
+}
