@@ -448,6 +448,10 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
       val jarFile = targetDir / s"$artifactName-javadoc.jar"
 
       val readme = new File(targetDir, "README")
+      if (!readme.exists()) {
+        readme.createNewFile()
+      }
+      
       val writer = new PrintWriter(readme)
       writer.write("This is a placeholder for javadoc.")
       writer.close()
