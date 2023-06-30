@@ -100,8 +100,8 @@ lazy val buildSettings = Seq(
   updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
   // Do not generate docs
   //Compile / doc / sources := Seq.empty,
-  //Compile / packageDoc / mappings := Seq.empty,
-  //Compile / packageDoc / publishArtifact := false,
+  Compile / packageDoc / mappings := Seq.empty,
+  Compile / packageDoc / publishArtifact := false,
   // Ensure Java annotations get compiled first, so that they are accessible from Scala.
   compileOrder := CompileOrder.JavaThenScala,
   // The tests are run in a forked JVM.
@@ -115,7 +115,7 @@ lazy val buildSettings = Seq(
     props
       .stringPropertyNames()
       .asScala
-      .filter(p => p.startsWith("raw."))
+      .filter(p => p.startsWith("raw."))  
       .map(key => s"-D$key=${props.getProperty(key)}")
       .to
   },
@@ -437,6 +437,7 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
   )
   .settings(
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
+    Compile / doc / sources := Seq.empty,
     libraryDependencies ++= truffleDeps ++ Seq(kryo, woodstox, commonsText) ++ poiDeps
   )
 
