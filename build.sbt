@@ -17,6 +17,7 @@ publish / skip := true // don't publish the root project
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+sonatypeProfileName := "com.raw-labs"
 
 val licenseHeader = s"""Copyright ${Year.now.getValue} RAW Labs S.A.
 
