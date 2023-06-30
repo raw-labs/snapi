@@ -14,7 +14,7 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{HttpCallEntry, HttpReadEntry, HttpUrlDecode, HttpUrlEncode}
-import raw.compiler.rql2.source.{Rql2IntType, Rql2PrimitiveType, Rql2StringType, Rql2TypeWithProperties}
+import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.builtin.http_package.{
@@ -23,7 +23,6 @@ import raw.runtime.truffle.ast.expressions.builtin.http_package.{
   HttpUrlEncodeNodeGen
 }
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
-import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.sources.CacheStrategy
 

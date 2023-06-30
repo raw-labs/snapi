@@ -19,6 +19,8 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.compiler.rql2.source.Rql2IntType;
+import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
@@ -93,6 +95,10 @@ public class LocationBuildNode extends ExpressionNode {
                 return new LocationBooleanSetting((Boolean) value);
             } else if (TypeGuards.isIntervalKind(type)) {
                 return new LocationDurationSetting(Duration.ofMillis(((IntervalObject) value).toMillis()));
+            } else if (TypeGuards.isListKind(type) && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
+                ListLibrary lists = ListLibrary.getFactory().create(value);
+                int[] ints = (int[]) lists.getInnerList(value);
+                return new raw.sources.LocationIntArraySetting(ints);
             } else if (TypeGuards.isListKind(type)) {
                 ListLibrary listLibs = ListLibrary.getFactory().createDispatched(2);
                 InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
