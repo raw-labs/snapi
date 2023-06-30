@@ -25,3 +25,6 @@ class UnauthorizedException(message: String, cause: Throwable = null) extends Au
 
 // Status 403.
 class ForbiddenException(message: String, cause: Throwable = null) extends AuthException(message, cause)
+
+// Status 404.
+class ResourceNotFoundException(message: String, cause: Throwable = null) extends AuthException(message, cause)
