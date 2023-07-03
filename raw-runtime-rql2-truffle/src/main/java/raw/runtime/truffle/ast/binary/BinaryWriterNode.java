@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.binary;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -42,7 +41,7 @@ public class BinaryWriterNode extends StatementNode {
     @Override
     public void executeVoid(VirtualFrame frame) {
         Object binaryObject = binaryNode.executeGeneric(frame);
-        try (OutputStream os = RawContext.get(this).getOutput();) {
+        try (OutputStream os = RawContext.get(this).getOutput()) {
             innerWriter.call(binaryObject, os);
         } catch (IOException e) {
             throw new RawTruffleRuntimeException(e.getMessage());
