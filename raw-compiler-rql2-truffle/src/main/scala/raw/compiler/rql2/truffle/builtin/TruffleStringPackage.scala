@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.truffle.builtin
 
-import raw.compiler.base.source.{RawBridge, RawBridgeImpl, Type}
+import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
 import raw.runtime.truffle.ExpressionNode

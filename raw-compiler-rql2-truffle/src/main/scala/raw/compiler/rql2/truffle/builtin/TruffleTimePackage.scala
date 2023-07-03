@@ -27,9 +27,6 @@ import raw.runtime.truffle.ast.expressions.builtin.temporals.time_package.{
   TimeSubtractIntervalNodeGen,
   TimeSubtractNodeGen
 }
-import raw.runtime.truffle.ast.expressions.literals.IntNode
-
-import scala.collection.immutable.ListMap
 
 class TruffleTimeBuildEntry extends TimeBuildEntry with TruffleShortEntryExtension {
   override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode =

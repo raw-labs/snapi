@@ -13,8 +13,7 @@
 package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.common.source.OrType
-import raw.compiler.rql2.{ProgramContext, TypesMerger}
+import raw.compiler.rql2.TypesMerger
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}

@@ -248,8 +248,6 @@ object CsvWriter {
   private val frameDescriptor = new FrameDescriptor()
 
   def apply(args: Seq[Type]): ProgramStatementNode = {
-    val lang = RawLanguage.getCurrentContext.getLanguage
-    val frameDescriptor = new FrameDescriptor()
     val columnWriters = args.map(columnWriter).map(writer => new ProgramStatementNode(lang, frameDescriptor, writer))
     val recordWriter = new RecordWriteCsvNode(columnWriters.toArray)
     new ProgramStatementNode(lang, frameDescriptor, recordWriter)

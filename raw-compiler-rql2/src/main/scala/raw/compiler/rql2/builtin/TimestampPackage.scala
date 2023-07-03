@@ -68,8 +68,8 @@ class TimestampBuildEntry
         )
       ),
       optionalParamsMap = ListMap(
-        "seconds" -> (Rql2IntType(), IntConst("0")),
-        "millis" -> (Rql2IntType(), IntConst("0"))
+        "seconds" -> ((Rql2IntType(), IntConst("0"))),
+        "millis" -> ((Rql2IntType(), IntConst("0")))
       )
     )
 

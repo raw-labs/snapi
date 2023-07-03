@@ -13,7 +13,6 @@
 package raw.compiler.rql2.truffle.builtin
 
 import com.oracle.truffle.api.frame.FrameDescriptor
-import raw.compiler.CompilerException
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2.builtin.{ParseJsonEntry, PrintJsonEntry, ReadJsonEntry}

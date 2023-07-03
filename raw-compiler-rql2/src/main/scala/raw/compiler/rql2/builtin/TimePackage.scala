@@ -61,8 +61,8 @@ class TimeBuildEntry
         ret = Some(ReturnDoc("The time built from the given components.", retType = Some(TypeDoc(List("time")))))
       ),
       optionalParamsMap = ListMap(
-        "seconds" -> (Rql2IntType(), IntConst("0")),
-        "millis" -> (Rql2IntType(), IntConst("0"))
+        "seconds" -> ((Rql2IntType(), IntConst("0"))),
+        "millis" -> ((Rql2IntType(), IntConst("0")))
       )
     )
 

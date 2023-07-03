@@ -49,4 +49,20 @@ trait BinaryOutputTest extends CompilerTestContext with LocalLocationsTestContex
     }
   }
 
+  // A nullable result is handled, and null results to an empty file.
+  test(s"""Binary.Read(if (1 == 0) then "$peopleExcel" else null)""") { it =>
+    val tmpFile = Files.createTempFile("", "")
+    try {
+      it should saveTo(tmpFile)
+      val actual = tmpFile.toFile
+      assert(actual.length() == 0)
+    } finally {
+      Files.delete(tmpFile)
+    }
+  }
+
+  // An error fails the execution.
+  test(s"""Binary.Read("file:/not/found")""")(it =>
+    it should runErrorAs("file system error: path not found: /not/found")
+  )
 }

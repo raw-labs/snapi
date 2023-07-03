@@ -15,6 +15,6 @@ package raw.compiler.rql2.tests.output
 import raw.compiler.rql2.tests.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
-// class BinaryOutputTruffleTest extends TruffleCompilerTestContext with BinaryOutputTest
+@TruffleTests class BinaryOutputTruffleTest extends TruffleCompilerTestContext with BinaryOutputTest
 // class TextOutputTruffleTest extends TruffleCompilerTestContext with TextOutputTest
 @TruffleTests class CsvOutputTruffleTest extends TruffleCompilerTestContext with CsvOutputTest
