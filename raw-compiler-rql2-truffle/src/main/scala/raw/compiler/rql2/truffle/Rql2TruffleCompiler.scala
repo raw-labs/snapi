@@ -225,8 +225,11 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 //    writerFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, "gen", null)
 
     // Wrap output node
+
     val rootNode: RootNode = programContext.settings.getString(ProgramSettings.output_format) match {
-      case "csv" => tree.analyzer.tipe(me.get) match {
+      case "csv" =>
+        val lineSeparator = if (programContext.settings.getBoolean("raw.compiler.windows-line-ending")) "\r\n" else "\n"
+        tree.analyzer.tipe(me.get) match {
           case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
             assert(rProps.isEmpty)
             assert(iProps.isEmpty)
@@ -236,7 +239,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               new CsvIterableWriterNode(
                 bodyExpNode,
                 CsvWriter(atts.map(_.tipe)),
-                atts.map(_.idn).toArray
+                atts.map(_.idn).toArray,
+                lineSeparator
               )
             )
           case Rql2ListType(Rql2RecordType(atts, rProps), iProps) =>
@@ -248,7 +252,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               new CsvListWriterNode(
                 bodyExpNode,
                 CsvWriter(atts.map(_.tipe)),
-                atts.map(_.idn).toArray
+                atts.map(_.idn).toArray,
+                lineSeparator
               )
             )
         }
@@ -279,21 +284,6 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   }
 
 }
-
-//yeah so change emitter to mutate frame descriptor
-//fix code about
-//make funapp package somehow support low level truffle or truffle
-//passing "this"
-//then try again to implement low level truffle
-//but I dont have the entity
-//so when building body, it WILL blow up
-//WAIT. there is no entity.
-//there is read parameter
-//Ah, but the way this is built is.. with that.
-//so if I dont put IdnExp
-//well, i wont
-//i will put directly the truffle node
-//so Im good I think, actually
 
 final case class SlotLocation(depth: Int, slot: Int)
 
