@@ -17,38 +17,28 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
-import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
 
 import java.io.IOException;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 
-@NodeInfo(shortName = "TimeWriteCsv")
-public class TimeWriteCsvNode extends StatementNode {
-
-  private final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("HH:mm:ss");
-  private final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+@NodeInfo(shortName = "BinaryWriteCsv")
+public class BinaryWriteCsvNode extends StatementNode {
 
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    TimeObject value = (TimeObject) args[0];
+    byte[] value = (byte[]) args[0];
     CsvGenerator generator = (CsvGenerator) args[1];
     doWrite(value, generator);
   }
 
   @CompilerDirectives.TruffleBoundary
-  private void doWrite(TimeObject value, CsvGenerator gen) {
+  private void doWrite(byte[] value, CsvGenerator gen) {
     try {
-      LocalTime ts = value.getTime();
-      if (ts.getNano() != 0) {
-        gen.writeString(formatter2.format(ts));
-      } else {
-        gen.writeString(formatter1.format(ts));
-      }
+      String result = Base64.getEncoder().encodeToString(value);
+      gen.writeString(result);
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+      throw new CsvWriterRawTruffleException(e.getMessage());
     }
   }
 }

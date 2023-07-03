@@ -22,27 +22,34 @@ import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @NodeInfo(shortName = "TimestampWriteCsv")
 public class TimestampWriteCsvNode extends StatementNode {
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+  private final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+  private final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        TimestampObject value = (TimestampObject) args[0];
-        CsvGenerator generator = (CsvGenerator) args[1];
-        doWrite(value, generator);
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    TimestampObject value = (TimestampObject) args[0];
+    CsvGenerator generator = (CsvGenerator) args[1];
+    doWrite(value, generator);
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(TimestampObject value, CsvGenerator gen) {
-        try {
-            gen.writeString(formatter.format(value.getTimestamp()));
-        } catch (IOException e) {
-            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
-        }
+  @CompilerDirectives.TruffleBoundary
+  private void doWrite(TimestampObject value, CsvGenerator gen) {
+    try {
+      LocalDateTime ts = value.getTimestamp();
+      if (ts.getNano() != 0) {
+        gen.writeString(formatter2.format(ts));
+      } else {
+        gen.writeString(formatter1.format(ts));
+      }
+    } catch (IOException e) {
+      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
     }
+  }
 }

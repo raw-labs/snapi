@@ -21,21 +21,31 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @NodeInfo(shortName = "TimeWriteJson")
 public class TimeWriteJsonNode extends StatementNode {
 
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        this.doWrite((TimeObject) args[0], (JsonGenerator) args[1]);
-    }
+  private final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("HH:mm:ss");
+  private final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(TimeObject value, JsonGenerator gen) {
-        try {
-            gen.writeString(value.getTime().toString());
-        } catch (IOException e) {
-            throw new JsonWriterRawTruffleException(e.getMessage(), this);
-        }
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    this.doWrite((TimeObject) args[0], (JsonGenerator) args[1]);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void doWrite(TimeObject value, JsonGenerator gen) {
+    try {
+      LocalTime ts = value.getTime();
+      if (ts.getNano() != 0) {
+        gen.writeString(formatter2.format(ts));
+      } else {
+        gen.writeString(formatter1.format(ts));
+      }
+    } catch (IOException e) {
+      throw new JsonWriterRawTruffleException(e.getMessage(), this);
     }
+  }
 }

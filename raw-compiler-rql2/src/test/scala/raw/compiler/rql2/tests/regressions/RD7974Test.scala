@@ -16,8 +16,7 @@ import org.scalatest.BeforeAndAfterEach
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.utils.RawUtils
 
-import java.nio.file.{Files, Path}
-import scala.io.Source
+import java.nio.file.Files
 
 trait RD7974Test extends CompilerTestContext with BeforeAndAfterEach {
 
@@ -26,13 +25,6 @@ trait RD7974Test extends CompilerTestContext with BeforeAndAfterEach {
   override def afterEach(): Unit = {
     super.afterEach()
     RawUtils.deleteTestPath(tmpFile)
-  }
-
-  private def contain(content: String) = be(content) compose { p: Path =>
-    val bufferedSource = Source.fromFile(p.toFile)
-    val fileContent = bufferedSource.mkString
-    bufferedSource.close()
-    fileContent
   }
 
   test("""let l = [3,2,1,0,-1,-2,-3]

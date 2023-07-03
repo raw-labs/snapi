@@ -16,6 +16,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{CsvParseEntry, CsvReadEntry}
 import raw.compiler.rql2.source.{
+  Rql2BinaryType,
   Rql2BoolType,
   Rql2ByteType,
   Rql2DateType,
@@ -66,6 +67,7 @@ import raw.runtime.truffle.ast.csv.reader.parser.{
   TryableParseCsvNode
 }
 import raw.runtime.truffle.ast.csv.writer.internal.{
+  BinaryWriteCsvNode,
   BoolWriteCsvNode,
   ByteWriteCsvNode,
   DateWriteCsvNode,
@@ -278,6 +280,7 @@ object CsvWriter {
           case _: Rql2DateType => new DateWriteCsvNode()
           case _: Rql2TimeType => new TimeWriteCsvNode()
           case _: Rql2TimestampType => new TimestampWriteCsvNode()
+          case _: Rql2BinaryType => new BinaryWriteCsvNode()
         }
     }
   }

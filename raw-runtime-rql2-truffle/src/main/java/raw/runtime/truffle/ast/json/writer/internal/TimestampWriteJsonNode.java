@@ -21,22 +21,29 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
 @NodeInfo(shortName = "TimestampWriteJson")
 public class TimestampWriteJsonNode extends StatementNode {
+
+    private final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+    private final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
     public void executeVoid(VirtualFrame frame) {
         Object[] args = frame.getArguments();
         this.doWrite((TimestampObject) args[0], (JsonGenerator) args[1]);
     }
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
-
     @CompilerDirectives.TruffleBoundary
     private void doWrite(TimestampObject value, JsonGenerator gen) {
         try {
-            gen.writeString(formatter.format(value.getTimestamp()));
+            LocalDateTime ts = value.getTimestamp();
+            if (ts.getNano() != 0) {
+                gen.writeString(formatter2.format(ts));
+            } else {
+                gen.writeString(formatter1.format(ts));
+            }
         } catch (IOException e) {
             throw new JsonWriterRawTruffleException(e.getMessage(), this);
         }

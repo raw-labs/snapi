@@ -34,6 +34,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.{Files, Path, StandardOpenOption}
 import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable
+import scala.io.Source
 
 trait CompilerTestContext
     extends RawTestSuite
@@ -515,6 +516,14 @@ trait CompilerTestContext
 
   def saveToInFormat(path: Path, format: String, executionLogger: ExecutionLogger = DebugExecutionLogger): SaveTo =
     new SaveTo(path, Map("output-format" -> format), executionLogger)
+
+  // a Matcher[Path] that compares the content of the file at the given path to the given string.
+  protected def contain(content: String) = be(content) compose { p: Path =>
+    val bufferedSource = Source.fromFile(p.toFile)
+    val fileContent = bufferedSource.mkString
+    bufferedSource.close()
+    fileContent
+  }
 
   /////////////////////////////////////////////////////////////////////////
   // Helper Functions
