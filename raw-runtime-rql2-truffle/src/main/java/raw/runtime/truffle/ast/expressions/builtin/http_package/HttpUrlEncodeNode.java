@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.http_package;
 
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -25,6 +26,7 @@ import java.nio.charset.StandardCharsets;
 public abstract class HttpUrlEncodeNode extends ExpressionNode {
 
     @Specialization
+    @TruffleBoundary
     public String encode(String str) {
         return URLEncoder.encode(str, StandardCharsets.UTF_8);
     }
