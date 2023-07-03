@@ -20,6 +20,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
 import java.io.IOException;
@@ -54,7 +55,7 @@ public class TryableWriteCsvNode extends StatementNode {
         try {
             gen.writeString(message);
         } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
         }
     }
 }

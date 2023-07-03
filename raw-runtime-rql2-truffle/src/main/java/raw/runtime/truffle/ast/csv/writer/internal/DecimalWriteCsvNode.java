@@ -18,6 +18,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -38,7 +39,7 @@ public class DecimalWriteCsvNode extends StatementNode {
         try {
             gen.writeNumber(value);
         } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
         }
     }
 }

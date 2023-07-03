@@ -18,6 +18,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 
 import java.io.IOException;
@@ -41,7 +42,7 @@ public class TimeWriteCsvNode extends StatementNode {
         try {
             gen.writeString(formatter.format(value.getTime()));
         } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
         }
     }
 }
