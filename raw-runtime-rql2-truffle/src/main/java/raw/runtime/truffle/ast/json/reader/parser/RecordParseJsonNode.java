@@ -30,6 +30,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.json.reader.ParserOperations;
 import raw.runtime.truffle.ast.json.reader.ParserOperationsFactory;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
@@ -100,7 +101,7 @@ public class RecordParseJsonNode extends ExpressionNode {
             }
             nextTokenNode.execute(parser); // skip the END_OBJECT token
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new JsonParserRawTruffleException(e.getMessage());
+            throw new RawTruffleInternalErrorException(e.getCause(), this);
         }
 
         if (currentBitSet.cardinality() != this.fieldsSize) {
@@ -115,7 +116,7 @@ public class RecordParseJsonNode extends ExpressionNode {
                         try {
                             records.writeMember(record, fields[i].toString(), nullValue);
                         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-                            throw new JsonParserRawTruffleException(e.getMessage());
+                            throw new RawTruffleInternalErrorException(e.getCause(), this);
                         }
                     } else {
                         throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);

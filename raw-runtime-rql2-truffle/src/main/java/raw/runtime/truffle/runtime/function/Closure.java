@@ -18,7 +18,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
     private final Function function;
@@ -42,7 +42,7 @@ public class Closure {
         try {
             return interop.execute(function, args);
         } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-            throw new RawTruffleRuntimeException(e.getMessage(), node);
+            throw new RawTruffleInternalErrorException(e.getCause(), node);
         }
     }
 }

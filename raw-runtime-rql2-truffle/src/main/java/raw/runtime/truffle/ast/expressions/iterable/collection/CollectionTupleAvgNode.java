@@ -27,7 +27,7 @@ import raw.runtime.truffle.runtime.aggregation.MultiAggregation;
 import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
 import raw.runtime.truffle.runtime.aggregation.aggregator.CountAggregator;
 import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.option.ObjectOption;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
@@ -56,9 +56,8 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
             }
             records.writeMember(record, "count", results[1]);
             return ObjectTryable.BuildSuccess(record);
-        } catch (RawTruffleRuntimeException | UnsupportedMessageException | UnknownIdentifierException |
-                 UnsupportedTypeException ex) {
-            return ObjectTryable.BuildFailure(ex.getMessage());
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
+            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
         }
     }
 }

@@ -25,7 +25,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.ObjectOption;
@@ -119,7 +119,7 @@ public final class KryoReader {
                 try {
                     records.writeMember(record, att.idn(), value);
                 } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-                    throw new RawTruffleRuntimeException(e.getMessage());
+                    throw new RawTruffleInternalErrorException(e.getCause());
                 }
                 return true;
             });

@@ -21,7 +21,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 @NodeInfo(shortName = "Record.Project")
 @NodeChild("receiverNode")
@@ -34,7 +34,7 @@ public abstract class RecordProjNode extends ExpressionNode {
         try {
             return records.readMember(record, key);
         } catch (UnsupportedMessageException | UnknownIdentifierException e) {
-            throw new RawTruffleRuntimeException(e, this);
+            throw new RawTruffleInternalErrorException(e.getCause(), this);
         }
     }
 
@@ -47,7 +47,7 @@ public abstract class RecordProjNode extends ExpressionNode {
             String member = (String) libraries.readArrayElement(keys, index - 1);
             return records.readMember(record, member);
         } catch (UnsupportedMessageException | UnknownIdentifierException | InvalidArrayIndexException e) {
-            throw new RawTruffleRuntimeException(e.getMessage(), this);
+            throw new RawTruffleInternalErrorException(e.getCause(), this);
         }
     }
 }

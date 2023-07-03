@@ -24,6 +24,7 @@ import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.option.LongOption;
@@ -96,9 +97,10 @@ public abstract class LocationLlNode extends ExpressionNode {
             }
 
             return ObjectTryable.BuildSuccess(new ObjectList(result));
-        } catch (FileSystemException | UnsupportedMessageException | UnknownIdentifierException |
-                 UnsupportedTypeException e) {
+        } catch (FileSystemException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
+            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
         }
     }
 }

@@ -27,6 +27,7 @@ import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.StringOption;
@@ -213,9 +214,10 @@ public abstract class LocationDescribeNode extends ExpressionNode {
 
 
             return ObjectTryable.BuildSuccess(record);
-        } catch (InferrerException | UnsupportedMessageException | UnknownIdentifierException |
-                 UnsupportedTypeException ex) {
+        } catch (InferrerException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
+            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
         } finally {
             inferrer.stop();
         }

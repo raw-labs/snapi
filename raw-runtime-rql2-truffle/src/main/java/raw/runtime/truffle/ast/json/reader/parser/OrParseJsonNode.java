@@ -13,36 +13,20 @@
 package raw.runtime.truffle.ast.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
-import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.json.reader.ParserOperations;
 import raw.runtime.truffle.ast.json.reader.ParserOperationsFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonOrTypeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
-import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.or.OrObject;
-import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 import java.io.IOException;
-import java.util.BitSet;
 
 public class OrParseJsonNode extends ExpressionNode {
 

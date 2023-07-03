@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
@@ -169,9 +169,8 @@ public class CompareOperator {
                     }
                 }
                 return 0;
-            } catch (InvalidArrayIndexException | UnsupportedMessageException | UnknownIdentifierException |
-                     RawTruffleRuntimeException e) {
-                throw new RawTruffleRuntimeException(e.getMessage());
+            } catch (InvalidArrayIndexException | UnsupportedMessageException | UnknownIdentifierException e) {
+                throw new RawTruffleInternalErrorException(e.getCause());
             }
         }
 

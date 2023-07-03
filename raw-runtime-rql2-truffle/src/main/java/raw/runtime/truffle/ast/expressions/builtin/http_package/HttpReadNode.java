@@ -24,6 +24,7 @@ import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
@@ -90,10 +91,10 @@ public abstract class HttpReadNode extends ExpressionNode {
             records.writeMember(record, "headers", headersResult);
 
             return ObjectTryable.BuildSuccess(record);
-        } catch (LocationException | UnsupportedMessageException | UnknownIdentifierException |
-                 UnsupportedTypeException |
-                 IOException e) {
+        } catch (LocationException | IOException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
+            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
         }
     }
 

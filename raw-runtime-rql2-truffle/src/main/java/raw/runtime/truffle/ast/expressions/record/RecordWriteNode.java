@@ -20,7 +20,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 @NodeChild("receiverNode")
 @NodeChild("nameNode")
@@ -35,7 +35,7 @@ public abstract class RecordWriteNode extends ExpressionNode {
         try {
             records.writeMember(record, name, value);
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleRuntimeException(e.getMessage(), this);
+            throw new RawTruffleInternalErrorException(e.getCause(), this);
         }
         return value;
     }

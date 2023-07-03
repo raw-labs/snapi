@@ -23,7 +23,7 @@ import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseCsv")
@@ -58,7 +58,7 @@ public class RecordParseCsvNode extends ExpressionNode {
             try {
                 records.writeMember(record, fieldName, value);
             } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
-                throw new CsvParserRawTruffleException(parser, ex, this);
+                throw new RawTruffleInternalErrorException(ex.getCause(), this);
             }
         }
         parser.finishLine(this);

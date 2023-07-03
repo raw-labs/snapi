@@ -23,7 +23,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
@@ -64,7 +64,7 @@ public class RecordWriteCsvNode extends StatementNode {
             }
             doEndRow(generator);
         } catch (UnsupportedMessageException | InvalidArrayIndexException | UnknownIdentifierException e) {
-            throw new RawTruffleRuntimeException("internal error", e, this);
+            throw new RawTruffleInternalErrorException(e.getCause(), this);
         }
     }
 

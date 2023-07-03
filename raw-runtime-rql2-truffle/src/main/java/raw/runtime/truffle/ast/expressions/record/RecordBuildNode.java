@@ -18,13 +18,12 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Build")
 public class RecordBuildNode extends ExpressionNode {
@@ -56,7 +55,7 @@ public class RecordBuildNode extends ExpressionNode {
                 libraries.writeMember(record, (String) key, value);
             }
         } catch (UnknownIdentifierException | UnsupportedMessageException | UnsupportedTypeException e) {
-            throw new RawTruffleRuntimeException("", this);
+            throw new RawTruffleInternalErrorException(e.getCause(), this);
         }
         return record;
     }

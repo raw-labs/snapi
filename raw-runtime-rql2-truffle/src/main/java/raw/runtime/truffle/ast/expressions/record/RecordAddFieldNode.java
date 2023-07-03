@@ -19,7 +19,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.AddField")
@@ -45,7 +45,7 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
             return newRecord;
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException |
                  InvalidArrayIndexException e) {
-            throw new RawTruffleRuntimeException(e.getMessage(), this);
+            throw new RawTruffleInternalErrorException(e.getCause(), this);
         }
     }
 }
