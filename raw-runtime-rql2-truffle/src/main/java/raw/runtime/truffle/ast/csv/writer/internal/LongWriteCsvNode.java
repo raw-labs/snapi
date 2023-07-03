@@ -17,6 +17,9 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+
+import java.io.IOException;
 
 @NodeInfo(shortName = "LongWriteCsv")
 public class LongWriteCsvNode extends StatementNode {
@@ -33,8 +36,8 @@ public class LongWriteCsvNode extends StatementNode {
     private void doWrite(long value, CsvGenerator gen) {
         try {
             gen.writeNumber(value);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (IOException e) {
+            throw new RawTruffleRuntimeException(e.getMessage());
         }
     }
 }

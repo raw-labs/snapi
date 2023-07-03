@@ -15,6 +15,7 @@ package raw.runtime.truffle.ast.expressions.iterable.list;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.compiler.base.source.Type;
@@ -110,7 +111,7 @@ public class ListBuildNode extends ExpressionNode {
                 }
                 return new ObjectList(values);
             }
-        } catch (Exception ex) {
+        } catch (UnexpectedResultException | RawTruffleRuntimeException ex) {
             throw new RawTruffleRuntimeException(ex.getMessage(), this);
         }
 

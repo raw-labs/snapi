@@ -15,6 +15,9 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.RuntimeContext;
@@ -29,7 +32,6 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.sources.Location;
 import raw.sources.filesystem.*;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
@@ -57,7 +59,7 @@ public abstract class LocationLlNode extends ExpressionNode {
                     DirectoryMetadata directoryMetadata = (DirectoryMetadata) values.apply(i)._2;
                     if (directoryMetadata.modifiedInstant().isDefined()) {
                         records.writeMember(metadata, "modified", new ObjectOption(
-                            new TimestampObject(LocalDateTime.ofInstant(directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC))));
+                                new TimestampObject(LocalDateTime.ofInstant(directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC))));
                     } else {
                         records.writeMember(metadata, "modified", new ObjectOption());
                     }
@@ -67,7 +69,7 @@ public abstract class LocationLlNode extends ExpressionNode {
                     FileMetadata fileMetadata = (FileMetadata) values.apply(i)._2;
                     if (fileMetadata.modifiedInstant().isDefined()) {
                         records.writeMember(metadata, "modified", new ObjectOption(
-                            new TimestampObject(LocalDateTime.ofInstant(fileMetadata.modifiedInstant().get(), ZoneOffset.UTC))));
+                                new TimestampObject(LocalDateTime.ofInstant(fileMetadata.modifiedInstant().get(), ZoneOffset.UTC))));
                     } else {
                         records.writeMember(metadata, "modified", new ObjectOption());
                     }
@@ -94,9 +96,9 @@ public abstract class LocationLlNode extends ExpressionNode {
             }
 
             return ObjectTryable.BuildSuccess(new ObjectList(result));
-        } catch (Exception e) {
+        } catch (FileSystemException | UnsupportedMessageException | UnknownIdentifierException |
+                 UnsupportedTypeException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         }
-
     }
 }

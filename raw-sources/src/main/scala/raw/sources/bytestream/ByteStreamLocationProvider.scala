@@ -35,13 +35,14 @@ object ByteStreamLocationProvider extends LocationProvider {
     }
   }
 
+  @throws[ByteStreamException]
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): ByteStreamLocation = {
     lock.synchronized {
       getScheme(location.url) match {
         case Some(scheme) =>
           val impls = services.filter(_.schemes.contains(scheme))
           if (impls.isEmpty) throw new ByteStreamException(s"no byte stream location implementation found for $scheme")
-          else if (impls.size > 1)
+          else if (impls.length > 1)
             throw new ByteStreamException(s"more than one byte stream location implementation found for $scheme")
           else impls.head.build(location)
         case None => throw new ByteStreamException(s"invalid url: '${location.url}'")

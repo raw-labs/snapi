@@ -17,8 +17,10 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 
+import java.io.IOException;
 import java.time.format.DateTimeFormatter;
 
 @NodeInfo(shortName = "TimeWriteCsv")
@@ -38,8 +40,8 @@ public class TimeWriteCsvNode extends StatementNode {
     private void doWrite(TimeObject value, CsvGenerator gen) {
         try {
             gen.writeString(formatter.format(value.getTime()));
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (IOException e) {
+            throw new RawTruffleRuntimeException(e.getMessage());
         }
     }
 }

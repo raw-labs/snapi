@@ -19,7 +19,10 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
+
+import java.io.IOException;
 
 @NodeInfo(shortName = "NullableWriteCsv")
 public class NullableWriteCsvNode extends StatementNode {
@@ -40,18 +43,9 @@ public class NullableWriteCsvNode extends StatementNode {
         Object nullable = args[0];
         CsvGenerator generator = (CsvGenerator) args[1];
         if (options.isDefined(nullable)) {
-            doWriteValue(options.get(nullable), generator);
+            valueWriter.call(options.get(nullable), generator);
         } else {
             doWriteNull(generator);
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private void doWriteValue(Object value, CsvGenerator generator) {
-        try {
-            valueWriter.call(value, generator);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -59,8 +53,8 @@ public class NullableWriteCsvNode extends StatementNode {
     private void doWriteNull(CsvGenerator gen) {
         try {
             gen.writeString("null");
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (IOException e) {
+            throw new RawTruffleRuntimeException(e.getMessage());
         }
     }
 }

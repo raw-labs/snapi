@@ -14,14 +14,15 @@ package raw.runtime.truffle.runtime.operators;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.DateObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
@@ -168,7 +169,8 @@ public class CompareOperator {
                     }
                 }
                 return 0;
-            } catch (Exception e) {
+            } catch (InvalidArrayIndexException | UnsupportedMessageException | UnknownIdentifierException |
+                     RawTruffleRuntimeException e) {
                 throw new RawTruffleRuntimeException(e.getMessage());
             }
         }
@@ -218,7 +220,7 @@ public class CompareOperator {
                              @CachedLibrary(limit = "3") OperatorLibrary comparators,
                              @CachedLibrary(limit = "3") TryableLibrary tryables) {
             // both are tryables (maybe not nullable but that's handled recursively)
-            assert(tryables.isTryable(right));
+            assert (tryables.isTryable(right));
             boolean leftIsSuccess = tryables.isSuccess(left);
             boolean rightIsSuccess = tryables.isSuccess(right);
             if (leftIsSuccess) {
@@ -245,7 +247,7 @@ public class CompareOperator {
                               @CachedLibrary(limit = "3") OperatorLibrary comparators,
                               @CachedLibrary(limit = "3") OptionLibrary options) {
             // both are options
-            assert(options.isOption(right));
+            assert (options.isOption(right));
             boolean leftIsDefined = options.isDefined(left);
             boolean rightIsDefined = options.isDefined(right);
 

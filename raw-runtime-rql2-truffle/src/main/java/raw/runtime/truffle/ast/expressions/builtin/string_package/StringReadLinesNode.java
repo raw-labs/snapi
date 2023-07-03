@@ -35,7 +35,7 @@ public abstract class StringReadLinesNode extends ExpressionNode {
             TruffleInputStream stream = new TruffleInputStream(locationObject, context);
             TruffleCharInputStream charStream = new TruffleCharInputStream(stream, encoding);
             return new ReadLinesCollection(charStream, context);
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             throw new RawTruffleRuntimeException(ex.getMessage(), this);
         }
     }

@@ -22,13 +22,14 @@ object FileSystemLocationProvider extends LocationProvider {
 
   private val lock = new Object
 
+  @throws[FileSystemException]
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
     lock.synchronized {
       getScheme(location.url) match {
         case Some(scheme) =>
           val impls = services.filter(_.schemes.contains(scheme))
           if (impls.isEmpty) throw new FileSystemException(s"no file system location implementation found for $scheme")
-          else if (impls.size > 1)
+          else if (impls.length > 1)
             throw new FileSystemException(s"more than one file system location implementation found for $scheme")
           else impls.head.build(location)
         case None => throw new FileSystemException(s"invalid url: '${location.url}'")
