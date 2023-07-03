@@ -24,6 +24,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
 
@@ -62,7 +63,7 @@ public class CsvListWriterNode extends StatementNode {
                 itemWriter.call(item, gen);
             }
         } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
         }
     }
 
@@ -83,8 +84,8 @@ public class CsvListWriterNode extends StatementNode {
             generator.setSchema(schemaBuilder.build());
             generator.enable(STRICT_CHECK_FOR_QUOTING);
             return generator;
-        } catch (IOException ex) {
-            throw new RawTruffleRuntimeException(ex, this);
+        } catch (IOException e) {
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
         }
     }
 
