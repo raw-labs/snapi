@@ -43,14 +43,12 @@ public class TryableBinaryWriterNode extends StatementNode {
     Object tryable = args[0];
     OutputStream output = (OutputStream) args[1];
     if (tryables.isSuccess(tryable)) {
-      doWriteValue(tryables.success(tryable), output);
+      // the tryable is a success, write its bytes using the inner writer.
+      innerWriter.call(tryables.success(tryable), output);
     } else {
+      // else throw.
       throw new BinaryWriterRawTruffleException(tryables.failure(tryable), this);
     }
-  }
-
-  private void doWriteValue(Object value, OutputStream output) {
-    innerWriter.call(value, output);
   }
 
 }

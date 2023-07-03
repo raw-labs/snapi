@@ -38,17 +38,12 @@ public class NullableBinaryWriterNode extends StatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    Object tryable = args[0];
+    Object nullable = args[0];
     OutputStream output = (OutputStream) args[1];
-    if (options.isDefined(tryable)) {
-      doWriteValue(options.get(tryable), output);
-    }  // else don't write anything?
-
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private void doWriteValue(Object value, OutputStream output) {
-    innerWriter.call(value, output);
+    if (options.isDefined(nullable)) {
+      // the nullable is defined, write its bytes using the inner writer (the plain binary writer)
+      innerWriter.call(options.get(nullable), output);
+    }  // else don't write anything.
   }
 
 }

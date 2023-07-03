@@ -47,13 +47,17 @@ object TruffleBinaryWriter {
   private val frameDescriptor = new FrameDescriptor()
 
   def apply(t: Rql2BinaryType): ProgramStatementNode = {
+    // The generated writer program depends on the type properties.
     if (t.props.isEmpty) {
+      // No properties, just write the bytes.
       new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode())
     } else if (t.props.contains(Rql2IsTryableTypeProperty())) {
+      // Tryable binary: wrap the inner writer (plain or nullable) in a tryable writer that throws in case of failure.
       val innerType = t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2BinaryType]
       val innerWriter = TruffleBinaryWriter(innerType)
       new ProgramStatementNode(lang, frameDescriptor, new TryableBinaryWriterNode(innerWriter))
     } else {
+      // Nullable binary: wrap the inner writer (plain) in a nullable writer that writes nothing if the value is null.
       val innerType = t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2BinaryType]
       val innerWriter = TruffleBinaryWriter(innerType)
       new ProgramStatementNode(lang, frameDescriptor, new NullableBinaryWriterNode(innerWriter))
