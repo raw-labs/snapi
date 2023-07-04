@@ -22,6 +22,7 @@ object JdbcLocationProvider extends LocationProvider {
 
   private val lock = new Object
 
+  @throws[JdbcLocationException]
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcLocation = {
     lock.synchronized {
       getScheme(location.url) match {

@@ -185,8 +185,9 @@ public abstract class LocationDescribeNode extends ExpressionNode {
                 for (int i = 0; i < rql2RecordType.atts().length(); i++) {
                     String typeStr;
                     boolean isNullable;
-                    typeStr = SourcePrettyPrinter$.MODULE$.format(rql2RecordType.atts().apply(i).tipe());
-                    isNullable = ((Rql2TypeWithProperties) rql2RecordType).props().contains(Rql2IsNullableTypeProperty.apply());
+                    Rql2TypeWithProperties fieldType = (Rql2TypeWithProperties) rql2RecordType.atts().apply(i).tipe();
+                    typeStr = SourcePrettyPrinter$.MODULE$.format(fieldType);
+                    isNullable = fieldType.props().contains(Rql2IsNullableTypeProperty.apply());
                     RecordObject column = RawLanguage.get(this).createRecord();
                     records.writeMember(column, "col_name", new StringOption(rql2RecordType.atts().apply(i).idn()));
                     records.writeMember(column, "col_type", typeStr);

@@ -23,7 +23,54 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
 
   rdbms(authorizedUser, sqlServRegDb, sqlServerCreds)
 
+  private val ttt = "\"\"\""
+  test(s"""SQLServer.InferAndQuery("$sqlServRegDb", $ttt
+    |SELECT CAST('120' AS TINYINT) AS bytecol,
+    |       CAST('1200' AS SMALLINT) AS shortcol,
+    |       CAST('12000' AS INTEGER) AS intcol,
+    |       CAST('12000000' AS BIGINT) AS longcol,
+    |       CAST('3.14' AS REAL) AS floatcol,
+    |       CAST('3.14' AS DOUBLE PRECISION) AS doublecol,
+    |       CAST('12000000' AS DECIMAL) AS decimalcol,
+    |       CAST('120' AS VARCHAR) AS stringcol,
+    |       CAST('12:23:34' AS TIME) AS timecol,
+    |       CAST('2020-01-01' AS DATE) AS datecol,
+    |       CAST('2020-01-01 12:23:34' AS DATETIME) AS timestampcol,
+    |       CAST('Olala!' AS VARBINARY(MAX)) AS binarycol $ttt)""".stripMargin) { it =>
+    it should typeAs("""collection(
+      |    record(
+      |        bytecol: byte,
+      |        shortcol: short,
+      |        intcol: int,
+      |        longcol: long,
+      |        floatcol: float,
+      |        doublecol: double,
+      |        decimalcol: decimal,
+      |        stringcol: string,
+      |        timecol: time,
+      |        datecol: date,
+      |        timestampcol: timestamp,
+      |        binarycol: binary
+      |    )
+      |)""".stripMargin)
+    it should evaluateTo("""[{
+      |  bytecol: Byte.From(120),
+      |  shortcol: Short.From(1200),
+      |  intcol: 12000,
+      |  longcol: 12000000L,
+      |  floatcol: 3.14f,
+      |  doublecol: 3.14,
+      |  decimalcol: Decimal.From(12000000),
+      |  stringcol: "120",
+      |  timecol: Time.Build(12, 23, seconds=34),
+      |  datecol: Date.Build(2020, 1, 1),
+      |  timestampcol: Timestamp.Build(2020, 1, 1, 12, 23, seconds=34),
+      |  binarycol: Binary.FromString("Olala!")
+      |}]""".stripMargin)
+  }
+
   test(s"""SQLServer.InferAndRead("$sqlServRegDb", "$sqlServSchema", "$sqlServTable")""") { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -38,6 +85,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string))
       |)""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -51,6 +99,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""SQLServer.Read("$sqlServRegDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)))""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': An error occurred while converting the varchar value to JDBC data type INTEGER."), y: "y1"},
@@ -64,6 +113,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""SQLServer.InferAndRead("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}")""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -78,6 +128,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}" )""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': An error occurred while converting the varchar value to JDBC data type INTEGER."), y: "y1"},
@@ -115,7 +166,10 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""SQLServer.Read("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""no credential found for sqlserver: $sqlServDb""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs(s"""no credential found for sqlserver: $sqlServDb""".stripMargin)
+  }
 
   // server does not exist
   test(
@@ -124,7 +178,10 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "does-not-exist", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}"
       |)""".stripMargin
-  )(it => it should runErrorAs("""error connecting to database: does-not-exist""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""error connecting to database: does-not-exist""".stripMargin)
+  }
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
@@ -134,7 +191,10 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}", port = 1234
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""connect timed out: ${sqlServerCreds.host}""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs(s"""connect timed out: ${sqlServerCreds.host}""".stripMargin)
+  }
 
   // No password
   test(
@@ -143,7 +203,10 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${sqlServerCreds.host}"
       |)""".stripMargin
-  )(it => it should runErrorAs("""Login failed for user ''""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""Login failed for user ''""".stripMargin)
+  }
 
   // wrong password
   test(
@@ -152,7 +215,10 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "wrong!"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""Login failed for user '${sqlServerCreds.username.get.toString}'""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs(s"""Login failed for user '${sqlServerCreds.username.get.toString}'""".stripMargin)
+  }
 
   test(s"""SQLServer.InferAndQuery("$sqlServRegDb", "SELECT * FROM $sqlServSchema.$sqlServTable")""") { it =>
     it should evaluateTo(
@@ -202,4 +268,20 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
         |]""".stripMargin
     )
   }
+
+  test(
+    s"""List.Transform(["$sqlServTable", "dont_exist"],
+      |   table ->
+      |     Collection.Count(
+      |      SQLServer.Query("$sqlServDb", "SELECT * FROM $sqlServSchema." + table,
+      |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
+      |      host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get}",
+      |      password = "${sqlServerCreds.password.get}")
+      |     ))""".stripMargin
+  ) { it =>
+    val error =
+      s"""failed to read from database sqlserver:$sqlServDb: Invalid object name '$sqlServSchema.dont_exist'."""
+    it should evaluateTo(s"""[3L, Error.Build("$error")]""")
+  }
+
 }

@@ -14,8 +14,14 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{PostgreSQLQueryEntry, PostgreSQLReadEntry}
+import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.ast.expressions.binary.PlusNode
+import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
+import raw.runtime.truffle.ast.expressions.literals.StringNode
+import raw.runtime.truffle.runtime.exceptions.rdbms.PostgreSQLExceptionHandler
+import raw.sources.CacheStrategy
 
 class TrufflePostgreSQLReadEntry extends PostgreSQLReadEntry with TruffleEntryExtension {
 
@@ -25,6 +31,28 @@ class TrufflePostgreSQLReadEntry extends PostgreSQLReadEntry with TruffleEntryEx
 
 class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = ???
-
+  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+    val db = args.head.e
+    val optionalArgs = args.collect {
+      case TruffleArg(e, _, Some(idn)) => idn match {
+          case "host" => ("db-host", e)
+          case "port" => ("db-port", e)
+          case "username" => ("db-username", e)
+          case "password" => ("db-password", e)
+        }
+    }
+    val keys = optionalArgs.map(_._1)
+    val values = optionalArgs.map(_._2)
+    val types = args.tail.collect {
+      case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties]
+    } :+ Rql2StringType().asInstanceOf[Rql2TypeWithProperties]
+    val location = new LocationBuildNode(
+      new PlusNode(new StringNode("pgsql:"), db),
+      keys.toArray,
+      values.toArray,
+      types.toArray,
+      CacheStrategy.NoCache
+    )
+    TruffleJdbc.query(location, args(1).e, t, new PostgreSQLExceptionHandler())
+  }
 }

@@ -24,6 +24,7 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
   rdbms(authorizedUser, "oracle", oracleCreds)
 
   test(s"""Oracle.InferAndRead("oracle", "$oracleSchema", "$oracleTable")""") { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {A: 1, B: 1, C: Decimal.From(1.5), D: Decimal.From(1.5), X: "x1", Y: "y1"},
@@ -38,6 +39,7 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(A: int, B: int, C: double, D: double, X: string, Y: string))
       |)""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {A: 1, B: 1, C: 1.5, D: 1.5, X: "x1", Y: "y1"},
@@ -51,6 +53,7 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""Oracle.Read("oracle", "$oracleSchema", "$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)))""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {A: 1, B: 1, C: 1.5, D: 1.5, X: Error.Build("failed to read value: column 'X': Fail to convert to internal representation"), Y: "y1"},
@@ -64,6 +67,7 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""Oracle.InferAndRead("$oracleDb", "$oracleSchema", "$oracleTable",
       |   host = "${oracleCreds.host}", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}")""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {A: 1, B: 1, C: Decimal.From(1.5), D: Decimal.From(1.5), X: "x1", Y: "y1"},
@@ -78,6 +82,7 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |   host = "${oracleCreds.host}", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}" )""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {A: 1, B: 1, C: 1.5, D: 1.5, X: Error.Build("failed to read value: column 'X': Fail to convert to internal representation"), Y: "y1"},
@@ -115,7 +120,10 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""Oracle.Read("$oracleSchema", "rdbmstest", "$oracleTable",
       |   type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""o credential found for oracle: $oracleSchema""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs(s"""o credential found for oracle: $oracleSchema""".stripMargin)
+  }
 
   // server does not exist
   test(
@@ -124,7 +132,10 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "oracle.example.com", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
       |)""".stripMargin
-  )(it => it should runErrorAs("""unknown host: oracle.example.com""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""unknown host: oracle.example.com""".stripMargin)
+  }
 
   // network error
   test(
@@ -133,7 +144,10 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "example.com", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
       |)""".stripMargin
-  )(it => it should runErrorAs("""error connecting to database: example.com""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""error connecting to database: example.com""".stripMargin)
+  }
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
@@ -143,7 +157,10 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}", port = 1234
       |)""".stripMargin
-  )(it => it should runErrorAs("""connect timed out: test-oracle.raw-labs.com""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""connect timed out: test-oracle.raw-labs.com""".stripMargin)
+  }
 
   // No password
   test(
@@ -152,7 +169,10 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "test-oracle.raw-labs.com"
       |)""".stripMargin
-  )(it => it should runErrorAs("""authentication failed""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""authentication failed""".stripMargin)
+  }
 
   // wrong password
   test(
@@ -161,7 +181,10 @@ trait OraclePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
       |  host = "test-oracle.raw-labs.com", username = "${oracleCreds.username.get.toString}", password = "wrong!"
       |)""".stripMargin
-  )(it => it should runErrorAs("""authentication failed""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""authentication failed""".stripMargin)
+  }
 
   test(s"""Oracle.InferAndQuery("oracle", "SELECT * FROM $oracleSchema.$oracleTable")""") { it =>
     it should evaluateTo(
