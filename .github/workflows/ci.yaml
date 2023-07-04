@@ -38,14 +38,9 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
-      - uses: keithweaver/aws-s3-github-action@v1.0.0
+      - uses: oNaiPs/secrets-to-env-action@v1
         with:
-          command: cp
-          source: s3://rawlabs-credentials/tests/.env 
-          destination: ./.env
-          aws_access_key_id: ${{ secrets.GHA_AWS_ACCESS_KEY_ID }}
-          aws_secret_access_key: ${{ secrets.GHA_AWS_SECRET_ACCESS_KEY }}
-          aws_region: eu-west-1
+          secrets: ${{ toJSON(secrets) }}
       - run: ./rebuild.sh
       - run: ./tests.sh
       - uses: mikepenz/action-junit-report@v3
