@@ -24,20 +24,18 @@ import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.*;
 import scala.Tuple2;
-import scala.collection.immutable.Map;
 import scala.collection.immutable.HashMap;
+import scala.collection.immutable.Map;
 import scala.collection.immutable.VectorBuilder;
 
 import java.time.Duration;
-
-// todo: A.Z ask about cache strategy
 
 @NodeInfo(shortName = "Location.Build")
 public class LocationBuildNode extends ExpressionNode {
@@ -120,10 +118,10 @@ public class LocationBuildNode extends ExpressionNode {
                 }
                 return new raw.sources.LocationBinarySetting(vec.result());
             } else {
-                throw new RawTruffleRuntimeException("Unsupported type for LocationSettingValue", this);
+                throw new RawTruffleInternalErrorException();
             }
         } catch (UnsupportedMessageException | UnknownIdentifierException | InvalidArrayIndexException e) {
-            throw new RawTruffleRuntimeException("Error while building LocationSettingValue", this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
 
     }

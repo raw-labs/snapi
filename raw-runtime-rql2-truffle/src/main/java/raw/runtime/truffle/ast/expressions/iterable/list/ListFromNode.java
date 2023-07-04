@@ -19,9 +19,9 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2Type;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.*;
@@ -54,7 +54,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new ByteList(list));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);
@@ -77,7 +77,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new ShortList(list));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);
@@ -100,7 +100,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new IntList(list));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);
@@ -123,7 +123,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new LongList(list));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);
@@ -147,7 +147,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new FloatList(list));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);
@@ -171,7 +171,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new DoubleList(list));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);
@@ -194,7 +194,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new BooleanList(list));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);
@@ -217,7 +217,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new StringList(list));
-        } catch (Exception e) {
+        } catch (RawTruffleRuntimeException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         } finally {
             generators.close(generator);
@@ -240,7 +240,7 @@ public abstract class ListFromNode extends ExpressionNode {
                 list[i] = llist.get(i);
             }
             return ObjectTryable.BuildSuccess(new ObjectList(list));
-        } catch (Exception e) {
+        } catch (RawTruffleRuntimeException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         } finally {
             generators.close(generator);

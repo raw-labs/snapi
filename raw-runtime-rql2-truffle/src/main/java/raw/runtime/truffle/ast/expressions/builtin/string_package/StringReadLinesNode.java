@@ -30,13 +30,9 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 public abstract class StringReadLinesNode extends ExpressionNode {
     @Specialization
     protected Object doExecute(LocationObject locationObject, String encoding) {
-        try {
-            RuntimeContext context = RawContext.get(this).getRuntimeContext();
-            TruffleInputStream stream = new TruffleInputStream(locationObject, context);
-            TruffleCharInputStream charStream = new TruffleCharInputStream(stream, encoding);
-            return new ReadLinesCollection(charStream, context);
-        } catch (Exception ex) {
-            throw new RawTruffleRuntimeException(ex.getMessage(), this);
-        }
+        RuntimeContext context = RawContext.get(this).getRuntimeContext();
+        TruffleInputStream stream = new TruffleInputStream(locationObject, context);
+        TruffleCharInputStream charStream = new TruffleCharInputStream(stream, encoding);
+        return new ReadLinesCollection(charStream, context);
     }
 }

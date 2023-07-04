@@ -19,7 +19,11 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+
+import java.io.IOException;
 
 @NodeInfo(shortName = "TryableWriteCsv")
 public class TryableWriteCsvNode extends StatementNode {
@@ -40,18 +44,9 @@ public class TryableWriteCsvNode extends StatementNode {
         Object tryable = args[0];
         CsvGenerator generator = (CsvGenerator) args[1];
         if (tryables.isSuccess(tryable)) {
-            doWriteValue(tryables.success(tryable), generator);
+            valueWriter.call(tryables.success(tryable), generator);
         } else {
             doWriteError(tryables.failure(tryable), generator);
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private void doWriteValue(Object value, CsvGenerator generator) {
-        try {
-            valueWriter.call(value, generator);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
         }
     }
 
@@ -59,8 +54,8 @@ public class TryableWriteCsvNode extends StatementNode {
     private void doWriteError(String message, CsvGenerator gen) {
         try {
             gen.writeString(message);
-        } catch (Exception e) {
-            throw new RuntimeException(e.getMessage());
+        } catch (IOException e) {
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
         }
     }
 }

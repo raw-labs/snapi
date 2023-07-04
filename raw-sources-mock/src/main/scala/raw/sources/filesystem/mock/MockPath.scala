@@ -51,12 +51,12 @@ class MockPath(
 
   override protected def doGetInputStream(): InputStream = {
     doDelay()
-    delegate.getInputStream()
+    delegate.getInputStream
   }
 
   override protected def doGetSeekableInputStream(): SeekableInputStream = {
     doDelay()
-    delegate.getSeekableInputStream()
+    delegate.getSeekableInputStream
   }
 
   override def getLocalPath(): Path = {

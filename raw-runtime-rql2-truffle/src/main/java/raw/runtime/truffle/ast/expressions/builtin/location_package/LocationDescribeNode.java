@@ -15,6 +15,9 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.Rql2TypeUtils$;
@@ -24,7 +27,7 @@ import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.StringOption;
@@ -33,7 +36,10 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import scala.Some;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 // A.Z Similar implementation to Scala
@@ -50,10 +56,10 @@ public abstract class LocationDescribeNode extends ExpressionNode {
         try {
             // In scala implementation interpreter there is a sample size argument
             InputFormatDescriptor descriptor = inferrer.infer(
-                AutoInferrerProperties.apply(
-                    locationObject.getLocationDescription(),
-                    sampleSize == Integer.MAX_VALUE ? Some.empty() : Some.apply(sampleSize)),
-                context.executionLogger());
+                    AutoInferrerProperties.apply(
+                            locationObject.getLocationDescription(),
+                            sampleSize == Integer.MAX_VALUE ? Some.empty() : Some.apply(sampleSize)),
+                    context.executionLogger());
 
             String format = "";
             String comment = "";
@@ -208,8 +214,10 @@ public abstract class LocationDescribeNode extends ExpressionNode {
 
 
             return ObjectTryable.BuildSuccess(record);
-        } catch (Exception ex) {
+        } catch (InferrerException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
+            throw new RawTruffleInternalErrorException(ex);
         } finally {
             inferrer.stop();
         }

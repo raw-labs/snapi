@@ -15,17 +15,12 @@ package raw.runtime.truffle.ast.expressions.iterable.list;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import raw.compiler.base.source.Type;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
-import raw.compiler.base.source.Type;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.*;
-
-// TODO: A.Z needs a visitor pattern to avoid all this IFs
-// Add accept method to each Rql2TypeWithProps - accept(visitor) Every type will call e.g BooleanType.accept(visitor) { visitor.visitBoolean() }
-// Then implement a visitor for each needed functionality
-// and call it by Rql2TypeWithProps.accept(concreteVisitor)
-// for this file the visitor accept for each type would include the insides of the ifs
 
 @NodeInfo(shortName = "List.Build")
 public class ListBuildNode extends ExpressionNode {
@@ -110,8 +105,8 @@ public class ListBuildNode extends ExpressionNode {
                 }
                 return new ObjectList(values);
             }
-        } catch (Exception ex) {
-            throw new RawTruffleRuntimeException(ex.getMessage(), this);
+        } catch (UnexpectedResultException ex) {
+            throw new RawTruffleInternalErrorException(ex, this);
         }
 
     }

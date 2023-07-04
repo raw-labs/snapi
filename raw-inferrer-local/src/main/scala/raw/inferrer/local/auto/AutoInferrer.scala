@@ -57,7 +57,7 @@ class AutoInferrer(
 
       maybeFileExtension match {
         case Some(extension) if extension.equalsIgnoreCase("xls") || extension.equalsIgnoreCase("xlsx") =>
-          val is = location.getInputStream()
+          val is = location.getInputStream
           try {
             excelInferrer.infer(is, None, None, None)
           } finally {
@@ -93,9 +93,9 @@ class AutoInferrer(
 
     val is =
       if (sourceContext.settings.getBoolean("raw.inferrer.local.use-buffered-seekable-is")) {
-        new InferrerBufferedSeekableIS(location.getSeekableInputStream())
+        new InferrerBufferedSeekableIS(location.getSeekableInputStream)
       } else {
-        location.getSeekableInputStream()
+        location.getSeekableInputStream
       }
     try {
       val (encoding, confidence) = guessEncoding(is)
