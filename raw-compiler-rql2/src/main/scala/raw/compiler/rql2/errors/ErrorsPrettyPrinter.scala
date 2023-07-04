@@ -54,15 +54,6 @@ trait ErrorsPrettyPrinter extends common.errors.ErrorsPrettyPrinter with rql2.so
           ent <+> "is not declared in package" <+> pkgName
         }
       handleHintsAndSuggestions(message, hints, suggestions)
-    case UnexpectedType(_, PackageType(pkgName), ExpectedProjType(ent), hints, suggestions) =>
-      val message =
-        if (pkgName.contains("$")) {
-          // Hide package names of dynamic packages
-          ent <+> "is not declared in package"
-        } else {
-          ent <+> "is not declared in package" <+> pkgName
-        }
-      handleHintsAndSuggestions(message, hints, suggestions)
     case _ => super.toDoc(n)
   }
 

@@ -12,15 +12,14 @@
 
 package raw.compiler.rql2.source
 
-import java.util
 import org.bitbucket.inkytonik.kiama.output.{LeftAssoc, NonAssoc, PrettyExpression, RightAssoc}
 import org.bitbucket.inkytonik.kiama.util.Trampolines.Done
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import raw.compiler.base.source.BaseNode
-import raw.compiler.common.source.{IdnDef, IdnExp}
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{CommentsSyntaxAnalyzer, NodeComments}
 
+import java.util
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
@@ -38,7 +37,7 @@ class SourceCommentsPrettyPrinter extends SourcePrettyPrinter {
 
   // Hack putting a special character in the end of comments to later remove it with potential double '\n'
   // Making if a long string also makes it force the horizontal formatting whenever there are comments.
-  val control = Character.PRIVATE_USE.toChar
+  val control: Char = Character.PRIVATE_USE.toChar
   //Array.fill(defaultWidth)(Character.PRIVATE_USE.toChar).mkString
 
   def withComments(n: BaseNode, pretty: Doc): Doc = {
@@ -83,7 +82,7 @@ class SourceCommentsPrettyPrinter extends SourcePrettyPrinter {
       val r = format(program)
       // checking if all comments were used
       val diff = nodeComments.keySet().asScala.diff(usedComments.toSet)
-      if (diff.size != 0) {
+      if (diff.nonEmpty) {
         val strDiff = diff.map(x => (x, nodeComments.get(x)))
         logger.warn(s"Not all comments were used: ${strDiff.mkString(",")}")
         throw new AssertionError(s"Not all comments were used: ${strDiff.mkString(",")}")

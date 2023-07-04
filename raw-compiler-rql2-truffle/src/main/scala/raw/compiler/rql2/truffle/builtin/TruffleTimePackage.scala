@@ -27,17 +27,14 @@ import raw.runtime.truffle.ast.expressions.builtin.temporals.time_package.{
   TimeSubtractIntervalNodeGen,
   TimeSubtractNodeGen
 }
-import raw.runtime.truffle.ast.expressions.literals.IntNode
-
-import scala.collection.immutable.ListMap
 
 class TruffleTimeBuildEntry extends TimeBuildEntry with TruffleShortEntryExtension {
   override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode =
-    TimeBuildNodeGen.create(args(0), args(1), args(2), args(3))
+    TimeBuildNodeGen.create(args.head, args(1), args(2), args(3))
 }
 
 class TruffleTimeParseEntry extends TimeParseEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeParseNodeGen.create(args(0), args(1))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeParseNodeGen.create(args.head, args(1))
 }
 
 class TruffleTimeNowEntry extends TimeNowEntry with TruffleShortEntryExtension {
@@ -45,30 +42,30 @@ class TruffleTimeNowEntry extends TimeNowEntry with TruffleShortEntryExtension {
 }
 
 class TruffleTimeHourEntry extends TimeHourEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeHourNodeGen.create(args(0))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeHourNodeGen.create(args.head)
 }
 
 class TruffleTimeMinuteEntry extends TimeMinuteEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeMinuteNodeGen.create(args(0))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeMinuteNodeGen.create(args.head)
 }
 
 class TruffleTimeSecondEntry extends TimeSecondEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeSecondNodeGen.create(args(0))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeSecondNodeGen.create(args.head)
 }
 
 class TruffleTimeMillisEntry extends TimeMillisEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeMillisNodeGen.create(args(0))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeMillisNodeGen.create(args.head)
 }
 
 class TruffleTimeSubtractEntry extends TimeSubtractEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeSubtractNodeGen.create(args(0), args(1))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeSubtractNodeGen.create(args.head, args(1))
 }
 
 class TruffleTimeAddIntervalEntry extends TimeAddIntervalEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeAddIntervalNodeGen.create(args(0), args(1))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = TimeAddIntervalNodeGen.create(args.head, args(1))
 }
 
 class TruffleTimeSubtractIntervalEntry extends TimeSubtractIntervalEntry with TruffleShortEntryExtension {
   override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode =
-    TimeSubtractIntervalNodeGen.create(args(0), args(1))
+    TimeSubtractIntervalNodeGen.create(args.head, args(1))
 }

@@ -12,13 +12,9 @@
 
 package raw.compiler.rql2.truffle.builtin
 
-import raw.compiler.base.source.{AnythingType, Type}
-import raw.compiler.common.source.Exp
-import raw.compiler.rql2.source.FunType
-import raw.compiler.rql2._
+import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.FunctionInvokeAfterEntry
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, TypeDoc}
 import raw.runtime.truffle.ExpressionNode
 
 class TruffleFunctionInvokeAfterEntry extends FunctionInvokeAfterEntry with TruffleEntryExtension {

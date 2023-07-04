@@ -10,6 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.extensions
+package raw.runtime.truffle.runtime.exceptions.binary;
 
-// class AwsPackageTruffleTest extends TruffleCompilerTestContext with AwsPackageTest
+import com.oracle.truffle.api.nodes.Node;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+
+public class BinaryWriterRawTruffleException extends RawTruffleRuntimeException {
+    public BinaryWriterRawTruffleException(String message, Node location) {
+        super(message, location);
+    }
+}

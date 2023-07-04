@@ -13,7 +13,6 @@
 package raw.compiler.rql2.truffle.builtin
 
 import com.oracle.truffle.api.frame.FrameDescriptor
-import raw.compiler.CompilerException
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2.builtin.{ParseJsonEntry, PrintJsonEntry, ReadJsonEntry}
@@ -116,7 +115,7 @@ class TrufflePrintJsonEntry extends PrintJsonEntry with TruffleEntryExtension {
 
 object JsonRecurse {
 
-  val lang = RawLanguage.getCurrentContext.getLanguage
+  val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
   val frameDescriptor = new FrameDescriptor()
 
   def recurseJsonParser(
@@ -265,7 +264,7 @@ object JsonRecurse {
       case Rql2BinaryType(_) => new BinaryWriteJsonNode()
       case Rql2OrType(tipes, _) =>
         val children = tipes.map {
-          case tipe =>
+          tipe =>
             val child = recurse(tipe.asInstanceOf[Rql2TypeWithProperties], isSafe = true)
             new ProgramStatementNode(lang, frameDescriptor, child)
         }.toArray

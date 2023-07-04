@@ -230,7 +230,7 @@ object CsvColumnParser {
     val encoding = arg("encoding").getOrElse(new StringNode("utf-8"))
     val skip = arg("skip").getOrElse(new IntNode("0"))
     val delimiter = arg("delimiter").getOrElse(new StringNode(","))
-    val quote = arg("quote").getOrElse(OptionSomeNodeGen.create(new StringNode("\"")));
+    val quote = arg("quote").getOrElse(OptionSomeNodeGen.create(new StringNode("\"")))
     val nulls =
       arg("nulls").getOrElse(new ListBuildNode(Rql2ListType(Rql2StringType()), List(new StringNode("")).toArray))
     val nans = arg("nans").getOrElse(new ListBuildNode(Rql2ListType(Rql2StringType()), List.empty.toArray))
@@ -248,8 +248,6 @@ object CsvWriter {
   private val frameDescriptor = new FrameDescriptor()
 
   def apply(args: Seq[Type]): ProgramStatementNode = {
-    val lang = RawLanguage.getCurrentContext.getLanguage
-    val frameDescriptor = new FrameDescriptor()
     val columnWriters = args.map(columnWriter).map(writer => new ProgramStatementNode(lang, frameDescriptor, writer))
     val recordWriter = new RecordWriteCsvNode(columnWriters.toArray)
     new ProgramStatementNode(lang, frameDescriptor, recordWriter)

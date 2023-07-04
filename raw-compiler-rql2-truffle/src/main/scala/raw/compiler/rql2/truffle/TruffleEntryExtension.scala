@@ -13,12 +13,12 @@
 package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.frame.FrameDescriptor
-import com.oracle.truffle.api.nodes.Node
 import raw.compiler.base.source.Type
 import raw.compiler.common.source.Exp
-import raw.compiler.rql2.source.Rql2TypeWithProperties
 import raw.compiler.rql2.{EntryExtension, Rql2Arg}
-import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
+import raw.runtime.truffle.ExpressionNode
+
+import scala.annotation.nowarn
 
 final case class TruffleArg(e: ExpressionNode, t: Type, idn: Option[String])
 
