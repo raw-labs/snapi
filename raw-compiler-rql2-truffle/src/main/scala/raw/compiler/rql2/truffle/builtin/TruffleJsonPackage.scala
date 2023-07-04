@@ -263,10 +263,9 @@ object JsonRecurse {
       case Rql2IntervalType(_) => new IntervalWriteJsonNode()
       case Rql2BinaryType(_) => new BinaryWriteJsonNode()
       case Rql2OrType(tipes, _) =>
-        val children = tipes.map {
-          tipe =>
-            val child = recurse(tipe.asInstanceOf[Rql2TypeWithProperties], isSafe = true)
-            new ProgramStatementNode(lang, frameDescriptor, child)
+        val children = tipes.map { tipe =>
+          val child = recurse(tipe.asInstanceOf[Rql2TypeWithProperties], isSafe = true)
+          new ProgramStatementNode(lang, frameDescriptor, child)
         }.toArray
         new OrWriteJsonNode(children)
       case Rql2UndefinedType(_) => new UndefinedWriteJsonNode()
