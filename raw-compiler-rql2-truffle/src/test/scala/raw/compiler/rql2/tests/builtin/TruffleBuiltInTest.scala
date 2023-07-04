@@ -43,7 +43,7 @@ import raw.testing.tags.TruffleTests
 // class PostgreSQLPackageTruffleTest extends TruffleCompilerTestContext with PostgreSQLPackageTest
 @TruffleTests class RecordPackageTruffleTest extends TruffleCompilerTestContext with RecordPackageTest
 @TruffleTests class RegexPackageTruffleTest extends TruffleCompilerTestContext with RegexPackageTest
-// class S3PackageTruffleTest extends TruffleCompilerTestContext with S3PackageTest
+@TruffleTests class S3PackageTruffleTest extends TruffleCompilerTestContext with S3PackageTest
 @TruffleTests class ShortPackageTruffleTest extends TruffleCompilerTestContext with ShortPackageTest
 // class SnowflakePackageTruffleTest extends TruffleCompilerTestContext with SnowflakePackageTest
 // class SqlServerPackageTruffleTest extends TruffleCompilerTestContext with SqlServerPackageTest
