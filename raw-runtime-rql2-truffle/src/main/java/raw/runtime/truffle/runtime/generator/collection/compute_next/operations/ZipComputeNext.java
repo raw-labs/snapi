@@ -73,7 +73,7 @@ public class ZipComputeNext {
             }
             throw new BreakException();
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e.getCause());
+            throw new RawTruffleInternalErrorException(e);
         }
     }
 }

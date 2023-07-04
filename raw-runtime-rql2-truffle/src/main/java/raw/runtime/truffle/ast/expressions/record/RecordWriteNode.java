@@ -35,7 +35,7 @@ public abstract class RecordWriteNode extends ExpressionNode {
         try {
             records.writeMember(record, name, value);
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
         return value;
     }

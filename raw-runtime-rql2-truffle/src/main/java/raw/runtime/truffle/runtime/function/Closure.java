@@ -42,7 +42,7 @@ public class Closure {
         try {
             return interop.execute(function, args);
         } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), node);
+            throw new RawTruffleInternalErrorException(e, node);
         }
     }
 }

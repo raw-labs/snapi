@@ -101,7 +101,7 @@ public class RecordParseJsonNode extends ExpressionNode {
             }
             nextTokenNode.execute(parser); // skip the END_OBJECT token
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
 
         if (currentBitSet.cardinality() != this.fieldsSize) {
@@ -116,7 +116,7 @@ public class RecordParseJsonNode extends ExpressionNode {
                         try {
                             records.writeMember(record, fields[i].toString(), nullValue);
                         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-                            throw new RawTruffleInternalErrorException(e.getCause(), this);
+                            throw new RawTruffleInternalErrorException(e, this);
                         }
                     } else {
                         throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);

@@ -119,7 +119,7 @@ public final class KryoReader {
                 try {
                     records.writeMember(record, att.idn(), value);
                 } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-                    throw new RawTruffleInternalErrorException(e.getCause());
+                    throw new RawTruffleInternalErrorException(e);
                 }
                 return true;
             });

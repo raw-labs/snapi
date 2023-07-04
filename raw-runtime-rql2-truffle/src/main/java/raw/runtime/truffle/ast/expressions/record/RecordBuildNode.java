@@ -55,7 +55,7 @@ public class RecordBuildNode extends ExpressionNode {
                 libraries.writeMember(record, (String) key, value);
             }
         } catch (UnknownIdentifierException | UnsupportedMessageException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
         return record;
     }

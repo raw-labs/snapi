@@ -64,7 +64,7 @@ public class RecordWriteCsvNode extends StatementNode {
             }
             doEndRow(generator);
         } catch (UnsupportedMessageException | InvalidArrayIndexException | UnknownIdentifierException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 

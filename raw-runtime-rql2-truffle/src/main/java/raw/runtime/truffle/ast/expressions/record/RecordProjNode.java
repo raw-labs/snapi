@@ -34,7 +34,7 @@ public abstract class RecordProjNode extends ExpressionNode {
         try {
             return records.readMember(record, key);
         } catch (UnsupportedMessageException | UnknownIdentifierException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 
@@ -47,7 +47,7 @@ public abstract class RecordProjNode extends ExpressionNode {
             String member = (String) libraries.readArrayElement(keys, index - 1);
             return records.readMember(record, member);
         } catch (UnsupportedMessageException | UnknownIdentifierException | InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 }

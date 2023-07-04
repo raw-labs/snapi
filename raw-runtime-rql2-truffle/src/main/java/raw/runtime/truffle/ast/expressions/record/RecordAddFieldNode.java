@@ -45,7 +45,7 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
             return newRecord;
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException |
                  InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 }

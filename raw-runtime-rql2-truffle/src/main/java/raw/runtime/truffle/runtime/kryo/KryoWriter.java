@@ -129,7 +129,7 @@ public final class KryoWriter {
                     writerLibrary.write(receiver, output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
                 }
             } catch (UnsupportedMessageException | InvalidArrayIndexException | UnknownIdentifierException e) {
-                throw new RawTruffleInternalErrorException(e.getCause());
+                throw new RawTruffleInternalErrorException(e);
             }
         }
 

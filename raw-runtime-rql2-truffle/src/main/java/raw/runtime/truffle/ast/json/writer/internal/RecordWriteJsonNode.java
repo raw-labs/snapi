@@ -68,7 +68,7 @@ public class RecordWriteJsonNode extends StatementNode {
 
         } catch (UnsupportedMessageException | RuntimeException | InvalidArrayIndexException |
                  UnknownIdentifierException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 

@@ -58,7 +58,7 @@ public class RecordParseCsvNode extends ExpressionNode {
             try {
                 records.writeMember(record, fieldName, value);
             } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
-                throw new RawTruffleInternalErrorException(ex.getCause(), this);
+                throw new RawTruffleInternalErrorException(ex, this);
             }
         }
         parser.finishLine(this);

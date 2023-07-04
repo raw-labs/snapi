@@ -106,7 +106,7 @@ public class ListBuildNode extends ExpressionNode {
                 return new ObjectList(values);
             }
         } catch (UnexpectedResultException ex) {
-            throw new RawTruffleInternalErrorException(ex.getCause(), this);
+            throw new RawTruffleInternalErrorException(ex, this);
         }
 
     }

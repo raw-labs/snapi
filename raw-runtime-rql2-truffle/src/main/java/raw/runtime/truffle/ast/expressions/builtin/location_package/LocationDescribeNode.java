@@ -217,7 +217,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
         } catch (InferrerException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
-            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
+            throw new RawTruffleInternalErrorException(ex);
         } finally {
             inferrer.stop();
         }

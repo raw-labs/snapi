@@ -38,7 +38,7 @@ public abstract class RecordFieldsNode extends ExpressionNode {
             }
             return new StringList(members);
         } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 

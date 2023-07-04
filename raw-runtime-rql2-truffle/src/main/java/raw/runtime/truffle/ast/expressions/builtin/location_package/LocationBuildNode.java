@@ -121,7 +121,7 @@ public class LocationBuildNode extends ExpressionNode {
                 throw new RawTruffleInternalErrorException();
             }
         } catch (UnsupportedMessageException | UnknownIdentifierException | InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
 
     }

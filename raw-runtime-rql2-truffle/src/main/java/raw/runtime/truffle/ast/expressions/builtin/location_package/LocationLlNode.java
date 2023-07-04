@@ -100,7 +100,7 @@ public abstract class LocationLlNode extends ExpressionNode {
         } catch (FileSystemException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
+            throw new RawTruffleInternalErrorException(e);
         }
     }
 }

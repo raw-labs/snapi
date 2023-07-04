@@ -170,7 +170,7 @@ public class CompareOperator {
                 }
                 return 0;
             } catch (InvalidArrayIndexException | UnsupportedMessageException | UnknownIdentifierException e) {
-                throw new RawTruffleInternalErrorException(e.getCause());
+                throw new RawTruffleInternalErrorException(e);
             }
         }
 

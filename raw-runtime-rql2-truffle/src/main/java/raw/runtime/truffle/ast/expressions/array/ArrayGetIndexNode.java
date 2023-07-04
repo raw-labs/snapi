@@ -31,7 +31,7 @@ public abstract class ArrayGetIndexNode extends ExpressionNode {
         try {
             return arrays.readArrayElement(receiver, index);
         } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e.getCause(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 }

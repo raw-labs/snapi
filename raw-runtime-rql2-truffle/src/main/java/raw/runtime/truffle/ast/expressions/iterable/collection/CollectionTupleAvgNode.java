@@ -57,7 +57,7 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
             records.writeMember(record, "count", results[1]);
             return ObjectTryable.BuildSuccess(record);
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
-            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
+            throw new RawTruffleInternalErrorException(ex);
         }
     }
 }

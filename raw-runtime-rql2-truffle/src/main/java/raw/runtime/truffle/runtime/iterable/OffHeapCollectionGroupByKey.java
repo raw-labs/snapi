@@ -50,7 +50,7 @@ class CollectionGroupByRecordShaper extends GroupByRecordShaper {
             records.writeMember(record, "key", key);
             records.writeMember(record, "group", new ObjectList(values).toIterable());
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e.getCause());
+            throw new RawTruffleInternalErrorException(e);
         }
         return record;
     }

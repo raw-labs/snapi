@@ -94,7 +94,7 @@ public abstract class HttpReadNode extends ExpressionNode {
         } catch (LocationException | IOException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            return ObjectTryable.BuildFailure(RawTruffleInternalErrorException.message);
+            throw new RawTruffleInternalErrorException(e);
         }
     }
 
