@@ -160,7 +160,12 @@ object RawCli extends App {
 
       var done = false
       while (!done) {
-        val line = reader.readLine("> ")
+        val line =
+          try {
+            reader.readLine("> ")
+          } catch {
+            case _: org.jline.reader.EOFError => null
+          }
         if (line == null || line.strip().isEmpty) {
           // Do nothing; ask for more input
         } else if (line.strip().equalsIgnoreCase(".exit")) {
@@ -221,7 +226,7 @@ class MultilineParser(rawCli: RawCli) extends DefaultParser {
         // ... where it isn't executable by itself.
         if (result.me.isDefined) {
           // A valid program with a top-level expression
-          super.parse(line, cursor, ParseContext.COMPLETE)
+          super.parse(line, cursor, ParseContext.ACCEPT_LINE)
         } else {
           // No top-level expression found, e.g. 'f(v: int) = v + 1'
           throw new EOFError(0, 0, "No top-level expression found")
@@ -236,11 +241,11 @@ class MultilineParser(rawCli: RawCli) extends DefaultParser {
           case Failure(message, rest) => (message, rest)
           case Error(message, rest) => (message, rest)
         }
-
-        if (rest.atEnd) {
+        if (rest.atEnd && !message.contains("end of source found")) {
           throw new EOFError(rest.position.line, rest.position.column, message)
         } else {
-          super.parse(line, cursor, ParseContext.COMPLETE)
+          // An invalid program but no point in processing it further, so let's accept and let it fail.
+          super.parse(line, cursor, ParseContext.ACCEPT_LINE)
         }
     }
   }
