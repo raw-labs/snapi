@@ -18,15 +18,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
-import raw.runtime.truffle.ast.expressions.record.{
-  RecordAddFieldNodeGen,
-  RecordBuildNode,
-  RecordConcatNodeGen,
-  RecordFieldsNode,
-  RecordFieldsNodeGen,
-  RecordProjNodeGen,
-  RecordRemoveFieldNodeGen
-}
+import raw.runtime.truffle.ast.expressions.record._
 
 class TruffleRecordBuildEntry extends RecordBuildEntry with TruffleEntryExtension {
 

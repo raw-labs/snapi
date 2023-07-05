@@ -18,8 +18,6 @@ import raw.compiler.common.source.Exp
 import raw.compiler.rql2.{EntryExtension, Rql2Arg}
 import raw.runtime.truffle.ExpressionNode
 
-import scala.annotation.nowarn
-
 final case class TruffleArg(e: ExpressionNode, t: Type, idn: Option[String])
 
 trait TruffleEntryExtension { this: EntryExtension =>

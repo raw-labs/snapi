@@ -390,7 +390,6 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       if (rql2Type.isInstanceOf[ExpType]) {
         return recurseExp(e)
       }
-
       val slot = rql2Type match {
         case _: Rql2UndefinedType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: Rql2ByteType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Byte, getIdnName(entity), null)
