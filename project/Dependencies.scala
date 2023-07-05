@@ -54,7 +54,7 @@ object Dependencies {
 
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
 
-  val guava = "com.google.guava" % "guava" % "31.1-jre"
+  val guava = "com.google.guava" % "guava" % "32.0.1-jre"
 
   val jacksonDeps = Seq(
     "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2",
