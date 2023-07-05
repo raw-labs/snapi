@@ -20,6 +20,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.api.RawException;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -97,7 +98,7 @@ public abstract class LocationLlNode extends ExpressionNode {
             }
 
             return ObjectTryable.BuildSuccess(new ObjectList(result));
-        } catch (FileSystemException e) {
+        } catch (RawException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
             throw new RawTruffleInternalErrorException(e);

@@ -12,6 +12,8 @@
 
 package raw.sources.filesystem
 
+import raw.api.RawException
+
 import java.util.ServiceLoader
 import scala.collection.JavaConverters._
 import raw.sources.{LocationDescription, LocationProvider, SourceContext}
@@ -22,7 +24,7 @@ object FileSystemLocationProvider extends LocationProvider {
 
   private val lock = new Object
 
-  @throws[FileSystemException]
+  @throws[RawException]
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
     lock.synchronized {
       getScheme(location.url) match {

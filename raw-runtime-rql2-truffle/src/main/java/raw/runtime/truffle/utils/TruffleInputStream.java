@@ -18,7 +18,6 @@ import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.Encoding;
-import raw.sources.bytestream.ByteStreamException;
 import raw.sources.bytestream.ByteStreamLocation;
 import raw.sources.bytestream.ByteStreamLocationProvider;
 import scala.util.Either;
@@ -43,7 +42,7 @@ public class TruffleInputStream {
     public ByteStreamLocation getLocation() {
         try {
             return ByteStreamLocationProvider.build(locationObject.getLocationDescription(), context.sourceContext());
-        } catch (ByteStreamException ex) {
+        } catch (RawException ex) {
             throw new RawTruffleRuntimeException(ex.getMessage());
         }
     }

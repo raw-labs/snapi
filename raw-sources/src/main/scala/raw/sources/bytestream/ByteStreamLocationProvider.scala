@@ -12,6 +12,8 @@
 
 package raw.sources.bytestream
 
+import raw.api.RawException
+
 import java.util.ServiceLoader
 import scala.collection.JavaConverters._
 import raw.sources._
@@ -35,7 +37,7 @@ object ByteStreamLocationProvider extends LocationProvider {
     }
   }
 
-  @throws[ByteStreamException]
+  @throws[RawException]
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): ByteStreamLocation = {
     lock.synchronized {
       getScheme(location.url) match {
