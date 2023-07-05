@@ -344,7 +344,7 @@ lazy val rawSourcesHttp = (project in file("raw-sources-http"))
   .dependsOn(rawSourcesApi % "compile->compile;test->test")
   .settings(
     strictBuildExceptDeprecationsSettings,
-    libraryDependencies ++= Seq(jwtApi, jwtImpl, jwtJackson)
+    libraryDependencies ++= Seq(jwtApi, jwtImpl, jwtCore)
   )
 
 lazy val rawSourcesPgsql = (project in file("raw-sources-pgsql"))
