@@ -19,7 +19,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
@@ -50,7 +50,7 @@ class ListGroupByRecordShaper extends GroupByRecordShaper {
             records.writeMember(record, "key", key);
             records.writeMember(record, "group", new ObjectList(values));
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
+            throw new RawTruffleInternalErrorException(e);
         }
         return record;
     }

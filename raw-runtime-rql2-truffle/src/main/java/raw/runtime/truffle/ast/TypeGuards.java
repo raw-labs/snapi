@@ -32,14 +32,6 @@ public class TypeGuards {
         return false;
     }
 
-    public static boolean isUndefinedKind(Rql2Type rql2Type) {
-        if (rql2Type instanceof Rql2TypeWithProperties) {
-            Rql2TypeWithProperties rql2TypeWithProperties = (Rql2TypeWithProperties) rql2Type;
-            return rql2TypeWithProperties instanceof Rql2UndefinedType && rql2TypeWithProperties.props().isEmpty();
-        }
-        return false;
-    }
-
 
     public static boolean isBooleanKind(Rql2Type rql2Type) {
         if (rql2Type instanceof Rql2TypeWithProperties) {
@@ -165,6 +157,14 @@ public class TypeGuards {
         if (rql2Type instanceof Rql2TypeWithProperties) {
             Rql2TypeWithProperties rql2TypeWithProperties = (Rql2TypeWithProperties) rql2Type;
             return rql2TypeWithProperties instanceof Rql2IterableType && rql2TypeWithProperties.props().isEmpty();
+        }
+        return false;
+    }
+
+    public static boolean isBinaryKind(Rql2Type rql2Type) {
+        if (rql2Type instanceof Rql2TypeWithProperties) {
+            Rql2TypeWithProperties rql2TypeWithProperties = (Rql2TypeWithProperties) rql2Type;
+            return rql2TypeWithProperties instanceof Rql2BinaryType && rql2TypeWithProperties.props().isEmpty();
         }
         return false;
     }

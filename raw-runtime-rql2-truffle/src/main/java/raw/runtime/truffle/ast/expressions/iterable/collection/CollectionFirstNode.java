@@ -17,6 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.option.ObjectOption;
@@ -29,9 +30,9 @@ public abstract class CollectionFirstNode extends ExpressionNode {
 
     @Specialization(limit = "3")
     protected ObjectTryable doObject(Object iterable,
-                              @CachedLibrary(limit = "1") GeneratorLibrary generators,
-                              @CachedLibrary("iterable") IterableLibrary iterables,
-                              @CachedLibrary(limit = "1") OptionLibrary options) {
+                                     @CachedLibrary(limit = "1") GeneratorLibrary generators,
+                                     @CachedLibrary("iterable") IterableLibrary iterables,
+                                     @CachedLibrary(limit = "1") OptionLibrary options) {
         try {
             Object generator = iterables.getGenerator(iterable);
             if (!generators.hasNext(generator)) {
@@ -42,7 +43,7 @@ public abstract class CollectionFirstNode extends ExpressionNode {
                 return ObjectTryable.BuildSuccess(next);
             }
             return ObjectTryable.BuildSuccess(new ObjectOption(next));
-        } catch (Exception e) {
+        } catch (RawTruffleRuntimeException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         }
     }

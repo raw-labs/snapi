@@ -29,7 +29,6 @@ import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 import java.io.IOException;
 import java.io.Reader;
-import java.util.logging.Level;
 
 public final class ParserOperations {
 

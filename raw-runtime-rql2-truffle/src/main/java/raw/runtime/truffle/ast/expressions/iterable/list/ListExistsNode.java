@@ -15,14 +15,11 @@ package raw.runtime.truffle.ast.expressions.iterable.list;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2Type;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.handlers.NullableTryableHandler;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -48,14 +45,12 @@ public abstract class ListExistsNode extends ExpressionNode {
             Object[] argumentValues = new Object[1];
             while (generators.hasNext(generator)) {
                 argumentValues[0] = generators.next(generator);
-                Boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), (Rql2TypeWithProperties) getPredicateType(), false);
+                Boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
                 if (predicate) {
                     return true;
                 }
             }
             return false;
-        } catch (Exception ex) {
-            throw new RawTruffleRuntimeException(ex.getMessage(), this);
         } finally {
             generators.close(generator);
         }

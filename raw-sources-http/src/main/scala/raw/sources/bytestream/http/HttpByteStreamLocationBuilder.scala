@@ -205,6 +205,7 @@ class HttpByteStreamLocationBuilder extends ByteStreamLocationBuilder with Stric
     }
   }
 
+  @throws(classOf[LocationException])
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): HttpByteStreamLocation = {
     location.url match {
       case httpRegex(_, _) =>

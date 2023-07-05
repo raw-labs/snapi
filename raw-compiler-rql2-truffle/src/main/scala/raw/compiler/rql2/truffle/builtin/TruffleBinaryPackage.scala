@@ -27,18 +27,18 @@ import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 
 class TruffleFromStringBinaryEntryExtension extends FromStringBinaryEntryExtension with TruffleShortEntryExtension {
 
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryFromStringNodeGen.create(args(0))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryFromStringNodeGen.create(args.head)
 
 }
 
 class TruffleBinaryReadEntry extends BinaryReadEntry with TruffleShortEntryExtension {
 
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryReadNodeGen.create(args(0))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryReadNodeGen.create(args.head)
 
 }
 
 class TruffleBinaryBase64Entry extends BinaryBase64Entry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryBase64NodeGen.create(args(0))
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryBase64NodeGen.create(args.head)
 }
 
 object TruffleBinaryWriter {

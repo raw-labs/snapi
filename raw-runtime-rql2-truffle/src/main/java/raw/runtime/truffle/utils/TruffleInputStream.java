@@ -13,6 +13,7 @@
 package raw.runtime.truffle.utils;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import raw.api.RawException;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
@@ -41,7 +42,7 @@ public class TruffleInputStream {
     public ByteStreamLocation getLocation() {
         try {
             return ByteStreamLocationProvider.build(locationObject.getLocationDescription(), context.sourceContext());
-        } catch (Exception ex) {
+        } catch (RawException ex) {
             throw new RawTruffleRuntimeException(ex.getMessage());
         }
     }
@@ -58,7 +59,7 @@ public class TruffleInputStream {
     public InputStream getInputStream() {
         try {
             return getLocation().getInputStream();
-        } catch (Exception ex) {
+        } catch (RawException ex) {
             throw new RawTruffleRuntimeException(ex.getMessage());
         }
     }
@@ -66,7 +67,7 @@ public class TruffleInputStream {
     public Reader getReader(String encoding) {
         try {
             return getLocation().getReader(toEncoding(encoding));
-        } catch (Exception ex) {
+        } catch (RawException ex) {
             throw new RawTruffleRuntimeException(ex.getMessage());
         }
     }
@@ -84,7 +85,7 @@ public class TruffleInputStream {
     public Reader getReader(Encoding encoding) {
         try {
             return getLocation().getReader(encoding);
-        } catch (Exception ex) {
+        } catch (RawException ex) {
             throw new RawTruffleRuntimeException(ex.getMessage());
         }
     }

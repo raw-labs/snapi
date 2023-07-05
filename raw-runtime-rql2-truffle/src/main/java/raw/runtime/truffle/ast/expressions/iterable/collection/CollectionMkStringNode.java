@@ -17,6 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.operators.AddOperator;
@@ -49,7 +50,7 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
                 currentString = (String) operators.doOperation(addOperator, currentString + sep, next);
             }
             return StringTryable.BuildSuccess(currentString + end);
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return StringTryable.BuildFailure(ex.getMessage());
         }
     }

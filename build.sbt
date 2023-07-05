@@ -69,9 +69,9 @@ lazy val buildSettings = Seq(
   organizationName := "RAW Labs SA",
   organizationHomepage := Some(url("https://www.raw-labs.com/")),
   name := baseDirectory.value.getName, // All modules are named after their directories
-  developers := List(Developer("raw-labs", "RAW Labs","engineering@raw-labs.com", url("https://github.com/raw-labs"))),
+  developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs"))),
   licenses := List(
-  "Business Source License 1.1" -> new URL("https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt")
+    "Business Source License 1.1" -> new URL("https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt")
   ),
   startYear := Some(2023),
   headerLicense := Some(HeaderLicense.Custom(licenseHeader)),
@@ -112,7 +112,7 @@ lazy val buildSettings = Seq(
     props
       .stringPropertyNames()
       .asScala
-      .filter(p => p.startsWith("raw."))  
+      .filter(p => p.startsWith("raw."))
       .map(key => s"-D$key=${props.getProperty(key)}")
       .to
   },
@@ -432,7 +432,8 @@ val dummyJavadocJarTask = taskKey[File]("Creates a dummy javadoc jar file")
 
 lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
   .dependsOn(
-    rawCompilerRql2 % "compile->compile;test->test"
+    rawCompilerRql2 % "compile->compile;test->test",
+    rawSourcesHttp % "compile->compile;test->test"
   )
   .settings(
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
@@ -447,7 +448,7 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
       val projectVersion = version.value
       val targetDir = (Compile / target).value
 
-      targetDir.mkdirs()  // ensure directory exists
+      targetDir.mkdirs() // ensure directory exists
 
       val jarFile = targetDir / s"$artifactName-$projectVersion-javadoc.jar"
 
@@ -467,7 +468,7 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
       val in = new FileInputStream(readme)
       val buffer = new Array[Byte](1024)
       var n = in.read(buffer)
-      while(n != -1) {
+      while (n != -1) {
         jar.write(buffer, 0, n)
         n = in.read(buffer)
       }

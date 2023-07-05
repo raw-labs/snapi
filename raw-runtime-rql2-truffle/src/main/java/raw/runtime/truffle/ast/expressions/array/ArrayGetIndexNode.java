@@ -19,7 +19,7 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 @NodeChild("array")
 @NodeChild("index")
@@ -31,7 +31,7 @@ public abstract class ArrayGetIndexNode extends ExpressionNode {
         try {
             return arrays.readArrayElement(receiver, index);
         } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-            throw new RawTruffleRuntimeException(e, this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 }

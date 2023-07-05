@@ -73,7 +73,7 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
       vendor: SqlVendor
   ): Either[String, SqlQueryInferrerProperties] = {
 
-    val db = getStringValue(mandatoryArgs(0))
+    val db = getStringValue(mandatoryArgs.head)
     val query = getStringValue(mandatoryArgs(1))
     val url = vendorToUrl(vendor) + ":" + db
     val locationDesc = getLocation(url, optionalArgs.toMap)

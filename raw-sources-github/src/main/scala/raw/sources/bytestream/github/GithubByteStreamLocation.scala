@@ -28,9 +28,9 @@ class GithubByteStreamLocation(
     with StrictLogging {
   override def sparkUri: String = http.sparkUri
 
-  override protected def doGetInputStream(): InputStream = http.getInputStream()
+  override protected def doGetInputStream(): InputStream = http.getInputStream
 
-  override protected def doGetSeekableInputStream(): SeekableInputStream = http.getSeekableInputStream()
+  override protected def doGetSeekableInputStream(): SeekableInputStream = http.getSeekableInputStream
 
   override def getLocalPath(): Path = http.getLocalPath()
 

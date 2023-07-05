@@ -19,10 +19,6 @@ import com.oracle.truffle.api.instrumentation.ProbeNode;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import raw.runtime.truffle.RawTypes;
-import raw.runtime.truffle.RawTypesGen;
-import raw.runtime.truffle.StatementNode;
-import raw.runtime.truffle.ExpressionNodeWrapper;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
@@ -41,77 +37,82 @@ public abstract class ExpressionNode extends StatementNode {
     }
 
     public boolean executeBoolean(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectBoolean(executeGeneric(virtualFrame));
     }
 
     public byte executeByte(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectByte(executeGeneric(virtualFrame));
     }
 
     public short executeShort(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectShort(executeGeneric(virtualFrame));
     }
 
     public int executeInt(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectInteger(executeGeneric(virtualFrame));
     }
 
     public long executeLong(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectLong(executeGeneric(virtualFrame));
     }
 
     public float executeFloat(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectFloat(executeGeneric(virtualFrame));
     }
 
     public double executeDouble(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectDouble(executeGeneric(virtualFrame));
     }
 
+    public byte[] executeBinary(VirtualFrame virtualFrame)
+            throws UnexpectedResultException {
+        return RawTypesGen.expectByteArray(executeGeneric(virtualFrame));
+    }
+
     public BigDecimal executeBigDecimal(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectBigDecimal(executeGeneric(virtualFrame));
     }
 
     public DateObject executeDate(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectDateObject(executeGeneric(virtualFrame));
     }
 
     public IntervalObject executeInterval(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectIntervalObject(executeGeneric(virtualFrame));
     }
 
     public TimeObject executeTime(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectTimeObject(executeGeneric(virtualFrame));
     }
 
     public TimestampObject executeTimestamp(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectTimestampObject(executeGeneric(virtualFrame));
     }
 
     public String executeString(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectString(executeGeneric(virtualFrame));
     }
 
     public LocationObject executeLocation(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectLocationObject(executeGeneric(virtualFrame));
     }
 
     public RecordObject executeRecord(VirtualFrame virtualFrame)
-        throws UnexpectedResultException {
+            throws UnexpectedResultException {
         return RawTypesGen.expectRecordObject(executeGeneric(virtualFrame));
     }
 
