@@ -513,6 +513,7 @@ lazy val rawCli = (project in file("raw-cli"))
   )
   .settings(
     buildSettings,
+    publish / skip := true,
     libraryDependencies ++= jline,
     assembly / mainClass := Some("raw.cli.RawCli"),
     assembly / assemblyMergeStrategy := {
