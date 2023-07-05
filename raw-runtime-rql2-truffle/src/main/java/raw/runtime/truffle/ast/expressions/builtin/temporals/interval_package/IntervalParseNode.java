@@ -27,11 +27,11 @@ import java.util.regex.Pattern;
 @NodeChild("format")
 public abstract class IntervalParseNode extends ExpressionNode {
 
-    private int intOrDefault(String toParse, int defaultValue) {
+    private int intOrDefault(String toParse) {
         try {
             return Integer.parseInt(toParse);
         } catch (NumberFormatException ex) {
-            return defaultValue;
+            return 0;
         }
     }
 
@@ -62,7 +62,7 @@ public abstract class IntervalParseNode extends ExpressionNode {
                     seconds = Integer.parseInt(s1);
                     millis = 0;
                 } else {
-                    int milliseconds = 0;
+                    int milliseconds;
                     // if the length is smaller than 3 we have to add a multiplier
                     if (mil.length() < 3) {
                         int multiplier = 1;
@@ -83,19 +83,19 @@ public abstract class IntervalParseNode extends ExpressionNode {
                     }
                 }
                 return ObjectTryable.BuildSuccess(
-                    new IntervalObject(
-                        this.intOrDefault(y, 0),
-                        this.intOrDefault(m, 0),
-                        this.intOrDefault(w, 0),
-                        this.intOrDefault(d, 0),
-                        this.intOrDefault(h, 0),
-                        this.intOrDefault(mi, 0),
-                        seconds,
-                        millis));
+                        new IntervalObject(
+                                this.intOrDefault(y),
+                                this.intOrDefault(m),
+                                this.intOrDefault(w),
+                                this.intOrDefault(d),
+                                this.intOrDefault(h),
+                                this.intOrDefault(mi),
+                                seconds,
+                                millis));
             } else {
                 throw new ParseException("Couldn't parse interval", 0);
             }
-        } catch (Exception e) {
+        } catch (ParseException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         }
     }

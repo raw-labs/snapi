@@ -15,6 +15,7 @@ package raw.runtime.truffle.ast.expressions.builtin.location_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.api.RawException;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -22,6 +23,7 @@ import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.Location;
+import raw.sources.filesystem.FileSystemException;
 import raw.sources.filesystem.FileSystemLocation;
 import raw.sources.filesystem.FileSystemLocationProvider;
 import scala.collection.IndexedSeq;
@@ -42,7 +44,7 @@ public abstract class LocationLsNode extends ExpressionNode {
             }
 
             return ObjectTryable.BuildSuccess(new StringList(result));
-        } catch (Exception e) {
+        } catch (RawException e) {
             return ObjectTryable.BuildFailure(e.getMessage());
         }
 

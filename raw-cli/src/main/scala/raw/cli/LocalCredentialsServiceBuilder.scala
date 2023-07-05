@@ -13,7 +13,6 @@
 package raw.cli
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.auth.{AuthServiceProvider, MgmtTokenProvider}
 import raw.config.RawSettings
 import raw.creds.CredentialsServiceBuilder
 

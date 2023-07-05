@@ -20,6 +20,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.handlers.NullableTryableHandler;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -49,7 +50,7 @@ public abstract class CollectionExistsNode extends ExpressionNode {
                 }
             }
             return BooleanTryable.BuildSuccess(false);
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return BooleanTryable.BuildFailure(ex.getMessage());
         } finally {
             generators.close(generator);

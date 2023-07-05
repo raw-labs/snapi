@@ -12,11 +12,9 @@
 
 package raw.runtime.truffle.runtime.generator.collection;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
@@ -64,8 +62,8 @@ public class CollectionAbstractGenerator {
             } catch (BreakException e) { // case end of data
                 this.isTerminated = true;
                 throw e;
-            } catch (Exception e) { // case runtime exception
-                next = new RawTruffleRuntimeException(e.getMessage());
+            } catch (RawTruffleRuntimeException e) { // case runtime exception
+                next = e;
             }
         } else if (next instanceof RawTruffleRuntimeException) { // if hasNext returned a runtime error
             this.isTerminated = true;
@@ -86,8 +84,8 @@ public class CollectionAbstractGenerator {
             } catch (BreakException e) {
                 this.isTerminated = true;
                 return false;
-            } catch (Exception e) { // store the runtime error
-                next = new RawTruffleRuntimeException(e.getMessage());
+            } catch (RawTruffleRuntimeException e) { // store the runtime error
+                next = e;
             }
         }
         return true;

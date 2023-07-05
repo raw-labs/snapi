@@ -17,12 +17,12 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
 import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
+import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
 import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
 import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Collection.Sum")
@@ -38,7 +38,7 @@ public abstract class CollectionSumNode extends ExpressionNode {
             Object result = aggregations.aggregate(aggregation, iterable);
             RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
             return ObjectTryable.BuildSuccess(nullableTryables.boxOption(handler, result));
-        } catch (Exception ex) {
+        } catch (RawTruffleRuntimeException ex) {
             return ObjectTryable.BuildFailure(ex.getMessage());
         }
     }

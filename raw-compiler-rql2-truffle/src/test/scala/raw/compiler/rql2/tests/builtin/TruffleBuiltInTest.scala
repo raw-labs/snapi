@@ -29,8 +29,7 @@ import raw.testing.tags.TruffleTests
 // InvokeAfter
 // class FunctionPackageTruffleTest extends TruffleCompilerTestContext with FunctionPackageTest
 
-// Missing Http
-// class HttpPackageTruffleTest extends TruffleCompilerTestContext with HttpPackageTest
+@TruffleTests class HttpPackageTruffleTest extends TruffleCompilerTestContext with HttpPackageTest
 @TruffleTests class IntervalPackageTruffleTest extends TruffleCompilerTestContext with IntervalPackageTest
 @TruffleTests class IntPackageTruffleTest extends TruffleCompilerTestContext with IntPackageTest
 @TruffleTests class JsonPackageTruffleTest extends TruffleCompilerTestContext with JsonPackageTest
@@ -43,7 +42,7 @@ import raw.testing.tags.TruffleTests
 // class PostgreSQLPackageTruffleTest extends TruffleCompilerTestContext with PostgreSQLPackageTest
 @TruffleTests class RecordPackageTruffleTest extends TruffleCompilerTestContext with RecordPackageTest
 @TruffleTests class RegexPackageTruffleTest extends TruffleCompilerTestContext with RegexPackageTest
-// class S3PackageTruffleTest extends TruffleCompilerTestContext with S3PackageTest
+@TruffleTests class S3PackageTruffleTest extends TruffleCompilerTestContext with S3PackageTest
 @TruffleTests class ShortPackageTruffleTest extends TruffleCompilerTestContext with ShortPackageTest
 // class SnowflakePackageTruffleTest extends TruffleCompilerTestContext with SnowflakePackageTest
 // class SqlServerPackageTruffleTest extends TruffleCompilerTestContext with SqlServerPackageTest

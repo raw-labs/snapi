@@ -15,22 +15,20 @@ package raw.runtime.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import org.apache.commons.math3.stat.descriptive.summary.Sum;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
 import raw.runtime.truffle.runtime.aggregation.MultiAggregation;
-import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
 import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
 import raw.runtime.truffle.runtime.aggregation.aggregator.CountAggregator;
-import raw.runtime.truffle.runtime.aggregation.aggregator.MinAggregator;
 import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.option.EmptyOption;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.option.ObjectOption;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
@@ -58,8 +56,8 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
             }
             records.writeMember(record, "count", results[1]);
             return ObjectTryable.BuildSuccess(record);
-        } catch (Exception ex) {
-            return ObjectTryable.BuildFailure(ex.getMessage());
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
+            throw new RawTruffleInternalErrorException(ex);
         }
     }
 }

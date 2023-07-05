@@ -22,13 +22,12 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 
 public class RecordWriteJsonNode extends StatementNode {
 
@@ -69,7 +68,7 @@ public class RecordWriteJsonNode extends StatementNode {
 
         } catch (UnsupportedMessageException | RuntimeException | InvalidArrayIndexException |
                  UnknownIdentifierException e) {
-            throw new JsonWriterRawTruffleException(e.getMessage(), this);
+            throw new RawTruffleInternalErrorException(e, this);
         }
     }
 

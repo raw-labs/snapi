@@ -17,6 +17,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.Path
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
+import raw.api.RawException
 import raw.sources._
 
 import scala.util.control.NonFatal
@@ -28,14 +29,15 @@ trait ByteStreamLocation extends Location {
   def sparkUri: String
 
   // This call uses the retry mechanism.
-  final def getInputStream(): InputStream = {
+  @throws[RawException]
+  final def getInputStream: InputStream = {
     withRetryStrategy {
       doGetInputStream()
     }
   }
 
   // This call uses the retry mechanism.
-  final def getSeekableInputStream(): SeekableInputStream = {
+  final def getSeekableInputStream: SeekableInputStream = {
     withRetryStrategy {
       doGetSeekableInputStream()
     }
@@ -45,9 +47,10 @@ trait ByteStreamLocation extends Location {
 
   protected def doGetSeekableInputStream(): SeekableInputStream
 
+  @throws[RawException]
   final def getReader(encoding: Encoding): Reader = {
     val charset = encoding.charset
-    val is = getInputStream()
+    val is = getInputStream
     try {
       val strippedIs = stripProblematicBOMs(is, charset)
       new InputStreamReader(strippedIs, charset)

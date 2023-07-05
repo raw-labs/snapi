@@ -58,7 +58,7 @@ class TruffleTypeProtectCastEntry extends TypeProtectCastEntry with TruffleEntry
   }
 
   override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
-    val ExpType(sourceType) = args(0).t
+    val ExpType(sourceType) = args.head.t
     val ExpType(targetType) = args(1).t
 
     val e = args(2).e
@@ -74,7 +74,7 @@ class TruffleTypeProtectCastEntry extends TypeProtectCastEntry with TruffleEntry
 class TruffleTypeEmptyEntry extends TypeEmptyEntry with TruffleEntryExtension {
 
   override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
-    new ZeroedConstNode(args(0).t.asInstanceOf[Rql2Type])
+    new ZeroedConstNode(args.head.t.asInstanceOf[Rql2Type])
   }
 
 }

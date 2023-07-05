@@ -24,10 +24,11 @@ object InferrerServiceProvider {
     build()
   }
 
+  @throws[InferrerException]
   private def build()(implicit sourceContext: SourceContext): InferrerService = {
     if (services.isEmpty) {
       throw new InferrerException("no inferrer service available")
-    } else if (services.size > 1) {
+    } else if (services.length > 1) {
       val implClassName = sourceContext.settings.getString("raw.inferrer.impl")
       services.find(p => p.name == implClassName) match {
         case Some(builder) => builder.build

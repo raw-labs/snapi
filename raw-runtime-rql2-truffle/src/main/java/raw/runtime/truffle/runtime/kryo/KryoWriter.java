@@ -24,7 +24,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
@@ -129,7 +129,7 @@ public final class KryoWriter {
                     writerLibrary.write(receiver, output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
                 }
             } catch (UnsupportedMessageException | InvalidArrayIndexException | UnknownIdentifierException e) {
-                throw new RawTruffleRuntimeException(e.getMessage());
+                throw new RawTruffleInternalErrorException(e);
             }
         }
 

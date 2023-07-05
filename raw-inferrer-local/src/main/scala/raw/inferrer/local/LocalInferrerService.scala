@@ -65,9 +65,9 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
 
   private def textInputStream(loc: ByteStreamLocation) = {
     if (useBufferedSeekableIs) {
-      new InferrerBufferedSeekableIS(loc.getSeekableInputStream())
+      new InferrerBufferedSeekableIS(loc.getSeekableInputStream)
     } else {
-      loc.getSeekableInputStream()
+      loc.getSeekableInputStream
     }
   }
 
@@ -131,7 +131,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
           )
         case excel: ExcelInferrerProperties =>
           val location = ByteStreamLocationProvider.build(excel.location)
-          val is = location.getInputStream()
+          val is = location.getInputStream
           try {
             excelInferrer.infer(is, excel.maybeSheet, excel.maybeHasHeader, excel.maybeAt)
           } finally {
@@ -144,7 +144,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
             files,
             excel.maybeSampleFiles,
             { file =>
-              val is = file.getInputStream()
+              val is = file.getInputStream
               try {
                 excelInferrer.infer(is, excel.maybeSheet, excel.maybeHasHeader, excel.maybeAt)
               } finally {
@@ -265,7 +265,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     prettyPrinter.format(sourceType)
   }
 
-  class SourceTypePrettyPrinter extends PrettyPrinter {
+  private class SourceTypePrettyPrinter extends PrettyPrinter {
 
     override val defaultIndent = 2
 
