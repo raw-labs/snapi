@@ -17,6 +17,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -38,7 +39,7 @@ public class BinaryWriteCsvNode extends StatementNode {
       String result = Base64.getEncoder().encodeToString(value);
       gen.writeString(result);
     } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage());
+      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
     }
   }
 }

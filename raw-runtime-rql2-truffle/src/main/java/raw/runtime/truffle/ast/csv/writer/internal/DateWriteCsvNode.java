@@ -40,6 +40,8 @@ public class DateWriteCsvNode extends StatementNode {
     @CompilerDirectives.TruffleBoundary
     private void doWrite(DateObject value, CsvGenerator gen) {
         try {
+            // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+            // We consider it as an internal error and let it propagate.
             gen.writeString(formatter.format(value.getDate()));
         } catch (IOException e) {
             throw new CsvWriterRawTruffleException(e.getMessage(), e, this);

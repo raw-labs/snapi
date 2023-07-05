@@ -27,8 +27,9 @@ import java.time.format.DateTimeFormatter;
 @NodeInfo(shortName = "TimeWriteCsv")
 public class TimeWriteCsvNode extends StatementNode {
 
-  private final DateTimeFormatter formatter1 = DateTimeFormatter.ofPattern("HH:mm:ss");
-  private final DateTimeFormatter formatter2 = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+  // two different formatters, depending on whether there are milliseconds or not.
+  private final DateTimeFormatter fmtWithoutMS = DateTimeFormatter.ofPattern("HH:mm:ss");
+  private final DateTimeFormatter fmtWithMS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
   @Override
   public void executeVoid(VirtualFrame frame) {
@@ -42,10 +43,12 @@ public class TimeWriteCsvNode extends StatementNode {
   private void doWrite(TimeObject value, CsvGenerator gen) {
     try {
       LocalTime ts = value.getTime();
+      // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+      // We consider it as an internal error and let it propagate.
       if (ts.getNano() != 0) {
-        gen.writeString(formatter2.format(ts));
+        gen.writeString(fmtWithMS.format(ts));
       } else {
-        gen.writeString(formatter1.format(ts));
+        gen.writeString(fmtWithoutMS.format(ts));
       }
     } catch (IOException e) {
       throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
