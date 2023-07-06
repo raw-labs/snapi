@@ -182,16 +182,16 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
             for (int i = 0; i < headersLists.size(sortedHeaders); i++) {
                 canonicalHeadersBuilder
-                        .append((String) records.readMember(headersLists.get(sortedHeaders, i), "_1"))
+                        .append(((String) records.readMember(headersLists.get(sortedHeaders, i), "_1")).toLowerCase())
                         .append(":")
                         .append((String) records.readMember(headersLists.get(sortedHeaders, i), "_2"))
                         .append("\n");
-                signedHeadersBuilder.append((String) records.readMember(headersLists.get(sortedHeaders, i), "_1")).append(";");
+                signedHeadersBuilder.append(((String) records.readMember(headersLists.get(sortedHeaders, i), "_1")).toLowerCase()).append(";");
             }
 
             for (int i = 0; i < headersLists.size(headers); i++) {
                 headersParamsVec.$plus$eq(
-                        new Tuple2<>((String) records.readMember(headersLists.get(headers, i), "_1"),
+                        new Tuple2<>(((String) records.readMember(headersLists.get(headers, i), "_1")).toLowerCase(),
                                 (String) records.readMember(headersLists.get(headers, i), "_2"))
                 );
             }
