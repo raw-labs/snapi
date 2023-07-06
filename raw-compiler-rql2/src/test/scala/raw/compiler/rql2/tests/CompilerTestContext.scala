@@ -511,14 +511,21 @@ trait CompilerTestContext
     }
   }
 
-  def saveTo(path: Path, executionLogger: ExecutionLogger = DebugExecutionLogger): SaveTo =
-    new SaveTo(path, Map.empty, executionLogger)
+  def saveTo(
+      path: Path,
+      executionLogger: ExecutionLogger = DebugExecutionLogger,
+      options: Map[String, String] = Map.empty
+  ): SaveTo = new SaveTo(path, options, executionLogger)
 
-  def saveToInFormat(path: Path, format: String, executionLogger: ExecutionLogger = DebugExecutionLogger): SaveTo =
-    new SaveTo(path, Map("output-format" -> format), executionLogger)
+  def saveToInFormat(
+      path: Path,
+      format: String,
+      executionLogger: ExecutionLogger = DebugExecutionLogger,
+      options: Map[String, String] = Map.empty
+  ): SaveTo = new SaveTo(path, options + ("output-format" -> format), executionLogger)
 
   // a Matcher[Path] that compares the content of the file at the given path to the given string.
-  protected def contain(content: String) = be(content) compose { p: Path =>
+  protected def contain(content: String): Matcher[Path] = be(content) compose { p: Path =>
     val bufferedSource = Source.fromFile(p.toFile)
     val fileContent = bufferedSource.mkString
     bufferedSource.close()

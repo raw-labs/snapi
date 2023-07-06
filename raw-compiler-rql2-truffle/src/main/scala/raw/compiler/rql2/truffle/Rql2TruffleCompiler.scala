@@ -177,8 +177,11 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     val frameDescriptor = emitter.dropScope()
 
     // Wrap output node
+
     val rootNode: RootNode = programContext.settings.getString(ProgramSettings.output_format) match {
-      case "csv" => tree.analyzer.tipe(me.get) match {
+      case "csv" =>
+        val lineSeparator = if (programContext.settings.getBoolean("raw.compiler.windows-line-ending")) "\r\n" else "\n"
+        tree.analyzer.tipe(me.get) match {
           case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
             assert(rProps.isEmpty)
             assert(iProps.isEmpty)
@@ -188,7 +191,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               new CsvIterableWriterNode(
                 bodyExpNode,
                 CsvWriter(atts.map(_.tipe)),
-                atts.map(_.idn).toArray
+                atts.map(_.idn).toArray,
+                lineSeparator
               )
             )
           case Rql2ListType(Rql2RecordType(atts, rProps), iProps) =>
@@ -200,7 +204,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               new CsvListWriterNode(
                 bodyExpNode,
                 CsvWriter(atts.map(_.tipe)),
-                atts.map(_.idn).toArray
+                atts.map(_.idn).toArray,
+                lineSeparator
               )
             )
         }

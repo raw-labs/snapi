@@ -134,4 +134,18 @@ trait CsvOutputTest extends CompilerTestContext {
       RawUtils.deleteTestPath(path)
     }
   }
+
+  test("""[{a: 1, b: 2}, {a: 3, b: 4}]""") { it =>
+    it should run
+    val path = Files.createTempFile("", "")
+    try {
+      it should saveToInFormat(path, "csv", options = Map("windows-line-ending" -> "false"))
+      path should contain("a,b\n1,2\n3,4\n")
+      it should saveToInFormat(path, "csv", options = Map("windows-line-ending" -> "true"))
+      path should contain("a,b\r\n1,2\r\n3,4\r\n")
+    } finally {
+      Files.deleteIfExists(path)
+    }
+  }
+
 }

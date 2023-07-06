@@ -23,7 +23,6 @@ import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -47,11 +46,13 @@ public class CsvIterableWriterNode extends StatementNode {
     @Child
     private GeneratorLibrary generators = GeneratorLibrary.getFactory().createDispatched(3);
 
-    private String[] columnNames;
+    private final String[] columnNames;
+    private final String lineSeparator;
 
-    public CsvIterableWriterNode(ExpressionNode dataNode, RootNode writerNode, String[] columnNames) {
+    public CsvIterableWriterNode(ExpressionNode dataNode, RootNode writerNode, String[] columnNames, String lineSeparator) {
         this.dataNode = dataNode;
         this.columnNames = columnNames;
+        this.lineSeparator = lineSeparator;
         itemWriter = DirectCallNode.create(writerNode.getCallTarget());
     }
 
@@ -82,7 +83,7 @@ public class CsvIterableWriterNode extends StatementNode {
             }
             schemaBuilder.setColumnSeparator(',');
             schemaBuilder.setUseHeader(true);
-            schemaBuilder.setLineSeparator('\n');
+            schemaBuilder.setLineSeparator(lineSeparator);
             schemaBuilder.setQuoteChar('"');
             schemaBuilder.setNullValue("");
             generator.setSchema(schemaBuilder.build());
