@@ -54,18 +54,6 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary
 import java.util.UUID
 import scala.collection.mutable
 
-/**
- * Experimental Truffle-based compiler for RQL2.
- *
- * TODO:
- *  - Slow Closure
- *  - Caching of functions
- *  - Implement one reader (e.g. JSON so we get both the static case and the iterable)
- *  - JSON support more writer incl collections
- *  - RecordCons + RecordProj
- *  - Refactor function-handling code functions
- *  - Implement support for all built-in nodes (except LegacyCallLanguage)
- */
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
     with TruffleCompiler[SourceNode, SourceProgram, Exp] {
@@ -161,38 +149,10 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       OrValue(Seq(convertAnyToValue(orObj.getValue, ts(orObj.getIndex))))
   }
 
-  //  override protected val phases: Seq[PhaseDescriptor] = super.phases :+
-//    PhaseDescriptor(
-//      "DesugarNullableTryable",
-//      classOf[DesugarNullableTryable].asInstanceOf[Class[raw.compiler.base.PipelinedPhase[SourceProgram]]]
-//    )
-
-  //  // FIXME (msb): Overridding this here shows me inheritance isn't right. parent Compiler implementing "too much"!!!
-//  override protected val phases: Seq[PhaseDescriptor] = Seq(
-//    PhaseDescriptor(
-//      "SugarExtensionDesugarer",
-//      classOf[SugarExtensionDesugarer].asInstanceOf[Class[raw.compiler.base.PipelinedPhase[SourceProgram]]]
-//    ),
-//    PhaseDescriptor(
-//      "(Sugar)SugarExtensionDesugarer",
-//      classOf[SugarExtensionDesugarer].asInstanceOf[Class[raw.compiler.base.PipelinedPhase[SourceProgram]]]
-//    ),
-//    PhaseDescriptor(
-//      "ListProjDesugarer",
-//      classOf[ListProjDesugarer].asInstanceOf[Class[raw.compiler.base.PipelinedPhase[SourceProgram]]]
-//    )
-////    PhaseDescriptor(
-////      "Propagation",
-////      classOf[Propagation].asInstanceOf[Class[raw.compiler.base.PipelinedPhase[SourceProgram]]]
-////    ),
-////    PhaseDescriptor(
-////      "ImplicitCasts",
-////      classOf[ImplicitCasts].asInstanceOf[Class[raw.compiler.base.PipelinedPhase[SourceProgram]]]
-////    )
-//  )
-
   // FIXME (msb): Overridding this here shows me inheritance isn't right. parent Compiler implementing "too much"!!!
-  override def prettyPrintOutput(node: BaseNode): String = { SourcePrettyPrinter.format(node) }
+  override def prettyPrintOutput(node: BaseNode): String = {
+    SourcePrettyPrinter.format(node)
+  }
 
   override def doEmit(signature: String, program: SourceProgram)(
       implicit programContext: raw.compiler.base.ProgramContext
@@ -212,17 +172,9 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     assert(me.isDefined)
     val bodyExp = me.get
 
-//    what about frame descriptor builder?
-//        i guess emitter creates one
-//    and instead of passing implicit, it just mutates that global variable?
-
-//    val frameDescriptorBuilder = FrameDescriptor.newBuilder()
     emitter.addScope()
     val bodyExpNode = emitter.recurseExp(bodyExp)
     val frameDescriptor = emitter.dropScope()
-
-//    writerFrameDescriptorBuilder.addSlot(FrameSlotKind.Int, "value", null)
-//    writerFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, "gen", null)
 
     // Wrap output node
     val rootNode: RootNode = programContext.settings.getString(ProgramSettings.output_format) match {
@@ -280,21 +232,6 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
 }
 
-//yeah so change emitter to mutate frame descriptor
-//fix code about
-//make funapp package somehow support low level truffle or truffle
-//passing "this"
-//then try again to implement low level truffle
-//but I dont have the entity
-//so when building body, it WILL blow up
-//WAIT. there is no entity.
-//there is read parameter
-//Ah, but the way this is built is.. with that.
-//so if I dont put IdnExp
-//well, i wont
-//i will put directly the truffle node
-//so Im good I think, actually
-
 final case class SlotLocation(depth: Int, slot: Int)
 
 class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
@@ -349,10 +286,6 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
   private def addSlot(entity: Entity, slot: Int): Unit = {
     slotMapScope.head.put(entity, slot)
   }
-
-//  def addParam(idn: String, idx: Int)
-//
-//  def getParam(idn: String): Option[Int]
 
   private def findSlot(entity: Entity): SlotLocation = {
     var depth = 0
@@ -552,12 +485,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
         .getEntries(entName)
         .collectFirst {
           case e: TruffleEntryExtension =>
-            //          if (e.isLowLevelTruffle) {
             e.toTruffle(t, args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn)), this)
-          //          } else {
-          //            // Build all arguments and call it.
-          //            e.toTruffle(t, args.map(arg => TruffleArg(recurseExp(arg.e), analyzer.tipe(arg.e), arg.idn)))
-          //          }
         }
         .getOrElse(throw new Exception(s"Could not find package entry: $pkgName.$entName"))
     case FunApp(f, args) => new InvokeNode(recurseExp(f), args.map(arg => recurseExp(arg.e)).toArray)
