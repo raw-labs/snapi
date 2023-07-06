@@ -37,7 +37,10 @@ jobs:
         cache: sbt
     - if: github.event_name == 'repository_dispatch'
       name: evaluate produced version
-      run: echo "DYNVER=$(sbt "show version" 2>&1 | grep -A 1 'info.*version' | tail -n 1 | awk '{print $2}')" >> $GITHUB_ENV
+      shell: bash
+      run: |
+        sbt version > version_output.txt 2>&1
+        echo "DYNVER=$(awk -F '\t' '/\t[[:digit:]]/ {print $2}' version_output.txt | tail -n 1)" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
       with:
