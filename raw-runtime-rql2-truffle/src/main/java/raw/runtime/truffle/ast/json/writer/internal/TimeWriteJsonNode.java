@@ -21,21 +21,34 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 
 import java.io.IOException;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 
 @NodeInfo(shortName = "TimeWriteJson")
 public class TimeWriteJsonNode extends StatementNode {
 
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        this.doWrite((TimeObject) args[0], (JsonGenerator) args[1]);
-    }
+  // two different formatters, depending on whether there are milliseconds or not.
+  private final DateTimeFormatter fmtWithMS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+  private final DateTimeFormatter fmtWithoutMS = DateTimeFormatter.ofPattern("HH:mm:ss");
 
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(TimeObject value, JsonGenerator gen) {
-        try {
-            gen.writeString(value.getTime().toString());
-        } catch (IOException e) {
-            throw new JsonWriterRawTruffleException(e.getMessage(), this);
-        }
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    this.doWrite((TimeObject) args[0], (JsonGenerator) args[1]);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void doWrite(TimeObject value, JsonGenerator gen) {
+    try {
+      LocalTime ts = value.getTime();
+      // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+      // We consider it as an internal error and let it propagate.
+      if (ts.getNano() != 0) {
+        gen.writeString(fmtWithMS.format(ts));
+      } else {
+        gen.writeString(fmtWithoutMS.format(ts));
+      }
+    } catch (IOException e) {
+      throw new JsonWriterRawTruffleException(e.getMessage(), this);
     }
+  }
 }
