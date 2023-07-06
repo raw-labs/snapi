@@ -2,7 +2,7 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.AwsV4SignedRequest
-import raw.compiler.rql2.source.{Rql2ListType, Rql2RecordType, Rql2StringType}
+import raw.compiler.rql2.source.{Rql2ListType, Rql2RecordType}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.binary.PlusNode
@@ -30,7 +30,7 @@ class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtens
           new PlusNode(new PlusNode(service, new StringNode(".")), maybeRegion.get),
           new StringNode(".amazonaws.com")
         )
-        else new PlusNode(new PlusNode(service, new StringNode(".")), new StringNode("amazonaws.com"))
+        else new PlusNode(service, new StringNode(".amazonaws.com"))
       )
 
     val path =

@@ -18,6 +18,8 @@ import raw.runtime.truffle.runtime.generator.list.ListGenerator;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
+import java.util.Arrays;
+
 @ExportLibrary(ListLibrary.class)
 public class IntList {
     private final int[] list;
@@ -58,6 +60,13 @@ public class IntList {
     @ExportMessage
     public Object toIterable() {
         return new ListIterable(this);
+    }
+
+    @ExportMessage
+    public Object sort() {
+        int[] result = this.list.clone();
+        Arrays.sort(result);
+        return new IntList(result);
     }
 
 }

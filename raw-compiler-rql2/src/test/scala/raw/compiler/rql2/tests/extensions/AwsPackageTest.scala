@@ -25,77 +25,81 @@ trait AwsPackageTest extends CompilerTestContext {
 
   val triple = "\"\"\""
 
-//  test("""let data = Xml.Read(
-//    |    Aws.SignedV4Request(
-//    |       Environment.Secret("abraxas-key"),
-//    |       Environment.Secret("abraxas-secret-key"),
-//    |       "ec2",
-//    |       args = [
-//    |         {"Action", "DescribeRegions"},
-//    |         {"Version", "2013-10-15"}
-//    |       ]
-//    |    ),
-//    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
-//    |)
-//    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-//    |""".stripMargin)(
-//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-//  )
+  test(
+    """let data = Xml.Read(
+      |    Aws.SignedV4Request(
+      |       Environment.Secret("abraxas-key"),
+      |       Environment.Secret("abraxas-secret-key"),
+      |       "ec2",
+      |       args = [
+      |         {"Action", "DescribeRegions"},
+      |         {"Version", "2013-10-15"}
+      |       ]
+      |    ),
+      |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
+      |)
+      |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+      |""".stripMargin)(
+    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  )
 
-//  test("""let data = Xml.Read(
-//    |    Aws.SignedV4Request(
-//    |       Environment.Secret("abraxas-key"),
-//    |       Environment.Secret("abraxas-secret-key"),
-//    |       "ec2",
-//    |       region = "us-east-1",
-//    |       host = "ec2.amazonaws.com",
-//    |       args = [
-//    |         {"Action", "DescribeRegions"},
-//    |         {"Version", "2013-10-15"}
-//    |       ]
-//    |    ),
-//    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
-//    |)
-//    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-//    |""".stripMargin)(
-//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-//  )
+  test(
+    """let data = Xml.Read(
+      |    Aws.SignedV4Request(
+      |       Environment.Secret("abraxas-key"),
+      |       Environment.Secret("abraxas-secret-key"),
+      |       "ec2",
+      |       region = "us-east-1",
+      |       host = "ec2.amazonaws.com",
+      |       args = [
+      |         {"Action", "DescribeRegions"},
+      |         {"Version", "2013-10-15"}
+      |       ]
+      |    ),
+      |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
+      |)
+      |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+      |""".stripMargin)(
+    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  )
 
-//  test("""let data = Xml.Read(
-//    |    Aws.SignedV4Request(
-//    |       Environment.Secret("abraxas-key"),
-//    |       Environment.Secret("abraxas-secret-key"),
-//    |       "ec2",
-//    |       region = "us-east-1",
-//    |       host = "ec2.amazonaws.com",
-//    |       path = "/",
-//    |       args = [
-//    |         {"Action", "DescribeRegions"},
-//    |         {"Version", "2013-10-15"}
-//    |       ]
-//    |    ),
-//    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
-//    |  )
-//    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-//    |""".stripMargin)(
-//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-//  )
+  test(
+    """let data = Xml.Read(
+      |    Aws.SignedV4Request(
+      |       Environment.Secret("abraxas-key"),
+      |       Environment.Secret("abraxas-secret-key"),
+      |       "ec2",
+      |       region = "us-east-1",
+      |       host = "ec2.amazonaws.com",
+      |       path = "/",
+      |       args = [
+      |         {"Action", "DescribeRegions"},
+      |         {"Version", "2013-10-15"}
+      |       ]
+      |    ),
+      |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
+      |  )
+      |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+      |""".stripMargin)(
+    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  )
 
-//  test("""let data = Xml.InferAndRead(
-//    |    Aws.SignedV4Request(
-//    |       Environment.Secret("abraxas-key"),
-//    |       Environment.Secret("abraxas-secret-key"),
-//    |       "ec2",
-//    |       args = [
-//    |         {"Action", "DescribeRegions"},
-//    |         {"Version", "2013-10-15"}
-//    |       ]
-//    |    )
-//    |)
-//    |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-//    |""".stripMargin)(
-//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-//  )
+  test(
+    """let data = Xml.InferAndRead(
+      |    Aws.SignedV4Request(
+      |       Environment.Secret("abraxas-key"),
+      |       Environment.Secret("abraxas-secret-key"),
+      |       "ec2",
+      |       args = [
+      |         {"Action", "DescribeRegions"},
+      |         {"Version", "2013-10-15"}
+      |       ]
+      |    )
+      |)
+      |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+      |""".stripMargin)(
+    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  )
 
   test(
     s"""let query = $triple{"endTime": 1665655502, "limit": 1000, "logGroupName": "/aws/lambda/auth-proxy-v2-lambda-prod", "queryString": "fields @timestamp, @message, @clientTag, @username | limit 200", "startTime": 1665396297}$triple

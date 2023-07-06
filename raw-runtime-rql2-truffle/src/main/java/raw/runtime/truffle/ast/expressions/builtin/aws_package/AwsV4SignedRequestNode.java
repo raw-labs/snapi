@@ -6,12 +6,16 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.sources.LocationKVSetting;
 import raw.sources.LocationSettingKey;
 import raw.sources.LocationSettingValue;
@@ -66,10 +70,14 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     }
 
     private String toHexString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder(bytes.length * 2);
-        for (byte b : bytes)
-            sb.append(String.format("%02x", b));
-        return sb.toString();
+        StringBuilder hexString = new StringBuilder();
+        String hex;
+        for (byte aByte : bytes) {
+            hex = Integer.toHexString(0xff & aByte);
+            if (hex.length() == 1) hexString.append("0");
+            hexString.append(hex);
+        }
+        return hexString.toString();
     }
 
     // Amazon needs timestamps for signing requests with specific formats.
@@ -102,8 +110,8 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             String bodyString,
             Object urlParams,
             Object headers,
-            @CachedLibrary("urlParams") ListLibrary urlParamsLists,
-            @CachedLibrary("headers") ListLibrary headersLists,
+            @CachedLibrary(limit = "2") ListLibrary urlParamsLists,
+            @CachedLibrary(limit = "2") ListLibrary headersLists,
             @CachedLibrary(limit = "2") InteropLibrary records
     ) {
         try {
@@ -112,19 +120,20 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             String datestamp = getDateFormatter().format(t);
 
             // Task 1: create canonical request with all request settings: method, canonicalUri, canonicalQueryString etc.
-
             VectorBuilder<Tuple2<String, String>> urlParamsVec = new VectorBuilder<>();
-
             StringBuilder canonicalQueryBuilder = new StringBuilder();
-            for (int i = 0; i < urlParamsLists.size(urlParams); i++) {
+
+            Object urlParamsSorted = urlParamsLists.sort(urlParams);
+
+            for (int i = 0; i < urlParamsLists.size(urlParamsSorted); i++) {
                 canonicalQueryBuilder
-                        .append(URLEncoder.encode((String) records.readMember(urlParamsLists.get(urlParams, i), "_1"), StandardCharsets.UTF_8))
+                        .append(URLEncoder.encode((String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_1"), StandardCharsets.UTF_8))
                         .append("=")
-                        .append(URLEncoder.encode((String) records.readMember(urlParamsLists.get(urlParams, i), "_2"), StandardCharsets.UTF_8))
+                        .append(URLEncoder.encode((String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_2"), StandardCharsets.UTF_8))
                         .append("&");
                 urlParamsVec.$plus$eq(
-                        new Tuple2<>((String) records.readMember(urlParamsLists.get(urlParams, i), "_1"),
-                                (String) records.readMember(urlParamsLists.get(urlParams, i), "_2"))
+                        new Tuple2<>((String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_1"),
+                                (String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_2"))
                 );
             }
             // remove last '&'
@@ -142,22 +151,42 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             StringBuilder canonicalHeadersBuilder = new StringBuilder();
             StringBuilder signedHeadersBuilder = new StringBuilder();
             VectorBuilder<Tuple2<String, String>> headersParamsVec = new VectorBuilder<>();
-            for (int i = 0; i < headersLists.size(headers); i++) {
-                canonicalHeadersBuilder
-                        .append((String) records.readMember(urlParamsLists.get(headers, i), "_1"))
-                        .append(":")
-                        .append((String) records.readMember(urlParamsLists.get(headers, i), "_2"))
-                        .append("\n");
-                signedHeadersBuilder.append((String) records.readMember(urlParamsLists.get(headers, i), "_1")).append(";");
 
+            int headersSize = (int) headersLists.size(headers);
+            Object[] allHeaders = new Object[headersSize + 2];
+            System.arraycopy((Object[]) headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
+
+
+            allHeaders[headersSize] = RawLanguage.get(this).createRecord();
+            records.writeMember(allHeaders[headersSize], "_1", "host");
+            records.writeMember(allHeaders[headersSize], "_2", host);
+
+            allHeaders[headersSize + 1] = RawLanguage.get(this).createRecord();
+            records.writeMember(allHeaders[headersSize + 1], "_1", "x-amz-date");
+            records.writeMember(allHeaders[headersSize + 1], "_2", amzdate);
+
+            Object finalHeadersList = new ObjectList(allHeaders);
+            Object sortedHeaders = headersLists.sort(finalHeadersList);
+
+            for (int i = 0; i < headersLists.size(sortedHeaders); i++) {
+                canonicalHeadersBuilder
+                        .append((String) records.readMember(headersLists.get(sortedHeaders, i), "_1"))
+                        .append(":")
+                        .append((String) records.readMember(headersLists.get(sortedHeaders, i), "_2"))
+                        .append("\n");
+                signedHeadersBuilder.append((String) records.readMember(headersLists.get(sortedHeaders, i), "_1")).append(";");
+            }
+
+            for (int i = 0; i < headersLists.size(headers); i++) {
                 headersParamsVec.$plus$eq(
-                        new Tuple2<>((String) records.readMember(urlParamsLists.get(headers, i), "_1"),
-                                (String) records.readMember(urlParamsLists.get(headers, i), "_2"))
+                        new Tuple2<>((String) records.readMember(headersLists.get(headers, i), "_1"),
+                                (String) records.readMember(headersLists.get(headers, i), "_2"))
                 );
             }
-            canonicalHeadersBuilder.append("host").append(":").append(host).append("\n");
-            canonicalHeadersBuilder.append("x-amz-date").append(":").append(amzdate).append("\n");
-            signedHeadersBuilder.append("host").append(";").append("x-amz-date");
+
+            if (signedHeadersBuilder.length() > 0) {
+                signedHeadersBuilder.deleteCharAt(signedHeadersBuilder.length() - 1);
+            }
 
             String canonicalHeaders = canonicalHeadersBuilder.toString();
 
@@ -194,23 +223,26 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
                     "SignedHeaders=" + signedHeaders + ", " +
                     "Signature=" + signature;
 
-            headersParamsVec.$plus$eq(new Tuple2<>("x-amz-date", amzdate));
-            headersParamsVec.$plus$eq(new Tuple2<>("Authorization", authorizationHeader));
+
+            VectorBuilder<Tuple2<String, String>> newHeaders = new VectorBuilder<>();
+            newHeaders.$plus$eq(new Tuple2<>("x-amz-date", amzdate));
+            newHeaders.$plus$eq(new Tuple2<>("Authorization", authorizationHeader));
+            VectorBuilder<Tuple2<String, String>> requestHeaders = newHeaders.$plus$plus$eq(headersParamsVec.result());
 
             // host is added automatically
             Map<LocationSettingKey, LocationSettingValue> map = new HashMap<>();
-            map.$plus(Tuple2.apply(new LocationSettingKey("http-method"), new LocationStringSetting(method)));
-            map.$plus(Tuple2.apply(new LocationSettingKey("http-args"), new LocationKVSetting(urlParamsVec.result())));
-            map.$plus(Tuple2.apply(new LocationSettingKey("http-headers"), new LocationKVSetting(headersParamsVec.result())));
+            map = map.$plus(Tuple2.apply(new LocationSettingKey("http-method"), new LocationStringSetting(method)));
+            map = map.$plus(Tuple2.apply(new LocationSettingKey("http-args"), new LocationKVSetting(urlParamsVec.result())));
+            map = map.$plus(Tuple2.apply(new LocationSettingKey("http-headers"), new LocationKVSetting(requestHeaders.result())));
 
             if (!bodyString.isEmpty()) {
-                map.$plus(Tuple2.apply(new LocationSettingKey("http-body-string"), new LocationStringSetting(bodyString)));
+                map = map.$plus(Tuple2.apply(new LocationSettingKey("http-body-string"), new LocationStringSetting(bodyString)));
             }
 
             String url = "https://" + host + "/" + path.replaceAll("^/+", "");
 
             return new LocationObject(url, map);
-        } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
             throw new RawTruffleInternalErrorException(e);
         }
 
