@@ -26,13 +26,7 @@ import raw.compiler.base.source.BaseProgram
 import raw.compiler.common.CompilerService
 import raw.compiler.rql2.SyntaxAnalyzer
 import raw.compiler.rql2.source.Rql2Program
-import raw.compiler.{
-  CompilerException,
-  ErrorMessage,
-  ProgramDefinition,
-  ProgramEnvironment,
-  ProgramOutputWriter
-}
+import raw.compiler.{CompilerException, ErrorMessage, ProgramDefinition, ProgramEnvironment, ProgramOutputWriter}
 import raw.config.RawSettings
 import raw.utils.RawUtils
 
