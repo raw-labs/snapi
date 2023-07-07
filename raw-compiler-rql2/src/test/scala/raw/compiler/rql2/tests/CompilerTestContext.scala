@@ -21,7 +21,7 @@ import raw.api.{AuthenticatedUser, InteractiveUser, RawException}
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.common.{Compiler, CompilerService}
-import raw.compiler.{CompilerExecutionException, LSPRequest, ProgramEnvironment, ProgramOutputWriter}
+import raw.compiler.{CompilerException, LSPRequest, ProgramEnvironment, ProgramOutputWriter}
 import raw.creds._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.SimpleInferrerTestContext
@@ -698,7 +698,7 @@ trait CompilerTestContext
       }
 
     } catch {
-      case ex: CompilerExecutionException =>
+      case ex: CompilerException =>
         logger.warn("ExecutionException during test.", ex)
         Left(ex.getMessage)
     } finally {
@@ -765,7 +765,7 @@ trait CompilerTestContext
           Right(path)
       }
     } catch {
-      case ex: CompilerExecutionException =>
+      case ex: CompilerException =>
         logger.warn("ExecutionException during test.", ex)
         Left(ex.getMessage)
     } finally {

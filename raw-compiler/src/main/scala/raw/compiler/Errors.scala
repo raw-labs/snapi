@@ -49,4 +49,4 @@ final class CompilerParserException(message: String, val position: ErrorPosition
  * The message can be safely shared with the user.
  */
 final class CompilerExecutionException(val reason: String, val cause: Throwable = null)
-    extends RawException(reason, cause)
+    extends CompilerException(reason, cause)
