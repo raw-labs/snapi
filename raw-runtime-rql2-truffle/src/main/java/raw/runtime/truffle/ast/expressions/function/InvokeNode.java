@@ -20,6 +20,7 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.MethodRef;
 
 @NodeInfo(shortName = "invoke")
 public final class InvokeNode extends ExpressionNode {
@@ -39,13 +40,24 @@ public final class InvokeNode extends ExpressionNode {
     public Object executeGeneric(VirtualFrame frame) {
         CompilerAsserts.compilationConstant(argumentNodes.length);
 
-        Closure closure = (Closure) functionNode.executeGeneric(frame);
-
-        Object[] argumentValues = new Object[argumentNodes.length];
-        for (int i = 0; i < argumentNodes.length; i++) {
-            argumentValues[i] = argumentNodes[i].executeGeneric(frame);
+        Object executable = functionNode.executeGeneric(frame);
+        if (executable instanceof Closure) {
+            Object[] argumentValues = new Object[argumentNodes.length];
+            for (int i = 0; i < argumentNodes.length; i++) {
+                argumentValues[i] = argumentNodes[i].executeGeneric(frame);
+            }
+            Closure closure = (Closure) executable;
+            return closure.call(argumentValues);
+        } else {
+            Object[] argumentValues = new Object[argumentNodes.length+1];
+            argumentValues[0] = frame;
+            for (int i = 0; i < argumentNodes.length; i++) {
+                argumentValues[i + 1] = argumentNodes[i].executeGeneric(frame);
+            }
+            MethodRef ref = (MethodRef) executable;
+            return ref.call(argumentValues);
         }
-        return closure.call(argumentValues);
+
     }
 
     @Override
