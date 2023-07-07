@@ -19,9 +19,9 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.DecimalRead")
 public class DecimalReadJdbcQuery extends ExpressionNode {
 
-  private final int idx;
+  private final String idx;
 
-  public DecimalReadJdbcQuery(int idx) {
+  public DecimalReadJdbcQuery(String idx) {
     this.idx = idx;
   }
 

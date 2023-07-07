@@ -19,9 +19,9 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.DoubleRead")
 public class DoubleReadJdbcQuery extends ExpressionNode {
 
-  private final int idx;
+  private final String idx;
 
-  public DoubleReadJdbcQuery(int idx) {
+  public DoubleReadJdbcQuery(String idx) {
     this.idx = idx;
   }
 

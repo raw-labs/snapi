@@ -19,9 +19,9 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.IntRead")
 public class IntReadJdbcQuery extends ExpressionNode {
 
-  private final int idx;
+  private final String idx;
 
-  public IntReadJdbcQuery(int idx) {
+  public IntReadJdbcQuery(String idx) {
     this.idx = idx;
   }
 

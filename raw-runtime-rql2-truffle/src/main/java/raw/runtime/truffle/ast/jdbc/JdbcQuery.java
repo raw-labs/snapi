@@ -75,7 +75,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  byte getByte(int idx, Node node) {
+  byte getByte(String idx, Node node) {
     try {
       return rs.getByte(idx);
     } catch (SQLException e) {
@@ -84,7 +84,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  short getShort(int idx, Node node) {
+  short getShort(String idx, Node node) {
     try {
       return rs.getShort(idx);
     } catch (SQLException e) {
@@ -93,7 +93,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  int getInt(int idx, Node node) {
+  int getInt(String idx, Node node) {
     try {
       return rs.getInt(idx);
     } catch (SQLException e) {
@@ -102,7 +102,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  long getLong(int idx, Node node) {
+  long getLong(String idx, Node node) {
     try {
       return rs.getLong(idx);
     } catch (SQLException e) {
@@ -111,7 +111,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  float getFloat(int idx, Node node) {
+  float getFloat(String idx, Node node) {
     try {
       return rs.getFloat(idx);
     } catch (SQLException e) {
@@ -120,7 +120,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  double getDouble(int idx, Node node) {
+  double getDouble(String idx, Node node) {
     try {
       return rs.getDouble(idx);
     } catch (SQLException e) {
@@ -129,7 +129,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  BigDecimal getDecimal(int idx, Node node) {
+  BigDecimal getDecimal(String idx, Node node) {
     try {
       return rs.getBigDecimal(idx);
     } catch (SQLException e) {
@@ -138,7 +138,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  String getString(int idx, Node node) {
+  String getString(String idx, Node node) {
     try {
       return rs.getString(idx);
     } catch (SQLException e) {
@@ -147,7 +147,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  boolean getBool(int idx, Node node) {
+  boolean getBool(String idx, Node node) {
     try {
       return rs.getBoolean(idx);
     } catch (SQLException e) {
@@ -156,7 +156,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  DateObject getDate(int idx, Node node) {
+  DateObject getDate(String idx, Node node) {
     try {
       java.sql.Date sqlDate = rs.getDate(idx);
       return new DateObject(sqlDate.toLocalDate());
@@ -166,7 +166,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  TimeObject getTime(int idx, Node node) {
+  TimeObject getTime(String idx, Node node) {
     try {
       java.sql.Time sqlTime = rs.getTime(idx);
       return new TimeObject(sqlTime.toLocalTime());
@@ -176,7 +176,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  TimestampObject getTimestamp(int idx, Node node) {
+  TimestampObject getTimestamp(String idx, Node node) {
     try {
       java.sql.Timestamp sqlTimestamp = rs.getTimestamp(idx);
       return new TimestampObject(sqlTimestamp.toLocalDateTime());
@@ -186,7 +186,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  byte[] getBytes(int idx, Node node) {
+  byte[] getBytes(String idx, Node node) {
     try {
       return rs.getBytes(idx);
     } catch (SQLException e) {
@@ -195,7 +195,7 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  boolean isNull(int idx, Node node) {
+  boolean isNull(String idx, Node node) {
     try {
       rs.getObject(idx);
       return rs.wasNull();

@@ -25,9 +25,9 @@ public class TryableReadJdbcQuery extends ExpressionNode {
 
   @Child
   private DirectCallNode innerParse;
-  private final int idx;
+  private final String idx;
 
-  public TryableReadJdbcQuery(ProgramExpressionNode innerParse, int idx) {
+  public TryableReadJdbcQuery(ProgramExpressionNode innerParse, String idx) {
     this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
     this.idx = idx;
   }

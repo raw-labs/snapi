@@ -36,34 +36,32 @@ object TruffleJdbc {
     assert(iProps.isEmpty)
     assert(rProps.isEmpty)
 
-    def columnReader(idx: Int, t: Type): ProgramExpressionNode = {
+    def columnReader(colName: String, t: Type): ProgramExpressionNode = {
       val node = t match {
         case r: Rql2TypeWithProperties if r.props.contains(tryable) =>
-          val inner = columnReader(idx, r.cloneAndRemoveProp(tryable))
-          new TryableReadJdbcQuery(inner, idx)
+          val inner = columnReader(colName, r.cloneAndRemoveProp(tryable))
+          new TryableReadJdbcQuery(inner, colName)
         case r: Rql2TypeWithProperties if r.props.contains(nullable) =>
-          val inner = columnReader(idx, r.cloneAndRemoveProp(nullable))
-          new NullableReadJdbcQuery(inner, idx)
-        case _: Rql2ByteType => new ByteReadJdbcQuery(idx)
-        case _: Rql2ShortType => new ShortReadJdbcQuery(idx)
-        case _: Rql2IntType => new IntReadJdbcQuery(idx)
-        case _: Rql2LongType => new LongReadJdbcQuery(idx)
-        case _: Rql2FloatType => new FloatReadJdbcQuery(idx)
-        case _: Rql2DoubleType => new DoubleReadJdbcQuery(idx)
-        case _: Rql2DecimalType => new DecimalReadJdbcQuery(idx)
-        case _: Rql2StringType => new StringReadJdbcQuery(idx)
-        case _: Rql2DateType => new DateReadJdbcQuery(idx)
-        case _: Rql2TimeType => new TimeReadJdbcQuery(idx)
-        case _: Rql2TimestampType => new TimestampReadJdbcQuery(idx)
-        case _: Rql2BoolType => new BoolReadJdbcQuery(idx)
-        case _: Rql2BinaryType => new BinaryReadJdbcQuery(idx)
+          val inner = columnReader(colName, r.cloneAndRemoveProp(nullable))
+          new NullableReadJdbcQuery(inner, colName)
+        case _: Rql2ByteType => new ByteReadJdbcQuery(colName)
+        case _: Rql2ShortType => new ShortReadJdbcQuery(colName)
+        case _: Rql2IntType => new IntReadJdbcQuery(colName)
+        case _: Rql2LongType => new LongReadJdbcQuery(colName)
+        case _: Rql2FloatType => new FloatReadJdbcQuery(colName)
+        case _: Rql2DoubleType => new DoubleReadJdbcQuery(colName)
+        case _: Rql2DecimalType => new DecimalReadJdbcQuery(colName)
+        case _: Rql2StringType => new StringReadJdbcQuery(colName)
+        case _: Rql2DateType => new DateReadJdbcQuery(colName)
+        case _: Rql2TimeType => new TimeReadJdbcQuery(colName)
+        case _: Rql2TimestampType => new TimestampReadJdbcQuery(colName)
+        case _: Rql2BoolType => new BoolReadJdbcQuery(colName)
+        case _: Rql2BinaryType => new BinaryReadJdbcQuery(colName)
       }
       new ProgramExpressionNode(lang, frameDescriptor, node)
     }
 
-    val columnParsers = columns.map(_.tipe.asInstanceOf[Rql2TypeWithProperties]).zipWithIndex.map {
-      case (colType, idx) => columnReader(idx + 1, colType)
-    }
+    val columnParsers = columns.map(att => columnReader(att.idn, att.tipe))
     val recordParser = new RecordReadJdbcQuery(columnParsers.toArray, columns.toArray)
     new JdbcQueryNode(location, query, new ProgramExpressionNode(lang, frameDescriptor, recordParser), exceptionHandler)
   }
