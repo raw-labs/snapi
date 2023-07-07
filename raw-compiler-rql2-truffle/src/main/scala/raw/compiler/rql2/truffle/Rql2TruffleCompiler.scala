@@ -218,12 +218,16 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
           )
         )
       case "binary" =>
-        val writer = TruffleBinaryWriter(tree.analyzer.tipe(me.get).asInstanceOf[Rql2BinaryType])
-        new ProgramStatementNode(
-          RawLanguage.getCurrentContext.getLanguage,
-          frameDescriptor,
-          new BinaryWriterNode(bodyExpNode, writer)
-        )
+        tree.analyzer.tipe(me.get) match {
+          case binary: Rql2BinaryType => // nullable or tryable is OK
+            val writer = TruffleBinaryWriter(binary)
+            new ProgramStatementNode(
+              RawLanguage.getCurrentContext.getLanguage,
+              frameDescriptor,
+              new BinaryWriterNode(bodyExpNode, writer)
+            )
+          case _ => throw new CompilerException("unsupported type")
+        }
       case null | "" => new ProgramExpressionNode(
           RawLanguage.getCurrentContext.getLanguage,
           frameDescriptor,

@@ -24,8 +24,8 @@ import raw.testing.tags.TruffleTests
 // RD-9078
 // class RD5884TruffleTest extends TruffleCompilerTestContext with RD5884Test
 @TruffleTests class RD8266TruffleTest extends TruffleCompilerTestContext with RD8266Test
-// needs CSV, Xml, RD-9074
-// class RD5448TruffleTest extends TruffleCompilerTestContext with RD5448Test
+// needs Xml
+// @TruffleTests class RD5448TruffleTest extends TruffleCompilerTestContext with RD5448Test
 @TruffleTests class RD5238TruffleTest extends TruffleCompilerTestContext with RD5238Test
 @TruffleTests class RD3742TruffleTest extends TruffleCompilerTestContext with RD3742Test
 @TruffleTests class RD3784TruffleTest extends TruffleCompilerTestContext with RD3784Test
@@ -72,7 +72,7 @@ import raw.testing.tags.TruffleTests
 
 @TruffleTests class RD5412TruffleTest extends TruffleCompilerTestContext with RD5412Test
 
-// wrong type for 'binary' fails to be reported as expected
+// 'text' format not supported
 // @TruffleTests class RD5971TruffleTest extends TruffleCompilerTestContext with RD5971Test
 @TruffleTests class RD4445TruffleTest extends TruffleCompilerTestContext with RD4445Test
 
@@ -87,7 +87,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD5786TruffleTest extends TruffleCompilerTestContext with RD5786Test
 
 // fails with an index error when reading a parameter (RD-9078 likely)
-//@TruffleTests class RD8015TruffleTest extends TruffleCompilerTestContext with RD8015Test
+// @TruffleTests class RD8015TruffleTest extends TruffleCompilerTestContext with RD8015Test
 @TruffleTests class RD5722TruffleTest extends TruffleCompilerTestContext with RD5722Test
 @TruffleTests class RD4741TruffleTest extends TruffleCompilerTestContext with RD4741Test
 @TruffleTests class RD5925TruffleTest extends TruffleCompilerTestContext with RD5925Test
