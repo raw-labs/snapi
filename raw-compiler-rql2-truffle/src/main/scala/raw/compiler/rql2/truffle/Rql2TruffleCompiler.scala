@@ -348,6 +348,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
         case _: Rql2ListType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: FunType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: Rql2RecordType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2LocationType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
       }
       addSlot(entity, slot)
       WriteLocalVariableNodeGen.create(recurseExp(e), slot, rql2Type)
