@@ -16,3 +16,5 @@ import raw.compiler.rql2.tests.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests class BenchmarkTruffleTests extends TruffleCompilerTestContext with BenchmarkTests
+
+@TruffleTests class StressTruffleTests extends TruffleCompilerTestContext with StressTests
