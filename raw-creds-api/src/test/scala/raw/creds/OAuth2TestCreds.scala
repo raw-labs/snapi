@@ -138,11 +138,11 @@ trait OAuth2TestCreds {
     options = Map("accounts_url" -> "https://accounts.zoho.com")
   )
 
-  lazy val googleApiSecretKey = sys.env(RAW_GOOGLE_TEST_API_SECRET_KEY).stripMargin
+  lazy val googleApiSecretKey = sys.env("RAW_GOOGLE_TEST_API_SECRET_KEY").stripMargin
 
   lazy val googleApiClientCredentials = ClientCredentialsCredential(
     OAuth2Provider.GoogleApi,
-    clientId = sys.env(RAW_GOOGLE_TEST_API_CLIENT_ID),
+    clientId = sys.env("RAW_GOOGLE_TEST_API_CLIENT_ID"),
     clientSecret = googleApiSecretKey,
     options = Map(
       "scope" -> "https://www.googleapis.com/auth/analytics.readonly",
