@@ -67,7 +67,8 @@ import raw.testing.tags.TruffleTests
 // XML
 // class RD5679TruffleTest extends TruffleCompilerTestContext with RD5679Test
 
-@TruffleTests class RD5775TruffleTest extends TruffleCompilerTestContext with RD5775Test
+// Runs weird queries that aren't supported by JSON (package entry extensions, functions, etc.)
+// @TruffleTests class RD5775TruffleTest extends TruffleCompilerTestContext with RD5775Test
 @TruffleTests class RD5851TruffleTest extends TruffleCompilerTestContext with RD5851Test
 
 @TruffleTests class RD5412TruffleTest extends TruffleCompilerTestContext with RD5412Test

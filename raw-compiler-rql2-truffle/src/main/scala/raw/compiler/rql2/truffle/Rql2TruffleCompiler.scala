@@ -217,8 +217,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             JsonRecurse.recurseJsonWriter(tree.analyzer.tipe(me.get).asInstanceOf[Rql2TypeWithProperties])
           )
         )
-      case "binary" =>
-        tree.analyzer.tipe(me.get) match {
+      case "binary" => tree.analyzer.tipe(me.get) match {
           case binary: Rql2BinaryType => // nullable or tryable is OK
             val writer = TruffleBinaryWriter(binary)
             new ProgramStatementNode(

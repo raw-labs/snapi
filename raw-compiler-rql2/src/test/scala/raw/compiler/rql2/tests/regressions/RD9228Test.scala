@@ -17,55 +17,48 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait RD9228Test extends CompilerTestContext {
 
   // pass a plain URL. It will be turned into a location, directly passed as a parameter.
-  test(
-    """
-      |Json.InferAndRead("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json")
-      |""".stripMargin)(_ should typeAs(
-    """collection(record(
-      |        reason: string,
-      |        origin: string,
-      |        destination: string,
-      |        dates: record(departure: date, arrival: date)
-      |    ))""".stripMargin))
+  test("""
+    |Json.InferAndRead("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json")
+    |""".stripMargin)(_ should typeAs("""collection(record(
+    |        reason: string,
+    |        origin: string,
+    |        destination: string,
+    |        dates: record(departure: date, arrival: date)
+    |    ))""".stripMargin))
 
   // pass a plain URL. It will be turned into a location, directly passed as a parameter.
-  test(
-    """
-      |Json.Read("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json", type list(record(
-      |        reason: string,
-      |        origin: string,
-      |        destination: string,
-      |        dates: record(departure: date, arrival: date)
-      |    )))
-      |""".stripMargin)(_ should run)
+  test("""
+    |Json.Read("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json", type list(record(
+    |        reason: string,
+    |        origin: string,
+    |        destination: string,
+    |        dates: record(departure: date, arrival: date)
+    |    )))
+    |""".stripMargin)(_ should run)
 
   // Declare the location as a variable. Json.Read has to resolve its value dynamically using a walk through frames.
   // Because we read a collection, no tryable handler is involved. No bug.
-  test(
-    """
-      |let location = Http.Get("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json")
-      |in Json.Read(location, type collection(record(
-      |        reason: string,
-      |        origin: string,
-      |        destination: string,
-      |        dates: record(departure: date, arrival: date)
-      |    )))
-      |""".stripMargin)(_ should run)
-
+  test("""
+    |let location = Http.Get("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json")
+    |in Json.Read(location, type collection(record(
+    |        reason: string,
+    |        origin: string,
+    |        destination: string,
+    |        dates: record(departure: date, arrival: date)
+    |    )))
+    |""".stripMargin)(_ should run)
 
   // Declare the location as a variable. Json.Read has to resolve its value dynamically using a walk through frames.
   // Because we read a tryable (list), the tryable handler is involved. It didn't expect the nested read to have a
   // free variable.
-  test(
-    """
-      |let location = Http.Get("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json")
-      |in Json.Read(location, type list(record(
-      |        reason: string,
-      |        origin: string,
-      |        destination: string,
-      |        dates: record(departure: date, arrival: date)
-      |    )))
-      |""".stripMargin)(_ should run)
-
+  test("""
+    |let location = Http.Get("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json")
+    |in Json.Read(location, type list(record(
+    |        reason: string,
+    |        origin: string,
+    |        destination: string,
+    |        dates: record(departure: date, arrival: date)
+    |    )))
+    |""".stripMargin)(_ should run)
 
 }
