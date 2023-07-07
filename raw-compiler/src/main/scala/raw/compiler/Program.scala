@@ -61,7 +61,7 @@ trait ProgramOutputWriter {
    *
    * @param outputStream OutputStream to write results to.
    */
-  @throws[CompilerExecutionException]
+  @throws[CompilerException]
   @throws[RawException] // It shouldn't... but can happen and can safely be shared with the user.
   def writeTo(outputStream: OutputStream): Unit
 

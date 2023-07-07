@@ -28,7 +28,6 @@ import raw.compiler.rql2.SyntaxAnalyzer
 import raw.compiler.rql2.source.Rql2Program
 import raw.compiler.{
   CompilerException,
-  CompilerExecutionException,
   ErrorMessage,
   ProgramDefinition,
   ProgramEnvironment,
@@ -97,7 +96,6 @@ class RawCli(writer: PrintWriter) extends StrictLogging {
       }
     } catch {
       case ex: CompilerException => printError(ex.getMessage)
-      case ex: CompilerExecutionException => printError(ex.getMessage)
       case ex: InterruptedException =>
         printError("program interrupted")
         throw ex
