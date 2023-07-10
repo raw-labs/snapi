@@ -12,13 +12,16 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.compiler.base.errors.{BaseError, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.source._
+import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.inferrer._
+import raw.runtime.interpreter.{LocationValue, StringValue}
+import raw.sources.bytestream.in_memory.InMemoryByteStreamLocation
+import raw.sources.{LocationBinarySetting, LocationDescription, LocationSettingKey, LocationSettingValue}
 
 class JsonPackage extends PackageExtension {
 
@@ -109,8 +112,7 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
         JsonInputFormatDescriptor(inferredType, sampled, _, _, _)
       ) = inputFormatDescriptor
     ) yield {
-      val preferNulls =
-        optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.map(getBoolValue).getOrElse(true)
+      val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
       val makeNullables = preferNulls && sampled
       val makeTryables = sampled
 
@@ -147,7 +149,7 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
       )
     ) = inputFormatDescriptor.right.get
 
-    val location = locationValueToExp(mandatoryArgs(0))
+    val location = locationValueToExp(mandatoryArgs.head)
     val args = Vector(
       Some(FunAppArg(location, None)),
       Some(FunAppArg(TypeExp(t), None)),
@@ -260,6 +262,176 @@ class ReadJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
       case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
       case t => addProp(t, Rql2IsTryableTypeProperty())
     }
+  }
+
+}
+
+class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtensionHelper {
+
+  override def packageName: String = "Json"
+
+  override def entryName: String = "InferAndParse"
+
+  override def docs: EntryDoc = EntryDoc(
+    "Reads JSON data from a string with schema detection (inference).",
+    None,
+    params = List(
+      ParamDoc(
+        "stringData",
+        TypeDoc(List("string")),
+        description = "The data in string format to infer and read."
+      ),
+      ParamDoc(
+        "sampleSize",
+        TypeDoc(List("int")),
+        description = """Specifies the number of objects to sample within the data.""",
+        info = Some("""If a large `sampleSize` is used, the detection takes more time to complete,
+          |but has a higher chance of detecting the correct format.
+          |To force the detection to read the full data, set `sampleSize` to -1.""".stripMargin),
+        isOptional = true
+      ),
+      ParamDoc(
+        "encoding",
+        typeDoc = TypeDoc(List("string")),
+        description = """Specifies the encoding of the data.""",
+        info = Some("""If the encoding is not specified it is determined automatically.""".stripMargin),
+        isOptional = true
+      ),
+      ParamDoc(
+        "preferNulls",
+        typeDoc = TypeDoc(List("bool")),
+        description =
+          """If set to true and during inference the system does read the whole data, marks all fields as nullable. Defaults to true.""",
+        isOptional = true
+      )
+    ),
+    examples = List(ExampleDoc("""Json.InferAndParse(\"\"\" {"hello" : "world"} \"\"\")"""))
+  )
+
+  override def nrMandatoryParams: Int = 1
+
+  override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
+    assert(idx == 0)
+    Right(ValueParam(Rql2StringType()))
+  }
+
+  override def optionalParams: Option[Set[String]] = Some(
+    Set(
+      "sampleSize",
+      "encoding",
+      "preferNulls"
+    )
+  )
+
+  override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
+    idn match {
+      case "sampleSize" => Right(ValueParam(Rql2IntType()))
+      case "encoding" => Right(ValueParam(Rql2StringType()))
+      case "preferNulls" => Right(ValueParam(Rql2BoolType()))
+    }
+  }
+
+  override def returnType(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Either[String, Type] = {
+    val codeData = mandatoryArgs.head match {
+      case ValueArg(v, _) => v match {
+          case StringValue(innVal) => innVal
+        }
+    }
+
+    val settings = Map[LocationSettingKey, LocationSettingValue](
+      (
+        LocationSettingKey(InMemoryByteStreamLocation.codeDataKey),
+        LocationBinarySetting(codeData.getBytes())
+      )
+    )
+
+    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schema, settings)
+
+    val locationArg = ValueArg(LocationValue(locationDescription), Rql2LocationType())
+
+    for (
+      inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
+      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      TextInputStreamFormatDescriptor(
+        _,
+        _,
+        JsonInputFormatDescriptor(inferredType, sampled, _, _, _)
+      ) = inputFormatDescriptor
+    ) yield {
+      val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
+      val makeNullables = preferNulls && sampled
+      val makeTryables = sampled
+
+      inferTypeToRql2Type(inferredType, makeNullables, makeTryables) match {
+        case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
+        case other => addProp(other, Rql2IsTryableTypeProperty())
+      }
+    }
+  }
+
+  override def desugar(
+      t: Type,
+      args: Seq[FunAppArg],
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Exp = {
+
+    // (az) to ask (mb) if exception handling is needed here, because there is no exception thrown in any package
+    val codeData = mandatoryArgs.head match {
+      case ValueArg(v, _) => v match {
+          case StringValue(innVal) => innVal
+        }
+    }
+
+    val settings = Map[LocationSettingKey, LocationSettingValue](
+      (
+        LocationSettingKey(InMemoryByteStreamLocation.codeDataKey),
+        LocationBinarySetting(codeData.getBytes())
+      )
+    )
+
+    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schema, settings)
+
+    val locationArg = ValueArg(LocationValue(locationDescription), Rql2LocationType())
+
+    val inputFormatDescriptor = for (
+      inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
+      inputFormatDescriptor <- programContext.infer(inferrerProperties)
+    ) yield {
+      inputFormatDescriptor
+    }
+
+    val TextInputStreamFormatDescriptor(
+      encoding,
+      _,
+      JsonInputFormatDescriptor(
+        _,
+        _,
+        timeFormat,
+        dateFormat,
+        timestampFormat
+      )
+    ) = inputFormatDescriptor.right.get
+
+    val location = locationValueToExp(locationArg)
+    val args = Vector(
+      Some(FunAppArg(location, None)),
+      Some(FunAppArg(TypeExp(t), None)),
+      timeFormat.map(s => FunAppArg(StringConst(s), Some("timeFormat"))),
+      dateFormat.map(s => FunAppArg(StringConst(s), Some("dateFormat"))),
+      timestampFormat.map(s => FunAppArg(StringConst(s), Some("timestampFormat")))
+    ).flatten
+
+    FunApp(
+      Proj(PackageIdnExp("Json"), "Parse"),
+      args
+    )
+
   }
 
 }
@@ -394,7 +566,7 @@ class PrintJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     // Here we validate the type of the argument, and always return a string
-    val data = mandatoryArgs(0)
+    val data = mandatoryArgs.head
     validateJsonType(data.t).right.map(_ => Rql2StringType()).left.map { errors =>
       errors
         .map { case UnsupportedType(_, t, _) => s"unsupported type ${SourcePrettyPrinter.format(t)}" }
@@ -412,7 +584,7 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
   ): Either[String, JsonInferrerProperties] = {
     Right(
       JsonInferrerProperties(
-        getLocationValue(mandatoryArgs(0)),
+        getLocationValue(mandatoryArgs.head),
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs
           .collectFirst { case a if a._1 == "encoding" => a._2 }

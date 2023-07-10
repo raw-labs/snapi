@@ -42,8 +42,6 @@ class MockPath(
 
   override def rawUri: String = s"mock:${delegate.rawUri}"
 
-  override def sparkUri: String = rawUri
-
   override def testAccess(): Unit = {
     doDelay()
     delegate.testAccess()

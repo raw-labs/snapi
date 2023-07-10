@@ -30,8 +30,6 @@ class DropboxPath(
 
   override def rawUri: String = s"dropbox://${cli.name}$path"
 
-  override def sparkUri: String = throw new ByteStreamException("spark url not supported for Dropbox")
-
   override def testAccess(): Unit = {
     cli.testAccess(path)
   }

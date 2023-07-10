@@ -27,8 +27,6 @@ class LocalPath(pathName: String, override val cacheStrategy: CacheStrategy, ove
 
   override def rawUri: String = s"file:$pathName"
 
-  override def sparkUri: String = rawUri
-
   protected def path: Path = Paths.get(pathName)
 
   override def testAccess(): Unit = {

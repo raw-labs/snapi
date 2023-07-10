@@ -319,6 +319,10 @@ lazy val rawSourcesMock = (project in file("raw-sources-mock"))
   .dependsOn(rawSourcesApi % "compile->compile;test->test")
   .settings(strictBuildSettings)
 
+lazy val rawSourcesInMemory = (project in file("raw-sources-in-memory"))
+  .dependsOn(rawSourcesApi % "compile->compile;test->test")
+  .settings(strictBuildSettings)
+
 lazy val rawSourcesDropbox = (project in file("raw-sources-dropbox"))
   .dependsOn(rawSourcesApi % "compile->compile;test->test")
   .settings(
@@ -422,7 +426,8 @@ lazy val rawCompilerRql2 = (project in file("raw-compiler-rql2"))
     rawSourcesMsSQL % "test->test",
     rawSourcesSnowflake % "test->test",
     rawSourcesMock % "test->test",
-    rawSourcesGithub % "test->test"
+    rawSourcesGithub % "test->test",
+    rawSourcesInMemory % "test->test"
   )
   .settings(
     buildSettings // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
@@ -509,7 +514,8 @@ lazy val rawCli = (project in file("raw-cli"))
     rawSourcesSqlite,
     rawSourcesMsSQL,
     rawSourcesSnowflake,
-    rawSourcesGithub
+    rawSourcesGithub,
+    rawSourcesInMemory
   )
   .settings(
     buildSettings,

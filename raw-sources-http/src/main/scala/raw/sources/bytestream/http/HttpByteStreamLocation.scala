@@ -37,8 +37,6 @@ class HttpByteStreamLocation(
     new URI(url).normalize().toString
   }
 
-  override val sparkUri: String = rawUri
-
   override def testAccess(): Unit = {
     // We are reading a single byte to ensure the connection is valid.
     // By reading a single byte, we are actually doing a connection and authentication
