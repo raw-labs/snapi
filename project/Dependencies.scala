@@ -33,8 +33,6 @@ object Dependencies {
 
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.0"
 
-  val jmxPrometheusAgent = "io.prometheus.jmx" % "jmx_prometheus_javaagent" % "0.18.0"
-
   val kiama = Seq(
     "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.0",
     "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.0"
