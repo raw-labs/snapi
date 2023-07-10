@@ -249,27 +249,6 @@ class MultilineParser(rawCli: RawCli) extends DefaultParser {
           // An invalid program but no point in processing it further, so let's accept and let it fail.
           super.parse(line, cursor, context)
         }
-
-//          // If error is at the end, keep going - ask for more input.
-//          // If error is NOT at the end, it means the program is broken so we just 'accept it' so that it runs and
-//          // the failure is captured by the normal execution process.
-//          // We could also capture and print here the mistake directly but this is easier.
-//
-//
-//        } && message
-//          if (rest.atEnd) {
-//            throw new CompilerParserException(message, rest)
-//            // An invalid program but no point in processing it further, so let's accept and let it fail.
-//            super.parse(line, cursor, context)
-//          } else {
-//            // An invalid program but no point in processing it further, so let's accept and let it fail.
-//            super.parse(line, cursor, context)
-//          }
-//
-//        } else {
-//          // An invalid program but no point in processing it further, so let's accept and let it fail.
-//          super.parse(line, cursor, context)
-//        }
     }
   }
 }
