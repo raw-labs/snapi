@@ -51,7 +51,6 @@ class TruffleProgramOutputWriter(entrypoint: TruffleEntrypoint)(
           target.call()
         } catch {
           case ex: RawTruffleRuntimeException =>
-            logger.error(s"RawTruffleRuntimeException with: ${ex.getMessage}", ex)
             // Instead of passing the cause, we pass null, because otherwise when running Scala2 tests it tries to
             // the AbstractTruffleException which is not exported in JVM (not GraalVM), so it fails.
             throw new CompilerExecutionException(

@@ -247,15 +247,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
           ex
         )
         throw new LocalInferrerException(ex.getMessage, ex)
-      case NonFatal(t) =>
-        // TODO (msb): This is dangerous and should be removed: inferrers should fail gracefully and with proper messages.
-        // Last time I checked, the XML inferrer would fail badly one of the URLTest, so this code is still necessary.
-        logger.error(
-          s"""Inferrer failed unexpectedly.
-            |Location: ${properties.location.url}""".stripMargin,
-          t
-        )
-        throw new LocalInferrerException("inference failed unexpectedly", t)
+      case NonFatal(t) => throw new LocalInferrerException("inference failed unexpectedly", t)
     }
   }
 

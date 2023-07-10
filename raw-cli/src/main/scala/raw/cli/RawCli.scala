@@ -26,7 +26,15 @@ import raw.compiler.base.source.BaseProgram
 import raw.compiler.common.CompilerService
 import raw.compiler.rql2.SyntaxAnalyzer
 import raw.compiler.rql2.source.Rql2Program
-import raw.compiler.{CompilerException, ErrorMessage, ProgramDefinition, ProgramEnvironment, ProgramOutputWriter}
+import raw.compiler.{
+  CompilerException,
+  CompilerParserException,
+  ErrorMessage,
+  ErrorPosition,
+  ProgramDefinition,
+  ProgramEnvironment,
+  ProgramOutputWriter
+}
 import raw.config.RawSettings
 import raw.utils.RawUtils
 
@@ -152,37 +160,37 @@ object RawCli extends App {
 
       var done = false
       while (!done) {
-        val line =
-          try {
-            reader.readLine("> ")
-          } catch {
-            case _: org.jline.reader.EOFError => null
+        try {
+          val line = reader.readLine("> ")
+          if (line.strip().isEmpty) {
+            // Do nothing; ask for more input.
+          } else if (line.strip().equalsIgnoreCase(".exit")) {
+            // Terminate
+            done = true
+          } else if (line.strip().equalsIgnoreCase(".quit")) {
+            // Terminate
+            done = true
+          } else if (line.strip().equalsIgnoreCase(".csv")) {
+            rawCli.setOutputFormat("csv")
+          } else if (line.strip().equalsIgnoreCase(".json")) {
+            rawCli.setOutputFormat("json")
+          } else if (line.strip().equalsIgnoreCase(".help")) {
+            writer.println("""Commands:
+              |
+              |.exit - Exit the REPL
+              |.csv - Set output format to CSV
+              |.json - Set output format to JSON
+              |""".stripMargin)
+            writer.flush()
+          } else {
+            reader.getHistory.add(line)
+            // Run query!
+            rawCli.query(line)
           }
-        if (line == null || line.strip().isEmpty) {
-          // Do nothing; ask for more input
-        } else if (line.strip().equalsIgnoreCase(".exit")) {
-          // Terminate
-          done = true
-        } else if (line.strip().equalsIgnoreCase(".quit")) {
-          // Terminate
-          done = true
-        } else if (line.strip().equalsIgnoreCase(".csv")) {
-          rawCli.setOutputFormat("csv")
-        } else if (line.strip().equalsIgnoreCase(".json")) {
-          rawCli.setOutputFormat("json")
-        } else if (line.strip().equalsIgnoreCase(".help")) {
-          writer.println("""Commands:
-            |
-            |.exit - Exit the REPL
-            |.csv - Set output format to CSV
-            |.json - Set output format to JSON
-            |""".stripMargin)
-          writer.flush()
-        } else {
-          reader.getHistory.add(line)
-          // Run query!
-          rawCli.query(line)
-
+        } catch {
+          case ex: CompilerException => rawCli.printError(ex.getMessage)
+          case _: org.jline.reader.EOFError =>
+          // Do nothing; ask for more input.
         }
       }
     } finally {
@@ -217,27 +225,29 @@ class MultilineParser(rawCli: RawCli) extends DefaultParser {
         // f(v: int) = v + 1
         // ... where it isn't executable by itself.
         if (result.me.isDefined) {
-          // A valid program with a top-level expression
-          super.parse(line, cursor, ParseContext.ACCEPT_LINE)
+          // A valid program with a top-level expression.
+          super.parse(line, cursor, context)
         } else {
           // No top-level expression found, e.g. 'f(v: int) = v + 1'
-          throw new EOFError(0, 0, "No top-level expression found")
+          throw new CompilerParserException("no top-level expression found", new ErrorPosition(0, 0))
         }
       case err =>
-        // If error is at the end, keep going - ask for more input.
-        // If error is NOT at the end, it means the program is broken so we just 'accept it' so that it runs and
-        // the failure is captured by the normal execution process.
-        // We could also capture and print here the mistake directly but this is easier.
-
         val (message, rest) = err match {
           case Failure(message, rest) => (message, rest)
           case Error(message, rest) => (message, rest)
         }
-        if (rest.atEnd && !message.contains("end of source found")) {
-          throw new EOFError(rest.position.line, rest.position.column, message)
+
+        if (rest.atEnd) {
+          if (message.contains("end of source found")) {
+            // An incomplete program, so let's ask for more input.
+            throw new EOFError(-1, -1, "multi-line command")
+          } else {
+            // An invalid program but no point in processing it further, so let's accept and let it fail.
+            super.parse(line, cursor, context)
+          }
         } else {
           // An invalid program but no point in processing it further, so let's accept and let it fail.
-          super.parse(line, cursor, ParseContext.ACCEPT_LINE)
+          super.parse(line, cursor, context)
         }
     }
   }
