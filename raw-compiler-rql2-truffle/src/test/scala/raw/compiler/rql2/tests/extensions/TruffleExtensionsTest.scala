@@ -12,4 +12,7 @@
 
 package raw.compiler.rql2.tests.extensions
 
-// class AwsPackageTruffleTest extends TruffleCompilerTestContext with AwsPackageTest
+import raw.compiler.rql2.tests.TruffleCompilerTestContext
+import raw.testing.tags.TruffleTests
+
+// @TruffleTests class AwsPackageTruffleTest extends TruffleCompilerTestContext with AwsPackageTest

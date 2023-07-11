@@ -39,6 +39,7 @@ public abstract class LocationLsNode extends ExpressionNode {
             IndexedSeq<String> values = fs.ls().map(Location::rawUri).toIndexedSeq();
             int size = values.size();
             String[] result = new String[size];
+
             for (int i = 0; i < size; i++) {
                 result[i] = values.apply(i);
             }
