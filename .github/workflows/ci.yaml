@@ -29,12 +29,13 @@ jobs:
       - name: convert to snapi subproject
         id: convert
         run: |
-          sbt_projects=""
+          output=""
           for dir in ${{ steps.rawsources.outputs.all_changed_files }}; do
-            sbt_projects+=$(echo $dir | awk 'BEGIN{FS="-";OFS=""}{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) substr($i,2)}}1' | sed 's/^./\l&/')
+            sbt_project=$(echo $dir | awk 'BEGIN{FS="-";OFS=""}{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) substr($i,2)}}1' | sed 's/^./\l&/')
+            output+="$sbt_project "
           done
-          echo "$sbt_projects"
-          echo "all_sbt_projects=$sbt_projects" >> $GITHUB_OUTPUT
+          output=${output::-1}
+          echo "all_sbt_projects=$output" >> $GITHUB_OUTPUT
   debug-changed-files:
     needs: changed-files
     runs-on: self-hosted
