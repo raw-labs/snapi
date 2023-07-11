@@ -33,6 +33,7 @@ jobs:
           for dir in ${{ steps.rawsources.outputs.all_changed_files }}; do
             sbt_projects+=$(echo $dir | awk 'BEGIN{FS="-";OFS=""}{for(i=1;i<=NF;i++){$i=toupper(substr($i,1,1)) substr($i,2)}}1' | sed 's/^./\l&/')
           done
+          echo "$sbt_projects"
           echo "all_sbt_projects=$sbt_projects" >> $GITHUB_OUTPUT
   debug-changed-files:
     needs: changed-files
