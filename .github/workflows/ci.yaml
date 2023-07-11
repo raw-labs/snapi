@@ -67,8 +67,9 @@ jobs:
         with:
           secrets: ${{ toJSON(secrets) }}
       - run: ./rebuild.sh
-      - run: |
-          for project in ${{ needs.changed-files.outputs.all_sbt_projects }}; do
+      - name: run tests
+        run: |
+          for project in ${{ needs.raw-sources-changed-files.outputs.all_sbt_projects }}; do
             echo "****************"
             echo "Testing $project"
             echo "****************"
