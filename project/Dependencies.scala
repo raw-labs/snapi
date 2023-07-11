@@ -57,17 +57,16 @@ object Dependencies {
   val guava = "com.google.guava" % "guava" % "32.0.1-jre"
 
   val jacksonDeps = Seq(
-    "com.fasterxml.jackson.core" % "jackson-core" % "2.14.2",
-    "com.fasterxml.jackson.core" % "jackson-databind" % "2.14.2",
-    "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.14.2",
-    "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.14.2",
-    "com.fasterxml.jackson.datatype" % "jackson-datatype-joda" % "2.14.2",
-    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.14.2",
-    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.14.2",
-    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.14.2",
-//    "com.fasterxml.jackson.module" % "jackson-module-jaxb-annotations" % "2.14.2",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.14.2",
-    "com.fasterxml.jackson.jakarta.rs" % "jackson-jakarta-rs-json-provider" % "2.14.2"
+    "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
+    "com.fasterxml.jackson.core" % "jackson-databind" % "2.15.2",
+    "com.fasterxml.jackson.datatype" % "jackson-datatype-jsr310" % "2.15.2",
+    "com.fasterxml.jackson.datatype" % "jackson-datatype-jdk8" % "2.15.2",
+    "com.fasterxml.jackson.datatype" % "jackson-datatype-joda" % "2.15.2",
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.15.2",
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.15.2",
+    "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.15.2",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
+    "com.fasterxml.jackson.jakarta.rs" % "jackson-jakarta-rs-json-provider" % "2.15.2"
   )
 
   val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.4"
