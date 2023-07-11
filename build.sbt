@@ -438,7 +438,8 @@ val dummyJavadocJarTask = taskKey[File]("Creates a dummy javadoc jar file")
 lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
   .dependsOn(
     rawCompilerRql2 % "compile->compile;test->test",
-    rawSourcesHttp % "compile->compile;test->test"
+    rawSourcesHttp % "compile->compile;test->test",
+    rawSourcesInMemory % "compile->compile;test->test"
   )
   .settings(
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
