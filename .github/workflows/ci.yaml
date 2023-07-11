@@ -14,6 +14,10 @@ env:
 jobs:
   changed-files:
       runs-on: self-hosted
+      outputs:
+        all_changed_dirs: ${{ steps.forward.outputs.all_changed_dirs }}
+        any_changed: ${{ steps.rawsources.outputs.any_changed }}
+        only_changed: ${{ steps.rawsources.outputs.only_changed }}
       steps:
         - uses: actions/checkout@v3
         - uses: tj-actions/changed-files@v37
@@ -21,22 +25,7 @@ jobs:
           with:
             files: raw-sources*/**
             dir_names: "true"
-        - run: |
-            echo "Changed dirs: ${{ steps.rawsources.outputs.all_changed_files }}"
-            echo "Any changed raw-sources: ${{ steps.rawsources.outputs.any_changed }}"
-            echo "Only changed raw-sources: ${{ steps.rawsources.outputs.only_changed }}"
-            input="${{ steps.rawsources.outputs.all_changed_files }}"
-            output=""
-            seen=""
-            for path in $input; do
-              path=${path%%/*}
-              if [[ $seen != *" $path "* ]]; then
-                  output+="$path "
-                  seen+=" $path "
-              fi
-            done
-            output=${output::-1}
-            echo "Unique changed dirs: $output"   
+            dir_names_max_depth: 1
   #code-checks:
   #  runs-on: self-hosted
   #  container:
