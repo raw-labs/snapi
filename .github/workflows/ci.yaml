@@ -12,7 +12,7 @@ env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
 
 jobs:
-  changed-files:
+  raw-sources-changed-files:
     runs-on: self-hosted
     outputs:
       all_sbt_projects: ${{ steps.convert.outputs.all_sbt_projects }}
@@ -36,105 +36,95 @@ jobs:
           done
           output=${output::-1}
           echo "all_sbt_projects=$output" >> $GITHUB_OUTPUT
-  debug-changed-files:
-    needs: changed-files
+  code-checks:
     runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
     steps:
-      - run: echo "all_sbt_projects ${{ needs.changed-files.outputs.all_sbt_projects }}"
-      - if: ${{ needs.changed-files.outputs.any_changed }} == 'true'
-        run: echo "any_changed ${{ needs.changed-files.outputs.any_changed }}"
-      - if: ${{ needs.changed-files.outputs.only_changed }} == 'true'
-        run: echo "only_changed ${{ needs.changed-files.outputs.only_changed }}"
-
-  #code-checks:
-  #  runs-on: self-hosted
-  #  container:
-  #    image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
-  #    options: --user 1001
-  #    credentials:
-  #      username: ${{ github.actor }}
-  #      password: ${{ secrets.READ_PACKAGES }}
-  #  steps:
-  #    - uses: actions/checkout@v3
-  #    - run: sbt headerCheckAll
-  #    - run: sbt scalafmtCheckAll
-  #raw-sources-test:
-  #  needs: changed-files
-  #  runs-on: self-hosted
-  #  env:
-  #    SBT_FORK_OUTPUT_DIR : test-results
-  #    COURSIER_PROGRESS : false
-  #  container:
-  #    image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
-  #    options: --user 1001 --cpus 6 --memory 32g
-  #    credentials:
-  #      username: ${{ github.actor }}
-  #      password: ${{ secrets.READ_PACKAGES }}
-  #  steps:
-  #    - uses: actions/checkout@v3
-  #    - uses: oNaiPs/secrets-to-env-action@v1
-  #      with:
-  #        secrets: ${{ toJSON(secrets) }}
-  #    - run: ./rebuild.sh
-  #    - run: |
-  #        for dir in ${{ needs.changed-files.outputs.all_changed_dirs }}; do
-  #          # convert to camel case
-  #          sbt_project=$(echo $dir | sed -r 's/(-|^)([a-z])/\U\2/g') 
-  #          echo "Testing $dir"
-  #          cd $dir
-  #          sbt test
-  #          cd -
-  #        done
-  #    - uses: mikepenz/action-junit-report@v3
-  #      if: success() || failure()
-  #      with:
-  #        report_paths: ./**/test-reports/*.xml
-  #        detailed_summary: true
-  #    - uses: actions/upload-artifact@v3
-  #      with:
-  #        name: executor-logs
-  #        path: test-results/executor-logs
-  #        retention-days: 7
-  #        if-no-files-found: ignore
-  #    - uses: actions/upload-artifact@v3
-  #      with:
-  #        name: heap-dumps
-  #        path: test-results/heap-dumps
-  #        retention-days: 7
-  #        if-no-files-found: ignore
-  #truffle-tests:
-  #  needs: changed-files
-  #  runs-on: self-hosted
-  #  env:
-  #    SBT_FORK_OUTPUT_DIR : test-results
-  #    COURSIER_PROGRESS : false
-  #  container:
-  #    image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
-  #    options: --user 1001 --cpus 6 --memory 32g
-  #    credentials:
-  #      username: ${{ github.actor }}
-  #      password: ${{ secrets.READ_PACKAGES }}
-  #  steps:
-  #    - uses: actions/checkout@v3
-  #    - uses: oNaiPs/secrets-to-env-action@v1
-  #      with:
-  #        secrets: ${{ toJSON(secrets) }}
-  #    - run: ./rebuild.sh
-  #    - run: ./tests.sh
-  #    - uses: mikepenz/action-junit-report@v3
-  #      if: success() || failure()
-  #      with:
-  #        report_paths: ./**/test-reports/*.xml
-  #        detailed_summary: true
-  #    - uses: actions/upload-artifact@v3
-  #      with:
-  #        name: executor-logs
-  #        path: test-results/executor-logs
-  #        retention-days: 7
-  #        if-no-files-found: ignore
-  #    - uses: actions/upload-artifact@v3
-  #      with:
-  #        name: heap-dumps
-  #        path: test-results/heap-dumps
-  #        retention-days: 7
-  #        if-no-files-found: ignore
+      - uses: actions/checkout@v3
+      - run: sbt headerCheckAll
+      - run: sbt scalafmtCheckAll
+  raw-sources-tests:
+    needs: [raw-sources-changed-files, code-checks]
+    if: ${{ needs.raw-sources-changed-files.outputs.any_changed }} == 'true'
+    runs-on: self-hosted
+    env:
+      SBT_FORK_OUTPUT_DIR : test-results
+      COURSIER_PROGRESS : false
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      options: --user 1001 --cpus 6 --memory 32g
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}
+      - run: ./rebuild.sh
+      - run: |
+          for project in ${{ needs.changed-files.outputs.all_sbt_projects }}; do
+            echo "****************"
+            echo "Testing $project"
+            echo "****************"
+            sbt ${project}/test
+          done
+      - uses: mikepenz/action-junit-report@v3
+        if: success() || failure()
+        with:
+          report_paths: ./**/test-reports/*.xml
+          detailed_summary: true
+      - uses: actions/upload-artifact@v3
+        with:
+          name: raw-sources-tests-executor-logs
+          path: test-results/executor-logs
+          retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v3
+        with:
+          name: raw-sources-tests-heap-dumps
+          path: test-results/heap-dumps
+          retention-days: 7
+          if-no-files-found: ignore
+  truffle-tests:
+    needs: [raw-sources-changed-files, code-checks]
+    if: ${{ needs.raw-sources-changed-files.outputs.only_changed }} == 'false'
+    runs-on: self-hosted
+    env:
+      SBT_FORK_OUTPUT_DIR : test-results
+      COURSIER_PROGRESS : false
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      options: --user 1001 --cpus 6 --memory 32g
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: oNaiPs/secrets-to-env-action@v1
+        with:
+          secrets: ${{ toJSON(secrets) }}
+      - run: ./rebuild.sh
+      - run: ./tests.sh
+      - uses: mikepenz/action-junit-report@v3
+        if: success() || failure()
+        with:
+          report_paths: ./**/test-reports/*.xml
+          detailed_summary: true
+      - uses: actions/upload-artifact@v3
+        with:
+          name: truffle-tests-executor-logs
+          path: test-results/executor-logs
+          retention-days: 7
+          if-no-files-found: ignore
+      - uses: actions/upload-artifact@v3
+        with:
+          name: truffle-tests-heap-dumps
+          path: test-results/heap-dumps
+          retention-days: 7
+          if-no-files-found: ignore
