@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.typesafe.scalalogging.StrictLogging
-import io.jsonwebtoken.Jwts
+import pdi.jwt.{Jwt, JwtAlgorithm, JwtClaim}
 import org.apache.hc.core5.http.HttpHeaders
 import raw.creds.CredentialsException
 import raw.sources.bytestream.http.oauth2clients.OAuth2Client.{httpClient, mapper, ofFormData, readTimeout}
@@ -29,7 +29,7 @@ import java.nio.charset.StandardCharsets
 import java.security.KeyFactory
 import java.security.spec.{InvalidKeySpecException, PKCS8EncodedKeySpec}
 import java.time.Instant
-import java.util.{Base64, Date}
+import java.util.Base64
 
 @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
 case class GoogleAuth2TokenResponse(
@@ -66,9 +66,6 @@ class GoogleApiKeyOAuth2Client extends OAuth2Client with StrictLogging {
 
     val uri = new URI(tokenUri)
     try {
-
-      val issued = new Date(System.currentTimeMillis)
-      val expire = new Date(System.currentTimeMillis + 3600000)
       val cleaned = privateKey
         .replace("-----BEGIN PRIVATE KEY-----", "")
         .replace("-----END PRIVATE KEY-----", "")
@@ -79,15 +76,16 @@ class GoogleApiKeyOAuth2Client extends OAuth2Client with StrictLogging {
       val keySpec = new PKCS8EncodedKeySpec(pkcs8EncodedBytes)
       val kf = KeyFactory.getInstance("RSA");
       val privKey = kf.generatePrivate(keySpec);
+      val currentTime = Instant.now.getEpochSecond
 
-      val jwtToken = Jwts.builder
-        .setIssuedAt(issued)
-        .setExpiration(expire)
-        .setIssuer(clientEmail)
-        .setAudience(tokenUri)
-        .claim("scope", scope)
-        .signWith(privKey)
-        .compact()
+      val claim = JwtClaim()
+        .by(clientEmail)
+        .to(tokenUri)
+        .issuedAt(currentTime)
+        .expiresAt(currentTime + 3600) // 1 hour
+        .+("scope", scope)
+
+      val jwtToken = Jwt.encode(claim, privKey, JwtAlgorithm.RS256)
 
       val formData = Map(
         "grant_type" -> "urn:ietf:params:oauth:grant-type:jwt-bearer",
