@@ -349,7 +349,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       )
     )
 
-    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schema, settings)
+    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
 
     val locationArg = ValueArg(LocationValue(locationDescription), Rql2LocationType())
 
@@ -395,7 +395,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       )
     )
 
-    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schema, settings)
+    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
 
     val locationArg = ValueArg(LocationValue(locationDescription), Rql2LocationType())
 
@@ -418,9 +418,8 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       )
     ) = inputFormatDescriptor.right.get
 
-    val location = locationValueToExp(locationArg)
     val args = Vector(
-      Some(FunAppArg(location, None)),
+      Some(FunAppArg(StringConst(codeData), None)),
       Some(FunAppArg(TypeExp(t), None)),
       timeFormat.map(s => FunAppArg(StringConst(s), Some("timeFormat"))),
       dateFormat.map(s => FunAppArg(StringConst(s), Some("dateFormat"))),

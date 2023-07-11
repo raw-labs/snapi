@@ -12,7 +12,7 @@ class TestInMemoryLocationBuild extends RawTestSuite {
         LocationBinarySetting("hello world".getBytes(UTF_8().rawEncoding))
       )
     )
-    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schema, settings)
+    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
     implicit val sourceContext: SourceContext = null
     val inMemoryLocationBuilt = new InMemoryByteStreamLocationBuilder().build(locationDescription)
     assert(
@@ -24,7 +24,7 @@ class TestInMemoryLocationBuild extends RawTestSuite {
   test("in memory location builder scheme") { _ =>
     val inMemoryLocationBuilder = new InMemoryByteStreamLocationBuilder()
     assert(inMemoryLocationBuilder.schemes.size == 1)
-    assert(inMemoryLocationBuilder.schemes.head == InMemoryByteStreamLocation.schema)
+    assert(inMemoryLocationBuilder.schemes.head == InMemoryByteStreamLocation.schemaWithColon)
   }
 
   test("wrong schema build error") { _ =>

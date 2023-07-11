@@ -1,13 +1,19 @@
 package raw.sources.bytestream.in_memory
 
-import raw.sources.bytestream.{ByteStreamLocation, SeekableInputStream}
 import raw.sources._
+import raw.sources.bytestream.{
+  ByteStreamLocation,
+  DelegatingSeekableInputStream,
+  GenericSkippableInputStream,
+  SeekableInputStream
+}
 
 import java.io.{ByteArrayInputStream, InputStream}
 import java.nio.file.Path
 
 object InMemoryByteStreamLocation {
-  val schema = "in-memory://"
+  val schema = "in-memory"
+  val schemaWithColon = s"$schema:"
   val codeDataKey = "code-data"
 }
 
@@ -26,8 +32,13 @@ class InMemoryByteStreamLocation(
     }
   }
 
-  override protected def doGetSeekableInputStream(): SeekableInputStream =
-    throw new AssertionError("Calling SeekableInputStream on in memory location")
+  override protected def doGetSeekableInputStream(): SeekableInputStream = {
+    val genSings = new GenericSkippableInputStream(() => doGetInputStream())
+    new DelegatingSeekableInputStream(genSings) {
+      override def getPos: Long = genSings.getPos
+      override def seek(newPos: Long): Unit = genSings.seek(newPos)
+    }
+  }
 
   override def getLocalPath(): Path = throw new AssertionError("Calling path on in memory location")
 
