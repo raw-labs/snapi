@@ -270,7 +270,6 @@ lazy val rawUtils = (project in file("raw-utils"))
       scalaJava8Compat,
       typesafeConfig,
       loki4jAppender,
-      jmxPrometheusAgent,
       commonsIO,
       commonsLang,
       apacheHttpClient,
