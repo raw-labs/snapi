@@ -36,7 +36,7 @@ jobs:
           done
           output=${output::-1}
           echo "all_sbt_projects=$output" >> $GITHUB_OUTPUT
-          echo "sources_any_changed"=${{ steps.rawsources.outputs.any_changed }}" >> $GITHUB_OUTPUT
+          echo "sources_any_changed=${{ steps.rawsources.outputs.any_changed }}" >> $GITHUB_OUTPUT
           echo "sources_only_changed=${{ steps.rawsources.outputs.only_changed }}" >> $GITHUB_OUTPUT
   code-checks:
     runs-on: self-hosted
