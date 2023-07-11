@@ -80,49 +80,18 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
 
   private val recordData = tempFile("""{"a": 1, "b": 10, "c": 100}""")
 
-  test(rql"""Json.Read("$data", type collection(undefined))""")(it => it should evaluateTo(
-    """[
-      |  Error.Build("expected null but got non-null"),
-      |  Error.Build("expected null but got non-null"),
-      |  Error.Build("expected null but got non-null")
-      |] """.stripMargin))
+  test(rql"""Json.Read("$data", type collection(undefined))""")(it => it should evaluateTo("""[
+    |  Error.Build("expected null but got non-null"),
+    |  Error.Build("expected null but got non-null"),
+    |  Error.Build("expected null but got non-null")
+    |] """.stripMargin))
 
   test(rql"""Json.Read("$tryNothing1", type collection(undefined))""")(it =>
     it should evaluateTo(""" [null, null, null, null, null, Error.Build("expected null but got non-null")] """)
   )
 
   test(rql"""Json.Read("$tryNothing2", type collection(record(a: int, b: int, c: undefined)))""")(it =>
-    it should evaluateTo(
-      """
-        |[
-        |  {a: 3, b: 30, c: null},
-        |  {a: 3, b: 30, c: null},
-        |  {a: 3, b: 30, c: null},
-        |  {a: 3, b: 30, c: null},
-        |  {a: 3, b: 30, c: null},
-        |  {a: 3, b: 30, c: Error.Build("expected null but got non-null")}
-        |]""".stripMargin)
-  )
-
-  test(rql"""Json.Read("$tryNothing3", type collection(record(a: int, b: int, c: list(undefined))))""")(it =>
-    it should evaluateTo(
-      """
-        |[
-        |  {a: 3, b: 30, c: []},
-        |  {a: 3, b: 30, c: []},
-        |  {a: 3, b: 30, c: []},
-        |  {a: 3, b: 30, c: []},
-        |  {a: 3, b: 30, c: []},
-        |  {a: 3, b: 30, c: [Error.Build("expected null but got non-null"), null]}
-        |]""".stripMargin)
-  )
-
-  test(rql"""Json.InferAndRead("$tryNothing1", sampleSize = 4)""")(it =>
-    it should evaluateTo("""[null, null, null, null, null, Error.Build("expected null but got non-null")]""")
-  )
-
-  test(rql"""Json.InferAndRead("$tryNothing2", sampleSize = 4)""")(it => it should evaluateTo(
-    """
+    it should evaluateTo("""
       |[
       |  {a: 3, b: 30, c: null},
       |  {a: 3, b: 30, c: null},
@@ -130,10 +99,11 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
       |  {a: 3, b: 30, c: null},
       |  {a: 3, b: 30, c: null},
       |  {a: 3, b: 30, c: Error.Build("expected null but got non-null")}
-      |]""".stripMargin))
+      |]""".stripMargin)
+  )
 
-  test(rql"""Json.InferAndRead("$tryNothing3", sampleSize = 4)""")(it => it should evaluateTo(
-    """
+  test(rql"""Json.Read("$tryNothing3", type collection(record(a: int, b: int, c: list(undefined))))""")(it =>
+    it should evaluateTo("""
       |[
       |  {a: 3, b: 30, c: []},
       |  {a: 3, b: 30, c: []},
@@ -141,19 +111,43 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
       |  {a: 3, b: 30, c: []},
       |  {a: 3, b: 30, c: []},
       |  {a: 3, b: 30, c: [Error.Build("expected null but got non-null"), null]}
-      |]""".stripMargin))
+      |]""".stripMargin)
+  )
+
+  test(rql"""Json.InferAndRead("$tryNothing1", sampleSize = 4)""")(it =>
+    it should evaluateTo("""[null, null, null, null, null, Error.Build("expected null but got non-null")]""")
+  )
+
+  test(rql"""Json.InferAndRead("$tryNothing2", sampleSize = 4)""")(it => it should evaluateTo("""
+    |[
+    |  {a: 3, b: 30, c: null},
+    |  {a: 3, b: 30, c: null},
+    |  {a: 3, b: 30, c: null},
+    |  {a: 3, b: 30, c: null},
+    |  {a: 3, b: 30, c: null},
+    |  {a: 3, b: 30, c: Error.Build("expected null but got non-null")}
+    |]""".stripMargin))
+
+  test(rql"""Json.InferAndRead("$tryNothing3", sampleSize = 4)""")(it => it should evaluateTo("""
+    |[
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: [Error.Build("expected null but got non-null"), null]}
+    |]""".stripMargin))
 
   //With preferNulls = false the empty collection will be inferred as nothing not nullable so the null will also be a error
-  test(rql"""Json.InferAndRead("$tryNothing3", sampleSize = 4, preferNulls = false)""")(it => it should evaluateTo(
-    """
-      |[
-      |  {a: 3, b: 30, c: []},
-      |  {a: 3, b: 30, c: []},
-      |  {a: 3, b: 30, c: []},
-      |  {a: 3, b: 30, c: []},
-      |  {a: 3, b: 30, c: []},
-      |  {a: 3, b: 30, c: [Error.Build("unexpected value found, token 'VALUE_NUMBER_INT'"), Error.Build("unexpected value found, token 'VALUE_NULL'")]}
-      |]""".stripMargin))
+  test(rql"""Json.InferAndRead("$tryNothing3", sampleSize = 4, preferNulls = false)""")(it => it should evaluateTo("""
+    |[
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: []},
+    |  {a: 3, b: 30, c: [Error.Build("unexpected value found, token 'VALUE_NUMBER_INT'"), Error.Build("unexpected value found, token 'VALUE_NULL'")]}
+    |]""".stripMargin))
 
   test(
     """Json.Parse("[1,2,3]", type list(int))"""
@@ -181,31 +175,28 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
 
   test(rql"""Json.InferAndRead("$data")""".stripMargin)(it => it should run)
 
-  test(
-    rql"""
-         |let data = Json.InferAndRead("$data")
-         |in
-         |    Collection.Count(data)""".stripMargin) { it =>
+  test(rql"""
+    |let data = Json.InferAndRead("$data")
+    |in
+    |    Collection.Count(data)""".stripMargin) { it =>
     it should typeAs("long")
     it should evaluateTo("3")
   }
 
-  test(
-    rql"""
-         |let data = Json.InferAndRead("$data"),
-         |    filter = Collection.Filter(data, r -> r.a > 1)
-         |in
-         |    Collection.Count(filter)""".stripMargin) { it =>
+  test(rql"""
+    |let data = Json.InferAndRead("$data"),
+    |    filter = Collection.Filter(data, r -> r.a > 1)
+    |in
+    |    Collection.Count(filter)""".stripMargin) { it =>
     it should typeAs("long")
     it should evaluateTo("2")
   }
 
-  test(
-    rql"""
-         |let data = Json.Read("$data", type collection(record(a:int, b:int, c:int))),
-         |    filter = Collection.Filter(data, r -> r.a > 1)
-         |in
-         |    Collection.Count(filter)""".stripMargin) { it =>
+  test(rql"""
+    |let data = Json.Read("$data", type collection(record(a:int, b:int, c:int))),
+    |    filter = Collection.Filter(data, r -> r.a > 1)
+    |in
+    |    Collection.Count(filter)""".stripMargin) { it =>
     it should typeAs("long")
     it should evaluateTo("2")
   }
@@ -214,70 +205,60 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     """Json.Parse("[1,2,3]", type collection(int))"""
   )(it => it should evaluateTo("""Collection.Build(1, 2, 3)"""))
 
-  test(
-    """
-      |let t = type collection(int)
-      |in
-      |  Json.Parse("[1,2,3]", type t)
-      |""".stripMargin)(it => it should typeAs("collection(int)"))
+  test("""
+    |let t = type collection(int)
+    |in
+    |  Json.Parse("[1,2,3]", type t)
+    |""".stripMargin)(it => it should typeAs("collection(int)"))
 
   test("""Json.InferAndParse("[1,2,3]")""".stripMargin)(it => it should typeAs("collection(int)"))
 
-  test(
-    """
-      |let t = type int
-      |in
-      |  Json.Parse("42", type t)
-      |""".stripMargin)(it => it should evaluateTo("42"))
+  test("""
+    |let t = type int
+    |in
+    |  Json.Parse("42", type t)
+    |""".stripMargin)(it => it should evaluateTo("42"))
 
-  test(
-    rql"""
-         |let data = Json.InferAndRead("$recordData")
-         |in data.a + data.b + data.c""".stripMargin) { it =>
+  test(rql"""
+    |let data = Json.InferAndRead("$recordData")
+    |in data.a + data.b + data.c""".stripMargin) { it =>
     it should typeAs("int")
     it should evaluateTo("111")
   }
 
-  private val fileWithAKeywordField = tempFile(
-    """
-      |[
-      |  {"name": "Penne a la Siciliana", "type": "food", "price": 13},
-      |  {"name": "Back to the Future", "type": "DVD", "price": 9.99},
-      |  {"name": "Microphone", "type": "device", "price": 99}
-      |]""".stripMargin)
+  private val fileWithAKeywordField = tempFile("""
+    |[
+    |  {"name": "Penne a la Siciliana", "type": "food", "price": 13},
+    |  {"name": "Back to the Future", "type": "DVD", "price": 9.99},
+    |  {"name": "Microphone", "type": "device", "price": 99}
+    |]""".stripMargin)
 
-  test(
-    rql"""Collection.Filter(
-         |  Json.InferAndRead("$fileWithAKeywordField"),
-         |  i -> i.price < 10
-         |)""".stripMargin)(
+  test(rql"""Collection.Filter(
+    |  Json.InferAndRead("$fileWithAKeywordField"),
+    |  i -> i.price < 10
+    |)""".stripMargin)(
     _ should evaluateTo("""Collection.Build(Record.Build(name="Back to the Future", `type`="DVD", price=9.99))""")
   )
 
   // Errors
 
-  test(
-    rql"""let d = Json.Read("$data", type collection(record(a: int, b: int, c: int)))
-         |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
+  test(rql"""let d = Json.Read("$data", type collection(record(a: int, b: int, c: int)))
+    |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
 
-  test(
-    rql"""let url: string = "http://not-found",
-         |d = Json.Read(url, type collection(record(a: int, b: int, c: int)))
-         |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
+  test(rql"""let url: string = "http://not-found",
+    |d = Json.Read(url, type collection(record(a: int, b: int, c: int)))
+    |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
 
-  test(
-    rql"""let d = Json.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))
-         |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
+  test(rql"""let d = Json.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))
+    |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
 
-  test(
-    rql"""let d = Json.Read("file:/not/found", type collection(record(a: int, b: int, c: int))),
-         |c = Collection.Count(d)
-         |in Try.IsError(c)""".stripMargin)(_ should evaluateTo("true"))
+  test(rql"""let d = Json.Read("file:/not/found", type collection(record(a: int, b: int, c: int))),
+    |c = Collection.Count(d)
+    |in Try.IsError(c)""".stripMargin)(_ should evaluateTo("true"))
 
-  test(
-    rql"""let d = Json.Read("file:/not/found", type record(a: int, b: int, c: list(int))),
-         |c = List.Count(d.c)
-         |in Try.IsError(c)""".stripMargin)(_ should evaluateTo("true"))
+  test(rql"""let d = Json.Read("file:/not/found", type record(a: int, b: int, c: list(int))),
+    |c = List.Count(d.c)
+    |in Try.IsError(c)""".stripMargin)(_ should evaluateTo("true"))
 
   test(rql"""Json.InferAndRead("file:/not/found")""".stripMargin)(it => it should runErrorAs("path not found"))
 
@@ -285,19 +266,17 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     it should runErrorAs("path not found")
   )
 
-  test(
-    rql"""let urls = List.Build("file:/not/found", "$data"),
-         |    contents = List.Transform(urls, u -> Json.Read(u, type collection(record(a: int, b: int, c: int)))),
-         |    counts = List.Transform(contents, c -> Collection.Count(c))
-         |in counts""".stripMargin)(
+  test(rql"""let urls = List.Build("file:/not/found", "$data"),
+    |    contents = List.Transform(urls, u -> Json.Read(u, type collection(record(a: int, b: int, c: int)))),
+    |    counts = List.Transform(contents, c -> Collection.Count(c))
+    |in counts""".stripMargin)(
     _ should evaluateTo("""List.Build(Error.Build("file system error: path not found: /not/found"), 3L)""")
   )
 
-  test(
-    rql"""List.Build(
-         |    Collection.Count(Json.InferAndRead("file:/not/found")),
-         |    Collection.Count(Json.InferAndRead("$data"))
-         |)""".stripMargin)(
+  test(rql"""List.Build(
+    |    Collection.Count(Json.InferAndRead("file:/not/found")),
+    |    Collection.Count(Json.InferAndRead("$data"))
+    |)""".stripMargin)(
     _ should runErrorAs("path not found")
   )
 
@@ -318,52 +297,49 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   // Inferrer makes all fields triable and nullable (preferNulls is true by default), last line does not fail.
-  test(rql"""Json.InferAndRead("$jsonWithNulls", sampleSize = 5)""")(it => it should evaluateTo(
-    """[
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: 1, b: "1", c: [1, 2, 3]},
-      | {a: null, b: null, c: null}
-      |]""".stripMargin))
+  test(rql"""Json.InferAndRead("$jsonWithNulls", sampleSize = 5)""")(it => it should evaluateTo("""[
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: null, b: null, c: null}
+    |]""".stripMargin))
 
   // With preferNulls = false then all fields are triable but not nullable, so we have errors in the last line.
   test(rql"""Json.InferAndRead("$jsonWithNulls", sampleSize = 5, preferNulls = false)""")(it =>
-    it should orderEvaluateTo(
-      """[
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: 1, b: "1", c: [1, 2, 3]},
-        | {a: Error.Build("null value found"), b: Error.Build("null value found"), c: Error.Build("null value found")}
-        |]""".stripMargin)
+    it should orderEvaluateTo("""[
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: 1, b: "1", c: [1, 2, 3]},
+      | {a: Error.Build("null value found"), b: Error.Build("null value found"), c: Error.Build("null value found")}
+      |]""".stripMargin)
   )
 
   test(rql"""Json.Read("$jsonWithNulls", type collection(record(a: int, b: string, c: list(int))))""")(it =>
     it should
-      orderEvaluateTo(
-        """[
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: 1, b: "1", c: [1, 2, 3]},
-          | {a: null, b: null, c: null}
-          |]""".stripMargin)
+      orderEvaluateTo("""[
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: null, b: null, c: null}
+        |]""".stripMargin)
   )
 
   private val changeTypes = tempFile(
@@ -383,63 +359,60 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
   )
   val triple = "\"\"\""
 
-  test(rql"""Json.InferAndRead("$changeTypes", sampleSize = 5)""".stripMargin)(it => it should orderEvaluateTo(
-    s"""[
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {a: 1, b: "1", c: [1, 2, 3]},
-       | {
-       |   a: Error.Build(${triple}Current token (VALUE_STRING) not numeric, can not use numeric value accessors
-       | at [Source: (InputStreamReader); line: 11, column: 9]$triple),
-       |   b: "1",
-       |   c: Error.Build("expected [ but token VALUE_STRING found")
-       | }
-       |]""".stripMargin))
+  test(rql"""Json.InferAndRead("$changeTypes", sampleSize = 5)""".stripMargin)(it => it should orderEvaluateTo(s"""[
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {a: 1, b: "1", c: [1, 2, 3]},
+    | {
+    |   a: Error.Build(${triple}Current token (VALUE_STRING) not numeric, can not use numeric value accessors
+    | at [Source: (InputStreamReader); line: 11, column: 9]$triple),
+    |   b: "1",
+    |   c: Error.Build("expected [ but token VALUE_STRING found")
+    | }
+    |]""".stripMargin))
 
-  private val recordInTheMiddle = tempFile(
-    """[
-      |  1,
-      |  2,
-      |  {"a": 1, "b": 2},
-      |  3
-      |]""".stripMargin)
+  private val recordInTheMiddle = tempFile("""[
+    |  1,
+    |  2,
+    |  {"a": 1, "b": 2},
+    |  3
+    |]""".stripMargin)
 
   // (az) this failes because of BufferedReader usage in truffle, ask which one should we use
   test(rql"""Json.Read("$recordInTheMiddle", type list(int))""".stripMargin) {
     _ should orderEvaluateTo(
       s"""[
-         |  1,
-         |  2,
-         |  Error.Build(${triple}Current token (START_OBJECT) not numeric, can not use numeric value accessors
-         | at [Source: (InputStreamReader); line: 4, column: 4]$triple),
-         |  3
-         |]""".stripMargin
+        |  1,
+        |  2,
+        |  Error.Build(${triple}Current token (START_OBJECT) not numeric, can not use numeric value accessors
+        | at [Source: (InputStreamReader); line: 4, column: 4]$triple),
+        |  3
+        |]""".stripMargin
     )
   }
 
-  private val listInTheMiddle = tempFile(
-    """[
-      |  1,
-      |  2,
-      |  [{"a": 1, "b": 2}, {"a": 3, "b": 4}],
-      |  3
-      |]""".stripMargin)
+  private val listInTheMiddle = tempFile("""[
+    |  1,
+    |  2,
+    |  [{"a": 1, "b": 2}, {"a": 3, "b": 4}],
+    |  3
+    |]""".stripMargin)
 
   test(rql"""Json.Read("$listInTheMiddle", type list(int))""".stripMargin) {
     _ should orderEvaluateTo(
       s"""[
-         |  1,
-         |  2,
-         |  Error.Build(${triple}Current token (START_ARRAY) not numeric, can not use numeric value accessors
-         | at [Source: (InputStreamReader); line: 4, column: 4]$triple),
-         |  3
-         |]""".stripMargin
+        |  1,
+        |  2,
+        |  Error.Build(${triple}Current token (START_ARRAY) not numeric, can not use numeric value accessors
+        | at [Source: (InputStreamReader); line: 4, column: 4]$triple),
+        |  3
+        |]""".stripMargin
     )
   }
 
@@ -450,18 +423,17 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
   test(
     s"""Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 9)"""
   )(
-    _ should evaluateTo(
-      s"""[
-         | {a: 1, b: "#1", c: 1.1},
-         | {a: 2, b: "#2", c: 2.2},
-         | {a: 3, b: "#3", c: 3.3},
-         | {a: 4, b: "#4", c: 4.4},
-         | {a: 5, b: "#5", c: 5.5},
-         | {a: 6, b: "#6", c: 6.6},
-         | {a: 7, b: "#7", c: 7.7},
-         | {a: 8, b: "#8", c: 8.8},
-         | {a: 9, b: "#9", c: 9.9}
-         |]""".stripMargin)
+    _ should evaluateTo(s"""[
+      | {a: 1, b: "#1", c: 1.1},
+      | {a: 2, b: "#2", c: 2.2},
+      | {a: 3, b: "#3", c: 3.3},
+      | {a: 4, b: "#4", c: 4.4},
+      | {a: 5, b: "#5", c: 5.5},
+      | {a: 6, b: "#6", c: 6.6},
+      | {a: 7, b: "#7", c: 7.7},
+      | {a: 8, b: "#8", c: 8.8},
+      | {a: 9, b: "#9", c: 9.9}
+      |]""".stripMargin)
   )
 
   test(
@@ -491,24 +463,22 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
   test(
     s""" List.From( Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))) , 9 )) """
   ) {
-    _ should evaluateTo(
-      s"""[
-         | {a: 1, b: "#1", c: 1.1},
-         | {a: 2, b: "#2", c: 2.2},
-         | {a: 3, b: "#3", c: 3.3},
-         | {a: 4, b: "#4", c: 4.4},
-         | {a: 5, b: "#5", c: 5.5},
-         | {a: 6, b: "#6", c: 6.6},
-         | {a: 7, b: "#7", c: 7.7},
-         | {a: 8, b: "#8", c: 8.8},
-         | {a: 9, b: "#9", c: 9.9}
-         |]""".stripMargin)
+    _ should evaluateTo(s"""[
+      | {a: 1, b: "#1", c: 1.1},
+      | {a: 2, b: "#2", c: 2.2},
+      | {a: 3, b: "#3", c: 3.3},
+      | {a: 4, b: "#4", c: 4.4},
+      | {a: 5, b: "#5", c: 5.5},
+      | {a: 6, b: "#6", c: 6.6},
+      | {a: 7, b: "#7", c: 7.7},
+      | {a: 8, b: "#8", c: 8.8},
+      | {a: 9, b: "#9", c: 9.9}
+      |]""".stripMargin)
   }
 
-  test(
-    s"""Try.IsError(
-       |  List.From(Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 9))
-       |)""".stripMargin) {
+  test(s"""Try.IsError(
+    |  List.From(Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 9))
+    |)""".stripMargin) {
     _ should evaluateTo("false")
   }
 
@@ -520,11 +490,10 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
 
   // Errors found in former ExceptionTest ScalaTest suite
 
-  private val wrong_int = tempFile(
-    """[
-      |{"name": "Benjamin", "birthYear": 1978},
-      |{"name": "X", "birthYear": "not_an_int"}
-      |]
+  private val wrong_int = tempFile("""[
+    |{"name": "Benjamin", "birthYear": 1978},
+    |{"name": "X", "birthYear": "not_an_int"}
+    |]
     """.stripMargin)
 
   test(
@@ -543,11 +512,10 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   }
 
-  private val wrong_null_field = tempFile(
-    """[
-      |{"name": "Benjamin", "birthYear": 1978},
-      |{"name": "X", "birthYear": null}
-      |]
+  private val wrong_null_field = tempFile("""[
+    |{"name": "Benjamin", "birthYear": 1978},
+    |{"name": "X", "birthYear": null}
+    |]
       """.stripMargin)
 
   test(
@@ -561,11 +529,10 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   }
 
-  private val wrong_missing_field = tempFile(
-    """[
-      |{"name": "Benjamin", "birthYear": 1978},
-      |{"name": "X"}
-      |]
+  private val wrong_missing_field = tempFile("""[
+    |{"name": "Benjamin", "birthYear": 1978},
+    |{"name": "X"}
+    |]
   """.stripMargin)
 
   test(
@@ -579,9 +546,8 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   }
 
-  private val json_3382 = tempFile(
-    """[{"name": "Michael Jordan", "team": "Chicago Bulls", "started": 1984},
-      |{"name": "X", "team": null, "started": "never"}]""".stripMargin)
+  private val json_3382 = tempFile("""[{"name": "Michael Jordan", "team": "Chicago Bulls", "started": 1984},
+    |{"name": "X", "team": null, "started": "never"}]""".stripMargin)
 
   test(
     rql"""Json.InferAndRead("$json_3382", sampleSize = 1, preferNulls = false)"""
@@ -596,12 +562,11 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   }
 
-  private val xmlFile = tempFile(
-    """<?xml version="1.0" encoding="utf-8"?>
-      |<people>
-      | <person><name>Benjamin</name><birthYear>1978</birthYear></person>
-      | <person><name>X</name><birthYear>0</birthYear></person>
-      |</people>""".stripMargin)
+  private val xmlFile = tempFile("""<?xml version="1.0" encoding="utf-8"?>
+    |<people>
+    | <person><name>Benjamin</name><birthYear>1978</birthYear></person>
+    | <person><name>X</name><birthYear>0</birthYear></person>
+    |</people>""".stripMargin)
 
   test(
     rql"""Json.InferAndRead("$xmlFile", sampleSize = 1, preferNulls = false)"""
@@ -623,13 +588,12 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   }
 
-  private val beatles = tempFile(
-    """[
-      |{"name": "John", "birthYear": 1940, "instrument": "guitar"},
-      |{"name": "Paul", "birthYear": 1942, "instrument": "bass"},
-      |{"birthYear": 1943, "name": "George", "instrument": "guitar"},
-      |{"name": "Ringo", "birthYear": "1940"}
-      |]""".stripMargin)
+  private val beatles = tempFile("""[
+    |{"name": "John", "birthYear": 1940, "instrument": "guitar"},
+    |{"name": "Paul", "birthYear": 1942, "instrument": "bass"},
+    |{"birthYear": 1943, "name": "George", "instrument": "guitar"},
+    |{"name": "Ringo", "birthYear": "1940"}
+    |]""".stripMargin)
 
   // The record was inferred as tryable. Fields are also tryable (not nullable). The absence of a record field is seen as an error of the record.
   test(rql"""Json.InferAndRead("$beatles", sampleSize = 1, preferNulls = false)""") { it =>
@@ -671,22 +635,20 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   }
 
-  private val orType = tempFile(
-    """[
-      |  {"host": "server-01", "disks": ["/dev/sda1", "/dev/sda2"]},
-      |  {"host": "server-02", "disks": "/dev/sda1"},
-      |  {"host": "server-02", "disks": {"partitions": ["/dev/sda1", "/dev/sda2"]}}
-      |]""".stripMargin)
+  private val orType = tempFile("""[
+    |  {"host": "server-01", "disks": ["/dev/sda1", "/dev/sda2"]},
+    |  {"host": "server-02", "disks": "/dev/sda1"},
+    |  {"host": "server-02", "disks": {"partitions": ["/dev/sda1", "/dev/sda2"]}}
+    |]""".stripMargin)
 
   test(rql"""Json.InferAndRead("$orType")""")(_ should run)
-  test(
-    rql"""Json.Read("$orType",
-         |  type collection(
-         |    record(host: string,
-         |           disks: collection(string) or string or record(partitions: collection(string))
-         |          )
-         |      )
-         |)""".stripMargin)(_ should run)
+  test(rql"""Json.Read("$orType",
+    |  type collection(
+    |    record(host: string,
+    |           disks: collection(string) or string or record(partitions: collection(string))
+    |          )
+    |      )
+    |)""".stripMargin)(_ should run)
 
   // making sure fields of all kinds (lists, records, etc.) are skipped properly when ignored.
   private val ttt = "\"\"\""
@@ -714,6 +676,5 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
       "Unexpected character (',' (code 44)): Expected space separating root-level values\n at [Source: (InputStreamReader); line: 1, column: 3]"
     )
   )
-
 
 }
