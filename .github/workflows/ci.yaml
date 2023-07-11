@@ -12,12 +12,12 @@ env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
 
 jobs:
-  raw-sources-changed-files:
+  changed-files:
     runs-on: self-hosted
     outputs:
       all_sbt_projects: ${{ steps.convert.outputs.all_sbt_projects }}
-      any_changed: ${{ steps.rawsources.outputs.any_changed }}
-      only_changed: ${{ steps.rawsources.outputs.only_changed }}
+      sources_any_changed: ${{ steps.rawsources.outputs.any_changed }}
+      sources_only_changed: ${{ steps.convert.outputs.sources_only_changed }}
     steps:
       - uses: actions/checkout@v3
       - uses: tj-actions/changed-files@v37
@@ -36,6 +36,8 @@ jobs:
           done
           output=${output::-1}
           echo "all_sbt_projects=$output" >> $GITHUB_OUTPUT
+          echo "sources_any_changed"=${{ steps.rawsources.outputs.any_changed }}" >> $GITHUB_OUTPUT
+          echo "sources_only_changed=${{ steps.rawsources.outputs.only_changed }}" >> $GITHUB_OUTPUT
   code-checks:
     runs-on: self-hosted
     container:
@@ -49,8 +51,8 @@ jobs:
       - run: sbt headerCheckAll
       - run: sbt scalafmtCheckAll
   raw-sources-tests:
-    needs: [raw-sources-changed-files, code-checks]
-    if: ${{ needs.raw-sources-changed-files.outputs.any_changed }} == 'true'
+    needs: [changed-files, code-checks]
+    if: ${{ needs.changed-files.outputs.sources_any_changed }} == 'true'
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
@@ -69,7 +71,7 @@ jobs:
       - run: ./rebuild.sh
       - name: run tests
         run: |
-          for project in ${{ needs.raw-sources-changed-files.outputs.all_sbt_projects }}; do
+          for project in ${{ needs.changed-files.outputs.all_sbt_projects }}; do
             echo "****************"
             echo "Testing $project"
             echo "****************"
@@ -93,8 +95,8 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
   truffle-tests:
-    needs: [raw-sources-changed-files, code-checks]
-    if: ${{ needs.raw-sources-changed-files.outputs.only_changed }} == 'false'
+    needs: [changed-files, code-checks]
+    if: ${{ needs.changed-files.outputs.sources_only_changed }} == 'false'
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
