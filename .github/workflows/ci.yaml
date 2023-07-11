@@ -15,7 +15,7 @@ jobs:
   changed-files:
     runs-on: self-hosted
     outputs:
-      all_changed_dirs: ${{ steps.forward.outputs.all_changed_dirs }}
+      all_changed_dirs: ${{ steps.rawsources.outputs.all_changed_files }}
       any_changed: ${{ steps.rawsources.outputs.any_changed }}
       only_changed: ${{ steps.rawsources.outputs.only_changed }}
     steps:
@@ -31,8 +31,10 @@ jobs:
     runs-on: self-hosted
     steps:
       - run: echo "all_changed_dirs ${{ needs.changed-files.outputs.all_changed_dirs }}"
-      - run: echo "any_changed ${{ needs.changed-files.outputs.any_changed }}"
-      - run: echo "only_changed ${{ needs.changed-files.outputs.only_changed }}"
+      - if: ${{ needs.changed-files.outputs.any_changed }} == 'true'
+        run: echo "any_changed ${{ needs.changed-files.outputs.any_changed }}"
+      - if: ${{ needs.changed-files.outputs.only_changed }} == 'true'
+        run: echo "only_changed ${{ needs.changed-files.outputs.only_changed }}"
 
   #code-checks:
   #  runs-on: self-hosted
