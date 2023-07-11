@@ -13,25 +13,27 @@ env:
 
 jobs:
   changed-files:
-      runs-on: self-hosted
-      outputs:
-        all_changed_dirs: ${{ steps.forward.outputs.all_changed_dirs }}
-        any_changed: ${{ steps.rawsources.outputs.any_changed }}
-        only_changed: ${{ steps.rawsources.outputs.only_changed }}
-      steps:
-        - uses: actions/checkout@v3
-        - uses: tj-actions/changed-files@v37
-          id: rawsources
-          with:
-            files: raw-sources*/**
-            dir_names: "true"
-            dir_names_max_depth: 1
-        - name: foward changed dirs
-          id: forward
-          run: |
-            echo "Changed dirs: ${{ steps.rawsources.outputs.all_changed_files }}"
-            echo "Any changed raw-sources: ${{ steps.rawsources.outputs.any_changed }}"
-            echo "Only changed raw-sources: ${{ steps.rawsources.outputs.only_changed }}"
+    runs-on: self-hosted
+    outputs:
+      all_changed_dirs: ${{ steps.forward.outputs.all_changed_dirs }}
+      any_changed: ${{ steps.rawsources.outputs.any_changed }}
+      only_changed: ${{ steps.rawsources.outputs.only_changed }}
+    steps:
+      - uses: actions/checkout@v3
+      - uses: tj-actions/changed-files@v37
+        id: rawsources
+        with:
+          files: raw-sources*/**
+          dir_names: "true"
+          dir_names_max_depth: "1"
+  debug-changed-files:
+    needs: changed-files
+    runs-on: self-hosted
+    steps:
+      - run: echo "all_changed_dirs ${{ needs.changed-files.outputs.all_changed_dirs }}"
+      - run: echo "any_changed ${{ needs.changed-files.outputs.any_changed }}"
+      - run: echo "only_changed ${{ needs.changed-files.outputs.only_changed }}"
+
   #code-checks:
   #  runs-on: self-hosted
   #  container:
