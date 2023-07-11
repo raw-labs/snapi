@@ -415,6 +415,7 @@ lazy val rawCompilerCommon = (project in file("raw-compiler-common"))
 lazy val rawCompilerRql2 = (project in file("raw-compiler-rql2"))
   .dependsOn(
     rawCompilerCommon % "compile->compile;test->test",
+    rawSourcesInMemory % "compile->compile;test->test",
     rawInferrerLocal % "test->test",
     rawSourcesDropbox % "test->test",
     rawSourcesHttp % "test->test",
@@ -427,7 +428,6 @@ lazy val rawCompilerRql2 = (project in file("raw-compiler-rql2"))
     rawSourcesSnowflake % "test->test",
     rawSourcesMock % "test->test",
     rawSourcesGithub % "test->test",
-    rawSourcesInMemory % "test->test"
   )
   .settings(
     buildSettings // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
@@ -438,8 +438,7 @@ val dummyJavadocJarTask = taskKey[File]("Creates a dummy javadoc jar file")
 lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
   .dependsOn(
     rawCompilerRql2 % "compile->compile;test->test",
-    rawSourcesHttp % "compile->compile;test->test",
-    rawSourcesInMemory % "compile->compile;test->test"
+    rawSourcesHttp % "compile->compile;test->test"
   )
   .settings(
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
