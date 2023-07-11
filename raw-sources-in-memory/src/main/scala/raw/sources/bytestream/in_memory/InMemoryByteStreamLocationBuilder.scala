@@ -22,7 +22,7 @@ class InMemoryByteStreamLocationBuilder extends ByteStreamLocationBuilder {
     if (location.url.startsWith(schemes.head)) {
       new InMemoryByteStreamLocation(location)
     } else {
-      throw new LocationException(s"Not an in-memory location: ${location.url}")
+      throw new LocationException(s"not an in-memory location")
     }
 
   }

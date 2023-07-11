@@ -291,13 +291,6 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
         isOptional = true
       ),
       ParamDoc(
-        "encoding",
-        typeDoc = TypeDoc(List("string")),
-        description = """Specifies the encoding of the data.""",
-        info = Some("""If the encoding is not specified it is determined automatically.""".stripMargin),
-        isOptional = true
-      ),
-      ParamDoc(
         "preferNulls",
         typeDoc = TypeDoc(List("bool")),
         description =
@@ -318,7 +311,6 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
   override def optionalParams: Option[Set[String]] = Some(
     Set(
       "sampleSize",
-      "encoding",
       "preferNulls"
     )
   )
@@ -326,7 +318,6 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
       case "sampleSize" => Right(ValueParam(Rql2IntType()))
-      case "encoding" => Right(ValueParam(Rql2StringType()))
       case "preferNulls" => Right(ValueParam(Rql2BoolType()))
     }
   }
@@ -336,22 +327,8 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val codeData = mandatoryArgs.head match {
-      case ValueArg(v, _) => v match {
-          case StringValue(innVal) => innVal
-        }
-    }
 
-    val settings = Map[LocationSettingKey, LocationSettingValue](
-      (
-        LocationSettingKey(InMemoryByteStreamLocation.codeDataKey),
-        LocationBinarySetting(codeData.getBytes())
-      )
-    )
-
-    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
-
-    val locationArg = ValueArg(LocationValue(locationDescription), Rql2LocationType())
+    val (locationArg, _) = getInMemoryLocation(mandatoryArgs)
 
     for (
       inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
@@ -381,23 +358,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
 
-    // (az) to ask (mb) if exception handling is needed here, because there is no exception thrown in any package
-    val codeData = mandatoryArgs.head match {
-      case ValueArg(v, _) => v match {
-          case StringValue(innVal) => innVal
-        }
-    }
-
-    val settings = Map[LocationSettingKey, LocationSettingValue](
-      (
-        LocationSettingKey(InMemoryByteStreamLocation.codeDataKey),
-        LocationBinarySetting(codeData.getBytes())
-      )
-    )
-
-    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
-
-    val locationArg = ValueArg(LocationValue(locationDescription), Rql2LocationType())
+    val (locationArg, codeData) = getInMemoryLocation(mandatoryArgs)
 
     val inputFormatDescriptor = for (
       inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
@@ -407,7 +368,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
     }
 
     val TextInputStreamFormatDescriptor(
-      encoding,
+      _,
       _,
       JsonInputFormatDescriptor(
         _,
@@ -590,6 +551,22 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
           .map(v => getEncodingValue(v).fold(err => return Left(err), v => v))
       )
     )
+  }
+
+  protected def getInMemoryLocation(mandatoryArgs: Seq[Arg]): (ValueArg, String) = {
+    val codeData = mandatoryArgs.head match {
+      case ValueArg(v, _) => v match {
+          case StringValue(innVal) => innVal
+        }
+    }
+    val settings = Map[LocationSettingKey, LocationSettingValue](
+      (
+        LocationSettingKey(InMemoryByteStreamLocation.codeDataKey),
+        LocationBinarySetting(codeData.getBytes())
+      )
+    )
+    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
+    (ValueArg(LocationValue(locationDescription), Rql2LocationType()), codeData)
   }
 
   protected def validateJsonType(t: Type): Either[Seq[UnsupportedType], Type] = t match {

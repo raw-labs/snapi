@@ -35,13 +35,11 @@ class InMemoryByteStreamLocation(
 
   override protected def doGetInputStream(): InputStream = {
     assert(locationDescription.settings.contains(LocationSettingKey(InMemoryByteStreamLocation.codeDataKey)))
-    val codeData = locationDescription
-      .settings(LocationSettingKey(InMemoryByteStreamLocation.codeDataKey))
 
-    codeData match {
-      case LocationBinarySetting(v) => new ByteArrayInputStream(v.toArray)
-      case _ => throw new AssertionError(s"${InMemoryByteStreamLocation.codeDataKey} must be a byte array")
-    }
+    val LocationBinarySetting(v) =
+      locationDescription.settings(LocationSettingKey(InMemoryByteStreamLocation.codeDataKey))
+
+    new ByteArrayInputStream(v.toArray)
   }
 
   override protected def doGetSeekableInputStream(): SeekableInputStream = {
@@ -54,11 +52,11 @@ class InMemoryByteStreamLocation(
 
   override def getLocalPath(): Path = throw new AssertionError("Calling path on in memory location")
 
-  override def cacheStrategy: CacheStrategy = CacheStrategy.NoCache
+  override def cacheStrategy: CacheStrategy = locationDescription.cacheStrategy
 
-  override def retryStrategy: RetryStrategy = NoRetry()
+  override def retryStrategy: RetryStrategy = locationDescription.retryStrategy
 
-  override def rawUri: String = "in-memory:"
+  override def rawUri: String = InMemoryByteStreamLocation.schemaWithColon
 
   override def testAccess(): Unit = {}
 }
