@@ -25,7 +25,18 @@ jobs:
             echo "Changed dirs: ${{ steps.rawsources.outputs.all_changed_files }}"
             echo "Any changed raw-sources: ${{ steps.rawsources.outputs.any_changed }}"
             echo "Only changed raw-sources: ${{ steps.rawsources.outputs.only_changed }}"
-   
+            input="${{ steps.rawsources.outputs.all_changed_files }}"
+            output=""
+            seen=""
+            for path in $input; do
+                path=${path%%/*}
+                if [[ $seen != *"$path"* ]]; then
+                    output+="$path "
+                    seen+="$path "
+                fi
+            done
+            output=${output::-1}
+            echo "Unique changed dirs: $output"   
   #code-checks:
   #  runs-on: self-hosted
   #  container:
