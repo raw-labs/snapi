@@ -1,4 +1,5 @@
 raw.compiler.rql2.truffle.builtin.TruffleByteFromEntry
+raw.compiler.rql2.truffle.builtin.AwsV4SignedRequestEntry
 raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension
 raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry
 raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry

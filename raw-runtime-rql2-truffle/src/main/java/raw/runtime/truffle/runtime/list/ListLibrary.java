@@ -43,4 +43,6 @@ public abstract class ListLibrary extends Library {
 
     public abstract Object toIterable(Object receiver);
 
+    public abstract Object sort(Object receiver);
+
 }

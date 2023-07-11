@@ -60,4 +60,9 @@ public class BooleanList {
         return new ListIterable(this);
     }
 
+    @ExportMessage
+    public Object sort() {
+        return this;
+    }
+
 }

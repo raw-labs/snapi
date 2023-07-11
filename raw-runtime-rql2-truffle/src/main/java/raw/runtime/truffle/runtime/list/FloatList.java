@@ -18,6 +18,8 @@ import raw.runtime.truffle.runtime.generator.list.ListGenerator;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
+import java.util.Arrays;
+
 @ExportLibrary(ListLibrary.class)
 public class FloatList {
 
@@ -59,6 +61,13 @@ public class FloatList {
     @ExportMessage
     public Object toIterable() {
         return new ListIterable(this);
+    }
+
+    @ExportMessage
+    public Object sort() {
+        float[] result = this.list.clone();
+        Arrays.sort(result);
+        return new FloatList(result);
     }
 
 }
