@@ -29,11 +29,11 @@ jobs:
             output=""
             seen=""
             for path in $input; do
-                path=${path%%/*}
-                if [[ $seen != *"$path"* ]]; then
-                    output+="$path "
-                    seen+="$path "
-                fi
+              path=${path%%/*}
+              if [[ $seen != *" $path "* ]]; then
+                  output+="$path "
+                  seen+=" $path "
+              fi
             done
             output=${output::-1}
             echo "Unique changed dirs: $output"   
