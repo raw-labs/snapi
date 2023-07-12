@@ -303,7 +303,7 @@ lazy val rawCredsApi = (project in file("raw-creds-api"))
   .dependsOn(rawUtils % "compile->compile;test->test")
   .settings(strictBuildSettings)
 
-lazy val rawSourcesApi = (project in file("raw-sources"))
+lazy val rawSourcesApi = (project in file("raw-sources-api"))
   .dependsOn(
     rawUtils % "compile->compile;test->test",
     rawCredsApi % "compile->compile;test->test"
