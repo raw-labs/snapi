@@ -392,7 +392,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                 val ne2 = cast(re2, t2, t).getOrElse(re2)
                 BinaryExp(op, ne1, ne2)
             }
-          case _: Ge | _: Gt | _: Le | _: Lt | _: Eq => congruence(id, s, s) <* rule[BinaryExp] {
+          case _: Ge | _: Gt | _: Le | _: Lt | _: Eq | _: Neq => congruence(id, s, s) <* rule[BinaryExp] {
               case BinaryExp(_, re1, re2) =>
                 val te1 = analyzer.tipe(e1)
                 val te2 = analyzer.tipe(e2)

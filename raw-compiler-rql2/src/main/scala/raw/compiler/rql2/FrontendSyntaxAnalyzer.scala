@@ -256,6 +256,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   } | exp5
 
   final private lazy val compOp: Parser[ComparableOp] = "==" ^^^ Eq() |
+    "!=" ^^^ Neq() |
     "<=" ^^^ Le() |
     "<" ^^^ Lt() |
     ">=" ^^^ Ge() |
