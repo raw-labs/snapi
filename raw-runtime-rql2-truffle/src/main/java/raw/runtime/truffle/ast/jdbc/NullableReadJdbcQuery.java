@@ -17,11 +17,10 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.ObjectOption;
 
-@NodeInfo(shortName = "NullableParsePostgreSQL")
+@NodeInfo(shortName = "NullableReadJdbcQuery")
 public class NullableReadJdbcQuery extends ExpressionNode {
 
   @Child

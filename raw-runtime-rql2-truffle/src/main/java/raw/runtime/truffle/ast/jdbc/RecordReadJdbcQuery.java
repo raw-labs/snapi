@@ -26,7 +26,7 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
-@NodeInfo(shortName = "RecordParsePostgreSQL")
+@NodeInfo(shortName = "Jdbc.RecordRead")
 public class RecordReadJdbcQuery extends ExpressionNode {
 
     @Children
@@ -47,6 +47,11 @@ public class RecordReadJdbcQuery extends ExpressionNode {
 
     @Override
     public Object executeGeneric(VirtualFrame frame) {
+        return this.executeRecord(frame);
+    }
+
+    @Override
+    public final RecordObject executeRecord(VirtualFrame frame) {
         Object[] args = frame.getArguments();
         JdbcQuery rs = (JdbcQuery) args[0];
         RecordObject record = RawLanguage.get(this).createRecord();

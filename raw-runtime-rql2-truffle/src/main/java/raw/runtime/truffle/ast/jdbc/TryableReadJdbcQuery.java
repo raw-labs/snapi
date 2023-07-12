@@ -20,7 +20,7 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
-@NodeInfo(shortName = "TryableParsePostgreSQL")
+@NodeInfo(shortName = "TryableReadJdbcQuery")
 public class TryableReadJdbcQuery extends ExpressionNode {
 
   @Child

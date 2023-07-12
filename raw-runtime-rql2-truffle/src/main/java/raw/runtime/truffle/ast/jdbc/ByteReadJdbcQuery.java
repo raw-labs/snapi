@@ -19,16 +19,21 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.ByteRead")
 public class ByteReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+    private final String idx;
 
-  public ByteReadJdbcQuery(String idx) {
-    this.idx = idx;
-  }
+    public ByteReadJdbcQuery(String idx) {
+        this.idx = idx;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getByte(idx, this);
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executeByte(frame);
+    }
+
+    @Override
+    public final byte executeByte(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        return rs.getByte(idx, this);
+    }
 
 }

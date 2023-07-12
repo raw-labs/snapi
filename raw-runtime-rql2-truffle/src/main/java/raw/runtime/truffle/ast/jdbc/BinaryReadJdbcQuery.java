@@ -16,19 +16,24 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-@NodeInfo(shortName = "BinaryReadJdbcQuery")
+@NodeInfo(shortName = "Jdbc.BinaryRead")
 public class BinaryReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+    private final String idx;
 
-  public BinaryReadJdbcQuery(String idx) {
-    this.idx = idx;
-  }
+    public BinaryReadJdbcQuery(String idx) {
+        this.idx = idx;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getBytes(idx, this);
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executeBinary(frame);
+    }
+
+    @Override
+    public final byte[] executeBinary(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        return rs.getBytes(idx, this);
+    }
 
 }

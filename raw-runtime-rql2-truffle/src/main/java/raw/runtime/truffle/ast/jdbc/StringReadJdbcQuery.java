@@ -19,15 +19,21 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "StringReadJdbcQuery")
 public class StringReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+    private final String idx;
 
-  public StringReadJdbcQuery(String idx) {
-    this.idx = idx;
-  }
+    public StringReadJdbcQuery(String idx) {
+        this.idx = idx;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getString(idx, this);  }
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executeString(frame);
+    }
+
+    @Override
+    public final String executeString(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        return rs.getString(idx, this);
+    }
 
 }
