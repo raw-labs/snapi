@@ -14,25 +14,17 @@ package raw.runtime.truffle.runtime.function;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
-public class Closure {
-    private final Function function;
+public class Closure extends AbstractFunction {
     private final MaterializedFrame frame;
 
-    private final InteropLibrary interop;
-
-    private final Node node;
-
     public Closure(Function function, MaterializedFrame frame, Node node) {
-        this.function = function;
+        super(function, node);
         this.frame = frame;
-        this.node = node;
-        this.interop = InteropLibrary.getFactory().create(function);
     }
 
     public Object call(Object... arguments) {

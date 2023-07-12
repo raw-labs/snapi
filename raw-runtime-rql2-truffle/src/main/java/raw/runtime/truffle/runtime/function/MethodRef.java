@@ -12,28 +12,25 @@
 
 package raw.runtime.truffle.runtime.function;
 
-import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
-public class MethodRef {
-    private final Function function;
-    private final InteropLibrary interop;
-    private final Node node;
+public class MethodRef extends AbstractFunction {
 
     public MethodRef(Function function, Node node) {
-        this.function = function;
-        this.node = node;
-        this.interop = InteropLibrary.getFactory().create(function);
+        super(function, node);
     }
 
-    public Object call(Object... arguments) {
+    public Object call(VirtualFrame frame, Object... arguments) {
         try {
-            return interop.execute(function, arguments);
+            Object[] args = new Object[arguments.length + 1];
+            args[0] = frame;
+            System.arraycopy(arguments, 0, args, 1, arguments.length);
+            return this.interop.execute(function, args);
         } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
             throw new RawTruffleInternalErrorException(e, node);
         }
