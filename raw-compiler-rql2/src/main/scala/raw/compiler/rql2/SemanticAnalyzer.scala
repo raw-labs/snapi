@@ -1782,7 +1782,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       }
 
       op match {
-        case _: Eq => expected(rql2numericsTemporalsStringsBools, None)
+        case _: Eq | _: Neq => expected(rql2numericsTemporalsStringsBools, None)
         case _: ComparableOp => expected(rql2numericsTemporalsString, None)
         case _: BooleanOp => expected(rql2bool, Some(rql2bool))
         case _: Plus => expected(rql2numbersAndString, None)

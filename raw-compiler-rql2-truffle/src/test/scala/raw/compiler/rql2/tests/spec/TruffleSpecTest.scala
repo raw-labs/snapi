@@ -40,6 +40,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class ClosureTruffleTest extends TruffleCompilerTestContext with ClosureTest
 @TruffleTests class BinaryExpOrTruffleTest extends TruffleCompilerTestContext with BinaryExpOrTest
 @TruffleTests class BinaryExpEqTruffleTest extends TruffleCompilerTestContext with BinaryExpEqTest
+@TruffleTests class BinaryExpNeqTruffleTest extends TruffleCompilerTestContext with BinaryExpNeqTest
 @TruffleTests class ImplicitCastTruffleTest extends TruffleCompilerTestContext with ImplicitCastTest
 @TruffleTests class BinaryExpModTruffleTest extends TruffleCompilerTestContext with BinaryExpModTest
 @TruffleTests class BinaryExpSubTruffleTest extends TruffleCompilerTestContext with BinaryExpSubTest

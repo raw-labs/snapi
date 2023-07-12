@@ -386,6 +386,8 @@ final case class Lt() extends ComparableOp("<", 7)
 
 final case class Eq() extends ComparableOp("==", 8)
 
+final case class Neq() extends ComparableOp("!=", 8)
+
 sealed abstract class BooleanOp(op: String, priority: Int) extends BinaryOp(op, priority)
 
 final case class And() extends BooleanOp("and", 12)
