@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.function;
 
-import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -22,13 +22,13 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
     private final Function function;
-    private final MaterializedFrame frame;
+    private final Frame frame;
 
     private final InteropLibrary interop;
 
     private final Node node;
 
-    public Closure(Function function, MaterializedFrame frame, Node node) {
+    public Closure(Function function, Frame frame, Node node) {
         this.function = function;
         this.frame = frame;
         this.node = node;

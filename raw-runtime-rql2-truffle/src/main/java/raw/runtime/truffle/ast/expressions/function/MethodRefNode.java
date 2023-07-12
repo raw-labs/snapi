@@ -17,7 +17,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
-import raw.runtime.truffle.runtime.function.MethodRef;
 
 public final class MethodRefNode extends ExpressionNode {
 
@@ -30,6 +29,6 @@ public final class MethodRefNode extends ExpressionNode {
 
     @Override
     public Object executeGeneric(VirtualFrame virtualFrame) {
-        return new MethodRef(this.function, this);
+        return new Closure(this.function, virtualFrame, this);
     }
 }
