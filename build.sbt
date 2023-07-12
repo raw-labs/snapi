@@ -364,7 +364,7 @@ lazy val rawSourcesMysql = (project in file("raw-sources-mysql"))
     libraryDependencies ++= Seq(mysqlDeps)
   )
 
-lazy val rawSourcesMsSQL = (project in file("raw-sources-mssql"))
+lazy val rawSourcesMssql = (project in file("raw-sources-mssql"))
   .dependsOn(rawSourcesApi % "compile->compile;test->test")
   .settings(
     strictBuildSettings,
@@ -423,7 +423,7 @@ lazy val rawCompilerRql2 = (project in file("raw-compiler-rql2"))
     rawSourcesPgsql % "test->test",
     rawSourcesS3 % "test->test",
     rawSourcesSqlite % "test->test",
-    rawSourcesMsSQL % "test->test",
+    rawSourcesMssql % "test->test",
     rawSourcesSnowflake % "test->test",
     rawSourcesMock % "test->test",
     rawSourcesGithub % "test->test",
@@ -511,7 +511,7 @@ lazy val rawCli = (project in file("raw-cli"))
     rawSourcesPgsql,
     rawSourcesS3,
     rawSourcesSqlite,
-    rawSourcesMsSQL,
+    rawSourcesMssql,
     rawSourcesSnowflake,
     rawSourcesGithub,
     rawSourcesInMemory
