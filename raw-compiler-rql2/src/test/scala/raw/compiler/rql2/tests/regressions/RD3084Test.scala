@@ -48,13 +48,15 @@ trait RD3084Test extends CompilerTestContext with RDBMSTestCreds {
     _ should run
   }
 
-  test("""Oracle.InferAndQuery("oracle-test", "select * from rawtest.test_types")""") {
-    _ should run
+  test("""Oracle.InferAndQuery("oracle-test", "select * from rawtest.test_types")""") { it =>
+    assume(language != "rql2-truffle")
+    it should run
   }
 
   test("""Oracle.Query("oracle-test", "select * from rawtest.test_types",
-    |       type collection(record(integer1: int, char1: string)))""".stripMargin) {
-    _ should run
+    |       type collection(record(integer1: int, char1: string)))""".stripMargin) { it =>
+    assume(language != "rql2-truffle")
+    it should run
   }
 
   test("""SQLServer.InferAndQuery("mssql-test", "select * from rdbmstest.test_types")""") {

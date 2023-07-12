@@ -22,7 +22,58 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
 
   rdbms(authorizedUser, mysqlRegDb, mysqlCreds)
 
+  private val ttt = "\"\"\""
+  // Trying all types. Not all expressions type as wanted so that
+  // we force the type too.
+  test(s"""MySQL.Query("$mysqlRegDb", $ttt
+    |SELECT 120 AS bytecol,
+    |       1200 AS shortcol,
+    |       CAST(12000 AS SIGNED INTEGER) AS intcol,
+    |       12000000 AS longcol,
+    |       CAST(3.14 AS FLOAT) AS floatcol,
+    |       CAST(3.14 AS DOUBLE) AS doublecol,
+    |       CAST(1200000000 AS DECIMAL) AS decimalcol,
+    |       '120' AS stringcol,
+    |       CAST('12:23:34' AS TIME) AS timecol,
+    |       CAST('2020-01-01' AS DATE) AS datecol,
+    |       CAST('2020-01-01 12:23:34' AS DATETIME) AS timestampcol,
+    |       1 = 0 AS boolcol,
+    |       convert('Olala!' using utf8) AS binarycol$ttt, type collection(
+    |    record(
+    |        bytecol: byte,
+    |        shortcol: short,
+    |        intcol: int,
+    |        longcol: long,
+    |        floatcol: float,
+    |        doublecol: double,
+    |        decimalcol: decimal,
+    |        stringcol: string,
+    |        timecol: time,
+    |        datecol: date,
+    |        timestampcol: timestamp,
+    |        boolcol: bool,
+    |        binarycol: binary
+    |    )
+    |))""".stripMargin) { it =>
+    it should evaluateTo("""[{
+      |  bytecol: Byte.From(120),
+      |  shortcol: Short.From(1200),
+      |  intcol: 12000,
+      |  longcol: 12000000L,
+      |  floatcol: 3.14f,
+      |  doublecol: 3.14,
+      |  decimalcol: Decimal.From(1200000000),
+      |  stringcol: "120",
+      |  timecol: Time.Build(12, 23, seconds=34),
+      |  datecol: Date.Build(2020, 1, 1),
+      |  timestampcol: Timestamp.Build(2020, 1, 1, 12, 23, seconds=34),
+      |  boolcol: false,
+      |  binarycol: Binary.FromString("Olala!")
+      |}]""".stripMargin)
+  }
+
   test(s"""MySQL.InferAndRead("$mysqlRegDb", "$mysqlTable")""") { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -37,6 +88,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string))
       |)""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -50,6 +102,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""MySQL.Read("$mysqlRegDb", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)))""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot determine value type from string 'x1'"), y: "y1"},
@@ -63,6 +116,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""MySQL.InferAndRead("${mysqlCreds.database}", "$mysqlTable",
       |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}")""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -77,6 +131,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}")""".stripMargin
   ) { it =>
+    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot determine value type from string 'x1'"), y: "y1"},
@@ -116,7 +171,10 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""MySQL.Read("${mysqlCreds.database}", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""no credential found for mysql: ${mysqlCreds.database}""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs(s"""no credential found for mysql: ${mysqlCreds.database}""".stripMargin)
+  }
 
   // server does not exist
   test(
@@ -125,7 +183,10 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${badMysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}"
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin)
+  }
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
@@ -135,7 +196,10 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}", port = 1234
       |)""".stripMargin
-  )(it => it should runErrorAs(s"""connect timed out: ${mysqlCreds.database}""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs(s"""connect timed out: ${mysqlCreds.database}""".stripMargin)
+  }
 
   // No password
   test(
@@ -144,7 +208,10 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${mysqlCreds.host}"
       |)""".stripMargin
-  )(it => it should runErrorAs("""authentication failed""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""authentication failed""".stripMargin)
+  }
 
   // wrong password
   test(
@@ -153,9 +220,13 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "wrong!"
       |)""".stripMargin
-  )(it => it should runErrorAs("""authentication failed""".stripMargin))
+  ) { it =>
+    assume(language != "rql2-truffle")
+    it should runErrorAs("""authentication failed""".stripMargin)
+  }
 
   test(s"""MySQL.InferAndQuery("$mysqlRegDb", "SELECT * FROM ${mysqlCreds.database}.$mysqlTable")""") { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -205,6 +276,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
   }
 
   test(s"""MySQL.InferAndRead("$mysqlRegDb", "higher_case_columns")""") { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         | {ID: 1, Name: "john", Surname: "doe", Address: "123 memory lane"},
@@ -231,6 +303,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     |       Surname: string,
     |       Address: string))
     |)""".stripMargin) { it =>
+    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         | {ID: 1, Name: "john", Surname: "doe", Address: "123 memory lane"},
@@ -238,5 +311,20 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
         | {ID: 3, Name: "bob", Surname: "smith", Address: "456 sesame street"}
         |] """.stripMargin
     )
+  }
+
+  test(
+    s"""List.Transform(["$mysqlTable", "dont_exist"],
+      |   table ->
+      |     Collection.Count(
+      |      MySQL.Query("${mysqlCreds.database}", "SELECT * FROM " + table,
+      |      type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
+      |      host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get}",
+      |      password = "${mysqlCreds.password.get}")
+      |     ))""".stripMargin
+  ) { it =>
+    val error =
+      s"""failed to read from database mysql:${mysqlCreds.database}: Table '${mysqlCreds.database}.dont_exist' doesn't exist"""
+    it should evaluateTo(s"""[3L, Error.Build("$error")]""")
   }
 }
