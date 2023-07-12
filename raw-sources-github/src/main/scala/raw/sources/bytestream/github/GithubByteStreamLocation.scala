@@ -26,7 +26,6 @@ class GithubByteStreamLocation(
     override val retryStrategy: RetryStrategy
 ) extends ByteStreamLocation
     with StrictLogging {
-  override def sparkUri: String = http.sparkUri
 
   override protected def doGetInputStream(): InputStream = http.getInputStream
 

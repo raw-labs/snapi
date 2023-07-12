@@ -39,15 +39,6 @@ class S3Path(
     s"s3://${cli.bucketName}$sep$path"
   }
 
-  override val sparkUri: String = {
-    // We use 's3a' for reading S3 from Spark.
-    if (rawUri.startsWith("s3:")) {
-      "s3a:" + rawUri.drop("s3:".length)
-    } else {
-      rawUri
-    }
-  }
-
   override def testAccess(): Unit = {
     cli.testAccess(path)
   }

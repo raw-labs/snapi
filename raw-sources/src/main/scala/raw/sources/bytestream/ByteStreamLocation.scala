@@ -24,10 +24,6 @@ import scala.util.control.NonFatal
 
 trait ByteStreamLocation extends Location {
 
-  // TODO (msb): Does this still belong here? Should be overridden in raw.sources.hadoop/.spark ?
-  //             Is it a Spark or Hadoop URL?
-  def sparkUri: String
-
   // This call uses the retry mechanism.
   @throws[RawException]
   final def getInputStream: InputStream = {

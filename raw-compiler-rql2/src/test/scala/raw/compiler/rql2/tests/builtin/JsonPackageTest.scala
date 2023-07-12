@@ -15,6 +15,8 @@ package raw.compiler.rql2.tests.builtin
 import raw.compiler.RQLInterpolator
 import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
+import java.nio.file.Path
+
 trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
 
   override def failServices: Seq[FailAfter] = Seq(
@@ -209,6 +211,8 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     |  Json.Parse("[1,2,3]", type t)
     |""".stripMargin)(it => it should typeAs("collection(int)"))
 
+  test("""Json.InferAndParse("[1,2,3]")""".stripMargin)(it => it should typeAs("collection(int)"))
+
   test("""
     |let t = type int
     |in
@@ -276,7 +280,7 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     _ should runErrorAs("path not found")
   )
 
-  val jsonWithNulls = tempFile(
+  private val jsonWithNulls = tempFile(
     """[
       | {"a": 1, "b": "1", "c": [1, 2, 3]},
       | {"a": 1, "b": "1", "c": [1, 2, 3]},
@@ -338,7 +342,7 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
         |]""".stripMargin)
   )
 
-  val changeTypes = tempFile(
+  private val changeTypes = tempFile(
     """[
       | {"a": 1, "b": "1", "c": [1, 2, 3]},
       | {"a": 1, "b": "1", "c": [1, 2, 3]},
@@ -654,6 +658,23 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
 
   test(
     s"""Json.Parse($ttt[{"a": [1,2,3], "c": null}]$ttt, type collection(record(a: list(int), b: undefined, c: undefined)))"""
+  )
+
+  // Infer and Parse
+  test(
+    s"""Json.InferAndParse("[1, 2, 3]")"""
+  )(_ should evaluateTo("[1, 2, 3]"))
+
+  test(
+    s"""let a = Json.InferAndParse(Json.Print({ a:1, b : { c : 2, d : 3 } })) in a.b.c"""
+  )(_ should evaluateTo("2"))
+
+  test(
+    s"""Json.InferAndParse("1, 2, 3]")"""
+  )(
+    _ should runErrorAs(
+      "Unexpected character (',' (code 44)): Expected space separating root-level values\n at [Source: (InputStreamReader); line: 1, column: 3]"
+    )
   )
 
 }
