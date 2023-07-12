@@ -391,7 +391,7 @@ lazy val rawRuntimeApi = (project in file("raw-runtime-api"))
   )
   .settings(strictBuildSettings)
 
-lazy val rawCompilerApi = (project in file("raw-compiler"))
+lazy val rawCompilerApi = (project in file("raw-compiler-api"))
   .dependsOn(
     rawInferrerApi % "compile->compile;test->test",
     rawAuthApi % "compile->compile;test->test",
