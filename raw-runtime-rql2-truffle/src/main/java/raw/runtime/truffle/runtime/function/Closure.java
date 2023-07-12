@@ -13,6 +13,7 @@
 package raw.runtime.truffle.runtime.function;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
@@ -25,6 +26,10 @@ public class Closure extends AbstractFunction {
     public Closure(Function function, MaterializedFrame frame, Node node) {
         super(function, node);
         this.frame = frame;
+    }
+
+    public Object call(VirtualFrame virtualFrame, Object... arguments) {
+        return this.call(arguments);
     }
 
     public Object call(Object... arguments) {

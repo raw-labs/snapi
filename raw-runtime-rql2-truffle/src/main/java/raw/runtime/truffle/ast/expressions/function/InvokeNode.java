@@ -19,15 +19,13 @@ import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.function.AbstractFunction;
 
 @NodeInfo(shortName = "invoke")
 public final class InvokeNode extends ExpressionNode {
 
     @Child
     private ExpressionNode functionNode;
-
-    @Child
-    private FunctionExecuteOperations.FuncExecuteNode funcExecute = FunctionExecuteOperationsFactory.FuncExecuteNodeGen.create();
 
     @Children
     private final ExpressionNode[] argumentNodes;
@@ -42,7 +40,7 @@ public final class InvokeNode extends ExpressionNode {
     public Object executeGeneric(VirtualFrame frame) {
         CompilerAsserts.compilationConstant(argumentNodes.length);
 
-        Object executable = functionNode.executeGeneric(frame);
+        AbstractFunction executable = (AbstractFunction) functionNode.executeGeneric(frame);
         Object[] argumentValues;
 
         argumentValues = new Object[argumentNodes.length];
@@ -51,7 +49,7 @@ public final class InvokeNode extends ExpressionNode {
             argumentValues[i] = argumentNodes[i].executeGeneric(frame);
         }
 
-        return funcExecute.execute(frame, executable, argumentValues);
+        return executable.call(frame, argumentValues);
     }
 
     @Override

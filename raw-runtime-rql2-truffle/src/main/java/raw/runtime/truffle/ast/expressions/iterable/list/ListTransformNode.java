@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.ast.expressions.function.FunctionExecuteOperations;
+import raw.runtime.truffle.runtime.function.AbstractFunction;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -39,11 +39,10 @@ public abstract class ListTransformNode extends ExpressionNode {
 
     @Specialization(guards = {"isByteKind(getResultType())"}, limit = "3")
     protected ByteList doByte(VirtualFrame frame, Object list,
-                              Closure function,
+                              AbstractFunction function,
                               @CachedLibrary("list") ListLibrary lists,
                               @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-                              @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-                              @Cached("create()") FunctionExecuteOperations.FuncExecuteNode funcExecute) {
+                              @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
         Object iterable = lists.toIterable(list);
         Object generator = iterables.getGenerator(iterable);
         byte[] values = new byte[(int) lists.size(list)];
@@ -51,7 +50,7 @@ public abstract class ListTransformNode extends ExpressionNode {
         Object[] argumentValues = new Object[1];
         while (generators.hasNext(generator)) {
             argumentValues[0] = generators.next(generator);
-            values[cnt] = (byte) funcExecute.execute(frame, function, argumentValues);
+            values[cnt] = (byte) function.call(frame, argumentValues);
             cnt++;
         }
         return new ByteList(values);
