@@ -95,8 +95,7 @@ jobs:
           retention-days: 7
           if-no-files-found: ignore
   truffle-tests:
-    needs: [changed-files, code-checks]
-    if: ${{ needs.changed-files.outputs.sources_only_changed }} == 'false'
+    needs: code-checks
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
