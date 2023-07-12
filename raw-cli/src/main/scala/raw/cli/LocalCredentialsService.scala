@@ -19,31 +19,31 @@ import raw.creds._
 class LocalCredentialsService(implicit settings: RawSettings) extends CredentialsService {
 
   override protected def doRegisterS3Bucket(user: AuthenticatedUser, bucket: S3Bucket): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def getS3Bucket(user: AuthenticatedUser, name: String): Option[S3Bucket] = {
-    throw new NotImplementedError("unsupported operation")
+    None
   }
 
   override def listS3Buckets(user: AuthenticatedUser): List[String] = {
-    throw new NotImplementedError("unsupported operation")
+    List.empty
   }
 
   override def unregisterS3Bucket(user: AuthenticatedUser, name: String): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def registerDropboxToken(user: AuthenticatedUser, dropboxToken: DropboxToken): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def getDropboxToken(user: AuthenticatedUser): Option[DropboxToken] = {
-    throw new NotImplementedError("unsupported operation")
+    None
   }
 
   override def unregisterDropboxToken(user: AuthenticatedUser): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override protected def doRegisterNewHttpCredential(
@@ -51,23 +51,23 @@ class LocalCredentialsService(implicit settings: RawSettings) extends Credential
       name: String,
       token: NewHttpCredential
   ): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def getNewHttpCredential(user: AuthenticatedUser, name: String): Option[NewHttpCredential] = {
-    throw new NotImplementedError("unsupported operation")
+    None
   }
 
   override def unregisterNewHttpCredential(user: AuthenticatedUser, name: String): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def listNewHttpCredentials(user: AuthenticatedUser): List[HttpCredentialId] = {
-    throw new NotImplementedError("unsupported operation")
+    List.empty
   }
 
   override def getNewHttpAuth(user: AuthenticatedUser, name: String): Option[NewHttpAuth] = {
-    throw new NotImplementedError("unsupported operation")
+    None
   }
 
   override protected def doRegisterRDBMSServer(
@@ -75,51 +75,52 @@ class LocalCredentialsService(implicit settings: RawSettings) extends Credential
       name: String,
       db: RelationalDatabaseCredential
   ): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def getRDBMSServer(user: AuthenticatedUser, name: String): Option[RelationalDatabaseCredential] = {
-    throw new NotImplementedError("unsupported operation")
+    None
   }
 
   override def listRDBMSServers(user: AuthenticatedUser): List[String] = {
-    throw new NotImplementedError("unsupported operation")
+    List.empty
   }
 
   override def unregisterRDBMSServer(user: AuthenticatedUser, name: String): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override protected def doRegisterHTTPCred(user: AuthenticatedUser, cred: HttpCredential): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def getHTTPCred(user: AuthenticatedUser, url: String): Option[HttpCredential] = {
-    throw new NotImplementedError("unsupported operation")
+    None
   }
 
   override def listHTTPCreds(user: AuthenticatedUser): List[String] = {
-    throw new NotImplementedError("unsupported operation")
+    List.empty
   }
 
   override def unregisterHTTPCred(user: AuthenticatedUser, url: String): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def doRegisterSecret(user: AuthenticatedUser, secret: Secret): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def getSecret(user: AuthenticatedUser, name: String): Option[Secret] = {
-    throw new NotImplementedError("unsupported operation")
+    val envVariable = s"SNAPI_${name.toUpperCase}"
+    sys.env.get(envVariable).map(v => Secret(envVariable, v))
   }
 
   override def listSecrets(user: AuthenticatedUser): List[String] = {
-    throw new NotImplementedError("unsupported operation")
+    sys.env.keys.filter(_.startsWith("SNAPI_")).map(_.substring(6)).toList
   }
 
   override def unregisterSecret(user: AuthenticatedUser, name: String): Boolean = {
-    throw new NotImplementedError("unsupported operation")
+    false
   }
 
   override def doStop(): Unit = {}
