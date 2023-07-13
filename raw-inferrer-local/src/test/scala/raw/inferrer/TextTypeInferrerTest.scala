@@ -42,17 +42,33 @@ class TextTypeInferrerTest extends AnyFunSuite with StrictLogging with TextTypeI
     assertType(Seq("01-06-22", "24-12-19", "null"), SourceDateType(Some("d-M-yy"), true))
   }
 
+  test("infer times with format AM PM") {
+    assertType(Seq("12:00 AM", "11:30 PM", "11:00 AM"), SourceTimeType(Some("h:m a"), false))
+    assertType(Seq("12:00:15 AM", "11:30:25 PM", "11:00:42 AM"), SourceTimeType(Some("h:m:s a"), false))
+    assertType(Seq("12:00 AM", "11:30 PM", "null"), SourceTimeType(Some("h:m a"), true))
+
+    assertType(
+      Seq("01-06-22 12:30 AM", "24-12-19 11:45 PM", "01-01-18 10:00 AM"),
+      SourceTimestampType(Some("d-M-yy h:m a"), false)
+    )
+    assertType(
+      Seq("1975 June 23 12:30 AM", "2019 December 12 11:45 PM", "2022 February 26 09:34 AM"),
+      SourceTimestampType(Some("yyyy MMMM d h:m a"), false)
+    )
+    assertType(
+      Seq("01-06-22 12:30 AM", "24-12-19 11:45 PM", "null"),
+      SourceTimestampType(Some("d-M-yy h:m a"), true)
+    )
+  }
+
   test("infer times with format") {
     assertType(Seq("12:00", "23:30", "11:00"), SourceTimeType(Some("H:m"), false))
     assertType(Seq("12:00:15", "23:30:25", "11:00:42"), SourceTimeType(Some("H:m:s"), false))
-    assertType(Seq("12:00 AM", "11:30 PM", "11:00 AM"), SourceTimeType(Some("K:m a"), false))
-    assertType(Seq("12:00:15 AM", "11:30:25 PM", "11:00:42 AM"), SourceTimeType(Some("K:m:s a"), false))
     assertType(Seq("12:00:15.123", "23:30:25.456", "11:00:42.789"), SourceTimeType(Some("H:m:s.SSS"), false))
 
     // nullables
     assertType(Seq("null", "23:30", "11:00"), SourceTimeType(Some("H:m"), true))
     assertType(Seq("12:00:15", "null", "11:00:42"), SourceTimeType(Some("H:m:s"), true))
-    assertType(Seq("12:00 AM", "11:30 PM", "null"), SourceTimeType(Some("K:m a"), true))
   }
 
   test("infer timestamps with format") {
@@ -64,18 +80,12 @@ class TextTypeInferrerTest extends AnyFunSuite with StrictLogging with TextTypeI
       Seq("23/06/1975 12:30", "19/06/2022 23:45", "01/12/1980 09:32"),
       SourceTimestampType(Some("d/M/yyyy H:m"), false)
     )
-    assertType(
-      Seq("01-06-22 12:30 AM", "24-12-19 11:45 PM", "01-01-18 10:00 AM"),
-      SourceTimestampType(Some("d-M-yy K:m a"), false)
-    )
+
     assertType(
       Seq("23 June 1975 23:30", "12 December 2019 12:45", "26 February 2022 09:11"),
       SourceTimestampType(Some("d MMMM yyyy H:m"), false)
     )
-    assertType(
-      Seq("1975 June 23 12:30 AM", "2019 December 12 11:45 PM", "2022 February 26 09:34 AM"),
-      SourceTimestampType(Some("yyyy MMMM d K:m a"), false)
-    )
+
 
     // nullables
     assertType(
@@ -86,10 +96,7 @@ class TextTypeInferrerTest extends AnyFunSuite with StrictLogging with TextTypeI
       Seq("23/06/1975 12:30", "null", "01/12/1980 09:32"),
       SourceTimestampType(Some("d/M/yyyy H:m"), true)
     )
-    assertType(
-      Seq("01-06-22 12:30 AM", "24-12-19 11:45 PM", "null"),
-      SourceTimestampType(Some("d-M-yy K:m a"), true)
-    )
+
   }
 
   test("if date format changes infer string") {
