@@ -168,7 +168,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     val emitter = new TruffleEmitterImpl(tree)(programContext.asInstanceOf[ProgramContext])
 
     val Rql2Program(methods, me) = tree.root
-    assert(methods.isEmpty)
+    methods.foreach(emitter.emitMethod)
     assert(me.isDefined)
     val bodyExp = me.get
 
@@ -217,13 +217,16 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             JsonRecurse.recurseJsonWriter(tree.analyzer.tipe(me.get).asInstanceOf[Rql2TypeWithProperties])
           )
         )
-      case "binary" =>
-        val writer = TruffleBinaryWriter(tree.analyzer.tipe(me.get).asInstanceOf[Rql2BinaryType])
-        new ProgramStatementNode(
-          RawLanguage.getCurrentContext.getLanguage,
-          frameDescriptor,
-          new BinaryWriterNode(bodyExpNode, writer)
-        )
+      case "binary" => tree.analyzer.tipe(me.get) match {
+          case binary: Rql2BinaryType => // nullable or tryable is OK
+            val writer = TruffleBinaryWriter(binary)
+            new ProgramStatementNode(
+              RawLanguage.getCurrentContext.getLanguage,
+              frameDescriptor,
+              new BinaryWriterNode(bodyExpNode, writer)
+            )
+          case _ => throw new CompilerException("unsupported type")
+        }
       case null | "" => new ProgramExpressionNode(
           RawLanguage.getCurrentContext.getLanguage,
           frameDescriptor,
@@ -292,6 +295,11 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     slotMapScope.head.put(entity, slot)
   }
 
+  def emitMethod(m: Rql2Method): Unit = {
+    val funcName = getFuncIdn(analyzer.entity(m.i))
+    recurseFunProto(funcName, m.p)
+  }
+
   private def findSlot(entity: Entity): SlotLocation = {
     var depth = 0
     var curSlot = slotMapScope(depth)
@@ -324,12 +332,9 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       val entity = analyzer.entity(i)
       val rql2Type = tipe(e).asInstanceOf[Rql2Type]
 
-      // (az) this is a temporary solution for (RD-8995)
-      if (rql2Type.isInstanceOf[ExpType]) {
-        return recurseExp(e)
-      }
       val slot = rql2Type match {
         case _: Rql2UndefinedType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: ExpType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: Rql2ByteType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Byte, getIdnName(entity), null)
         case _: Rql2ShortType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Int, getIdnName(entity), null)
         case _: Rql2IntType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Int, getIdnName(entity), null)
@@ -348,6 +353,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
         case _: Rql2ListType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: FunType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: Rql2RecordType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: Rql2LocationType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
       }
       addSlot(entity, slot)
       WriteLocalVariableNodeGen.create(recurseExp(e), slot, rql2Type)
@@ -441,6 +447,11 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     case UnaryExp(Neg(), e) => NegNodeGen.create(recurseExp(e))
     case UnaryExp(Not(), e) => NotNodeGen.create(recurseExp(e))
     case IdnExp(idn) => analyzer.entity(idn) match {
+        case b: MethodEntity =>
+          val funcName = getFuncIdn(b)
+          val registry = RawLanguage.getCurrentContext.getFunctionRegistry
+          val function = registry.getFunction(funcName)
+          new MethodRefNode(function)
         case b: LetBindEntity =>
           val SlotLocation(depth, slot) = findSlot(b)
           if (depth == 0) {

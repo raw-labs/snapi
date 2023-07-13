@@ -15,10 +15,8 @@ package raw.compiler.rql2.tests.regressions
 import raw.compiler.rql2.tests.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
-// methods are not supported
-// class RD5631TruffleTest extends TruffleCompilerTestContext with RD5631Test
+@TruffleTests class RD5631TruffleTest extends TruffleCompilerTestContext with RD5631Test
 
-// HttpPackage
 @TruffleTests class RD5797TruffleTest extends TruffleCompilerTestContext with RD5797Test
 @TruffleTests class RD5779TruffleTest extends TruffleCompilerTestContext with RD5779Test
 @TruffleTests class RD5393TruffleTest extends TruffleCompilerTestContext with RD5393Test
@@ -26,8 +24,8 @@ import raw.testing.tags.TruffleTests
 // RD-9078
 // class RD5884TruffleTest extends TruffleCompilerTestContext with RD5884Test
 @TruffleTests class RD8266TruffleTest extends TruffleCompilerTestContext with RD8266Test
-// needs CSV, Xml, RD-9074
-// class RD5448TruffleTest extends TruffleCompilerTestContext with RD5448Test
+// needs Xml
+// @TruffleTests class RD5448TruffleTest extends TruffleCompilerTestContext with RD5448Test
 @TruffleTests class RD5238TruffleTest extends TruffleCompilerTestContext with RD5238Test
 @TruffleTests class RD3742TruffleTest extends TruffleCompilerTestContext with RD3742Test
 @TruffleTests class RD3784TruffleTest extends TruffleCompilerTestContext with RD3784Test
@@ -49,12 +47,10 @@ import raw.testing.tags.TruffleTests
 // class RD5697TruffleTest extends TruffleCompilerTestContext with RD5697Test
 @TruffleTests class RD5644TruffleTest extends TruffleCompilerTestContext with RD5644Test
 
-// methods not supported
-// class RD8993TruffleTest extends TruffleCompilerTestContext with RD8993Test
+@TruffleTests class RD8993TruffleTest extends TruffleCompilerTestContext with RD8993Test
 @TruffleTests class RD4529TruffleTest extends TruffleCompilerTestContext with RD4529Test
 
-// methods not supported
-// class RD5502TruffleTest extends TruffleCompilerTestContext with RD5502Test
+@TruffleTests class RD5502TruffleTest extends TruffleCompilerTestContext with RD5502Test
 
 // XML
 // class RD5893TruffleTest extends TruffleCompilerTestContext with RD5893Test
@@ -71,31 +67,28 @@ import raw.testing.tags.TruffleTests
 // XML
 // class RD5679TruffleTest extends TruffleCompilerTestContext with RD5679Test
 
-// Needs Http and other things
-// class RD5775TruffleTest extends TruffleCompilerTestContext with RD5775Test
+// Runs weird queries that aren't supported by JSON (package entry extensions, functions, etc.)
+// @TruffleTests class RD5775TruffleTest extends TruffleCompilerTestContext with RD5775Test
 @TruffleTests class RD5851TruffleTest extends TruffleCompilerTestContext with RD5851Test
 
-// List.Union (RD-9053), S3Package
-// class RD5412TruffleTest extends TruffleCompilerTestContext with RD5412Test
+@TruffleTests class RD5412TruffleTest extends TruffleCompilerTestContext with RD5412Test
 
-// Binary format
-// class RD5971TruffleTest extends TruffleCompilerTestContext with RD5971Test
+// 'text' format not supported
+// @TruffleTests class RD5971TruffleTest extends TruffleCompilerTestContext with RD5971Test
 @TruffleTests class RD4445TruffleTest extends TruffleCompilerTestContext with RD4445Test
 
 // XML
 // class RD5968TruffleTest extends TruffleCompilerTestContext with RD5968Test
 
-// Collection.Union
-// class RD5691TruffleTest extends TruffleCompilerTestContext with RD5691Test
+@TruffleTests class RD5691TruffleTest extends TruffleCompilerTestContext with RD5691Test
 @TruffleTests class RD8935TruffleTest extends TruffleCompilerTestContext with RD8935Test
 @TruffleTests class RD7924TruffleTest extends TruffleCompilerTestContext with RD7924Test
 
-// methods not supported
-// class RD5488TruffleTest extends TruffleCompilerTestContext with RD5488Test
+@TruffleTests class RD5488TruffleTest extends TruffleCompilerTestContext with RD5488Test
 @TruffleTests class RD5786TruffleTest extends TruffleCompilerTestContext with RD5786Test
 
-// methods not supported
-// class RD8015TruffleTest extends TruffleCompilerTestContext with RD8015Test
+// fails with an index error when reading a parameter (RD-9078 likely)
+// @TruffleTests class RD8015TruffleTest extends TruffleCompilerTestContext with RD8015Test
 @TruffleTests class RD5722TruffleTest extends TruffleCompilerTestContext with RD5722Test
 @TruffleTests class RD4741TruffleTest extends TruffleCompilerTestContext with RD4741Test
 @TruffleTests class RD5925TruffleTest extends TruffleCompilerTestContext with RD5925Test
@@ -114,3 +107,4 @@ import raw.testing.tags.TruffleTests
 // class RD5914TruffleTest extends TruffleCompilerTestContext with RD5914Test
 
 @TruffleTests class RD9137TruffleTest extends TruffleCompilerTestContext with RD9137Test
+@TruffleTests class RD9228TruffleTest extends TruffleCompilerTestContext with RD9228Test

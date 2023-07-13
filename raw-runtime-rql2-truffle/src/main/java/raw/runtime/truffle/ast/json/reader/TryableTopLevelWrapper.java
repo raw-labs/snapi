@@ -16,9 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
 import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.tryable.ErrorTryable;
@@ -29,7 +27,7 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 public class TryableTopLevelWrapper extends ExpressionNode {
 
     @Child
-    private DirectCallNode childDirectCall;
+    private ExpressionNode reader;
     private final RuntimeNullableTryableHandler nullableTryableHandler = new RuntimeNullableTryableHandler();
     @Child
     private NullableTryableLibrary nullableTryable = NullableTryableLibrary.getFactory().create(nullableTryableHandler);
@@ -37,13 +35,13 @@ public class TryableTopLevelWrapper extends ExpressionNode {
     @Child
     private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
 
-    public TryableTopLevelWrapper(ProgramExpressionNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+    public TryableTopLevelWrapper(ExpressionNode reader) {
+        this.reader = reader;
     }
 
     public Object executeGeneric(VirtualFrame frame) {
         try {
-            Object result = childDirectCall.call();
+            Object result = reader.executeGeneric(frame);
             if (tryables.isTryable(result)) {
                 return result;
             }

@@ -128,7 +128,7 @@ public abstract class ListTakeNode extends ExpressionNode {
         if (num >= innerList.length) {
             return (ObjectList) list;
         }
-        Object[] result = new String[(int) num];
+        Object[] result = new Object[(int) num];
         System.arraycopy(innerList, 0, result, 0, (int) num);
         return new ObjectList(result);
     }

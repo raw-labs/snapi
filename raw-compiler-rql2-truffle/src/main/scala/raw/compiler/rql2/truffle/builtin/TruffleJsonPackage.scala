@@ -65,9 +65,7 @@ class TruffleReadJsonEntry extends ReadJsonEntry with TruffleEntryExtension {
             .recurseJsonParser(t.asInstanceOf[Rql2TypeWithProperties], dateFormat, timeFormat, timestampFormat)
         )
         if (t.asInstanceOf[Rql2TypeWithProperties].props.contains(Rql2IsTryableTypeProperty())) {
-          new TryableTopLevelWrapper(
-            new ProgramExpressionNode(JsonRecurse.lang, JsonRecurse.frameDescriptor, parseNode)
-          )
+          new TryableTopLevelWrapper(parseNode)
         } else {
           parseNode
         }
@@ -99,9 +97,7 @@ class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
     )
 
     if (t.asInstanceOf[Rql2TypeWithProperties].props.contains(Rql2IsTryableTypeProperty())) {
-      new TryableTopLevelWrapper(
-        new ProgramExpressionNode(JsonRecurse.lang, JsonRecurse.frameDescriptor, parseNode)
-      )
+      new TryableTopLevelWrapper(parseNode)
     } else {
       parseNode
     }
