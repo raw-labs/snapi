@@ -86,7 +86,6 @@ class TextTypeInferrerTest extends AnyFunSuite with StrictLogging with TextTypeI
       SourceTimestampType(Some("d MMMM yyyy H:m"), false)
     )
 
-
     // nullables
     assertType(
       Seq("null", "2022-06-19T12:40:12.456", "1980-12-01T09:23:16.876"),
