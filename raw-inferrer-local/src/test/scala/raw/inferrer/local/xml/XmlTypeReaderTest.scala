@@ -158,9 +158,9 @@ class XmlTypeReaderTest extends AnyFunSuite {
     val typeReader = new InferrerXmlTypeReader(xml, 200)
 
     typeReader.skipToNext()
-    assert(typeReader.nextObj(SourceNothingType()) == SourceTimeType(Some("K:m a"), false))
+    assert(typeReader.nextObj(SourceNothingType()) == SourceTimeType(Some("h:m a"), false))
     assert(typeReader.nextObj(SourceNothingType()) == SourceDateType(Some("yyyy-M-d"), false))
-    assert(typeReader.nextObj(SourceNothingType()) == SourceTimestampType(Some("yyyy-M-d K:m a"), false))
+    assert(typeReader.nextObj(SourceNothingType()) == SourceTimestampType(Some("yyyy-M-d h:m a"), false))
     assert(typeReader.atEndOfObj())
     typeReader.skipToNext()
     assert(typeReader.atEndOfDocument())
@@ -203,9 +203,9 @@ class XmlTypeReaderTest extends AnyFunSuite {
     var propagated: SourceType = SourceStringType(false)
     var expected: SourceType = SourceRecordType(
       Vector(
-        SourceAttrType("b", SourceTimeType(Some("K:m a"), true)),
+        SourceAttrType("b", SourceTimeType(Some("h:m a"), true)),
         SourceAttrType("c", SourceDateType(Some("yyyy-M-d"), true)),
-        SourceAttrType("d", SourceTimestampType(Some("yyyy-M-d K:m a"), true)),
+        SourceAttrType("d", SourceTimestampType(Some("yyyy-M-d h:m a"), true)),
         SourceAttrType("#text", SourceStringType(true))
       ),
       false
@@ -227,9 +227,9 @@ class XmlTypeReaderTest extends AnyFunSuite {
     propagated = SourceRecordType(Vector(SourceAttrType("c", SourceStringType(false))), false)
     expected = SourceRecordType(
       Vector(
-        SourceAttrType("b", SourceTimeType(Some("K:m a"), true)),
+        SourceAttrType("b", SourceTimeType(Some("h:m a"), true)),
         SourceAttrType("c", SourceStringType(false)),
-        SourceAttrType("d", SourceTimestampType(Some("yyyy-M-d K:m a"), true))
+        SourceAttrType("d", SourceTimestampType(Some("yyyy-M-d h:m a"), true))
       ),
       false
     )
@@ -239,9 +239,9 @@ class XmlTypeReaderTest extends AnyFunSuite {
       SourceRecordType(Vector(SourceAttrType("c", SourceCollectionType(SourceStringType(false), false))), false)
     expected = SourceRecordType(
       Vector(
-        SourceAttrType("b", SourceTimeType(Some("K:m a"), true)),
+        SourceAttrType("b", SourceTimeType(Some("h:m a"), true)),
         SourceAttrType("c", SourceCollectionType(SourceStringType(false), false)),
-        SourceAttrType("d", SourceTimestampType(Some("yyyy-M-d K:m a"), true))
+        SourceAttrType("d", SourceTimestampType(Some("yyyy-M-d h:m a"), true))
       ),
       false
     )
