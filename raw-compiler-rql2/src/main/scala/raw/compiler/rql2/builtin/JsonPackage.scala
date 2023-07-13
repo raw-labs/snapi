@@ -279,7 +279,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       ParamDoc(
         "stringData",
         TypeDoc(List("string")),
-        description = "The data in string format to infer and read."
+        description = "The data in string format to infer and parsed."
       ),
       ParamDoc(
         "sampleSize",
@@ -328,7 +328,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
 
-    val (locationArg, _) = getInMemoryLocation(mandatoryArgs)
+    val (locationArg, _) = InMemoryLocationValueBuilder.build(mandatoryArgs)
 
     for (
       inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
@@ -358,7 +358,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
 
-    val (locationArg, codeData) = getInMemoryLocation(mandatoryArgs)
+    val (locationArg, codeData) =  InMemoryLocationValueBuilder.build(mandatoryArgs)
 
     val inputFormatDescriptor = for (
       inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
@@ -551,22 +551,6 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
           .map(v => getEncodingValue(v).fold(err => return Left(err), v => v))
       )
     )
-  }
-
-  protected def getInMemoryLocation(mandatoryArgs: Seq[Arg]): (ValueArg, String) = {
-    val codeData = mandatoryArgs.head match {
-      case ValueArg(v, _) => v match {
-          case StringValue(innVal) => innVal
-        }
-    }
-    val settings = Map[LocationSettingKey, LocationSettingValue](
-      (
-        LocationSettingKey(InMemoryByteStreamLocation.codeDataKey),
-        LocationBinarySetting(codeData.getBytes())
-      )
-    )
-    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
-    (ValueArg(LocationValue(locationDescription), Rql2LocationType()), codeData)
   }
 
   protected def validateJsonType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
