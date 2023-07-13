@@ -189,8 +189,7 @@ class CsvInferAndReadEntry extends SugarEntryExtension with CsvEntryExtensionHel
         )
       ) = inputFormatDescriptor
     ) yield {
-      val preferNulls =
-        optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
+      val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
       val makeNullables = sampled && preferNulls
       val makeTryables = sampled
 
@@ -478,7 +477,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
         isOptional = true
       )
     ),
-    examples = List(ExampleDoc("""Csv.InferAndParse(\"\"\"value1;value2\"\"\")""")),
+    examples = List(ExampleDoc("""Csv.InferAndParse(\"\"\"value1,value2\"\"\")""")),
     ret = Some(ReturnDoc("A collection with the data parsed from the CSV string.", Some(TypeDoc(List("collection")))))
   )
 
@@ -486,7 +485,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     assert(idx == 0)
-    Right(ValueParam(Rql2LocationType()))
+    Right(ValueParam(Rql2StringType()))
   }
 
   override def optionalParams: Option[Set[String]] = Some(
@@ -576,7 +575,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
     }
 
     val TextInputStreamFormatDescriptor(
-      encoding,
+      _,
       _,
       CsvInputFormatDescriptor(
         _,
@@ -597,6 +596,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
 
     val l0Args: Vector[FunAppArg] = Vector(
       Some(FunAppArg(StringConst(codeData), None)),
+      Some(FunAppArg(TypeExp(t), None)),
       Some(FunAppArg(StringConst(sep.toString), Some("delimiter"))),
       Some(FunAppArg(IntConst(skip.toString), Some("skip"))),
       escapeChar.map(s => FunAppArg(StringConst(s.toString), Some("escape"))),

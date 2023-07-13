@@ -9,6 +9,7 @@ raw.compiler.rql2.builtin.SQLServerInferAndQueryEntry
 raw.compiler.rql2.builtin.SnowflakeInferAndReadEntry
 raw.compiler.rql2.builtin.SnowflakeInferAndQueryEntry
 raw.compiler.rql2.builtin.CsvInferAndReadEntry
+raw.compiler.rql2.builtin.CsvInferAndParseEntry
 raw.compiler.rql2.builtin.InferAndReadJsonEntry
 raw.compiler.rql2.builtin.InferAndParseJsonEntry
 raw.compiler.rql2.builtin.InferAndReadXmlEntry
