@@ -77,8 +77,6 @@ object Dependencies {
 
   val mysqlDeps = "mysql" % "mysql-connector-java" % "8.0.32"
 
-  val sqliteDeps = "org.xerial" % "sqlite-jdbc" % "3.41.2.2"
-
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre8"
 
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.29"
