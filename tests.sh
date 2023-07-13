@@ -5,4 +5,4 @@ cd "${SCRIPT_HOME}"
 rm -rfv test-results
 mkdir -p test-results
 
-sbt "testOnly * -- -n raw.testing.tags.TruffleTests"
+sbt test
