@@ -36,9 +36,9 @@ class TestInMemoryLocation extends RawTestSuite {
     )
     val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
     val inMemoryLocation = new InMemoryByteStreamLocation(locationDescription)
-    assertThrows[AssertionError](inMemoryLocation.getSeekableInputStream)
+    assertThrows[MatchError](inMemoryLocation.getSeekableInputStream)
+    assertThrows[MatchError](inMemoryLocation.getInputStream)
     assertThrows[AssertionError](inMemoryLocation.getLocalPath())
-    assertThrows[AssertionError](inMemoryLocation.getInputStream)
   }
 
 }

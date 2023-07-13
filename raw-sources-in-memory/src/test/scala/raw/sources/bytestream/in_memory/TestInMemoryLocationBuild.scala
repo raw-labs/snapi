@@ -36,7 +36,7 @@ class TestInMemoryLocationBuild extends RawTestSuite {
   test("in memory location builder scheme") { _ =>
     val inMemoryLocationBuilder = new InMemoryByteStreamLocationBuilder()
     assert(inMemoryLocationBuilder.schemes.size == 1)
-    assert(inMemoryLocationBuilder.schemes.head == InMemoryByteStreamLocation.schemaWithColon)
+    assert(inMemoryLocationBuilder.schemes.head == InMemoryByteStreamLocation.schema)
   }
 
   test("wrong schema build error") { _ =>
