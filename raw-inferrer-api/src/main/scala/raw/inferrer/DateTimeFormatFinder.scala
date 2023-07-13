@@ -17,7 +17,7 @@ import java.time.format.{DateTimeFormatter, DateTimeParseException}
 
 trait DatetimeFormatFinder {
 
-  final private val timeFormats = Seq("H:m", "K:m a", "H:m:s", "K:m:s a", "H:m:s.SSS", "K:m:s.SSS a", "HHmmss")
+  final private val timeFormats = Seq("H:m", "h:m a", "H:m:s", "h:m:s a", "H:m:s.SSS", "h:m:s.SSS a", "HHmmss")
 
   // TODO:  To be able to year 99 as 1999 use a DateTimeFormatBuilder as shown in:
   // https://stackoverflow.com/questions/32505490/how-to-change-the-base-date-for-parsing-two-letter-years-with-java-8-datetimefor
