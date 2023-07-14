@@ -19,9 +19,6 @@ import raw.compiler.rql2._
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.inferrer._
-import raw.runtime.interpreter.{LocationValue, StringValue}
-import raw.sources.bytestream.in_memory.InMemoryByteStreamLocation
-import raw.sources.{LocationBinarySetting, LocationDescription, LocationSettingKey, LocationSettingValue}
 
 class JsonPackage extends PackageExtension {
 
