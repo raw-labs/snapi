@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.dsl.Cached;
@@ -20,24 +19,20 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.RuntimeContext;
-import raw.runtime.truffle.ast.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
 
-import java.io.IOException;
-
 @ExportLibrary(ComputeNextLibrary.class)
 public class JsonReadComputeNext {
 
     private final LocationObject locationObject;
     private JsonParser parser;
-    private final JsonFactory jsonFactory;
     private final DirectCallNode parseNextCallNode;
     private final RuntimeContext context;
     private final String encoding;
@@ -49,14 +44,12 @@ public class JsonReadComputeNext {
         this.context = context;
         this.locationObject = locationObject;
         this.parseNextCallNode = parseNextCallNode;
-        this.jsonFactory = new JsonFactory();
-        this.jsonFactory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE); // TODO (msb): Auto-disable or actually enable?
     }
 
     @ExportMessage
     void init(@Cached("create()") ParserOperations.InitJsonParserNode initParser,
               @Cached.Shared("closeParser") @Cached("create()") ParserOperations.CloseJsonParserNode closeParser,
-              @Cached.Shared("nextToken") @Cached("create()") ParserOperations.NextTokenJsonParserNode nextToken) {
+              @Cached("create()") ParserOperations.NextTokenJsonParserNode nextToken) {
         try {
             TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
             stream = new TruffleCharInputStream(truffleInputStream, encoding);
@@ -86,7 +79,7 @@ public class JsonReadComputeNext {
     }
 
     @ExportMessage
-    Object computeNext(@Cached.Shared("nextToken") @Cached("create()") ParserOperations.NextTokenJsonParserNode nextToken) {
+    Object computeNext() {
         try {
             if (parser.getCurrentToken() != JsonToken.END_ARRAY && parser.getCurrentToken() != null) {
                 return parseNextCallNode.call(parser);

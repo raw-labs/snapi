@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.FrameDescriptor
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.source._
 import raw.runtime.truffle.ast.ProgramExpressionNode
-import raw.runtime.truffle.ast.jdbc._
+import raw.runtime.truffle.ast.io.jdbc._
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 

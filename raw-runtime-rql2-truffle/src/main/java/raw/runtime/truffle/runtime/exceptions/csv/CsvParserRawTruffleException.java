@@ -13,7 +13,7 @@
 package raw.runtime.truffle.runtime.exceptions.csv;
 
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.ast.csv.reader.parser.RawTruffleCsvParser;
+import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.utils.RawTruffleCharStream;
 

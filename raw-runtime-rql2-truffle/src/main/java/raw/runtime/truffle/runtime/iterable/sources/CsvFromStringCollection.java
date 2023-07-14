@@ -15,8 +15,7 @@ package raw.runtime.truffle.runtime.iterable.sources;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import raw.runtime.RuntimeContext;
-import raw.runtime.truffle.ast.csv.reader.parser.RawTruffleCsvParserSettings;
+import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.CsvReadFromStringComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -27,14 +26,12 @@ public class CsvFromStringCollection {
     private final String str;
     private final DirectCallNode rowParser;
 
-    private final RuntimeContext context;
     private final RawTruffleCsvParserSettings settings;
 
 
-    public CsvFromStringCollection(String str, RuntimeContext context, DirectCallNode rowParser, RawTruffleCsvParserSettings settings) {
+    public CsvFromStringCollection(String str, DirectCallNode rowParser, RawTruffleCsvParserSettings settings) {
         this.str = str;
         this.rowParser = rowParser;
-        this.context = context;
         this.settings = settings;
     }
 

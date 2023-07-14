@@ -16,7 +16,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.RuntimeContext;
-import raw.runtime.truffle.ast.jdbc.JdbcQuery;
+import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
