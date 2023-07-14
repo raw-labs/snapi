@@ -429,6 +429,20 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
         isOptional = true
       ),
       ParamDoc(
+        "encoding",
+        typeDoc = TypeDoc(List("string")),
+        description = """Specifies the encoding of the data.""",
+        info = Some("""If the encoding is not specified it is determined automatically.""".stripMargin),
+        isOptional = true
+      ),
+      ParamDoc(
+        "hasHeader",
+        typeDoc = TypeDoc(List("bool")),
+        description = """Specifies whether the data has a header or not, e.g. `true` or `false`.""",
+        info = Some("""If not specified, the inference tries to detect the presence of a header.""".stripMargin),
+        isOptional = true
+      ),
+      ParamDoc(
         "delimiters",
         typeDoc = TypeDoc(List("list")),
         description = """Specifies a candidate list of delimiters, e.g. `[",", "|"]`.""",
@@ -477,7 +491,7 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
         isOptional = true
       )
     ),
-    examples = List(ExampleDoc("""Csv.InferAndParse(\"\"\"value1,value2\"\"\")""")),
+    examples = List(ExampleDoc("""Csv.InferAndParse(\"\"\"value1;value2\"\"\")""")),
     ret = Some(ReturnDoc("A collection with the data parsed from the CSV string.", Some(TypeDoc(List("collection")))))
   )
 
@@ -491,6 +505,8 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
   override def optionalParams: Option[Set[String]] = Some(
     Set(
       "sampleSize",
+      "encoding",
+      "hasHeader",
       "delimiters",
       "nulls",
       "nans",
@@ -504,6 +520,8 @@ class CsvInferAndParseEntry extends SugarEntryExtension with CsvEntryExtensionHe
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
       case "sampleSize" => Right(ValueParam(Rql2IntType()))
+      case "encoding" => Right(ValueParam(Rql2StringType()))
+      case "hasHeader" => Right(ValueParam(Rql2BoolType()))
       case "delimiters" => Right(ValueParam(Rql2ListType(Rql2StringType())))
       case "nulls" => Right(ValueParam(Rql2ListType(Rql2StringType())))
       case "nans" => Right(ValueParam(Rql2ListType(Rql2StringType())))

@@ -291,6 +291,13 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
         isOptional = true
       ),
       ParamDoc(
+        "encoding",
+        typeDoc = TypeDoc(List("string")),
+        description = """Specifies the encoding of the data.""",
+        info = Some("""If the encoding is not specified it is determined automatically.""".stripMargin),
+        isOptional = true
+      ),
+      ParamDoc(
         "preferNulls",
         typeDoc = TypeDoc(List("bool")),
         description =
@@ -311,6 +318,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
   override def optionalParams: Option[Set[String]] = Some(
     Set(
       "sampleSize",
+      "encoding",
       "preferNulls"
     )
   )
@@ -318,6 +326,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
       case "sampleSize" => Right(ValueParam(Rql2IntType()))
+      case "encoding" => Right(ValueParam(Rql2StringType()))
       case "preferNulls" => Right(ValueParam(Rql2BoolType()))
     }
   }
@@ -358,7 +367,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
 
-    val (locationArg, codeData) =  InMemoryLocationValueBuilder.build(mandatoryArgs)
+    val (locationArg, codeData) = InMemoryLocationValueBuilder.build(mandatoryArgs)
 
     val inputFormatDescriptor = for (
       inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
