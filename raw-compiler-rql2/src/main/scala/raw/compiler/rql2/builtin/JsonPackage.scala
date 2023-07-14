@@ -19,9 +19,6 @@ import raw.compiler.rql2._
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.inferrer._
-import raw.runtime.interpreter.{LocationValue, StringValue}
-import raw.sources.bytestream.in_memory.InMemoryByteStreamLocation
-import raw.sources.{LocationBinarySetting, LocationDescription, LocationSettingKey, LocationSettingValue}
 
 class JsonPackage extends PackageExtension {
 
@@ -279,7 +276,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       ParamDoc(
         "stringData",
         TypeDoc(List("string")),
-        description = "The data in string format to infer and read."
+        description = "The data in string format to infer and parsed."
       ),
       ParamDoc(
         "sampleSize",
@@ -288,6 +285,13 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
         info = Some("""If a large `sampleSize` is used, the detection takes more time to complete,
           |but has a higher chance of detecting the correct format.
           |To force the detection to read the full data, set `sampleSize` to -1.""".stripMargin),
+        isOptional = true
+      ),
+      ParamDoc(
+        "encoding",
+        typeDoc = TypeDoc(List("string")),
+        description = """Specifies the encoding of the data.""",
+        info = Some("""If the encoding is not specified it is determined automatically.""".stripMargin),
         isOptional = true
       ),
       ParamDoc(
@@ -311,6 +315,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
   override def optionalParams: Option[Set[String]] = Some(
     Set(
       "sampleSize",
+      "encoding",
       "preferNulls"
     )
   )
@@ -318,6 +323,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
       case "sampleSize" => Right(ValueParam(Rql2IntType()))
+      case "encoding" => Right(ValueParam(Rql2StringType()))
       case "preferNulls" => Right(ValueParam(Rql2BoolType()))
     }
   }
@@ -328,7 +334,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
 
-    val (locationArg, _) = getInMemoryLocation(mandatoryArgs)
+    val (locationArg, _) = InMemoryLocationValueBuilder.build(mandatoryArgs)
 
     for (
       inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
@@ -358,7 +364,7 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Exp = {
 
-    val (locationArg, codeData) = getInMemoryLocation(mandatoryArgs)
+    val (locationArg, codeData) = InMemoryLocationValueBuilder.build(mandatoryArgs)
 
     val inputFormatDescriptor = for (
       inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
@@ -551,22 +557,6 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
           .map(v => getEncodingValue(v).fold(err => return Left(err), v => v))
       )
     )
-  }
-
-  protected def getInMemoryLocation(mandatoryArgs: Seq[Arg]): (ValueArg, String) = {
-    val codeData = mandatoryArgs.head match {
-      case ValueArg(v, _) => v match {
-          case StringValue(innVal) => innVal
-        }
-    }
-    val settings = Map[LocationSettingKey, LocationSettingValue](
-      (
-        LocationSettingKey(InMemoryByteStreamLocation.codeDataKey),
-        LocationBinarySetting(codeData.getBytes())
-      )
-    )
-    val locationDescription = LocationDescription(InMemoryByteStreamLocation.schemaWithColon, settings)
-    (ValueArg(LocationValue(locationDescription), Rql2LocationType()), codeData)
   }
 
   protected def validateJsonType(t: Type): Either[Seq[UnsupportedType], Type] = t match {

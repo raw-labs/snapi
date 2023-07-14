@@ -17,7 +17,7 @@ import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
 trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
 
-  val data = tempFile("""a|b|c
+  private val data = tempFile("""a|b|c
     |1|10|100
     |2|20|200
     |3|30|300""".stripMargin)
@@ -478,5 +478,31 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   )(it =>
     it should evaluateTo("""[{a: 1, b: "tralala"}, {a: null, b: "ploum"}, {a: 3, b: "ploum"}, {a: 4, b: null}]""")
   )
+
+  // Infer and Parse
+  val ttt = "\"\"\""
+  test(
+    s"""Csv.InferAndParse("1,2,3")"""
+  )(_ should evaluateTo("""[{_1: 1, _2: 2, _3: 3}]"""))
+
+  test(
+    s"""Csv.InferAndParse("1, 2, hello")"""
+  )(_ should evaluateTo("""[{_1: 1, _2: 2, _3: "hello"}]"""))
+
+  test(
+    s"""Csv.InferAndParse("1, 2,")"""
+  )(_ should evaluateTo("""[{_1: 1, _2: 2, _3: null}]"""))
+
+  test(
+    s"""Csv.InferAndParse("1;2;")"""
+  )(_ should evaluateTo("""[{_1: 1, _2: 2, _3: null}]"""))
+
+  test(
+    s"""Csv.InferAndParse(${ttt}1;2\n3;hello$ttt, delimiters=[";","\\n"])""".stripMargin
+  )(_ should evaluateTo("""[{_1: 1, _2: "2"}, {_1: 3, _2: "hello"}]"""))
+
+  test(
+    s"""Csv.InferAndParse(${ttt}1;2\n3;hello;5;;;;;;;$ttt, delimiters=[";","\\n"])""".stripMargin
+  )(_ should evaluateTo("""[]"""))
 
 }
