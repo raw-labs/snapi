@@ -14,16 +14,13 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.AwsV4SignedRequest
-import raw.compiler.rql2.source.{Rql2AttrType, Rql2ListType, Rql2RecordType, Rql2StringType}
+import raw.compiler.rql2.source.{Rql2ListType, Rql2RecordType}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.aws_package.AwsV4SignedRequestNodeGen
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode
-import raw.runtime.truffle.ast.expressions.literals.{FloatNode, LongNode, StringNode}
-import raw.runtime.truffle.ast.expressions.option.{OptionNoneNode, OptionSomeNode}
-import raw.runtime.truffle.ast.expressions.record.RecordBuildNode
-import raw.runtime.truffle.runtime.option.StringOption
+import raw.runtime.truffle.ast.expressions.literals.StringNode
 
 class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtension {
 
