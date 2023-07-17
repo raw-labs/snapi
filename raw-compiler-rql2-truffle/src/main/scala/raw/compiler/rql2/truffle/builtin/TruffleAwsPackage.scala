@@ -14,13 +14,16 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.AwsV4SignedRequest
-import raw.compiler.rql2.source.{Rql2ListType, Rql2RecordType}
+import raw.compiler.rql2.source.{Rql2AttrType, Rql2ListType, Rql2RecordType, Rql2StringType}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.aws_package.AwsV4SignedRequestNodeGen
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode
-import raw.runtime.truffle.ast.expressions.literals.StringNode
+import raw.runtime.truffle.ast.expressions.literals.{FloatNode, LongNode, StringNode}
+import raw.runtime.truffle.ast.expressions.option.{OptionNoneNode, OptionSomeNode}
+import raw.runtime.truffle.ast.expressions.record.RecordBuildNode
+import raw.runtime.truffle.runtime.option.StringOption
 
 class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtension {
 
@@ -31,7 +34,7 @@ class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtens
     val service = args(2).e
 
     val maybeRegion = args.collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "region" => e }
-
+    val maybeSessionToken = args.collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "sessionToken" => e }
     val method =
       args.collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "method" => e }.getOrElse(new StringNode("GET"))
 
@@ -57,11 +60,14 @@ class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtens
 
     val headers = args
       .collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "headers" => e }
-      .getOrElse(new ListBuildNode(Rql2ListType(Rql2RecordType(Vector.empty)), Array()))
+      .getOrElse(new ListBuildNode(Rql2ListType(Rql2RecordType(Vector())), Array()))
+
+    val sessionToken = maybeSessionToken
+      .getOrElse(new StringNode(""))
 
     val region = maybeRegion.getOrElse(new StringNode("us-east-1"))
 
-    AwsV4SignedRequestNodeGen.create(key, secretKey, service, region, path, method, host, body, urlParams, headers)
+    AwsV4SignedRequestNodeGen.create(key, secretKey, service, region, sessionToken, path, method, host, body, urlParams, headers)
   }
 
 }

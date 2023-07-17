@@ -54,6 +54,7 @@ import java.time.format.DateTimeFormatter;
 @NodeChild("secretKey")
 @NodeChild("service")
 @NodeChild("region")
+@NodeChild("sessionToken")
 @NodeChild("path")
 @NodeChild("method")
 @NodeChild("host")
@@ -116,6 +117,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             String secretKey,
             String service,
             String region,
+            String sessionToken,
             String path,
             String method,
             String host,
@@ -165,9 +167,12 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             VectorBuilder<Tuple2<String, String>> headersParamsVec = new VectorBuilder<>();
 
             int headersSize = (int) headersLists.size(headers);
-            Object[] allHeaders = new Object[headersSize + 2];
-            System.arraycopy((Object[]) headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
+            // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is defined
+            int allHeadersSize = headersSize + 2;
+            if (!sessionToken.equals("")) allHeadersSize++;
 
+            Object[] allHeaders = new Object[allHeadersSize];
+            System.arraycopy((Object[]) headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
 
             allHeaders[headersSize] = RawLanguage.get(this).createRecord();
             records.writeMember(allHeaders[headersSize], "_1", "host");
@@ -177,8 +182,13 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             records.writeMember(allHeaders[headersSize + 1], "_1", "x-amz-date");
             records.writeMember(allHeaders[headersSize + 1], "_2", amzdate);
 
-            Object finalHeadersList = new ObjectList(allHeaders);
-            Object sortedHeaders = headersLists.sort(finalHeadersList);
+            if (!sessionToken.equals("")) {
+                allHeaders[headersSize + 2] = RawLanguage.get(this).createRecord();
+                records.writeMember(allHeaders[headersSize + 2], "_1", "x-amz-security-token");
+                records.writeMember(allHeaders[headersSize + 2], "_2", sessionToken);
+            }
+
+            Object sortedHeaders = headersLists.sort(new ObjectList(allHeaders));
 
             for (int i = 0; i < headersLists.size(sortedHeaders); i++) {
                 canonicalHeadersBuilder

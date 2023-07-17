@@ -39,6 +39,7 @@ class AwsV4SignedRequest extends EntryExtension {
       ParamDoc("secretKey", TypeDoc(List("string")), "AWS secret key."),
       ParamDoc("service", TypeDoc(List("string")), "AWS service name e.g.: 'ec2'."),
       ParamDoc("region", TypeDoc(List("string")), "AWS region e.g.: 'us-east-1'.", isOptional = true),
+      ParamDoc("sessionToken", TypeDoc(List("string")), "AWS session token.", isOptional = true),
       ParamDoc(
         "path",
         TypeDoc(List("string")),
@@ -89,11 +90,11 @@ class AwsV4SignedRequest extends EntryExtension {
   override def nrMandatoryParams: Int = 3
 
   override def optionalParams: Option[Set[String]] =
-    Some(Set("region", "method", "host", "bodyString", "args", "headers", "path"))
+    Some(Set("region", "sessionToken", "method", "host", "bodyString", "args", "headers", "path"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
-      case "region" | "path" | "method" | "host" | "bodyString" => Right(ExpParam(Rql2StringType()))
+      case "region" | "sessionToken" | "path" | "method" | "host" | "bodyString" => Right(ExpParam(Rql2StringType()))
       case "args" | "headers" => Right(
           ExpParam(
             Rql2ListType(

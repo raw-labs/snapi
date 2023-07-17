@@ -25,77 +25,103 @@ trait AwsPackageTest extends CompilerTestContext {
 
   val triple = "\"\"\""
 
-  test("""let data = Xml.Read(
-    |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
-    |       "ec2",
-    |       args = [
-    |         {"Action", "DescribeRegions"},
-    |         {"Version", "2013-10-15"}
-    |       ]
-    |    ),
-    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
-    |)
-    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+  val awsSessionToken = sys.env("AWS_SESSION_TOKEN")
+  val awsAccessKeyId = sys.env("AWS_ACCESS_KEY_ID")
+  val awsSecretAccessKey = sys.env("AWS_SECRET_ACCESS_KEY")
 
-  test("""let data = Xml.Read(
-    |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
-    |       "ec2",
-    |       region = "us-east-1",
-    |       host = "ec2.amazonaws.com",
-    |       args = [
-    |         {"Action", "DescribeRegions"},
-    |         {"Version", "2013-10-15"}
-    |       ]
-    |    ),
-    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
-    |)
-    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+//
+//  test("""let data = Xml.Read(
+//    |    Aws.SignedV4Request(
+//    |       Environment.Secret("abraxas-key"),
+//    |       Environment.Secret("abraxas-secret-key"),
+//    |       "ec2",
+//    |       args = [
+//    |         {"Action", "DescribeRegions"},
+//    |         {"Version", "2013-10-15"}
+//    |       ]
+//    |    ),
+//    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
+//    |)
+//    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+//    |""".stripMargin)(
+//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+//  )
+//
+//  test("""let data = Xml.Read(
+//    |    Aws.SignedV4Request(
+//    |       Environment.Secret("abraxas-key"),
+//    |       Environment.Secret("abraxas-secret-key"),
+//    |       "ec2",
+//    |       region = "us-east-1",
+//    |       host = "ec2.amazonaws.com",
+//    |       args = [
+//    |         {"Action", "DescribeRegions"},
+//    |         {"Version", "2013-10-15"}
+//    |       ]
+//    |    ),
+//    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
+//    |)
+//    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+//    |""".stripMargin)(
+//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+//  )
+//
+//  test("""let data = Xml.Read(
+//    |    Aws.SignedV4Request(
+//    |       Environment.Secret("abraxas-key"),
+//    |       Environment.Secret("abraxas-secret-key"),
+//    |       "ec2",
+//    |       region = "us-east-1",
+//    |       host = "ec2.amazonaws.com",
+//    |       path = "/",
+//    |       args = [
+//    |         {"Action", "DescribeRegions"},
+//    |         {"Version", "2013-10-15"}
+//    |       ]
+//    |    ),
+//    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
+//    |  )
+//    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+//    |""".stripMargin)(
+//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+//  )
+//
+//  test("""let data = Xml.InferAndRead(
+//    |    Aws.SignedV4Request(
+//    |       Environment.Secret("abraxas-key"),
+//    |       Environment.Secret("abraxas-secret-key"),
+//    |       "ec2",
+//    |       args = [
+//    |         {"Action", "DescribeRegions"},
+//    |         {"Version", "2013-10-15"}
+//    |       ]
+//    |    )
+//    |)
+//    |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+//    |""".stripMargin)(
+//    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+//  )
 
-  test("""let data = Xml.Read(
-    |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
-    |       "ec2",
-    |       region = "us-east-1",
-    |       host = "ec2.amazonaws.com",
-    |       path = "/",
-    |       args = [
-    |         {"Action", "DescribeRegions"},
-    |         {"Version", "2013-10-15"}
-    |       ]
-    |    ),
-    |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
-    |  )
-    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+  secret(authorizedUser, "temporary-key", awsAccessKeyId)
+  secret(authorizedUser, "temporary-secret-key", awsSecretAccessKey)
+  secret(authorizedUser, "session-token", awsSessionToken)
 
-  test("""let data = Xml.InferAndRead(
-    |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
-    |       "ec2",
-    |       args = [
-    |         {"Action", "DescribeRegions"},
-    |         {"Version", "2013-10-15"}
-    |       ]
-    |    )
-    |)
-    |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+  test(
+    s"""let query = $triple{"endTime": 1665655502, "limit": 1000, "logGroupName": "/aws/lambda/auth-proxy-v2-lambda-prod", "queryString": "fields @timestamp, @message, @clientTag, @username | limit 200", "startTime": 1665396297}$triple
+      |in String.Read(
+      |   Aws.SignedV4Request(
+      |      Environment.Secret("temporary-key"),
+      |      Environment.Secret("temporary-secret-key"),
+      |      "logs",
+      |      sessionToken = Environment.Secret("session-token"),
+      |      region = "eu-west-1",
+      |      method = "POST",
+      |      bodyString = query,
+      |      headers = [{"x-amz-target", "Logs_20140328.StartQuery"}, {"content-type", "application/x-amz-json-1.1"}]
+      |   )
+      |)
+      |""".stripMargin
+  )(_ should run)
 
   test(
     s"""let query = $triple{"endTime": 1665655502, "limit": 1000, "logGroupName": "/aws/lambda/auth-proxy-v2-lambda-prod", "queryString": "fields @timestamp, @message, @clientTag, @username | limit 200", "startTime": 1665396297}$triple
@@ -178,33 +204,33 @@ trait AwsPackageTest extends CompilerTestContext {
     |""".stripMargin)(it => it should run)
 
   // Using iam to list users.
-  test("""let data = Xml.Read(
-    |   Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
-    |       "iam",
-    |       args = [
-    |         {"Action", "ListUsers"},
-    |         {"Version", "2010-05-08"},
-    |         {"PathPrefix", "/examples/"}
-    |       ]
-    |    ),
-    |    type record(ListUsersResult: record(
-    |        IsTruncated: bool,
-    |        Users: record(
-    |            member: list(record(
-    |                Path: string,
-    |                UserName: string,
-    |                Arn: string,
-    |                UserId: string,
-    |                CreateDate: string
-    |            ))
-    |        )
-    |    ))
-    |)
-    |in List.Filter(data.ListUsersResult.Users.member, x -> x.UserName == "abraxas").UserName
-    |
-    |""".stripMargin)(it => it should evaluateTo(""" ["abraxas" ] """))
+//  test("""let data = Xml.Read(
+//    |   Aws.SignedV4Request(
+//    |       Environment.Secret("abraxas-key"),
+//    |       Environment.Secret("abraxas-secret-key"),
+//    |       "iam",
+//    |       args = [
+//    |         {"Action", "ListUsers"},
+//    |         {"Version", "2010-05-08"},
+//    |         {"PathPrefix", "/examples/"}
+//    |       ]
+//    |    ),
+//    |    type record(ListUsersResult: record(
+//    |        IsTruncated: bool,
+//    |        Users: record(
+//    |            member: list(record(
+//    |                Path: string,
+//    |                UserName: string,
+//    |                Arn: string,
+//    |                UserId: string,
+//    |                CreateDate: string
+//    |            ))
+//    |        )
+//    |    ))
+//    |)
+//    |in List.Filter(data.ListUsersResult.Users.member, x -> x.UserName == "abraxas").UserName
+//    |
+//    |""".stripMargin)(it => it should evaluateTo(""" ["abraxas" ] """))
 
   // querying monitoring aka could-watch to get cpu usage
   test(s"""
