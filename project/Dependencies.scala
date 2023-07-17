@@ -34,8 +34,8 @@ object Dependencies {
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.0"
 
   val kiama = Seq(
-    "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.0",
-    "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.0"
+    "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.1",
+    "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.1"
   )
 
   val ehCache = "org.ehcache" % "ehcache" % "3.10.6"
