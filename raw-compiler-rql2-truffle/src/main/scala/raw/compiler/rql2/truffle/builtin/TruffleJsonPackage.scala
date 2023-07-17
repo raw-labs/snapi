@@ -19,15 +19,9 @@ import raw.compiler.rql2.builtin.{ParseJsonEntry, PrintJsonEntry, ReadJsonEntry}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ast.expressions.literals.StringNode
-import raw.runtime.truffle.ast.json.reader.{
-  JsonParseNode,
-  JsonPrintNode,
-  JsonReadCollectionNode,
-  JsonReadValueNode,
-  TryableTopLevelWrapper
-}
-import raw.runtime.truffle.ast.json.reader.parser._
-import raw.runtime.truffle.ast.json.writer.internal._
+import raw.runtime.truffle.ast.io.json.reader.parser._
+import raw.runtime.truffle.ast.io.json.reader._
+import raw.runtime.truffle.ast.io.json.writer.internal._
 import raw.runtime.truffle.ast.{ProgramExpressionNode, ProgramStatementNode}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
 

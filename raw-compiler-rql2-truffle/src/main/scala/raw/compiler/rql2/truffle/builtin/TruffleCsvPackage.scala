@@ -15,78 +15,15 @@ package raw.compiler.rql2.truffle.builtin
 import com.oracle.truffle.api.frame.FrameDescriptor
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{CsvParseEntry, CsvReadEntry}
-import raw.compiler.rql2.source.{
-  Rql2BinaryType,
-  Rql2BoolType,
-  Rql2ByteType,
-  Rql2DateType,
-  Rql2DecimalType,
-  Rql2DoubleType,
-  Rql2FloatType,
-  Rql2IntType,
-  Rql2IsNullableTypeProperty,
-  Rql2IsTryableTypeProperty,
-  Rql2IterableType,
-  Rql2ListType,
-  Rql2LongType,
-  Rql2RecordType,
-  Rql2ShortType,
-  Rql2StringType,
-  Rql2TimeType,
-  Rql2TimestampType,
-  Rql2TypeWithProperties
-}
+import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
-import raw.runtime.truffle.ast.{ProgramExpressionNode, ProgramStatementNode}
-import raw.runtime.truffle.ast.csv.reader.parser.{
-  BoolParseCsvNode,
-  DateParseCsvNode,
-  DecimalParseCsvNode,
-  DoubleParseCsvNode,
-  FloatParseCsvNode,
-  IntParseCsvNode,
-  IterableParseCsvFile,
-  IterableParseCsvString,
-  OptionBoolParseCsvNode,
-  OptionByteParseCsvNode,
-  OptionDateParseCsvNode,
-  OptionDecimalParseCsvNode,
-  OptionDoubleParseCsvNode,
-  OptionFloatParseCsvNode,
-  OptionIntParseCsvNode,
-  OptionLongParseCsvNode,
-  OptionShortParseCsvNode,
-  OptionStringParseCsvNode,
-  OptionTimeParseCsvNode,
-  OptionTimestampParseCsvNode,
-  RecordParseCsvNode,
-  StringParseCsvNode,
-  TimeParseCsvNode,
-  TimestampParseCsvNode,
-  TryableParseCsvNode
-}
-import raw.runtime.truffle.ast.csv.writer.internal.{
-  BinaryWriteCsvNode,
-  BoolWriteCsvNode,
-  ByteWriteCsvNode,
-  DateWriteCsvNode,
-  DecimalWriteCsvNode,
-  DoubleWriteCsvNode,
-  FloatWriteCsvNode,
-  IntWriteCsvNode,
-  LongWriteCsvNode,
-  NullableWriteCsvNode,
-  RecordWriteCsvNode,
-  ShortWriteCsvNode,
-  StringWriteCsvNode,
-  TimeWriteCsvNode,
-  TimestampWriteCsvNode,
-  TryableWriteCsvNode
-}
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode
 import raw.runtime.truffle.ast.expressions.literals.{IntNode, StringNode}
 import raw.runtime.truffle.ast.expressions.option.OptionSomeNodeGen
+import raw.runtime.truffle.ast.io.csv.reader.parser._
+import raw.runtime.truffle.ast.io.csv.writer.internal._
+import raw.runtime.truffle.ast.{ProgramExpressionNode, ProgramStatementNode}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
 
 class TruffleCsvReadEntry extends CsvReadEntry with TruffleEntryExtension {
 

@@ -13,7 +13,7 @@
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.ast.jdbc.JdbcQuery;
+import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 import java.sql.SQLException;

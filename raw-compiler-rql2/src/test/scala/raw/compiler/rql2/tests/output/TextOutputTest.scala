@@ -32,4 +32,15 @@ trait TextOutputTest extends CompilerTestContext {
     }
   }
 
+  test(""" 3 """) { it =>
+    val tmpFile = Files.createTempFile("", "")
+    try {
+      it should saveTo(tmpFile)
+    } catch {
+      case e: Exception => assert(e.getMessage == "didn't run due to semantic errors:\nunsupported type")
+    } finally {
+      Files.delete(tmpFile)
+    }
+  }
+
 }
