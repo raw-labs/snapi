@@ -381,8 +381,7 @@ lazy val rawSourcesSnowflake = (project in file("raw-sources-snowflake"))
 lazy val rawSourcesSqlite = (project in file("raw-sources-sqlite"))
   .dependsOn(rawSourcesApi % "compile->compile;test->test")
   .settings(
-    strictBuildSettings,
-    libraryDependencies ++= Seq(sqliteDeps)
+    strictBuildSettings
   )
 
 lazy val rawRuntimeApi = (project in file("raw-runtime-api"))
