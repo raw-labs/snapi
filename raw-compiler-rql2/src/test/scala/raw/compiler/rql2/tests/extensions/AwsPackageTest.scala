@@ -231,8 +231,8 @@ trait AwsPackageTest extends CompilerTestContext {
     |""".stripMargin)(it => it should evaluateTo(""" ["abraxas" ] """))
 
   // querying monitoring aka could-watch to get cpu usage
-  // this test is failing with Non-terminating decimal expansion; no exact representable decimal result.
-    test(s"""
+  // this test was failing with Non-terminating decimal expansion; no exact representable decimal result.
+  test(s"""
     |let query = Json.Print({
     |       StartTime: Timestamp.ToUnixTimestamp(Timestamp.Build(2022,10,11, 23, 0)),
     |       EndTime: Timestamp.ToUnixTimestamp(Timestamp.Build(2022,10,12, 23, 0)),

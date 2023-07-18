@@ -64,7 +64,19 @@ class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtens
 
     val region = maybeRegion.getOrElse(new StringNode("us-east-1"))
 
-    AwsV4SignedRequestNodeGen.create(key, secretKey, service, region, sessionToken, path, method, host, body, urlParams, headers)
+    AwsV4SignedRequestNodeGen.create(
+      key,
+      secretKey,
+      service,
+      region,
+      sessionToken,
+      path,
+      method,
+      host,
+      body,
+      urlParams,
+      headers
+    )
   }
 
 }
