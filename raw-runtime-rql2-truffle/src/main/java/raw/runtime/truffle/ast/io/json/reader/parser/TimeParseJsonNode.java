@@ -13,48 +13,23 @@
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
+import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 
-import java.io.IOException;
-import java.time.LocalTime;
-
 @NodeInfo(shortName = "TimeParseJson")
-public class TimeParseJsonNode extends ExpressionNode {
+@NodeChild(value = "format")
+public abstract class TimeParseJsonNode extends ExpressionNode {
 
-    @Child
-    private ExpressionNode format;
-
-    public TimeParseJsonNode(ExpressionNode format) {
-        this.format = format;
-    }
-
-    public Object executeGeneric(VirtualFrame frame) {
-        try {
-            Object[] args = frame.getArguments();
-            JsonParser parser = (JsonParser) args[0];
-            String format = this.format.executeString(frame);
-            return doParse(parser, format);
-        } catch (UnexpectedResultException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private TimeObject doParse(JsonParser parser, String format) {
-        try {
-            String text = parser.getText();
-            TimeObject time = new TimeObject(LocalTime.parse(text, DateTimeFormatCache.get(format)));
-            parser.nextToken();
-            return time;
-        } catch (IOException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
-        }
+    @Specialization
+    protected TimeObject doParse(VirtualFrame frame, String format, @Cached ParserOperations.ParseTimeJsonParserNode parse) {
+        Object[] args = frame.getArguments();
+        JsonParser parser = (JsonParser) args[0];
+        return parse.execute(parser, format);
     }
 }

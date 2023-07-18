@@ -13,31 +13,20 @@
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
-
-import java.io.IOException;
+import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
 
 @NodeInfo(shortName = "ShortParseJson")
-public class ShortParseJsonNode extends ExpressionNode {
+public abstract class ShortParseJsonNode extends ExpressionNode {
 
-    public Object executeGeneric(VirtualFrame frame) {
+    @Specialization
+    protected short doParse(VirtualFrame frame, @Cached ParserOperations.ParseShortJsonParserNode parse) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
-        return doParse(parser);
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private short doParse(JsonParser parser) {
-        try {
-            short v = parser.getShortValue();
-            parser.nextToken();
-            return v;
-        } catch (IOException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
-        }
+        return parse.execute(parser);
     }
 }

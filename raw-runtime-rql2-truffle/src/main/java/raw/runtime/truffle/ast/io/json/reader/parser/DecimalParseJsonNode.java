@@ -13,32 +13,22 @@
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
+import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
 
-import java.io.IOException;
 import java.math.BigDecimal;
 
 @NodeInfo(shortName = "DecimalParseJson")
-public class DecimalParseJsonNode extends ExpressionNode {
+public abstract class DecimalParseJsonNode extends ExpressionNode {
 
-    public Object executeGeneric(VirtualFrame frame) {
+    @Specialization
+    protected BigDecimal doParse(VirtualFrame frame, @Cached ParserOperations.ParseDecimalJsonParserNode parse) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
-        return doParse(parser);
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private BigDecimal doParse(JsonParser parser) {
-        try {
-            BigDecimal v = parser.getDecimalValue();
-            parser.nextToken();
-            return v;
-        } catch (IOException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
-        }
+        return parse.execute(parser);
     }
 }
