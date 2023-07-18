@@ -155,8 +155,6 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
                 canonicalQueryBuilder.deleteCharAt(canonicalQueryBuilder.length() - 1);
             }
 
-            String canonicalQueryString = canonicalQueryBuilder.toString();
-
             // Create the canonical headers and signed headers.
             // Header names must be trimmed and lowercase, and sorted in code point order from
             // low to high. Note that there is a trailing \n.
@@ -210,8 +208,6 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
                 signedHeadersBuilder.deleteCharAt(signedHeadersBuilder.length() - 1);
             }
 
-            String canonicalHeaders = canonicalHeadersBuilder.toString();
-
             // List of signed headers: lists the headers in the canonical_headers list, delimited with ";".
             String signedHeaders = signedHeadersBuilder.toString();
 
@@ -219,9 +215,9 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
             String canonicalRequest = method + "\n" +
                     path + "\n" +
-                    canonicalQueryString + "\n" +
-                    canonicalHeaders + "\n" +
-                    signedHeaders + "\n" +
+                    canonicalQueryBuilder + "\n" +
+                    canonicalHeadersBuilder + "\n" +
+                    signedHeadersBuilder + "\n" +
                     payloadHash;
 
             // Task 2: create string to sign
@@ -249,6 +245,10 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
             VectorBuilder<Tuple2<String, String>> newHeaders = new VectorBuilder<>();
             newHeaders.$plus$eq(new Tuple2<>("x-amz-date", amzdate));
             newHeaders.$plus$eq(new Tuple2<>("Authorization", authorizationHeader));
+            if (!sessionToken.equals("")) {
+                newHeaders.$plus$eq(new Tuple2<>("x-amz-security-token", sessionToken));
+            }
+
             VectorBuilder<Tuple2<String, String>> requestHeaders = newHeaders.$plus$plus$eq(headersParamsVec.result());
 
             // host is added automatically
