@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 
 import java.math.BigDecimal;
 
@@ -26,7 +26,10 @@ import java.math.BigDecimal;
 public abstract class DecimalParseJsonNode extends ExpressionNode {
 
     @Specialization
-    protected BigDecimal doParse(VirtualFrame frame, @Cached ParserOperations.ParseDecimalJsonParserNode parse) {
+    protected BigDecimal doParse(
+            VirtualFrame frame,
+            @Cached("create()") JsonParserNodes.ParseDecimalJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
         return parse.execute(parser);

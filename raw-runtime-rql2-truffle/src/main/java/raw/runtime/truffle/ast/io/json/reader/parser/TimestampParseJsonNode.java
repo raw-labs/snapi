@@ -19,7 +19,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
 @NodeInfo(shortName = "TimestampParseJson")
@@ -27,7 +27,11 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 public abstract class TimestampParseJsonNode extends ExpressionNode {
 
     @Specialization
-    protected TimestampObject doParse(VirtualFrame frame, String format, @Cached ParserOperations.ParseTimestampJsonParserNode parse) {
+    protected TimestampObject doParse(
+            VirtualFrame frame,
+            String format,
+            @Cached("create()") JsonParserNodes.ParseTimestampJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
         return parse.execute(parser, format);

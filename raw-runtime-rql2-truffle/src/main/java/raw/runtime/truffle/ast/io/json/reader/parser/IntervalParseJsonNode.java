@@ -18,14 +18,17 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 
 @NodeInfo(shortName = "IntervalParseJson")
 public abstract class IntervalParseJsonNode extends ExpressionNode {
 
     @Specialization
-    protected IntervalObject doParse(VirtualFrame frame, @Cached ParserOperations.ParseIntervalJsonParserNode parse) {
+    protected IntervalObject doParse(
+            VirtualFrame frame,
+            @Cached("create()") JsonParserNodes.ParseIntervalJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
         return parse.execute(parser);

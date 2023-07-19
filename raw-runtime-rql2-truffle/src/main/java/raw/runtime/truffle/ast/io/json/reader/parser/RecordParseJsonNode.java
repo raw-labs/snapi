@@ -14,7 +14,6 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
@@ -28,17 +27,15 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperationsFactory;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
-import java.io.IOException;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 
@@ -49,10 +46,16 @@ public class RecordParseJsonNode extends ExpressionNode {
     private DirectCallNode[] childDirectCalls;
 
     @Child
-    private ParserOperations.SkipNextJsonParserNode skipNode = ParserOperationsFactory.SkipNextJsonParserNodeGen.create();
+    private JsonParserNodes.SkipNextJsonParserNode skipNode = JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
 
     @Child
-    private ParserOperations.NextTokenJsonParserNode nextTokenNode = ParserOperationsFactory.NextTokenJsonParserNodeGen.create();
+    private JsonParserNodes.CurrentFieldJsonParserNode currentFieldNode = JsonParserNodesFactory.CurrentFieldJsonParserNodeGen.create();
+
+    @Child
+    private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode = JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.create();
+
+    @Child
+    private JsonParserNodes.NextTokenJsonParserNode nextTokenNode = JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
     @Child
     private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
@@ -80,15 +83,15 @@ public class RecordParseJsonNode extends ExpressionNode {
 
         BitSet currentBitSet = new BitSet(this.fieldsSize);
 
-        if (getCurrentToken(parser) != JsonToken.START_OBJECT) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_OBJECT.asString(), getCurrentToken(parser).toString(), this);
+        if (currentTokenNode.execute(parser) != JsonToken.START_OBJECT) {
+            throw new JsonUnexpectedTokenException(JsonToken.START_OBJECT.asString(), currentTokenNode.execute(parser).toString(), this);
         }
         nextTokenNode.execute(parser);
 
         RecordObject record = RawLanguage.get(this).createRecord();
         try {
-            while (getCurrentToken(parser) != JsonToken.END_OBJECT) {
-                String fieldName = getCurrentFieldName(parser);
+            while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
+                String fieldName = currentFieldNode.execute(parser);
                 Integer index = fieldNamesMap.get(fieldName);
                 nextTokenNode.execute(parser); // skip the field name
                 if (index != null) {
@@ -127,20 +130,6 @@ public class RecordParseJsonNode extends ExpressionNode {
 
         }
         return record;
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private String getCurrentFieldName(JsonParser parser) {
-        try {
-            return parser.getCurrentName();
-        } catch (IOException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private JsonToken getCurrentToken(JsonParser parser) {
-        return parser.getCurrentToken();
     }
 
 }

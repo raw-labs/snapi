@@ -19,7 +19,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 
 @NodeInfo(shortName = "TimeParseJson")
@@ -27,7 +27,11 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 public abstract class TimeParseJsonNode extends ExpressionNode {
 
     @Specialization
-    protected TimeObject doParse(VirtualFrame frame, String format, @Cached ParserOperations.ParseTimeJsonParserNode parse) {
+    protected TimeObject doParse(
+            VirtualFrame frame,
+            String format,
+            @Cached("create()") JsonParserNodes.ParseTimeJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
         return parse.execute(parser, format);

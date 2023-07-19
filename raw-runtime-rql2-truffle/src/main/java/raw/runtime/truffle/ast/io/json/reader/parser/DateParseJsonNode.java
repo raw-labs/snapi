@@ -19,7 +19,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.primitives.DateObject;
 
 @NodeInfo(shortName = "DateParseJson")
@@ -27,7 +27,11 @@ import raw.runtime.truffle.runtime.primitives.DateObject;
 public abstract class DateParseJsonNode extends ExpressionNode {
 
     @Specialization
-    protected DateObject doParse(VirtualFrame frame, String format, @Cached ParserOperations.ParseDateJsonParserNode parse) {
+    protected DateObject doParse(
+            VirtualFrame frame,
+            String format,
+            @Cached("create()") JsonParserNodes.ParseDateJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
         return parse.execute(parser, format);

@@ -18,13 +18,16 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 
 @NodeInfo(shortName = "ShortParseJson")
 public abstract class ShortParseJsonNode extends ExpressionNode {
 
     @Specialization
-    protected short doParse(VirtualFrame frame, @Cached ParserOperations.ParseShortJsonParserNode parse) {
+    protected short doParse(
+            VirtualFrame frame,
+            @Cached("create()") JsonParserNodes.ParseShortJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
         return parse.execute(parser);
