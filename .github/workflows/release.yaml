@@ -1,0 +1,30 @@
+name: release
+on:
+  repository_dispatch:
+    types: [release]
+jobs:
+  code-checks:
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.client_payload.ref }}
+      - run: ./rebuild.sh
+      - run: sbt buildSnapi
+      - uses: softprops/action-gh-release@v1
+        with:
+          token: "${{ secrets.RAW_CI_PAT }}"
+          generate_release_notes: true
+          fail_on_unmatched_files	: true
+          draft: false
+          prerelease: false
+          tag_name: ${{ github.event.client_payload.tag }}
+          files: |
+            ./licenses/BSL.txt
+            ./raw-cli/target/scala-2.12/raw-cli-assembly*.jar
