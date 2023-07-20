@@ -39,7 +39,7 @@ jobs:
       name: evaluate produced version
       shell: bash
       run: |
-        sbt version > version_output.txt 2>&1
+        sbt -Dsbt.log.noformat=true version > version_output.txt 2>&1
         echo "DYNVER=$(awk -F '\t' '/\t[[:digit:]]/ {print $2}' version_output.txt | tail -n 1 | awk '{$1=$1;print}')" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
