@@ -1,10 +1,6 @@
 package raw.runtime.truffle.ast.io.json.writer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.core.JsonToken;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -12,21 +8,16 @@ import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.primitives.DateObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
@@ -38,7 +29,6 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.Base64;
 
 public final class JsonWriteNodes {
@@ -424,116 +414,116 @@ public final class JsonWriteNodes {
             }
         }
 
-//        @Specialization(guards = {"typeGuard(parser) == OBJECT"})
-//        protected RecordObject doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseAnyJsonParserNode parse,
-//                @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken,
-//                @Cached("create()") JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-//                @Cached("create()") JsonParserNodes.CurrentFieldJsonParserNode currentField,
-//                @CachedLibrary(limit = "3") InteropLibrary records
-//        ) {
-//            if (currentToken.execute(parser) != JsonToken.START_OBJECT) {
-//                throw new JsonUnexpectedTokenException(JsonToken.START_OBJECT.asString(), currentToken.execute(parser).toString(), this);
-//            }
-//
-//            nextToken.execute(parser);
-//
-//            RecordObject record = RawLanguage.get(this).createRecord();
-//            try {
-//                while (currentToken.execute(parser) != JsonToken.END_OBJECT) {
-//                    String fieldName = currentField.execute(parser);
-//                    nextToken.execute(parser); // skip the field name
-//                    records.writeMember(record, fieldName, parse.execute(parser));
-//                }
-//                nextToken.execute(parser); // skip the END_OBJECT token
-//            } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-//                throw new RawTruffleInternalErrorException(e, this);
-//            }
-//            return record;
-//        }
-//
-//        @Specialization(guards = {"typeGuard(parser) == STRING"})
-//        protected String doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseStringJsonParserNode parse
-//        ) {
-//            // (az) to do maybe add some logic to parse dates
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"typeGuard(parser) == BINARY"})
-//        protected byte[] doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseBinaryJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"typeGuard(parser) == BOOLEAN"})
-//        protected boolean doParseBoolean(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseBooleanJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"isShort(parser)"})
-//        protected short doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseShortJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"isInteger(parser)"})
-//        protected int doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseIntJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"isLong(parser)"})
-//        protected long doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseLongJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"isFloat(parser)"})
-//        protected float doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseFloatJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"isDouble(parser)"})
-//        protected double doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseDoubleJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"isDecimal(parser)"})
-//        protected BigDecimal doParse(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.ParseDecimalJsonParserNode parse
-//        ) {
-//            return parse.execute(parser);
-//        }
-//
-//        @Specialization(guards = {"typeGuard(parser) == MISSING || typeGuard(parser) == NULL"})
-//        protected Object writeNull(
-//                JsonParser parser,
-//                @Cached("create()") JsonParserNodes.SkipNextJsonParserNode skip
-//        ) {
-//            skip.execute(parser);
-//            return new EmptyOption();
-//        }
+        @Specialization(limit = "3")
+        protected void doParseList(
+                RecordObject record,
+                JsonGenerator gen,
+                @Cached("create()") WriteAnyJsonParserNode writeAny,
+                @CachedLibrary(limit = "3") InteropLibrary interops
+        ) {
+            try {
+                Object keys = interops.getMembers(record);
+                int size = (int) interops.getArraySize(keys);
+
+                Object member;
+                for (int i = 0; i < size; i++) {
+                    member = interops.readMember(record, (String) interops.readArrayElement(keys, i));
+                    writeAny.execute(member, gen);
+                }
+            } catch (UnsupportedMessageException | InvalidArrayIndexException | UnknownIdentifierException e) {
+                throw new RawTruffleInternalErrorException(e);
+            }
+        }
+
+        @Specialization
+        protected void doWrite(
+                String str,
+                JsonGenerator gen,
+                @Cached("create()") WriteStringJsonWriterNode write
+        ) {
+            write.execute(str, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                byte[] binary,
+                JsonGenerator gen,
+                @Cached("create()") WriteBinaryJsonWriterNode write
+        ) {
+            write.execute(binary, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                boolean bool,
+                JsonGenerator gen,
+                @Cached("create()") WriteBooleanJsonWriterNode write
+        ) {
+            write.execute(bool, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                short num,
+                JsonGenerator gen,
+                @Cached("create()") WriteShortJsonWriterNode write
+        ) {
+            write.execute(num, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                int num,
+                JsonGenerator gen,
+                @Cached("create()") WriteIntJsonWriterNode write
+        ) {
+            write.execute(num, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                long num,
+                JsonGenerator gen,
+                @Cached("create()") WriteLongJsonWriterNode write
+        ) {
+            write.execute(num, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                float num,
+                JsonGenerator gen,
+                @Cached("create()") WriteFloatJsonWriterNode write
+        ) {
+            write.execute(num, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                double num,
+                JsonGenerator gen,
+                @Cached("create()") WriteDoubleJsonWriterNode write
+        ) {
+            write.execute(num, gen);
+        }
+
+        @Specialization
+        protected void doWrite(
+                BigDecimal num,
+                JsonGenerator gen,
+                @Cached("create()") WriteDecimalJsonWriterNode write
+        ) {
+            write.execute(num, gen);
+        }
+
+        @Specialization(guards = "nullObj == null")
+        protected void doWrite(
+                Object nullObj,
+                JsonGenerator gen,
+                @Cached("create()") WriteNullJsonWriterNode write
+        ) {
+            write.execute(gen);
+        }
 
     }
 
