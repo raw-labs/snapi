@@ -59,6 +59,12 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
+    - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+      uses: peter-evans/repository-dispatch@v2
+      with:
+        token: ${{ secrets.RAW_CI_PAT }}
+        event-type: release
+        client-payload: '{"ref": "${{ github.ref }}", "tag": "${{ github.ref_name }}"}'
     - if: success() && github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
       with:
