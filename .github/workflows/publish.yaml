@@ -40,7 +40,7 @@ jobs:
       shell: bash
       run: |
         sbt version > version_output.txt 2>&1
-        echo "DYNVER=$(awk -F '\t' '/\t[[:digit:]]/ {print $2}' version_output.txt | tail -n 1)" >> $GITHUB_ENV
+        echo "DYNVER=$(awk -F '\t' '/\t[[:digit:]]/ {print $2}' version_output.txt | tail -n 1 | awk '{$1=$1;print}')" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
       with:
@@ -67,8 +67,7 @@ jobs:
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
           > published
-          > run [${{ github.run_id }}][1] success :heavy_check_mark:
-          > [1]: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) success :heavy_check_mark:
         reactions: hooray
     - if: failure() && github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
@@ -77,6 +76,5 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > run [${{ github.run_id }}][1] failed :x:
-          > [1]: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed :x:
         reactions: confused
