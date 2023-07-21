@@ -31,7 +31,7 @@ class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtens
     val service = args(2).e
 
     val maybeRegion = args.collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "region" => e }
-
+    val maybeSessionToken = args.collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "sessionToken" => e }
     val method =
       args.collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "method" => e }.getOrElse(new StringNode("GET"))
 
@@ -57,11 +57,26 @@ class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtens
 
     val headers = args
       .collectFirst { case TruffleArg(e, _, Some(idn)) if idn == "headers" => e }
-      .getOrElse(new ListBuildNode(Rql2ListType(Rql2RecordType(Vector.empty)), Array()))
+      .getOrElse(new ListBuildNode(Rql2ListType(Rql2RecordType(Vector())), Array()))
+
+    val sessionToken = maybeSessionToken
+      .getOrElse(new StringNode(""))
 
     val region = maybeRegion.getOrElse(new StringNode("us-east-1"))
 
-    AwsV4SignedRequestNodeGen.create(key, secretKey, service, region, path, method, host, body, urlParams, headers)
+    AwsV4SignedRequestNodeGen.create(
+      key,
+      secretKey,
+      service,
+      region,
+      sessionToken,
+      path,
+      method,
+      host,
+      body,
+      urlParams,
+      headers
+    )
   }
 
 }
