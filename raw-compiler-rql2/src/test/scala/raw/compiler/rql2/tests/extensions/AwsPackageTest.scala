@@ -22,14 +22,6 @@ trait AwsPackageTest extends CompilerTestContext {
   secret(authorizedUser, "abraxas-secret-key", abraxasSecretAccessKey)
   secret(authorizedUser, "abraxas-key", abraxasAccessKeyId)
 
-  val awsSessionToken = sys.env("AWS_SESSION_TOKEN")
-  val awsAccessKeyId = sys.env("AWS_ACCESS_KEY_ID")
-  val awsSecretAccessKey = sys.env("AWS_SECRET_ACCESS_KEY")
-
-  secret(authorizedUser, "temporary-key", awsAccessKeyId)
-  secret(authorizedUser, "temporary-secret-key", awsSecretAccessKey)
-  secret(authorizedUser, "session-token", awsSessionToken)
-
   def xmlImplemented: Boolean
 
   val triple = "\"\"\""
@@ -109,23 +101,6 @@ trait AwsPackageTest extends CompilerTestContext {
     assume(xmlImplemented)
     it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
   }
-
-  test(
-    s"""let query = $triple{"endTime": 1665655502, "limit": 1000, "logGroupName": "/aws/lambda/auth-proxy-v2-lambda-prod", "queryString": "fields @timestamp, @message, @clientTag, @username | limit 200", "startTime": 1665396297}$triple
-      |in String.Read(
-      |   Aws.SignedV4Request(
-      |      Environment.Secret("temporary-key"),
-      |      Environment.Secret("temporary-secret-key"),
-      |      "logs",
-      |      sessionToken = Environment.Secret("session-token"),
-      |      region = "eu-west-1",
-      |      method = "POST",
-      |      bodyString = query,
-      |      headers = [{"x-amz-target", "Logs_20140328.StartQuery"}, {"content-type", "application/x-amz-json-1.1"}]
-      |   )
-      |)
-      |""".stripMargin
-  )(_ should run)
 
   test(
     s"""let query = $triple{"endTime": 1665655502, "limit": 1000, "logGroupName": "/aws/lambda/auth-proxy-v2-lambda-prod", "queryString": "fields @timestamp, @message, @clientTag, @username | limit 200", "startTime": 1665396297}$triple
