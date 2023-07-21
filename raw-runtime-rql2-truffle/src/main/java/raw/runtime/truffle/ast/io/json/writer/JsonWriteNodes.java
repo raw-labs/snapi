@@ -403,33 +403,46 @@ public final class JsonWriteNodes {
         public abstract void execute(Object value, JsonGenerator gen);
 
         @Specialization
-        protected void doParseList(
+        protected void doWriteList(
                 ObjectList list,
                 JsonGenerator gen,
+                @Cached("create()") WriteStartArrayJsonWriterNode startArray,
+                @Cached("create()") WriteEndArrayJsonWriterNode endArray,
                 @Cached("create()") WriteAnyJsonParserNode writeAny
         ) {
             Object[] objList = list.getInnerList();
+
+            startArray.execute(gen);
             for (Object o : objList) {
                 writeAny.execute(o, gen);
             }
+            endArray.execute(gen);
         }
 
         @Specialization(limit = "3")
-        protected void doParseList(
+        protected void doWriteRecord(
                 RecordObject record,
                 JsonGenerator gen,
                 @Cached("create()") WriteAnyJsonParserNode writeAny,
+                @Cached("create()") WriteFieldNameJsonWriterNode writeField,
+                @Cached("create()") WriteStartObjectJsonWriterNode startObject,
+                @Cached("create()") WriteEndObjectJsonWriterNode endObject,
                 @CachedLibrary(limit = "3") InteropLibrary interops
         ) {
             try {
                 Object keys = interops.getMembers(record);
                 int size = (int) interops.getArraySize(keys);
 
+                startObject.execute(gen);
+                String fieldName;
                 Object member;
                 for (int i = 0; i < size; i++) {
-                    member = interops.readMember(record, (String) interops.readArrayElement(keys, i));
+                    fieldName = (String) interops.readArrayElement(keys, i);
+                    writeField.execute(fieldName, gen);
+                    member = interops.readMember(record, fieldName);
                     writeAny.execute(member, gen);
                 }
+                endObject.execute(gen);
             } catch (UnsupportedMessageException | InvalidArrayIndexException | UnknownIdentifierException e) {
                 throw new RawTruffleInternalErrorException(e);
             }

@@ -16,8 +16,6 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLogger;
@@ -476,80 +474,81 @@ public final class JsonParserNodes {
 
         public abstract Object execute(JsonParser parser);
 
-        public enum SnapiNumbers {
-            SHORT,
-            INTEGER,
-            LONG,
-            FLOAT,
-            DOUBLE,
-            DECIMAL
+        public boolean isArray(JsonParser parser) {
+            JsonToken token = parser.getCurrentToken();
+            return token == JsonToken.START_ARRAY;
         }
 
+        public boolean isObject(JsonParser parser) {
+            JsonToken token = parser.getCurrentToken();
+            return token == JsonToken.START_OBJECT;
+        }
 
-        private final ObjectMapper mapper = new ObjectMapper();
+        public boolean isString(JsonParser parser) {
+            JsonToken token = parser.getCurrentToken();
+            return token == JsonToken.VALUE_STRING;
+        }
 
-        public JsonNodeType typeGuard(JsonParser parser) {
+        public boolean isBinary(JsonParser parser) {
+            return false;
+        }
+
+        public boolean isBoolean(JsonParser parser) {
+            JsonToken token = parser.getCurrentToken();
+            return token.isBoolean();
+        }
+
+        public boolean isInt(JsonParser parser) {
             try {
-                JsonNode tree = mapper.readTree(parser);
-                return tree.getNodeType();
+                JsonToken token = parser.getCurrentToken();
+                return token.isNumeric() && parser.getNumberType() == JsonParser.NumberType.INT;
             } catch (IOException e) {
                 throw new JsonParserRawTruffleException(e.getMessage(), e, this);
             }
-        }
-
-        public SnapiNumbers numberTypeGuard(JsonParser parser) {
-            try {
-                JsonNode tree = mapper.readTree(parser);
-                if (tree.isShort()) {
-                    return SnapiNumbers.SHORT;
-                }
-                if (tree.isInt()) {
-                    return SnapiNumbers.INTEGER;
-                }
-                if (tree.isLong()) {
-                    return SnapiNumbers.LONG;
-                }
-                if (tree.isFloat()) {
-                    return SnapiNumbers.FLOAT;
-                }
-                if (tree.isDouble()) {
-                    return SnapiNumbers.DOUBLE;
-                }
-                if (tree.isBigDecimal()) {
-                    return SnapiNumbers.DECIMAL;
-                } else {
-                    throw new JsonParserRawTruffleException("not supported numeric value", this);
-                }
-            } catch (IOException e) {
-                throw new JsonParserRawTruffleException(e.getMessage(), e, this);
-            }
-        }
-
-        public boolean isShort(JsonParser parser) {
-            return typeGuard(parser) == JsonNodeType.NUMBER && numberTypeGuard(parser) == SnapiNumbers.SHORT;
-        }
-
-        public boolean isInteger(JsonParser parser) {
-            return typeGuard(parser) == JsonNodeType.NUMBER && numberTypeGuard(parser) == SnapiNumbers.INTEGER;
         }
 
         public boolean isLong(JsonParser parser) {
-            return typeGuard(parser) == JsonNodeType.NUMBER && numberTypeGuard(parser) == SnapiNumbers.LONG;
+            try {
+                JsonToken token = parser.getCurrentToken();
+                return token.isNumeric() && parser.getNumberType() == JsonParser.NumberType.LONG;
+            } catch (IOException e) {
+                throw new JsonParserRawTruffleException(e.getMessage(), e, this);
+            }
         }
 
         public boolean isFloat(JsonParser parser) {
-            return typeGuard(parser) == JsonNodeType.NUMBER && numberTypeGuard(parser) == SnapiNumbers.FLOAT;
+            try {
+                JsonToken token = parser.getCurrentToken();
+                return token.isNumeric() && parser.getNumberType() == JsonParser.NumberType.FLOAT;
+            } catch (IOException e) {
+                throw new JsonParserRawTruffleException(e.getMessage(), e, this);
+            }
         }
 
         public boolean isDouble(JsonParser parser) {
-            return typeGuard(parser) == JsonNodeType.NUMBER && numberTypeGuard(parser) == SnapiNumbers.DOUBLE;
+            try {
+                JsonToken token = parser.getCurrentToken();
+                return token.isNumeric() && parser.getNumberType() == JsonParser.NumberType.DOUBLE;
+            } catch (IOException e) {
+                throw new JsonParserRawTruffleException(e.getMessage(), e, this);
+            }
         }
 
         public boolean isDecimal(JsonParser parser) {
-            return typeGuard(parser) == JsonNodeType.NUMBER && numberTypeGuard(parser) == SnapiNumbers.DECIMAL;
+            try {
+                JsonToken token = parser.getCurrentToken();
+                return token.isNumeric() && parser.getNumberType() == JsonParser.NumberType.BIG_DECIMAL;
+            } catch (IOException e) {
+                throw new JsonParserRawTruffleException(e.getMessage(), e, this);
+            }
         }
 
-        @Specialization(guards = {"typeGuard(parser) == ARRAY"})
+        public boolean isNull(JsonParser parser) {
+            JsonToken token = parser.getCurrentToken();
+            return token == JsonToken.VALUE_NULL;
+        }
+
+        @Specialization(guards = {"isArray(parser)"})
         protected ObjectList doParseList(
                 JsonParser parser,
                 @Cached("create()") ParseAnyJsonParserNode parse,
@@ -575,7 +574,7 @@ public final class JsonParserNodes {
             return new ObjectList(result);
         }
 
-        @Specialization(guards = {"typeGuard(parser) == OBJECT"})
+        @Specialization(guards = {"isObject(parser)"})
         protected RecordObject doParse(
                 JsonParser parser,
                 @Cached("create()") ParseAnyJsonParserNode parse,
@@ -604,7 +603,7 @@ public final class JsonParserNodes {
             return record;
         }
 
-        @Specialization(guards = {"typeGuard(parser) == STRING"})
+        @Specialization(guards = {"isString(parser)"})
         protected String doParse(
                 JsonParser parser,
                 @Cached("create()") JsonParserNodes.ParseStringJsonParserNode parse
@@ -613,7 +612,7 @@ public final class JsonParserNodes {
             return parse.execute(parser);
         }
 
-        @Specialization(guards = {"typeGuard(parser) == BINARY"})
+        @Specialization(guards = {"isBinary(parser)"})
         protected byte[] doParse(
                 JsonParser parser,
                 @Cached("create()") JsonParserNodes.ParseBinaryJsonParserNode parse
@@ -621,7 +620,7 @@ public final class JsonParserNodes {
             return parse.execute(parser);
         }
 
-        @Specialization(guards = {"typeGuard(parser) == BOOLEAN"})
+        @Specialization(guards = {"isBoolean(parser)"})
         protected boolean doParseBoolean(
                 JsonParser parser,
                 @Cached("create()") JsonParserNodes.ParseBooleanJsonParserNode parse
@@ -629,15 +628,15 @@ public final class JsonParserNodes {
             return parse.execute(parser);
         }
 
-        @Specialization(guards = {"isShort(parser)"})
-        protected short doParse(
-                JsonParser parser,
-                @Cached("create()") JsonParserNodes.ParseShortJsonParserNode parse
-        ) {
-            return parse.execute(parser);
-        }
+//        @Specialization(guards = {"isShort(parser)"})
+//        protected short doParse(
+//                JsonParser parser,
+//                @Cached("create()") JsonParserNodes.ParseShortJsonParserNode parse
+//        ) {
+//            return parse.execute(parser);
+//        }
 
-        @Specialization(guards = {"isInteger(parser)"})
+        @Specialization(guards = {"isInt(parser)"})
         protected int doParse(
                 JsonParser parser,
                 @Cached("create()") JsonParserNodes.ParseIntJsonParserNode parse
@@ -677,7 +676,7 @@ public final class JsonParserNodes {
             return parse.execute(parser);
         }
 
-        @Specialization(guards = {"typeGuard(parser) == MISSING || typeGuard(parser) == NULL"})
+        @Specialization(guards = {"isNull(parser)"})
         protected Object writeNull(
                 JsonParser parser,
                 @Cached("create()") JsonParserNodes.SkipNextJsonParserNode skip
