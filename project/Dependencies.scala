@@ -10,8 +10,6 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % scalacVersion
   )
 
-  val awsSdk = "software.amazon.awssdk" % "aws-sdk-java" % "2.20.26"
-
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.429"
 
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
