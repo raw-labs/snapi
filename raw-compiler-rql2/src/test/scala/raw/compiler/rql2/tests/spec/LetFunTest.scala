@@ -236,4 +236,10 @@ trait LetFunTest extends CompilerTestContext {
     |in f(false)
     |""".stripMargin)(it => it should typeErrorAs("""mandatory parameters must be before optional parameters"""))
 
+  // functions which default parameter value is dynamic
+  test("""let numbers = [1,2,3,4],
+    |    functions = List.Transform(numbers, n -> let f(x: int, v: int = n) = x * v in f)
+    |in List.Transform(functions, f -> f(10))
+    |""".stripMargin)(_ should evaluateTo("[10, 20, 30, 40]"))
+
 }

@@ -372,8 +372,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       val entity = analyzer.entity(i)
       val funcName = getFuncIdn(entity)
       val f = recurseFunProto(funcName, fp)
-      val functionLiteralNode = new ClosureNode(f)
-
+      val defaultArgs = for (p <- fp.ps) yield p.e.map(recurseExp).orNull
+      val functionLiteralNode = new ClosureNode(f, defaultArgs.toArray)
       // Only then add to slot.
       val slot = getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
       addSlot(entity, slot)
@@ -388,7 +388,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       addSlot(entity, slot)
 
       val f = recurseFunProto(funcName, fp)
-      val functionLiteralNode = new ClosureNode(f)
+      val defaultArgs = for (p <- fp.ps) yield p.e.map(recurseExp).orNull
+      val functionLiteralNode = new ClosureNode(f, defaultArgs.toArray)
       val stmt = WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null)
       stmt
   }
@@ -405,8 +406,9 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     val functionRootBody =
       new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
+    val argNames = fp.ps.map(_.i.idn).toArray
     RawLanguage.getCurrentContext.getFunctionRegistry
-      .register(name, rootCallTarget)
+      .register(name, argNames, rootCallTarget)
   }
 
   override def recurseLambda(buildBody: () => ExpressionNode): ClosureNode = {
@@ -424,9 +426,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
     val f = RawLanguage.getCurrentContext.getFunctionRegistry
-      .register(name, rootCallTarget)
-
-    new ClosureNode(f)
+      .register(name, Array("x"), rootCallTarget)
+    new ClosureNode(f, Array.empty) // no default values for these lambdas
   }
 
   override def recurseExp(in: Exp): ExpressionNode = in match {
@@ -462,7 +463,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
           val funcName = getFuncIdn(b)
           val registry = RawLanguage.getCurrentContext.getFunctionRegistry
           val function = registry.getFunction(funcName)
-          new MethodRefNode(function)
+          val defaultArgs = for (p <- b.d.p.ps) yield p.e.map(recurseExp).orNull
+          new MethodRefNode(function, defaultArgs.toArray)
         case b: LetBindEntity =>
           val SlotLocation(depth, slot) = findSlot(b)
           if (depth == 0) {
@@ -502,7 +504,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     case FunAbs(fp) =>
       val funcName = getLambdaFuncIdn
       val f = recurseFunProto(funcName, fp)
-      new ClosureNode(f)
+      val defaultArgs = for (p <- fp.ps) yield p.e.map(recurseExp).orNull
+      new ClosureNode(f, defaultArgs.toArray)
     case f @ FunApp(e, args) if tipe(e).isInstanceOf[PackageEntryType] =>
       val t = tipe(f)
       val PackageEntryType(pkgName, entName) = tipe(e)
@@ -516,7 +519,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
             e.toTruffle(t, args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn)), this)
         }
         .getOrElse(throw new Exception(s"Could not find package entry: $pkgName.$entName"))
-    case FunApp(f, args) => new InvokeNode(recurseExp(f), args.map(arg => recurseExp(arg.e)).toArray)
+    case FunApp(f, args) =>
+      new InvokeNode(recurseExp(f), args.map(_.idn.orNull).toArray, args.map(arg => recurseExp(arg.e)).toArray)
   }
 
 }

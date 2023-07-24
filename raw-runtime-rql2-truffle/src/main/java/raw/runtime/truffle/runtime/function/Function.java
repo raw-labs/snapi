@@ -26,9 +26,12 @@ public final class Function implements TruffleObject {
 
     private final DirectCallNode callNode;
 
-    public Function(RootCallTarget callTarget) {
+    public final String[] argNames;
+
+    public Function(RootCallTarget callTarget, String[] argNames) {
         this.name = callTarget.getRootNode().getName();
         this.callNode = DirectCallNode.create(callTarget);
+        this.argNames = argNames;
     }
 
     public String getName() {
@@ -42,6 +45,7 @@ public final class Function implements TruffleObject {
 
     @ExportMessage
     Object execute(Object... arguments) {
+        assert(arguments.length == argNames.length);
         return callNode.call(arguments);
     }
 }

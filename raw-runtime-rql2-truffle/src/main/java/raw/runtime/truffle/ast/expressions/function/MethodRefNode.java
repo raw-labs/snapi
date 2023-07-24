@@ -21,14 +21,31 @@ import raw.runtime.truffle.runtime.function.Function;
 public final class MethodRefNode extends ExpressionNode {
 
     @CompilationFinal
-    private final Closure closure;
+    private final Function function;
+    private Closure closure = null;
+    private final ExpressionNode[] defaultArgumentExps;
 
-    public MethodRefNode(Function f) {
-        this.closure = new Closure(f, this);
+    public MethodRefNode(Function f, ExpressionNode[] defaultArgumentExps) {
+        this.function = f;
+        this.defaultArgumentExps = defaultArgumentExps;
     }
 
     @Override
     public Object executeGeneric(VirtualFrame virtualFrame) {
-        return this.closure;
+        if (closure == null) {
+            // compute the closure and its default arguments
+            // when called the first time
+            int nArgs = defaultArgumentExps.length;
+            Object[] defaultArguments = new Object[nArgs];
+            for (int i = 0; i < nArgs; i++) {
+                if (defaultArgumentExps[i] != null) {
+                    defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
+                } else {
+                    defaultArguments[i] = null;
+                }
+            }
+            closure = new Closure(this.function, defaultArguments, this);
+        }
+        return closure;
     }
 }
