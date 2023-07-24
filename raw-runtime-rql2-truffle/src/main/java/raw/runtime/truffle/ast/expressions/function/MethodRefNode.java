@@ -21,14 +21,14 @@ import raw.runtime.truffle.runtime.function.Function;
 public final class MethodRefNode extends ExpressionNode {
 
     @CompilationFinal
-    private final Function function;
+    private final Closure closure;
 
     public MethodRefNode(Function f) {
-        this.function = f;
+        this.closure = new Closure(f, this);
     }
 
     @Override
     public Object executeGeneric(VirtualFrame virtualFrame) {
-        return new Closure(this.function, virtualFrame, this);
+        return this.closure;
     }
 }

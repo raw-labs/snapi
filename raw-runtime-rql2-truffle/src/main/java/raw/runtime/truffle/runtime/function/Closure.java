@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.function;
 
-import com.oracle.truffle.api.frame.Frame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -22,17 +22,23 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
     private final Function function;
-    private final Frame frame;
+    private final MaterializedFrame frame;
 
     private final InteropLibrary interop;
 
     private final Node node;
 
-    public Closure(Function function, Frame frame, Node node) {
+    // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored and used later.
+    public Closure(Function function, MaterializedFrame frame, Node node) {
         this.function = function;
         this.frame = frame;
         this.node = node;
         this.interop = InteropLibrary.getFactory().create(function);
+    }
+
+    // for top-level functions. The internal 'frame' is null because it's never used to fetch values of free-variables.
+    public Closure(Function function, Node node) {
+        this(function, null, node);
     }
 
     public Object call(Object... arguments) {
