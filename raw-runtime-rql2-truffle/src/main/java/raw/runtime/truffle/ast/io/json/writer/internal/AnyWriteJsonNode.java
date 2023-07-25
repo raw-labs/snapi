@@ -19,7 +19,7 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 
-@NodeInfo(shortName = "BooleanWriteJson")
+@NodeInfo(shortName = "AnyWriteJson")
 public class AnyWriteJsonNode extends StatementNode {
 
     @Child
