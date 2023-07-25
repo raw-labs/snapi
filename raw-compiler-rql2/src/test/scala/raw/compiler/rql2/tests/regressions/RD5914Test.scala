@@ -19,10 +19,9 @@ trait RD5914Test extends CompilerTestContext {
   test("""let item1 = {name: "coffee machine", price: 200, price: 199}, // price is duplicated, price is an int
     |    item2 = {name: "coffee machine", price: 200.00, price: 199.99} // price is duplicated, price is a double
     |in [item1, item2] // item1 integer fields have to be cast to double
-    |""".stripMargin)(_ should evaluateTo(
-    """[
-      |{name: "coffee machine", price: 200.0, price: 199},
-      |{name: "coffee machine", price: 200.00, price: 199.99}
-      |]""".stripMargin))
+    |""".stripMargin)(_ should evaluateTo("""[
+    |{name: "coffee machine", price: 200.0, price: 199},
+    |{name: "coffee machine", price: 200.00, price: 199.99}
+    |]""".stripMargin))
 
 }

@@ -230,10 +230,9 @@ object JsonRecurse {
         val childRootNode = new ProgramStatementNode(lang, frameDescriptor, child)
         new IterableWriteJsonNode(childRootNode)
       case Rql2RecordType(atts, _) =>
-        val children = atts.map {
-          att =>
-            val child = recurse(att.tipe.asInstanceOf[Rql2TypeWithProperties], isSafe = true)
-            new ProgramStatementNode(lang, frameDescriptor, child)
+        val children = atts.map { att =>
+          val child = recurse(att.tipe.asInstanceOf[Rql2TypeWithProperties], isSafe = true)
+          new ProgramStatementNode(lang, frameDescriptor, child)
         }.toArray
         val fieldNames = atts.map(_.idn).toArray
         new RecordWriteJsonNode(children, fieldNames)
