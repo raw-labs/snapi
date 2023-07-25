@@ -26,6 +26,9 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import raw.runtime.truffle.RawLanguage;
 
+import java.util.HashMap;
+import java.util.Map;
+
 @ExportLibrary(InteropLibrary.class)
 public final class RecordObject extends DynamicObject implements TruffleObject {
 
@@ -37,7 +40,35 @@ public final class RecordObject extends DynamicObject implements TruffleObject {
 
     public RecordObject(Shape shape, String[] keys) {
         super(shape);
-        this.keys = keys;
+        Map<String, Boolean> keySet = new HashMap<>();
+        String[] internalKeys = null;
+        if (keys != null) {
+            // first put all keys in the map.
+            for (String key : keys) {
+                keySet.put(key, false);
+            }
+            int nKeys = keys.length;
+            internalKeys = new String[nKeys];
+            for (int i = 0; i < nKeys; i++) {
+                String key = keys[i];
+                Boolean wasSeen = keySet.get(key);
+                if (!wasSeen) {
+                    keySet.put(key, true);
+                    internalKeys[i] = key;
+                } else {
+                  // key is duplicated, find a new key.
+                    for (int n = 1; n <= nKeys ; n++) {
+                        String newKey = key + n;
+                        if (!keySet.containsKey(newKey)) {
+                            keySet.put(newKey, true);
+                            internalKeys[i] = newKey;
+                            break;
+                        }
+                    }
+                }
+            }
+        }
+        this.keys = internalKeys;
     }
 
     @ExportMessage

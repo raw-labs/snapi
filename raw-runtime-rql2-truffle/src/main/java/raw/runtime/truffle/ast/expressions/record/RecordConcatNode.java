@@ -32,20 +32,32 @@ public abstract class RecordConcatNode extends ExpressionNode {
                               @CachedLibrary("record1") InteropLibrary records1,
                               @CachedLibrary("record2") InteropLibrary records2,
                               @CachedLibrary(limit = "3") InteropLibrary libraries) {
-        RecordObject newRecord = RawLanguage.get(this).createRecord();
         try {
             Object keys1 = records1.getMembers(record1);
             Object keys2 = records2.getMembers(record2);
             long length1 = libraries.getArraySize(keys1);
             long length2 = libraries.getArraySize(keys2);
-            String member;
+            String[] keys = new String[(int) length1 + (int)length2];
+            int k = 0;
             for (int i = 0; i < length1; i++) {
-                member = (String) libraries.readArrayElement(keys1, i);
-                libraries.writeMember(newRecord, member, records1.readMember(record1, member));
+              keys[k++] = (String) libraries.readArrayElement(keys1, i);
             }
             for (int i = 0; i < length2; i++) {
-                member = (String) libraries.readArrayElement(keys2, i);
-                libraries.writeMember(newRecord, member, records2.readMember(record2, member));
+              keys[k++] = (String) libraries.readArrayElement(keys2, i);
+            }
+            RecordObject newRecord = RawLanguage.get(this).createRecord(keys);
+            Object members = libraries.getMembers(newRecord);
+            String member;
+            k = 0;
+            for (int i = 0; i < length1; i++) {
+                String originalMember = (String) libraries.readArrayElement(keys1, i);
+                member = (String)libraries.readArrayElement(members, k++);
+                libraries.writeMember(newRecord, member, records1.readMember(record1, originalMember));
+            }
+            for (int i = 0; i < length2; i++) {
+                String originalMember = (String) libraries.readArrayElement(keys2, i);
+                member = (String)libraries.readArrayElement(members, k++);
+                libraries.writeMember(newRecord, member, records2.readMember(record2, originalMember));
             }
             return newRecord;
         } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException |

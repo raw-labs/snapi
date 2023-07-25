@@ -27,7 +27,6 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 import java.io.IOException;
-import java.util.HashMap;
 
 public class RecordWriteJsonNode extends StatementNode {
 
@@ -37,14 +36,14 @@ public class RecordWriteJsonNode extends StatementNode {
     @Child
     private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(2);
 
-    private final HashMap<String, Integer> fieldNamesMap;
+    private final String[] fieldNames;
 
-    public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode, HashMap<String, Integer> fieldNamesMap) {
+    public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode, String[] fieldNames) {
         this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
         for (int i = 0; i < childProgramStatementNode.length; i++) {
             this.childDirectCalls[i] = DirectCallNode.create(childProgramStatementNode[i].getCallTarget());
         }
-        this.fieldNamesMap = fieldNamesMap;
+        this.fieldNames = fieldNames;
     }
 
     @Override
@@ -61,8 +60,8 @@ public class RecordWriteJsonNode extends StatementNode {
             for (int i = 0; i < length; i++) {
                 member = (String) interops.readArrayElement(keys, i);
                 item = interops.readMember(record, member);
-                writeFieldName(member, gen);
-                childDirectCalls[fieldNamesMap.get(member)].call(item, gen);
+                writeFieldName(fieldNames[i], gen);
+                childDirectCalls[i].call(item, gen);
             }
             writeEndObject(gen);
 

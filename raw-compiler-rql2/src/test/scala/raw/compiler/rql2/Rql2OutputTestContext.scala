@@ -115,9 +115,8 @@ trait Rql2OutputTestContext {
         //          throw new AssertionError("couldn't parse OrType with any parser")
         case Rql2RecordType(atts, _) if n.isObject =>
           // TODO (msb): Validate it's the actual type complying with our format
-          val m = mutable.LinkedHashMap[String, Any]()
-          atts.foreach { case Rql2AttrType(idn, t1) => m.put(idn, recurse(n.get(idn), t1)) }
-          m
+          val items = n.elements().asScala.toList
+          atts.zip(items).map { case (Rql2AttrType(idn, t1), v) => (idn, recurse(v, t1)) }
         case _: Rql2ListType | _: Rql2IterableType if n.isArray =>
           val inner = t match {
             case Rql2ListType(inner, _) => inner
