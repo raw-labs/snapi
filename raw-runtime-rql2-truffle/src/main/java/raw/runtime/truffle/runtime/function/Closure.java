@@ -28,11 +28,17 @@ public class Closure {
 
     private final Node node;
 
+    // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored and used later.
     public Closure(Function function, MaterializedFrame frame, Node node) {
         this.function = function;
         this.frame = frame;
         this.node = node;
         this.interop = InteropLibrary.getFactory().create(function);
+    }
+
+    // for top-level functions. The internal 'frame' is null because it's never used to fetch values of free-variables.
+    public Closure(Function function, Node node) {
+        this(function, null, node);
     }
 
     public Object call(Object... arguments) {

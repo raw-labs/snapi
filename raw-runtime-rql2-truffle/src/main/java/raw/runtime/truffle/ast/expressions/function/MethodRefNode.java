@@ -17,19 +17,18 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
-import raw.runtime.truffle.runtime.function.MethodRef;
 
 public final class MethodRefNode extends ExpressionNode {
 
     @CompilationFinal
-    private final Function function;
+    private final Closure closure;
 
     public MethodRefNode(Function f) {
-        this.function = f;
+        this.closure = new Closure(f, this);
     }
 
     @Override
     public Object executeGeneric(VirtualFrame virtualFrame) {
-        return new MethodRef(this.function, this);
+        return this.closure;
     }
 }
