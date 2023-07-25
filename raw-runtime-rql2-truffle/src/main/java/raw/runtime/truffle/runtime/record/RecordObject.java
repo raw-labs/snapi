@@ -29,8 +29,15 @@ import raw.runtime.truffle.RawLanguage;
 @ExportLibrary(InteropLibrary.class)
 public final class RecordObject extends DynamicObject implements TruffleObject {
 
+    private final String[] keys;
+
     public RecordObject(Shape shape) {
+        this(shape, null);
+    }
+
+    public RecordObject(Shape shape, String[] keys) {
         super(shape);
+        this.keys = keys;
     }
 
     @ExportMessage
@@ -58,7 +65,11 @@ public final class RecordObject extends DynamicObject implements TruffleObject {
     @ExportMessage
     Object getMembers(@SuppressWarnings("unused") boolean includeInternal,
                       @CachedLibrary("this") DynamicObjectLibrary objectLibrary) {
-        return new Keys(objectLibrary.getKeyArray(this));
+        if (keys != null) {
+            return new Keys(keys);
+        } else {
+            return new Keys(objectLibrary.getKeyArray(this));
+        }
     }
 
     @ExportLibrary(InteropLibrary.class)

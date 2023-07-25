@@ -53,6 +53,10 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
         return new RecordObject(rootRecordShape);
     }
 
+    public RecordObject createRecord(String[] keys) {
+        return new RecordObject(rootRecordShape, keys);
+    }
+
     public RecordObject createRecord(Shape shape) {
         return new RecordObject(shape);
     }
