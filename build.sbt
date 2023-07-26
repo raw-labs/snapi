@@ -492,7 +492,6 @@ lazy val rawCompilerRql2Truffle = (project in file("raw-compiler-rql2-truffle"))
   )
   .settings(
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
-    libraryDependencies += awsSdk,
     Test / javaOptions ++= Seq(
       s"-Xlog:gc*,thread*:file=$temporaryDirectory/raw-compiler-rql2-truffle-tests-%t-%p.log", // GC logging.
       s"-Djava.io.tmpdir=$temporaryDirectory"
