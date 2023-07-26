@@ -40,7 +40,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD7974TruffleTest extends TruffleCompilerTestContext with RD7974Test
 
 // RD-9079 (duplicate record fields)
-// class RD5714TruffleTest extends TruffleCompilerTestContext with RD5714Test
+@TruffleTests class RD5714TruffleTest extends TruffleCompilerTestContext with RD5714Test
 
 // XML
 // class RD5697TruffleTest extends TruffleCompilerTestContext with RD5697Test
@@ -101,7 +101,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD5365TruffleTest extends TruffleCompilerTestContext with RD5365Test
 
 // RD-9079 (records with duplicate fields not supported)
-// class RD5914TruffleTest extends TruffleCompilerTestContext with RD5914Test
+@TruffleTests class RD5914TruffleTest extends TruffleCompilerTestContext with RD5914Test
 
 @TruffleTests class RD9137TruffleTest extends TruffleCompilerTestContext with RD9137Test
 @TruffleTests class RD9228TruffleTest extends TruffleCompilerTestContext with RD9228Test

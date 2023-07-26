@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.truffle.StatementNode;
@@ -25,8 +24,6 @@ import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.record.RecordObject;
-
-import java.util.HashMap;
 
 public class RecordWriteJsonNode extends StatementNode {
 
@@ -45,14 +42,11 @@ public class RecordWriteJsonNode extends StatementNode {
     @Child
     private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode = JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.create();
 
-    private final HashMap<String, Integer> fieldNamesMap;
-
-    public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode, HashMap<String, Integer> fieldNamesMap) {
+    public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
         this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
         for (int i = 0; i < childProgramStatementNode.length; i++) {
             this.childDirectCalls[i] = DirectCallNode.create(childProgramStatementNode[i].getCallTarget());
         }
-        this.fieldNamesMap = fieldNamesMap;
     }
 
     @Override
@@ -63,19 +57,17 @@ public class RecordWriteJsonNode extends StatementNode {
             JsonGenerator gen = (JsonGenerator) args[1];
             Object keys = interops.getMembers(record);
             long length = interops.getArraySize(keys);
-            String member;
             Object item;
             writeStartObjectNode.execute(gen);
             for (int i = 0; i < length; i++) {
-                member = (String) interops.readArrayElement(keys, i);
-                item = interops.readMember(record, member);
+                String member = (String) interops.readArrayElement(keys, i);
+                item = record.readIdx(i);
                 writeFieldNameNode.execute(member, gen);
-                childDirectCalls[fieldNamesMap.get(member)].call(item, gen);
+                childDirectCalls[i].call(item, gen);
             }
             writeEndObjectNode.execute(gen);
 
-        } catch (UnsupportedMessageException | RuntimeException | InvalidArrayIndexException |
-                 UnknownIdentifierException e) {
+        } catch (RuntimeException | UnsupportedMessageException | InvalidArrayIndexException e) {
             throw new RawTruffleInternalErrorException(e, this);
         }
     }

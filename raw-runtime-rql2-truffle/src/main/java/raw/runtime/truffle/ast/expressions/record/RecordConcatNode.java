@@ -15,7 +15,6 @@ package raw.runtime.truffle.ast.expressions.record;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -28,28 +27,26 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 public abstract class RecordConcatNode extends ExpressionNode {
 
     @Specialization(limit = "3")
-    protected Object doConcat(Object record1, Object record2,
-                              @CachedLibrary("record1") InteropLibrary records1,
-                              @CachedLibrary("record2") InteropLibrary records2,
-                              @CachedLibrary(limit = "3") InteropLibrary libraries) {
+    protected Object doConcat(Object rec1, Object rec2) {
         RecordObject newRecord = RawLanguage.get(this).createRecord();
+        RecordObject record1 = (RecordObject) rec1;
+        RecordObject record2 = (RecordObject) rec2;
         try {
-            Object keys1 = records1.getMembers(record1);
-            Object keys2 = records2.getMembers(record2);
-            long length1 = libraries.getArraySize(keys1);
-            long length2 = libraries.getArraySize(keys2);
+            String[] keys1 = record1.keys();
+            String[] keys2 = record2.keys();
+            int length1 = keys1.length;
+            int length2 = keys2.length;
             String member;
             for (int i = 0; i < length1; i++) {
-                member = (String) libraries.readArrayElement(keys1, i);
-                libraries.writeMember(newRecord, member, records1.readMember(record1, member));
+                member = keys1[i];
+                newRecord.writeIdx(i, member, record1.readIdx(i));
             }
             for (int i = 0; i < length2; i++) {
-                member = (String) libraries.readArrayElement(keys2, i);
-                libraries.writeMember(newRecord, member, records2.readMember(record2, member));
+                member = keys2[i];
+                newRecord.writeIdx(i + length1, member, record2.readIdx(i));
             }
             return newRecord;
-        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException |
-                 InvalidArrayIndexException e) {
+        } catch (InvalidArrayIndexException e) {
             throw new RawTruffleInternalErrorException(e, this);
         }
     }

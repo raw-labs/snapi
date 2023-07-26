@@ -55,11 +55,7 @@ public class RecordParseCsvNode extends ExpressionNode {
             String fieldName = columns[i].idn();
             parser.getNextField();
             Object value = childDirectCalls[i].call(parser);
-            try {
-                records.writeMember(record, fieldName, value);
-            } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException ex) {
-                throw new RawTruffleInternalErrorException(ex, this);
-            }
+            record.writeIdx(i, fieldName, value);
         }
         parser.finishLine(this);
         return record;

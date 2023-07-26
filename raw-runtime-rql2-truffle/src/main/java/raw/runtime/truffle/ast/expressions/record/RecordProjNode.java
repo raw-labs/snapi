@@ -14,14 +14,12 @@ package raw.runtime.truffle.ast.expressions.record;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Project")
 @NodeChild("receiverNode")
@@ -29,24 +27,19 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 public abstract class RecordProjNode extends ExpressionNode {
 
     @Specialization(limit = "3")
-    protected Object readMember(Object record, String key,
-                                @CachedLibrary("record") InteropLibrary records) {
+    protected Object readMember(RecordObject record, String key) {
         try {
-            return records.readMember(record, key);
-        } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+            return record.readByKey(key);
+        } catch (UnknownIdentifierException e) {
             throw new RawTruffleInternalErrorException(e, this);
         }
     }
 
-    @Specialization(limit = "3")
-    protected Object readMember(Object record, int index,
-                                @CachedLibrary("record") InteropLibrary records,
-                                @CachedLibrary(limit = "1") InteropLibrary libraries) {
+    @Specialization
+    protected Object readMember(RecordObject record, int index) {
         try {
-            Object keys = records.getMembers(record);
-            String member = (String) libraries.readArrayElement(keys, index - 1);
-            return records.readMember(record, member);
-        } catch (UnsupportedMessageException | UnknownIdentifierException | InvalidArrayIndexException e) {
+            return record.readIdx(index - 1);
+        } catch (InvalidArrayIndexException e) {
             throw new RawTruffleInternalErrorException(e, this);
         }
     }
