@@ -18,8 +18,8 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperationsFactory;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
@@ -36,7 +36,7 @@ public class TryableParseJsonNode extends ExpressionNode {
     private NullableTryableLibrary nullableTryable = NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
     @Child
-    private ParserOperations.SkipNextJsonParserNode skipNext = ParserOperationsFactory.SkipNextJsonParserNodeGen.create();
+    private JsonParserNodes.SkipNextJsonParserNode skipNext = JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
 
     public TryableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
         this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());

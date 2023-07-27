@@ -19,14 +19,15 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 
-@NodeInfo(shortName = "LongWriteJson")
-public class LongWriteJsonNode extends StatementNode {
+@NodeInfo(shortName = "AnyWriteJson")
+public class AnyWriteJsonNode extends StatementNode {
 
     @Child
-    JsonWriteNodes.WriteLongJsonWriterNode writeLong = JsonWriteNodesFactory.WriteLongJsonWriterNodeGen.create();
+    JsonWriteNodes.WriteAnyJsonParserNode writeAny = JsonWriteNodesFactory.WriteAnyJsonParserNodeGen.create();
 
+    @Override
     public void executeVoid(VirtualFrame frame) {
         Object[] args = frame.getArguments();
-        writeLong.execute((long) args[0], (JsonGenerator) args[1]);
+        writeAny.execute(args[0], (JsonGenerator) args[1]);
     }
 }

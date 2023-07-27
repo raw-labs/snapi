@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
@@ -22,11 +21,11 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
-import java.io.IOException;
 import java.util.HashMap;
 
 public class RecordWriteJsonNode extends StatementNode {
@@ -36,6 +35,15 @@ public class RecordWriteJsonNode extends StatementNode {
 
     @Child
     private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(2);
+
+    @Child
+    private JsonWriteNodes.WriteStartObjectJsonWriterNode writeStartObjectNode = JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.create();
+
+    @Child
+    private JsonWriteNodes.WriteEndObjectJsonWriterNode writeEndObjectNode = JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.create();
+
+    @Child
+    private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode = JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.create();
 
     private final HashMap<String, Integer> fieldNamesMap;
 
@@ -57,14 +65,14 @@ public class RecordWriteJsonNode extends StatementNode {
             long length = interops.getArraySize(keys);
             String member;
             Object item;
-            writeStartObject(gen);
+            writeStartObjectNode.execute(gen);
             for (int i = 0; i < length; i++) {
                 member = (String) interops.readArrayElement(keys, i);
                 item = interops.readMember(record, member);
-                writeFieldName(member, gen);
+                writeFieldNameNode.execute(member, gen);
                 childDirectCalls[fieldNamesMap.get(member)].call(item, gen);
             }
-            writeEndObject(gen);
+            writeEndObjectNode.execute(gen);
 
         } catch (UnsupportedMessageException | RuntimeException | InvalidArrayIndexException |
                  UnknownIdentifierException e) {
@@ -72,30 +80,4 @@ public class RecordWriteJsonNode extends StatementNode {
         }
     }
 
-    @CompilerDirectives.TruffleBoundary
-    private void writeStartObject(JsonGenerator gen) {
-        try {
-            gen.writeStartObject();
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private void writeEndObject(JsonGenerator gen) {
-        try {
-            gen.writeEndObject();
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private void writeFieldName(String member, JsonGenerator gen) {
-        try {
-            gen.writeFieldName(member);
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-        }
-    }
 }

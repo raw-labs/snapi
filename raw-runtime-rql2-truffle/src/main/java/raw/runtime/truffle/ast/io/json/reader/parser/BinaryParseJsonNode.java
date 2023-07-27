@@ -13,30 +13,23 @@
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 
-import java.io.IOException;
-import java.util.Base64;
+@NodeInfo(shortName = "BinaryParseJson")
+public abstract class BinaryParseJsonNode extends ExpressionNode {
 
-public class BinaryParseJsonNode extends ExpressionNode {
-
-    public Object executeGeneric(VirtualFrame frame) {
+    @Specialization
+    protected byte[] doParse(
+            VirtualFrame frame,
+            @Cached("create()") JsonParserNodes.ParseBinaryJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
-        return doParse(parser);
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private byte[] doParse(JsonParser parser) {
-        try {
-            String binary = parser.getText();
-            parser.nextToken();
-            return Base64.getDecoder().decode(binary);
-        } catch (IOException | IllegalArgumentException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
-        }
+        return parse.execute(parser);
     }
 }

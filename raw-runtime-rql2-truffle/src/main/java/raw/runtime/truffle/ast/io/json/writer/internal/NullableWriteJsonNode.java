@@ -13,16 +13,14 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
-
-import java.io.IOException;
 
 @NodeInfo(shortName = "NullableWriteJson")
 public class NullableWriteJsonNode extends StatementNode {
@@ -33,6 +31,9 @@ public class NullableWriteJsonNode extends StatementNode {
     @Child
     private OptionLibrary options = OptionLibrary.getFactory().createDispatched(1);
 
+    @Child
+    JsonWriteNodes.WriteNullJsonWriterNode writeNullNode = JsonWriteNodesFactory.WriteNullJsonWriterNodeGen.create();
+
     public NullableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
         this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
     }
@@ -42,19 +43,10 @@ public class NullableWriteJsonNode extends StatementNode {
         Object[] args = frame.getArguments();
         Object option = args[0];
         JsonGenerator gen = (JsonGenerator) args[1];
-        if(options.isDefined(option)) {
+        if (options.isDefined(option)) {
             childDirectCall.call(options.get(option), gen);
         } else {
-            writeNull(gen);
-        }
-    }
-
-    @TruffleBoundary
-    private void writeNull(JsonGenerator gen) {
-        try {
-            gen.writeNull();
-        } catch (IOException e) {
-            throw new JsonWriterRawTruffleException(e.getMessage(), this);
+            writeNullNode.execute(gen);
         }
     }
 }

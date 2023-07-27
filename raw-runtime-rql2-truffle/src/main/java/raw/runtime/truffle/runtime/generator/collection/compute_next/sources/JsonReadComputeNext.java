@@ -19,7 +19,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.RuntimeContext;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
@@ -47,9 +47,9 @@ public class JsonReadComputeNext {
     }
 
     @ExportMessage
-    void init(@Cached("create()") ParserOperations.InitJsonParserNode initParser,
-              @Cached.Shared("closeParser") @Cached("create()") ParserOperations.CloseJsonParserNode closeParser,
-              @Cached("create()") ParserOperations.NextTokenJsonParserNode nextToken) {
+    void init(@Cached("create()") JsonParserNodes.InitJsonParserNode initParser,
+              @Cached.Shared("closeParser") @Cached("create()") JsonParserNodes.CloseJsonParserNode closeParser,
+              @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
         try {
             TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
             stream = new TruffleCharInputStream(truffleInputStream, encoding);
@@ -69,7 +69,7 @@ public class JsonReadComputeNext {
     }
 
     @ExportMessage
-    void close(@Cached.Shared("closeParser") @Cached("create()") ParserOperations.CloseJsonParserNode closeParser) {
+    void close(@Cached.Shared("closeParser") @Cached("create()") JsonParserNodes.CloseJsonParserNode closeParser) {
         closeParser.execute(parser);
     }
 

@@ -13,16 +13,14 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
-
-import java.io.IOException;
 
 @NodeInfo(shortName = "TryableWriteJson")
 public class TryableWriteJsonNode extends StatementNode {
@@ -32,6 +30,9 @@ public class TryableWriteJsonNode extends StatementNode {
 
     @Child
     private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+
+    @Child
+    JsonWriteNodes.WriteStringJsonWriterNode writeString = JsonWriteNodesFactory.WriteStringJsonWriterNodeGen.create();
 
     public TryableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
         this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
@@ -45,16 +46,7 @@ public class TryableWriteJsonNode extends StatementNode {
         if (tryables.isSuccess(tryable)) {
             childDirectCall.call(tryables.success(tryable), gen);
         } else {
-            writeString(tryables.failure(tryable), gen);
-        }
-    }
-
-    @TruffleBoundary
-    private void writeString(String error, JsonGenerator gen) {
-        try {
-            gen.writeString(error);
-        } catch (IOException e) {
-            throw new JsonWriterRawTruffleException(e.getMessage(), this);
+            writeString.execute(tryables.failure(tryable), gen);
         }
     }
 }

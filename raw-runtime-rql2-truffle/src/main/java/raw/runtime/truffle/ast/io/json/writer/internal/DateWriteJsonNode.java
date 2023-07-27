@@ -13,29 +13,20 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.primitives.DateObject;
-
-import java.io.IOException;
 
 @NodeInfo(shortName = "BooleanWriteJson")
 public class DateWriteJsonNode extends StatementNode {
+    @Child
+    JsonWriteNodes.WriteDateJsonWriterNode writeDate = JsonWriteNodesFactory.WriteDateJsonWriterNodeGen.create();
 
     public void executeVoid(VirtualFrame frame) {
         Object[] args = frame.getArguments();
-        this.doWrite((DateObject) args[0], (JsonGenerator) args[1]);
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(DateObject value, JsonGenerator gen) {
-        try {
-            gen.writeString(value.getDate().toString());
-        } catch (IOException e) {
-            throw new JsonWriterRawTruffleException(e.getMessage(), this);
-        }
+        writeDate.execute((DateObject) args[0], (JsonGenerator) args[1]);
     }
 }
