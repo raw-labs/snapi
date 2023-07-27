@@ -59,7 +59,6 @@ import raw.runtime.truffle.ast.expressions.unary._
 import raw.runtime.truffle.ast.io.binary.BinaryWriterNode
 import raw.runtime.truffle.ast.io.csv.writer.{CsvIterableWriterNode, CsvListWriterNode}
 import raw.runtime.truffle.ast.io.json.writer.JsonWriterNode
-import raw.runtime.truffle.ast.io.text.TextWriterNode
 import raw.runtime.truffle.ast.local._
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary
 import raw.runtime.truffle.runtime.iterable.IterableLibrary
@@ -310,7 +309,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             new ProgramStatementNode(
               RawLanguage.getCurrentContext.getLanguage,
               frameDescriptor,
-              new TextWriterNode(bodyExpNode, writer)
+              new BinaryWriterNode(bodyExpNode, writer)
             )
           case _ => throw new CompilerException("unsupported type")
         }
