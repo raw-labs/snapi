@@ -39,7 +39,6 @@ import raw.testing.tags.TruffleTests
 
 @TruffleTests class RD7974TruffleTest extends TruffleCompilerTestContext with RD7974Test
 
-// RD-9079 (duplicate record fields)
 @TruffleTests class RD5714TruffleTest extends TruffleCompilerTestContext with RD5714Test
 
 // XML
@@ -65,8 +64,7 @@ import raw.testing.tags.TruffleTests
 // XML
 // class RD5679TruffleTest extends TruffleCompilerTestContext with RD5679Test
 
-// Runs weird queries that aren't supported by JSON (package entry extensions, functions, etc.) RD-9229 likely
-// @TruffleTests class RD5775TruffleTest extends TruffleCompilerTestContext with RD5775Test
+@TruffleTests class RD5775TruffleTest extends TruffleCompilerTestContext with RD5775Test
 @TruffleTests class RD5851TruffleTest extends TruffleCompilerTestContext with RD5851Test
 
 @TruffleTests class RD5412TruffleTest extends TruffleCompilerTestContext with RD5412Test
@@ -100,11 +98,10 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD5685TruffleTest extends TruffleCompilerTestContext with RD5685Test
 @TruffleTests class RD5365TruffleTest extends TruffleCompilerTestContext with RD5365Test
 
-// RD-9079 (records with duplicate fields not supported)
 @TruffleTests class RD5914TruffleTest extends TruffleCompilerTestContext with RD5914Test
 
 @TruffleTests class RD9137TruffleTest extends TruffleCompilerTestContext with RD9137Test
 @TruffleTests class RD9228TruffleTest extends TruffleCompilerTestContext with RD9228Test
-// Fixed by RD-9079
-// @TruffleTests class RD9359TruffleTest extends TruffleCompilerTestContext with RD9359Test
+@TruffleTests class RD9359TruffleTest extends TruffleCompilerTestContext with RD9359Test
 @TruffleTests class RD9255TruffleTest extends TruffleCompilerTestContext with RD9255Test
+@TruffleTests class RD9229TruffleTest extends TruffleCompilerTestContext with RD9229Test

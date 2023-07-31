@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
+import raw.compiler.base.source.Type
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.compiler.rql2._
 import raw.compiler.rql2.source._
@@ -24,6 +25,13 @@ class BinaryPackage extends PackageExtension {
     description = "Library of functions for the binary type."
   )
 
+}
+
+object BinaryPackage extends BinaryPackage {
+
+  def outputWriteSupport(dataType: Type): Boolean = {
+    dataType.isInstanceOf[Rql2BinaryType] // nullable/tryable or not. All are supported
+  }
 }
 
 class FromStringBinaryEntryExtension

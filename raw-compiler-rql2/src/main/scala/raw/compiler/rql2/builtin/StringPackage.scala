@@ -28,6 +28,13 @@ class StringPackage extends PackageExtension {
 
 }
 
+object StringPackage extends StringPackage {
+
+  def outputWriteSupport(dataType: Type): Boolean = {
+    dataType.isInstanceOf[Rql2StringType] // nullable/tryable or not. All are supported
+  }
+}
+
 class StringFromEntry extends EntryExtension {
 
   override def packageName: String = "String"

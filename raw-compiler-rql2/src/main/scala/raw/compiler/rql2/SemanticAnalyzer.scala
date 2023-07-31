@@ -719,6 +719,9 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       case (a: TypeAliasType, e: TypeAliasType) => recurse(resolveType(a), resolveType(e))
       case (a: TypeAliasType, _) => recurse(resolveType(a), expected)
       case (_, e: TypeAliasType) => recurse(actual, resolveType(e))
+      case (a: PackageEntryType, e: PackageEntryType) =>
+        if (a.pkgName == e.pkgName && a.entName == e.entName) a else { throw new MergeTypeException }
+      case (a: PackageType, e: PackageType) => if (a.name == e.name) a else { throw new MergeTypeException }
       case (a: PackageType, e: ExpectedProjType) => programContext.getPackage(a.name) match {
           case Some(p) if p.existsEntry(e.i) => actual
           case _ => throw new MergeTypeException
