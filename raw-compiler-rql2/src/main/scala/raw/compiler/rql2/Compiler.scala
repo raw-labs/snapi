@@ -16,33 +16,14 @@ import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import raw.compiler._
 import raw.compiler.base.source.{BaseNode, Type}
-import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeParamDescription}
+import raw.compiler.base.CompilerContext
 import raw.compiler.common.PhaseDescriptor
 import raw.compiler.common.source._
-import raw.runtime.JvmEntrypoint
-import raw.compiler.rql2.builtin.{EnvironmentPackageBuilder, LibraryPackageBuilder}
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
 import raw.compiler.rql2.source._
 import raw.runtime._
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
-import raw.compiler.rql2.errors.{
-  ErrorsPrettyPrinter,
-  ExpectedTypeButGotExpression,
-  ItemsNotComparable,
-  KeyNotComparable,
-  MandatoryArgumentAfterOptionalArgument,
-  MandatoryArgumentsMissing,
-  NamedParameterAfterOptionalParameter,
-  NoOptionalArgumentsExpected,
-  OutputTypeRequiredForRecursiveFunction,
-  PackageNotFound,
-  RepeatedFieldNames,
-  RepeatedOptionalArguments,
-  UnexpectedArguments,
-  UnexpectedOptionalArgument
-}
-
-import scala.collection.mutable
+import raw.compiler.rql2.errors._
 
 abstract class Compiler(implicit compilerContext: CompilerContext) extends raw.compiler.common.Compiler {
 
@@ -109,97 +90,6 @@ abstract class Compiler(implicit compilerContext: CompilerContext) extends raw.c
       runtimeContext: RuntimeContext
   ): ProgramContext = {
     new ProgramContext(programSettings, runtimeContext)
-  }
-
-  override def parseAndValidate(source: String, maybeDecl: Option[String])(
-      implicit programContext: base.ProgramContext
-  ): Either[List[ErrorMessage], SourceProgram] = {
-    buildInputTree(source).right.flatMap { tree =>
-      val Rql2Program(methods, me) = tree.root
-
-      if (maybeDecl.isEmpty) {
-        if (programContext.runtimeContext.maybeArguments.nonEmpty) {
-          throw new CompilerException("arguments found")
-        }
-
-        if (me.isEmpty) {
-          throw new CompilerException("no expression found")
-        }
-
-        val e = me.get
-        Right(Rql2Program(methods, Some(e)))
-      } else {
-        val decl = maybeDecl.get
-        if (!tree.description.expDecls.contains(decl)) {
-          throw new CompilerException("declaration not found")
-        }
-        if (programContext.runtimeContext.maybeArguments.isEmpty) {
-          throw new CompilerException("arguments missing")
-        }
-
-        // Compile the library separately.
-        compile(tree.root).right.map {
-          case JvmEntrypoint(className) =>
-            // Build the function type from the package declaration.
-            // As a side-effect, obtain the list of mandatory arguments, since that will be necessary to correctly
-            // build the function call, as described below.
-            val mandatoryIdns = mutable.HashSet[String]()
-            val List(TreeDeclDescription(Some(params), outType, _)) = tree.description.expDecls(decl)
-            val ms = mutable.ArrayBuffer[Type]()
-            val os = mutable.ArrayBuffer[FunOptTypeParam]()
-            params.foreach {
-              case TreeParamDescription(idn, tipe, required) =>
-                if (required) {
-                  mandatoryIdns.add(idn)
-                  ms.append(tipe)
-                } else {
-                  os.append(FunOptTypeParam(idn, tipe))
-                }
-            }
-            val funType = FunType(ms.to, os.to, outType, Set.empty)
-
-            val args = programContext.runtimeContext.maybeArguments.get
-
-            // Declaration was passed and arguments were passed.
-            // Build code for arguments.
-            val codeArgs = args.map {
-              case (k, v) =>
-                val e = v match {
-                  case _: ParamNull => NullConst()
-                  case _: ParamByte => EnvironmentPackageBuilder.Parameter(Rql2ByteType(), StringConst(k))
-                  case _: ParamShort => EnvironmentPackageBuilder.Parameter(Rql2ShortType(), StringConst(k))
-                  case _: ParamInt => EnvironmentPackageBuilder.Parameter(Rql2IntType(), StringConst(k))
-                  case _: ParamLong => EnvironmentPackageBuilder.Parameter(Rql2LongType(), StringConst(k))
-                  case _: ParamFloat => EnvironmentPackageBuilder.Parameter(Rql2FloatType(), StringConst(k))
-                  case _: ParamDouble => EnvironmentPackageBuilder.Parameter(Rql2DoubleType(), StringConst(k))
-                  case _: ParamDecimal => EnvironmentPackageBuilder.Parameter(Rql2DecimalType(), StringConst(k))
-                  case _: ParamBool => EnvironmentPackageBuilder.Parameter(Rql2BoolType(), StringConst(k))
-                  case _: ParamString => EnvironmentPackageBuilder.Parameter(Rql2StringType(), StringConst(k))
-                  case _: ParamDate => EnvironmentPackageBuilder.Parameter(Rql2DateType(), StringConst(k))
-                  case _: ParamTime => EnvironmentPackageBuilder.Parameter(Rql2TimeType(), StringConst(k))
-                  case _: ParamTimestamp => EnvironmentPackageBuilder.Parameter(Rql2TimestampType(), StringConst(k))
-                  case _: ParamInterval => EnvironmentPackageBuilder.Parameter(Rql2IntervalType(), StringConst(k))
-                }
-                // Build the argument node.
-                // If argument is mandatory, then according to RQL2's language definition, the argument is not named.
-                // However, if the argument os optional, the name is added.
-                FunAppArg(e, if (mandatoryIdns.contains(k)) None else Some(k))
-            }
-
-            val i = IdnDef()
-            Rql2Program(
-              raw.compiler.rql2.source
-                .Let(
-                  Vector(
-                    raw.compiler.rql2.source
-                      .LetBind(LibraryPackageBuilder.Use(StringConst(className), StringConst(decl), funType), i, None)
-                  ),
-                  FunApp(IdnExp(i), codeArgs.toVector)
-                )
-            )
-        }
-      }
-    }
   }
 
   private def formatErrors(errors: Seq[BaseError], positions: Positions): List[ErrorMessage] = {

@@ -21,14 +21,31 @@ import org.bitbucket.inkytonik.kiama.util.Entity
 import org.graalvm.polyglot.Context
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.{BaseTree, CompilerContext}
-import raw.compiler.common.source.{Exp, IdnExp, SourceNode, SourceProgram}
+import raw.compiler.common.source.{Exp, IdnExp, IdnUse, SourceNode, SourceProgram}
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
+import raw.compiler.rql2.builtin.EnvironmentPackageBuilder
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonRecurse, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
-import raw.compiler.{CompilerException, ProgramSettings}
-import raw.runtime.Entrypoint
+import raw.compiler.{base, CompilerException, ErrorMessage, ProgramSettings}
+import raw.runtime.{
+  Entrypoint,
+  ParamBool,
+  ParamByte,
+  ParamDate,
+  ParamDecimal,
+  ParamDouble,
+  ParamFloat,
+  ParamInt,
+  ParamInterval,
+  ParamLong,
+  ParamNull,
+  ParamShort,
+  ParamString,
+  ParamTime,
+  ParamTimestamp
+}
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
 import raw.runtime.truffle.ast._
@@ -69,6 +86,65 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
     val res = target.call()
     convertAnyToValue(res, tree.rootType.get)
+  }
+
+  override def parseAndValidate(source: String, maybeDecl: Option[String])(
+      implicit programContext: base.ProgramContext
+  ): Either[List[ErrorMessage], SourceProgram] = {
+    buildInputTree(source).right.flatMap { tree =>
+      val Rql2Program(methods, me) = tree.root
+
+      maybeDecl match {
+        case None =>
+          if (programContext.runtimeContext.maybeArguments.nonEmpty) {
+            // arguments are given while no method to execute is
+            // provided.
+            throw new CompilerException("arguments found")
+          }
+
+          if (me.isEmpty) {
+            // no method, but also no bottom expression. This isn't
+            // executable.
+            throw new CompilerException("no expression found")
+          }
+
+          val e = me.get
+          Right(Rql2Program(methods, Some(e)))
+        case Some(decl) => tree.description.expDecls.get(decl) match {
+            case Some(descriptions) =>
+              if (descriptions.size > 1) throw new CompilerException("multiple declarations found")
+              val description = descriptions.head
+              val params = description.params.get
+              val mandatory = params.collect { case p if p.required => p.idn }.toSet
+              val args = programContext.runtimeContext.maybeArguments.get
+              val programArgs = args.map {
+                case (k, v) =>
+                  val e = v match {
+                    case _: ParamNull => NullConst()
+                    case _: ParamByte => EnvironmentPackageBuilder.Parameter(Rql2ByteType(), StringConst(k))
+                    case _: ParamShort => EnvironmentPackageBuilder.Parameter(Rql2ShortType(), StringConst(k))
+                    case _: ParamInt => EnvironmentPackageBuilder.Parameter(Rql2IntType(), StringConst(k))
+                    case _: ParamLong => EnvironmentPackageBuilder.Parameter(Rql2LongType(), StringConst(k))
+                    case _: ParamFloat => EnvironmentPackageBuilder.Parameter(Rql2FloatType(), StringConst(k))
+                    case _: ParamDouble => EnvironmentPackageBuilder.Parameter(Rql2DoubleType(), StringConst(k))
+                    case _: ParamDecimal => EnvironmentPackageBuilder.Parameter(Rql2DecimalType(), StringConst(k))
+                    case _: ParamBool => EnvironmentPackageBuilder.Parameter(Rql2BoolType(), StringConst(k))
+                    case _: ParamString => EnvironmentPackageBuilder.Parameter(Rql2StringType(), StringConst(k))
+                    case _: ParamDate => EnvironmentPackageBuilder.Parameter(Rql2DateType(), StringConst(k))
+                    case _: ParamTime => EnvironmentPackageBuilder.Parameter(Rql2TimeType(), StringConst(k))
+                    case _: ParamTimestamp => EnvironmentPackageBuilder.Parameter(Rql2TimestampType(), StringConst(k))
+                    case _: ParamInterval => EnvironmentPackageBuilder.Parameter(Rql2IntervalType(), StringConst(k))
+                  }
+                  // Build the argument node.
+                  // If argument is mandatory, then according to RQL2's language definition, the argument is not named.
+                  // However, if the argument os optional, the name is added.
+                  FunAppArg(e, if (mandatory.contains(k)) None else Some(k))
+              }
+              Right(Rql2Program(methods, Some(FunApp(IdnExp(IdnUse(decl)), programArgs.toVector))))
+            case None => throw new CompilerException("declaration not found")
+          }
+      }
+    }
   }
 
   private def convertAnyToValue(v: Any, t: Type): Value = t match {
