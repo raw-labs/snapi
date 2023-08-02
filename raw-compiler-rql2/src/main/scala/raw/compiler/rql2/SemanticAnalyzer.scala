@@ -515,6 +515,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   private def idnIsAmbiguous(idn: String, e: Exp): Boolean = {
     actualType(e) match {
       case Rql2RecordType(atts, _) => atts.collect { case att if att.idn == idn => att }.length > 1
+      case Rql2IterableType(Rql2RecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
+      case Rql2ListType(Rql2RecordType(atts, _), _) => atts.collect { case att if att.idn == idn => att }.length > 1
       case _ => false
     }
   }
