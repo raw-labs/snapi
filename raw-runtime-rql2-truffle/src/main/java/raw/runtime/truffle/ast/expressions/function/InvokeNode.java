@@ -29,8 +29,12 @@ public final class InvokeNode extends ExpressionNode {
     @Children
     private final ExpressionNode[] argumentNodes;
 
-    public InvokeNode(ExpressionNode functionNode, ExpressionNode[] argumentNodes) {
+    private final String[] argNames;
+
+    public InvokeNode(ExpressionNode functionNode, String[] argNames, ExpressionNode[] argumentNodes) {
         this.functionNode = functionNode;
+        assert(argNames.length == argumentNodes.length);
+        this.argNames = argNames;
         this.argumentNodes = argumentNodes;
     }
 
@@ -44,7 +48,7 @@ public final class InvokeNode extends ExpressionNode {
         for (int i = 0; i < argumentNodes.length; i++) {
             argumentValues[i] = argumentNodes[i].executeGeneric(frame);
         }
-        return closure.call(argumentValues);
+        return closure.callWithNames(argNames, argumentValues);
 
     }
 

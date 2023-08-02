@@ -18,17 +18,31 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 
+import java.util.Map;
+
 public final class ClosureNode extends ExpressionNode {
 
-    @CompilationFinal
-    private final Function function;
+  @CompilationFinal
+  private final Function function;
 
-    public ClosureNode(Function f) {
-        this.function = f;
-    }
+  private final ExpressionNode[] defaultArgumentExps;
 
-    @Override
-    public Object executeGeneric(VirtualFrame virtualFrame) {
-        return new Closure(this.function, virtualFrame.materialize(), this);
+  public ClosureNode(Function f, ExpressionNode[] defaultArgumentExps) {
+    this.function = f;
+    this.defaultArgumentExps = defaultArgumentExps;
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    int nArgs = defaultArgumentExps.length;
+    Object[] defaultArguments = new Object[nArgs];
+    for (int i = 0; i < nArgs; i++) {
+      if (defaultArgumentExps[i] != null) {
+        defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
+      } else {
+        defaultArguments[i] = null;
+      }
     }
+    return new Closure(this.function, defaultArguments, virtualFrame.materialize(), this);
+  }
 }

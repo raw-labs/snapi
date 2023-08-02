@@ -18,10 +18,10 @@ public final class FunctionRegistry {
 
     private final FunctionObject functionObject = new FunctionObject();
 
-    public Function register(String name, RootCallTarget callTarget) {
+    public Function register(String name, String[] argNames, RootCallTarget callTarget) {
         Function result = functionObject.functions.get(name);
         if (result == null) {
-            result = new Function(callTarget);
+            result = new Function(callTarget, argNames);
             functionObject.functions.put(name, result);
         } else {
             throw new RuntimeException("Function already defined");
