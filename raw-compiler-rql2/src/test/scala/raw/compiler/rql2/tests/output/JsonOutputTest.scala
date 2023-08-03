@@ -55,4 +55,54 @@ trait JsonOutputTest extends CompilerTestContext {
     }
   }
 
+  // duplicated fields
+  test("""{a: 1, b: 2, a: 3, c: 4, a: 5}""") { it =>
+    val path: Path = Files.createTempFile("", "")
+    try {
+      it should saveToInFormat(path, "json")
+      assume(language != "rql2-truffle")
+      // fields 'a' are renamed as 'a', 'a_1' and 'a_2'
+      path should contain("""{"a":1,"b":2,"a_1":3,"c":4,"a_2":5}""")
+    } finally {
+      RawUtils.deleteTestPath(path)
+    }
+  }
+
+  // duplicated fields
+  test("""{a: 1, b: 2, a: 3, c: 4, a_1: 5}""") { it =>
+    val path: Path = Files.createTempFile("", "")
+    try {
+      it should saveToInFormat(path, "json")
+      assume(language != "rql2-truffle") // duplicated fields not done in rql2-truffle yet
+      // fields 'a' are renamed as 'a', 'a_2' because 'a_1' exists already
+      path should contain("""{"a":1,"b":2,"a_2":3,"c":4,"a_1":5}""")
+    } finally {
+      RawUtils.deleteTestPath(path)
+    }
+  }
+
+  // duplicated fields
+  test("""{a_1: 1, b: 2, a: 3, c: 4, a: 5}""") { it =>
+    val path: Path = Files.createTempFile("", "")
+    try {
+      it should saveToInFormat(path, "json")
+      assume(language != "rql2-truffle") // duplicated fields not done in rql2-truffle yet
+      // fields 'a' are renamed as 'a', 'a_2' because 'a_1' exists already
+      path should contain("""{"a_1":1,"b":2,"a":3,"c":4,"a_2":5}""")
+    } finally {
+      RawUtils.deleteTestPath(path)
+    }
+  }
+
+  // duplicated fields
+  test("""{a: 1, b: 2, a: 3, c: 4, a_2: 5, a_1: 6}""") { it =>
+    val path: Path = Files.createTempFile("", "")
+    try {
+      it should saveToInFormat(path, "json")
+      assume(language != "rql2-truffle") // duplicated fields not done in rql2-truffle yet
+      path should contain("""{"a":1,"b":2,"a_3":3,"c":4,"a_2":5,"a_1":6}""")
+    } finally {
+      RawUtils.deleteTestPath(path)
+    }
+  }
 }
