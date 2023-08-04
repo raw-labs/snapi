@@ -21,7 +21,7 @@ import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
 import raw.runtime.truffle.utils.RawTruffleCharStream;
 
-public class CsvParserOperations {
+public class CsvParserNodes {
 
   @NodeInfo(shortName = "Parser.Initialize")
   @GenerateUncached
