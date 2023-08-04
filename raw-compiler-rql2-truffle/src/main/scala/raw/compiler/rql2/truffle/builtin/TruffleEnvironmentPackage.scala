@@ -14,9 +14,11 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{EnvironmentParameterEntry, EnvironmentScopesEntry, EnvironmentSecretEntry}
+import raw.compiler.rql2.source.Rql2Type
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.builtin.environment_package.{
+  EnvironmentParameterNodeGen,
   EnvironmentScopesNodeGen,
   EnvironmentSecretNodeGen
 }
@@ -34,5 +36,8 @@ class TruffleEnvironmentScopesEntry extends EnvironmentScopesEntry with TruffleS
 }
 
 class TruffleEnvironmentParameterEntry extends EnvironmentParameterEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = ???
+  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+    val paramIndex = args(1).e
+    EnvironmentParameterNodeGen.create(paramIndex, t.asInstanceOf[Rql2Type])
+  }
 }

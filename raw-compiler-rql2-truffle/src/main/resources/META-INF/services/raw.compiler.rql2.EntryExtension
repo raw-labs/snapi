@@ -48,6 +48,7 @@ raw.compiler.rql2.truffle.builtin.TruffleErrorGetEntry
 raw.compiler.rql2.truffle.builtin.TruffleFloatFromEntry
 raw.compiler.rql2.truffle.builtin.TruffleEnvironmentSecretEntry
 raw.compiler.rql2.truffle.builtin.TruffleEnvironmentScopesEntry
+raw.compiler.rql2.truffle.builtin.TruffleEnvironmentParameterEntry
 raw.compiler.rql2.truffle.builtin.TruffleFunctionInvokeAfterEntry
 raw.compiler.rql2.truffle.builtin.TruffleHttpReadEntry
 raw.compiler.rql2.truffle.builtin.TruffleHttpGetEntry

@@ -20,7 +20,10 @@ import raw._
 import raw.api.{AuthenticatedUser, InteractiveUser, RawException}
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
+import raw.compiler.common.source.{IdnExp, IdnUse}
 import raw.compiler.common.{Compiler, CompilerService}
+import raw.compiler.rql2.Tree
+import raw.compiler.rql2.source.Rql2Program
 import raw.compiler.{CompilerException, LSPRequest, ProgramEnvironment, ProgramOutputWriter}
 import raw.creds._
 import raw.creds.mock.MockCredentialsTestContext
@@ -640,6 +643,27 @@ trait CompilerTestContext
     }
   }
 
+  // executes a parameterized query, running 'decl' with the given parameters.
+  def callDecl(code: String, decl: String, args: Seq[(String, ParamValue)] = Seq.empty): Either[String, Any] = {
+    val compiler = getCompiler()
+    val programContext =
+      getProgramContextFromSource(compiler, code, Some(args.toArray)).asInstanceOf[raw.compiler.rql2.ProgramContext]
+    // type the code that was passed as a parameter
+    val tree = compiler.buildInputTree(code)(programContext).right.get
+    val Rql2Program(methods, _) = tree.root
+    // find the method that we want to run
+    methods.find(_.i.idn == decl) match {
+      case None => fail(s"method '$decl' not found")
+      case Some(method) =>
+        val entity = tree.analyzer.entity(method.i)
+        val raw.compiler.rql2.source.FunType(_, _, outputType, _) = tree.analyzer.entityType(entity)
+        // execute 'code' and parse the output
+        doExecute(code, maybeDecl = Some(decl), maybeArgs = Some(args)).right.map(path =>
+          outputParser(path, compiler.prettyPrint(outputType))
+        )
+    }
+  }
+
   def tryExecuteQuery(
       queryString: String,
       ordered: Boolean = false,
@@ -732,7 +756,7 @@ trait CompilerTestContext
   def doExecute(
       query: String,
       maybeDecl: Option[String] = None,
-      args: Array[Any] = Array.empty,
+      maybeArgs: Option[Seq[(String, ParamValue)]] = None,
       savePath: Option[Path] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
@@ -747,8 +771,8 @@ trait CompilerTestContext
 
     try {
       val compiler = getCompiler()
-      val programContext = getProgramContextFromSource(compiler, query, None, scopes, options)
-      val executeResult = compiler.execute(query, maybeDecl, args)(programContext)
+      val programContext = getProgramContextFromSource(compiler, query, maybeArgs.map(_.toArray), scopes, options)
+      val executeResult = compiler.execute(query, maybeDecl, Array.empty)(programContext)
 
       executeResult.left.map(errs => errs.map(err => err.toString).mkString(",")).right.flatMap {
         queryResult: ProgramOutputWriter =>
