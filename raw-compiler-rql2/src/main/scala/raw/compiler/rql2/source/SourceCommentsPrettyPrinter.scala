@@ -167,7 +167,7 @@ class SourceCommentsPrettyPrinter extends SourcePrettyPrinter {
       val ld = recursiveToDoc(b, b.left, LeftAssoc)
       val rd = recursiveToDoc(b, b.right, RightAssoc)
       val opDoc = withComments(b.binaryOp, text(b.op))
-      withComments(b, group(ld <@> nest(opDoc <@> rd)))
+      withComments(b, group(ld <+> nest(opDoc <@> rd)))
     case u: UnaryExp =>
       val ed = recursiveToDoc(u, u.exp, NonAssoc)
       val opDoc = withComments(u.unaryOp, text(u.op))
