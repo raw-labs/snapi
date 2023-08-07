@@ -30,6 +30,9 @@ import scala.collection.mutable
  */
 class SourceCommentsPrettyPrinter extends SourcePrettyPrinter {
 
+  override val defaultIndent: Int = 4
+  override val defaultWidth: Int = 100
+
   private val nodeComments = new util.IdentityHashMap[BaseNode, NodeComments]()
   private val usedComments = new mutable.ArrayBuffer[BaseNode]()
 

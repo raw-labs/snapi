@@ -143,8 +143,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """not // not
-        |    true // true
-        |""".stripMargin
+        |    true // true""".stripMargin
     )
   }
 
@@ -157,10 +156,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |    aaaaaaaaaaaaaaaa,
         |    bbbbbbbbbbbbb,
         |    cccccccccccccc,
-        |    not
-        |        (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and
-        |            b > 12 or
-        |            c == 2) and
+        |    not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and
         |        b > 12 or
         |        c == 2
         |)""".stripMargin
@@ -241,9 +237,9 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       |
       |
       | main(
-      |     1, // arg 1
-      |     2, // ######################### arg 2 #######################
-      |     3 // arg 3
+      |   1, // arg 1
+      |   2, // ######################### arg 2 #######################
+      |   3 // arg 3
       | )""".stripMargin
 
     assertFormattedCode(
@@ -629,10 +625,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |                }
         |        )
         |    in
-        |        Collection.Filter(
-        |            summary,
-        |            (x) -> x.ExitCode > 0 and x.MachineId == id
-        |        )
+        |        Collection.Filter(summary, (x) -> x.ExitCode > 0 and x.MachineId == id)
         |
         |// Errors taken from log files
         |errors(id: int) =
@@ -652,17 +645,11 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |            filtered,
         |            (x) ->
         |                let
-        |                    groups = Regex.Groups(
-        |                        x,
-        |                        "(.*) WARN machine (\\d+) with error=(\\w+).*"
-        |                    )
+        |                    groups = Regex.Groups(x, "(.*) WARN machine (\\d+) with error=(\\w+).*")
         |                in
         |                    {
         |                        machineId: Int.From(List.Get(groups, 1)),
-        |                        timestamp: Timestamp.Parse(
-        |                            List.Get(groups, 0),
-        |                            "y-M-d\'T\'H:m:s"
-        |                        ),
+        |                        timestamp: Timestamp.Parse(List.Get(groups, 0), "y-M-d\'T\'H:m:s"),
         |                        error: List.Get(groups, 2)
         |                    }
         |        )
@@ -686,15 +673,9 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |        failureData = failures(machineId),
         |        lastFailure = Collection.Max(failureData.FinishedAt), // Collection max was done by Ben because of this example
         |        // subtracting 6 hours using an interval
-        |        startMeasure = Timestamp.SubtractInterval(
-        |            lastFailure,
-        |            Interval.Build(hours = 6)
-        |        ),
+        |        startMeasure = Timestamp.SubtractInterval(lastFailure, Interval.Build(hours = 6)),
         |        lastFailureRecord = Collection.First(
-        |            Collection.Filter(
-        |                failureData,
-        |                (x) -> x.FinishedAt == lastFailure
-        |            )
+        |            Collection.Filter(failureData, (x) -> x.FinishedAt == lastFailure)
         |        ),
         |        lastTelemetry = Collection.Filter(
         |            telemetry(machineId),
@@ -720,134 +701,129 @@ trait LspCommentsFormatTest extends CompilerTestContext {
 
   test("RD-9333") { _ =>
     val code = """// A general function for prompts to OpenAI
-                 |Prompt(
-                 |    openAiKey: string,
-                 |    model: string,
-                 |    temperature: float,
-                 |    messages: string
-                 |) =
-                 |    let
-                 |        rec read(): string =
-                 |            let
-                 |                x = String.Read(
-                 |                    Http.Post(
-                 |                        "https://api.openai.com/v1/chat/completions",
-                 |                        headers = [
-                 |                            {"Content-Type", "application/json"},
-                 |                            {"Authorization", "Bearer " + openAiKey}
-                 |                        ],
-                 |                        bodyString = "{\"model\": \"" + model
-                 |                        +
-                 |                            "\", \"messages\": [{\"role\": \"user\", \"content\": \""
-                 |                        +
-                 |                            messages
-                 |                        +
-                 |                            "\"}], \"temperature\": "
-                 |                        +
-                 |                            String.From(temperature)
-                 |                        +
-                 |                            "}"
-                 |                    )
-                 |                )
-                 |            in
-                 |                if Try.IsError(x) then
-                 |                    read()
-                 |                else
-                 |                    x,
-                 |        x = read(),
-                 |        contentObj = Json.Parse(
-                 |            x,
-                 |            type record(
-                 |                choices: list(record(message: record(content: string)))
-                 |            )
-                 |        )
-                 |    in
-                 |        List.Get(contentObj.choices, 0).message.content
-                 |
-                 |let
-                 |    data = Json.InferAndRead(
-                 |        "https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz18-g-6638"
-                 |    ), //"https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz21-b-0101"),
-                 |    title = data.title,
-                 |    language = data.language,
-                 |    id = data.fsoNr,
-                 |    points = Collection.Transform(
-                 |        data.dataset,
-                 |        (r) ->
-                 |            let
-                 |                area = r.area,
-                 |                data = Collection.Transform(
-                 |                    Collection.Take(r.worksheet_dataset, 5),
-                 |                    (d) ->
-                 |                        let
-                 |                            titles = Collection.Union(
-                 |                                d.row_header,
-                 |                                d.column_header
-                 |                            ),
-                 |                            indexes = Long.Range(
-                 |                                0,
-                 |                                Collection.Count(titles)
-                 |                            ),
-                 |                            f = Collection.Zip(titles, indexes),
-                 |                            titlesText = Collection.Transform(
-                 |                                f,
-                 |                                (r) ->
-                 |                                    "##"
-                 |                                    +
-                 |                                        String.Replicate(
-                 |                                            "#",
-                 |                                            Int.From(r._2)
-                 |                                        )
-                 |                                    +
-                 |                                        " "
-                 |                                    +
-                 |                                        r._1
-                 |                            ),
-                 |                            content = Collection.MkString(
-                 |                                titlesText,
-                 |                                sep = "\n"
-                 |                            )
-                 |                            +
-                 |                                "\nValue: "
-                 |                            +
-                 |                                d.measurement,
-                 |                            markdownBody = "# " + title + "\n" + content,
-                 |                            gptBody = Prompt(
-                 |                                Environment.Secret("open-ai-key"),
-                 |                                "gpt-3.5-turbo",
-                 |                                0,
-                 |                                "Given the content (in markdown): ```"
-                 |                                +
-                 |                                    String.Replace(
-                 |                                        Json.Print(markdownBody),
-                 |                                        "\"",
-                 |                                        ""
-                 |                                    )
-                 |                                +
-                 |                                    "```, describe it in plain english. Do not mention the markdown structure at all."
-                 |                            )
-                 |                        in
-                 |                            {
-                 |                                title: title,
-                 |                                language: language,
-                 |                                id: id,
-                 |                                body: gptBody
-                 |                            }
-                 |                )
-                 |            in
-                 |                data
-                 |    )
-                 |in
-                 |    Collection.First(points)""".stripMargin
+      |Prompt(
+      |    openAiKey: string,
+      |    model: string,
+      |    temperature: float,
+      |    messages: string
+      |) =
+      |    let
+      |        rec read(): string =
+      |            let
+      |                x = String.Read(
+      |                    Http.Post(
+      |                        "https://api.openai.com/v1/chat/completions",
+      |                        headers = [
+      |                            {"Content-Type", "application/json"},
+      |                            {"Authorization", "Bearer " + openAiKey}
+      |                        ],
+      |                        bodyString = "{\"model\": \"" + model
+      |                        +
+      |                            "\", \"messages\": [{\"role\": \"user\", \"content\": \""
+      |                        +
+      |                            messages
+      |                        +
+      |                            "\"}], \"temperature\": "
+      |                        +
+      |                            String.From(temperature)
+      |                        +
+      |                            "}"
+      |                    )
+      |                )
+      |            in
+      |                if Try.IsError(x) then
+      |                    read()
+      |                else
+      |                    x,
+      |        x = read(),
+      |        contentObj = Json.Parse(
+      |            x,
+      |            type record(
+      |                choices: list(record(message: record(content: string)))
+      |            )
+      |        )
+      |    in
+      |        List.Get(contentObj.choices, 0).message.content
+      |
+      |let
+      |    data = Json.InferAndRead(
+      |        "https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz18-g-6638"
+      |    ), //"https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz21-b-0101"),
+      |    title = data.title,
+      |    language = data.language,
+      |    id = data.fsoNr,
+      |    points = Collection.Transform(
+      |        data.dataset,
+      |        (r) ->
+      |            let
+      |                area = r.area,
+      |                data = Collection.Transform(
+      |                    Collection.Take(r.worksheet_dataset, 5),
+      |                    (d) ->
+      |                        let
+      |                            titles = Collection.Union(
+      |                                d.row_header,
+      |                                d.column_header
+      |                            ),
+      |                            indexes = Long.Range(
+      |                                0,
+      |                                Collection.Count(titles)
+      |                            ),
+      |                            f = Collection.Zip(titles, indexes),
+      |                            titlesText = Collection.Transform(
+      |                                f,
+      |                                (r) ->
+      |                                    "##"
+      |                                    +
+      |                                        String.Replicate(
+      |                                            "#",
+      |                                            Int.From(r._2)
+      |                                        )
+      |                                    +
+      |                                        " "
+      |                                    +
+      |                                        r._1
+      |                            ),
+      |                            content = Collection.MkString(
+      |                                titlesText,
+      |                                sep = "\n"
+      |                            )
+      |                            +
+      |                                "\nValue: "
+      |                            +
+      |                                d.measurement,
+      |                            markdownBody = "# " + title + "\n" + content,
+      |                            gptBody = Prompt(
+      |                                Environment.Secret("open-ai-key"),
+      |                                "gpt-3.5-turbo",
+      |                                0,
+      |                                "Given the content (in markdown): ```"
+      |                                +
+      |                                    String.Replace(
+      |                                        Json.Print(markdownBody),
+      |                                        "\"",
+      |                                        ""
+      |                                    )
+      |                                +
+      |                                    "```, describe it in plain english. Do not mention the markdown structure at all."
+      |                            )
+      |                        in
+      |                            {
+      |                                title: title,
+      |                                language: language,
+      |                                id: id,
+      |                                body: gptBody
+      |                            }
+      |                )
+      |            in
+      |                data
+      |    )
+      |in
+      |    Collection.First(points)""".stripMargin
     assertFormattedCode(
       code,
       """// A general function for prompts to OpenAI
-        |Prompt(
-        |    openAiKey: string,
-        |    model: string,
-        |    temperature: float,
-        |    messages: string
-        |) =
+        |Prompt(openAiKey: string, model: string, temperature: float, messages: string) =
         |    let
         |        rec read(): string =
         |            let
@@ -874,17 +850,13 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |        x = read(),
         |        contentObj = Json.Parse(
         |            x,
-        |            type record(
-        |                choices: list(record(message: record(content: string)))
-        |            )
+        |            type record(choices: list(record(message: record(content: string))))
         |        )
         |    in
         |        List.Get(contentObj.choices, 0).message.content
         |
         |let
-        |    data = Json.InferAndRead(
-        |        "https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz18-g-6638"
-        |    ), //"https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz21-b-0101"),
+        |    data = Json.InferAndRead("https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz18-g-6638"), //"https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz21-b-0101"),
         |    title = data.title,
         |    language = data.language,
         |    id = data.fsoNr,
@@ -897,31 +869,14 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |                    Collection.Take(r.worksheet_dataset, 5),
         |                    (d) ->
         |                        let
-        |                            titles = Collection.Union(
-        |                                d.row_header,
-        |                                d.column_header
-        |                            ),
-        |                            indexes = Long.Range(
-        |                                0,
-        |                                Collection.Count(titles)
-        |                            ),
+        |                            titles = Collection.Union(d.row_header, d.column_header),
+        |                            indexes = Long.Range(0, Collection.Count(titles)),
         |                            f = Collection.Zip(titles, indexes),
         |                            titlesText = Collection.Transform(
         |                                f,
-        |                                (r) ->
-        |                                    "##" +
-        |                                        String.Replicate(
-        |                                            "#",
-        |                                            Int.From(r._2)
-        |                                        ) +
-        |                                        " " +
-        |                                        r._1
+        |                                (r) -> "##" + String.Replicate("#", Int.From(r._2)) + " " + r._1
         |                            ),
-        |                            content = Collection.MkString(
-        |                                titlesText,
-        |                                sep = "\n"
-        |                            ) +
-        |                                "\nValue: " +
+        |                            content = Collection.MkString(titlesText, sep = "\n") + "\nValue: " +
         |                                d.measurement,
         |                            markdownBody = "# " + title + "\n" + content,
         |                            gptBody = Prompt(
@@ -929,27 +884,18 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |                                "gpt-3.5-turbo",
         |                                0,
         |                                "Given the content (in markdown): ```" +
-        |                                    String.Replace(
-        |                                        Json.Print(markdownBody),
-        |                                        "\"",
-        |                                        ""
-        |                                    ) +
+        |                                    String.Replace(Json.Print(markdownBody), "\"", "") +
         |                                    "```, describe it in plain english. Do not mention the markdown structure at all."
         |                            )
         |                        in
-        |                            {
-        |                                title: title,
-        |                                language: language,
-        |                                id: id,
-        |                                body: gptBody
-        |                            }
+        |                            {title: title, language: language, id: id, body: gptBody}
         |                )
         |            in
         |                data
         |    )
         |in
-        |    Collection.First(points)""".stripMargin)
-
+        |    Collection.First(points)""".stripMargin
+    )
   }
 
 }

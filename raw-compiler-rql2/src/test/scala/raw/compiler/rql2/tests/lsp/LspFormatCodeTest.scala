@@ -200,9 +200,7 @@ trait LspFormatCodeTest extends CompilerTestContext {
         |        Collection.Filter(
         |            ttt,
         |            (t) ->
-        |                t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and
-        |                    t > 1 and
-        |                    t > 1 and
+        |                t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and
         |                    t > 1 and
         |                    t > 1
         |        )""".stripMargin
