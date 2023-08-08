@@ -223,7 +223,7 @@ abstract class Compiler(implicit compilerContext: CompilerContext) extends raw.c
       implicit programContext: base.ProgramContext
   ): LSPResponse = {
     request match {
-      case FormatCodeLSPRequest(code, maybeIndent, maybeWidth, _) =>
+      case FormatCodeLSPRequest(code, _, maybeIndent, maybeWidth) =>
         val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
         pretty.prettyCode(code) match {
           case Left((error, position)) =>
