@@ -18,8 +18,13 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait LspCommentsFormatTest extends CompilerTestContext {
   val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
-  def assertFormattedCode(code: String, expected: String) = {
-    val response = doLsp(FormatCodeLSPRequest(code, None, None, queryEnvironment))
+  def assertFormattedCode(
+      code: String,
+      expected: String,
+      indentation: Option[Int] = None,
+      width: Option[Int] = None
+  ) = {
+    val response = doLsp(FormatCodeLSPRequest(code, indentation, width, queryEnvironment))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
         logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
@@ -465,6 +470,55 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |      FinishedAt: x.State.FinishedAt
         |    }
         |)""".stripMargin
+    )
+  }
+
+  test("change width and indentation") { _ =>
+    val code = """let
+      |  a = 1,
+      |  b = 2, // a short line
+      |  c = 3
+      |in
+      |  not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2
+      | """.stripMargin
+
+    assertFormattedCode(
+      code,
+      """let
+        |  a = 1,
+        |  b = 2, // a short line
+        |  c = 3
+        |in
+        |  not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2
+        |""".stripMargin
+    )
+
+    assertFormattedCode(
+      code,
+      """let
+        |    a = 1,
+        |    b = 2, // a short line
+        |    c = 3
+        |in
+        |    not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2""".stripMargin,
+      Some(4)
+    )
+
+    assertFormattedCode(
+      code,
+      """let
+        |    a = 1,
+        |    b = 2, // a short line
+        |    c = 3
+        |in
+        |    not
+        |        (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and
+        |            b > 12 or
+        |            c == 2) and
+        |        b > 12 or
+        |        c == 2""".stripMargin,
+      Some(4),
+      Some(80)
     )
   }
 
