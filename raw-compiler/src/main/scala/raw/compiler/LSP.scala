@@ -38,9 +38,9 @@ sealed trait LSPRequest {
 }
 final case class FormatCodeLSPRequest(
     code: String,
-    maybeIndent: Option[Int],
-    maybeWidth: Option[Int],
-    environment: ProgramEnvironment
+    environment: ProgramEnvironment,
+    maybeIndent: Option[Int] = None,
+    maybeWidth: Option[Int] = None
 ) extends LSPRequest
 final case class DotAutoCompleteLSPRequest(code: String, environment: ProgramEnvironment, position: Pos)
     extends LSPRequest

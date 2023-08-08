@@ -24,7 +24,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       indentation: Option[Int] = None,
       width: Option[Int] = None
   ) = {
-    val response = doLsp(FormatCodeLSPRequest(code, indentation, width, queryEnvironment))
+    val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment, indentation, width))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
         logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
