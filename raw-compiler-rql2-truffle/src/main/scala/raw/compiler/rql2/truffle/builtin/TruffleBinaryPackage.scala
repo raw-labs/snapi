@@ -22,8 +22,7 @@ import raw.runtime.truffle.ast.expressions.builtin.binary_package.{
   BinaryFromStringNodeGen,
   BinaryReadNodeGen
 }
-import raw.runtime.truffle.ast.io.{NullableStreamWriterNode, TryableStreamWriterNode}
-import raw.runtime.truffle.ast.io.binary.BinaryBytesWriterNode
+import raw.runtime.truffle.ast.io.binary.{BinaryBytesWriterNode, NullableBinaryWriterNode, TryableBinaryWriterNode}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 
 class TruffleFromStringBinaryEntryExtension extends FromStringBinaryEntryExtension with TruffleShortEntryExtension {
@@ -56,12 +55,12 @@ object TruffleBinaryWriter {
       // Tryable binary: wrap the inner writer (plain or nullable) in a tryable writer that throws in case of failure.
       val innerType = t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2BinaryType]
       val innerWriter = TruffleBinaryWriter(innerType)
-      new ProgramStatementNode(lang, frameDescriptor, new TryableStreamWriterNode(innerWriter))
+      new ProgramStatementNode(lang, frameDescriptor, new TryableBinaryWriterNode(innerWriter))
     } else {
       // Nullable binary: wrap the inner writer (plain) in a nullable writer that writes nothing if the value is null.
       val innerType = t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2BinaryType]
       val innerWriter = TruffleBinaryWriter(innerType)
-      new ProgramStatementNode(lang, frameDescriptor, new NullableStreamWriterNode(innerWriter))
+      new ProgramStatementNode(lang, frameDescriptor, new NullableBinaryWriterNode(innerWriter))
     }
 
   }
@@ -75,12 +74,12 @@ object TruffleBinaryWriter {
       // Tryable binary: wrap the inner writer (plain or nullable) in a tryable writer that throws in case of failure.
       val innerType = t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2StringType]
       val innerWriter = TruffleBinaryWriter(innerType)
-      new ProgramStatementNode(lang, frameDescriptor, new TryableStreamWriterNode(innerWriter))
+      new ProgramStatementNode(lang, frameDescriptor, new TryableBinaryWriterNode(innerWriter))
     } else {
       // Nullable binary: wrap the inner writer (plain) in a nullable writer that writes nothing if the value is null.
       val innerType = t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2StringType]
       val innerWriter = TruffleBinaryWriter(innerType)
-      new ProgramStatementNode(lang, frameDescriptor, new NullableStreamWriterNode(innerWriter))
+      new ProgramStatementNode(lang, frameDescriptor, new NullableBinaryWriterNode(innerWriter))
     }
 
   }

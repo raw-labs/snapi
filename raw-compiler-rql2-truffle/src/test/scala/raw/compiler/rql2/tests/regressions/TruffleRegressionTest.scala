@@ -72,7 +72,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD5412TruffleTest extends TruffleCompilerTestContext with RD5412Test
 
 // 'text' format not supported
-// @TruffleTests class RD5971TruffleTest extends TruffleCompilerTestContext with RD5971Test
+@TruffleTests class RD5971TruffleTest extends TruffleCompilerTestContext with RD5971Test
 @TruffleTests class RD4445TruffleTest extends TruffleCompilerTestContext with RD4445Test
 
 // XML

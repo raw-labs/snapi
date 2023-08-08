@@ -10,43 +10,39 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.io;
+package raw.runtime.truffle.ast.io.binary;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.runtime.exceptions.binary.BinaryWriterRawTruffleException;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.runtime.option.OptionLibrary;
 
 import java.io.OutputStream;
 
-@NodeInfo(shortName = "Binary.TryableWrite")
-public class TryableStreamWriterNode extends StatementNode {
+@NodeInfo(shortName = "Binary.NullableWrite")
+public class NullableBinaryWriterNode extends StatementNode {
 
   @Child
   private DirectCallNode innerWriter;
 
   @Child
-  private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+  private OptionLibrary options = OptionLibrary.getFactory().createDispatched(1);
 
-  public TryableStreamWriterNode(ProgramStatementNode innerWriter) {
+  public NullableBinaryWriterNode(ProgramStatementNode innerWriter) {
     this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
   }
 
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    Object tryable = args[0];
+    Object nullable = args[0];
     OutputStream output = (OutputStream) args[1];
-    if (tryables.isSuccess(tryable)) {
-      // the tryable is a success, write its bytes using the inner writer.
-      innerWriter.call(tryables.success(tryable), output);
-    } else {
-      // else throw.
-      throw new BinaryWriterRawTruffleException(tryables.failure(tryable), this);
-    }
+    if (options.isDefined(nullable)) {
+      // the nullable is defined, write its bytes using the inner writer (the plain binary writer)
+      innerWriter.call(options.get(nullable), output);
+    }  // else don't write anything.
   }
 
 }

@@ -36,7 +36,12 @@ public class BinaryBytesWriterNode extends StatementNode {
     @Override
     public void executeVoid(VirtualFrame frame) {
         Object[] args = frame.getArguments();
-        byte[] binaryData = (byte[]) args[0];
+        byte[] binaryData;
+        if (args[0] instanceof byte[]) {
+            binaryData = (byte[]) args[0];
+        } else {
+            binaryData = ((String) args[0]).getBytes();
+        }
         OutputStream output = (OutputStream) args[1];
         doWrite(output, binaryData);
     }
