@@ -18,6 +18,8 @@ import raw.runtime.truffle.ast.BinaryNode;
 import raw.runtime.truffle.runtime.tryable.*;
 
 import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 // TODO: further optimization could be done by creating permutations of types?
 // if we divide 500.0 by 500.0 the result could fit into int, should we specialize that case?
@@ -57,6 +59,11 @@ public abstract class DivNode extends BinaryNode {
 
     @Specialization
     protected ObjectTryable divDecimal(BigDecimal a, BigDecimal b) {
-        return b.doubleValue() != 0 ? ObjectTryable.BuildSuccess(a.divide(b)) : ObjectTryable.BuildFailure("/ by zero");
+        // Without the MathContext.DECIMAL128, we would get a:
+        // java.lang.ArithmeticException: Non-terminating decimal expansion; no exact representable decimal result.
+        // MathContext DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
+        // This means 34 digits before rounding
+        // TODO: Check if this the rounding mode we want.
+        return b.doubleValue() != 0 ? ObjectTryable.BuildSuccess(a.divide(b, MathContext.DECIMAL128)) : ObjectTryable.BuildFailure("/ by zero");
     }
 }

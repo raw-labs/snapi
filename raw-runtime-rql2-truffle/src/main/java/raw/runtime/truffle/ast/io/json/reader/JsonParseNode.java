@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.ParserOperations.*;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 
@@ -36,13 +36,13 @@ public class JsonParseNode extends ExpressionNode {
     private DirectCallNode childDirectCall;
 
     @Child
-    private InitJsonParserNode initParserNode = ParserOperationsFactory.InitJsonParserNodeGen.create();
+    private InitJsonParserNode initParserNode = JsonParserNodesFactory.InitJsonParserNodeGen.create();
 
     @Child
-    private CloseJsonParserNode closeParserNode = ParserOperationsFactory.CloseJsonParserNodeGen.create();
+    private CloseJsonParserNode closeParserNode = JsonParserNodesFactory.CloseJsonParserNodeGen.create();
 
     @Child
-    private NextTokenJsonParserNode nextTokenNode = ParserOperationsFactory.NextTokenJsonParserNodeGen.create();
+    private NextTokenJsonParserNode nextTokenNode = JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
     private JsonParser parser;
 

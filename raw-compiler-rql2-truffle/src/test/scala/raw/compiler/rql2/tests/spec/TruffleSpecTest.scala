@@ -35,8 +35,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class LetBindTruffleTest extends TruffleCompilerTestContext with LetBindTest
 @TruffleTests class FunAbsTruffleTest extends TruffleCompilerTestContext with FunAbsTest
 
-// List.Union (RD-9053)
-// class LetFunRecTruffleTest extends TruffleCompilerTestContext with LetFunRecTest
+@TruffleTests class LetFunRecTruffleTest extends TruffleCompilerTestContext with LetFunRecTest
 @TruffleTests class ClosureTruffleTest extends TruffleCompilerTestContext with ClosureTest
 @TruffleTests class BinaryExpOrTruffleTest extends TruffleCompilerTestContext with BinaryExpOrTest
 @TruffleTests class BinaryExpEqTruffleTest extends TruffleCompilerTestContext with BinaryExpEqTest
@@ -49,11 +48,10 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class BasicStagedCompilerTruffleTest extends TruffleCompilerTestContext with BasicStagedCompilerTest
 @TruffleTests class BinaryExpLtTruffleTest extends TruffleCompilerTestContext with BinaryExpLtTest
 
-// Weird test
+// Weird test (perhaps works with RD-9229)
 // class PackageNameTruffleTest extends TruffleCompilerTestContext with PackageNameTest
 
 // Xml reader
 // class StagedCompilerTruffleTest extends TruffleCompilerTestContext with StagedCompilerTest
 
-// RD-9078
-// class LetFunTruffleTest extends TruffleCompilerTestContext with LetFunTest
+@TruffleTests class LetFunTruffleTest extends TruffleCompilerTestContext with LetFunTest

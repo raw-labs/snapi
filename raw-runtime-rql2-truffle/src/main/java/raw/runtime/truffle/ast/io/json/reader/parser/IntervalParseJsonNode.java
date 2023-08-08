@@ -13,33 +13,24 @@
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 
-import java.io.IOException;
-
 @NodeInfo(shortName = "IntervalParseJson")
-public class IntervalParseJsonNode extends ExpressionNode {
+public abstract class IntervalParseJsonNode extends ExpressionNode {
 
-    public Object executeGeneric(VirtualFrame frame) {
+    @Specialization
+    protected IntervalObject doParse(
+            VirtualFrame frame,
+            @Cached("create()") JsonParserNodes.ParseIntervalJsonParserNode parse
+    ) {
         Object[] args = frame.getArguments();
         JsonParser parser = (JsonParser) args[0];
-        return doParse(parser);
-    }
-
-    @TruffleBoundary
-    private IntervalObject doParse(JsonParser parser) {
-        try {
-            String text = parser.getText();
-            IntervalObject interval = new IntervalObject(text);
-            parser.nextToken();
-            return interval;
-        } catch (IOException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
-        }
+        return parse.execute(parser);
     }
 }

@@ -20,8 +20,9 @@ trait AwsPackageTest extends CompilerTestContext {
   val abraxasSecretAccessKey = sys.env("RAW_ABRAXAS_SECRET_ACCESS_KEY")
 
   secret(authorizedUser, "abraxas-secret-key", abraxasSecretAccessKey)
-
   secret(authorizedUser, "abraxas-key", abraxasAccessKeyId)
+
+  def xmlImplemented: Boolean
 
   val triple = "\"\"\""
 
@@ -38,9 +39,10 @@ trait AwsPackageTest extends CompilerTestContext {
     |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
     |)
     |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+    |""".stripMargin) { it =>
+    assume(xmlImplemented)
+    it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  }
 
   test("""let data = Xml.Read(
     |    Aws.SignedV4Request(
@@ -57,9 +59,10 @@ trait AwsPackageTest extends CompilerTestContext {
     |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
     |)
     |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+    |""".stripMargin) { it =>
+    assume(xmlImplemented)
+    it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  }
 
   test("""let data = Xml.Read(
     |    Aws.SignedV4Request(
@@ -77,9 +80,10 @@ trait AwsPackageTest extends CompilerTestContext {
     |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
     |  )
     |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+    |""".stripMargin) { it =>
+    assume(xmlImplemented)
+    it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  }
 
   test("""let data = Xml.InferAndRead(
     |    Aws.SignedV4Request(
@@ -93,9 +97,10 @@ trait AwsPackageTest extends CompilerTestContext {
     |    )
     |)
     |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
-    |""".stripMargin)(
-    _ should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
-  )
+    |""".stripMargin) { it =>
+    assume(xmlImplemented)
+    it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+  }
 
   test(
     s"""let query = $triple{"endTime": 1665655502, "limit": 1000, "logGroupName": "/aws/lambda/auth-proxy-v2-lambda-prod", "queryString": "fields @timestamp, @message, @clientTag, @username | limit 200", "startTime": 1665396297}$triple
@@ -175,7 +180,10 @@ trait AwsPackageTest extends CompilerTestContext {
     |)
     |in Collection.Count(data.reservationSet.item)
     |
-    |""".stripMargin)(it => it should run)
+    |""".stripMargin) { it =>
+    assume(xmlImplemented)
+    it should run
+  }
 
   // Using iam to list users.
   test("""let data = Xml.Read(
@@ -204,9 +212,13 @@ trait AwsPackageTest extends CompilerTestContext {
     |)
     |in List.Filter(data.ListUsersResult.Users.member, x -> x.UserName == "abraxas").UserName
     |
-    |""".stripMargin)(it => it should evaluateTo(""" ["abraxas" ] """))
+    |""".stripMargin) { it =>
+    assume(xmlImplemented)
+    it should evaluateTo(""" ["abraxas" ] """)
+  }
 
   // querying monitoring aka could-watch to get cpu usage
+  // this test was failing with Non-terminating decimal expansion; no exact representable decimal result.
   test(s"""
     |let query = Json.Print({
     |       StartTime: Timestamp.ToUnixTimestamp(Timestamp.Build(2022,10,11, 23, 0)),

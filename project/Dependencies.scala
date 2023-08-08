@@ -10,8 +10,6 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % scalacVersion
   )
 
-  val awsSdk = "software.amazon.awssdk" % "aws-sdk-java" % "2.20.26"
-
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.429"
 
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
@@ -34,8 +32,8 @@ object Dependencies {
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.0"
 
   val kiama = Seq(
-    "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.0",
-    "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.0"
+    "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.1",
+    "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.1"
   )
 
   val ehCache = "org.ehcache" % "ehcache" % "3.10.6"

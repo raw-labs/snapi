@@ -13,17 +13,15 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-
-import java.io.IOException;
 
 
 @NodeInfo(shortName = "IterableWriteJson")
@@ -38,6 +36,12 @@ public class IterableWriteJsonNode extends StatementNode {
     @Child
     private GeneratorLibrary generators = GeneratorLibrary.getFactory().createDispatched(1);
 
+    @Child
+    private JsonWriteNodes.WriteStartArrayJsonWriterNode writeStartArrayNode = JsonWriteNodesFactory.WriteStartArrayJsonWriterNodeGen.create();
+
+    @Child
+    private JsonWriteNodes.WriteEndArrayJsonWriterNode writeEndArrayNode = JsonWriteNodesFactory.WriteEndArrayJsonWriterNodeGen.create();
+
     public IterableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
         this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
     }
@@ -50,31 +54,14 @@ public class IterableWriteJsonNode extends StatementNode {
         Object generator = itrables.getGenerator(iterable);
         try {
             generators.init(generator);
-            writeStartArray(gen);
+            writeStartArrayNode.execute(gen);
             while (generators.hasNext(generator)) {
                 childDirectCall.call(generators.next(generator), gen);
             }
-            writeEndArray(gen);
+            writeEndArrayNode.execute(gen);
         } finally {
             generators.close(generator);
         }
     }
 
-    @TruffleBoundary
-    private void writeStartArray(JsonGenerator gen) {
-        try {
-            gen.writeStartArray();
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-        }
-    }
-
-    @TruffleBoundary
-    private void writeEndArray(JsonGenerator gen) {
-        try {
-            gen.writeEndArray();
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-        }
-    }
 }

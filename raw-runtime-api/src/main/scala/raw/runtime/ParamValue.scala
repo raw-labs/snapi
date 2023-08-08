@@ -42,7 +42,7 @@ final case class ParamInt(v: java.lang.Integer) extends ParamValue
 final case class ParamLong(v: java.lang.Long) extends ParamValue
 final case class ParamFloat(v: java.lang.Float) extends ParamValue
 final case class ParamDouble(v: java.lang.Double) extends ParamValue
-final case class ParamDecimal(v: BigDecimal) extends ParamValue
+final case class ParamDecimal(v: java.math.BigDecimal) extends ParamValue
 final case class ParamBool(v: java.lang.Boolean) extends ParamValue
 final case class ParamString(v: java.lang.String) extends ParamValue
 final case class ParamDate(v: java.time.LocalDate) extends ParamValue

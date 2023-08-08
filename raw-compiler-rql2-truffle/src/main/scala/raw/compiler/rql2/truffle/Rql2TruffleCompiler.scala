@@ -21,14 +21,31 @@ import org.bitbucket.inkytonik.kiama.util.Entity
 import org.graalvm.polyglot.Context
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.{BaseTree, CompilerContext}
-import raw.compiler.common.source.{Exp, IdnExp, SourceNode, SourceProgram}
+import raw.compiler.common.source.{Exp, IdnExp, IdnUse, SourceNode, SourceProgram}
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
+import raw.compiler.rql2.builtin.EnvironmentPackageBuilder
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonRecurse, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
-import raw.compiler.{CompilerException, ProgramSettings}
-import raw.runtime.Entrypoint
+import raw.compiler.{base, CompilerException, ErrorMessage, ProgramSettings}
+import raw.runtime.{
+  Entrypoint,
+  ParamBool,
+  ParamByte,
+  ParamDate,
+  ParamDecimal,
+  ParamDouble,
+  ParamFloat,
+  ParamInt,
+  ParamInterval,
+  ParamLong,
+  ParamNull,
+  ParamShort,
+  ParamString,
+  ParamTime,
+  ParamTimestamp
+}
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
 import raw.runtime.truffle.ast._
@@ -69,6 +86,65 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
     val res = target.call()
     convertAnyToValue(res, tree.rootType.get)
+  }
+
+  override def parseAndValidate(source: String, maybeDecl: Option[String])(
+      implicit programContext: base.ProgramContext
+  ): Either[List[ErrorMessage], SourceProgram] = {
+    buildInputTree(source).right.flatMap { tree =>
+      val Rql2Program(methods, me) = tree.root
+
+      maybeDecl match {
+        case None =>
+          if (programContext.runtimeContext.maybeArguments.nonEmpty) {
+            // arguments are given while no method to execute is
+            // provided.
+            throw new CompilerException("arguments found")
+          }
+
+          if (me.isEmpty) {
+            // no method, but also no bottom expression. This isn't
+            // executable.
+            throw new CompilerException("no expression found")
+          }
+
+          val e = me.get
+          Right(Rql2Program(methods, Some(e)))
+        case Some(decl) => tree.description.expDecls.get(decl) match {
+            case Some(descriptions) =>
+              if (descriptions.size > 1) throw new CompilerException("multiple declarations found")
+              val description = descriptions.head
+              val params = description.params.get
+              val mandatory = params.collect { case p if p.required => p.idn }.toSet
+              val args = programContext.runtimeContext.maybeArguments.get
+              val programArgs = args.map {
+                case (k, v) =>
+                  val e = v match {
+                    case _: ParamNull => NullConst()
+                    case _: ParamByte => EnvironmentPackageBuilder.Parameter(Rql2ByteType(), StringConst(k))
+                    case _: ParamShort => EnvironmentPackageBuilder.Parameter(Rql2ShortType(), StringConst(k))
+                    case _: ParamInt => EnvironmentPackageBuilder.Parameter(Rql2IntType(), StringConst(k))
+                    case _: ParamLong => EnvironmentPackageBuilder.Parameter(Rql2LongType(), StringConst(k))
+                    case _: ParamFloat => EnvironmentPackageBuilder.Parameter(Rql2FloatType(), StringConst(k))
+                    case _: ParamDouble => EnvironmentPackageBuilder.Parameter(Rql2DoubleType(), StringConst(k))
+                    case _: ParamDecimal => EnvironmentPackageBuilder.Parameter(Rql2DecimalType(), StringConst(k))
+                    case _: ParamBool => EnvironmentPackageBuilder.Parameter(Rql2BoolType(), StringConst(k))
+                    case _: ParamString => EnvironmentPackageBuilder.Parameter(Rql2StringType(), StringConst(k))
+                    case _: ParamDate => EnvironmentPackageBuilder.Parameter(Rql2DateType(), StringConst(k))
+                    case _: ParamTime => EnvironmentPackageBuilder.Parameter(Rql2TimeType(), StringConst(k))
+                    case _: ParamTimestamp => EnvironmentPackageBuilder.Parameter(Rql2TimestampType(), StringConst(k))
+                    case _: ParamInterval => EnvironmentPackageBuilder.Parameter(Rql2IntervalType(), StringConst(k))
+                  }
+                  // Build the argument node.
+                  // If argument is mandatory, then according to RQL2's language definition, the argument is not named.
+                  // However, if the argument os optional, the name is added.
+                  FunAppArg(e, if (mandatory.contains(k)) None else Some(k))
+              }
+              Right(Rql2Program(methods, Some(FunApp(IdnExp(IdnUse(decl)), programArgs.toVector))))
+            case None => throw new CompilerException("declaration not found")
+          }
+      }
+    }
   }
 
   private def convertAnyToValue(v: Any, t: Type): Value = t match {
@@ -372,8 +448,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       val entity = analyzer.entity(i)
       val funcName = getFuncIdn(entity)
       val f = recurseFunProto(funcName, fp)
-      val functionLiteralNode = new ClosureNode(f)
-
+      val defaultArgs = for (p <- fp.ps) yield p.e.map(recurseExp).orNull
+      val functionLiteralNode = new ClosureNode(f, defaultArgs.toArray)
       // Only then add to slot.
       val slot = getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
       addSlot(entity, slot)
@@ -388,7 +464,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       addSlot(entity, slot)
 
       val f = recurseFunProto(funcName, fp)
-      val functionLiteralNode = new ClosureNode(f)
+      val defaultArgs = for (p <- fp.ps) yield p.e.map(recurseExp).orNull
+      val functionLiteralNode = new ClosureNode(f, defaultArgs.toArray)
       val stmt = WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null)
       stmt
   }
@@ -405,8 +482,9 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     val functionRootBody =
       new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
+    val argNames = fp.ps.map(_.i.idn).toArray
     RawLanguage.getCurrentContext.getFunctionRegistry
-      .register(name, rootCallTarget)
+      .register(name, argNames, rootCallTarget)
   }
 
   override def recurseLambda(buildBody: () => ExpressionNode): ClosureNode = {
@@ -424,9 +502,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
     val f = RawLanguage.getCurrentContext.getFunctionRegistry
-      .register(name, rootCallTarget)
-
-    new ClosureNode(f)
+      .register(name, Array("x"), rootCallTarget)
+    new ClosureNode(f, Array.empty) // no default values for these lambdas
   }
 
   override def recurseExp(in: Exp): ExpressionNode = in match {
@@ -462,7 +539,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
           val funcName = getFuncIdn(b)
           val registry = RawLanguage.getCurrentContext.getFunctionRegistry
           val function = registry.getFunction(funcName)
-          new MethodRefNode(function)
+          val defaultArgs = for (p <- b.d.p.ps) yield p.e.map(recurseExp).orNull
+          new MethodRefNode(function, defaultArgs.toArray)
         case b: LetBindEntity =>
           val SlotLocation(depth, slot) = findSlot(b)
           if (depth == 0) {
@@ -502,7 +580,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     case FunAbs(fp) =>
       val funcName = getLambdaFuncIdn
       val f = recurseFunProto(funcName, fp)
-      new ClosureNode(f)
+      val defaultArgs = for (p <- fp.ps) yield p.e.map(recurseExp).orNull
+      new ClosureNode(f, defaultArgs.toArray)
     case f @ FunApp(e, args) if tipe(e).isInstanceOf[PackageEntryType] =>
       val t = tipe(f)
       val PackageEntryType(pkgName, entName) = tipe(e)
@@ -516,7 +595,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
             e.toTruffle(t, args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn)), this)
         }
         .getOrElse(throw new Exception(s"Could not find package entry: $pkgName.$entName"))
-    case FunApp(f, args) => new InvokeNode(recurseExp(f), args.map(arg => recurseExp(arg.e)).toArray)
+    case FunApp(f, args) =>
+      new InvokeNode(recurseExp(f), args.map(_.idn.orNull).toArray, args.map(arg => recurseExp(arg.e)).toArray)
   }
 
 }

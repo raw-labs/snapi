@@ -505,4 +505,24 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     s"""Csv.InferAndParse(${ttt}1;2\n3;hello;5;;;;;;;$ttt, delimiters=[";","\\n"])""".stripMargin
   )(_ should evaluateTo("""[]"""))
 
+  test(
+    rql"""Csv.Read("$data", type collection(record(_1: int, _2: int, _3: int)), delimiter="|", escape="\\", quote="\"")"""
+  )(it => it should run)
+
+  test(
+    rql"""Csv.Read("$data", type collection(record(_1: int, _2: int, _3: int)), delimiter="|", escape=null, quote=null)"""
+  )(it => it should run)
+
+  test(rql"""Csv.InferAndRead("$data", escape="\\", quotes=["\""])""")(it => it should run)
+
+  test(rql"""Csv.Parse("1,2,3", type collection(record(_1: int, _2: int, _3: int)), escape="\\", quote="\"")""")(it =>
+    it should run
+  )
+
+  test(rql"""Csv.Parse("1,2,3", type collection(record(_1: int, _2: int, _3: int)), escape=null, quote=null)""")(it =>
+    it should run
+  )
+
+  test(rql"""Csv.InferAndParse("1,2,3", escape="\\", quotes=["\""])""")(it => it should run)
+
 }

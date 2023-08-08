@@ -13,29 +13,21 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
-import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
-
-import java.io.IOException;
 
 @NodeInfo(shortName = "IntervalWriteJson")
 public class IntervalWriteJsonNode extends StatementNode {
 
+    @Child
+    JsonWriteNodes.WriteIntervalJsonWriterNode writeInterval = JsonWriteNodesFactory.WriteIntervalJsonWriterNodeGen.create();
+
     public void executeVoid(VirtualFrame frame) {
         Object[] args = frame.getArguments();
-        this.doWrite((IntervalObject) args[0], (JsonGenerator) args[1]);
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(IntervalObject value, JsonGenerator gen) {
-        try {
-            gen.writeString(value.toString());
-        } catch (IOException e) {
-            throw new JsonWriterRawTruffleException(e.getMessage(), this);
-        }
+        writeInterval.execute((IntervalObject) args[0], (JsonGenerator) args[1]);
     }
 }

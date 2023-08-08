@@ -15,4 +15,6 @@ package raw.compiler.rql2.tests.extensions
 import raw.compiler.rql2.tests.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
-// @TruffleTests class AwsPackageTruffleTest extends TruffleCompilerTestContext with AwsPackageTest
+@TruffleTests class AwsPackageTruffleTest extends TruffleCompilerTestContext with AwsPackageTest {
+  override def xmlImplemented: Boolean = false
+}

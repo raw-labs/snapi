@@ -14,16 +14,12 @@ package raw.runtime.truffle.ast.expressions.builtin.environment_package;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.creds.Secret;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
-
-import java.util.Base64;
 import java.util.NoSuchElementException;
 
 @NodeInfo(shortName = "Environment.Secret")
