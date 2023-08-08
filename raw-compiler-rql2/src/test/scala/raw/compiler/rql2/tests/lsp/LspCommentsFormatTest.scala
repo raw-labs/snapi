@@ -18,8 +18,8 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait LspCommentsFormatTest extends CompilerTestContext {
   val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
-  def assertFormattedCode(code: String, expected: String) = {
-    val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment))
+  def assertFormattedCode(code: String, expected: String, indent: Int = 4, width: Int = 120) = {
+    val response = doLsp(FormatCodeLSPRequest(code, Some(indent), Some(width), queryEnvironment))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
         logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")

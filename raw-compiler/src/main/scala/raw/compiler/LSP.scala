@@ -36,7 +36,12 @@ sealed trait LSPRequest {
   val code: String
   val environment: ProgramEnvironment
 }
-final case class FormatCodeLSPRequest(code: String, environment: ProgramEnvironment) extends LSPRequest
+final case class FormatCodeLSPRequest(
+    code: String,
+    maybeIndent: Option[Int],
+    maybeWidth: Option[Int],
+    environment: ProgramEnvironment
+) extends LSPRequest
 final case class DotAutoCompleteLSPRequest(code: String, environment: ProgramEnvironment, position: Pos)
     extends LSPRequest
 final case class WordAutoCompleteLSPRequest(
