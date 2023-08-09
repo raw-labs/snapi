@@ -15,10 +15,11 @@ package raw.runtime.truffle.ast.io.binary;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
-import java.io.OutputStream;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+
+import java.io.IOException;
+import java.io.OutputStream;
 
 @NodeInfo(shortName = "Binary.BytesWrite")
 public class BinaryBytesWriterNode extends StatementNode {

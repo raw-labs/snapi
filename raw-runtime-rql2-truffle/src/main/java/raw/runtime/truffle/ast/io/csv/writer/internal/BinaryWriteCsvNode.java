@@ -16,10 +16,11 @@ import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
-import java.util.Base64;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
+
+import java.io.IOException;
+import java.util.Base64;
 
 @NodeInfo(shortName = "BinaryWriteCsv")
 public class BinaryWriteCsvNode extends StatementNode {

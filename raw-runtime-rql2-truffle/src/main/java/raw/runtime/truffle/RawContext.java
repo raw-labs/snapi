@@ -15,9 +15,10 @@ package raw.runtime.truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.nodes.Node;
-import java.io.OutputStream;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.function.FunctionRegistry;
+
+import java.io.OutputStream;
 
 public final class RawContext {
 

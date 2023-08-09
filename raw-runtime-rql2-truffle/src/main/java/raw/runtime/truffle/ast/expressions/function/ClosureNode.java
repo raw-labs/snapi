@@ -18,6 +18,8 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 
+import java.util.Map;
+
 public final class ClosureNode extends ExpressionNode {
 
   @CompilationFinal private final Function function;

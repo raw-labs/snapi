@@ -14,10 +14,12 @@ package raw.runtime.truffle.ast.expressions.binary;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
-import java.math.MathContext;
 import raw.runtime.truffle.ast.BinaryNode;
 import raw.runtime.truffle.runtime.tryable.*;
+
+import java.math.BigDecimal;
+import java.math.MathContext;
+import java.math.RoundingMode;
 
 // TODO: further optimization could be done by creating permutations of types?
 // if we divide 500.0 by 500.0 the result could fit into int, should we specialize that case?

@@ -20,8 +20,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import raw.api.RawException;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
@@ -39,6 +37,9 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.filesystem.*;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
+
+import java.time.LocalDateTime;
+import java.time.ZoneOffset;
 
 @NodeInfo(shortName = "String.Read")
 @NodeChild("location")

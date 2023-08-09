@@ -14,12 +14,13 @@ package raw.runtime.truffle.ast.io.kryo;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import java.io.ByteArrayInputStream;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.kryo.KryoReader;
 import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
+
+import java.io.ByteArrayInputStream;
 
 public class KryoFromNode extends ExpressionNode {
   private final ExpressionNode valueNode;

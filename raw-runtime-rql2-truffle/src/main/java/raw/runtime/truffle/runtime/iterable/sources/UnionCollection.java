@@ -17,6 +17,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.UnionComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 

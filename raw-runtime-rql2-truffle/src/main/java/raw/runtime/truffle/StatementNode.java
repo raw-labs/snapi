@@ -16,6 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.source.SourceSection;
+import raw.runtime.truffle.StatementNodeWrapper;
 
 @GenerateWrapper
 public abstract class StatementNode extends Node implements InstrumentableNode {

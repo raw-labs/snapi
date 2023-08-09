@@ -20,11 +20,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.Collectors;
 import raw.api.RawException;
 import raw.compiler.rql2.Rql2TypeUtils$;
 import raw.compiler.rql2.source.*;
@@ -41,6 +36,12 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import scala.Some;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 // A.Z Similar implementation to Scala
 @NodeInfo(shortName = "String.Read")

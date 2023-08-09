@@ -19,8 +19,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
-import java.util.Arrays;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
@@ -29,6 +27,9 @@ import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.*;
+
+import java.util.ArrayList;
+import java.util.Arrays;
 
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.Filter")

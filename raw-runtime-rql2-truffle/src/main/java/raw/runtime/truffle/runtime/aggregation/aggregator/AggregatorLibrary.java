@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.aggregation.aggregator;
 import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.Library;
 import com.oracle.truffle.api.library.LibraryFactory;
+import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 
 @GenerateLibrary
 public abstract class AggregatorLibrary extends Library {

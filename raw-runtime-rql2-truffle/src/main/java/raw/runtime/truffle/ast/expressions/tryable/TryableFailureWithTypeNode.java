@@ -15,9 +15,10 @@ package raw.runtime.truffle.ast.expressions.tryable;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.tryable.*;
+
+import java.math.BigDecimal;
 
 @NodeInfo(shortName = "Tryable.FailureWithType")
 @NodeChild("zeroedValue")

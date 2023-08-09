@@ -16,8 +16,9 @@ import raw.sources.CacheStrategy;
 import raw.sources.LocationDescription;
 import raw.sources.LocationSettingKey;
 import raw.sources.LocationSettingValue;
-import scala.collection.immutable.HashMap;
+import scala.collection.GenMap;
 import scala.collection.immutable.Map;
+import scala.collection.immutable.HashMap;
 
 public class LocationObject {
   private final LocationDescription locationDescription;

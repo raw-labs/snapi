@@ -19,6 +19,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.operations.EquiJoinCollection;
 
 @NodeInfo(shortName = "Collection.EquiJoin")

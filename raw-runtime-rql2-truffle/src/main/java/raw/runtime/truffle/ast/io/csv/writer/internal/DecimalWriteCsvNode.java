@@ -16,10 +16,11 @@ import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
-import java.math.BigDecimal;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
+
+import java.io.IOException;
+import java.math.BigDecimal;
 
 @NodeInfo(shortName = "DecimalWriteCsv")
 public class DecimalWriteCsvNode extends StatementNode {

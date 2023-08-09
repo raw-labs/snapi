@@ -14,8 +14,9 @@ package raw.runtime.truffle.ast.expressions.binary;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ast.BinaryNode;
+
+import java.math.BigDecimal;
 
 @NodeInfo(shortName = "%")
 public abstract class ModNode extends BinaryNode {

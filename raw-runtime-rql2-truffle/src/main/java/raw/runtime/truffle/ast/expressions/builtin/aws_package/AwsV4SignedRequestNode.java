@@ -21,6 +21,24 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ObjectList;
+import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.sources.LocationKVSetting;
+import raw.sources.LocationSettingKey;
+import raw.sources.LocationSettingValue;
+import raw.sources.LocationStringSetting;
+import scala.Tuple2;
+import scala.collection.immutable.HashMap;
+import scala.collection.immutable.Map;
+import scala.collection.immutable.VectorBuilder;
+
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -30,22 +48,6 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.list.ListLibrary;
-import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.LocationKVSetting;
-import raw.sources.LocationSettingKey;
-import raw.sources.LocationSettingValue;
-import raw.sources.LocationStringSetting;
-import scala.Tuple2;
-import scala.collection.immutable.HashMap;
-import scala.collection.immutable.Map;
-import scala.collection.immutable.VectorBuilder;
 
 @NodeInfo(shortName = "Aws.V4SignedRequest")
 @NodeChild("key")

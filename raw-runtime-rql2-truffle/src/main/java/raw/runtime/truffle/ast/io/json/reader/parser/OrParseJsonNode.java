@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import java.io.IOException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
@@ -26,6 +25,8 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonOrTypeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.or.OrObject;
+
+import java.io.IOException;
 
 public class OrParseJsonNode extends ExpressionNode {
 

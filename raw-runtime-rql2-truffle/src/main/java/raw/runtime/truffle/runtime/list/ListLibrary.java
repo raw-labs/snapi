@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.list;
 import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.Library;
 import com.oracle.truffle.api.library.LibraryFactory;
+import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @GenerateLibrary
 public abstract class ListLibrary extends Library {

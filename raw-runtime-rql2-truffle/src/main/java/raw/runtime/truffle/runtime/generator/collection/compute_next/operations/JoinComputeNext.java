@@ -17,7 +17,6 @@ import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.io.*;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
@@ -34,6 +33,9 @@ import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
 import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.utils.IOUtils;
+
+import java.io.*;
+import java.nio.file.Files;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class JoinComputeNext {

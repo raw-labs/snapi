@@ -13,9 +13,10 @@
 package raw.runtime.truffle;
 
 import com.oracle.truffle.api.dsl.TypeSystem;
-import java.math.BigDecimal;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
+
+import java.math.BigDecimal;
 
 @TypeSystem({
   boolean.class,

@@ -13,8 +13,9 @@
 package raw.runtime.truffle.ast.expressions.literals;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
+
+import java.math.BigDecimal;
 
 public class DecimalNode extends ExpressionNode {
 

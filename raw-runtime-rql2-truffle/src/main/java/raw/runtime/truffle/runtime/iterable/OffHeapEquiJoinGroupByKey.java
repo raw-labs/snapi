@@ -13,10 +13,11 @@
 package raw.runtime.truffle.runtime.iterable;
 
 import com.oracle.truffle.api.interop.InteropLibrary;
-import java.util.Comparator;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
+
+import java.util.Comparator;
 
 // OffHeap GroupBy where the set of nested values is returned as an iterable
 public class OffHeapEquiJoinGroupByKey extends OffHeapGroupByKey {

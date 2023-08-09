@@ -15,8 +15,6 @@ package raw.runtime.truffle.ast.expressions.builtin.binary_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.io.IOException;
-import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
@@ -26,6 +24,9 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.runtime.truffle.runtime.tryable.StringTryable;
 import raw.runtime.truffle.utils.TruffleInputStream;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 @NodeInfo(shortName = "Binary.Read")
 @NodeChild(value = "binary")

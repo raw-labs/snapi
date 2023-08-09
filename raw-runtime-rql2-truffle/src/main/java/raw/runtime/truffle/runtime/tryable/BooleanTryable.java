@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.tryable;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
 @ExportLibrary(TryableLibrary.class)
 public final class BooleanTryable {

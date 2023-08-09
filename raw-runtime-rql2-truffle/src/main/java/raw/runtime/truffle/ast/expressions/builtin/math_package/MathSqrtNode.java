@@ -17,6 +17,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
+import java.math.BigDecimal;
+
 @NodeInfo(shortName = "Math.Sqrt")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathSqrtNode extends ExpressionNode {

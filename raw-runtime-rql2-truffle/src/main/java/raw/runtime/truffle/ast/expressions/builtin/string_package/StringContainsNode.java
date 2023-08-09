@@ -16,6 +16,10 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.sources.Encoding;
+
+import java.nio.charset.Charset;
 
 @NodeInfo(shortName = "String.Contains")
 @NodeChild(value = "s1")

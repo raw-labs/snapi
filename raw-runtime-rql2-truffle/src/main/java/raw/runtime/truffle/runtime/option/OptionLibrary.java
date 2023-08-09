@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.option;
 import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.Library;
 import com.oracle.truffle.api.library.LibraryFactory;
+import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
 @GenerateLibrary
 public abstract class OptionLibrary extends Library {

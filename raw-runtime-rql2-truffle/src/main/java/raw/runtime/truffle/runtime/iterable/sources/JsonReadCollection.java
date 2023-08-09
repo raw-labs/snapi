@@ -20,6 +20,7 @@ import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenera
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.JsonReadComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 @ExportLibrary(IterableLibrary.class)
 public class JsonReadCollection {

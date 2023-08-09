@@ -15,9 +15,11 @@ package raw.runtime.truffle.ast.expressions.builtin.numeric.decimal_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+
+import java.math.BigDecimal;
 
 @NodeInfo(shortName = "Decimal.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)

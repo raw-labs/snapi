@@ -18,7 +18,6 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.time.Duration;
 import raw.compiler.rql2.source.Rql2IntType;
 import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -34,6 +33,8 @@ import scala.Tuple2;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
 import scala.collection.immutable.VectorBuilder;
+
+import java.time.Duration;
 
 @NodeInfo(shortName = "Location.Build")
 public class LocationBuildNode extends ExpressionNode {

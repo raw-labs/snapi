@@ -15,6 +15,7 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import org.apache.commons.lang3.StringUtils;
 import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "String.Capitalize")
