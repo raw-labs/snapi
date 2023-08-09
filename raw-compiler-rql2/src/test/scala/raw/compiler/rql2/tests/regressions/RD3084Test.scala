@@ -36,7 +36,7 @@ trait RD3084Test extends CompilerTestContext with RDBMSTestCreds {
   // switching the order of the fields
   test("""MySQL.Query("mysql-test", "select * from test_types",
     |   type collection(record(char1: string, integer1: int)))""".stripMargin) {
-    _ should evaluateTo("""[{integer1: 1, char1: "string"}]""")
+    _ should evaluateTo("""[{char1: "string", integer1: 1}]""")
   }
 
   test("""PostgreSQL.InferAndQuery("postgres-test", "select * from rdbmstest.test_types")""") {

@@ -50,7 +50,7 @@ trait RD9228Test extends CompilerTestContext {
 
   // Declare the location as a variable. Json.Read has to resolve its value dynamically using a walk through frames.
   // Because we read a tryable (list), the tryable handler is involved. It didn't expect the nested read to have a
-  // free variable.
+  // free variable (RD-9329).
   test("""
     |let location = Http.Get("https://raw-tutorial.s3.eu-west-1.amazonaws.com/trips.json")
     |in Json.Read(location, type list(record(

@@ -23,12 +23,7 @@ trait RD5714Test extends CompilerTestContext {
     |    colB = [{id: 2, firstName: "john"}],
     |    join = List.Join(colA, colB, i -> i.name == i.firstName)
     |in Json.Print(join)""".stripMargin) { it =>
-    if (language == "rql2-truffle") {
-      // rql2-truffle fixes duplicated fields as part of RD-9079
-      it should evaluateTo(""" "[{\"id\":1,\"name\":\"john\",\"id\":2,\"firstName\":\"john\"}]" """.stripMargin)
-    } else {
-      it should evaluateTo(""" "[{\"id\":1,\"name\":\"john\",\"id_1\":2,\"firstName\":\"john\"}]" """.stripMargin)
-    }
+    it should evaluateTo(""" "[{\"id\":1,\"name\":\"john\",\"id_1\":2,\"firstName\":\"john\"}]" """.stripMargin)
   }
 
   test("""let colA = [{id: 1, name: "john"}],
@@ -45,11 +40,7 @@ trait RD5714Test extends CompilerTestContext {
         } finally {
           source.close()
         }
-      if (language == "rql2-truffle") {
-        assert(s == """[{"id":1,"name":"john","id":2,"firstName":"john"}]""")
-      } else {
-        assert(s == """[{"id":1,"name":"john","id_1":2,"firstName":"john"}]""")
-      }
+      assert(s == """[{"id":1,"name":"john","id_1":2,"firstName":"john"}]""")
     } finally {
       Files.delete(path)
     }

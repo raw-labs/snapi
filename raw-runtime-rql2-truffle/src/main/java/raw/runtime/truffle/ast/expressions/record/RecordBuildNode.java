@@ -15,14 +15,10 @@ package raw.runtime.truffle.ast.expressions.record;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Build")
@@ -47,15 +43,11 @@ public class RecordBuildNode extends ExpressionNode {
     @Override
     public RecordObject executeGeneric(VirtualFrame frame) {
         RecordObject record = RawLanguage.get(this).createRecord();
-        try {
-            for (int i = 0, j = 0; i < elementNodes.length; i += 2, j++) {
-                // i jump by 2 because we have k1, v1, k2, v2, ..., kn, vn.
-                Object key = elementNodes[i].executeGeneric(frame);
-                Object value = elementNodes[i + 1].executeGeneric(frame);
-                libraries.writeMember(record, (String) key, value);
-            }
-        } catch (UnknownIdentifierException | UnsupportedMessageException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e, this);
+        for (int i = 0, j = 0; i < elementNodes.length; i += 2, j++) {
+            // i jump by 2 because we have k1, v1, k2, v2, ..., kn, vn.
+            Object key = elementNodes[i].executeGeneric(frame);
+            Object value = elementNodes[i + 1].executeGeneric(frame);
+            record.writeIdx(j, (String) key, value);
         }
         return record;
     }

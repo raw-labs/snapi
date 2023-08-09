@@ -16,9 +16,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
@@ -29,7 +26,6 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.option.EmptyOption;
@@ -89,23 +85,19 @@ public class RecordParseJsonNode extends ExpressionNode {
         nextTokenNode.execute(parser);
 
         RecordObject record = RawLanguage.get(this).createRecord();
-        try {
-            while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
+        while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
                 String fieldName = currentFieldNode.execute(parser);
                 Integer index = fieldNamesMap.get(fieldName);
                 nextTokenNode.execute(parser); // skip the field name
                 if (index != null) {
                     currentBitSet.set(index);
-                    records.writeMember(record, fieldName, childDirectCalls[index].call(parser));
+                    record.writeIdx(index, fieldName, childDirectCalls[index].call(parser));
                 } else {
                     // skip the field value
                     skipNode.execute(parser);
                 }
             }
-            nextTokenNode.execute(parser); // skip the END_OBJECT token
-        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e, this);
-        }
+        nextTokenNode.execute(parser); // skip the END_OBJECT token
 
         if (currentBitSet.cardinality() != this.fieldsSize) {
             // not all fields were found in the JSON. Fill the missing nullable ones with nulls or fail.
@@ -116,12 +108,7 @@ public class RecordParseJsonNode extends ExpressionNode {
                         // It's OK, the field is nullable. If it's tryable, make a success null, else a plain null.
                         Object nullValue = fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply()) ?
                                 ObjectTryable.BuildSuccess(new EmptyOption()) : new EmptyOption();
-                        try {
-                            records.writeMember(record, fields[i].toString(), nullValue);
-                        } catch (UnsupportedMessageException | UnknownIdentifierException |
-                                 UnsupportedTypeException e) {
-                            throw new RawTruffleInternalErrorException(e, this);
-                        }
+                        record.writeIdx(i, fields[i].toString(), nullValue);
                     } else {
                         throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
                     }

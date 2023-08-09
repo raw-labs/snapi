@@ -15,7 +15,6 @@ package raw.runtime.truffle.ast.expressions.record;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -28,24 +27,22 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeChild("valueNode")
 public abstract class RecordAddFieldNode extends ExpressionNode {
 
-    @Specialization(limit = "3")
-    protected Object doAddField(Object record, String newKey, Object newValue,
-                                @CachedLibrary("record") InteropLibrary records,
-                                @CachedLibrary(limit = "2") InteropLibrary libraries) {
+    @Specialization
+    protected Object doAddField(Object rec, String newKey, Object newValue) {
+        RecordObject record = (RecordObject) rec;
         RecordObject newRecord = RawLanguage.get(this).createRecord();
-        try {
-            Object keys = records.getMembers(record);
-            long length = libraries.getArraySize(keys);
-            String member;
-            for (int i = 0; i < length; i++) {
-                member = (String) libraries.readArrayElement(keys, i);
-                libraries.writeMember(newRecord, member, records.readMember(record, member));
+        String[] keys = record.keys();
+        int length = keys.length;
+        String member;
+        for (int i = 0; i < length; i++) {
+                member = keys[i];
+            try {
+                newRecord.writeIdx(i, member, record.readIdx(i));
+            } catch (InvalidArrayIndexException e) {
+                throw new RawTruffleInternalErrorException(e, this);
             }
-            libraries.writeMember(newRecord, newKey, newValue);
-            return newRecord;
-        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException |
-                 InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e, this);
         }
+        newRecord.writeIdx(length, newKey, newValue);
+        return newRecord;
     }
 }

@@ -15,7 +15,6 @@ package raw.runtime.truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
-import com.oracle.truffle.api.object.Shape;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
@@ -26,12 +25,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     public static final String ID = "rql";
     public static final String VERSION = "0.10";
     public static final String MIME_TYPE = "application/x-rql";
-
-    private final Shape rootRecordShape;
-
-    public RawLanguage() {
-        this.rootRecordShape = Shape.newBuilder().layout(RecordObject.class).build();
-    }
 
     @Override
     protected final RawContext createContext(Env env) {
@@ -50,11 +43,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     }
 
     public RecordObject createRecord() {
-        return new RecordObject(rootRecordShape);
-    }
-
-    public RecordObject createRecord(Shape shape) {
-        return new RecordObject(shape);
+        return new RecordObject();
     }
 
 }
