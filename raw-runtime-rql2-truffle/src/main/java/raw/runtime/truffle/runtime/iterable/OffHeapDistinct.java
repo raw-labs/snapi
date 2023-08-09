@@ -43,7 +43,7 @@ public class OffHeapDistinct {
   private final long blockSize; // maximum size of a spilled file.
   private int
       binarySize; // estimated size of currently memory held objects (when reaching blockSize, spill
-                  // to disk).
+  // to disk).
 
   private final Comparator<Object> keyCompare; // grouping key compare function.
 

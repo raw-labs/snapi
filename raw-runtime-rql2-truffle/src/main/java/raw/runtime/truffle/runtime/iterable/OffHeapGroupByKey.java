@@ -40,7 +40,7 @@ class OffHeapGroupByKey {
   private final long maxSize; // maximum size of a spilled file.
   private int
       size; // estimated size of currently memory held objects (when reaching blockSize, spill to
-            // disk).
+  // disk).
 
   private final Comparator<Object> keyCompare; // grouping key comparison function.
 

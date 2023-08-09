@@ -58,7 +58,7 @@ public class UnnestComputeNext {
 
   private final Object empty =
       new EmptyCollection(); // the empty collection to return when the function result is
-                             // null/error
+  // null/error
 
   @ExportMessage
   Object computeNext(
