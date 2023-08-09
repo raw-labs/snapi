@@ -20,22 +20,21 @@ import raw.runtime.truffle.ExpressionNode;
 
 public class ReadParamClosureNode extends ExpressionNode {
 
-    private final int depth;
-    private final int index;
+  private final int depth;
+  private final int index;
 
-    public ReadParamClosureNode(int depth, int index) {
-        this.depth = depth;
-        this.index = index;
+  public ReadParamClosureNode(int depth, int index) {
+    this.depth = depth;
+    this.index = index;
+  }
+
+  @ExplodeLoop
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Frame currentFrame = frame;
+    for (int i = 0; i < depth; i++) {
+      currentFrame = (Frame) currentFrame.getArguments()[0];
     }
-
-    @ExplodeLoop
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        Frame currentFrame = frame;
-        for (int i = 0; i < depth; i++) {
-            currentFrame = (Frame) currentFrame.getArguments()[0];
-        }
-        return currentFrame.getArguments()[index + 1];
-    }
-
+    return currentFrame.getArguments()[index + 1];
+  }
 }

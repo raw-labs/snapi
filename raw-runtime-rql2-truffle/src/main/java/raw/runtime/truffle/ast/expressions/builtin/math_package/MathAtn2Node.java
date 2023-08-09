@@ -24,9 +24,8 @@ import java.math.BigDecimal;
 @NodeChild(value = "right", type = ExpressionNode.class)
 public abstract class MathAtn2Node extends ExpressionNode {
 
-    @Specialization
-    protected double doubleAtn2(double left, double right) {
-        return Math.atan2(left, right);
-    }
-
+  @Specialization
+  protected double doubleAtn2(double left, double right) {
+    return Math.atan2(left, right);
+  }
 }

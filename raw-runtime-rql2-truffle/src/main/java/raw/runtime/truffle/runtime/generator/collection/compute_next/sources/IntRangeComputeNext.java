@@ -19,41 +19,39 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class IntRangeComputeNext {
-    private final int end;
-    private final int step;
-    private int position;
+  private final int end;
+  private final int step;
+  private int position;
 
-    public IntRangeComputeNext(int start, int end, int step) {
-        this.end = end;
-        this.step = step;
-        this.position = start - step;
-    }
+  public IntRangeComputeNext(int start, int end, int step) {
+    this.end = end;
+    this.step = step;
+    this.position = start - step;
+  }
 
-    @ExportMessage
-    void init() {
-    }
+  @ExportMessage
+  void init() {}
 
-    @ExportMessage
-    void close() {
-    }
+  @ExportMessage
+  void close() {}
 
-    @ExportMessage
-    public boolean isComputeNext() {
-        return true;
-    }
+  @ExportMessage
+  public boolean isComputeNext() {
+    return true;
+  }
 
-    @ExportMessage
-    Object computeNext() {
-        int current;
-        try {
-            current = Math.addExact(position, step);
-        } catch (ArithmeticException e) {
-            throw new BreakException();
-        }
-        if (current >= end) {
-            throw new BreakException();
-        }
-        position = current;
-        return position;
+  @ExportMessage
+  Object computeNext() {
+    int current;
+    try {
+      current = Math.addExact(position, step);
+    } catch (ArithmeticException e) {
+      throw new BreakException();
     }
+    if (current >= end) {
+      throw new BreakException();
+    }
+    position = current;
+    return position;
+  }
 }

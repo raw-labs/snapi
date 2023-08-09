@@ -32,13 +32,13 @@ import java.util.concurrent.TimeUnit;
 @NodeChild("ms")
 public abstract class TimeBuildNode extends ExpressionNode {
 
-    @Specialization
-    public Object buildTime(int h, int m, int s, int ms) {
-        try {
-            return ObjectTryable.BuildSuccess(new TimeObject(LocalTime.of(h, m, s, (int) TimeUnit.MILLISECONDS.toNanos(ms))));
-        } catch (DateTimeException e) {
-            return ObjectTryable.BuildFailure(e.getMessage());
-        }
+  @Specialization
+  public Object buildTime(int h, int m, int s, int ms) {
+    try {
+      return ObjectTryable.BuildSuccess(
+          new TimeObject(LocalTime.of(h, m, s, (int) TimeUnit.MILLISECONDS.toNanos(ms))));
+    } catch (DateTimeException e) {
+      return ObjectTryable.BuildFailure(e.getMessage());
     }
-
+  }
 }

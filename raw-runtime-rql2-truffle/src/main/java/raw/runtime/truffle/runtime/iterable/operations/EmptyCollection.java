@@ -20,14 +20,13 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class EmptyCollection {
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator() {
-        return new EmptyCollectionGenerator();
-    }
-
+  @ExportMessage
+  Object getGenerator() {
+    return new EmptyCollectionGenerator();
+  }
 }

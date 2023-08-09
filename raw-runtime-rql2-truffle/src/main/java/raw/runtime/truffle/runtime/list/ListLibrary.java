@@ -19,30 +19,29 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @GenerateLibrary
 public abstract class ListLibrary extends Library {
-    static final LibraryFactory<ListLibrary> FACTORY = LibraryFactory.resolve(ListLibrary.class);
+  static final LibraryFactory<ListLibrary> FACTORY = LibraryFactory.resolve(ListLibrary.class);
 
-    public static LibraryFactory<ListLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<ListLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static ListLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static ListLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 
-    public boolean isList(Object receiver) {
-        return false;
-    }
+  public boolean isList(Object receiver) {
+    return false;
+  }
 
-    public abstract Object getInnerList(Object receiver);
+  public abstract Object getInnerList(Object receiver);
 
-    public abstract Object get(Object receiver, long index);
+  public abstract Object get(Object receiver, long index);
 
-    public abstract boolean isElementReadable(Object receiver, int index);
+  public abstract boolean isElementReadable(Object receiver, int index);
 
-    public abstract long size(Object receiver);
+  public abstract long size(Object receiver);
 
-    public abstract Object toIterable(Object receiver);
+  public abstract Object toIterable(Object receiver);
 
-    public abstract Object sort(Object receiver);
-
+  public abstract Object sort(Object receiver);
 }

@@ -25,10 +25,10 @@ import raw.runtime.truffle.runtime.iterable.sources.RangeCollection;
 @NodeChild(value = "step")
 public abstract class IntRangeNode extends ExpressionNode {
 
-    @Specialization
-    protected Object doRange(int start, int end, int step) {
-        if (step <= 0) throw new RawTruffleRuntimeException("range step has to be strictly positive", this);
-        return new RangeCollection(start, end, step);
-
-    }
+  @Specialization
+  protected Object doRange(int start, int end, int step) {
+    if (step <= 0)
+      throw new RawTruffleRuntimeException("range step has to be strictly positive", this);
+    return new RangeCollection(start, end, step);
+  }
 }

@@ -25,28 +25,29 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeInfo(shortName = "TryableParseJsonWrapper")
 public class TryableTopLevelWrapper extends ExpressionNode {
 
-    @Child
-    private ExpressionNode reader;
-    private final RuntimeNullableTryableHandler nullableTryableHandler = new RuntimeNullableTryableHandler();
-    @Child
-    private NullableTryableLibrary nullableTryable = NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+  @Child private ExpressionNode reader;
+  private final RuntimeNullableTryableHandler nullableTryableHandler =
+      new RuntimeNullableTryableHandler();
 
-    @Child
-    private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+  @Child
+  private NullableTryableLibrary nullableTryable =
+      NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
-    public TryableTopLevelWrapper(ExpressionNode reader) {
-        this.reader = reader;
+  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+
+  public TryableTopLevelWrapper(ExpressionNode reader) {
+    this.reader = reader;
+  }
+
+  public Object executeGeneric(VirtualFrame frame) {
+    try {
+      Object result = reader.executeGeneric(frame);
+      if (tryables.isTryable(result)) {
+        return result;
+      }
+      return nullableTryable.boxTryable(nullableTryableHandler, result);
+    } catch (RawTruffleRuntimeException ex) {
+      return ErrorTryable.BuildFailure(ex.getMessage());
     }
-
-    public Object executeGeneric(VirtualFrame frame) {
-        try {
-            Object result = reader.executeGeneric(frame);
-            if (tryables.isTryable(result)) {
-                return result;
-            }
-            return nullableTryable.boxTryable(nullableTryableHandler, result);
-        } catch (RawTruffleRuntimeException ex) {
-            return ErrorTryable.BuildFailure(ex.getMessage());
-        }
-    }
+  }
 }

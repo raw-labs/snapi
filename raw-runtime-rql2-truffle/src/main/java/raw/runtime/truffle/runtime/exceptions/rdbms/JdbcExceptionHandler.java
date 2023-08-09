@@ -27,5 +27,4 @@ public class JdbcExceptionHandler {
   public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs) {
     return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, null);
   }
-
 }

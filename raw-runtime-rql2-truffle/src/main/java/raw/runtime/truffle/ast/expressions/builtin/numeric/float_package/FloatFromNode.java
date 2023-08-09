@@ -24,48 +24,47 @@ import java.math.BigDecimal;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class FloatFromNode extends ExpressionNode {
 
-    @Specialization
-    protected float fromByte(byte argument) {
-        return argument;
-    }
+  @Specialization
+  protected float fromByte(byte argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected float fromShort(short argument) {
-        return argument;
-    }
+  @Specialization
+  protected float fromShort(short argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected float fromInt(int argument) {
-        return argument;
-    }
+  @Specialization
+  protected float fromInt(int argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected float fromLong(long argument) {
-        return argument;
-    }
+  @Specialization
+  protected float fromLong(long argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected float fromFloat(float argument) {
-        return argument;
-    }
+  @Specialization
+  protected float fromFloat(float argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected float fromDouble(double argument) {
-        return (float) argument;
-    }
+  @Specialization
+  protected float fromDouble(double argument) {
+    return (float) argument;
+  }
 
-    @Specialization
-    protected float fromDecimal(BigDecimal argument) {
-        return argument.floatValue();
-    }
+  @Specialization
+  protected float fromDecimal(BigDecimal argument) {
+    return argument.floatValue();
+  }
 
-    @Specialization
-    protected ObjectTryable fromString(String argument) {
-        try {
-            return ObjectTryable.BuildSuccess(Float.parseFloat(argument));
-        } catch (RuntimeException ex) {
-            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to float");
-        }
+  @Specialization
+  protected ObjectTryable fromString(String argument) {
+    try {
+      return ObjectTryable.BuildSuccess(Float.parseFloat(argument));
+    } catch (RuntimeException ex) {
+      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to float");
     }
-
+  }
 }

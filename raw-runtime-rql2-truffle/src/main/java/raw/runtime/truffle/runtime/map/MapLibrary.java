@@ -19,17 +19,17 @@ import com.oracle.truffle.api.library.LibraryFactory;
 @GenerateLibrary
 public abstract class MapLibrary extends Library {
 
-    static final LibraryFactory<MapLibrary> FACTORY = LibraryFactory.resolve(MapLibrary.class);
+  static final LibraryFactory<MapLibrary> FACTORY = LibraryFactory.resolve(MapLibrary.class);
 
-    public abstract void put(Object receiver, Object key, Object value);
+  public abstract void put(Object receiver, Object key, Object value);
 
-    public abstract Object get(Object receiver, Object key);
+  public abstract Object get(Object receiver, Object key);
 
-    public static LibraryFactory<MapLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<MapLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static MapLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static MapLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 }

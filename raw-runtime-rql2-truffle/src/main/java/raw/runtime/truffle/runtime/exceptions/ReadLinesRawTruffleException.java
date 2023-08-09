@@ -15,20 +15,20 @@ package raw.runtime.truffle.runtime.exceptions;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 public class ReadLinesRawTruffleException extends RawTruffleRuntimeException {
-    public ReadLinesRawTruffleException(String message, TruffleCharInputStream stream) {
-        super(createMessage(message, stream));
-    }
+  public ReadLinesRawTruffleException(String message, TruffleCharInputStream stream) {
+    super(createMessage(message, stream));
+  }
 
-    private static String createMessage(String message, TruffleCharInputStream stream) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("failed to read lines");
-        if (stream.positionDescription() != null) {
-            sb.append(" (");
-            sb.append(stream.positionDescription());
-            sb.append(")");
-        }
-        sb.append(": ");
-        sb.append(message);
-        return sb.toString();
+  private static String createMessage(String message, TruffleCharInputStream stream) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("failed to read lines");
+    if (stream.positionDescription() != null) {
+      sb.append(" (");
+      sb.append(stream.positionDescription());
+      sb.append(")");
     }
+    sb.append(": ");
+    sb.append(message);
+    return sb.toString();
+  }
 }

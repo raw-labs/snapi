@@ -23,16 +23,16 @@ import scala.collection.Iterator;
 @NodeInfo(shortName = "Environment.Scopes")
 public abstract class EnvironmentScopesNode extends ExpressionNode {
 
-    @Specialization
-    protected Object doScopes() {
-        RuntimeContext context = RawContext.get(this).getRuntimeContext();
-        String[] bl = new String[context.scopes().size()];
-        Iterator<String> it = context.scopes().iterator();
-        int i = 0;
-        while (it.hasNext()) {
-            bl[i] = it.next();
-            i++;
-        }
-        return new ObjectList(bl);
+  @Specialization
+  protected Object doScopes() {
+    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    String[] bl = new String[context.scopes().size()];
+    Iterator<String> it = context.scopes().iterator();
+    int i = 0;
+    while (it.hasNext()) {
+      bl[i] = it.next();
+      i++;
     }
+    return new ObjectList(bl);
+  }
 }

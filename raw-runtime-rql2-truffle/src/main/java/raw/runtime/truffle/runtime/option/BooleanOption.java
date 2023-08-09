@@ -18,38 +18,37 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class BooleanOption {
 
-    private boolean value;
+  private boolean value;
 
-    private boolean isDefined;
+  private boolean isDefined;
 
-    public BooleanOption() {
-        this.isDefined = false;
-    }
+  public BooleanOption() {
+    this.isDefined = false;
+  }
 
-    public BooleanOption(boolean value) {
-        this.isDefined = true;
-        this.value = value;
-    }
+  public BooleanOption(boolean value) {
+    this.isDefined = true;
+    this.value = value;
+  }
 
-    @ExportMessage
-    boolean isOption() {
-        return true;
-    }
+  @ExportMessage
+  boolean isOption() {
+    return true;
+  }
 
-    @ExportMessage
-    public boolean get() {
-        return value;
-    }
+  @ExportMessage
+  public boolean get() {
+    return value;
+  }
 
-    @ExportMessage
-    public void set(Object value) {
-        this.value = (boolean) value;
-        this.isDefined = true;
-    }
+  @ExportMessage
+  public void set(Object value) {
+    this.value = (boolean) value;
+    this.isDefined = true;
+  }
 
-    @ExportMessage
-    public boolean isDefined() {
-        return isDefined;
-    }
-
+  @ExportMessage
+  public boolean isDefined() {
+    return isDefined;
+  }
 }

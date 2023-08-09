@@ -22,8 +22,8 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Math.Sin")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathTanNode extends ExpressionNode {
-    @Specialization
-    protected double doubleTan(double argument) {
-        return Math.tan(argument);
-    }
+  @Specialization
+  protected double doubleTan(double argument) {
+    return Math.tan(argument);
+  }
 }

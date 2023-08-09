@@ -23,8 +23,10 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeChild("option")
 public abstract class OptionIsDefinedNode extends ExpressionNode {
 
-    @Specialization(guards = {"options.isOption(option)"}, limit = "1")
-    protected boolean isDefined(Object option, @CachedLibrary("option") OptionLibrary options) {
-        return options.isDefined(option);
-    }
+  @Specialization(
+      guards = {"options.isOption(option)"},
+      limit = "1")
+  protected boolean isDefined(Object option, @CachedLibrary("option") OptionLibrary options) {
+    return options.isDefined(option);
+  }
 }

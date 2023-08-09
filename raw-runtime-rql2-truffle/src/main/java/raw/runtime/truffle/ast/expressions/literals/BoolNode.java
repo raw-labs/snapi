@@ -17,20 +17,19 @@ import raw.runtime.truffle.ExpressionNode;
 
 public final class BoolNode extends ExpressionNode {
 
-    private final boolean value;
+  private final boolean value;
 
-    public BoolNode(boolean value) {
-        this.value = value;
-    }
+  public BoolNode(boolean value) {
+    this.value = value;
+  }
 
-    @Override
-    public final boolean executeBoolean(VirtualFrame virtualFrame) {
-        return value;
-    }
+  @Override
+  public final boolean executeBoolean(VirtualFrame virtualFrame) {
+    return value;
+  }
 
-    @Override
-    public final Boolean executeGeneric(VirtualFrame virtualFrame) {
-        return value;
-    }
-
+  @Override
+  public final Boolean executeGeneric(VirtualFrame virtualFrame) {
+    return value;
+  }
 }

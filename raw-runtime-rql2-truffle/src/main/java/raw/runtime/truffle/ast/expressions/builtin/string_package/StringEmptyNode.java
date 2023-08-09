@@ -21,8 +21,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string")
 public abstract class StringEmptyNode extends ExpressionNode {
 
-    @Specialization
-    protected boolean emptyString(String string) {
-        return string.isEmpty();
-    }
+  @Specialization
+  protected boolean emptyString(String string) {
+    return string.isEmpty();
+  }
 }

@@ -23,8 +23,8 @@ import java.util.Base64;
 @NodeChild(value = "string")
 public abstract class StringBase64Node extends ExpressionNode {
 
-    @Specialization
-    protected String stringBase64(String string) {
-        return Base64.getEncoder().encodeToString(string.getBytes());
-    }
+  @Specialization
+  protected String stringBase64(String string) {
+    return Base64.getEncoder().encodeToString(string.getBytes());
+  }
 }

@@ -24,20 +24,20 @@ import java.io.IOException;
 @NodeInfo(shortName = "StringWriteCsv")
 public class StringWriteCsvNode extends StatementNode {
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        String value = (String) args[0];
-        CsvGenerator generator = (CsvGenerator) args[1];
-        doWrite(value, generator);
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    String value = (String) args[0];
+    CsvGenerator generator = (CsvGenerator) args[1];
+    doWrite(value, generator);
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(String value, CsvGenerator gen) {
-        try {
-            gen.writeString(value);
-        } catch (IOException e) {
-            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
-        }
+  @CompilerDirectives.TruffleBoundary
+  private void doWrite(String value, CsvGenerator gen) {
+    try {
+      gen.writeString(value);
+    } catch (IOException e) {
+      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
     }
+  }
 }

@@ -15,6 +15,7 @@ package raw.runtime.truffle.utils;
 import java.io.Reader;
 
 public abstract class RawTruffleCharStream {
-    public abstract Reader getReader();
-    public abstract String positionDescription();
+  public abstract Reader getReader();
+
+  public abstract String positionDescription();
 }

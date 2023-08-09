@@ -18,32 +18,32 @@ import com.oracle.truffle.api.nodes.Node;
 
 public class RawTruffleRuntimeException extends AbstractTruffleException {
 
-//    private static final TruffleLogger LOG = TruffleLogger.getLogger(RawLanguage.ID, RawTruffleRuntimeException.class);
-//
-//    private Node location;
+  //    private static final TruffleLogger LOG = TruffleLogger.getLogger(RawLanguage.ID,
+  // RawTruffleRuntimeException.class);
+  //
+  //    private Node location;
 
-    @CompilerDirectives.TruffleBoundary
-    public RawTruffleRuntimeException(String message, Node location) {
-        super(message, location);
-//        this.location = location;
-    }
+  @CompilerDirectives.TruffleBoundary
+  public RawTruffleRuntimeException(String message, Node location) {
+    super(message, location);
+    //        this.location = location;
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    public RawTruffleRuntimeException(String message, Throwable cause, Node location) {
-        super(message, cause, UNLIMITED_STACK_TRACE, location);
-//        this.location = location;
-    }
+  @CompilerDirectives.TruffleBoundary
+  public RawTruffleRuntimeException(String message, Throwable cause, Node location) {
+    super(message, cause, UNLIMITED_STACK_TRACE, location);
+    //        this.location = location;
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    public RawTruffleRuntimeException(String message) {
-        super(message);
-    }
+  @CompilerDirectives.TruffleBoundary
+  public RawTruffleRuntimeException(String message) {
+    super(message);
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    public RawTruffleRuntimeException(Exception ex, Node location) {
+  @CompilerDirectives.TruffleBoundary
+  public RawTruffleRuntimeException(Exception ex, Node location) {
 
-        super(ex.toString(), location);
-//        this.location = location;
-    }
-
+    super(ex.toString(), location);
+    //        this.location = location;
+  }
 }

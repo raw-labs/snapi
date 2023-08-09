@@ -20,8 +20,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Math.Acos")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathAcosNode extends ExpressionNode {
-    @Specialization
-    protected double doubleAcos(double argument) {
-        return Math.acos(argument);
-    }
+  @Specialization
+  protected double doubleAcos(double argument) {
+    return Math.acos(argument);
+  }
 }

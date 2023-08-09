@@ -31,16 +31,16 @@ import java.util.HashMap;
 @NodeChild("format")
 public abstract class DateParseNode extends ExpressionNode {
 
-    @Specialization
-    public Object parse(String str, String format) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatCache.get(format);
-            return ObjectTryable.BuildSuccess(new DateObject(LocalDate.parse(str, formatter)));
-        } catch (IllegalArgumentException ex) {
-            return ObjectTryable.BuildFailure("invalid date template: " + format);
-        } catch (DateTimeParseException ex) {
-            return ObjectTryable.BuildFailure(String.format("string '%s' does not match date template '%s'", str, format));
-        }
+  @Specialization
+  public Object parse(String str, String format) {
+    try {
+      DateTimeFormatter formatter = DateTimeFormatCache.get(format);
+      return ObjectTryable.BuildSuccess(new DateObject(LocalDate.parse(str, formatter)));
+    } catch (IllegalArgumentException ex) {
+      return ObjectTryable.BuildFailure("invalid date template: " + format);
+    } catch (DateTimeParseException ex) {
+      return ObjectTryable.BuildFailure(
+          String.format("string '%s' does not match date template '%s'", str, format));
     }
-
+  }
 }

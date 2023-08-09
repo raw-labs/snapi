@@ -21,8 +21,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string")
 public abstract class StringLengthNode extends ExpressionNode {
 
-    @Specialization
-    protected int stringLength(String string) {
-        return string.length();
-    }
+  @Specialization
+  protected int stringLength(String string) {
+    return string.length();
+  }
 }

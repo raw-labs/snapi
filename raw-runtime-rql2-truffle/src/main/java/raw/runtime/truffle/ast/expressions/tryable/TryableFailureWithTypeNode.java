@@ -25,46 +25,43 @@ import java.math.BigDecimal;
 @NodeChild("message")
 public abstract class TryableFailureWithTypeNode extends ExpressionNode {
 
-    @Specialization
-    protected Object tryableFailureBoolean(boolean zeroedValue, String message) {
-        return BooleanTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailureBoolean(boolean zeroedValue, String message) {
+    return BooleanTryable.BuildFailure(message);
+  }
 
-    @Specialization
-    protected Object tryableFailureByte(byte zeroedValue , String message) {
-        return ByteTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailureByte(byte zeroedValue, String message) {
+    return ByteTryable.BuildFailure(message);
+  }
 
-    @Specialization
-    protected Object tryableFailureShort(String message, short zeroedValue) {
-        return ShortTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailureShort(String message, short zeroedValue) {
+    return ShortTryable.BuildFailure(message);
+  }
 
-    @Specialization
-    protected Object tryableFailureInt(int zeroedValue, String message) {
-        return IntTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailureInt(int zeroedValue, String message) {
+    return IntTryable.BuildFailure(message);
+  }
 
-    @Specialization
-    protected Object tryableFailureLong(long zeroedValue , String message) {
-        return LongTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailureLong(long zeroedValue, String message) {
+    return LongTryable.BuildFailure(message);
+  }
 
-    @Specialization
-    protected Object tryableFailureString(String zeroedValue, String message) {
-        return StringTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailureString(String zeroedValue, String message) {
+    return StringTryable.BuildFailure(message);
+  }
 
-    @Specialization
-    protected Object tryableFailureDecimal(BigDecimal zeroedValue, String message) {
-        return ObjectTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailureDecimal(BigDecimal zeroedValue, String message) {
+    return ObjectTryable.BuildFailure(message);
+  }
 
-
-    @Specialization
-    protected Object tryableFailureObject(Object zeroedValue, String message) {
-        return ObjectTryable.BuildFailure(message);
-    }
-
-
+  @Specialization
+  protected Object tryableFailureObject(Object zeroedValue, String message) {
+    return ObjectTryable.BuildFailure(message);
+  }
 }

@@ -24,25 +24,23 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeInfo(shortName = "TryableUnsafeWriteJson")
 public class TryableUnsafeWriteJsonNode extends StatementNode {
 
-    @Child
-    private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    @Child
-    private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
 
-    public TryableUnsafeWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  public TryableUnsafeWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
+    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  }
+
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    Object tryable = args[0];
+    JsonGenerator gen = (JsonGenerator) args[1];
+    if (tryables.isSuccess(tryable)) {
+      childDirectCall.call(tryables.success(tryable), gen);
+    } else {
+      throw new JsonWriterRawTruffleException(tryables.failure(tryable), this);
     }
-
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        Object tryable = args[0];
-        JsonGenerator gen = (JsonGenerator) args[1];
-        if (tryables.isSuccess(tryable)) {
-            childDirectCall.call(tryables.success(tryable), gen);
-        } else {
-            throw new JsonWriterRawTruffleException(tryables.failure(tryable), this);
-        }
-    }
+  }
 }

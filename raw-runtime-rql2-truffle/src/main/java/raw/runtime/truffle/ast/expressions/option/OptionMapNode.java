@@ -27,21 +27,23 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeChild("function")
 public abstract class OptionMapNode extends ExpressionNode {
 
-    @Specialization(guards = {"options.isOption(option)"}, limit = "1")
-    protected Object optionMap(Object option,
-                               Closure closure,
-                               @CachedLibrary("option") OptionLibrary options,
-                               @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-        if (options.isDefined(option)) {
-            Object v = options.get(option);
-            Object[] argumentValues = new Object[1];
-            argumentValues[0] = v;
-            Object result = closure.call(argumentValues);
-            RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-            return nullableTryables.boxOption(handler, result);
-        } else {
-            return option;
-        }
+  @Specialization(
+      guards = {"options.isOption(option)"},
+      limit = "1")
+  protected Object optionMap(
+      Object option,
+      Closure closure,
+      @CachedLibrary("option") OptionLibrary options,
+      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+    if (options.isDefined(option)) {
+      Object v = options.get(option);
+      Object[] argumentValues = new Object[1];
+      argumentValues[0] = v;
+      Object result = closure.call(argumentValues);
+      RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
+      return nullableTryables.boxOption(handler, result);
+    } else {
+      return option;
     }
-
+  }
 }

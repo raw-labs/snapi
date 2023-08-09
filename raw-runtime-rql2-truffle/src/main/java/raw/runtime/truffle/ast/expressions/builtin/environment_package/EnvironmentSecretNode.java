@@ -26,14 +26,19 @@ import java.util.NoSuchElementException;
 @NodeChild(value = "key")
 public abstract class EnvironmentSecretNode extends ExpressionNode {
 
-    @Specialization
-    protected Object doSecret(String key) {
-        RuntimeContext context = RawContext.get(this).getRuntimeContext();
-        try {
-            Secret v = context.sourceContext().credentialsService().getSecret(context.sourceContext().user(), key).get();
-            return ObjectTryable.BuildSuccess(v.value());
-        } catch (NoSuchElementException e) {
-            return ObjectTryable.BuildFailure("could not find secret " + key);
-        }
+  @Specialization
+  protected Object doSecret(String key) {
+    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    try {
+      Secret v =
+          context
+              .sourceContext()
+              .credentialsService()
+              .getSecret(context.sourceContext().user(), key)
+              .get();
+      return ObjectTryable.BuildSuccess(v.value());
+    } catch (NoSuchElementException e) {
+      return ObjectTryable.BuildFailure("could not find secret " + key);
     }
+  }
 }

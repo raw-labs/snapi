@@ -14,5 +14,4 @@ package raw.runtime.truffle.runtime.exceptions;
 
 import com.oracle.truffle.api.nodes.ControlFlowException;
 
-public final class BreakException extends ControlFlowException {
-}
+public final class BreakException extends ControlFlowException {}

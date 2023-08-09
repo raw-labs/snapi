@@ -19,6 +19,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 public class JdbcReaderRawTruffleException extends RawTruffleRuntimeException {
 
   public JdbcReaderRawTruffleException(String message, JdbcQuery rs, Throwable e, Node location) {
-    super(String.format("failed to read from database %s: %s", rs.location(), message), e, location);
+    super(
+        String.format("failed to read from database %s: %s", rs.location(), message), e, location);
   }
 }

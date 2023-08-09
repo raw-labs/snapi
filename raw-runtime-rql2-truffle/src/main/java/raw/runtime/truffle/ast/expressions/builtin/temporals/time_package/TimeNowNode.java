@@ -23,8 +23,8 @@ import java.time.LocalTime;
 
 @NodeInfo(shortName = "Time.Now")
 public abstract class TimeNowNode extends ExpressionNode {
-    @Specialization
-    protected TimeObject now() {
-        return new TimeObject(LocalTime.now());
-    }
+  @Specialization
+  protected TimeObject now() {
+    return new TimeObject(LocalTime.now());
+  }
 }

@@ -22,25 +22,26 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 @GenerateLibrary
 public abstract class GeneratorLibrary extends Library {
 
-    static final LibraryFactory<GeneratorLibrary> FACTORY = LibraryFactory.resolve(GeneratorLibrary.class);
+  static final LibraryFactory<GeneratorLibrary> FACTORY =
+      LibraryFactory.resolve(GeneratorLibrary.class);
 
-    public static LibraryFactory<GeneratorLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<GeneratorLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static GeneratorLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static GeneratorLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 
-    public boolean isGenerator(Object receiver) {
-        return false;
-    }
+  public boolean isGenerator(Object receiver) {
+    return false;
+  }
 
-    public abstract void init(Object receiver);
+  public abstract void init(Object receiver);
 
-    public abstract void close(Object receiver);
+  public abstract void close(Object receiver);
 
-    public abstract Object next(Object receiver);
+  public abstract Object next(Object receiver);
 
-    public abstract boolean hasNext(Object receiver);
+  public abstract boolean hasNext(Object receiver);
 }

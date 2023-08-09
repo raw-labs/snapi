@@ -21,8 +21,8 @@ import raw.runtime.truffle.runtime.primitives.DateObject;
 @NodeInfo(shortName = "Date.Year")
 @NodeChild("date")
 public abstract class DateYearNode extends ExpressionNode {
-    @Specialization
-    protected int getYear(DateObject date) {
-        return date.getDate().getYear();
-    }
+  @Specialization
+  protected int getYear(DateObject date) {
+    return date.getDate().getYear();
+  }
 }

@@ -17,14 +17,14 @@ import raw.runtime.truffle.ExpressionNode;
 
 public class ReadParamNode extends ExpressionNode {
 
-    private final int index;
+  private final int index;
 
-    public ReadParamNode(int index) {
-        this.index = index;
-    }
+  public ReadParamNode(int index) {
+    this.index = index;
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        return frame.getArguments()[index + 1];
-    }
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    return frame.getArguments()[index + 1];
+  }
 }

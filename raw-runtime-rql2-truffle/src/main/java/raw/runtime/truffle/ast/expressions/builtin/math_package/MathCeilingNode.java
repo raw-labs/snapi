@@ -23,9 +23,8 @@ import java.math.RoundingMode;
 @NodeInfo(shortName = "Math.Ceiling")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathCeilingNode extends ExpressionNode {
-    @Specialization
-    protected long decimalCeiling(BigDecimal argument) {
-        return argument.setScale(0, RoundingMode.CEILING).longValue();
-    }
-
+  @Specialization
+  protected long decimalCeiling(BigDecimal argument) {
+    return argument.setScale(0, RoundingMode.CEILING).longValue();
+  }
 }

@@ -16,11 +16,11 @@ import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class JsonWriterRawTruffleException extends RawTruffleRuntimeException {
-    public JsonWriterRawTruffleException(String message) {
-        super(message);
-    }
+  public JsonWriterRawTruffleException(String message) {
+    super(message);
+  }
 
-    public JsonWriterRawTruffleException(String message, Node location) {
-        super(message, location);
-    }
+  public JsonWriterRawTruffleException(String message, Node location) {
+    super(message, location);
+  }
 }

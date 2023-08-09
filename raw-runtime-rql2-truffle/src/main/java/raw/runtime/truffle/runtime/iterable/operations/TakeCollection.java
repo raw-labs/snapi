@@ -22,23 +22,23 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public class TakeCollection {
 
-    final Object parentIterable;
+  final Object parentIterable;
 
-    private final long cachedCount;
+  private final long cachedCount;
 
-    public TakeCollection(Object iterable, long takeItems) {
-        this.parentIterable = iterable;
-        this.cachedCount = takeItems;
-    }
+  public TakeCollection(Object iterable, long takeItems) {
+    this.parentIterable = iterable;
+    this.cachedCount = takeItems;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
-        Object generator = iterables.getGenerator(parentIterable);
-        return new CollectionAbstractGenerator(new TakeComputeNext(generator, cachedCount));
-    }
+  @ExportMessage
+  Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(parentIterable);
+    return new CollectionAbstractGenerator(new TakeComputeNext(generator, cachedCount));
+  }
 }

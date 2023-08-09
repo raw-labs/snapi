@@ -25,9 +25,10 @@ import java.time.LocalDateTime;
 @NodeInfo(shortName = "Timestamp.FromDate")
 @NodeChild("date")
 public abstract class TimestampFromDateNode extends ExpressionNode {
-    @Specialization
-    protected TimestampObject from(DateObject dateObj) {
-        LocalDate date = dateObj.getDate();
-        return new TimestampObject(LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 0, 0, 0));
-    }
+  @Specialization
+  protected TimestampObject from(DateObject dateObj) {
+    LocalDate date = dateObj.getDate();
+    return new TimestampObject(
+        LocalDateTime.of(date.getYear(), date.getMonth(), date.getDayOfMonth(), 0, 0, 0));
+  }
 }

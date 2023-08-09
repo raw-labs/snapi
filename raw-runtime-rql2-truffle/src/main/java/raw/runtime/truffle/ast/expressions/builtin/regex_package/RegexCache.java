@@ -15,28 +15,25 @@ package raw.runtime.truffle.ast.expressions.builtin.regex_package;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
-/**
- * */
+/** */
 public class RegexCache {
-    private static final ThreadLocal<HashMap<String, Pattern>> regexCache = new ThreadLocal<>();
+  private static final ThreadLocal<HashMap<String, Pattern>> regexCache = new ThreadLocal<>();
 
-    private static HashMap<String, Pattern> getMap() {
-        if (regexCache.get() == null) {
-            regexCache.set(new HashMap<>());
-        }
-        return regexCache.get();
+  private static HashMap<String, Pattern> getMap() {
+    if (regexCache.get() == null) {
+      regexCache.set(new HashMap<>());
     }
+    return regexCache.get();
+  }
 
-    private RegexCache() {
-    }
+  private RegexCache() {}
 
-    public static Pattern get(String s) {
-        HashMap<String, Pattern> map = getMap();
-        if (map.containsKey(s)) return map.get(s);
+  public static Pattern get(String s) {
+    HashMap<String, Pattern> map = getMap();
+    if (map.containsKey(s)) return map.get(s);
 
-        Pattern pattern = Pattern.compile(s);
-        map.put(s, pattern);
-        return pattern;
-    }
-
+    Pattern pattern = Pattern.compile(s);
+    map.put(s, pattern);
+    return pattern;
+  }
 }

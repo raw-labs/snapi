@@ -18,88 +18,88 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class ObjectOption {
 
-    private Object value;
+  private Object value;
 
-    private boolean isDefined;
+  private boolean isDefined;
 
-    public ObjectOption() {
-        this.isDefined = false;
-    }
+  public ObjectOption() {
+    this.isDefined = false;
+  }
 
-    public ObjectOption(Object value) {
-        this.isDefined = true;
-        this.value = value;
-    }
+  public ObjectOption(Object value) {
+    this.isDefined = true;
+    this.value = value;
+  }
 
-    @ExportMessage
-    boolean isOption() {
-        return true;
-    }
+  @ExportMessage
+  boolean isOption() {
+    return true;
+  }
 
-    @ExportMessage
-    public Object get() {
-        return value;
-    }
+  @ExportMessage
+  public Object get() {
+    return value;
+  }
 
-    @ExportMessage
-    public void set(Object value) {
-        this.value = value;
-        this.isDefined = true;
-    }
+  @ExportMessage
+  public void set(Object value) {
+    this.value = value;
+    this.isDefined = true;
+  }
 
-    @ExportMessage
-    public boolean isDefined() {
-        return isDefined;
-    }
+  @ExportMessage
+  public boolean isDefined() {
+    return isDefined;
+  }
 
-//    /* Generator interface */
-//
-//    @ExportMessage
-//    boolean isGenerator() {
-//        return true;
-//    }
-//
-//    @ExportMessage
-//    void init() {
-//    }
-//
-//    @ExportMessage
-//    void close() {
-//    }
-//
-//    @ExportMessage
-//    Object next() {
-//        if (value == null) {
-//            throw new BreakException();
-//        }
-//        return value;
-//    }
-//
-//    @ExportMessage
-//    boolean hasNext() {
-//        return value != null;
-//    }
+  //    /* Generator interface */
+  //
+  //    @ExportMessage
+  //    boolean isGenerator() {
+  //        return true;
+  //    }
+  //
+  //    @ExportMessage
+  //    void init() {
+  //    }
+  //
+  //    @ExportMessage
+  //    void close() {
+  //    }
+  //
+  //    @ExportMessage
+  //    Object next() {
+  //        if (value == null) {
+  //            throw new BreakException();
+  //        }
+  //        return value;
+  //    }
+  //
+  //    @ExportMessage
+  //    boolean hasNext() {
+  //        return value != null;
+  //    }
 
-    /* Option interface */
+  /* Option interface */
 
-//    @ExportMessage
-//    public boolean isOption() {
-//        return true;
-//    }
-//
-//    @ExportMessage
-//    public Object get() {
-//        return value;
-//    }
-//
-//    @ExportMessage
-//    public void set(Object value) {
-//        this.value = value;
-//    }
-//
-//    @ExportMessage
-//    public boolean isDefined() {
-//        return value != null;
-//    }
+  //    @ExportMessage
+  //    public boolean isOption() {
+  //        return true;
+  //    }
+  //
+  //    @ExportMessage
+  //    public Object get() {
+  //        return value;
+  //    }
+  //
+  //    @ExportMessage
+  //    public void set(Object value) {
+  //        this.value = value;
+  //    }
+  //
+  //    @ExportMessage
+  //    public boolean isDefined() {
+  //        return value != null;
+  //    }
 
 }

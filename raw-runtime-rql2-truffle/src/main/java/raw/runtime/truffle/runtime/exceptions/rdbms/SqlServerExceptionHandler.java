@@ -12,5 +12,4 @@
 
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
-public class SqlServerExceptionHandler extends JdbcExceptionHandler {
-}
+public class SqlServerExceptionHandler extends JdbcExceptionHandler {}

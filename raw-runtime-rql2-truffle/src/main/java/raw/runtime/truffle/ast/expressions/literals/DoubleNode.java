@@ -17,19 +17,19 @@ import raw.runtime.truffle.ExpressionNode;
 
 public final class DoubleNode extends ExpressionNode {
 
-    private final String value;
+  private final String value;
 
-    public DoubleNode(String value) {
-        this.value = value;
-    }
+  public DoubleNode(String value) {
+    this.value = value;
+  }
 
-    @Override
-    public final double executeDouble(VirtualFrame virtualFrame) {
-        return Double.parseDouble(value);
-    }
+  @Override
+  public final double executeDouble(VirtualFrame virtualFrame) {
+    return Double.parseDouble(value);
+  }
 
-    @Override
-    public final Object executeGeneric(VirtualFrame virtualFrame) {
-        return Double.parseDouble(value);
-    }
+  @Override
+  public final Object executeGeneric(VirtualFrame virtualFrame) {
+    return Double.parseDouble(value);
+  }
 }

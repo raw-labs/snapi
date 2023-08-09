@@ -26,12 +26,13 @@ import java.time.LocalTime;
 @NodeChild("interval")
 public abstract class TimeSubtractIntervalNode extends ExpressionNode {
 
-    @Specialization
-    protected TimeObject addInterval(TimeObject timeObj, IntervalObject interval) {
-        LocalTime time = timeObj.getTime();
-        return new TimeObject(time.minusHours(interval.getHours())
+  @Specialization
+  protected TimeObject addInterval(TimeObject timeObj, IntervalObject interval) {
+    LocalTime time = timeObj.getTime();
+    return new TimeObject(
+        time.minusHours(interval.getHours())
             .minusMinutes(interval.getMinutes())
             .minusSeconds(interval.getSeconds())
             .minusNanos(1000000L * interval.getMillis()));
-    }
+  }
 }

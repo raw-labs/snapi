@@ -23,9 +23,11 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeChild(value = "value", type = ExpressionNode.class)
 public abstract class OptionSetNode extends StatementNode {
 
-    @Specialization(guards = {"options.isOption(option)"}, limit = "1")
-    protected void optionSet(Object option, int value, @CachedLibrary("option") OptionLibrary options) {
-        options.set(option, value);
-    }
-
+  @Specialization(
+      guards = {"options.isOption(option)"},
+      limit = "1")
+  protected void optionSet(
+      Object option, int value, @CachedLibrary("option") OptionLibrary options) {
+    options.set(option, value);
+  }
 }

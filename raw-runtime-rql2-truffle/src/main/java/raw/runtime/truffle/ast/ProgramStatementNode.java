@@ -20,25 +20,26 @@ import raw.runtime.truffle.StatementNode;
 
 public final class ProgramStatementNode extends RootNode {
 
-//    private static final Source DUMMY_SOURCE = Source.newBuilder(RawLanguage.ID, "", "dummy").build();
+  //    private static final Source DUMMY_SOURCE = Source.newBuilder(RawLanguage.ID, "",
+  // "dummy").build();
 
-    @Child
-    protected StatementNode bodyNode;
+  @Child protected StatementNode bodyNode;
 
-    public ProgramStatementNode(RawLanguage language, FrameDescriptor frameDescriptor, StatementNode body) {
-        super(language, frameDescriptor);
-        this.bodyNode = body;
-        this.bodyNode.addRootTag();
-    }
+  public ProgramStatementNode(
+      RawLanguage language, FrameDescriptor frameDescriptor, StatementNode body) {
+    super(language, frameDescriptor);
+    this.bodyNode = body;
+    this.bodyNode.addRootTag();
+  }
 
-    @Override
-    public Object execute(VirtualFrame frame) {
-        bodyNode.executeVoid(frame);
-        return null;
-    }
+  @Override
+  public Object execute(VirtualFrame frame) {
+    bodyNode.executeVoid(frame);
+    return null;
+  }
 
-//    @Override
-//    public SourceSection getSourceSection() {
-//        return DUMMY_SOURCE.createUnavailableSection();
-//    }
+  //    @Override
+  //    public SourceSection getSourceSection() {
+  //        return DUMMY_SOURCE.createUnavailableSection();
+  //    }
 }

@@ -24,9 +24,9 @@ import java.util.regex.Pattern;
 @NodeChild(value = "string")
 @NodeChild(value = "separator")
 public abstract class StringSplitNode extends ExpressionNode {
-    @Specialization
-    protected StringList stringSplit(String string, String separator) {
-        String escaped = Pattern.quote(separator);
-        return new StringList(string.split(escaped));
-    }
+  @Specialization
+  protected StringList stringSplit(String string, String separator) {
+    String escaped = Pattern.quote(separator);
+    return new StringList(string.split(escaped));
+  }
 }

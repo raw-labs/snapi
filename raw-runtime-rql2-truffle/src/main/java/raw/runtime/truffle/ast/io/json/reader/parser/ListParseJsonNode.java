@@ -37,259 +37,277 @@ import java.util.ArrayList;
 @NodeField(name = "childRootNode", type = RootNode.class)
 public abstract class ListParseJsonNode extends ExpressionNode {
 
-    protected abstract Rql2Type getResultType();
+  protected abstract Rql2Type getResultType();
 
-    protected abstract RootNode getChildRootNode();
+  protected abstract RootNode getChildRootNode();
 
+  @Specialization(guards = {"isByteKind(getResultType())"})
+  protected ByteList doByte(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-    @Specialization(guards = {"isByteKind(getResultType())"})
-    protected ByteList doByte(VirtualFrame frame,
-                              @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                              @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+    ArrayList<Byte> alist = new ArrayList<>();
 
-        ArrayList<Byte> alist = new ArrayList<>();
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((Byte) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((Byte) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
-
-        byte[] result = new byte[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
-
-        return new ByteList(result);
+    byte[] result = new byte[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization(guards = {"isShortKind(getResultType())"})
-    protected ShortList doShort(VirtualFrame frame,
-                                @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                                @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new ByteList(result);
+  }
 
+  @Specialization(guards = {"isShortKind(getResultType())"})
+  protected ShortList doShort(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        ArrayList<Short> alist = new ArrayList<>();
+    ArrayList<Short> alist = new ArrayList<>();
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((Short) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((Short) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        short[] result = new short[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
-
-        return new ShortList(result);
+    short[] result = new short[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization(guards = {"isIntKind(getResultType())"})
-    protected IntList doInt(VirtualFrame frame,
-                            @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                            @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new ShortList(result);
+  }
 
+  @Specialization(guards = {"isIntKind(getResultType())"})
+  protected IntList doInt(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        ArrayList<Integer> alist = new ArrayList<>();
+    ArrayList<Integer> alist = new ArrayList<>();
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((Integer) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((Integer) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        int[] result = new int[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
-
-        return new IntList(result);
+    int[] result = new int[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization(guards = {"isLongKind(getResultType())"})
-    protected LongList doLong(VirtualFrame frame,
-                              @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                              @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new IntList(result);
+  }
 
+  @Specialization(guards = {"isLongKind(getResultType())"})
+  protected LongList doLong(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        ArrayList<Long> alist = new ArrayList<>();
+    ArrayList<Long> alist = new ArrayList<>();
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((Long) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((Long) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        long[] result = new long[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
-
-        return new LongList(result);
+    long[] result = new long[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization(guards = {"isFloatKind(getResultType())"})
-    protected FloatList doFloat(VirtualFrame frame,
-                                @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                                @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new LongList(result);
+  }
 
+  @Specialization(guards = {"isFloatKind(getResultType())"})
+  protected FloatList doFloat(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        ArrayList<Float> alist = new ArrayList<>();
+    ArrayList<Float> alist = new ArrayList<>();
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((Float) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((Float) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        float[] result = new float[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
-
-        return new FloatList(result);
-
+    float[] result = new float[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization(guards = {"isDoubleKind(getResultType())"})
-    protected DoubleList doDouble(VirtualFrame frame,
-                                  @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                                  @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new FloatList(result);
+  }
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+  @Specialization(guards = {"isDoubleKind(getResultType())"})
+  protected DoubleList doDouble(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        ArrayList<Double> alist = new ArrayList<>();
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((Double) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
+    ArrayList<Double> alist = new ArrayList<>();
 
-        double[] result = new double[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((Double) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        return new DoubleList(result);
+    double[] result = new double[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization(guards = {"isBooleanKind(getResultType())"})
-    protected BooleanList doBoolean(VirtualFrame frame,
-                                    @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                                    @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new DoubleList(result);
+  }
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+  @Specialization(guards = {"isBooleanKind(getResultType())"})
+  protected BooleanList doBoolean(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        ArrayList<Boolean> alist = new ArrayList<>();
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((Boolean) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
+    ArrayList<Boolean> alist = new ArrayList<>();
 
-        boolean[] result = new boolean[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((Boolean) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        return new BooleanList(result);
-
+    boolean[] result = new boolean[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization(guards = {"isStringKind(getResultType())"})
-    protected StringList doString(VirtualFrame frame,
-                                  @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                                  @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new BooleanList(result);
+  }
 
+  @Specialization(guards = {"isStringKind(getResultType())"})
+  protected StringList doString(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+    }
+    nextToken.execute(parser);
 
-        ArrayList<String> alist = new ArrayList<>();
+    ArrayList<String> alist = new ArrayList<>();
 
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add((String) childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add((String) childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
 
-        String[] result = new String[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
-
-        return new StringList(result);
+    String[] result = new String[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
     }
 
-    @Specialization
-    protected ObjectList doObject(VirtualFrame frame,
-                                  @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
-                                  @Cached.Shared("nextToken") @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+    return new StringList(result);
+  }
 
+  @Specialization
+  protected ObjectList doObject(
+      VirtualFrame frame,
+      @Cached("create(getChildRootNode().getCallTarget())") DirectCallNode childCallNode,
+      @Cached.Shared("nextToken") @Cached("create()")
+          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
-            throw new JsonUnexpectedTokenException(JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
-        }
-        nextToken.execute(parser);
-
-        ArrayList<Object> alist = new ArrayList<>();
-
-        while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
-            alist.add(childCallNode.call(parser));
-        }
-        nextToken.execute(parser);
-
-        Object[] result = new Object[alist.size()];
-        for (int i = 0; i < result.length; i++) {
-            result[i] = alist.get(i);
-        }
-
-        return new ObjectList(result);
+    if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+      throw new JsonUnexpectedTokenException(
+          JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
     }
+    nextToken.execute(parser);
+
+    ArrayList<Object> alist = new ArrayList<>();
+
+    while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      alist.add(childCallNode.call(parser));
+    }
+    nextToken.execute(parser);
+
+    Object[] result = new Object[alist.size()];
+    for (int i = 0; i < result.length; i++) {
+      result[i] = alist.get(i);
+    }
+
+    return new ObjectList(result);
+  }
 }
