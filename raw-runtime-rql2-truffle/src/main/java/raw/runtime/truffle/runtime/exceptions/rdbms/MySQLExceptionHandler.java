@@ -12,5 +12,4 @@
 
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
-public class MySQLExceptionHandler extends JdbcExceptionHandler {
-}
+public class MySQLExceptionHandler extends JdbcExceptionHandler {}

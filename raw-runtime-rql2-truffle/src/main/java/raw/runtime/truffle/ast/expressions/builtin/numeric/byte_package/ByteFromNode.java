@@ -15,58 +15,55 @@ package raw.runtime.truffle.ast.expressions.builtin.numeric.byte_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Byte.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class ByteFromNode extends ExpressionNode {
 
-    @Specialization
-    protected byte fromByte(byte argument) {
-        return argument;
-    }
+  @Specialization
+  protected byte fromByte(byte argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected byte fromShort(short argument) {
-        return (byte) argument;
-    }
+  @Specialization
+  protected byte fromShort(short argument) {
+    return (byte) argument;
+  }
 
-    @Specialization
-    protected byte fromInt(int argument) {
-        return (byte) argument;
-    }
+  @Specialization
+  protected byte fromInt(int argument) {
+    return (byte) argument;
+  }
 
-    @Specialization
-    protected byte fromLong(long argument) {
-        return (byte) argument;
-    }
+  @Specialization
+  protected byte fromLong(long argument) {
+    return (byte) argument;
+  }
 
-    @Specialization
-    protected byte fromFloat(float argument) {
-        return (byte) argument;
-    }
+  @Specialization
+  protected byte fromFloat(float argument) {
+    return (byte) argument;
+  }
 
-    @Specialization
-    protected byte fromDouble(double argument) {
-        return (byte) argument;
-    }
+  @Specialization
+  protected byte fromDouble(double argument) {
+    return (byte) argument;
+  }
 
-    @Specialization
-    protected byte fromDecimal(BigDecimal argument) {
-        return argument.byteValue();
-    }
+  @Specialization
+  protected byte fromDecimal(BigDecimal argument) {
+    return argument.byteValue();
+  }
 
-    @Specialization
-    protected ObjectTryable fromString(String argument) {
-        try {
-            return ObjectTryable.BuildSuccess(Byte.parseByte(argument));
-        } catch (RuntimeException ex) {
-            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to byte");
-        }
+  @Specialization
+  protected ObjectTryable fromString(String argument) {
+    try {
+      return ObjectTryable.BuildSuccess(Byte.parseByte(argument));
+    } catch (RuntimeException ex) {
+      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to byte");
     }
-
+  }
 }

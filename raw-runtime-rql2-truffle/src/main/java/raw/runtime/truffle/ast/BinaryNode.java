@@ -17,5 +17,4 @@ import raw.runtime.truffle.ExpressionNode;
 
 @NodeChild("leftNode")
 @NodeChild("rightNode")
-public abstract class BinaryNode extends ExpressionNode {
-}
+public abstract class BinaryNode extends ExpressionNode {}

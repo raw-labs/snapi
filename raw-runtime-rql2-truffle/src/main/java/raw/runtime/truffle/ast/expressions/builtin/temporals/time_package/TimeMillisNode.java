@@ -15,16 +15,15 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.time_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.concurrent.TimeUnit;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
-
-import java.util.concurrent.TimeUnit;
 
 @NodeInfo(shortName = "Time.Millis")
 @NodeChild("time")
 public abstract class TimeMillisNode extends ExpressionNode {
-    @Specialization
-    protected int getMillis(TimeObject time) {
-        return (int) TimeUnit.NANOSECONDS.toMillis(time.getTime().getNano());
-    }
+  @Specialization
+  protected int getMillis(TimeObject time) {
+    return (int) TimeUnit.NANOSECONDS.toMillis(time.getTime().getNano());
+  }
 }

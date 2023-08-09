@@ -21,8 +21,8 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeInfo(shortName = "Interval.FromMillis")
 @NodeChild("millis")
 public abstract class IntervalFromMillisNode extends ExpressionNode {
-    @Specialization
-    protected IntervalObject fromMillis(long millis) {
-        return new IntervalObject(0, millis);
-    }
+  @Specialization
+  protected IntervalObject fromMillis(long millis) {
+    return new IntervalObject(0, millis);
+  }
 }

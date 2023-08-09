@@ -12,25 +12,19 @@
 
 package raw.runtime.truffle.runtime.exceptions.json;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 public class JsonParserRawTruffleException extends RawTruffleRuntimeException {
-    public JsonParserRawTruffleException(String message) {
-        super(message);
-    }
+  public JsonParserRawTruffleException(String message) {
+    super(message);
+  }
 
-    public JsonParserRawTruffleException(String message, Node location) {
-        super(message);
-    }
+  public JsonParserRawTruffleException(String message, Node location) {
+    super(message);
+  }
 
-    public JsonParserRawTruffleException(String message, Throwable cause, Node location) {
-        super(message, cause, location);
-    }
-
+  public JsonParserRawTruffleException(String message, Throwable cause, Node location) {
+    super(message, cause, location);
+  }
 }
-
-

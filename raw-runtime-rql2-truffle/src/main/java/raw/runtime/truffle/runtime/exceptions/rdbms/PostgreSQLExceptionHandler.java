@@ -12,5 +12,4 @@
 
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
-public class PostgreSQLExceptionHandler extends JdbcExceptionHandler {
-}
+public class PostgreSQLExceptionHandler extends JdbcExceptionHandler {}

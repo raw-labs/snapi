@@ -14,45 +14,44 @@ package raw.runtime.truffle.ast.expressions.binary;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ast.BinaryNode;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ast.BinaryNode;
 
 @NodeInfo(shortName = "-")
 public abstract class SubNode extends BinaryNode {
 
-    @Specialization
-    protected byte sub(byte left, byte right) {
-        return (byte) (left - right);
-    }
+  @Specialization
+  protected byte sub(byte left, byte right) {
+    return (byte) (left - right);
+  }
 
-    @Specialization
-    protected short sub(short left, short right) {
-        return (short) (left - right);
-    }
+  @Specialization
+  protected short sub(short left, short right) {
+    return (short) (left - right);
+  }
 
-    @Specialization
-    protected int sub(int left, int right) {
-        return left - right;
-    }
+  @Specialization
+  protected int sub(int left, int right) {
+    return left - right;
+  }
 
-    @Specialization
-    protected long sub(long left, long right) {
-        return left - right;
-    }
+  @Specialization
+  protected long sub(long left, long right) {
+    return left - right;
+  }
 
-    @Specialization
-    protected float sub(float left, float right) {
-        return left - right;
-    }
+  @Specialization
+  protected float sub(float left, float right) {
+    return left - right;
+  }
 
-    @Specialization
-    protected double sub(double left, double right) {
-        return left - right;
-    }
+  @Specialization
+  protected double sub(double left, double right) {
+    return left - right;
+  }
 
-    @Specialization
-    protected BigDecimal sub(BigDecimal left, BigDecimal right) {
-        return left.subtract(right);
-    }
+  @Specialization
+  protected BigDecimal sub(BigDecimal left, BigDecimal right) {
+    return left.subtract(right);
+  }
 }

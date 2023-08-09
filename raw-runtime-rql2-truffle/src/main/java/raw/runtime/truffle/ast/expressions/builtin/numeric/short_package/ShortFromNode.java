@@ -15,58 +15,55 @@ package raw.runtime.truffle.ast.expressions.builtin.numeric.short_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Short.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class ShortFromNode extends ExpressionNode {
 
-    @Specialization
-    protected short fromByte(byte argument) {
-        return argument;
-    }
+  @Specialization
+  protected short fromByte(byte argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected short fromShort(short argument) {
-        return argument;
-    }
+  @Specialization
+  protected short fromShort(short argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected short fromInt(int argument) {
-        return (short) argument;
-    }
+  @Specialization
+  protected short fromInt(int argument) {
+    return (short) argument;
+  }
 
-    @Specialization
-    protected short fromLong(long argument) {
-        return (short) argument;
-    }
+  @Specialization
+  protected short fromLong(long argument) {
+    return (short) argument;
+  }
 
-    @Specialization
-    protected short fromFloat(float argument) {
-        return (short) argument;
-    }
+  @Specialization
+  protected short fromFloat(float argument) {
+    return (short) argument;
+  }
 
-    @Specialization
-    protected short fromDouble(double argument) {
-        return (short) argument;
-    }
+  @Specialization
+  protected short fromDouble(double argument) {
+    return (short) argument;
+  }
 
-    @Specialization
-    protected short fromDecimal(BigDecimal argument) {
-        return argument.shortValue();
-    }
+  @Specialization
+  protected short fromDecimal(BigDecimal argument) {
+    return argument.shortValue();
+  }
 
-    @Specialization
-    protected ObjectTryable fromString(String argument) {
-        try {
-            return ObjectTryable.BuildSuccess(Short.parseShort(argument));
-        } catch (RuntimeException ex) {
-            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to short");
-        }
+  @Specialization
+  protected ObjectTryable fromString(String argument) {
+    try {
+      return ObjectTryable.BuildSuccess(Short.parseShort(argument));
+    } catch (RuntimeException ex) {
+      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to short");
     }
-
+  }
 }

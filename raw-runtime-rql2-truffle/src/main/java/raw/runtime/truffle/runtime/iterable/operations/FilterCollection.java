@@ -23,23 +23,22 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class FilterCollection {
 
-    final Object parentIterable;
-    final Closure predicate;
+  final Object parentIterable;
+  final Closure predicate;
 
-    public FilterCollection(Object iterable, Closure predicate) {
-        this.parentIterable = iterable;
-        this.predicate = predicate;
-    }
+  public FilterCollection(Object iterable, Closure predicate) {
+    this.parentIterable = iterable;
+    this.predicate = predicate;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
-        Object parentGenerator = iterables.getGenerator(parentIterable);
-        return new CollectionAbstractGenerator(new FilterComputeNext(parentGenerator, predicate));
-    }
-
+  @ExportMessage
+  Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
+    Object parentGenerator = iterables.getGenerator(parentIterable);
+    return new CollectionAbstractGenerator(new FilterComputeNext(parentGenerator, predicate));
+  }
 }

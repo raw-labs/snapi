@@ -15,35 +15,33 @@ package raw.runtime.truffle.ast.io.binary;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.StatementNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-
 import java.io.IOException;
 import java.io.OutputStream;
+import raw.runtime.truffle.StatementNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @NodeInfo(shortName = "Binary.BytesWrite")
 public class BinaryBytesWriterNode extends StatementNode {
 
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(OutputStream os, byte[] binaryData) {
-        try {
-            os.write(binaryData);
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-        }
+  @CompilerDirectives.TruffleBoundary
+  private void doWrite(OutputStream os, byte[] binaryData) {
+    try {
+      os.write(binaryData);
+    } catch (IOException e) {
+      throw new RawTruffleRuntimeException(e.getMessage());
     }
+  }
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        byte[] binaryData;
-        if (args[0] instanceof byte[]) {
-            binaryData = (byte[]) args[0];
-        } else {
-            binaryData = ((String) args[0]).getBytes();
-        }
-        OutputStream output = (OutputStream) args[1];
-        doWrite(output, binaryData);
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    byte[] binaryData;
+    if (args[0] instanceof byte[]) {
+      binaryData = (byte[]) args[0];
+    } else {
+      binaryData = ((String) args[0]).getBytes();
     }
+    OutputStream output = (OutputStream) args[1];
+    doWrite(output, binaryData);
+  }
 }
-

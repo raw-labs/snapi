@@ -12,39 +12,32 @@
 
 package raw.runtime.truffle.runtime.generator.collection;
 
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 
 @ExportLibrary(GeneratorLibrary.class)
 public class EmptyCollectionGenerator {
 
-    @ExportMessage
-    boolean isGenerator() {
-        return true;
-    }
+  @ExportMessage
+  boolean isGenerator() {
+    return true;
+  }
 
-    @ExportMessage
-    void init() {
-    }
+  @ExportMessage
+  void init() {}
 
-    @ExportMessage
-    void close() {
-    }
+  @ExportMessage
+  void close() {}
 
-    @ExportMessage
-    Object next() {
-        throw new BreakException();
-    }
+  @ExportMessage
+  Object next() {
+    throw new BreakException();
+  }
 
-    @ExportMessage
-    boolean hasNext() {
-        return false;
-    }
-
-
+  @ExportMessage
+  boolean hasNext() {
+    return false;
+  }
 }

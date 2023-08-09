@@ -17,13 +17,11 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 @NodeInfo(shortName = "Math.Degrees")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathDegreesNode extends ExpressionNode {
-    @Specialization
-    protected double doubleDegrees(double argument) {
-        return Math.toDegrees(argument);
-    }
+  @Specialization
+  protected double doubleDegrees(double argument) {
+    return Math.toDegrees(argument);
+  }
 }

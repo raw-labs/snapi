@@ -15,20 +15,20 @@ package raw.runtime.truffle.ast.io.json.writer.internal;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.math.BigDecimal;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 
-import java.math.BigDecimal;
-
 @NodeInfo(shortName = "DecimalWriteJson")
 public class DecimalWriteJsonNode extends StatementNode {
 
-    @Child
-    JsonWriteNodes.WriteDecimalJsonWriterNode writeDate = JsonWriteNodesFactory.WriteDecimalJsonWriterNodeGen.create();
+  @Child
+  JsonWriteNodes.WriteDecimalJsonWriterNode writeDate =
+      JsonWriteNodesFactory.WriteDecimalJsonWriterNodeGen.create();
 
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        writeDate.execute((BigDecimal) args[0], (JsonGenerator) args[1]);
-    }
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    writeDate.execute((BigDecimal) args[0], (JsonGenerator) args[1]);
+  }
 }

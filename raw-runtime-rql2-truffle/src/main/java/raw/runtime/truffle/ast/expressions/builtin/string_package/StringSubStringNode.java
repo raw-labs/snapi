@@ -24,18 +24,18 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 @NodeChild(value = "length")
 public abstract class StringSubStringNode extends ExpressionNode {
 
-    @Specialization
-    protected String stringSubstring(String string, int begin, int length) {
-        if (begin <= 0) {
-            throw new RawTruffleRuntimeException("invalid index: indexes start at 1", this);
-        }
-
-        int end = 0;
-        if (length >= 0 && begin - 1 + length < string.length()) {
-            end = begin - 1 + length;
-        } else {
-            end = string.length();
-        }
-        return string.substring(begin - 1, end);
+  @Specialization
+  protected String stringSubstring(String string, int begin, int length) {
+    if (begin <= 0) {
+      throw new RawTruffleRuntimeException("invalid index: indexes start at 1", this);
     }
+
+    int end = 0;
+    if (length >= 0 && begin - 1 + length < string.length()) {
+      end = begin - 1 + length;
+    } else {
+      end = string.length();
+    }
+    return string.substring(begin - 1, end);
+  }
 }

@@ -17,13 +17,11 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 @NodeInfo(shortName = "Math.Log")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathLogNode extends ExpressionNode {
-    @Specialization
-    protected double doubleLog(double argument) {
-        return Math.log(argument);
-    }
+  @Specialization
+  protected double doubleLog(double argument) {
+    return Math.log(argument);
+  }
 }

@@ -24,12 +24,15 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeChild("orElse")
 public abstract class OptionGetOrElseNode extends ExpressionNode {
 
-    @Specialization(guards = {"options.isOption(option)"}, limit = "1")
-    protected Object optionGetOrElse(Object option, Object orElse, @CachedLibrary("option") OptionLibrary options) {
-        if (options.isDefined(option)) {
-            return options.get(option);
-        } else {
-            return orElse;
-        }
+  @Specialization(
+      guards = {"options.isOption(option)"},
+      limit = "1")
+  protected Object optionGetOrElse(
+      Object option, Object orElse, @CachedLibrary("option") OptionLibrary options) {
+    if (options.isDefined(option)) {
+      return options.get(option);
+    } else {
+      return orElse;
     }
+  }
 }

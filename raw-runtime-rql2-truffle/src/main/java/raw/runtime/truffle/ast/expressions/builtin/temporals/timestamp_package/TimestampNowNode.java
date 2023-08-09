@@ -14,15 +14,14 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.time.LocalDateTime;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
-import java.time.LocalDateTime;
-
 @NodeInfo(shortName = "Timestamp.Now")
 public abstract class TimestampNowNode extends ExpressionNode {
-    @Specialization
-    protected TimestampObject now() {
-        return new TimestampObject(LocalDateTime.now());
-    }
+  @Specialization
+  protected TimestampObject now() {
+    return new TimestampObject(LocalDateTime.now());
+  }
 }

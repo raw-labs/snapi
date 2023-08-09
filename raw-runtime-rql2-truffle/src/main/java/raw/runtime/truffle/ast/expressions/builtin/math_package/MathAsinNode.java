@@ -17,16 +17,13 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 // TODO: Check Acos comments
 @NodeInfo(shortName = "Math.Asin")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathAsinNode extends ExpressionNode {
 
-    @Specialization
-    protected double doubleAsin(double argument) {
-        return Math.asin(argument);
-    }
-
+  @Specialization
+  protected double doubleAsin(double argument) {
+    return Math.asin(argument);
+  }
 }

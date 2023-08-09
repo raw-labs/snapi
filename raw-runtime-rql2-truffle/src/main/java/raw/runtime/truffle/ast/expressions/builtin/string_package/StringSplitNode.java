@@ -15,18 +15,17 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.regex.Pattern;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.list.StringList;
-
-import java.util.regex.Pattern;
 
 @NodeInfo(shortName = "String.Split")
 @NodeChild(value = "string")
 @NodeChild(value = "separator")
 public abstract class StringSplitNode extends ExpressionNode {
-    @Specialization
-    protected StringList stringSplit(String string, String separator) {
-        String escaped = Pattern.quote(separator);
-        return new StringList(string.split(escaped));
-    }
+  @Specialization
+  protected StringList stringSplit(String string, String separator) {
+    String escaped = Pattern.quote(separator);
+    return new StringList(string.split(escaped));
+  }
 }

@@ -13,29 +13,33 @@
 package raw.runtime.truffle.runtime.iterable;
 
 import com.oracle.truffle.api.interop.InteropLibrary;
+import java.util.Comparator;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
 
-import java.util.Comparator;
-
 // OffHeap GroupBy where the set of nested values is returned as an iterable
 public class OffHeapEquiJoinGroupByKey extends OffHeapGroupByKey {
 
-    public OffHeapEquiJoinGroupByKey(Comparator<Object> keyCompare, Rql2TypeWithProperties kType, Rql2TypeWithProperties rowType, RawLanguage language, RuntimeContext context) {
-        super(keyCompare, kType, rowType, language, context, new EquiJoinGroupByRecordShaper(language));
-    }
+  public OffHeapEquiJoinGroupByKey(
+      Comparator<Object> keyCompare,
+      Rql2TypeWithProperties kType,
+      Rql2TypeWithProperties rowType,
+      RawLanguage language,
+      RuntimeContext context) {
+    super(keyCompare, kType, rowType, language, context, new EquiJoinGroupByRecordShaper(language));
+  }
 }
 
 class EquiJoinGroupByRecordShaper extends GroupByRecordShaper {
 
-    private InteropLibrary records = null;
+  private InteropLibrary records = null;
 
-    public EquiJoinGroupByRecordShaper(RawLanguage language) {
-        super(language);
-    }
+  public EquiJoinGroupByRecordShaper(RawLanguage language) {
+    super(language);
+  }
 
-    public Object makeRow(Object key, Object[] values) {
-        return new Object[]{key, values};
-    }
+  public Object makeRow(Object key, Object[] values) {
+    return new Object[] {key, values};
+  }
 }

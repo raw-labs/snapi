@@ -26,21 +26,21 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeChild("indexNode")
 public abstract class RecordProjNode extends ExpressionNode {
 
-    @Specialization(limit = "3")
-    protected Object readMember(RecordObject record, String key) {
-        try {
-            return record.readByKey(key);
-        } catch (UnknownIdentifierException e) {
-            throw new RawTruffleInternalErrorException(e, this);
-        }
+  @Specialization(limit = "3")
+  protected Object readMember(RecordObject record, String key) {
+    try {
+      return record.readByKey(key);
+    } catch (UnknownIdentifierException e) {
+      throw new RawTruffleInternalErrorException(e, this);
     }
+  }
 
-    @Specialization
-    protected Object readMember(RecordObject record, int index) {
-        try {
-            return record.readIdx(index - 1);
-        } catch (InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e, this);
-        }
+  @Specialization
+  protected Object readMember(RecordObject record, int index) {
+    try {
+      return record.readIdx(index - 1);
+    } catch (InvalidArrayIndexException e) {
+      throw new RawTruffleInternalErrorException(e, this);
     }
+  }
 }

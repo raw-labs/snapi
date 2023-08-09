@@ -13,26 +13,26 @@
 package raw.runtime.truffle.runtime.iterable;
 
 import com.oracle.truffle.api.library.GenerateLibrary;
-import com.oracle.truffle.api.library.GenerateLibrary.Abstract;
 import com.oracle.truffle.api.library.Library;
 import com.oracle.truffle.api.library.LibraryFactory;
 
 @GenerateLibrary
 public abstract class IterableLibrary extends Library {
 
-    static final LibraryFactory<IterableLibrary> FACTORY = LibraryFactory.resolve(IterableLibrary.class);
+  static final LibraryFactory<IterableLibrary> FACTORY =
+      LibraryFactory.resolve(IterableLibrary.class);
 
-    public static LibraryFactory<IterableLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<IterableLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static IterableLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static IterableLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 
-    public boolean isIterable(Object receiver) {
-        return false;
-    }
+  public boolean isIterable(Object receiver) {
+    return false;
+  }
 
-    public abstract Object getGenerator(Object receiver);
+  public abstract Object getGenerator(Object receiver);
 }

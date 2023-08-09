@@ -19,8 +19,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild("value")
 public abstract class NotNode extends ExpressionNode {
 
-    @Specialization
-    protected boolean not(boolean value) {
-        return !value;
-    }
+  @Specialization
+  protected boolean not(boolean value) {
+    return !value;
+  }
 }

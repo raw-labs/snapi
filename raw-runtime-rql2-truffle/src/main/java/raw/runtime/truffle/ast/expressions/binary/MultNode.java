@@ -14,45 +14,44 @@ package raw.runtime.truffle.ast.expressions.binary;
 
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ast.BinaryNode;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ast.BinaryNode;
 
 @NodeInfo(shortName = "*")
 public abstract class MultNode extends BinaryNode {
 
-    @Specialization
-    protected byte mul(byte left, byte right) {
-        return (byte) (left * right);
-    }
+  @Specialization
+  protected byte mul(byte left, byte right) {
+    return (byte) (left * right);
+  }
 
-    @Specialization
-    protected short mul(short left, short right) {
-        return (short) (left * right);
-    }
+  @Specialization
+  protected short mul(short left, short right) {
+    return (short) (left * right);
+  }
 
-    @Specialization
-    protected int mul(int left, int right) {
-        return left * right;
-    }
+  @Specialization
+  protected int mul(int left, int right) {
+    return left * right;
+  }
 
-    @Specialization
-    protected long mul(long left, long right) {
-        return left * right;
-    }
+  @Specialization
+  protected long mul(long left, long right) {
+    return left * right;
+  }
 
-    @Specialization
-    protected float mul(float left, float right) {
-        return left * right;
-    }
+  @Specialization
+  protected float mul(float left, float right) {
+    return left * right;
+  }
 
-    @Specialization
-    protected double mul(double left, double right) {
-        return left * right;
-    }
+  @Specialization
+  protected double mul(double left, double right) {
+    return left * right;
+  }
 
-    @Specialization
-    protected BigDecimal mul(BigDecimal left, BigDecimal right) {
-        return left.multiply(right);
-    }
+  @Specialization
+  protected BigDecimal mul(BigDecimal left, BigDecimal right) {
+    return left.multiply(right);
+  }
 }

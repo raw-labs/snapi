@@ -18,9 +18,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-
 import java.util.Objects;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
   private final Function function;
@@ -32,7 +31,8 @@ public class Closure {
 
   private final Object[] defaultArguments;
 
-  // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored and used later.
+  // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
+  // and used later.
   public Closure(Function function, Object[] defaultArguments, MaterializedFrame frame, Node node) {
     this.function = function;
     this.frame = frame;
@@ -53,12 +53,14 @@ public class Closure {
     }
   }
 
-    // for top-level functions. The internal 'frame' is null because it's never used to fetch values of free-variables.
-    public Closure(Function function, Object[] defaultArguments, Node node) {
-        this(function, defaultArguments, null, node);
-    }
+  // for top-level functions. The internal 'frame' is null because it's never used to fetch values
+  // of free-variables.
+  public Closure(Function function, Object[] defaultArguments, Node node) {
+    this(function, defaultArguments, null, node);
+  }
 
-  // call with named arguments. That's used by the invoke or other ways a function can be called with named arguments.
+  // call with named arguments. That's used by the invoke or other ways a function can be called
+  // with named arguments.
   public Object callWithNames(String[] argNames, Object... arguments) {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
@@ -69,7 +71,8 @@ public class Closure {
         // no arg name was provided, use the index.
         args[i + 1] = arguments[i];
       } else {
-        // an arg name, ignore the current index 'i' and instead walk the arg names to find the real, and fill it in.
+        // an arg name, ignore the current index 'i' and instead walk the arg names to find the
+        // real, and fill it in.
         int idx = 0;
         while (!Objects.equals(argNames[i], function.argNames[idx])) {
           idx++;
@@ -83,5 +86,4 @@ public class Closure {
       throw new RawTruffleInternalErrorException(e, node);
     }
   }
-
 }

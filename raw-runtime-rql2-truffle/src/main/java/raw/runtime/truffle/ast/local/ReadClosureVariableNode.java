@@ -20,9 +20,9 @@ import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.compiler.rql2.source.*;
+import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ImportStatic(TypeGuards.class)
@@ -31,62 +31,63 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 @NodeField(name = "rql2Type", type = Rql2Type.class)
 public abstract class ReadClosureVariableNode extends ExpressionNode {
 
-    private static final TruffleLogger LOG = TruffleLogger.getLogger(RawLanguage.ID, RawTruffleRuntimeException.class);
+  private static final TruffleLogger LOG =
+      TruffleLogger.getLogger(RawLanguage.ID, RawTruffleRuntimeException.class);
 
-    protected abstract Integer getDepth();
+  protected abstract Integer getDepth();
 
-    protected abstract Integer getIndex();
+  protected abstract Integer getIndex();
 
-    protected abstract Rql2Type getRql2Type();
+  protected abstract Rql2Type getRql2Type();
 
-    @Specialization(guards = "isBooleanKind(getRql2Type())")
-    protected final boolean doBoolean(VirtualFrame frame) {
-        return findActualFrame(frame).getBoolean(getIndex());
+  @Specialization(guards = "isBooleanKind(getRql2Type())")
+  protected final boolean doBoolean(VirtualFrame frame) {
+    return findActualFrame(frame).getBoolean(getIndex());
+  }
+
+  @Specialization(guards = "isByteKind(getRql2Type())")
+  protected final byte doByte(VirtualFrame frame) {
+    return findActualFrame(frame).getByte(getIndex());
+  }
+
+  @Specialization(guards = "isShortKind(getRql2Type())")
+  protected final short doShort(VirtualFrame frame) {
+    return (short) findActualFrame(frame).getInt(getIndex());
+  }
+
+  @Specialization(guards = "isIntKind(getRql2Type())")
+  protected final int doInt(VirtualFrame frame) {
+    return findActualFrame(frame).getInt(getIndex());
+  }
+
+  @Specialization(guards = "isLongKind(getRql2Type())")
+  protected final long doLong(VirtualFrame frame) {
+    return findActualFrame(frame).getLong(getIndex());
+  }
+
+  @Specialization(guards = "isFloatKind(getRql2Type())")
+  protected final float doFloat(VirtualFrame frame) {
+    return findActualFrame(frame).getFloat(getIndex());
+  }
+
+  @Specialization(guards = "isDoubleKind(getRql2Type())")
+  protected final double doDouble(VirtualFrame frame) {
+    return findActualFrame(frame).getDouble(getIndex());
+  }
+
+  @Specialization(
+      replaces = {"doBoolean", "doByte", "doShort", "doInt", "doFloat", "doDouble", "doLong"})
+  protected final Object doObject(VirtualFrame frame) {
+    return findActualFrame(frame).getObject(getIndex());
+  }
+
+  @ExplodeLoop
+  private Frame findActualFrame(VirtualFrame frame) {
+    Integer depth = getDepth();
+    Frame currentFrame = frame;
+    for (int i = 0; i < depth; i++) {
+      currentFrame = (Frame) currentFrame.getArguments()[0];
     }
-
-    @Specialization(guards = "isByteKind(getRql2Type())")
-    protected final byte doByte(VirtualFrame frame) {
-        return findActualFrame(frame).getByte(getIndex());
-    }
-
-    @Specialization(guards = "isShortKind(getRql2Type())")
-    protected final short doShort(VirtualFrame frame) {
-        return (short) findActualFrame(frame).getInt(getIndex());
-    }
-
-    @Specialization(guards = "isIntKind(getRql2Type())")
-    protected final int doInt(VirtualFrame frame) {
-        return findActualFrame(frame).getInt(getIndex());
-    }
-
-    @Specialization(guards = "isLongKind(getRql2Type())")
-    protected final long doLong(VirtualFrame frame) {
-        return findActualFrame(frame).getLong(getIndex());
-    }
-
-    @Specialization(guards = "isFloatKind(getRql2Type())")
-    protected final float doFloat(VirtualFrame frame) {
-        return findActualFrame(frame).getFloat(getIndex());
-    }
-
-    @Specialization(guards = "isDoubleKind(getRql2Type())")
-    protected final double doDouble(VirtualFrame frame) {
-        return findActualFrame(frame).getDouble(getIndex());
-    }
-
-    @Specialization(replaces = {"doBoolean", "doByte", "doShort", "doInt", "doFloat", "doDouble", "doLong"})
-    protected final Object doObject(VirtualFrame frame) {
-        return findActualFrame(frame).getObject(getIndex());
-    }
-
-    @ExplodeLoop
-    private Frame findActualFrame(VirtualFrame frame) {
-        Integer depth = getDepth();
-        Frame currentFrame = frame;
-        for (int i = 0; i < depth; i++) {
-            currentFrame = (Frame) currentFrame.getArguments()[0];
-        }
-        return currentFrame;
-    }
-
+    return currentFrame;
+  }
 }

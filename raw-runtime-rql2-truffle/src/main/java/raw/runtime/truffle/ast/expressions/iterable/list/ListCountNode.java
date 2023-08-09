@@ -17,14 +17,13 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 
 @NodeInfo(shortName = "List.Count")
 @NodeChild("list")
 public abstract class ListCountNode extends ExpressionNode {
-    @Specialization(limit = "3")
-    protected long doList(Object list, @CachedLibrary("list") ListLibrary lists) {
-        return lists.size(list);
-    }
+  @Specialization(limit = "3")
+  protected long doList(Object list, @CachedLibrary("list") ListLibrary lists) {
+    return lists.size(list);
+  }
 }

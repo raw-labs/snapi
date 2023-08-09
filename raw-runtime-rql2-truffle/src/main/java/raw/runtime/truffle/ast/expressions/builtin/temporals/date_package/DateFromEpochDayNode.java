@@ -15,17 +15,16 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.time.LocalDate;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.DateObject;
-
-import java.time.LocalDate;
 
 @NodeInfo(shortName = "Date.FromEpochDay")
 @NodeChild("d")
 public abstract class DateFromEpochDayNode extends ExpressionNode {
 
-    @Specialization
-    protected DateObject FromEpochDay(Long d) {
-        return new DateObject(LocalDate.ofEpochDay(d));
-    }
+  @Specialization
+  protected DateObject FromEpochDay(Long d) {
+    return new DateObject(LocalDate.ofEpochDay(d));
+  }
 }

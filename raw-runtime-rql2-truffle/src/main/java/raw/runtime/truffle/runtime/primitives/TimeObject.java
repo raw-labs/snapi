@@ -12,26 +12,24 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
-import com.oracle.truffle.api.interop.TruffleObject;
-
-import java.time.LocalTime;
-
-import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.DATE_FORMATTER;
 import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.TIME_FORMATTER;
+
+import com.oracle.truffle.api.interop.TruffleObject;
+import java.time.LocalTime;
 
 public class TimeObject implements TruffleObject {
 
-    private final LocalTime time;
+  private final LocalTime time;
 
-    public TimeObject(LocalTime time) {
-        this.time = time;
-    }
+  public TimeObject(LocalTime time) {
+    this.time = time;
+  }
 
-    public LocalTime getTime() {
-        return time;
-    }
+  public LocalTime getTime() {
+    return time;
+  }
 
-    public String toString() {
-        return time.format(TIME_FORMATTER);
-    }
+  public String toString() {
+    return time.format(TIME_FORMATTER);
+  }
 }

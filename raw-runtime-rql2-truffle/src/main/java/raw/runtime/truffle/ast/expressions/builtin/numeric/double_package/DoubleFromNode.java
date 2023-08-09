@@ -15,58 +15,55 @@ package raw.runtime.truffle.ast.expressions.builtin.numeric.double_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Double.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class DoubleFromNode extends ExpressionNode {
 
-    @Specialization
-    protected double fromByte(byte argument) {
-        return argument;
-    }
+  @Specialization
+  protected double fromByte(byte argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected double fromShort(short argument) {
-        return argument;
-    }
+  @Specialization
+  protected double fromShort(short argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected double fromInt(int argument) {
-        return argument;
-    }
+  @Specialization
+  protected double fromInt(int argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected double fromLong(long argument) {
-        return argument;
-    }
+  @Specialization
+  protected double fromLong(long argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected double fromFloat(float argument) {
-        return argument;
-    }
+  @Specialization
+  protected double fromFloat(float argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected double fromDouble(double argument) {
-        return argument;
-    }
+  @Specialization
+  protected double fromDouble(double argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected double fromDecimal(BigDecimal argument) {
-        return argument.doubleValue();
-    }
+  @Specialization
+  protected double fromDecimal(BigDecimal argument) {
+    return argument.doubleValue();
+  }
 
-    @Specialization
-    protected ObjectTryable fromString(String argument) {
-        try {
-            return ObjectTryable.BuildSuccess(Double.parseDouble(argument));
-        } catch (RuntimeException ex) {
-            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to double");
-        }
+  @Specialization
+  protected ObjectTryable fromString(String argument) {
+    try {
+      return ObjectTryable.BuildSuccess(Double.parseDouble(argument));
+    } catch (RuntimeException ex) {
+      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to double");
     }
-
+  }
 }

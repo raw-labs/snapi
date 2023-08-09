@@ -14,20 +14,18 @@ package raw.runtime.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.iterable.operations.FilterCollection;
 import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.iterable.operations.FilterCollection;
 
 @NodeInfo(shortName = "Collection.Filter")
 @NodeChild("iterable")
 @NodeChild("predicate")
 public abstract class CollectionFilterNode extends ExpressionNode {
 
-    @Specialization
-    protected Object doFilter(Object iterable, Closure predicate) {
-        return new FilterCollection(iterable, predicate);
-    }
-
+  @Specialization
+  protected Object doFilter(Object iterable, Closure predicate) {
+    return new FilterCollection(iterable, predicate);
+  }
 }

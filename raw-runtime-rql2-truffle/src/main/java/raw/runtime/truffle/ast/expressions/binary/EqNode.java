@@ -22,26 +22,24 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 @NodeInfo(shortName = "==")
 public class EqNode extends BinaryNode {
 
-    CompareOperator comparator;
-    OperatorLibrary comparatorLibrary;
+  CompareOperator comparator;
+  OperatorLibrary comparatorLibrary;
 
-    @Child
-    ExpressionNode left;
+  @Child ExpressionNode left;
 
-    @Child
-    ExpressionNode right;
+  @Child ExpressionNode right;
 
-    public EqNode(ExpressionNode left, ExpressionNode right) {
-        this.left = left;
-        this.right = right;
-        comparator = new CompareOperator();
-        comparatorLibrary = OperatorLibrary.getFactory().create(comparator);
-    }
+  public EqNode(ExpressionNode left, ExpressionNode right) {
+    this.left = left;
+    this.right = right;
+    comparator = new CompareOperator();
+    comparatorLibrary = OperatorLibrary.getFactory().create(comparator);
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame virtualFrame) {
-        Object leftValue = left.executeGeneric(virtualFrame);
-        Object rightValue = right.executeGeneric(virtualFrame);
-        return (int) (comparatorLibrary.doOperation(comparator, leftValue, rightValue)) == 0;
-    }
+  @Override
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    Object leftValue = left.executeGeneric(virtualFrame);
+    Object rightValue = right.executeGeneric(virtualFrame);
+    return (int) (comparatorLibrary.doOperation(comparator, leftValue, rightValue)) == 0;
+  }
 }

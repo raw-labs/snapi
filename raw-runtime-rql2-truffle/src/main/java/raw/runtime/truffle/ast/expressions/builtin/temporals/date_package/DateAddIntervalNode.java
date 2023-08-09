@@ -15,26 +15,25 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.DateObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @NodeInfo(shortName = "Date.AddInterval")
 @NodeChild("date")
 @NodeChild("interval")
 public abstract class DateAddIntervalNode extends ExpressionNode {
 
-    @Specialization
-    protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
+  @Specialization
+  protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
 
-        LocalDate date = dateObj.getDate();
+    LocalDate date = dateObj.getDate();
 
-        LocalDateTime result = LocalDateTime
-            .of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0, 0)
+    LocalDateTime result =
+        LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0, 0)
             .plusYears(intervalObj.getYears())
             .plusMonths(intervalObj.getMonths())
             .plusWeeks(intervalObj.getWeeks())
@@ -44,6 +43,6 @@ public abstract class DateAddIntervalNode extends ExpressionNode {
             .plusSeconds(intervalObj.getSeconds())
             .plusNanos(1000000L * intervalObj.getMillis());
 
-        return new TimestampObject(result);
-    }
+    return new TimestampObject(result);
+  }
 }

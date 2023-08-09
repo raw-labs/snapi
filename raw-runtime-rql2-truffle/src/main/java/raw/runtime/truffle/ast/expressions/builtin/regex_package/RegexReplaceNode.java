@@ -15,11 +15,10 @@ package raw.runtime.truffle.ast.expressions.builtin.regex_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Regex.Replace")
 @NodeChild(value = "string")
@@ -27,14 +26,13 @@ import java.util.regex.PatternSyntaxException;
 @NodeChild(value = "replacement")
 public abstract class RegexReplaceNode extends ExpressionNode {
 
-    @Specialization
-    protected ObjectTryable regexReplace(String string, String regex, String replacement) {
-        try {
-            Pattern pattern = RegexCache.get(regex);
-            return ObjectTryable.BuildSuccess(pattern.matcher(string).replaceAll(replacement));
-        } catch (PatternSyntaxException e) {
-            return ObjectTryable.BuildFailure(e.getMessage());
-        }
+  @Specialization
+  protected ObjectTryable regexReplace(String string, String regex, String replacement) {
+    try {
+      Pattern pattern = RegexCache.get(regex);
+      return ObjectTryable.BuildSuccess(pattern.matcher(string).replaceAll(replacement));
+    } catch (PatternSyntaxException e) {
+      return ObjectTryable.BuildFailure(e.getMessage());
     }
+  }
 }
-

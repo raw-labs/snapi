@@ -20,19 +20,19 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public class ListIterable {
 
-    private final Object list;
+  private final Object list;
 
-    public ListIterable(Object list) {
-        this.list = list;
-    }
+  public ListIterable(Object list) {
+    this.list = list;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator() {
-        return new ListGenerator(this.list);
-    }
+  @ExportMessage
+  Object getGenerator() {
+    return new ListGenerator(this.list);
+  }
 }

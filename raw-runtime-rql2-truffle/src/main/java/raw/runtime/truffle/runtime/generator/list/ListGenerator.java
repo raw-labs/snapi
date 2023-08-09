@@ -16,42 +16,38 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 
 @ExportLibrary(GeneratorLibrary.class)
 public class ListGenerator {
 
-    final Object list;
-    private int position = 0;
+  final Object list;
+  private int position = 0;
 
-    public ListGenerator(Object list) {
-        this.list = list;
-    }
+  public ListGenerator(Object list) {
+    this.list = list;
+  }
 
-    @ExportMessage
-    boolean isGenerator() {
-        return true;
-    }
+  @ExportMessage
+  boolean isGenerator() {
+    return true;
+  }
 
-    @ExportMessage
-    void init() {
-    }
+  @ExportMessage
+  void init() {}
 
-    @ExportMessage
-    void close() {
-    }
+  @ExportMessage
+  void close() {}
 
-    @ExportMessage
-    public boolean hasNext(@CachedLibrary("this.list") ListLibrary lists) {
-        return this.position < lists.size(list);
-    }
+  @ExportMessage
+  public boolean hasNext(@CachedLibrary("this.list") ListLibrary lists) {
+    return this.position < lists.size(list);
+  }
 
-    @ExportMessage
-    public Object next(@CachedLibrary("this.list") ListLibrary lists) {
-        Object item = lists.get(list, position);
-        this.position++;
-        return item;
-    }
-
+  @ExportMessage
+  public Object next(@CachedLibrary("this.list") ListLibrary lists) {
+    Object item = lists.get(list, position);
+    this.position++;
+    return item;
+  }
 }

@@ -17,13 +17,11 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 @NodeInfo(shortName = "Math.Sign")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathSignNode extends ExpressionNode {
-    @Specialization
-    protected int doubleSign(double argument) {
-        return (int) Math.signum(argument);
-    }
+  @Specialization
+  protected int doubleSign(double argument) {
+    return (int) Math.signum(argument);
+  }
 }

@@ -21,8 +21,8 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 @NodeInfo(shortName = "Time.Minute")
 @NodeChild("time")
 public abstract class TimeMinuteNode extends ExpressionNode {
-    @Specialization
-    protected int getMinute(TimeObject time) {
-        return time.getTime().getMinute();
-    }
+  @Specialization
+  protected int getMinute(TimeObject time) {
+    return time.getTime().getMinute();
+  }
 }

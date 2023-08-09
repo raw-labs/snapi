@@ -15,30 +15,28 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.time.LocalDate;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.DateObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
-
-import java.time.LocalDate;
 
 @NodeInfo(shortName = "Date.Subtract")
 @NodeChild("date1")
 @NodeChild("date2")
 public abstract class DateSubtractNode extends ExpressionNode {
-    @Specialization
-    protected IntervalObject getYear(DateObject date1, DateObject date2) {
-        LocalDate localDate1 = date1.getDate();
-        LocalDate localDate2 = date2.getDate();
+  @Specialization
+  protected IntervalObject getYear(DateObject date1, DateObject date2) {
+    LocalDate localDate1 = date1.getDate();
+    LocalDate localDate2 = date2.getDate();
 
-        return IntervalObject.normalize(
-            localDate1.getYear() - localDate2.getYear(),
-            localDate1.getMonthValue() - localDate2.getMonthValue(),
-            0,
-            localDate1.getDayOfMonth() - localDate2.getDayOfMonth(),
-            0,
-            0,
-            0,
-            0
-        );
-    }
+    return IntervalObject.normalize(
+        localDate1.getYear() - localDate2.getYear(),
+        localDate1.getMonthValue() - localDate2.getMonthValue(),
+        0,
+        localDate1.getDayOfMonth() - localDate2.getDayOfMonth(),
+        0,
+        0,
+        0,
+        0);
+  }
 }

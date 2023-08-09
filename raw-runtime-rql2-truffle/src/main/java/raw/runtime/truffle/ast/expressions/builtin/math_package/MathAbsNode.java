@@ -17,33 +17,30 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 // TODO: A.Z make sure that the semantics are correct
 @NodeInfo(shortName = "Math.Abs")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathAbsNode extends ExpressionNode {
 
-    @Specialization(rewriteOn = ArithmeticException.class)
-    protected int intAbs(int argument) {
-        return argument < 0 ? Math.negateExact(argument) : argument;
-    }
+  @Specialization(rewriteOn = ArithmeticException.class)
+  protected int intAbs(int argument) {
+    return argument < 0 ? Math.negateExact(argument) : argument;
+  }
 
-    @Specialization(rewriteOn = ArithmeticException.class, replaces = "intAbs")
-    protected long longAbs(long argument) {
-        return argument < 0 ? Math.negateExact(argument) : argument;
-    }
+  @Specialization(rewriteOn = ArithmeticException.class, replaces = "intAbs")
+  protected long longAbs(long argument) {
+    return argument < 0 ? Math.negateExact(argument) : argument;
+  }
 
-    @Specialization(rewriteOn = ArithmeticException.class)
-    protected float floatAbs(float argument) {
-        if (Float.compare(Float.MIN_VALUE, argument) != 0) return argument < 0 ? -argument : argument;
-        else throw new ArithmeticException();
-    }
+  @Specialization(rewriteOn = ArithmeticException.class)
+  protected float floatAbs(float argument) {
+    if (Float.compare(Float.MIN_VALUE, argument) != 0) return argument < 0 ? -argument : argument;
+    else throw new ArithmeticException();
+  }
 
-    @Specialization(rewriteOn = ArithmeticException.class, replaces = "floatAbs")
-    protected double doubleAbs(double argument) {
-        if (Double.compare(Double.MIN_VALUE, argument) != 0) return argument < 0 ? -argument : argument;
-        else throw new ArithmeticException();
-    }
-
+  @Specialization(rewriteOn = ArithmeticException.class, replaces = "floatAbs")
+  protected double doubleAbs(double argument) {
+    if (Double.compare(Double.MIN_VALUE, argument) != 0) return argument < 0 ? -argument : argument;
+    else throw new ArithmeticException();
+  }
 }

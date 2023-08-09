@@ -23,7 +23,6 @@ import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.Location;
-import raw.sources.filesystem.FileSystemException;
 import raw.sources.filesystem.FileSystemLocation;
 import raw.sources.filesystem.FileSystemLocationProvider;
 import scala.collection.IndexedSeq;
@@ -31,23 +30,24 @@ import scala.collection.IndexedSeq;
 @NodeInfo(shortName = "String.Read")
 @NodeChild("location")
 public abstract class LocationLsNode extends ExpressionNode {
-    @Specialization
-    protected Object doLs(LocationObject locationObject) {
-        try {
-            RuntimeContext context = RawContext.get(this).getRuntimeContext();
-            FileSystemLocation fs = FileSystemLocationProvider.build(locationObject.getLocationDescription(), context.sourceContext());
-            IndexedSeq<String> values = fs.ls().map(Location::rawUri).toIndexedSeq();
-            int size = values.size();
-            String[] result = new String[size];
+  @Specialization
+  protected Object doLs(LocationObject locationObject) {
+    try {
+      RuntimeContext context = RawContext.get(this).getRuntimeContext();
+      FileSystemLocation fs =
+          FileSystemLocationProvider.build(
+              locationObject.getLocationDescription(), context.sourceContext());
+      IndexedSeq<String> values = fs.ls().map(Location::rawUri).toIndexedSeq();
+      int size = values.size();
+      String[] result = new String[size];
 
-            for (int i = 0; i < size; i++) {
-                result[i] = values.apply(i);
-            }
+      for (int i = 0; i < size; i++) {
+        result[i] = values.apply(i);
+      }
 
-            return ObjectTryable.BuildSuccess(new StringList(result));
-        } catch (RawException e) {
-            return ObjectTryable.BuildFailure(e.getMessage());
-        }
-
+      return ObjectTryable.BuildSuccess(new StringList(result));
+    } catch (RawException e) {
+      return ObjectTryable.BuildFailure(e.getMessage());
     }
+  }
 }

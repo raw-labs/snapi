@@ -12,19 +12,16 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.time_package;
 
-import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-
 import java.time.LocalTime;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.TimeObject;
 
 @NodeInfo(shortName = "Time.Now")
 public abstract class TimeNowNode extends ExpressionNode {
-    @Specialization
-    protected TimeObject now() {
-        return new TimeObject(LocalTime.now());
-    }
+  @Specialization
+  protected TimeObject now() {
+    return new TimeObject(LocalTime.now());
+  }
 }

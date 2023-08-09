@@ -15,16 +15,15 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.util.Base64;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "String.Base64")
 @NodeChild(value = "string")
 public abstract class StringBase64Node extends ExpressionNode {
 
-    @Specialization
-    protected String stringBase64(String string) {
-        return Base64.getEncoder().encodeToString(string.getBytes());
-    }
+  @Specialization
+  protected String stringBase64(String string) {
+    return Base64.getEncoder().encodeToString(string.getBytes());
+  }
 }

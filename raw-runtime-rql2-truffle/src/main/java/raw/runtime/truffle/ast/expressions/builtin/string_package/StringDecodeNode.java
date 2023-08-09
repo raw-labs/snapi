@@ -15,25 +15,23 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.nio.charset.Charset;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.Encoding;
-
-import java.nio.charset.Charset;
 
 @NodeInfo(shortName = "String.Decode")
 @NodeChild(value = "string")
 @NodeChild(value = "encoding")
 public abstract class StringDecodeNode extends ExpressionNode {
 
-    @Specialization
-    protected ObjectTryable stringDecode(byte[] bytes, String encodingName) {
-        if (Encoding.fromEncodingString(encodingName).isRight()) {
-            Charset charset = Encoding.fromEncodingString(encodingName).right().get().charset();
-            return ObjectTryable.BuildSuccess(new String(bytes, charset));
-        } else {
-            return ObjectTryable.BuildFailure(Encoding.fromEncodingString(encodingName).left().get());
-        }
+  @Specialization
+  protected ObjectTryable stringDecode(byte[] bytes, String encodingName) {
+    if (Encoding.fromEncodingString(encodingName).isRight()) {
+      Charset charset = Encoding.fromEncodingString(encodingName).right().get().charset();
+      return ObjectTryable.BuildSuccess(new String(bytes, charset));
+    } else {
+      return ObjectTryable.BuildFailure(Encoding.fromEncodingString(encodingName).left().get());
     }
+  }
 }
-

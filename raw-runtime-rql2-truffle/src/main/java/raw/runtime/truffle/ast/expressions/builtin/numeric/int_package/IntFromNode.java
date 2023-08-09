@@ -15,59 +15,55 @@ package raw.runtime.truffle.ast.expressions.builtin.numeric.int_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
 import java.math.BigDecimal;
-
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Int.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class IntFromNode extends ExpressionNode {
 
-    @Specialization
-    protected int fromByte(byte argument) {
-        return argument;
-    }
+  @Specialization
+  protected int fromByte(byte argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected int fromShort(short argument) {
-        return argument;
-    }
+  @Specialization
+  protected int fromShort(short argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected int fromInt(int argument) {
-        return argument;
-    }
+  @Specialization
+  protected int fromInt(int argument) {
+    return argument;
+  }
 
-    @Specialization
-    protected int fromLong(long argument) {
-        return (int) argument;
-    }
+  @Specialization
+  protected int fromLong(long argument) {
+    return (int) argument;
+  }
 
-    @Specialization
-    protected int fromFloat(float argument) {
-        return (int) argument;
-    }
+  @Specialization
+  protected int fromFloat(float argument) {
+    return (int) argument;
+  }
 
-    @Specialization
-    protected int fromDouble(double argument) {
-        return (int) argument;
-    }
+  @Specialization
+  protected int fromDouble(double argument) {
+    return (int) argument;
+  }
 
-    @Specialization
-    protected int fromDecimal(BigDecimal argument) {
-        return argument.intValue();
-    }
+  @Specialization
+  protected int fromDecimal(BigDecimal argument) {
+    return argument.intValue();
+  }
 
-    @Specialization
-    protected ObjectTryable fromString(String argument) {
-        try {
-            return ObjectTryable.BuildSuccess(Integer.parseInt(argument));
-        } catch (RuntimeException ex) {
-            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to int");
-        }
+  @Specialization
+  protected ObjectTryable fromString(String argument) {
+    try {
+      return ObjectTryable.BuildSuccess(Integer.parseInt(argument));
+    } catch (RuntimeException ex) {
+      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to int");
     }
-
+  }
 }

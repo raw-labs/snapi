@@ -19,26 +19,27 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 
 @GenerateLibrary
 public abstract class ComputeNextLibrary extends Library {
-    static final LibraryFactory<GeneratorLibrary> FACTORY = LibraryFactory.resolve(GeneratorLibrary.class);
+  static final LibraryFactory<GeneratorLibrary> FACTORY =
+      LibraryFactory.resolve(GeneratorLibrary.class);
 
-    public static LibraryFactory<GeneratorLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<GeneratorLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static GeneratorLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static GeneratorLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 
-    public abstract void init(Object receiver);
+  public abstract void init(Object receiver);
 
-    public abstract void close(Object receiver);
+  public abstract void close(Object receiver);
 
-    public boolean isComputeNext(Object receiver) {
-        return false;
-    }
+  public boolean isComputeNext(Object receiver) {
+    return false;
+  }
 
-    // All the implementations of this method should either return a value
-    // or throw a BreakException(which means there is no next item)
-    // or a RawTruffleRuntimeException (which means there is an IO error)
-    public abstract Object computeNext(Object receiver);
+  // All the implementations of this method should either return a value
+  // or throw a BreakException(which means there is no next item)
+  // or a RawTruffleRuntimeException (which means there is an IO error)
+  public abstract Object computeNext(Object receiver);
 }

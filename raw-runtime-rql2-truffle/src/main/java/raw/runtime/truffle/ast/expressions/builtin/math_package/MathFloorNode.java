@@ -15,18 +15,16 @@ package raw.runtime.truffle.ast.expressions.builtin.math_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "Math.Floor")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathFloorNode extends ExpressionNode {
 
-    @Specialization
-    protected long decimalCeiling(BigDecimal argument) {
-        return argument.setScale(0, RoundingMode.FLOOR).longValue();
-    }
-
+  @Specialization
+  protected long decimalCeiling(BigDecimal argument) {
+    return argument.setScale(0, RoundingMode.FLOOR).longValue();
+  }
 }

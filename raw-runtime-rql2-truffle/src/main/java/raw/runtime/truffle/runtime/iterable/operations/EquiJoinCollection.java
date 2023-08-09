@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -26,42 +25,55 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class EquiJoinCollection {
 
-    final Object leftIterable, rightIterable;
-    final Closure leftKeyF, rightKeyF;
-    final Rql2TypeWithProperties leftRowType, rightRowType;
-    final Rql2TypeWithProperties keyType;
-    final Closure reshapeFun;
-    private final RawLanguage language;
-    private final RuntimeContext context;
+  final Object leftIterable, rightIterable;
+  final Closure leftKeyF, rightKeyF;
+  final Rql2TypeWithProperties leftRowType, rightRowType;
+  final Rql2TypeWithProperties keyType;
+  final Closure reshapeFun;
+  private final RawLanguage language;
+  private final RuntimeContext context;
 
-    public EquiJoinCollection(Object leftIterable, Closure leftKeyF, Rql2TypeWithProperties leftRowType,
-                              Object rightIterable, Closure rightKeyF, Rql2TypeWithProperties rightRowType,
-                              Rql2TypeWithProperties keyType, Closure reshapeFun,
-                              RawLanguage language, RuntimeContext context) {
-        this.leftIterable = leftIterable;
-        this.leftKeyF = leftKeyF;
-        this.leftRowType = leftRowType;
-        this.rightIterable = rightIterable;
-        this.rightKeyF = rightKeyF;
-        this.rightRowType = rightRowType;
-        this.keyType = keyType;
-        this.reshapeFun = reshapeFun;
-        this.language = language;
-        this.context = context;
-    }
+  public EquiJoinCollection(
+      Object leftIterable,
+      Closure leftKeyF,
+      Rql2TypeWithProperties leftRowType,
+      Object rightIterable,
+      Closure rightKeyF,
+      Rql2TypeWithProperties rightRowType,
+      Rql2TypeWithProperties keyType,
+      Closure reshapeFun,
+      RawLanguage language,
+      RuntimeContext context) {
+    this.leftIterable = leftIterable;
+    this.leftKeyF = leftKeyF;
+    this.leftRowType = leftRowType;
+    this.rightIterable = rightIterable;
+    this.rightKeyF = rightKeyF;
+    this.rightRowType = rightRowType;
+    this.keyType = keyType;
+    this.reshapeFun = reshapeFun;
+    this.language = language;
+    this.context = context;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator() {
-        return new CollectionAbstractGenerator(
-            new EquiJoinComputeNext(leftIterable, leftKeyF, leftRowType,
-                rightIterable, rightKeyF, rightRowType,
-                keyType, reshapeFun, language, context));
-    }
-
-
+  @ExportMessage
+  Object getGenerator() {
+    return new CollectionAbstractGenerator(
+        new EquiJoinComputeNext(
+            leftIterable,
+            leftKeyF,
+            leftRowType,
+            rightIterable,
+            rightKeyF,
+            rightRowType,
+            keyType,
+            reshapeFun,
+            language,
+            context));
+  }
 }

@@ -32,13 +32,21 @@ import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 @NodeField(name = "reshapeBeforePredicate", type = Boolean.class)
 public abstract class CollectionJoinNode extends ExpressionNode {
 
-    protected abstract Rql2TypeWithProperties getRightType();
-    protected abstract Boolean getReshapeBeforePredicate();
+  protected abstract Rql2TypeWithProperties getRightType();
 
-    @Specialization
-    protected Object doJoin(Object leftIterable, Object rightIterable, Closure remap,
-                            Closure predicate) {
-        return new JoinCollection(leftIterable, rightIterable, remap, predicate, getRightType(), getReshapeBeforePredicate(), RawContext.get(this).getRuntimeContext(), RawLanguage.get(this));
-    }
+  protected abstract Boolean getReshapeBeforePredicate();
 
+  @Specialization
+  protected Object doJoin(
+      Object leftIterable, Object rightIterable, Closure remap, Closure predicate) {
+    return new JoinCollection(
+        leftIterable,
+        rightIterable,
+        remap,
+        predicate,
+        getRightType(),
+        getReshapeBeforePredicate(),
+        RawContext.get(this).getRuntimeContext(),
+        RawLanguage.get(this));
+  }
 }

@@ -15,24 +15,22 @@ package raw.runtime.truffle.ast.expressions.builtin.numeric.decimal_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.math.BigDecimal;
 import java.math.MathContext;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "Decimal.Round")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 @NodeChild(value = "precession", type = ExpressionNode.class)
 public abstract class DecimalRoundNode extends ExpressionNode {
 
-    @Specialization
-    protected BigDecimal fromInt(int argument, int precession) {
-        return (new BigDecimal(argument)).round(new MathContext(precession + 1));
-    }
+  @Specialization
+  protected BigDecimal fromInt(int argument, int precession) {
+    return (new BigDecimal(argument)).round(new MathContext(precession + 1));
+  }
 
-    @Specialization
-    protected BigDecimal fromBigDecimal(BigDecimal argument, int precession) {
-        return argument.round(new MathContext(precession + 1));
-    }
-
+  @Specialization
+  protected BigDecimal fromBigDecimal(BigDecimal argument, int precession) {
+    return argument.round(new MathContext(precession + 1));
+  }
 }

@@ -19,43 +19,43 @@ import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 
 @ExportLibrary(AggregationLibrary.class)
 public class SingleAggregation {
 
-    Object aggregator;
+  Object aggregator;
 
-    public SingleAggregation(Object aggregator) {
-        this.aggregator = aggregator;
-    }
+  public SingleAggregation(Object aggregator) {
+    this.aggregator = aggregator;
+  }
 
-    @ExportMessage
-    public boolean isAggregation() {
-        return true;
-    }
+  @ExportMessage
+  public boolean isAggregation() {
+    return true;
+  }
 
-    @ExportMessage(limit = "3")
-    public Object aggregate(Object iterable,
-                            @CachedLibrary("iterable") IterableLibrary iterables,
-                            @CachedLibrary("this.aggregator") AggregatorLibrary aggregators,
-                            @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-        Object generator = iterables.getGenerator(iterable);
-        try {
-            generators.init(generator);
-            if (!generators.hasNext(generator)) {
-                return aggregators.zero(aggregator);
-            }
-            Object result = aggregators.zero(aggregator);
-            while (generators.hasNext(generator)) {
-                Object next = generators.next(generator);
-                result = aggregators.merge(aggregator, result, next);
-            }
-            return result;
-        } catch (RawTruffleRuntimeException ex) {
-            throw new RawTruffleRuntimeException(ex.getMessage());
-        } finally {
-            generators.close(generator);
-        }
+  @ExportMessage(limit = "3")
+  public Object aggregate(
+      Object iterable,
+      @CachedLibrary("iterable") IterableLibrary iterables,
+      @CachedLibrary("this.aggregator") AggregatorLibrary aggregators,
+      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
+    Object generator = iterables.getGenerator(iterable);
+    try {
+      generators.init(generator);
+      if (!generators.hasNext(generator)) {
+        return aggregators.zero(aggregator);
+      }
+      Object result = aggregators.zero(aggregator);
+      while (generators.hasNext(generator)) {
+        Object next = generators.next(generator);
+        result = aggregators.merge(aggregator, result, next);
+      }
+      return result;
+    } catch (RawTruffleRuntimeException ex) {
+      throw new RawTruffleRuntimeException(ex.getMessage());
+    } finally {
+      generators.close(generator);
     }
+  }
 }

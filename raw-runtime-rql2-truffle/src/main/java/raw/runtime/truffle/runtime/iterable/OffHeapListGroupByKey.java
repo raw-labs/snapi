@@ -16,6 +16,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import java.util.Comparator;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
@@ -23,37 +24,40 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
-import java.util.Comparator;
-
 // OffHeap GroupBy where the set of nested values is returned as a list
 public class OffHeapListGroupByKey extends OffHeapGroupByKey {
 
-    public OffHeapListGroupByKey(Comparator<Object> keyCompare, Rql2TypeWithProperties kType, Rql2TypeWithProperties rowType, RawLanguage language, RuntimeContext context) {
-        super(keyCompare, kType, rowType, language, context, new ListGroupByRecordShaper(language));
-    }
+  public OffHeapListGroupByKey(
+      Comparator<Object> keyCompare,
+      Rql2TypeWithProperties kType,
+      Rql2TypeWithProperties rowType,
+      RawLanguage language,
+      RuntimeContext context) {
+    super(keyCompare, kType, rowType, language, context, new ListGroupByRecordShaper(language));
+  }
 }
 
 class ListGroupByRecordShaper extends GroupByRecordShaper {
 
-    private InteropLibrary records = null;
+  private InteropLibrary records = null;
 
-    public ListGroupByRecordShaper(RawLanguage language) {
-        super(language);
+  public ListGroupByRecordShaper(RawLanguage language) {
+    super(language);
+  }
+
+  public Object makeRow(Object key, Object[] values) {
+    RecordObject record = language.createRecord();
+    if (records == null) {
+      records = InteropLibrary.getFactory().create(record);
     }
-
-    public Object makeRow(Object key, Object[] values) {
-        RecordObject record = language.createRecord();
-        if (records == null) {
-            records = InteropLibrary.getFactory().create(record);
-        }
-        try {
-            records.writeMember(record, "key", key);
-            records.writeMember(record, "group", new ObjectList(values));
-        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException e) {
-            throw new RawTruffleInternalErrorException(e);
-        }
-        return record;
+    try {
+      records.writeMember(record, "key", key);
+      records.writeMember(record, "group", new ObjectList(values));
+    } catch (UnsupportedMessageException
+        | UnknownIdentifierException
+        | UnsupportedTypeException e) {
+      throw new RawTruffleInternalErrorException(e);
     }
-
+    return record;
+  }
 }
-

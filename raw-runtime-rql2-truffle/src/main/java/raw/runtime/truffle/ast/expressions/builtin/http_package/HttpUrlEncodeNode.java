@@ -16,18 +16,17 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "Http.UrlEncode")
 @NodeChild(value = "str")
 public abstract class HttpUrlEncodeNode extends ExpressionNode {
 
-    @Specialization
-    @TruffleBoundary
-    public String encode(String str) {
-        return URLEncoder.encode(str, StandardCharsets.UTF_8);
-    }
+  @Specialization
+  @TruffleBoundary
+  public String encode(String str) {
+    return URLEncoder.encode(str, StandardCharsets.UTF_8);
+  }
 }

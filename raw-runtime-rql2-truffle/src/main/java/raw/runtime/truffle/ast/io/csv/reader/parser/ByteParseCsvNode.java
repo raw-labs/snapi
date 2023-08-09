@@ -19,10 +19,9 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "ByteParseCsv")
 public class ByteParseCsvNode extends ExpressionNode {
 
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-        return parser.getByte(this);
-    }
-
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    return parser.getByte(this);
+  }
 }

@@ -15,15 +15,14 @@ package raw.runtime.truffle.ast.expressions.builtin.binary_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.util.Base64;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "Binary.Base64")
 @NodeChild(value = "binary")
 public abstract class BinaryBase64Node extends ExpressionNode {
-    @Specialization
-    protected String doBase64(byte[] binary) {
-        return Base64.getEncoder().encodeToString(binary);
-    }
+  @Specialization
+  protected String doBase64(byte[] binary) {
+    return Base64.getEncoder().encodeToString(binary);
+  }
 }

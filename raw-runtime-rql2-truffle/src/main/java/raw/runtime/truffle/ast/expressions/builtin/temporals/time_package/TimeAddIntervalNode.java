@@ -15,23 +15,23 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.time_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.time.LocalTime;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
-
-import java.time.LocalTime;
 
 @NodeInfo(shortName = "Date.AddInterval")
 @NodeChild("time")
 @NodeChild("interval")
 public abstract class TimeAddIntervalNode extends ExpressionNode {
 
-    @Specialization
-    protected TimeObject addInterval(TimeObject timeObj, IntervalObject interval) {
-        LocalTime time = timeObj.getTime();
-        return new TimeObject(time.plusHours(interval.getHours())
+  @Specialization
+  protected TimeObject addInterval(TimeObject timeObj, IntervalObject interval) {
+    LocalTime time = timeObj.getTime();
+    return new TimeObject(
+        time.plusHours(interval.getHours())
             .plusMinutes(interval.getMinutes())
             .plusSeconds(interval.getSeconds())
             .plusNanos(1000000L * interval.getMillis()));
-    }
+  }
 }

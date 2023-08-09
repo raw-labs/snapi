@@ -24,6 +24,7 @@ jobs:
       - uses: actions/checkout@v3
       - run: sbt headerCheckAll
       - run: sbt scalafmtCheckAll
+      - run: sbt javafmtCheckAll
   tests:
     needs: code-checks
     runs-on: self-hosted

@@ -15,32 +15,28 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.time.LocalDateTime;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
-
-import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @NodeInfo(shortName = "Timestamp.Subtract")
 @NodeChild("timestamp1")
 @NodeChild("timestamp2")
 public abstract class TimestampSubtractNode extends ExpressionNode {
-    @Specialization
-    protected IntervalObject subtract(TimestampObject timestampObj1, TimestampObject timestampObj2) {
-        LocalDateTime timestamp1 = timestampObj1.getTimestamp();
-        LocalDateTime timestamp2 = timestampObj2.getTimestamp();
+  @Specialization
+  protected IntervalObject subtract(TimestampObject timestampObj1, TimestampObject timestampObj2) {
+    LocalDateTime timestamp1 = timestampObj1.getTimestamp();
+    LocalDateTime timestamp2 = timestampObj2.getTimestamp();
 
-        return IntervalObject.normalize(
-            timestamp1.getYear() - timestamp2.getYear(),
-            timestamp1.getMonthValue() - timestamp2.getMonthValue(),
-            0,
-            timestamp1.getDayOfMonth() - timestamp2.getDayOfMonth(),
-            timestamp1.getHour() - timestamp2.getHour(),
-            timestamp1.getMinute() - timestamp2.getMinute(),
-            timestamp1.getSecond() - timestamp2.getSecond(),
-            (timestamp1.getNano() - timestamp2.getNano()) / 1000000
-        );
-    }
+    return IntervalObject.normalize(
+        timestamp1.getYear() - timestamp2.getYear(),
+        timestamp1.getMonthValue() - timestamp2.getMonthValue(),
+        0,
+        timestamp1.getDayOfMonth() - timestamp2.getDayOfMonth(),
+        timestamp1.getHour() - timestamp2.getHour(),
+        timestamp1.getMinute() - timestamp2.getMinute(),
+        timestamp1.getSecond() - timestamp2.getSecond(),
+        (timestamp1.getNano() - timestamp2.getNano()) / 1000000);
+  }
 }
-

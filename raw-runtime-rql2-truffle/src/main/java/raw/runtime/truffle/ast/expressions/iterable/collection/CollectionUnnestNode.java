@@ -23,8 +23,8 @@ import raw.runtime.truffle.runtime.iterable.operations.UnnestCollection;
 @NodeChild("iterable")
 @NodeChild("transform")
 public abstract class CollectionUnnestNode extends ExpressionNode {
-    @Specialization
-    protected Object doUnnest(Object iterable, Closure transform) {
-        return new UnnestCollection(iterable, transform);
-    }
+  @Specialization
+  protected Object doUnnest(Object iterable, Closure transform) {
+    return new UnnestCollection(iterable, transform);
+  }
 }

@@ -16,35 +16,38 @@ import raw.sources.CacheStrategy;
 import raw.sources.LocationDescription;
 import raw.sources.LocationSettingKey;
 import raw.sources.LocationSettingValue;
-import scala.collection.GenMap;
-import scala.collection.immutable.Map;
 import scala.collection.immutable.HashMap;
+import scala.collection.immutable.Map;
 
 public class LocationObject {
-    private final LocationDescription locationDescription;
+  private final LocationDescription locationDescription;
 
-    public LocationObject(String url) {
-        this.locationDescription = new LocationDescription(url, new HashMap<>(), CacheStrategy.NoCache());
-    }
+  public LocationObject(String url) {
+    this.locationDescription =
+        new LocationDescription(url, new HashMap<>(), CacheStrategy.NoCache());
+  }
 
-    public LocationObject(String url, Map<LocationSettingKey, LocationSettingValue> params) {
-        this.locationDescription = new LocationDescription(url, params, CacheStrategy.NoCache());
-    }
+  public LocationObject(String url, Map<LocationSettingKey, LocationSettingValue> params) {
+    this.locationDescription = new LocationDescription(url, params, CacheStrategy.NoCache());
+  }
 
-    public LocationObject(String url, Map<LocationSettingKey, LocationSettingValue> params, CacheStrategy cacheStrategy) {
-        this.locationDescription = new LocationDescription(url, params, cacheStrategy);
-    }
+  public LocationObject(
+      String url,
+      Map<LocationSettingKey, LocationSettingValue> params,
+      CacheStrategy cacheStrategy) {
+    this.locationDescription = new LocationDescription(url, params, cacheStrategy);
+  }
 
-    public LocationObject(LocationDescription locationDescription) {
-        this.locationDescription = locationDescription;
-    }
+  public LocationObject(LocationDescription locationDescription) {
+    this.locationDescription = locationDescription;
+  }
 
-    public LocationDescription getLocationDescription() {
-        return locationDescription;
-    }
+  public LocationDescription getLocationDescription() {
+    return locationDescription;
+  }
 
-//    public String getUrl() {
-//        return locationDescription.url();
-//    }
+  //    public String getUrl() {
+  //        return locationDescription.url();
+  //    }
 
 }

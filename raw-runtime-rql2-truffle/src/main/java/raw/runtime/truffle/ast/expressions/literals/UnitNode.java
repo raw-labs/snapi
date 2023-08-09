@@ -17,12 +17,10 @@ import raw.runtime.truffle.ExpressionNode;
 
 public final class UnitNode extends ExpressionNode {
 
-    public UnitNode() {
-    }
+  public UnitNode() {}
 
-    @Override
-    public final Object executeGeneric(VirtualFrame virtualFrame) {
-        return null;
-    }
-
+  @Override
+  public final Object executeGeneric(VirtualFrame virtualFrame) {
+    return null;
+  }
 }

@@ -12,34 +12,32 @@
 
 package raw.runtime.truffle.utils;
 
-import raw.runtime.RuntimeContext;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import raw.runtime.RuntimeContext;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class IOUtils {
 
-    public static Path getScratchPath(RuntimeContext context) {
-        Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
-        if (!Files.exists(p)) {
-            try {
-                Files.createDirectories(p);
-            } catch (IOException ex) {
-                throw new RawTruffleRuntimeException("failed to create scratch file");
-            }
-        }
-        return p;
+  public static Path getScratchPath(RuntimeContext context) {
+    Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
+    if (!Files.exists(p)) {
+      try {
+        Files.createDirectories(p);
+      } catch (IOException ex) {
+        throw new RawTruffleRuntimeException("failed to create scratch file");
+      }
     }
+    return p;
+  }
 
-    public static Path getScratchFile(String prefix, String suffix, RuntimeContext context) {
-        try {
-            return Files.createTempFile(getScratchPath(context), prefix, suffix);
-        } catch (IOException ex) {
-            throw new RawTruffleRuntimeException("failed to create scratch file");
-        }
+  public static Path getScratchFile(String prefix, String suffix, RuntimeContext context) {
+    try {
+      return Files.createTempFile(getScratchPath(context), prefix, suffix);
+    } catch (IOException ex) {
+      throw new RawTruffleRuntimeException("failed to create scratch file");
     }
-
+  }
 }

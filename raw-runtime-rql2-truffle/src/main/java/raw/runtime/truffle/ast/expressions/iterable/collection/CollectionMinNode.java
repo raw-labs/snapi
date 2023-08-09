@@ -29,17 +29,18 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 @NodeChild("iterable")
 public abstract class CollectionMinNode extends ExpressionNode {
 
-    @Specialization
-    protected ObjectTryable doCollection(Object iterable,
-                                         @CachedLibrary(limit = "1") AggregationLibrary aggregations,
-                                         @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-        try {
-            Object aggregation = new SingleAggregation(new MinAggregator());
-            Object result = aggregations.aggregate(aggregation, iterable);
-            RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-            return ObjectTryable.BuildSuccess(nullableTryables.boxOption(handler, result));
-        } catch (RawTruffleRuntimeException ex) {
-            return ObjectTryable.BuildFailure(ex.getMessage());
-        }
+  @Specialization
+  protected ObjectTryable doCollection(
+      Object iterable,
+      @CachedLibrary(limit = "1") AggregationLibrary aggregations,
+      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+    try {
+      Object aggregation = new SingleAggregation(new MinAggregator());
+      Object result = aggregations.aggregate(aggregation, iterable);
+      RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
+      return ObjectTryable.BuildSuccess(nullableTryables.boxOption(handler, result));
+    } catch (RawTruffleRuntimeException ex) {
+      return ObjectTryable.BuildFailure(ex.getMessage());
     }
+  }
 }

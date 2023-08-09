@@ -17,18 +17,13 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-import java.math.RoundingMode;
-
 @NodeInfo(shortName = "Math.Power")
 @NodeChild(value = "left", type = ExpressionNode.class)
 @NodeChild(value = "right", type = ExpressionNode.class)
 public abstract class MathPowerNode extends ExpressionNode {
 
-    @Specialization
-    protected double doublePower(double left, double right) {
-        return Math.pow(left, right);
-    }
-
+  @Specialization
+  protected double doublePower(double left, double right) {
+    return Math.pow(left, right);
+  }
 }
-

@@ -25,13 +25,13 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 @NodeChild("index")
 public abstract class ArrayGetIndexNode extends ExpressionNode {
 
-    @Specialization(limit = "3")
-    protected Object readArrayIndex(Object receiver, int index,
-                                    @CachedLibrary("receiver") InteropLibrary arrays) {
-        try {
-            return arrays.readArrayElement(receiver, index);
-        } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e, this);
-        }
+  @Specialization(limit = "3")
+  protected Object readArrayIndex(
+      Object receiver, int index, @CachedLibrary("receiver") InteropLibrary arrays) {
+    try {
+      return arrays.readArrayElement(receiver, index);
+    } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
+      throw new RawTruffleInternalErrorException(e, this);
     }
+  }
 }

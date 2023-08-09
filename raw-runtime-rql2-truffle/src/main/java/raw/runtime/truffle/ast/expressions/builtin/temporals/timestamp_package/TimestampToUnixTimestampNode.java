@@ -15,28 +15,26 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.time.ZoneId;
+import java.util.NoSuchElementException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
-import java.time.LocalDateTime;
-import java.time.ZoneId;
-import java.time.ZoneOffset;
-import java.util.NoSuchElementException;
-
 @NodeInfo(shortName = "Timestamp.ToUnixTimestamp")
 @NodeChild("timestamp")
 public abstract class TimestampToUnixTimestampNode extends ExpressionNode {
-    @Specialization
-    protected long fromUnixTimestamp(TimestampObject timestampObj) {
-        ZoneId zoneID;
-        RawContext context = RawContext.get(this);
-        try {
-            String zone = context.getRuntimeContext().settings().getStringOpt("raw.runtime.time-zone", true).get();
-            zoneID = ZoneId.of(zone);
-        } catch (NoSuchElementException ex) {
-            zoneID = ZoneId.systemDefault();
-        }
-        return timestampObj.getTimestamp().atZone(zoneID).toEpochSecond();
+  @Specialization
+  protected long fromUnixTimestamp(TimestampObject timestampObj) {
+    ZoneId zoneID;
+    RawContext context = RawContext.get(this);
+    try {
+      String zone =
+          context.getRuntimeContext().settings().getStringOpt("raw.runtime.time-zone", true).get();
+      zoneID = ZoneId.of(zone);
+    } catch (NoSuchElementException ex) {
+      zoneID = ZoneId.systemDefault();
     }
+    return timestampObj.getTimestamp().atZone(zoneID).toEpochSecond();
+  }
 }

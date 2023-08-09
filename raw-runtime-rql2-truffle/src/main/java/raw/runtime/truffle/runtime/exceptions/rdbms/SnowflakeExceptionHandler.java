@@ -12,5 +12,4 @@
 
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
-public class SnowflakeExceptionHandler extends JdbcExceptionHandler {
-}
+public class SnowflakeExceptionHandler extends JdbcExceptionHandler {}

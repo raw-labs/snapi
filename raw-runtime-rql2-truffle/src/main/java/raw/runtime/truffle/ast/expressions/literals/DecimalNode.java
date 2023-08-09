@@ -13,21 +13,19 @@
 package raw.runtime.truffle.ast.expressions.literals;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ExpressionNode;
 
 public class DecimalNode extends ExpressionNode {
 
-    private final String value;
+  private final String value;
 
-    public DecimalNode(String value) {
-        this.value = value;
-    }
+  public DecimalNode(String value) {
+    this.value = value;
+  }
 
-
-    @Override
-    public final Object executeGeneric(VirtualFrame virtualFrame) {
-        return new BigDecimal(value);
-    }
+  @Override
+  public final Object executeGeneric(VirtualFrame virtualFrame) {
+    return new BigDecimal(value);
+  }
 }

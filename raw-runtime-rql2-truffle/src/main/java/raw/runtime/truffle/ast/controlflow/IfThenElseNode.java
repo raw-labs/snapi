@@ -20,52 +20,49 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public final class IfThenElseNode extends ExpressionNode {
 
-    @Child
-    private ExpressionNode conditionNode;
+  @Child private ExpressionNode conditionNode;
 
-    @Child
-    private ExpressionNode thenNode;
+  @Child private ExpressionNode thenNode;
 
-    @Child
-    private ExpressionNode elseNode;
+  @Child private ExpressionNode elseNode;
 
-    private final ConditionProfile condition = ConditionProfile.createCountingProfile();
+  private final ConditionProfile condition = ConditionProfile.createCountingProfile();
 
-    public IfThenElseNode(ExpressionNode conditionNode, ExpressionNode thenNode, ExpressionNode elseNode) {
-        this.conditionNode = conditionNode;
-        this.thenNode = thenNode;
-        this.elseNode = elseNode;
+  public IfThenElseNode(
+      ExpressionNode conditionNode, ExpressionNode thenNode, ExpressionNode elseNode) {
+    this.conditionNode = conditionNode;
+    this.thenNode = thenNode;
+    this.elseNode = elseNode;
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    /*
+     * In the interpreter, record profiling information that the condition was executed and with
+     * which outcome.
+     */
+    if (condition.profile(evaluateCondition(frame))) {
+      /* Execute the then-branch. */
+      return thenNode.executeGeneric(frame);
+    } else {
+      /* Execute the else-branch. */
+      return elseNode.executeGeneric(frame);
     }
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        /*
-         * In the interpreter, record profiling information that the condition was executed and with
-         * which outcome.
-         */
-        if (condition.profile(evaluateCondition(frame))) {
-            /* Execute the then-branch. */
-            return thenNode.executeGeneric(frame);
-        } else {
-            /* Execute the else-branch. */
-            return elseNode.executeGeneric(frame);
-        }
+  private boolean evaluateCondition(VirtualFrame frame) {
+    try {
+      /*
+       * The condition must evaluate to a boolean value, so we call the boolean-specialized
+       * execute method.
+       */
+      return conditionNode.executeBoolean(frame);
+    } catch (UnexpectedResultException ex) {
+      /*
+       * The condition evaluated to a non-boolean result. This is a type error in the SL
+       * program.
+       */
+      throw new RawTruffleRuntimeException(ex, this);
     }
-
-    private boolean evaluateCondition(VirtualFrame frame) {
-        try {
-            /*
-             * The condition must evaluate to a boolean value, so we call the boolean-specialized
-             * execute method.
-             */
-            return conditionNode.executeBoolean(frame);
-        } catch (UnexpectedResultException ex) {
-            /*
-             * The condition evaluated to a non-boolean result. This is a type error in the SL
-             * program.
-             */
-            throw new RawTruffleRuntimeException(ex, this);
-        }
-    }
-
+  }
 }

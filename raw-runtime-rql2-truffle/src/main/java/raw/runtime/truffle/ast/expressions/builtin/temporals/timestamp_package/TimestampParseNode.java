@@ -15,35 +15,29 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
-import java.util.HashMap;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
+import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Timestamp.Parse")
 @NodeChild("str")
 @NodeChild("format")
 public abstract class TimestampParseNode extends ExpressionNode {
 
-    @Specialization
-    public Object parse(String str, String format) {
-        try {
-            DateTimeFormatter formatter = DateTimeFormatCache.get(format);
-            return ObjectTryable.BuildSuccess(new TimestampObject(LocalDateTime.parse(str, formatter)));
-        } catch (IllegalArgumentException ex) {
-            return ObjectTryable.BuildFailure("invalid timestamp template: " + format);
-        } catch (DateTimeParseException ex) {
-            return ObjectTryable.BuildFailure(String.format("string '%s' does not match timestamp template '%s'", str, format));
-        }
+  @Specialization
+  public Object parse(String str, String format) {
+    try {
+      DateTimeFormatter formatter = DateTimeFormatCache.get(format);
+      return ObjectTryable.BuildSuccess(new TimestampObject(LocalDateTime.parse(str, formatter)));
+    } catch (IllegalArgumentException ex) {
+      return ObjectTryable.BuildFailure("invalid timestamp template: " + format);
+    } catch (DateTimeParseException ex) {
+      return ObjectTryable.BuildFailure(
+          String.format("string '%s' does not match timestamp template '%s'", str, format));
     }
-
+  }
 }
-

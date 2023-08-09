@@ -18,9 +18,9 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
 import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
 @NodeInfo(shortName = "Tryable.Map")
@@ -28,22 +28,22 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeChild("function")
 public abstract class TryableMapNode extends ExpressionNode {
 
-    @Specialization(guards = "tryables.isTryable(tryable)", limit = "1")
-    protected Object doObject(VirtualFrame frame, Object tryable,
-                              Closure closure,
-                              @CachedLibrary("tryable") TryableLibrary tryables,
-                              @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-        if (tryables.isSuccess(tryable)) {
-            Object v = tryables.success(tryable);
-            Object[] argumentValues = new Object[1];
-            argumentValues[0] = v;
-            Object result = closure.call(argumentValues);
-            RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-            return nullableTryables.boxTryable(handler, result);
-        } else {
-            return tryable;
-        }
+  @Specialization(guards = "tryables.isTryable(tryable)", limit = "1")
+  protected Object doObject(
+      VirtualFrame frame,
+      Object tryable,
+      Closure closure,
+      @CachedLibrary("tryable") TryableLibrary tryables,
+      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+    if (tryables.isSuccess(tryable)) {
+      Object v = tryables.success(tryable);
+      Object[] argumentValues = new Object[1];
+      argumentValues[0] = v;
+      Object result = closure.call(argumentValues);
+      RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
+      return nullableTryables.boxTryable(handler, result);
+    } else {
+      return tryable;
     }
-
-
+  }
 }

@@ -16,30 +16,29 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.record.RecordObject;
-
 import java.util.HashMap;
+import raw.runtime.truffle.runtime.record.RecordObject;
 
 @ExportLibrary(MapLibrary.class)
 public final class IntMap {
 
-    private final HashMap<Integer, RecordObject> map = new HashMap<>();
+  private final HashMap<Integer, RecordObject> map = new HashMap<>();
 
-    @ExportMessage
-    static class Put {
-        @Specialization
-        @TruffleBoundary
-        static void doPut(IntMap receiver, Integer key, RecordObject value) {
-            receiver.map.put(key, value);
-        }
+  @ExportMessage
+  static class Put {
+    @Specialization
+    @TruffleBoundary
+    static void doPut(IntMap receiver, Integer key, RecordObject value) {
+      receiver.map.put(key, value);
     }
+  }
 
-    @ExportMessage
-    static class Get {
-        @Specialization
-        @TruffleBoundary
-        static Object doGet(IntMap receiver, Integer key) {
-            return receiver.map.get(key);
-        }
+  @ExportMessage
+  static class Get {
+    @Specialization
+    @TruffleBoundary
+    static Object doGet(IntMap receiver, Integer key) {
+      return receiver.map.get(key);
     }
+  }
 }

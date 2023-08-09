@@ -24,27 +24,25 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 @NodeInfo(shortName = "TryableParseCsv")
 public class TryableParseCsvNode extends ExpressionNode {
 
-    @Child
-    private DirectCallNode innerParse;
+  @Child private DirectCallNode innerParse;
 
-    public TryableParseCsvNode(ProgramExpressionNode innerParse) {
-        this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
+  public TryableParseCsvNode(ProgramExpressionNode innerParse) {
+    this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
+  }
+
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    return doParse(parser);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private ObjectTryable doParse(RawTruffleCsvParser parser) {
+    try {
+      Object value = innerParse.call(parser);
+      return ObjectTryable.BuildSuccess(value);
+    } catch (CsvParserRawTruffleException ex) {
+      return ObjectTryable.BuildFailure(ex.getMessage());
     }
-
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-        return doParse(parser);
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    private ObjectTryable doParse(RawTruffleCsvParser parser) {
-        try {
-            Object value = innerParse.call(parser);
-            return ObjectTryable.BuildSuccess(value);
-        } catch (CsvParserRawTruffleException ex) {
-            return ObjectTryable.BuildFailure(ex.getMessage());
-        }
-    }
-
+  }
 }

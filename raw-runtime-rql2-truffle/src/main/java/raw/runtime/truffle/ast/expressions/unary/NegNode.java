@@ -14,45 +14,44 @@ package raw.runtime.truffle.ast.expressions.unary;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeChild("value")
 public abstract class NegNode extends ExpressionNode {
 
-    @Specialization
-    protected byte negByte(byte value) {
-        return (byte) -value;
-    }
+  @Specialization
+  protected byte negByte(byte value) {
+    return (byte) -value;
+  }
 
-    @Specialization
-    protected short negShort(short value) {
-        return (short) -value;
-    }
+  @Specialization
+  protected short negShort(short value) {
+    return (short) -value;
+  }
 
-    @Specialization
-    protected int negInt(int value) {
-        return -value;
-    }
+  @Specialization
+  protected int negInt(int value) {
+    return -value;
+  }
 
-    @Specialization
-    protected long negLong(long value) {
-        return -value;
-    }
+  @Specialization
+  protected long negLong(long value) {
+    return -value;
+  }
 
-    @Specialization
-    protected float negFloat(float value) {
-        return -value;
-    }
+  @Specialization
+  protected float negFloat(float value) {
+    return -value;
+  }
 
-    @Specialization
-    protected double negDouble(double value) {
-        return -value;
-    }
+  @Specialization
+  protected double negDouble(double value) {
+    return -value;
+  }
 
-    @Specialization
-    protected BigDecimal negDecimal(BigDecimal value) {
-        return value.negate();
-    }
+  @Specialization
+  protected BigDecimal negDecimal(BigDecimal value) {
+    return value.negate();
+  }
 }

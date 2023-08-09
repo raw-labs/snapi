@@ -20,10 +20,9 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeInfo(shortName = "TimestampParseCsv")
 public class TimestampParseCsvNode extends ExpressionNode {
 
-    public TimestampObject executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-        return parser.getTimestamp(this);
-    }
-
+  public TimestampObject executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    return parser.getTimestamp(this);
+  }
 }

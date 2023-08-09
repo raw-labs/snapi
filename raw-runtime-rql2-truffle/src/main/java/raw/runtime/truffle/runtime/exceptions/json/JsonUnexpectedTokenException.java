@@ -15,7 +15,7 @@ package raw.runtime.truffle.runtime.exceptions.json;
 import com.oracle.truffle.api.nodes.Node;
 
 public class JsonUnexpectedTokenException extends JsonParserRawTruffleException {
-    public JsonUnexpectedTokenException(String expected, String actual, Node location) {
-        super(String.format("expected %s but token %s found", expected, actual), location);
-    }
+  public JsonUnexpectedTokenException(String expected, String actual, Node location) {
+    super(String.format("expected %s but token %s found", expected, actual), location);
+  }
 }

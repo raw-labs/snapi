@@ -24,192 +24,192 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
-import raw.runtime.truffle.RawLanguage;
-
 import java.util.*;
+import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
 public final class RecordObject implements TruffleObject {
 
-    private final Vector<String> keys = new Vector<>();
-    private Vector<String> distinctKeys = null;
-    private final DynamicObject values;
-    private final DynamicObjectLibrary valuesLibrary;
-    private final static Shape rootShape = Shape.newBuilder().layout(RecordStorageObject.class).build();
+  private final Vector<String> keys = new Vector<>();
+  private Vector<String> distinctKeys = null;
+  private final DynamicObject values;
+  private final DynamicObjectLibrary valuesLibrary;
+  private static final Shape rootShape =
+      Shape.newBuilder().layout(RecordStorageObject.class).build();
 
-    public RecordObject() {
-        this.values = new RecordStorageObject(rootShape);
-        this.valuesLibrary = DynamicObjectLibrary.getFactory().create(values);
-    }
+  public RecordObject() {
+    this.values = new RecordStorageObject(rootShape);
+    this.valuesLibrary = DynamicObjectLibrary.getFactory().create(values);
+  }
 
-    private Vector<String> getDistinctKeys() {
-        if (distinctKeys == null) {
-            distinctKeys = new Vector<>(keys.size());
-            // populate with all official keys (duplicates will appear once)
-            Map<String, Boolean> keySet = new HashMap<>();
-            keys.forEach(k -> keySet.put(k, false));
-            // add all keys in the order they appear in the keys vector
-            for (String key : keys) {
-                String newKey = key;
-                if (keySet.get(newKey)) {
-                    // the key was seen already, find a new key by enumerating other keys.
-                    int n = 1;
-                    do {
-                        newKey = key + '_' + n++;
-                    } while (keySet.containsKey(newKey));
-                    keySet.put(newKey, true);
-                } else {
-                    // else, keep the original name
-                    // but keep track of the fact that we saw it
-                    keySet.put(newKey, true);
-                }
-                distinctKeys.add(newKey);
-            }
+  private Vector<String> getDistinctKeys() {
+    if (distinctKeys == null) {
+      distinctKeys = new Vector<>(keys.size());
+      // populate with all official keys (duplicates will appear once)
+      Map<String, Boolean> keySet = new HashMap<>();
+      keys.forEach(k -> keySet.put(k, false));
+      // add all keys in the order they appear in the keys vector
+      for (String key : keys) {
+        String newKey = key;
+        if (keySet.get(newKey)) {
+          // the key was seen already, find a new key by enumerating other keys.
+          int n = 1;
+          do {
+            newKey = key + '_' + n++;
+          } while (keySet.containsKey(newKey));
+          keySet.put(newKey, true);
+        } else {
+          // else, keep the original name
+          // but keep track of the fact that we saw it
+          keySet.put(newKey, true);
         }
-        return distinctKeys;
+        distinctKeys.add(newKey);
+      }
+    }
+    return distinctKeys;
+  }
+
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
+
+  @ExportMessage
+  Class<? extends TruffleLanguage<?>> getLanguage() {
+    return RawLanguage.class;
+  }
+
+  @ExportMessage
+  @TruffleBoundary
+  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    return "Record";
+  }
+
+  @ExportMessage
+  boolean hasMembers() {
+    return true;
+  }
+
+  public String[] keys() {
+    // Non-interop API. Return possibly duplicate keys.
+    return keys.toArray(new String[0]);
+  }
+
+  @ExportMessage
+  Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
+    // This is the interop API, we return distinct keys.
+    return new Keys(getDistinctKeys().toArray());
+  }
+
+  @ExportLibrary(InteropLibrary.class)
+  static final class Keys implements TruffleObject {
+
+    private final Object[] keys;
+
+    Keys(Object[] keys) {
+      this.keys = keys;
     }
 
     @ExportMessage
-    boolean hasLanguage() {
-        return true;
+    Object readArrayElement(long index) throws InvalidArrayIndexException {
+      if (!isArrayElementReadable(index)) {
+        throw InvalidArrayIndexException.create(index);
+      }
+      return keys[(int) index];
     }
 
     @ExportMessage
-    Class<? extends TruffleLanguage<?>> getLanguage() {
-        return RawLanguage.class;
+    boolean hasArrayElements() {
+      return true;
     }
 
     @ExportMessage
-    @TruffleBoundary
-    Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
-        return "Record";
+    long getArraySize() {
+      return keys.length;
     }
 
     @ExportMessage
-    boolean hasMembers() {
-        return true;
+    boolean isArrayElementReadable(long index) {
+      return index >= 0 && index < keys.length;
     }
+  }
 
-    public String[] keys() {
-        // Non-interop API. Return possibly duplicate keys.
-        return keys.toArray(new String[0]);
+  @ExportMessage(name = "isMemberReadable")
+  @ExportMessage(name = "isMemberModifiable")
+  boolean existsMember(String member) {
+    return getDistinctKeys().contains(member);
+  }
+
+  @ExportMessage
+  boolean isMemberInsertable(String member, @CachedLibrary("this") InteropLibrary receivers) {
+    return !receivers.isMemberExisting(this, member);
+  }
+
+  @ExportMessage
+  boolean isMemberRemovable(String member, @CachedLibrary("this") InteropLibrary receivers) {
+    return receivers.isMemberRemovable(this, member);
+  }
+
+  @ExportMessage
+  Object readMember(String name) throws UnknownIdentifierException {
+    // Interop API, we assume the searched key should be found in the distinct keys.
+    int idx = getDistinctKeys().indexOf(name);
+    Object result = valuesLibrary.getOrDefault(values, idx, null);
+    if (result == null) {
+      /* Property does not exist. */
+      throw UnknownIdentifierException.create(name);
     }
+    return result;
+  }
 
-    @ExportMessage
-    Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
-        // This is the interop API, we return distinct keys.
-        return new Keys(getDistinctKeys().toArray());
+  public Object readIdx(int idx) throws InvalidArrayIndexException {
+    // Pick a value by its index. Just go fetch the key in the dynamic object.
+    if (idx < 0 || idx >= keys.size()) {
+      return InvalidArrayIndexException.create(idx);
     }
+    return valuesLibrary.getOrDefault(values, idx, null);
+  }
 
-    @ExportLibrary(InteropLibrary.class)
-    static final class Keys implements TruffleObject {
-
-        private final Object[] keys;
-
-        Keys(Object[] keys) {
-            this.keys = keys;
-        }
-
-        @ExportMessage
-        Object readArrayElement(long index) throws InvalidArrayIndexException {
-            if (!isArrayElementReadable(index)) {
-                throw InvalidArrayIndexException.create(index);
-            }
-            return keys[(int) index];
-        }
-
-        @ExportMessage
-        boolean hasArrayElements() {
-            return true;
-        }
-
-        @ExportMessage
-        long getArraySize() {
-            return keys.length;
-        }
-
-        @ExportMessage
-        boolean isArrayElementReadable(long index) {
-            return index >= 0 && index < keys.length;
-        }
+  public Object readByKey(String key) throws UnknownIdentifierException {
+    // Non-interop API, key is searched in the possibly duplicate keys.
+    // To be used with care: searching a duplicate key would be a bug.
+    try {
+      return readIdx(keys.indexOf(key));
+    } catch (InvalidArrayIndexException e) {
+      throw UnknownIdentifierException.create(key);
     }
+  }
 
-    @ExportMessage(name = "isMemberReadable")
-    @ExportMessage(name = "isMemberModifiable")
-    boolean existsMember(String member) {
-        return getDistinctKeys().contains(member);
+  // Write a field by index. The String key should be provided
+  // since all fields have names (possibly duplicated).
+  // It's an internal API, a key/idx isn't supposed to be overwritten.
+  public void writeIdx(int idx, String key, Object value) {
+    if (idx >= keys.size()) {
+      keys.setSize(idx + 1);
+      distinctKeys = null;
     }
+    keys.set(idx, key);
+    valuesLibrary.put(values, idx, value);
+  }
 
-    @ExportMessage
-    boolean isMemberInsertable(String member,
-                               @CachedLibrary("this") InteropLibrary receivers) {
-        return !receivers.isMemberExisting(this, member);
-    }
+  // adds a value by key only (auto-increment the index)
+  // TODO replace all internal calls to writeMember by calls to addByKey
+  public void addByKey(String key, Object value) {
+    valuesLibrary.put(
+        values, keys.size(), value); // "key" to use in the dynamic object is the current index.
+    keys.add(key); // the original key is added (possible duplicate)
+  }
 
-    @ExportMessage
-    boolean isMemberRemovable(String member,
-                              @CachedLibrary("this") InteropLibrary receivers) {
-        return receivers.isMemberRemovable(this, member);
-    }
+  @ExportMessage
+  // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey, etc.)
+  // and
+  //  writeMember should expose a semantic matching the interop API.
+  public void writeMember(String name, Object value) {
+    addByKey(name, value);
+  }
 
-    @ExportMessage
-    Object readMember(String name) throws UnknownIdentifierException {
-        // Interop API, we assume the searched key should be found in the distinct keys.
-        int idx = getDistinctKeys().indexOf(name);
-        Object result = valuesLibrary.getOrDefault(values, idx, null);
-        if (result == null) {
-            /* Property does not exist. */
-            throw UnknownIdentifierException.create(name);
-        }
-        return result;
-    }
-
-    public Object readIdx(int idx) throws InvalidArrayIndexException {
-        // Pick a value by its index. Just go fetch the key in the dynamic object.
-        if (idx < 0 || idx >= keys.size()) {
-            return InvalidArrayIndexException.create(idx);
-        }
-        return valuesLibrary.getOrDefault(values, idx, null);
-    }
-
-    public Object readByKey(String key) throws UnknownIdentifierException {
-        // Non-interop API, key is searched in the possibly duplicate keys.
-        // To be used with care: searching a duplicate key would be a bug.
-        try {
-            return readIdx(keys.indexOf(key));
-        } catch (InvalidArrayIndexException e) {
-            throw UnknownIdentifierException.create(key);
-        }
-    }
-
-    // Write a field by index. The String key should be provided
-    // since all fields have names (possibly duplicated).
-    // It's an internal API, a key/idx isn't supposed to be overwritten.
-    public void writeIdx(int idx, String key, Object value) {
-        if (idx >= keys.size()) {
-            keys.setSize(idx + 1);
-            distinctKeys = null;
-        }
-        keys.set(idx, key);
-        valuesLibrary.put(values, idx, value);
-    }
-
-    // adds a value by key only (auto-increment the index)
-    // TODO replace all internal calls to writeMember by calls to addByKey
-    public void addByKey(String key, Object value) {
-        valuesLibrary.put(values, keys.size(), value); // "key" to use in the dynamic object is the current index.
-        keys.add(key); // the original key is added (possible duplicate)
-    }
-
-    @ExportMessage
-    // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey, etc.) and
-    //  writeMember should expose a semantic matching the interop API.
-    public void writeMember(String name, Object value) {
-        addByKey(name, value);
-    }
-
-    @ExportMessage
-    void removeMember(String name) {
-        valuesLibrary.removeKey(values, name);
-    }
+  @ExportMessage
+  void removeMember(String name) {
+    valuesLibrary.removeKey(values, name);
+  }
 }

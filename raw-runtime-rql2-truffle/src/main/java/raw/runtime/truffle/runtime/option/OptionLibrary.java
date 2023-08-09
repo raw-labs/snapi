@@ -15,29 +15,27 @@ package raw.runtime.truffle.runtime.option;
 import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.Library;
 import com.oracle.truffle.api.library.LibraryFactory;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
 @GenerateLibrary
 public abstract class OptionLibrary extends Library {
 
-    static final LibraryFactory<OptionLibrary> FACTORY = LibraryFactory.resolve(OptionLibrary.class);
+  static final LibraryFactory<OptionLibrary> FACTORY = LibraryFactory.resolve(OptionLibrary.class);
 
-    public static LibraryFactory<OptionLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<OptionLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static OptionLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static OptionLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 
-    public boolean isOption(Object receiver) {
-        return false;
-    }
+  public boolean isOption(Object receiver) {
+    return false;
+  }
 
-    public abstract Object get(Object receiver);
+  public abstract Object get(Object receiver);
 
-    public abstract void set(Object receiver, Object value);
+  public abstract void set(Object receiver, Object value);
 
-    public abstract boolean isDefined(Object receiver);
-
+  public abstract boolean isDefined(Object receiver);
 }

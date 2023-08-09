@@ -21,8 +21,8 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeInfo(shortName = "Timestamp.Hour")
 @NodeChild("timestamp")
 public abstract class TimestampHourNode extends ExpressionNode {
-    @Specialization
-    protected int getHour(TimestampObject timestamp) {
-        return timestamp.getTimestamp().getHour();
-    }
+  @Specialization
+  protected int getHour(TimestampObject timestamp) {
+    return timestamp.getTimestamp().getHour();
+  }
 }
