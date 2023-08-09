@@ -18,8 +18,13 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait LspCommentsFormatTest extends CompilerTestContext {
   val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
-  def assertFormattedCode(code: String, expected: String) = {
-    val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment))
+  def assertFormattedCode(
+      code: String,
+      expected: String,
+      indentation: Option[Int] = None,
+      width: Option[Int] = None
+  ) = {
+    val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment, indentation, width))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
         logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
@@ -129,8 +134,9 @@ trait LspCommentsFormatTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """1 // one
-        |+ // plus
-        |    1 // one""".stripMargin
+        | + // plus
+        |    1 // one
+        |""".stripMargin
     )
   }
 
@@ -155,16 +161,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |    aaaaaaaaaaaaaaaa,
         |    bbbbbbbbbbbbb,
         |    cccccccccccccc,
-        |    not
-        |        (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2)
-        |        and
-        |            b > 12
-        |        or
-        |            c == 2)
-        |    and
-        |        b > 12
-        |    or
-        |        c == 2
+        |    not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2
         |)""".stripMargin
     )
   }
@@ -181,9 +178,8 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |    cccccccccccccc,
         |    not // not
         |        (a == 1) // blah
-        |    and
-        |        b > 12
-        |    or
+        |     and
+        |        b > 12 or
         |        c == 2
         |)""".stripMargin
     )
@@ -244,9 +240,9 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       |
       |
       | main(
-      |     1, // arg 1
-      |     2, // ######################### arg 2 #######################
-      |     3 // arg 3
+      |   1, // arg 1
+      |   2, // ######################### arg 2 #######################
+      |   3 // arg 3
       | )""".stripMargin
 
     assertFormattedCode(
@@ -284,7 +280,8 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |    a: 1, // a field
         |    b: "Hello" // b field
         |} // comment 2
-        |// comment 3""".stripMargin
+        |// comment 3
+        |""".stripMargin
     )
   }
 
@@ -477,6 +474,56 @@ trait LspCommentsFormatTest extends CompilerTestContext {
     )
   }
 
+  test("change width and indentation") { _ =>
+    val code = """let
+      |  a = 1,
+      |  b = 2, // a short line
+      |  c = 3
+      |in
+      |  not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2
+      | """.stripMargin
+
+    assertFormattedCode(
+      code,
+      """let
+        |  a = 1,
+        |  b = 2, // a short line
+        |  c = 3
+        |in
+        |  not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2
+        |""".stripMargin,
+      Some(2)
+    )
+
+    assertFormattedCode(
+      code,
+      """let
+        |    a = 1,
+        |    b = 2, // a short line
+        |    c = 3
+        |in
+        |    not (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2) and b > 12 or c == 2""".stripMargin,
+      Some(4)
+    )
+
+    assertFormattedCode(
+      code,
+      """let
+        |    a = 1,
+        |    b = 2, // a short line
+        |    c = 3
+        |in
+        |    not
+        |        (not (not (not (a == 1) and b > 12 or c == 2) and b > 12 or c == 2) and
+        |            b > 12 or
+        |            c == 2) and
+        |        b > 12 or
+        |        c == 2""".stripMargin,
+      Some(4),
+      Some(80)
+    )
+  }
+
   test("snapi example commented") { _ =>
     val code = """  // Machine information taken from a postgresql database
       |  machine(id: int) =
@@ -632,17 +679,12 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |                }
         |        )
         |    in
-        |        Collection.Filter(
-        |            summary,
-        |            (x) -> x.ExitCode > 0 and x.MachineId == id
-        |        )
+        |        Collection.Filter(summary, (x) -> x.ExitCode > 0 and x.MachineId == id)
         |
         |// Errors taken from log files
         |errors(id: int) =
         |    let
-        |        data = String.ReadLines(
-        |            "s3://raw-tutorial/ipython-demos/predictive-maintenance/machine_logs.log"
-        |        ),
+        |        data = String.ReadLines("s3://raw-tutorial/ipython-demos/predictive-maintenance/machine_logs.log"),
         |        filtered = Collection.Filter(
         |            data,
         |            (x) ->
@@ -655,17 +697,11 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |            filtered,
         |            (x) ->
         |                let
-        |                    groups = Regex.Groups(
-        |                        x,
-        |                        "(.*) WARN machine (\\d+) with error=(\\w+).*"
-        |                    )
+        |                    groups = Regex.Groups(x, "(.*) WARN machine (\\d+) with error=(\\w+).*")
         |                in
         |                    {
         |                        machineId: Int.From(List.Get(groups, 1)),
-        |                        timestamp: Timestamp.Parse(
-        |                            List.Get(groups, 0),
-        |                            "y-M-d\'T\'H:m:s"
-        |                        ),
+        |                        timestamp: Timestamp.Parse(List.Get(groups, 0), "y-M-d\'T\'H:m:s"),
         |                        error: List.Get(groups, 2)
         |                    }
         |        )
@@ -675,9 +711,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |// Sensor data taken from a CSV file
         |telemetry(id: int) =
         |    Collection.Filter(
-        |        Csv.InferAndRead(
-        |            "s3://raw-tutorial/ipython-demos/predictive-maintenance/telemetry-iso-time.csv"
-        |        ),
+        |        Csv.InferAndRead("s3://raw-tutorial/ipython-demos/predictive-maintenance/telemetry-iso-time.csv"),
         |        (x) -> x.machineID == id
         |    )
         |
@@ -689,16 +723,8 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |        failureData = failures(machineId),
         |        lastFailure = Collection.Max(failureData.FinishedAt), // Collection max was done by Ben because of this example
         |        // subtracting 6 hours using an interval
-        |        startMeasure = Timestamp.SubtractInterval(
-        |            lastFailure,
-        |            Interval.Build(hours = 6)
-        |        ),
-        |        lastFailureRecord = Collection.First(
-        |            Collection.Filter(
-        |                failureData,
-        |                (x) -> x.FinishedAt == lastFailure
-        |            )
-        |        ),
+        |        startMeasure = Timestamp.SubtractInterval(lastFailure, Interval.Build(hours = 6)),
+        |        lastFailureRecord = Collection.First(Collection.Filter(failureData, (x) -> x.FinishedAt == lastFailure)),
         |        lastTelemetry = Collection.Filter(
         |            telemetry(machineId),
         |            (x) -> x.datetime < lastFailure and x.datetime > startMeasure
@@ -708,17 +734,204 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |            (x) -> x.timestamp < lastFailure and x.timestamp > startMeasure
         |        )
         |    in
-        |        {
-        |            lastFailure: lastFailureRecord,
-        |            machineData: machineData,
-        |            lastTelemetry: lastTelemetry,
-        |            lastErrors: lastErrors
-        |        }
+        |        {lastFailure: lastFailureRecord, machineData: machineData, lastTelemetry: lastTelemetry, lastErrors: lastErrors}
         |
         |// The following test will run if you press the [Run Code] button directly.
         |main(1)""".stripMargin
     )
 
+  }
+
+  test("RD-9333") { _ =>
+    val code = """// A general function for prompts to OpenAI
+      |Prompt(
+      |    openAiKey: string,
+      |    model: string,
+      |    temperature: float,
+      |    messages: string
+      |) =
+      |    let
+      |        rec read(): string =
+      |            let
+      |                x = String.Read(
+      |                    Http.Post(
+      |                        "https://api.openai.com/v1/chat/completions",
+      |                        headers = [
+      |                            {"Content-Type", "application/json"},
+      |                            {"Authorization", "Bearer " + openAiKey}
+      |                        ],
+      |                        bodyString = "{\"model\": \"" + model
+      |                        +
+      |                            "\", \"messages\": [{\"role\": \"user\", \"content\": \""
+      |                        +
+      |                            messages
+      |                        +
+      |                            "\"}], \"temperature\": "
+      |                        +
+      |                            String.From(temperature)
+      |                        +
+      |                            "}"
+      |                    )
+      |                )
+      |            in
+      |                if Try.IsError(x) then
+      |                    read()
+      |                else
+      |                    x,
+      |        x = read(),
+      |        contentObj = Json.Parse(
+      |            x,
+      |            type record(
+      |                choices: list(record(message: record(content: string)))
+      |            )
+      |        )
+      |    in
+      |        List.Get(contentObj.choices, 0).message.content
+      |
+      |let
+      |    data = Json.InferAndRead(
+      |        "https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz18-g-6638"
+      |    ), //"https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz21-b-0101"),
+      |    title = data.title,
+      |    language = data.language,
+      |    id = data.fsoNr,
+      |    points = Collection.Transform(
+      |        data.dataset,
+      |        (r) ->
+      |            let
+      |                area = r.area,
+      |                data = Collection.Transform(
+      |                    Collection.Take(r.worksheet_dataset, 5),
+      |                    (d) ->
+      |                        let
+      |                            titles = Collection.Union(
+      |                                d.row_header,
+      |                                d.column_header
+      |                            ),
+      |                            indexes = Long.Range(
+      |                                0,
+      |                                Collection.Count(titles)
+      |                            ),
+      |                            f = Collection.Zip(titles, indexes),
+      |                            titlesText = Collection.Transform(
+      |                                f,
+      |                                (r) ->
+      |                                    "##"
+      |                                    +
+      |                                        String.Replicate(
+      |                                            "#",
+      |                                            Int.From(r._2)
+      |                                        )
+      |                                    +
+      |                                        " "
+      |                                    +
+      |                                        r._1
+      |                            ),
+      |                            content = Collection.MkString(
+      |                                titlesText,
+      |                                sep = "\n"
+      |                            )
+      |                            +
+      |                                "\nValue: "
+      |                            +
+      |                                d.measurement,
+      |                            markdownBody = "# " + title + "\n" + content,
+      |                            gptBody = Prompt(
+      |                                Environment.Secret("open-ai-key"),
+      |                                "gpt-3.5-turbo",
+      |                                0,
+      |                                "Given the content (in markdown): ```"
+      |                                +
+      |                                    String.Replace(
+      |                                        Json.Print(markdownBody),
+      |                                        "\"",
+      |                                        ""
+      |                                    )
+      |                                +
+      |                                    "```, describe it in plain english. Do not mention the markdown structure at all."
+      |                            )
+      |                        in
+      |                            {
+      |                                title: title,
+      |                                language: language,
+      |                                id: id,
+      |                                body: gptBody
+      |                            }
+      |                )
+      |            in
+      |                data
+      |    )
+      |in
+      |    Collection.First(points)""".stripMargin
+    assertFormattedCode(
+      code,
+      """// A general function for prompts to OpenAI
+        |Prompt(openAiKey: string, model: string, temperature: float, messages: string) =
+        |    let
+        |        rec read(): string =
+        |            let
+        |                x = String.Read(
+        |                    Http.Post(
+        |                        "https://api.openai.com/v1/chat/completions",
+        |                        headers = [{"Content-Type", "application/json"}, {"Authorization", "Bearer " + openAiKey}],
+        |                        bodyString = "{\"model\": \"" + model +
+        |                            "\", \"messages\": [{\"role\": \"user\", \"content\": \"" +
+        |                            messages +
+        |                            "\"}], \"temperature\": " +
+        |                            String.From(temperature) +
+        |                            "}"
+        |                    )
+        |                )
+        |            in
+        |                if Try.IsError(x) then
+        |                    read()
+        |                else
+        |                    x,
+        |        x = read(),
+        |        contentObj = Json.Parse(x, type record(choices: list(record(message: record(content: string)))))
+        |    in
+        |        List.Get(contentObj.choices, 0).message.content
+        |
+        |let
+        |    data = Json.InferAndRead("https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz18-g-6638"), //"https://sso.api.raw-labs.com/asset/json?fsoNr=su-f-vz21-b-0101"),
+        |    title = data.title,
+        |    language = data.language,
+        |    id = data.fsoNr,
+        |    points = Collection.Transform(
+        |        data.dataset,
+        |        (r) ->
+        |            let
+        |                area = r.area,
+        |                data = Collection.Transform(
+        |                    Collection.Take(r.worksheet_dataset, 5),
+        |                    (d) ->
+        |                        let
+        |                            titles = Collection.Union(d.row_header, d.column_header),
+        |                            indexes = Long.Range(0, Collection.Count(titles)),
+        |                            f = Collection.Zip(titles, indexes),
+        |                            titlesText = Collection.Transform(
+        |                                f,
+        |                                (r) -> "##" + String.Replicate("#", Int.From(r._2)) + " " + r._1
+        |                            ),
+        |                            content = Collection.MkString(titlesText, sep = "\n") + "\nValue: " + d.measurement,
+        |                            markdownBody = "# " + title + "\n" + content,
+        |                            gptBody = Prompt(
+        |                                Environment.Secret("open-ai-key"),
+        |                                "gpt-3.5-turbo",
+        |                                0,
+        |                                "Given the content (in markdown): ```" +
+        |                                    String.Replace(Json.Print(markdownBody), "\"", "") +
+        |                                    "```, describe it in plain english. Do not mention the markdown structure at all."
+        |                            )
+        |                        in
+        |                            {title: title, language: language, id: id, body: gptBody}
+        |                )
+        |            in
+        |                data
+        |    )
+        |in
+        |    Collection.First(points)""".stripMargin
+    )
   }
 
 }

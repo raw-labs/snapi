@@ -113,8 +113,8 @@ abstract class Compiler(implicit compilerContext: CompilerContext) extends raw.c
       implicit programContext: base.ProgramContext
   ): LSPResponse = {
     request match {
-      case FormatCodeLSPRequest(code, _) =>
-        val pretty = new SourceCommentsPrettyPrinter
+      case FormatCodeLSPRequest(code, _, maybeIndent, maybeWidth) =>
+        val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
         pretty.prettyCode(code) match {
           case Left((error, position)) =>
             val msg = "could not parse source: " + error

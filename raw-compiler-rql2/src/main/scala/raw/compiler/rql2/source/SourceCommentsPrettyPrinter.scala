@@ -28,7 +28,11 @@ import scala.collection.mutable
  * Mostly uses the function 'withComments' to add comments to parent functions.
  * To format comments properly in lists usages of 'enclosedList' were replaced with listWComments.
  */
-class SourceCommentsPrettyPrinter extends SourcePrettyPrinter {
+class SourceCommentsPrettyPrinter(maybeIndent: Option[Int] = None, maybeWidth: Option[Int] = None)
+    extends SourcePrettyPrinter {
+
+  override val defaultIndent: Int = maybeIndent.getOrElse(4)
+  override val defaultWidth: Int = maybeWidth.getOrElse(120)
 
   private val nodeComments = new util.IdentityHashMap[BaseNode, NodeComments]()
   private val usedComments = new mutable.ArrayBuffer[BaseNode]()
@@ -167,7 +171,7 @@ class SourceCommentsPrettyPrinter extends SourcePrettyPrinter {
       val ld = recursiveToDoc(b, b.left, LeftAssoc)
       val rd = recursiveToDoc(b, b.right, RightAssoc)
       val opDoc = withComments(b.binaryOp, text(b.op))
-      withComments(b, group(ld <@> nest(opDoc <@> rd)))
+      withComments(b, group(ld <+> nest(opDoc <@> rd)))
     case u: UnaryExp =>
       val ed = recursiveToDoc(u, u.exp, NonAssoc)
       val opDoc = withComments(u.unaryOp, text(u.op))

@@ -23,7 +23,7 @@ trait LspFormatCodeTest extends CompilerTestContext {
     val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
-        logger.info(s"formattedCode:\n$formattedCode")
+        logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
         // this is like a rtrim, kiama is putting extra spaces in the end
         assert(formattedCode.replaceAll("\\s+$", "") == expected)
         assert(errors.isEmpty)
@@ -145,9 +145,9 @@ trait LspFormatCodeTest extends CompilerTestContext {
   // Record building with proj will use the identifier as the field name
   test("tuple with an record proj") { _ =>
     val code = """let
-      |    r = {a: 1, b: "hello"}
+      |  r = {a: 1, b: "hello"}
       |in
-      |    {r.a, r.b}""".stripMargin
+      |  {r.a, r.b}""".stripMargin
     assertFormattedCode(
       code,
       """let
@@ -199,16 +199,7 @@ trait LspFormatCodeTest extends CompilerTestContext {
         |    in
         |        Collection.Filter(
         |            ttt,
-        |            (t) ->
-        |                t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1
-        |                and
-        |                    t > 1
-        |                and
-        |                    t > 1
-        |                and
-        |                    t > 1
-        |                and
-        |                    t > 1
+        |            (t) -> t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1
         |        )""".stripMargin
     )
   }
