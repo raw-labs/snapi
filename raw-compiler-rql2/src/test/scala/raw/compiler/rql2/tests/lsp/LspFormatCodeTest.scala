@@ -23,7 +23,7 @@ trait LspFormatCodeTest extends CompilerTestContext {
     val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
-        logger.info(s"formattedCode:\n$formattedCode")
+        logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
         // this is like a rtrim, kiama is putting extra spaces in the end
         assert(formattedCode.replaceAll("\\s+$", "") == expected)
         assert(errors.isEmpty)
@@ -40,9 +40,9 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """let
-        |  x = 1
+        |    x = 1
         |in
-        |  x""".stripMargin
+        |    x""".stripMargin
     )
 
   }
@@ -56,11 +56,11 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """let
-        |  x = 1,
-        |  y = 2,
-        |  z = 8
+        |    x = 1,
+        |    y = 2,
+        |    z = 8
         |in
-        |  x + y""".stripMargin
+        |    x + y""".stripMargin
     )
   }
 
@@ -69,9 +69,9 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """if 5 == 5 then
-        |  3
+        |    3
         |else
-        |  8""".stripMargin
+        |    8""".stripMargin
     )
   }
 
@@ -125,14 +125,14 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """let
-        |  x = 1,
-        |  y = 2,
-        |  z = 8
+        |    x = 1,
+        |    y = 2,
+        |    z = 8
         |in
-        |  let
-        |    k = 5
-        |  in
-        |    k""".stripMargin
+        |    let
+        |        k = 5
+        |    in
+        |        k""".stripMargin
     )
   }
 
@@ -151,9 +151,9 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """let
-        |  r = {a: 1, b: "hello"}
+        |    r = {a: 1, b: "hello"}
         |in
-        |  {a: r.a, b: r.b}""".stripMargin
+        |    {a: r.a, b: r.b}""".stripMargin
     )
   }
 
@@ -176,31 +176,31 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """let
-        |  buildCollection = (lastElement: int) ->
-        |    let
-        |      a = Collection.Build(1, 2, 3, lastElement),
-        |      b = Collection.Build(1, 2, 3, lastElement),
-        |      c = Collection.Build(1, 2, 3, lastElement)
-        |    in
-        |      Collection.Build(a, b, c),
-        |  buildCollection2 = (lastElement: int) ->
-        |    let
-        |      a = Collection.Build(1, 2, 3, lastElement),
-        |      b = Collection.Build(1, 2, 3, lastElement),
-        |      c = Collection.Build(1, 2, 3, lastElement)
-        |    in
-        |      Collection.Build(a, b, c),
-        |  z = 5,
-        |  k = Collection.Filter(Collection.Build(3, 3, 3), (f) -> f > 5)
+        |    buildCollection = (lastElement: int) ->
+        |        let
+        |            a = Collection.Build(1, 2, 3, lastElement),
+        |            b = Collection.Build(1, 2, 3, lastElement),
+        |            c = Collection.Build(1, 2, 3, lastElement)
+        |        in
+        |            Collection.Build(a, b, c),
+        |    buildCollection2 = (lastElement: int) ->
+        |        let
+        |            a = Collection.Build(1, 2, 3, lastElement),
+        |            b = Collection.Build(1, 2, 3, lastElement),
+        |            c = Collection.Build(1, 2, 3, lastElement)
+        |        in
+        |            Collection.Build(a, b, c),
+        |    z = 5,
+        |    k = Collection.Filter(Collection.Build(3, 3, 3), (f) -> f > 5)
         |in
-        |  let
-        |    bbb = buildCollection(5),
-        |    ttt = Collection.Build(1, 2, 3)
-        |  in
-        |    Collection.Filter(
-        |      ttt,
-        |      (t) -> t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1
-        |    )""".stripMargin
+        |    let
+        |        bbb = buildCollection(5),
+        |        ttt = Collection.Build(1, 2, 3)
+        |    in
+        |        Collection.Filter(
+        |            ttt,
+        |            (t) -> t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1 and t > 1
+        |        )""".stripMargin
     )
   }
 
@@ -214,10 +214,10 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """let
-        |  x = [1, 2, 3],
-        |  y = {a: x, b: "Hello"}
+        |    x = [1, 2, 3],
+        |    y = {a: x, b: "Hello"}
         |in
-        |  {x, y}""".stripMargin
+        |    {x, y}""".stripMargin
     )
   }
 
@@ -231,10 +231,10 @@ trait LspFormatCodeTest extends CompilerTestContext {
     assertFormattedCode(
       code,
       """let
-        |  x = [1, 2, 3],
-        |  y = {a: x, b: "Hello"}
+        |    x = [1, 2, 3],
+        |    y = {a: x, b: "Hello"}
         |in
-        |  {x, y}""".stripMargin
+        |    {x, y}""".stripMargin
     )
   }
 

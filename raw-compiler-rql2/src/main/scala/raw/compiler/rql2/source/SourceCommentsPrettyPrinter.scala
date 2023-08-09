@@ -31,7 +31,7 @@ import scala.collection.mutable
 class SourceCommentsPrettyPrinter(maybeIndent: Option[Int] = None, maybeWidth: Option[Int] = None)
     extends SourcePrettyPrinter {
 
-  override val defaultIndent: Int = maybeIndent.getOrElse(2)
+  override val defaultIndent: Int = maybeIndent.getOrElse(4)
   override val defaultWidth: Int = maybeWidth.getOrElse(120)
 
   private val nodeComments = new util.IdentityHashMap[BaseNode, NodeComments]()
