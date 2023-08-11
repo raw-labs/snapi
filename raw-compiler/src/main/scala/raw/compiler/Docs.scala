@@ -62,6 +62,7 @@ final case class EntryDoc(
 
   assert(!summary.contains('\n'), "Summary must not contain newlines.")
 
+  def getSyntax = s"(${params.map(par => par.syntax).mkString(", ")})"
 }
 
 final case class ExampleDoc(
@@ -116,6 +117,14 @@ final case class ParamDoc(
   Doc.grammarCheck(warning)
   Doc.grammarCheck(danger)
 
+  def syntax: String = {
+    customSyntax match {
+      case Some(syntax) => syntax
+      case None =>
+        if (isVarArg) s"$name: ${typeDoc.possibleTypes.mkString(" or ")} ..."
+        else s"$name: ${if (isOptional) "optional " else ""}${typeDoc.possibleTypes.mkString(" or ")}"
+    }
+  }
 }
 
 /**
