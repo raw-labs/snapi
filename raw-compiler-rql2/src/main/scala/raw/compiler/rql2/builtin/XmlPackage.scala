@@ -95,7 +95,10 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
         XmlInputFormatDescriptor(dataType, _, _, _, _)
       ) = inputFormatDescriptor
     ) yield {
-      addProp(inferTypeToRql2Type(dataType, false, false), Rql2IsTryableTypeProperty())
+      inferTypeToRql2Type(dataType, false, false) match {
+        case Rql2IterableType(inner, _) => Rql2IterableType(inner)
+        case t => addProp(t, Rql2IsTryableTypeProperty())
+      }
     }
   }
 
@@ -171,11 +174,24 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
     // on list and iterables we are removing the nullability/tryability
     case t: Rql2IterableType => validateXmlType(t.innerType).right.map(inner => Rql2IterableType(inner))
     case t: Rql2ListType => validateXmlType(t.innerType).right.map(inner => Rql2ListType(inner))
-    case t: Rql2OrType =>
-      val validated = t.tipes.map(validateXmlType)
-      val errors = validated.collect { case Left(error) => error }
+    case Rql2OrType(options, props) =>
+      // inner types may have 'tryable' or 'nullable' flags:
+      // * tryable is removed because a tryable-whatever option would always successfully parse
+      //   as a failed whatever, and other parsers would never be tested.
+      // * nullable is removed too because it's unclear which nullable is parsed, and
+      //   it is more consistent to move that property to the or-type itself (done below)
+      val validation = options
+        .map(resetProps(_, Set.empty)) // strip the error property of or-type options + remove nullability
+        .map(validateXmlType)
+      val errors = validation.collect { case Left(error) => error }
       if (errors.nonEmpty) Left(errors.flatten)
-      else Right(Rql2OrType(validated.map(_.right.get), t.props))
+      else {
+        val validOptions = validation.collect { case Right(t) => t }
+        val nullable =
+          options.exists { case t: Rql2TypeWithProperties => t.props.contains(Rql2IsNullableTypeProperty()) }
+        val finalProps = if (nullable) props + Rql2IsNullableTypeProperty() else props
+        Right(Rql2OrType(validOptions, finalProps))
+      }
     case t: Rql2PrimitiveType => Right(t)
     case t: Rql2UndefinedType => Right(t)
     case t => Left(Seq(UnsupportedType(t, t, None)))

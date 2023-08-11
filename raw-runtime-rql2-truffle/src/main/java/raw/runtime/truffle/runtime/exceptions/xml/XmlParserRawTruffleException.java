@@ -13,6 +13,7 @@
 package raw.runtime.truffle.runtime.exceptions.xml;
 
 import com.oracle.truffle.api.nodes.Node;
+import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
@@ -21,10 +22,34 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
     super(cause.getMessage(), cause, location);
   }
 
+  public XmlParserRawTruffleException(
+      String message, RawTruffleXmlParser parser, Throwable cause, Node location) {
+    super(
+        String.format(
+            "failed to parse XML (line %d column %d): %s",
+            parser.currentLine(), parser.currentColumn(), message),
+        cause,
+        location);
+  }
+
+  public XmlParserRawTruffleException(
+      String message, RawTruffleXmlParser parser, Node location) {
+    super(
+        String.format(
+            "failed to parse XML (line %d column %d): %s",
+            parser.currentLine(), parser.currentColumn(), message),
+        location);
+  }
+
+  public XmlParserRawTruffleException(Throwable cause, RawTruffleXmlParser parser) {
+    // TODO
+    super(cause.getMessage(), cause, null);
+  }
+
   public XmlParserRawTruffleException(int line, int column, Throwable cause, Node location) {
     super(
         String.format(
-            "failed to parse XML (line %d, col %d), %s", line, column, cause.getMessage()),
+            "failed to parse XML (line %d column %d): %s", line, column, cause.getMessage()),
         cause,
         location);
   }
@@ -32,7 +57,7 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
   public XmlParserRawTruffleException(
       String message, int line, int column, Throwable cause, Node location) {
     super(
-        String.format("failed to parse XML (line %d, col %d), %s", line, column, message),
+        String.format("failed to parse XML (line %d column %d): %s", line, column, message),
         cause,
         location);
   }

@@ -12,21 +12,17 @@
 
 package raw.runtime.truffle.ast.io.xml.parser;
 
-import com.fasterxml.jackson.core.JsonParser;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
-import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
+import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
 import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.tryable.ErrorTryable;
 
-@NodeInfo(shortName = "TryableParseJson")
+@NodeInfo(shortName = "TryableParseXml")
 public class TryableParseXmlNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
@@ -37,27 +33,24 @@ public class TryableParseXmlNode extends ExpressionNode {
   private NullableTryableLibrary nullableTryable =
       NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
-  @Child
-  private JsonParserNodes.SkipNextJsonParserNode skipNext =
-      JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
-
   public TryableParseXmlNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
   }
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
     try {
-      Object result = childDirectCall.call(parser);
+      Object result = childDirectCall.call(args);
       return nullableTryable.boxTryable(nullableTryableHandler, result);
-    } catch (JsonParserRawTruffleException ex) {
+    } catch (XmlParserRawTruffleException ex) {
+      Object failure = ErrorTryable.BuildFailure(ex.getMessage());
       try {
-        skipNext.execute(parser);
-      } catch (JsonReaderRawTruffleException e) {
-        return ErrorTryable.BuildFailure(ex.getMessage());
+        parser.finishConsuming();
+      } catch (XmlParserRawTruffleException e) {
+        return failure;
       }
-      return ErrorTryable.BuildFailure(ex.getMessage());
+      return failure;
     }
   }
 }
