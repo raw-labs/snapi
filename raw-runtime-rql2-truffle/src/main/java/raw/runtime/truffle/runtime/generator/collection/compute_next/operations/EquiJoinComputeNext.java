@@ -35,171 +35,158 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 @ExportLibrary(ComputeNextLibrary.class)
 public class EquiJoinComputeNext {
 
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
+    private final CompareOperator compare = new CompareOperator();
+    private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
 
-  protected final Object leftIterable, rightIterable;
-  private final Closure leftKeyF, rightKeyF, mkJoinedRecord;
-  private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
-  private final RawLanguage language;
-  private final RuntimeContext context;
+    protected final Object leftIterable, rightIterable;
+    private final Closure leftKeyF, rightKeyF, mkJoinedRecord;
+    private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
+    private final RawLanguage language;
+    private final RuntimeContext context;
 
-  private Object leftMapGenerator = null,
-      rightMapGenerator = null; // generators from group-by key maps
-  private Object[] leftEntry = null, rightEntry = null;
-  private int leftIndex = -1, rightIndex = -1;
-  private Object leftKey = null, rightKey = null;
-  private Object[] leftRows = null, rightRows = null;
+    private Object leftMapGenerator = null, rightMapGenerator = null; // generators from group-by key maps
 
-  private int compareKey(Object key1, Object key2) {
-    return (int) operators.doOperation(compare, key1, key2);
-  }
+    private Object[] leftEntry = null, rightEntry = null;
+    private int leftIndex = -1, rightIndex = -1;
+    private Object leftKey = null, rightKey = null;
+    private Object[] leftRows = null, rightRows = null;
 
-  public EquiJoinComputeNext(
-      Object leftIterable,
-      Closure leftKeyF,
-      Rql2TypeWithProperties leftRowType,
-      Object rightIterable,
-      Closure rightKeyF,
-      Rql2TypeWithProperties rightRowType,
-      Rql2TypeWithProperties keyType,
-      Closure mkJoinedRecord,
-      RawLanguage language,
-      RuntimeContext context) {
-    this.leftIterable = leftIterable;
-    this.leftKeyF = leftKeyF;
-    this.leftRowType = leftRowType;
-    this.rightIterable = rightIterable;
-    this.rightKeyF = rightKeyF;
-    this.rightRowType = rightRowType;
-    this.keyType = keyType;
-    this.mkJoinedRecord = mkJoinedRecord;
-    this.language = language;
-    this.context = context;
-  }
-
-  @ExportMessage
-  void init(
-      @CachedLibrary("this.leftIterable") IterableLibrary leftIterables,
-      @CachedLibrary("this.rightIterable") IterableLibrary rightIterables,
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
-    OffHeapEquiJoinGroupByKey leftMap =
-        new OffHeapEquiJoinGroupByKey(this::compareKey, keyType, leftRowType, language, context);
-    Object leftGenerator = leftIterables.getGenerator(leftIterable);
-    try {
-      generators.init(leftGenerator);
-      while (generators.hasNext(leftGenerator)) {
-        Object leftItem = generators.next(leftGenerator);
-        Object leftKey = leftKeyF.call(leftItem);
-        leftMap.put(leftKey, leftItem);
-      }
-    } finally {
-      generators.close(leftGenerator);
+    private int compareKey(Object key1, Object key2) {
+        return (int) operators.doOperation(compare, key1, key2);
     }
-    leftMapGenerator = leftMap.generator();
-    generators.init(leftMapGenerator);
 
-    // same with right side
-    OffHeapEquiJoinGroupByKey rightMap =
-        new OffHeapEquiJoinGroupByKey(this::compareKey, keyType, rightRowType, language, context);
-    Object rightGenerator = rightIterables.getGenerator(rightIterable);
-    try {
-      generators.init(rightGenerator);
-      while (generators.hasNext(rightGenerator)) {
-        Object rightItem = generators.next(rightGenerator);
-        Object rightKey = rightKeyF.call(rightItem);
-        rightMap.put(rightKey, rightItem);
-      }
-    } finally {
-      generators.close(rightGenerator);
+    public EquiJoinComputeNext(Object leftIterable, Closure leftKeyF, Rql2TypeWithProperties leftRowType,
+                               Object rightIterable, Closure rightKeyF, Rql2TypeWithProperties rightRowType,
+                               Rql2TypeWithProperties keyType, Closure mkJoinedRecord,
+                               RawLanguage language, RuntimeContext context) {
+        this.leftIterable = leftIterable;
+        this.leftKeyF = leftKeyF;
+        this.leftRowType = leftRowType;
+        this.rightIterable = rightIterable;
+        this.rightKeyF = rightKeyF;
+        this.rightRowType = rightRowType;
+        this.keyType = keyType;
+        this.mkJoinedRecord = mkJoinedRecord;
+        this.language = language;
+        this.context = context;
     }
-    rightMapGenerator = rightMap.generator();
-    generators.init(rightMapGenerator);
-  }
 
-  @ExportMessage
-  void close(
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    if (leftMapGenerator != null) {
-      generators.close(leftMapGenerator);
-      leftMapGenerator = null;
-    }
-    if (rightMapGenerator != null) {
-      generators.close(rightMapGenerator);
-      rightMapGenerator = null;
-    }
-  }
-
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
-
-  @ExportMessage
-  Object computeNext(
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-
-    assert (leftMapGenerator != null);
-    assert (rightMapGenerator != null);
-
-    // keep iterating until we find matching keys
-    while (leftKey == null || rightKey == null) {
-      if (leftKey == null) {
-        if (generators.hasNext(leftMapGenerator)) {
-          leftEntry = (Object[]) generators.next(leftMapGenerator);
-          leftKey = leftEntry[0];
-        } else {
-          throw new BreakException();
+    @ExportMessage
+    void init(@CachedLibrary("this.leftIterable") IterableLibrary leftIterables,
+              @CachedLibrary("this.rightIterable") IterableLibrary rightIterables,
+              @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+        // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
+        OffHeapEquiJoinGroupByKey leftMap = new OffHeapEquiJoinGroupByKey(this::compareKey, keyType, leftRowType, language, context);
+        Object leftGenerator = leftIterables.getGenerator(leftIterable);
+        try {
+            generators.init(leftGenerator);
+            while (generators.hasNext(leftGenerator)) {
+                Object leftItem = generators.next(leftGenerator);
+                Object leftKey = leftKeyF.call(leftItem);
+                leftMap.put(leftKey, leftItem);
+            }
+        } finally {
+            generators.close(leftGenerator);
         }
-      }
+        leftMapGenerator = leftMap.generator();
+        generators.init(leftMapGenerator);
 
-      if (rightKey == null) {
-        if (generators.hasNext(rightMapGenerator)) {
-          rightEntry = (Object[]) generators.next(rightMapGenerator);
-          rightKey = rightEntry[0];
-        } else {
-          throw new BreakException();
+        // same with right side
+        OffHeapEquiJoinGroupByKey rightMap = new OffHeapEquiJoinGroupByKey(this::compareKey, keyType, rightRowType, language, context);
+        Object rightGenerator = rightIterables.getGenerator(rightIterable);
+        try {
+            generators.init(rightGenerator);
+            while (generators.hasNext(rightGenerator)) {
+                Object rightItem = generators.next(rightGenerator);
+                Object rightKey = rightKeyF.call(rightItem);
+                rightMap.put(rightKey, rightItem);
+            }
+        } finally {
+            generators.close(rightGenerator);
         }
-      }
-
-      int compare = compareKey(leftKey, rightKey);
-      // if keys aren't equal, reset the smallest of both (it will be read in the next iteration and
-      // will be larger)
-      if (compare < 0) {
-        leftKey = null;
-      } else if (compare > 0) {
-        rightKey = null;
-      } else {
-        // keys are equal, prepare to do the cartesian product between both.
-        // leftRows and rightRows are the arrays of rows with the same key.
-        // We'll iterate over them to produce the cartesian product.
-        leftRows = (Object[]) leftEntry[1];
-        rightRows = (Object[]) rightEntry[1];
-        leftIndex = 0;
-        rightIndex = 0;
-        break;
-      }
+        rightMapGenerator = rightMap.generator();
+        generators.init(rightMapGenerator);
     }
 
-    // record to return
-    Object joinedRow = mkJoinedRecord.call(leftRows[leftIndex], rightRows[rightIndex]);
-
-    // move to the next right row
-    rightIndex++;
-    if (rightIndex == rightRows.length) {
-      // right side is exhausted, move to the next left row.
-      leftIndex++;
-      if (leftIndex < leftRows.length) {
-        // there are more left rows, reset the right side to perform another loop.
-        rightIndex = 0;
-      } else {
-        // left side is exhausted, we're done with the cartesian product
-        // reset left and right keys to get new ones and restart the cartesian production
-        // in the next call.
-        leftKey = rightKey = null;
-      }
+    @ExportMessage
+    void close(@Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+        if (leftMapGenerator != null) {
+            generators.close(leftMapGenerator);
+            leftMapGenerator = null;
+        }
+        if (rightMapGenerator != null) {
+            generators.close(rightMapGenerator);
+            rightMapGenerator = null;
+        }
     }
-    return joinedRow;
-  }
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
+    }
+
+    @ExportMessage
+    Object computeNext(@Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+
+        assert (leftMapGenerator != null);
+        assert (rightMapGenerator != null);
+
+        // keep iterating until we find matching keys
+        while (leftKey == null || rightKey == null) {
+            if (leftKey == null) {
+                if (generators.hasNext(leftMapGenerator)) {
+                    leftEntry = (Object[]) generators.next(leftMapGenerator);
+                    leftKey = leftEntry[0];
+                } else {
+                    throw new BreakException();
+                }
+            }
+
+            if (rightKey == null) {
+                if (generators.hasNext(rightMapGenerator)) {
+                    rightEntry = (Object[]) generators.next(rightMapGenerator);
+                    rightKey = rightEntry[0];
+                } else {
+                    throw new BreakException();
+                }
+            }
+
+            int compare = compareKey(leftKey, rightKey);
+            // if keys aren't equal, reset the smallest of both (it will be read in the next iteration and will be larger)
+            if (compare < 0) {
+                leftKey = null;
+            } else if (compare > 0) {
+                rightKey = null;
+            } else {
+                // keys are equal, prepare to do the cartesian product between both.
+                // leftRows and rightRows are the arrays of rows with the same key.
+                // We'll iterate over them to produce the cartesian product.
+                leftRows = (Object[]) leftEntry[1];
+                rightRows = (Object[]) rightEntry[1];
+                leftIndex = 0;
+                rightIndex = 0;
+                break;
+            }
+        }
+
+        // record to return
+        Object joinedRow = mkJoinedRecord.call(leftRows[leftIndex], rightRows[rightIndex]);
+
+        // move to the next right row
+        rightIndex++;
+        if (rightIndex == rightRows.length) {
+            // right side is exhausted, move to the next left row.
+            leftIndex++;
+            if (leftIndex < leftRows.length) {
+                // there are more left rows, reset the right side to perform another loop.
+                rightIndex = 0;
+            } else {
+                // left side is exhausted, we're done with the cartesian product
+                // reset left and right keys to get new ones and restart the cartesian production
+                // in the next call.
+                leftKey = rightKey = null;
+            }
+        }
+        return joinedRow;
+    }
 }

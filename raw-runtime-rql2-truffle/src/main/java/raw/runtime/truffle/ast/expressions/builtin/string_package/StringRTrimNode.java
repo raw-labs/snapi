@@ -21,8 +21,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string")
 public abstract class StringRTrimNode extends ExpressionNode {
 
-  @Specialization
-  protected String rTrim(String string) {
-    return string.replaceAll("\\s+$", "");
-  }
+    @Specialization
+    protected String rTrim(String string) {
+        return string.replaceAll("\\s+$", "");
+    }
 }

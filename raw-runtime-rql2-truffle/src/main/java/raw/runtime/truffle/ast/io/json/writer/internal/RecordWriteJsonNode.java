@@ -27,50 +27,49 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 
 public class RecordWriteJsonNode extends StatementNode {
 
-  @Children private DirectCallNode[] childDirectCalls;
+    @Children
+    private DirectCallNode[] childDirectCalls;
 
-  @Child private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(2);
+    @Child
+    private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(2);
 
-  @Child
-  private JsonWriteNodes.WriteStartObjectJsonWriterNode writeStartObjectNode =
-      JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.create();
+    @Child
+    private JsonWriteNodes.WriteStartObjectJsonWriterNode writeStartObjectNode = JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.create();
 
-  @Child
-  private JsonWriteNodes.WriteEndObjectJsonWriterNode writeEndObjectNode =
-      JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.create();
+    @Child
+    private JsonWriteNodes.WriteEndObjectJsonWriterNode writeEndObjectNode = JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.create();
 
-  @Child
-  private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode =
-      JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.create();
+    @Child
+    private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode = JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.create();
 
-  public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
-    this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
-    for (int i = 0; i < childProgramStatementNode.length; i++) {
-      this.childDirectCalls[i] =
-          DirectCallNode.create(childProgramStatementNode[i].getCallTarget());
+    public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
+        this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
+        for (int i = 0; i < childProgramStatementNode.length; i++) {
+            this.childDirectCalls[i] = DirectCallNode.create(childProgramStatementNode[i].getCallTarget());
+        }
     }
-  }
 
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    try {
-      Object[] args = frame.getArguments();
-      RecordObject record = (RecordObject) args[0];
-      JsonGenerator gen = (JsonGenerator) args[1];
-      Object keys = interops.getMembers(record);
-      long length = interops.getArraySize(keys);
-      Object item;
-      writeStartObjectNode.execute(gen);
-      for (int i = 0; i < length; i++) {
-        String member = (String) interops.readArrayElement(keys, i);
-        item = record.readIdx(i);
-        writeFieldNameNode.execute(member, gen);
-        childDirectCalls[i].call(item, gen);
-      }
-      writeEndObjectNode.execute(gen);
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        try {
+            Object[] args = frame.getArguments();
+            RecordObject record = (RecordObject) args[0];
+            JsonGenerator gen = (JsonGenerator) args[1];
+            Object keys = interops.getMembers(record);
+            long length = interops.getArraySize(keys);
+            Object item;
+            writeStartObjectNode.execute(gen);
+            for (int i = 0; i < length; i++) {
+                String member = (String) interops.readArrayElement(keys, i);
+                item = record.readIdx(i);
+                writeFieldNameNode.execute(member, gen);
+                childDirectCalls[i].call(item, gen);
+            }
+            writeEndObjectNode.execute(gen);
 
-    } catch (RuntimeException | UnsupportedMessageException | InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+        } catch (RuntimeException | UnsupportedMessageException | InvalidArrayIndexException e) {
+            throw new RawTruffleInternalErrorException(e, this);
+        }
     }
-  }
+
 }

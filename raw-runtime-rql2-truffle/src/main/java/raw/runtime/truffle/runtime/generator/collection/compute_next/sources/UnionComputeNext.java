@@ -26,55 +26,55 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(ComputeNextLibrary.class)
 public final class UnionComputeNext {
 
-  private final ExpressionNode[] inputs;
-  private final VirtualFrame frame;
-  private int index;
-  private Object currentGenerator = null;
+    private final ExpressionNode[] inputs;
+    private final VirtualFrame frame;
+    private int index;
+    private Object currentGenerator = null;
 
-  public UnionComputeNext(ExpressionNode[] inputs, VirtualFrame frame) {
-    this.frame = frame;
-    this.inputs = inputs;
-    this.index = 0;
-  }
-
-  @ExportMessage
-  void init() {}
-
-  @ExportMessage
-  void close(
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "3") GeneratorLibrary generators) {
-    if (currentGenerator != null) {
-      generators.close(currentGenerator);
+    public UnionComputeNext(ExpressionNode[] inputs, VirtualFrame frame) {
+        this.frame = frame;
+        this.inputs = inputs;
+        this.index = 0;
     }
-  }
 
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
+    @ExportMessage
+    void init() {
+    }
 
-  @ExportMessage
-  Object computeNext(
-      @CachedLibrary(limit = "3") IterableLibrary iterables,
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "3") GeneratorLibrary generators) {
-    while (currentGenerator == null) {
-      if (index >= inputs.length) {
-        throw new BreakException();
-      }
-      Object iterable = inputs[index].executeGeneric(frame);
-      currentGenerator = iterables.getGenerator(iterable);
-      generators.init(currentGenerator);
-      if (!generators.hasNext(currentGenerator)) {
-        generators.close(currentGenerator);
-        currentGenerator = null;
-      }
-      index++;
+    @ExportMessage
+    void close(@Cached.Shared("sharedGenerators") @CachedLibrary(limit = "3") GeneratorLibrary generators) {
+        if (currentGenerator != null) {
+            generators.close(currentGenerator);
+        }
     }
-    Object r = generators.next(currentGenerator);
-    if (!generators.hasNext(currentGenerator)) {
-      generators.close(currentGenerator);
-      currentGenerator = null;
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
     }
-    return r;
-  }
+
+    @ExportMessage
+    Object computeNext(
+        @CachedLibrary(limit = "3") IterableLibrary iterables,
+        @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "3") GeneratorLibrary generators) {
+        while (currentGenerator == null) {
+            if (index >= inputs.length) {
+                throw new BreakException();
+            }
+            Object iterable = inputs[index].executeGeneric(frame);
+            currentGenerator = iterables.getGenerator(iterable);
+            generators.init(currentGenerator);
+            if (!generators.hasNext(currentGenerator)) {
+                generators.close(currentGenerator);
+                currentGenerator = null;
+            }
+            index++;
+        }
+        Object r = generators.next(currentGenerator);
+        if (!generators.hasNext(currentGenerator)) {
+            generators.close(currentGenerator);
+            currentGenerator = null;
+        }
+        return r;
+    }
 }

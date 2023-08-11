@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 @NodeInfo(shortName = "Time.Millis")
 @NodeChild("time")
 public abstract class TimeMillisNode extends ExpressionNode {
-  @Specialization
-  protected int getMillis(TimeObject time) {
-    return (int) TimeUnit.NANOSECONDS.toMillis(time.getTime().getNano());
-  }
+    @Specialization
+    protected int getMillis(TimeObject time) {
+        return (int) TimeUnit.NANOSECONDS.toMillis(time.getTime().getNano());
+    }
 }

@@ -18,37 +18,38 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class ByteOption {
 
-  private byte value;
+    private byte value;
 
-  private boolean isDefined;
+    private boolean isDefined;
 
-  public ByteOption() {
-    this.isDefined = false;
-  }
+    public ByteOption() {
+        this.isDefined = false;
+    }
 
-  public ByteOption(byte value) {
-    this.isDefined = true;
-    this.value = value;
-  }
+    public ByteOption(byte value) {
+        this.isDefined = true;
+        this.value = value;
+    }
 
-  @ExportMessage
-  boolean isOption() {
-    return true;
-  }
+    @ExportMessage
+    boolean isOption() {
+        return true;
+    }
 
-  @ExportMessage
-  public byte get() {
-    return value;
-  }
+    @ExportMessage
+    public byte get() {
+        return value;
+    }
 
-  @ExportMessage
-  public void set(Object value) {
-    this.value = (byte) value;
-    this.isDefined = true;
-  }
+    @ExportMessage
+    public void set(Object value) {
+        this.value = (byte) value;
+        this.isDefined = true;
+    }
 
-  @ExportMessage
-  public boolean isDefined() {
-    return isDefined;
-  }
+    @ExportMessage
+    public boolean isDefined() {
+        return isDefined;
+    }
+
 }

@@ -25,47 +25,48 @@ import java.math.BigDecimal;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class LongFromNode extends ExpressionNode {
 
-  @Specialization
-  protected long fromByte(byte argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected long fromShort(short argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected long fromInt(int argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected long fromLong(long argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected long fromFloat(float argument) {
-    return (long) argument;
-  }
-
-  @Specialization
-  protected long fromDouble(double argument) {
-    return (long) argument;
-  }
-
-  @Specialization
-  protected long fromDecimal(BigDecimal argument) {
-    return argument.longValue();
-  }
-
-  @Specialization
-  protected ObjectTryable fromString(String argument) {
-    try {
-      return ObjectTryable.BuildSuccess(Long.parseLong(argument));
-    } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to long");
+    @Specialization
+    protected long fromByte(byte argument) {
+        return argument;
     }
-  }
+
+    @Specialization
+    protected long fromShort(short argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected long fromInt(int argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected long fromLong(long argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected long fromFloat(float argument) {
+        return (long) argument;
+    }
+
+    @Specialization
+    protected long fromDouble(double argument) {
+        return (long) argument;
+    }
+
+    @Specialization
+    protected long fromDecimal(BigDecimal argument) {
+        return argument.longValue();
+    }
+
+    @Specialization
+    protected ObjectTryable fromString(String argument) {
+        try {
+            return ObjectTryable.BuildSuccess(Long.parseLong(argument));
+        } catch (RuntimeException ex) {
+            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to long");
+        }
+    }
+
 }

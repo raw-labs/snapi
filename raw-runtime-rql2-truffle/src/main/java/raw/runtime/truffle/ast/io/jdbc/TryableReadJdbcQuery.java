@@ -23,7 +23,8 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 @NodeInfo(shortName = "TryableReadJdbcQuery")
 public class TryableReadJdbcQuery extends ExpressionNode {
 
-  @Child private DirectCallNode innerParse;
+  @Child
+  private DirectCallNode innerParse;
   private final String idx;
 
   public TryableReadJdbcQuery(ProgramExpressionNode innerParse, String idx) {
@@ -41,4 +42,5 @@ public class TryableReadJdbcQuery extends ExpressionNode {
       return ObjectTryable.BuildFailure(e.getMessage());
     }
   }
+
 }

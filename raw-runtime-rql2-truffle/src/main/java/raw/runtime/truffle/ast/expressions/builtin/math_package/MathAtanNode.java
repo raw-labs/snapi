@@ -22,8 +22,9 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Math.Atan")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathAtanNode extends ExpressionNode {
-  @Specialization
-  protected double doubleAtan(double argument) {
-    return Math.atan(argument);
-  }
+    @Specialization
+    protected double doubleAtan(double argument) {
+        return Math.atan(argument);
+    }
+
 }

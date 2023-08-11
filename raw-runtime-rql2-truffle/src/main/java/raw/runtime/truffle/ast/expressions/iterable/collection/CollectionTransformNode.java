@@ -23,8 +23,8 @@ import raw.runtime.truffle.runtime.iterable.operations.TransformCollection;
 @NodeChild("iterable")
 @NodeChild("transform")
 public abstract class CollectionTransformNode extends ExpressionNode {
-  @Specialization
-  protected Object doTransform(Object iterable, Closure transform) {
-    return new TransformCollection(iterable, transform);
-  }
+    @Specialization
+    protected Object doTransform(Object iterable, Closure transform) {
+        return new TransformCollection(iterable, transform);
+    }
 }

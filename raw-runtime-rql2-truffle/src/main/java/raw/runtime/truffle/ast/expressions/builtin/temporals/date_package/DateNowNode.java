@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 
 @NodeInfo(shortName = "Date.Now")
 public abstract class DateNowNode extends ExpressionNode {
-  @Specialization
-  protected DateObject now() {
-    return new DateObject(LocalDate.now());
-  }
+    @Specialization
+    protected DateObject now() {
+        return new DateObject(LocalDate.now());
+    }
 }

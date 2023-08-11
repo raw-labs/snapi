@@ -29,33 +29,37 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeInfo(shortName = "RecordParseCsv")
 public class RecordParseCsvNode extends ExpressionNode {
 
-  @Children private DirectCallNode[] childDirectCalls;
+    @Children
+    private DirectCallNode[] childDirectCalls;
 
-  @Child private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
+    @Child
+    private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
 
-  private final Rql2AttrType[] columns;
+    private final Rql2AttrType[] columns;
 
-  public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
-    this.columns = columns;
-    this.childDirectCalls = new DirectCallNode[columnParsers.length];
-    for (int i = 0; i < columnParsers.length; i++) {
-      this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
+    public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
+        this.columns = columns;
+        this.childDirectCalls = new DirectCallNode[columnParsers.length];
+        for (int i = 0; i < columnParsers.length; i++) {
+            this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
+        }
     }
-  }
 
-  @Override
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-    assert (parser.startingNewLine(this));
-    RecordObject record = RawLanguage.get(this).createRecord();
-    for (int i = 0; i < columns.length; i++) {
-      String fieldName = columns[i].idn();
-      parser.getNextField();
-      Object value = childDirectCalls[i].call(parser);
-      record.writeIdx(i, fieldName, value);
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+        assert (parser.startingNewLine(this));
+        RecordObject record = RawLanguage.get(this).createRecord();
+        for (int i = 0; i < columns.length; i++) {
+            String fieldName = columns[i].idn();
+            parser.getNextField();
+            Object value = childDirectCalls[i].call(parser);
+            record.writeIdx(i, fieldName, value);
+        }
+        parser.finishLine(this);
+        return record;
     }
-    parser.finishLine(this);
-    return record;
-  }
+
+
 }

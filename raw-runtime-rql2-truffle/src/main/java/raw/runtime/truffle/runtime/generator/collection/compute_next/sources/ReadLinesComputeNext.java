@@ -23,44 +23,45 @@ import raw.runtime.truffle.utils.TruffleCharInputStream;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+
 @ExportLibrary(ComputeNextLibrary.class)
 public class ReadLinesComputeNext {
 
-  private final TruffleCharInputStream stream;
+    private final TruffleCharInputStream stream;
 
-  private BufferedReader reader;
+    private BufferedReader reader;
 
-  public ReadLinesComputeNext(TruffleCharInputStream stream) {
-    this.stream = stream;
-  }
-
-  @ExportMessage
-  void init() {
-    this.reader = new BufferedReader(stream.getReader());
-  }
-
-  @ExportMessage
-  void close() {
-    IOUtils.closeQuietly(reader);
-  }
-
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
-
-  @ExportMessage
-  Object computeNext() {
-    try {
-      String line = this.reader.readLine();
-      if (line != null) {
-        return line;
-      } else {
-        this.close();
-        throw new BreakException();
-      }
-    } catch (IOException e) {
-      throw new ReadLinesRawTruffleException(e.getMessage(), stream);
+    public ReadLinesComputeNext(TruffleCharInputStream stream) {
+        this.stream = stream;
     }
-  }
+
+    @ExportMessage
+    void init() {
+        this.reader = new BufferedReader(stream.getReader());
+    }
+
+    @ExportMessage
+    void close() {
+        IOUtils.closeQuietly(reader);
+    }
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
+    }
+
+    @ExportMessage
+    Object computeNext() {
+        try {
+            String line = this.reader.readLine();
+            if (line != null) {
+                return line;
+            } else {
+                this.close();
+                throw new BreakException();
+            }
+        } catch (IOException e) {
+            throw new ReadLinesRawTruffleException(e.getMessage(), stream);
+        }
+    }
 }

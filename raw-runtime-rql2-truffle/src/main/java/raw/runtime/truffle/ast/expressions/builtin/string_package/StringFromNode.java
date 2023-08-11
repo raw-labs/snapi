@@ -26,63 +26,64 @@ import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.*;
 @NodeChild(value = "value")
 public abstract class StringFromNode extends ExpressionNode {
 
-  @Specialization
-  protected String fromByte(byte value) {
-    return String.valueOf(value);
-  }
+    @Specialization
+    protected String fromByte(byte value) {
+        return String.valueOf(value);
+    }
 
-  @Specialization
-  protected String fromShort(short value) {
-    return String.valueOf(value);
-  }
+    @Specialization
+    protected String fromShort(short value) {
+        return String.valueOf(value);
+    }
 
-  @Specialization
-  protected String fromInt(int value) {
-    return String.valueOf(value);
-  }
+    @Specialization
+    protected String fromInt(int value) {
+        return String.valueOf(value);
+    }
 
-  @Specialization
-  protected String fromLong(long value) {
-    return String.valueOf(value);
-  }
+    @Specialization
+    protected String fromLong(long value) {
+        return String.valueOf(value);
+    }
 
-  @Specialization
-  protected String fromFloat(float value) {
-    return String.valueOf(value);
-  }
+    @Specialization
+    protected String fromFloat(float value) {
+        return String.valueOf(value);
+    }
 
-  @Specialization
-  protected String fromDouble(double value) {
-    return String.valueOf(value);
-  }
+    @Specialization
+    protected String fromDouble(double value) {
+        return String.valueOf(value);
+    }
 
-  @Specialization
-  protected String fromDecimal(BigDecimal value) {
-    return value.toString();
-  }
+    @Specialization
+    protected String fromDecimal(BigDecimal value) {
+        return value.toString();
+    }
 
-  @Specialization
-  protected String fromBoolean(boolean value) {
-    return String.valueOf(value);
-  }
+    @Specialization
+    protected String fromBoolean(boolean value) {
+        return String.valueOf(value);
+    }
 
-  @Specialization
-  protected String fromDate(DateObject value) {
-    return value.getDate().format(DATE_FORMATTER);
-  }
+    @Specialization
+    protected String fromDate(DateObject value) {
+        return value.getDate().format(DATE_FORMATTER);
+    }
 
-  @Specialization
-  protected String fromTime(TimeObject value) {
-    return value.getTime().format(TIME_FORMATTER);
-  }
+    @Specialization
+    protected String fromTime(TimeObject value) {
+        return value.getTime().format(TIME_FORMATTER);
+    }
 
-  @Specialization
-  protected String fromTimestamp(TimestampObject value) {
-    return value.getTimestamp().format(TIMESTAMP_FORMATTER);
-  }
+    @Specialization
+    protected String fromTimestamp(TimestampObject value) {
+        return value.getTimestamp().format(TIMESTAMP_FORMATTER);
+    }
 
-  @Specialization
-  protected String fromInterval(IntervalObject value) {
-    return value.toString();
-  }
+    @Specialization
+    protected String fromInterval(IntervalObject value) {
+        return value.toString();
+    }
+
 }

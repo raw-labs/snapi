@@ -32,32 +32,28 @@ import raw.runtime.truffle.runtime.tryable.BooleanTryable;
 @NodeField(name = "predicateType", type = Rql2TypeWithProperties.class)
 public abstract class CollectionExistsNode extends ExpressionNode {
 
-  protected abstract Rql2TypeWithProperties getPredicateType();
+    protected abstract Rql2TypeWithProperties getPredicateType();
 
-  @Specialization(limit = "3")
-  protected BooleanTryable doIterable(
-      Object iterable,
-      Closure function,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "2") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
-    try {
-      generators.init(generator);
-      Object[] argumentValues = new Object[1];
-      while (generators.hasNext(generator)) {
-        argumentValues[0] = generators.next(generator);
-        Boolean predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                function.call(argumentValues), getPredicateType(), false);
-        if (predicate) {
-          return BooleanTryable.BuildSuccess(true);
+    @Specialization(limit = "3")
+    protected BooleanTryable doIterable(Object iterable, Closure function,
+                                        @CachedLibrary("iterable") IterableLibrary iterables,
+                                        @CachedLibrary(limit = "2") GeneratorLibrary generators) {
+        Object generator = iterables.getGenerator(iterable);
+        try {
+            generators.init(generator);
+            Object[] argumentValues = new Object[1];
+            while (generators.hasNext(generator)) {
+                argumentValues[0] = generators.next(generator);
+                Boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+                if (predicate) {
+                    return BooleanTryable.BuildSuccess(true);
+                }
+            }
+            return BooleanTryable.BuildSuccess(false);
+        } catch (RawTruffleRuntimeException ex) {
+            return BooleanTryable.BuildFailure(ex.getMessage());
+        } finally {
+            generators.close(generator);
         }
-      }
-      return BooleanTryable.BuildSuccess(false);
-    } catch (RawTruffleRuntimeException ex) {
-      return BooleanTryable.BuildFailure(ex.getMessage());
-    } finally {
-      generators.close(generator);
     }
-  }
 }

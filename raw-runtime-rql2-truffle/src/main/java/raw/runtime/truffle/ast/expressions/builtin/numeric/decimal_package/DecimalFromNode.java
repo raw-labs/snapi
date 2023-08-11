@@ -25,47 +25,48 @@ import java.math.BigDecimal;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class DecimalFromNode extends ExpressionNode {
 
-  @Specialization
-  protected BigDecimal fromByte(byte argument) {
-    return new BigDecimal(argument);
-  }
-
-  @Specialization
-  protected BigDecimal fromShort(short argument) {
-    return new BigDecimal(argument);
-  }
-
-  @Specialization
-  protected BigDecimal fromInt(int argument) {
-    return new BigDecimal(argument);
-  }
-
-  @Specialization
-  protected BigDecimal fromLong(long argument) {
-    return new BigDecimal(argument);
-  }
-
-  @Specialization
-  protected BigDecimal fromFloat(float argument) {
-    return new BigDecimal(argument);
-  }
-
-  @Specialization
-  protected BigDecimal fromDouble(double argument) {
-    return new BigDecimal(argument);
-  }
-
-  @Specialization
-  protected BigDecimal fromDecimal(BigDecimal argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected ObjectTryable fromString(String argument) {
-    try {
-      return ObjectTryable.BuildSuccess(new BigDecimal(argument));
-    } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to decimal");
+    @Specialization
+    protected BigDecimal fromByte(byte argument) {
+        return new BigDecimal(argument);
     }
-  }
+
+    @Specialization
+    protected BigDecimal fromShort(short argument) {
+        return new BigDecimal(argument);
+    }
+
+    @Specialization
+    protected BigDecimal fromInt(int argument) {
+        return new BigDecimal(argument);
+    }
+
+    @Specialization
+    protected BigDecimal fromLong(long argument) {
+        return new BigDecimal(argument);
+    }
+
+    @Specialization
+    protected BigDecimal fromFloat(float argument) {
+        return new BigDecimal(argument);
+    }
+
+    @Specialization
+    protected BigDecimal fromDouble(double argument) {
+        return new BigDecimal(argument);
+    }
+
+    @Specialization
+    protected BigDecimal fromDecimal(BigDecimal argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected ObjectTryable fromString(String argument) {
+        try {
+            return ObjectTryable.BuildSuccess(new BigDecimal(argument));
+        } catch (RuntimeException ex) {
+            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to decimal");
+        }
+    }
+
 }

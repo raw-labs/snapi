@@ -28,60 +28,51 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class GroupByCollection {
 
-  final Object iterable;
-  final Closure keyFun;
+    final Object iterable;
+    final Closure keyFun;
 
-  final RawLanguage language;
+    final RawLanguage language;
 
-  final Rql2TypeWithProperties keyType;
-  final Rql2TypeWithProperties rowType;
-  private final RuntimeContext context;
+    final Rql2TypeWithProperties keyType;
+    final Rql2TypeWithProperties rowType;
+    private final RuntimeContext context;
 
-  public GroupByCollection(
-      Object iterable,
-      Closure keyFun,
-      Rql2TypeWithProperties kType,
-      Rql2TypeWithProperties rowType,
-      RawLanguage language,
-      RuntimeContext context) {
-    this.iterable = iterable;
-    this.keyFun = keyFun;
-    this.language = language;
-    this.keyType = kType;
-    this.rowType = rowType;
-    this.context = context;
-  }
-
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
-
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
-
-  @ExportMessage
-  Object getGenerator(
-      @CachedLibrary("this.iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    OffHeapCollectionGroupByKey map =
-        new OffHeapCollectionGroupByKey(
-            (o1, o2) -> (int) operators.doOperation(compare, o1, o2),
-            keyType,
-            rowType,
-            language,
-            context);
-    Object inputGenerator = iterables.getGenerator(iterable);
-    try {
-      generators.init(inputGenerator);
-      while (generators.hasNext(inputGenerator)) {
-        Object v = generators.next(inputGenerator);
-        Object key = keyFun.call(v);
-        map.put(key, v);
-      }
-    } finally {
-      generators.close(inputGenerator);
+    public GroupByCollection(Object iterable, Closure keyFun, Rql2TypeWithProperties kType, Rql2TypeWithProperties rowType, RawLanguage language,
+                             RuntimeContext context) {
+        this.iterable = iterable;
+        this.keyFun = keyFun;
+        this.language = language;
+        this.keyType = kType;
+        this.rowType = rowType;
+        this.context = context;
     }
-    return map.generator();
-  }
+
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
+
+    private final CompareOperator compare = new CompareOperator();
+    private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
+
+    @ExportMessage
+    Object getGenerator(@CachedLibrary("this.iterable") IterableLibrary iterables,
+                        @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+        OffHeapCollectionGroupByKey map = new OffHeapCollectionGroupByKey(
+            (o1, o2) -> (int) operators.doOperation(compare, o1, o2),
+            keyType, rowType, language, context);
+        Object inputGenerator = iterables.getGenerator(iterable);
+        try {
+            generators.init(inputGenerator);
+            while (generators.hasNext(inputGenerator)) {
+                Object v = generators.next(inputGenerator);
+                Object key = keyFun.call(v);
+                map.put(key, v);
+            }
+        } finally {
+            generators.close(inputGenerator);
+        }
+        return map.generator();
+    }
+
 }

@@ -22,8 +22,8 @@ import raw.runtime.truffle.runtime.iterable.operations.TakeCollection;
 @NodeChild("iterable")
 @NodeChild("takeCount")
 public abstract class CollectionTakeNode extends ExpressionNode {
-  @Specialization
-  protected Object doTake(Object iterable, long takeCount) {
-    return new TakeCollection(iterable, takeCount);
-  }
+    @Specialization
+    protected Object doTake(Object iterable, long takeCount) {
+        return new TakeCollection(iterable, takeCount);
+    }
 }

@@ -25,14 +25,12 @@ import java.time.LocalDateTime;
 @NodeChild("timestamp")
 @NodeChild("interval")
 public abstract class TimestampAddIntervalNode extends ExpressionNode {
-  @Specialization
-  protected TimestampObject addInterval(TimestampObject timestampObj, IntervalObject interval) {
+    @Specialization
+    protected TimestampObject addInterval(TimestampObject timestampObj, IntervalObject interval) {
 
-    LocalDateTime timestamp = timestampObj.getTimestamp();
+        LocalDateTime timestamp = timestampObj.getTimestamp();
 
-    return new TimestampObject(
-        timestamp
-            .plusYears(interval.getYears())
+        return new TimestampObject(timestamp.plusYears(interval.getYears())
             .plusMonths(interval.getMonths())
             .plusWeeks(interval.getWeeks())
             .plusDays(interval.getDays())
@@ -40,5 +38,5 @@ public abstract class TimestampAddIntervalNode extends ExpressionNode {
             .plusMinutes(interval.getMinutes())
             .plusSeconds(interval.getSeconds())
             .plusNanos(1000000L * interval.getMillis()));
-  }
+    }
 }

@@ -23,8 +23,8 @@ import raw.runtime.truffle.runtime.list.ListLibrary;
 @NodeInfo(shortName = "List.Count")
 @NodeChild("list")
 public abstract class ListCountNode extends ExpressionNode {
-  @Specialization(limit = "3")
-  protected long doList(Object list, @CachedLibrary("list") ListLibrary lists) {
-    return lists.size(list);
-  }
+    @Specialization(limit = "3")
+    protected long doList(Object list, @CachedLibrary("list") ListLibrary lists) {
+        return lists.size(list);
+    }
 }

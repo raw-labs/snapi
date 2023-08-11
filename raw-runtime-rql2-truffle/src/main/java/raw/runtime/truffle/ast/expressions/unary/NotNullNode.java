@@ -19,8 +19,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild("value")
 public abstract class NotNullNode extends ExpressionNode {
 
-  @Specialization
-  protected boolean isNotNull(Object value) {
-    return value != null;
-  }
+    @Specialization
+    protected boolean isNotNull(Object value) {
+        return value != null;
+    }
 }

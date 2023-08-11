@@ -23,8 +23,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "newSubString")
 public abstract class StringReplaceNode extends ExpressionNode {
 
-  @Specialization
-  protected String stringReplace(String string, String pattern, String newSubString) {
-    return string.replace(pattern, newSubString);
-  }
+    @Specialization
+    protected String stringReplace(String string, String pattern, String newSubString) {
+        return string.replace(pattern, newSubString);
+    }
 }

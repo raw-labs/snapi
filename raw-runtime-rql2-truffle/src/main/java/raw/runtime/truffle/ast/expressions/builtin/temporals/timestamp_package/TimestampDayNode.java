@@ -21,8 +21,8 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeInfo(shortName = "Timestamp.Day")
 @NodeChild("timestamp")
 public abstract class TimestampDayNode extends ExpressionNode {
-  @Specialization
-  protected int getDay(TimestampObject timestamp) {
-    return timestamp.getTimestamp().getDayOfMonth();
-  }
+    @Specialization
+    protected int getDay(TimestampObject timestamp) {
+        return timestamp.getTimestamp().getDayOfMonth();
+    }
 }

@@ -29,13 +29,13 @@ import java.time.LocalTime;
 @NodeChild("interval")
 public abstract class DateSubtractIntervalNode extends ExpressionNode {
 
-  @Specialization
-  protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
+    @Specialization
+    protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
 
-    LocalDate date = dateObj.getDate();
+        LocalDate date = dateObj.getDate();
 
-    LocalDateTime result =
-        LocalDateTime.of(date, LocalTime.of(0, 0, 0, 0))
+        LocalDateTime result = LocalDateTime
+            .of(date, LocalTime.of(0, 0, 0, 0))
             .minusYears(intervalObj.getYears())
             .minusMonths(intervalObj.getMonths())
             .minusWeeks(intervalObj.getWeeks())
@@ -45,6 +45,6 @@ public abstract class DateSubtractIntervalNode extends ExpressionNode {
             .minusSeconds(intervalObj.getSeconds())
             .minusNanos(1000000L * intervalObj.getMillis());
 
-    return new TimestampObject(result);
-  }
+        return new TimestampObject(result);
+    }
 }

@@ -22,12 +22,11 @@ import raw.runtime.truffle.runtime.primitives.DateObject;
 
 @NodeInfo(shortName = "BooleanWriteJson")
 public class DateWriteJsonNode extends StatementNode {
-  @Child
-  JsonWriteNodes.WriteDateJsonWriterNode writeDate =
-      JsonWriteNodesFactory.WriteDateJsonWriterNodeGen.create();
+    @Child
+    JsonWriteNodes.WriteDateJsonWriterNode writeDate = JsonWriteNodesFactory.WriteDateJsonWriterNodeGen.create();
 
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    writeDate.execute((DateObject) args[0], (JsonGenerator) args[1]);
-  }
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        writeDate.execute((DateObject) args[0], (JsonGenerator) args[1]);
+    }
 }

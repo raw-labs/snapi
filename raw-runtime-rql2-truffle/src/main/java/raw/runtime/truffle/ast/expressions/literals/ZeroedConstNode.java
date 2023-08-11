@@ -29,32 +29,34 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+
 public class ZeroedConstNode extends ExpressionNode {
 
-  Rql2Type type;
+    Rql2Type type;
 
-  public ZeroedConstNode(Rql2Type type) {
-    this.type = type;
-  }
-
-  @Override
-  public final Object executeGeneric(VirtualFrame virtualFrame) {
-    if (this.type instanceof Rql2ByteType) {
-      return (byte) 0;
-    } else if (this.type instanceof Rql2ShortType) {
-      return (short) 0;
-    } else if (this.type instanceof Rql2IntType) {
-      return 0;
-    } else if (this.type instanceof Rql2LongType) {
-      return (long) 0;
-    } else if (this.type instanceof Rql2FloatType) {
-      return (float) 0;
-    } else if (this.type instanceof Rql2DoubleType) {
-      return (double) 0;
-    } else if (this.type instanceof Rql2BoolType) {
-      return false;
-    } else {
-      return null;
+    public ZeroedConstNode(Rql2Type type) {
+        this.type = type;
     }
-  }
+
+    @Override
+    public final Object executeGeneric(VirtualFrame virtualFrame) {
+        if (this.type instanceof Rql2ByteType) {
+            return (byte) 0;
+        } else if (this.type instanceof Rql2ShortType) {
+            return (short) 0;
+        } else if (this.type instanceof Rql2IntType) {
+            return 0;
+        } else if (this.type instanceof Rql2LongType) {
+            return (long) 0;
+        } else if (this.type instanceof Rql2FloatType) {
+            return (float) 0;
+        } else if (this.type instanceof Rql2DoubleType) {
+            return (double) 0;
+        } else if (this.type instanceof Rql2BoolType) {
+            return false;
+        } else {
+            return null;
+        }
+    }
+
 }

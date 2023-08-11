@@ -18,30 +18,32 @@ import com.oracle.truffle.api.nodes.BlockNode;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ExpressionNode;
 
-public final class ExpBlockNode extends ExpressionNode
-    implements BlockNode.ElementExecutor<StatementNode> {
+public final class ExpBlockNode extends ExpressionNode implements BlockNode.ElementExecutor<StatementNode> {
 
-  @Child private BlockNode<StatementNode> block;
+    @Child
+    private BlockNode<StatementNode> block;
 
-  @Child private ExpressionNode expNode;
+    @Child
+    private ExpressionNode expNode;
 
-  public ExpBlockNode(StatementNode[] stmtNodes, ExpressionNode expNode) {
-    this.block = BlockNode.create(stmtNodes, this);
-    this.expNode = expNode;
-  }
+    public ExpBlockNode(StatementNode[] stmtNodes, ExpressionNode expNode) {
+        this.block = BlockNode.create(stmtNodes, this);
+        this.expNode = expNode;
+    }
 
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    // This assertion illustrates that the array length is really a constant during compilation.
-    CompilerAsserts.compilationConstant(block.getElements().length);
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        // This assertion illustrates that the array length is really a constant during compilation.
+        CompilerAsserts.compilationConstant(block.getElements().length);
 
-    this.block.executeVoid(virtualFrame, BlockNode.NO_ARGUMENT);
+        this.block.executeVoid(virtualFrame, BlockNode.NO_ARGUMENT);
 
-    return expNode.executeGeneric(virtualFrame);
-  }
+        return expNode.executeGeneric(virtualFrame);
+    }
 
-  @Override
-  public void executeVoid(VirtualFrame frame, StatementNode node, int index, int argument) {
-    node.executeVoid(frame);
-  }
+    @Override
+    public void executeVoid(VirtualFrame frame, StatementNode node, int index, int argument) {
+        node.executeVoid(frame);
+    }
+
 }

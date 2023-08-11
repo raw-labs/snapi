@@ -24,8 +24,9 @@ import java.math.RoundingMode;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathFloorNode extends ExpressionNode {
 
-  @Specialization
-  protected long decimalCeiling(BigDecimal argument) {
-    return argument.setScale(0, RoundingMode.FLOOR).longValue();
-  }
+    @Specialization
+    protected long decimalCeiling(BigDecimal argument) {
+        return argument.setScale(0, RoundingMode.FLOOR).longValue();
+    }
+
 }

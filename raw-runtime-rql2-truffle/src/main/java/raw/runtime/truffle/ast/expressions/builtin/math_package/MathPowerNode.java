@@ -25,8 +25,10 @@ import java.math.RoundingMode;
 @NodeChild(value = "right", type = ExpressionNode.class)
 public abstract class MathPowerNode extends ExpressionNode {
 
-  @Specialization
-  protected double doublePower(double left, double right) {
-    return Math.pow(left, right);
-  }
+    @Specialization
+    protected double doublePower(double left, double right) {
+        return Math.pow(left, right);
+    }
+
 }
+

@@ -22,23 +22,24 @@ import java.nio.file.Paths;
 
 public class IOUtils {
 
-  public static Path getScratchPath(RuntimeContext context) {
-    Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
-    if (!Files.exists(p)) {
-      try {
-        Files.createDirectories(p);
-      } catch (IOException ex) {
-        throw new RawTruffleRuntimeException("failed to create scratch file");
-      }
+    public static Path getScratchPath(RuntimeContext context) {
+        Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
+        if (!Files.exists(p)) {
+            try {
+                Files.createDirectories(p);
+            } catch (IOException ex) {
+                throw new RawTruffleRuntimeException("failed to create scratch file");
+            }
+        }
+        return p;
     }
-    return p;
-  }
 
-  public static Path getScratchFile(String prefix, String suffix, RuntimeContext context) {
-    try {
-      return Files.createTempFile(getScratchPath(context), prefix, suffix);
-    } catch (IOException ex) {
-      throw new RawTruffleRuntimeException("failed to create scratch file");
+    public static Path getScratchFile(String prefix, String suffix, RuntimeContext context) {
+        try {
+            return Files.createTempFile(getScratchPath(context), prefix, suffix);
+        } catch (IOException ex) {
+            throw new RawTruffleRuntimeException("failed to create scratch file");
+        }
     }
-  }
+
 }

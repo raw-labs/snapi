@@ -31,72 +31,63 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 @ExportLibrary(ComputeNextLibrary.class)
 public class JsonReadComputeNext {
 
-  private final LocationObject locationObject;
-  private JsonParser parser;
-  private final DirectCallNode parseNextCallNode;
-  private final RuntimeContext context;
-  private final String encoding;
+    private final LocationObject locationObject;
+    private JsonParser parser;
+    private final DirectCallNode parseNextCallNode;
+    private final RuntimeContext context;
+    private final String encoding;
 
-  private TruffleCharInputStream stream;
+    private TruffleCharInputStream stream;
 
-  public JsonReadComputeNext(
-      LocationObject locationObject,
-      String encoding,
-      RuntimeContext context,
-      DirectCallNode parseNextCallNode) {
-    this.encoding = encoding;
-    this.context = context;
-    this.locationObject = locationObject;
-    this.parseNextCallNode = parseNextCallNode;
-  }
-
-  @ExportMessage
-  void init(
-      @Cached("create()") JsonParserNodes.InitJsonParserNode initParser,
-      @Cached.Shared("closeParser") @Cached("create()")
-          JsonParserNodes.CloseJsonParserNode closeParser,
-      @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    try {
-      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
-      stream = new TruffleCharInputStream(truffleInputStream, encoding);
-      this.parser = initParser.execute(stream);
-      // move from null to the first token
-      nextToken.execute(parser);
-      // the first token is START_ARRAY so skip it
-      nextToken.execute(parser);
-    } catch (JsonReaderRawTruffleException ex) {
-      JsonReaderRawTruffleException newEx =
-          new JsonReaderRawTruffleException(ex.getMessage(), parser, stream);
-      closeParser.execute(parser);
-      throw newEx;
-    } catch (RawTruffleRuntimeException ex) {
-      closeParser.execute(parser);
-      throw ex;
+    public JsonReadComputeNext(LocationObject locationObject, String encoding, RuntimeContext context, DirectCallNode parseNextCallNode) {
+        this.encoding = encoding;
+        this.context = context;
+        this.locationObject = locationObject;
+        this.parseNextCallNode = parseNextCallNode;
     }
-  }
 
-  @ExportMessage
-  void close(
-      @Cached.Shared("closeParser") @Cached("create()")
-          JsonParserNodes.CloseJsonParserNode closeParser) {
-    closeParser.execute(parser);
-  }
-
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
-
-  @ExportMessage
-  Object computeNext() {
-    try {
-      if (parser.getCurrentToken() != JsonToken.END_ARRAY && parser.getCurrentToken() != null) {
-        return parseNextCallNode.call(parser);
-      } else {
-        throw new BreakException();
-      }
-    } catch (JsonReaderRawTruffleException e) {
-      throw new JsonReaderRawTruffleException(e.getMessage(), stream);
+    @ExportMessage
+    void init(@Cached("create()") JsonParserNodes.InitJsonParserNode initParser,
+              @Cached.Shared("closeParser") @Cached("create()") JsonParserNodes.CloseJsonParserNode closeParser,
+              @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
+        try {
+            TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
+            stream = new TruffleCharInputStream(truffleInputStream, encoding);
+            this.parser = initParser.execute(stream);
+            // move from null to the first token
+            nextToken.execute(parser);
+            // the first token is START_ARRAY so skip it
+            nextToken.execute(parser);
+        } catch (JsonReaderRawTruffleException ex) {
+            JsonReaderRawTruffleException newEx = new JsonReaderRawTruffleException(ex.getMessage(), parser, stream);
+            closeParser.execute(parser);
+            throw newEx;
+        } catch (RawTruffleRuntimeException ex) {
+            closeParser.execute(parser);
+            throw ex;
+        }
     }
-  }
+
+    @ExportMessage
+    void close(@Cached.Shared("closeParser") @Cached("create()") JsonParserNodes.CloseJsonParserNode closeParser) {
+        closeParser.execute(parser);
+    }
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
+    }
+
+    @ExportMessage
+    Object computeNext() {
+        try {
+            if (parser.getCurrentToken() != JsonToken.END_ARRAY && parser.getCurrentToken() != null) {
+                return parseNextCallNode.call(parser);
+            } else {
+                throw new BreakException();
+            }
+        } catch (JsonReaderRawTruffleException e) {
+            throw new JsonReaderRawTruffleException(e.getMessage(), stream);
+        }
+    }
 }

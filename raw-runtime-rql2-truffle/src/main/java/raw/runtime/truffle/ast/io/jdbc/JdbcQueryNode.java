@@ -26,17 +26,16 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @NodeInfo(shortName = "Jdbc.Query")
 public class JdbcQueryNode extends ExpressionNode {
 
-  @Child private ExpressionNode locationExp;
-  @Child private ExpressionNode queryExp;
-  @Child private DirectCallNode makeRow;
+  @Child
+  private ExpressionNode locationExp;
+  @Child
+  private ExpressionNode queryExp;
+  @Child
+  private DirectCallNode makeRow;
 
   private final JdbcExceptionHandler exceptionHandler;
 
-  public JdbcQueryNode(
-      ExpressionNode locationExp,
-      ExpressionNode queryExp,
-      ProgramExpressionNode rowReader,
-      JdbcExceptionHandler exceptionHandler) {
+  public JdbcQueryNode(ExpressionNode locationExp, ExpressionNode queryExp, ProgramExpressionNode rowReader, JdbcExceptionHandler exceptionHandler) {
     this.locationExp = locationExp;
     this.queryExp = queryExp;
     this.makeRow = DirectCallNode.create(rowReader.getCallTarget());

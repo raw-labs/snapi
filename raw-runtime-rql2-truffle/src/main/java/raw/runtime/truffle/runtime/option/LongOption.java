@@ -18,37 +18,38 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class LongOption {
 
-  private long value;
+    private long value;
 
-  private boolean isDefined;
+    private boolean isDefined;
 
-  public LongOption() {
-    this.isDefined = false;
-  }
+    public LongOption() {
+        this.isDefined = false;
+    }
 
-  public LongOption(long value) {
-    this.isDefined = true;
-    this.value = value;
-  }
+    public LongOption(long value) {
+        this.isDefined = true;
+        this.value = value;
+    }
 
-  @ExportMessage
-  boolean isOption() {
-    return true;
-  }
+    @ExportMessage
+    boolean isOption() {
+        return true;
+    }
 
-  @ExportMessage
-  public long get() {
-    return value;
-  }
+    @ExportMessage
+    public long get() {
+        return value;
+    }
 
-  @ExportMessage
-  public void set(Object value) {
-    this.value = (long) value;
-    this.isDefined = true;
-  }
+    @ExportMessage
+    public void set(Object value) {
+        this.value = (long) value;
+        this.isDefined = true;
+    }
 
-  @ExportMessage
-  public boolean isDefined() {
-    return isDefined;
-  }
+    @ExportMessage
+    public boolean isDefined() {
+        return isDefined;
+    }
+
 }

@@ -27,31 +27,34 @@ import java.io.IOException;
 @NodeInfo(shortName = "NullableWriteCsv")
 public class NullableWriteCsvNode extends StatementNode {
 
-  @Child private DirectCallNode valueWriter;
+    @Child
+    private DirectCallNode valueWriter;
 
-  @Child private OptionLibrary options = OptionLibrary.getFactory().createDispatched(3);
+    @Child
+    private OptionLibrary options = OptionLibrary.getFactory().createDispatched(3);
 
-  public NullableWriteCsvNode(ProgramStatementNode valueWriter) {
-    this.valueWriter = DirectCallNode.create(valueWriter.getCallTarget());
-  }
-
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    Object nullable = args[0];
-    CsvGenerator generator = (CsvGenerator) args[1];
-    if (options.isDefined(nullable)) {
-      valueWriter.call(options.get(nullable), generator);
-    } else {
-      doWriteNull(generator);
+    public NullableWriteCsvNode(ProgramStatementNode valueWriter) {
+        this.valueWriter = DirectCallNode.create(valueWriter.getCallTarget());
     }
-  }
 
-  @CompilerDirectives.TruffleBoundary
-  private void doWriteNull(CsvGenerator gen) {
-    try {
-      gen.writeString("null");
-    } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        Object nullable = args[0];
+        CsvGenerator generator = (CsvGenerator) args[1];
+        if (options.isDefined(nullable)) {
+            valueWriter.call(options.get(nullable), generator);
+        } else {
+            doWriteNull(generator);
+        }
     }
-  }
+
+    @CompilerDirectives.TruffleBoundary
+    private void doWriteNull(CsvGenerator gen) {
+        try {
+            gen.writeString("null");
+        } catch (IOException e) {
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+        }
+    }
 }

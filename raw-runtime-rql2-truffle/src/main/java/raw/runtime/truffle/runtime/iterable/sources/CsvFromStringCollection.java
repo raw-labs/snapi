@@ -23,26 +23,25 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public class CsvFromStringCollection {
 
-  private final String str;
-  private final DirectCallNode rowParser;
+    private final String str;
+    private final DirectCallNode rowParser;
 
-  private final RawTruffleCsvParserSettings settings;
+    private final RawTruffleCsvParserSettings settings;
 
-  public CsvFromStringCollection(
-      String str, DirectCallNode rowParser, RawTruffleCsvParserSettings settings) {
-    this.str = str;
-    this.rowParser = rowParser;
-    this.settings = settings;
-  }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
+    public CsvFromStringCollection(String str, DirectCallNode rowParser, RawTruffleCsvParserSettings settings) {
+        this.str = str;
+        this.rowParser = rowParser;
+        this.settings = settings;
+    }
 
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(
-        new CsvReadFromStringComputeNext(str, rowParser, settings));
-  }
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
+
+    @ExportMessage
+    Object getGenerator() {
+        return new CollectionAbstractGenerator(new CsvReadFromStringComputeNext(str, rowParser, settings));
+    }
 }

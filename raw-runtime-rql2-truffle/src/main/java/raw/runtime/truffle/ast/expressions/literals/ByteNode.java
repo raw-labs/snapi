@@ -17,19 +17,20 @@ import raw.runtime.truffle.ExpressionNode;
 
 public class ByteNode extends ExpressionNode {
 
-  private final String value;
+    private final String value;
 
-  public ByteNode(String value) {
-    this.value = value;
-  }
+    public ByteNode(String value) {
+        this.value = value;
+    }
 
-  @Override
-  public final byte executeByte(VirtualFrame virtualFrame) {
-    return Byte.parseByte(value);
-  }
+    @Override
+    public final byte executeByte(VirtualFrame virtualFrame) {
+        return Byte.parseByte(value);
+    }
 
-  @Override
-  public final Object executeGeneric(VirtualFrame virtualFrame) {
-    return Byte.parseByte(value);
-  }
+    @Override
+    public final Object executeGeneric(VirtualFrame virtualFrame) {
+        return Byte.parseByte(value);
+    }
+
 }

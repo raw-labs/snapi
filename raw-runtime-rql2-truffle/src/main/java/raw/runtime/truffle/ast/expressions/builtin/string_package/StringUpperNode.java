@@ -21,8 +21,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string")
 public abstract class StringUpperNode extends ExpressionNode {
 
-  @Specialization
-  protected String stringUpper(String string) {
-    return string.toUpperCase();
-  }
+    @Specialization
+    protected String stringUpper(String string) {
+        return string.toUpperCase();
+    }
 }

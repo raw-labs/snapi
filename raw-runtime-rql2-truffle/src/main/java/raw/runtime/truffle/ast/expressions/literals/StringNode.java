@@ -17,14 +17,15 @@ import raw.runtime.truffle.ExpressionNode;
 
 public final class StringNode extends ExpressionNode {
 
-  private final String value;
+    private final String value;
 
-  public StringNode(String value) {
-    this.value = value;
-  }
+    public StringNode(String value) {
+        this.value = value;
+    }
 
-  @Override
-  public final Object executeGeneric(VirtualFrame frame) {
-    return value;
-  }
+    @Override
+    public final Object executeGeneric(VirtualFrame frame) {
+        return value;
+    }
+
 }

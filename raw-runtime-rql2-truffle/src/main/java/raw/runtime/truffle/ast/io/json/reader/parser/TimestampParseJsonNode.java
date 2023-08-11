@@ -26,13 +26,14 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeChild(value = "format")
 public abstract class TimestampParseJsonNode extends ExpressionNode {
 
-  @Specialization
-  protected TimestampObject doParse(
-      VirtualFrame frame,
-      String format,
-      @Cached("create()") JsonParserNodes.ParseTimestampJsonParserNode parse) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser, format);
-  }
+    @Specialization
+    protected TimestampObject doParse(
+            VirtualFrame frame,
+            String format,
+            @Cached("create()") JsonParserNodes.ParseTimestampJsonParserNode parse
+    ) {
+        Object[] args = frame.getArguments();
+        JsonParser parser = (JsonParser) args[0];
+        return parse.execute(parser, format);
+    }
 }

@@ -18,25 +18,27 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class EmptyOption {
 
-  public EmptyOption() {}
+    public EmptyOption() {
+    }
 
-  @ExportMessage
-  boolean isOption() {
-    return true;
-  }
+    @ExportMessage
+    boolean isOption() {
+        return true;
+    }
 
-  @ExportMessage
-  public Object get() {
-    throw new AssertionError("Calling get() on EmptyOption.");
-  }
+    @ExportMessage
+    public Object get() {
+        throw new AssertionError("Calling get() on EmptyOption.");
+    }
 
-  @ExportMessage
-  public void set(Object value) {
-    throw new AssertionError("Calling set() on EmptyOption.");
-  }
+    @ExportMessage
+    public void set(Object value) {
+      throw new AssertionError("Calling set() on EmptyOption.");
+    }
 
-  @ExportMessage
-  public boolean isDefined() {
-    return false;
-  }
+    @ExportMessage
+    public boolean isDefined() {
+        return false;
+    }
+
 }

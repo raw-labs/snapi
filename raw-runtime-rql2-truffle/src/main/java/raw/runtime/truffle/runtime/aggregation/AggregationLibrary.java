@@ -18,20 +18,19 @@ import com.oracle.truffle.api.library.LibraryFactory;
 
 @GenerateLibrary
 public abstract class AggregationLibrary extends Library {
-  static final LibraryFactory<AggregationLibrary> FACTORY =
-      LibraryFactory.resolve(AggregationLibrary.class);
+    static final LibraryFactory<AggregationLibrary> FACTORY = LibraryFactory.resolve(AggregationLibrary.class);
 
-  public static LibraryFactory<AggregationLibrary> getFactory() {
-    return FACTORY;
-  }
+    public static LibraryFactory<AggregationLibrary> getFactory() {
+        return FACTORY;
+    }
 
-  public static AggregationLibrary getUncached() {
-    return FACTORY.getUncached();
-  }
+    public static AggregationLibrary getUncached() {
+        return FACTORY.getUncached();
+    }
 
-  public boolean isAggregation(Object receiver) {
-    return false;
-  }
+    public boolean isAggregation(Object receiver) {
+        return false;
+    }
 
-  public abstract Object aggregate(Object receiver, Object iterable);
+    public abstract Object aggregate(Object receiver, Object iterable);
 }

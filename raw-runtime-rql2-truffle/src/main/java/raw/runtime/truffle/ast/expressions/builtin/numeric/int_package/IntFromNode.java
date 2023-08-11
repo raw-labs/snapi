@@ -21,51 +21,53 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 import java.math.BigDecimal;
 
+
 @NodeInfo(shortName = "Int.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class IntFromNode extends ExpressionNode {
 
-  @Specialization
-  protected int fromByte(byte argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected int fromShort(short argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected int fromInt(int argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected int fromLong(long argument) {
-    return (int) argument;
-  }
-
-  @Specialization
-  protected int fromFloat(float argument) {
-    return (int) argument;
-  }
-
-  @Specialization
-  protected int fromDouble(double argument) {
-    return (int) argument;
-  }
-
-  @Specialization
-  protected int fromDecimal(BigDecimal argument) {
-    return argument.intValue();
-  }
-
-  @Specialization
-  protected ObjectTryable fromString(String argument) {
-    try {
-      return ObjectTryable.BuildSuccess(Integer.parseInt(argument));
-    } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to int");
+    @Specialization
+    protected int fromByte(byte argument) {
+        return argument;
     }
-  }
+
+    @Specialization
+    protected int fromShort(short argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected int fromInt(int argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected int fromLong(long argument) {
+        return (int) argument;
+    }
+
+    @Specialization
+    protected int fromFloat(float argument) {
+        return (int) argument;
+    }
+
+    @Specialization
+    protected int fromDouble(double argument) {
+        return (int) argument;
+    }
+
+    @Specialization
+    protected int fromDecimal(BigDecimal argument) {
+        return argument.intValue();
+    }
+
+    @Specialization
+    protected ObjectTryable fromString(String argument) {
+        try {
+            return ObjectTryable.BuildSuccess(Integer.parseInt(argument));
+        } catch (RuntimeException ex) {
+            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to int");
+        }
+    }
+
 }

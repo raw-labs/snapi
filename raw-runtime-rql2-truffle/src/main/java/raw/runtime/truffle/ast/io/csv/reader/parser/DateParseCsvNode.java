@@ -20,9 +20,10 @@ import raw.runtime.truffle.runtime.primitives.DateObject;
 @NodeInfo(shortName = "DateParseCsv")
 public class DateParseCsvNode extends ExpressionNode {
 
-  public DateObject executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-    return parser.getDate(this);
-  }
+    public DateObject executeGeneric(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+        return parser.getDate(this);
+    }
+
 }

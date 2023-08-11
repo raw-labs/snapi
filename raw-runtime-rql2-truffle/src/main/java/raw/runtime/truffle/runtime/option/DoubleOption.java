@@ -18,37 +18,38 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class DoubleOption {
 
-  private double value;
+    private double value;
 
-  private boolean isDefined;
+    private boolean isDefined;
 
-  public DoubleOption() {
-    this.isDefined = false;
-  }
+    public DoubleOption() {
+        this.isDefined = false;
+    }
 
-  public DoubleOption(double value) {
-    this.isDefined = true;
-    this.value = value;
-  }
+    public DoubleOption(double value) {
+        this.isDefined = true;
+        this.value = value;
+    }
 
-  @ExportMessage
-  boolean isOption() {
-    return true;
-  }
+    @ExportMessage
+    boolean isOption() {
+        return true;
+    }
 
-  @ExportMessage
-  public double get() {
-    return value;
-  }
+    @ExportMessage
+    public double get() {
+        return value;
+    }
 
-  @ExportMessage
-  public void set(Object value) {
-    this.value = (double) value;
-    this.isDefined = true;
-  }
+    @ExportMessage
+    public void set(Object value) {
+        this.value = (double) value;
+        this.isDefined = true;
+    }
 
-  @ExportMessage
-  public boolean isDefined() {
-    return isDefined;
-  }
+    @ExportMessage
+    public boolean isDefined() {
+        return isDefined;
+    }
+
 }

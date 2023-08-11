@@ -30,32 +30,28 @@ import raw.runtime.truffle.runtime.tryable.StringTryable;
 @NodeChild("sep")
 @NodeChild("end")
 public abstract class CollectionMkStringNode extends ExpressionNode {
-  @Specialization(limit = "3")
-  protected StringTryable doCollection(
-      Object iterable,
-      String start,
-      String sep,
-      String end,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators,
-      @CachedLibrary(limit = "1") OperatorLibrary operators) {
-    try {
-      Object generator = iterables.getGenerator(iterable);
-      AddOperator addOperator = new AddOperator();
-      String currentString = start;
-      if (!generators.hasNext(generator)) {
-        return StringTryable.BuildSuccess(start + end);
-      } else {
-        Object next = generators.next(generator);
-        currentString = (String) operators.doOperation(addOperator, currentString, next);
-      }
-      while (generators.hasNext(generator)) {
-        Object next = generators.next(generator);
-        currentString = (String) operators.doOperation(addOperator, currentString + sep, next);
-      }
-      return StringTryable.BuildSuccess(currentString + end);
-    } catch (RawTruffleRuntimeException ex) {
-      return StringTryable.BuildFailure(ex.getMessage());
+    @Specialization(limit = "3")
+    protected StringTryable doCollection(Object iterable, String start, String sep, String end,
+                                         @CachedLibrary("iterable") IterableLibrary iterables,
+                                         @CachedLibrary(limit = "1") GeneratorLibrary generators,
+                                         @CachedLibrary(limit = "1") OperatorLibrary operators) {
+        try {
+            Object generator = iterables.getGenerator(iterable);
+            AddOperator addOperator = new AddOperator();
+            String currentString = start;
+            if (!generators.hasNext(generator)) {
+                return StringTryable.BuildSuccess(start + end);
+            } else {
+                Object next = generators.next(generator);
+                currentString = (String) operators.doOperation(addOperator, currentString, next);
+            }
+            while (generators.hasNext(generator)) {
+                Object next = generators.next(generator);
+                currentString = (String) operators.doOperation(addOperator, currentString + sep, next);
+            }
+            return StringTryable.BuildSuccess(currentString + end);
+        } catch (RawTruffleRuntimeException ex) {
+            return StringTryable.BuildFailure(ex.getMessage());
+        }
     }
-  }
 }

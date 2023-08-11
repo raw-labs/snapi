@@ -22,7 +22,8 @@ import java.util.Map;
 
 public final class ClosureNode extends ExpressionNode {
 
-  @CompilationFinal private final Function function;
+  @CompilationFinal
+  private final Function function;
 
   private final ExpressionNode[] defaultArgumentExps;
 

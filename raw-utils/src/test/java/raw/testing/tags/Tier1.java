@@ -22,4 +22,6 @@ import java.lang.annotation.Target;
 @TagAnnotation
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface Tier1 {}
+public @interface Tier1 {
+}
+

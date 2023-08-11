@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
@@ -25,27 +26,26 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @ExportLibrary(IterableLibrary.class)
 public class RangeCollection {
 
-  final Object computeNext;
+    final Object computeNext;
 
-  public RangeCollection(int start, int end, int step) {
-    computeNext = new IntRangeComputeNext(start, end, step);
-  }
+    public RangeCollection(int start, int end, int step) {
+        computeNext = new IntRangeComputeNext(start, end, step);
+    }
 
-  public RangeCollection(long start, long end, long step) {
-    computeNext = new LongRangeComputeNext(start, end, step);
-  }
+    public RangeCollection(long start, long end, long step) {
+        computeNext = new LongRangeComputeNext(start, end, step);
+    }
 
-  public RangeCollection(TimestampObject start, TimestampObject end, IntervalObject step) {
-    computeNext = new TimestampRangeComputeNext(start, end, step);
-  }
+    public RangeCollection(TimestampObject start, TimestampObject end, IntervalObject step) {
+        computeNext = new TimestampRangeComputeNext(start, end, step);
+    }
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
-
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(computeNext);
-  }
+    @ExportMessage
+    Object getGenerator() {
+        return new CollectionAbstractGenerator(computeNext);
+    }
 }

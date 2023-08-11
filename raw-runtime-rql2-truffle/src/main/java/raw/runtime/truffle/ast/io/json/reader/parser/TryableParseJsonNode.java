@@ -29,35 +29,32 @@ import raw.runtime.truffle.runtime.tryable.ErrorTryable;
 @NodeInfo(shortName = "TryableParseJson")
 public class TryableParseJsonNode extends ExpressionNode {
 
-  @Child private DirectCallNode childDirectCall;
-  private final RuntimeNullableTryableHandler nullableTryableHandler =
-      new RuntimeNullableTryableHandler();
+    @Child
+    private DirectCallNode childDirectCall;
+    private final RuntimeNullableTryableHandler nullableTryableHandler = new RuntimeNullableTryableHandler();
+    @Child
+    private NullableTryableLibrary nullableTryable = NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
-  @Child
-  private NullableTryableLibrary nullableTryable =
-      NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+    @Child
+    private JsonParserNodes.SkipNextJsonParserNode skipNext = JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
 
-  @Child
-  private JsonParserNodes.SkipNextJsonParserNode skipNext =
-      JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
-
-  public TryableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
-    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-  }
-
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-    try {
-      Object result = childDirectCall.call(parser);
-      return nullableTryable.boxTryable(nullableTryableHandler, result);
-    } catch (JsonParserRawTruffleException ex) {
-      try {
-        skipNext.execute(parser);
-      } catch (JsonReaderRawTruffleException e) {
-        return ErrorTryable.BuildFailure(ex.getMessage());
-      }
-      return ErrorTryable.BuildFailure(ex.getMessage());
+    public TryableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
+        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
     }
-  }
+
+    public Object executeGeneric(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JsonParser parser = (JsonParser) args[0];
+        try {
+            Object result = childDirectCall.call(parser);
+            return nullableTryable.boxTryable(nullableTryableHandler, result);
+        } catch (JsonParserRawTruffleException ex) {
+            try {
+                skipNext.execute(parser);
+            } catch (JsonReaderRawTruffleException e) {
+                return ErrorTryable.BuildFailure(ex.getMessage());
+            }
+            return ErrorTryable.BuildFailure(ex.getMessage());
+        }
+    }
 }

@@ -18,20 +18,20 @@ import com.oracle.truffle.api.library.LibraryFactory;
 
 @GenerateLibrary
 public abstract class OperatorLibrary extends Library {
-  static final LibraryFactory<OperatorLibrary> FACTORY =
-      LibraryFactory.resolve(OperatorLibrary.class);
+    static final LibraryFactory<OperatorLibrary> FACTORY = LibraryFactory.resolve(OperatorLibrary.class);
 
-  public static LibraryFactory<OperatorLibrary> getFactory() {
-    return FACTORY;
-  }
+    public static LibraryFactory<OperatorLibrary> getFactory() {
+        return FACTORY;
+    }
 
-  public static OperatorLibrary getUncached() {
-    return FACTORY.getUncached();
-  }
+    public static OperatorLibrary getUncached() {
+        return FACTORY.getUncached();
+    }
 
-  public boolean isAggregator(Object receiver) {
-    return false;
-  }
+    public boolean isAggregator(Object receiver) {
+        return false;
+    }
 
-  public abstract Object doOperation(Object receiver, Object left, Object right);
+    public abstract Object doOperation(Object receiver, Object left, Object right);
+
 }

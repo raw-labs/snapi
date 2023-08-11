@@ -19,8 +19,12 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Represents a test that performs actions against some entity inside a protected network. */
+/**
+ * Represents a test that performs actions against some entity inside a protected network.
+ */
 @TagAnnotation
 @Retention(RetentionPolicy.RUNTIME)
 @Target({ElementType.METHOD, ElementType.TYPE})
-public @interface VPNAccessTest {}
+public @interface VPNAccessTest {
+}
+

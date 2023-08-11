@@ -31,21 +31,21 @@ import java.io.Reader;
 @NodeChild("location")
 @NodeChild("encoding")
 public abstract class StringReadNode extends ExpressionNode {
-  @Specialization
-  protected Object doExecute(LocationObject locationObject, String encoding) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    TruffleInputStream stream = new TruffleInputStream(locationObject, context);
-    try {
-      Reader reader = stream.getReader(encoding);
-      try {
-        return StringTryable.BuildSuccess(IOUtils.toString(reader));
-      } catch (IOException ex) {
-        return StringTryable.BuildFailure(ex.getMessage());
-      } finally {
-        IOUtils.closeQuietly(reader);
-      }
-    } catch (RawTruffleRuntimeException ex) {
-      return StringTryable.BuildFailure(ex.getMessage());
+    @Specialization
+    protected Object doExecute(LocationObject locationObject, String encoding) {
+        RuntimeContext context = RawContext.get(this).getRuntimeContext();
+        TruffleInputStream stream = new TruffleInputStream(locationObject, context);
+        try {
+            Reader reader = stream.getReader(encoding);
+            try {
+                return StringTryable.BuildSuccess(IOUtils.toString(reader));
+            } catch (IOException ex) {
+                return StringTryable.BuildFailure(ex.getMessage());
+            } finally {
+                IOUtils.closeQuietly(reader);
+            }
+        } catch (RawTruffleRuntimeException ex) {
+            return StringTryable.BuildFailure(ex.getMessage());
+        }
     }
-  }
 }

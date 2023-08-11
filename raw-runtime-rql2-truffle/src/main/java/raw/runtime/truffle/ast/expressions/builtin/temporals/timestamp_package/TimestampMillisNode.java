@@ -23,8 +23,8 @@ import java.util.concurrent.TimeUnit;
 @NodeInfo(shortName = "Timestamp.Millis")
 @NodeChild("timestamp")
 public abstract class TimestampMillisNode extends ExpressionNode {
-  @Specialization
-  protected int getMillis(TimestampObject timestamp) {
-    return (int) TimeUnit.NANOSECONDS.toMillis(timestamp.getTimestamp().getNano());
-  }
+    @Specialization
+    protected int getMillis(TimestampObject timestamp) {
+        return (int) TimeUnit.NANOSECONDS.toMillis(timestamp.getTimestamp().getNano());
+    }
 }

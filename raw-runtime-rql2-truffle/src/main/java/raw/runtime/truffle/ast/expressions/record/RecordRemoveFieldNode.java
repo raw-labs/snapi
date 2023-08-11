@@ -27,30 +27,26 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeChild("dropKey")
 public abstract class RecordRemoveFieldNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
-  protected Object doRemoveField(
-      Object record,
-      String dropKey,
-      @CachedLibrary("record") InteropLibrary records,
-      @CachedLibrary(limit = "2") InteropLibrary libraries) {
-    RecordObject newRecord = RawLanguage.get(this).createRecord();
-    try {
-      Object keys = records.getMembers(record);
-      long length = libraries.getArraySize(keys);
-      String member;
-      for (int i = 0; i < length; i++) {
-        member = (String) libraries.readArrayElement(keys, i);
-        if (member.equals(dropKey)) {
-          continue;
+    @Specialization(limit = "3")
+    protected Object doRemoveField(Object record, String dropKey,
+                                   @CachedLibrary("record") InteropLibrary records,
+                                   @CachedLibrary(limit = "2") InteropLibrary libraries) {
+        RecordObject newRecord = RawLanguage.get(this).createRecord();
+        try {
+            Object keys = records.getMembers(record);
+            long length = libraries.getArraySize(keys);
+            String member;
+            for (int i = 0; i < length; i++) {
+                member = (String) libraries.readArrayElement(keys, i);
+                if (member.equals(dropKey)) {
+                    continue;
+                }
+                libraries.writeMember(newRecord, member, records.readMember(record, member));
+            }
+            return newRecord;
+        } catch (UnsupportedMessageException | UnknownIdentifierException | UnsupportedTypeException |
+                 InvalidArrayIndexException e) {
+            throw new RawTruffleInternalErrorException(e, this);
         }
-        libraries.writeMember(newRecord, member, records.readMember(record, member));
-      }
-      return newRecord;
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException
-        | InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
     }
-  }
 }

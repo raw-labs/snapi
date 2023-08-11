@@ -25,9 +25,11 @@ import java.io.OutputStream;
 @NodeInfo(shortName = "Binary.TryableWrite")
 public class TryableBinaryWriterNode extends StatementNode {
 
-  @Child private DirectCallNode innerWriter;
+  @Child
+  private DirectCallNode innerWriter;
 
-  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+  @Child
+  private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
 
   public TryableBinaryWriterNode(ProgramStatementNode innerWriter) {
     this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
@@ -46,4 +48,6 @@ public class TryableBinaryWriterNode extends StatementNode {
       throw new BinaryWriterRawTruffleException(tryables.failure(tryable), this);
     }
   }
+
 }
+

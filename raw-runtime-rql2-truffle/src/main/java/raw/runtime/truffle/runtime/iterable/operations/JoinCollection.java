@@ -26,50 +26,34 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class JoinCollection {
 
-  final Object leftIterable;
-  final Object rightIterable;
-  final Closure predicate;
-  final Closure remap;
-  final Rql2TypeWithProperties rightType;
-  final RuntimeContext context;
-  final RawLanguage language;
-  private final Boolean reshapeBeforePredicate;
+    final Object leftIterable;
+    final Object rightIterable;
+    final Closure predicate;
+    final Closure remap;
+    final Rql2TypeWithProperties rightType;
+    final RuntimeContext context;
+    final RawLanguage language;
+    private final Boolean reshapeBeforePredicate;
 
-  public JoinCollection(
-      Object leftIterable,
-      Object rightIterable,
-      Closure remap,
-      Closure predicate,
-      Rql2TypeWithProperties rightType,
-      Boolean reshapeBeforePredicate,
-      RuntimeContext context,
-      RawLanguage language) {
-    this.leftIterable = leftIterable;
-    this.rightIterable = rightIterable;
-    this.remap = remap;
-    this.predicate = predicate;
-    this.rightType = rightType;
-    this.context = context;
-    this.language = language;
-    this.reshapeBeforePredicate = reshapeBeforePredicate;
-  }
+    public JoinCollection(Object leftIterable, Object rightIterable, Closure remap, Closure predicate, Rql2TypeWithProperties rightType, Boolean reshapeBeforePredicate, RuntimeContext context, RawLanguage language) {
+        this.leftIterable = leftIterable;
+        this.rightIterable = rightIterable;
+        this.remap = remap;
+        this.predicate = predicate;
+        this.rightType = rightType;
+        this.context = context;
+        this.language = language;
+        this.reshapeBeforePredicate = reshapeBeforePredicate;
+    }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
 
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(
-        new JoinComputeNext(
-            leftIterable,
-            rightIterable,
-            remap,
-            predicate,
-            reshapeBeforePredicate,
-            rightType,
-            context,
-            language));
-  }
+    @ExportMessage
+    Object getGenerator() {
+        return new CollectionAbstractGenerator(new JoinComputeNext(leftIterable, rightIterable, remap, predicate, reshapeBeforePredicate, rightType, context, language));
+    }
+
 }

@@ -13,7 +13,9 @@
 package raw.runtime.truffle.runtime.exceptions.json;
 
 public class JsonExpectedNothingException extends JsonParserRawTruffleException {
-  public JsonExpectedNothingException(String token) {
-    super(String.format("unexpected value found, token '%s'", token));
-  }
+    public JsonExpectedNothingException(String token) {
+        super(String.format("unexpected value found, token '%s'", token));
+    }
 }
+
+

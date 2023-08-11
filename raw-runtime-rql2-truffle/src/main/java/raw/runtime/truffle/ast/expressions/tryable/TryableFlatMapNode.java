@@ -25,21 +25,22 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeChild("function")
 public abstract class TryableFlatMapNode extends ExpressionNode {
 
-  //    here add more guads to try to find object value and then do executeLong instead and call
-  // LongTryable
-  //    that's the only thing I think
-  //    guarguars is tryable and object isSccess and type is null kind of thin
+//    here add more guads to try to find object value and then do executeLong instead and call LongTryable
+//    that's the only thing I think
+//    guarguars is tryable and object isSccess and type is null kind of thin
 
-  @Specialization(guards = "tryables.isTryable(tryable)", limit = "1")
-  protected Object doObject(
-      Object tryable, Closure closure, @CachedLibrary("tryable") TryableLibrary tryables) {
-    if (tryables.isSuccess(tryable)) {
-      Object v = tryables.success(tryable);
-      Object[] argumentValues = new Object[1];
-      argumentValues[0] = v;
-      return closure.call(argumentValues);
-    } else {
-      return tryable;
+    @Specialization(guards = "tryables.isTryable(tryable)", limit = "1")
+    protected Object doObject(Object tryable,
+                              Closure closure,
+                              @CachedLibrary("tryable") TryableLibrary tryables) {
+        if (tryables.isSuccess(tryable)) {
+            Object v = tryables.success(tryable);
+            Object[] argumentValues = new Object[1];
+            argumentValues[0] = v;
+            return closure.call(argumentValues);
+        } else {
+            return tryable;
+        }
     }
-  }
+
 }

@@ -37,17 +37,11 @@ public class JdbcQuery {
   private final JdbcExceptionHandler exceptionHandler;
   private final String url;
 
-  public JdbcQuery(
-      LocationDescription locationDescription,
-      String query,
-      RuntimeContext context,
-      JdbcExceptionHandler exceptionHandler) {
+  public JdbcQuery(LocationDescription locationDescription, String query, RuntimeContext context, JdbcExceptionHandler exceptionHandler) {
     this.exceptionHandler = exceptionHandler;
     this.url = locationDescription.url();
     try {
-      connection =
-          JdbcLocationProvider.build(locationDescription, context.sourceContext())
-              .getJdbcConnection();
+      connection = JdbcLocationProvider.build(locationDescription, context.sourceContext()).getJdbcConnection();
       PreparedStatement stmt;
       try {
         stmt = connection.prepareStatement(query);
@@ -56,8 +50,7 @@ public class JdbcQuery {
         throw exceptionHandler.rewrite(e, this);
       }
     } catch (RawException e) {
-      // exceptions due to location errors (e.g. connection failures) are turned into runtime
-      // exceptions.
+      // exceptions due to location errors (e.g. connection failures) are turned into runtime exceptions.
       throw new JdbcReaderRawTruffleException(e.getMessage(), this, e, null);
     }
   }
@@ -69,6 +62,7 @@ public class JdbcQuery {
         connection.close();
       } catch (SQLException ignored) {
       }
+
     }
   }
 
@@ -213,4 +207,6 @@ public class JdbcQuery {
   public String location() {
     return url;
   }
+
+
 }

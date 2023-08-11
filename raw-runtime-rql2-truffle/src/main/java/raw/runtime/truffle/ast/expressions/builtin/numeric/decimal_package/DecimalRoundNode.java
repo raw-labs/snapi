@@ -25,13 +25,14 @@ import java.math.MathContext;
 @NodeChild(value = "precession", type = ExpressionNode.class)
 public abstract class DecimalRoundNode extends ExpressionNode {
 
-  @Specialization
-  protected BigDecimal fromInt(int argument, int precession) {
-    return (new BigDecimal(argument)).round(new MathContext(precession + 1));
-  }
+    @Specialization
+    protected BigDecimal fromInt(int argument, int precession) {
+        return (new BigDecimal(argument)).round(new MathContext(precession + 1));
+    }
 
-  @Specialization
-  protected BigDecimal fromBigDecimal(BigDecimal argument, int precession) {
-    return argument.round(new MathContext(precession + 1));
-  }
+    @Specialization
+    protected BigDecimal fromBigDecimal(BigDecimal argument, int precession) {
+        return argument.round(new MathContext(precession + 1));
+    }
+
 }

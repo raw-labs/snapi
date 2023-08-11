@@ -27,13 +27,14 @@ import java.util.regex.PatternSyntaxException;
 @NodeChild(value = "replacement")
 public abstract class RegexReplaceNode extends ExpressionNode {
 
-  @Specialization
-  protected ObjectTryable regexReplace(String string, String regex, String replacement) {
-    try {
-      Pattern pattern = RegexCache.get(regex);
-      return ObjectTryable.BuildSuccess(pattern.matcher(string).replaceAll(replacement));
-    } catch (PatternSyntaxException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+    @Specialization
+    protected ObjectTryable regexReplace(String string, String regex, String replacement) {
+        try {
+            Pattern pattern = RegexCache.get(regex);
+            return ObjectTryable.BuildSuccess(pattern.matcher(string).replaceAll(replacement));
+        } catch (PatternSyntaxException e) {
+            return ObjectTryable.BuildFailure(e.getMessage());
+        }
     }
-  }
 }
+

@@ -27,20 +27,22 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.tryable.LongTryable;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
+
 // A.Z. Need to cache count somehow
 @NodeInfo(shortName = "Collection.Count")
 @NodeChild("parent")
 public abstract class CollectionCountNode extends ExpressionNode {
 
-  @Specialization
-  protected ObjectTryable doCount(
-      Object iterable, @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
-    try {
-      Object aggregation = new SingleAggregation(new CountAggregator());
-      Object result = aggregations.aggregate(aggregation, iterable);
-      return ObjectTryable.BuildSuccess(result);
-    } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+    @Specialization
+    protected ObjectTryable doCount(Object iterable,
+                                    @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
+        try {
+            Object aggregation = new SingleAggregation(new CountAggregator());
+            Object result = aggregations.aggregate(aggregation, iterable);
+            return ObjectTryable.BuildSuccess(result);
+        } catch (RawTruffleRuntimeException ex) {
+            return ObjectTryable.BuildFailure(ex.getMessage());
+        }
     }
-  }
+
 }

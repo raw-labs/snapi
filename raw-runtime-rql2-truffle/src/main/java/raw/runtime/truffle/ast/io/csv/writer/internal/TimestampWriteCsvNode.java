@@ -28,10 +28,8 @@ import java.time.format.DateTimeFormatter;
 public class TimestampWriteCsvNode extends StatementNode {
 
   // two different formatters, depending on whether there are milliseconds or not.
-  private final DateTimeFormatter fmtWithoutMS =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
-  private final DateTimeFormatter fmtWithMS =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+  private final DateTimeFormatter fmtWithoutMS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
+  private final DateTimeFormatter fmtWithMS = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
   @Override
   public void executeVoid(VirtualFrame frame) {

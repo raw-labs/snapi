@@ -18,46 +18,47 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(TryableLibrary.class)
 public final class IntTryable {
 
-  private final int successValue;
-  private final String failureValue;
+    private final int successValue;
+    private final String failureValue;
 
-  public IntTryable(int successValue, String failureValue) {
-    this.successValue = successValue;
-    this.failureValue = failureValue;
-  }
+    public IntTryable(int successValue, String failureValue) {
+        this.successValue = successValue;
+        this.failureValue = failureValue;
+    }
 
-  public static IntTryable BuildSuccess(int successValue) {
-    return new IntTryable(successValue, null);
-  }
+    public static IntTryable BuildSuccess(int successValue) {
+        return new IntTryable(successValue, null);
+    }
 
-  public static IntTryable BuildFailure(String failureValue) {
-    return new IntTryable(0, failureValue);
-  }
+    public static IntTryable BuildFailure(String failureValue) {
+        return new IntTryable(0, failureValue);
+    }
 
-  @ExportMessage
-  boolean isTryable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isTryable() {
+        return true;
+    }
 
-  @ExportMessage
-  public int success() {
-    // assert(isSuccess());
-    return successValue;
-  }
+    @ExportMessage
+    public int success() {
+        //assert(isSuccess());
+        return successValue;
+    }
 
-  @ExportMessage
-  public String failure() {
-    // assert(isFailure());
-    return failureValue;
-  }
+    @ExportMessage
+    public String failure() {
+        //assert(isFailure());
+        return failureValue;
+    }
 
-  @ExportMessage
-  public boolean isSuccess() {
-    return failureValue == null;
-  }
+    @ExportMessage
+    public boolean isSuccess() {
+        return failureValue == null;
+    }
 
-  @ExportMessage
-  public boolean isFailure() {
-    return failureValue != null;
-  }
+    @ExportMessage
+    public boolean isFailure() {
+        return failureValue != null;
+    }
+
 }

@@ -27,54 +27,54 @@ import raw.runtime.truffle.runtime.tryable.*;
 @NodeChild("value")
 public abstract class TryableSuccessNode extends ExpressionNode {
 
-  @Specialization(guards = "options.isOption(option)", limit = "1")
-  protected Object createOptionObject(
-      Object option, @CachedLibrary("option") OptionLibrary options) {
-    return ObjectTryable.BuildSuccess(option);
-  }
+    @Specialization(guards = "options.isOption(option)", limit = "1")
+    protected Object createOptionObject(Object option, @CachedLibrary("option") OptionLibrary options) {
+        return ObjectTryable.BuildSuccess(option);
+    }
 
-  @Specialization
-  protected Object createBoolean(boolean value) {
-    return BooleanTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createBoolean(boolean value) {
+        return BooleanTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createByte(byte value) {
-    return ByteTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createByte(byte value) {
+        return ByteTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createShort(short value) {
-    return ShortTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createShort(short value) {
+        return ShortTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createInt(int value) {
-    return IntTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createInt(int value) {
+        return IntTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createLong(long value) {
-    return LongTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createLong(long value) {
+        return LongTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createFloat(float value) {
-    return FloatTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createFloat(float value) {
+        return FloatTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createDouble(double value) {
-    return DoubleTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createDouble(double value) {
+        return DoubleTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createString(String value) {
-    return StringTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createString(String value) {
+        return StringTryable.BuildSuccess(value);
+    }
 
-  @Specialization
-  protected Object createObject(Object value) {
-    return ObjectTryable.BuildSuccess(value);
-  }
+    @Specialization
+    protected Object createObject(Object value) {
+        return ObjectTryable.BuildSuccess(value);
+    }
+
 }

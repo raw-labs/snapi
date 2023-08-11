@@ -25,8 +25,9 @@ import raw.runtime.truffle.runtime.function.Closure;
 @NodeChild("predicate")
 public abstract class CollectionFilterNode extends ExpressionNode {
 
-  @Specialization
-  protected Object doFilter(Object iterable, Closure predicate) {
-    return new FilterCollection(iterable, predicate);
-  }
+    @Specialization
+    protected Object doFilter(Object iterable, Closure predicate) {
+        return new FilterCollection(iterable, predicate);
+    }
+
 }

@@ -30,49 +30,51 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 @NodeInfo(shortName = "Json.ReadArray")
 public class JsonReadValueNode extends ExpressionNode {
 
-  @Child private ExpressionNode locationExp;
+    @Child
+    private ExpressionNode locationExp;
 
-  @Child private ExpressionNode encodingExp;
+    @Child
+    private ExpressionNode encodingExp;
 
-  @Child private DirectCallNode childDirectCall;
+    @Child
+    private DirectCallNode childDirectCall;
 
-  @Child
-  private InitJsonParserNode initParserNode = JsonParserNodesFactory.InitJsonParserNodeGen.create();
+    @Child
+    private InitJsonParserNode initParserNode = JsonParserNodesFactory.InitJsonParserNodeGen.create();
 
-  @Child
-  private CloseJsonParserNode closeParserNode =
-      JsonParserNodesFactory.CloseJsonParserNodeGen.create();
+    @Child
+    private CloseJsonParserNode closeParserNode = JsonParserNodesFactory.CloseJsonParserNodeGen.create();
 
-  @Child
-  private NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+    @Child
+    private NextTokenJsonParserNode nextTokenNode = JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
-  private JsonParser parser;
+    private JsonParser parser;
 
-  public JsonReadValueNode(
-      ExpressionNode locationExp, ExpressionNode encodingExp, RootNode readerNode) {
-    this.locationExp = locationExp;
-    this.encodingExp = encodingExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
-  }
-
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    try {
-      LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
-      String encoding = (String) encodingExp.executeGeneric(virtualFrame);
-
-      RuntimeContext context = RawContext.get(this).getRuntimeContext();
-      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
-      TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
-
-      parser = initParserNode.execute(stream);
-      nextTokenNode.execute(parser);
-
-      return this.childDirectCall.call(parser);
-    } finally {
-      closeParserNode.execute(parser);
-      parser = null;
+    public JsonReadValueNode(ExpressionNode locationExp,
+                             ExpressionNode encodingExp,
+                             RootNode readerNode) {
+        this.locationExp = locationExp;
+        this.encodingExp = encodingExp;
+        this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
     }
-  }
+
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        try {
+            LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
+            String encoding = (String) encodingExp.executeGeneric(virtualFrame);
+
+            RuntimeContext context = RawContext.get(this).getRuntimeContext();
+            TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
+            TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
+
+            parser = initParserNode.execute(stream);
+            nextTokenNode.execute(parser);
+
+            return this.childDirectCall.call(parser);
+        } finally {
+            closeParserNode.execute(parser);
+            parser = null;
+        }
+    }
 }

@@ -13,10 +13,9 @@
 package raw.runtime.truffle.runtime.exceptions;
 
 import com.oracle.truffle.api.nodes.Node;
-
 public class RawTruffleUnexpectedNullException extends RawTruffleRuntimeException {
 
-  public RawTruffleUnexpectedNullException(Node location) {
-    super("unexpected null value found", location);
-  }
+    public RawTruffleUnexpectedNullException(Node location) {
+        super("unexpected null value found", location);
+    }
 }

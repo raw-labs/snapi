@@ -23,32 +23,34 @@ import raw.runtime.truffle.utils.RawTruffleCharStream;
 
 public class CsvParserOperations {
 
-  @NodeInfo(shortName = "Parser.Initialize")
-  @GenerateUncached
-  public abstract static class InitCsvParserNode extends Node {
+    @NodeInfo(shortName = "Parser.Initialize")
+    @GenerateUncached
+    public abstract static class InitCsvParserNode extends Node {
 
-    public abstract RawTruffleCsvParser execute(Object value, RawTruffleCsvParserSettings settings);
+        public abstract RawTruffleCsvParser execute(Object value, RawTruffleCsvParserSettings settings);
 
-    @Specialization
-    @CompilerDirectives.TruffleBoundary
-    RawTruffleCsvParser initParserFromStream(
-        RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
-      return new RawTruffleCsvParser(stream, settings);
+        @Specialization
+        @CompilerDirectives.TruffleBoundary
+        RawTruffleCsvParser initParserFromStream(RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
+            return new RawTruffleCsvParser(stream, settings);
+        }
+
     }
-  }
 
-  @NodeInfo(shortName = "Parser.Close")
-  @GenerateUncached
-  public abstract static class CloseCsvParserNode extends Node {
+    @NodeInfo(shortName = "Parser.Close")
+    @GenerateUncached
+    public abstract static class CloseCsvParserNode extends Node {
 
-    public abstract void execute(RawTruffleCsvParser parser);
+        public abstract void execute(RawTruffleCsvParser parser);
 
-    @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void closeParserSilently(RawTruffleCsvParser parser) {
-      if (parser != null) {
-        parser.close();
-      }
+        @Specialization
+        @CompilerDirectives.TruffleBoundary
+        void closeParserSilently(RawTruffleCsvParser parser) {
+            if (parser != null) {
+                parser.close();
+            }
+        }
     }
-  }
+
+
 }

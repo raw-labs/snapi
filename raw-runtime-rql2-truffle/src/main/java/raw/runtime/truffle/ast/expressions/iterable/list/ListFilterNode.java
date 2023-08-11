@@ -39,256 +39,187 @@ import java.util.Arrays;
 @NodeField(name = "predicateType", type = Rql2Type.class)
 public abstract class ListFilterNode extends ExpressionNode {
 
-  static final int LIB_LIMIT = 2;
+    static final int LIB_LIMIT = 2;
 
-  protected abstract Rql2Type getResultType();
+    protected abstract Rql2Type getResultType();
 
-  protected abstract Rql2Type getPredicateType();
+    protected abstract Rql2Type getPredicateType();
 
-  @Specialization(
-      guards = {"isByteKind(getResultType())"},
-      limit = "3")
-  protected ByteList doByte(
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    ArrayList<Byte> llist = new ArrayList<>();
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      Boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
-      if (predicate) {
-        llist.add((Byte) argumentValues[0]);
-      }
+    @Specialization(guards = {"isByteKind(getResultType())"}, limit = "3")
+    protected ByteList doByte(Object list, Closure function,
+                              @CachedLibrary("list") ListLibrary lists,
+                              @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                              @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        ArrayList<Byte> llist = new ArrayList<>();
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        Object[] argumentValues = new Object[1];
+        while (generators.hasNext(generator)) {
+            argumentValues[0] = generators.next(generator);
+            Boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+            if (predicate) {
+                llist.add((Byte) argumentValues[0]);
+            }
+        }
+        byte[] values = new byte[llist.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = llist.get(i);
+        }
+        return new ByteList(values);
     }
-    byte[] values = new byte[llist.size()];
-    for (int i = 0; i < values.length; i++) {
-      values[i] = llist.get(i);
-    }
-    return new ByteList(values);
-  }
 
-  @Specialization(
-      guards = {"isShortKind(getResultType())"},
-      limit = "3")
-  protected ShortList doShort(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    ArrayList<Short> llist = new ArrayList<>();
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      Boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
-      if (predicate) {
-        llist.add((Short) argumentValues[0]);
-      }
+    @Specialization(guards = {"isShortKind(getResultType())"}, limit = "3")
+    protected ShortList doShort(VirtualFrame frame, Object list, Closure function,
+                                @CachedLibrary("list") ListLibrary lists,
+                                @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                                @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        ArrayList<Short> llist = new ArrayList<>();
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        Object[] argumentValues = new Object[1];
+        while (generators.hasNext(generator)) {
+            argumentValues[0] = generators.next(generator);
+            Boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+            if (predicate) {
+                llist.add((Short) argumentValues[0]);
+            }
+        }
+        short[] values = new short[llist.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = llist.get(i);
+        }
+        return new ShortList(values);
     }
-    short[] values = new short[llist.size()];
-    for (int i = 0; i < values.length; i++) {
-      values[i] = llist.get(i);
-    }
-    return new ShortList(values);
-  }
 
-  @Specialization(
-      guards = {"isIntKind(getResultType())"},
-      limit = "3")
-  protected IntList doInt(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
-    int[] values =
-        Arrays.stream((int[]) lists.getInnerList(list))
-            .filter(
-                x -> {
-                  argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
-                })
-            .toArray();
-    return new IntList(values);
-  }
-
-  @Specialization(
-      guards = {"isLongKind(getResultType())"},
-      limit = "3")
-  protected LongList doLong(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
-    long[] values =
-        Arrays.stream((long[]) lists.getInnerList(list))
-            .filter(
-                x -> {
-                  argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
-                })
-            .toArray();
-    return new LongList(values);
-  }
-
-  @Specialization(
-      guards = {"isFloatKind(getResultType())"},
-      limit = "3")
-  protected FloatList doFloat(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    ArrayList<Float> llist = new ArrayList<>();
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      Boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
-      if (predicate) {
-        llist.add((Float) argumentValues[0]);
-      }
+    @Specialization(guards = {"isIntKind(getResultType())"}, limit = "3")
+    protected IntList doInt(VirtualFrame frame, Object list, Closure function,
+                            @CachedLibrary("list") ListLibrary lists,
+                            @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                            @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        Object[] argumentValues = new Object[1];
+        int[] values = Arrays.stream((int[]) lists.getInnerList(list)).filter(x -> {
+            argumentValues[0] = generators.next(generator);
+            return NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+        }).toArray();
+        return new IntList(values);
     }
-    float[] values = new float[llist.size()];
-    for (int i = 0; i < values.length; i++) {
-      values[i] = llist.get(i);
-    }
-    return new FloatList(values);
-  }
 
-  @Specialization(
-      guards = {"isDoubleKind(getResultType())"},
-      limit = "3")
-  protected DoubleList doDouble(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
-    double[] values =
-        Arrays.stream((double[]) lists.getInnerList(list))
-            .filter(
-                x -> {
-                  argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
-                })
-            .toArray();
-    return new DoubleList(values);
-  }
+    @Specialization(guards = {"isLongKind(getResultType())"}, limit = "3")
+    protected LongList doLong(VirtualFrame frame, Object list, Closure function,
+                              @CachedLibrary("list") ListLibrary lists,
+                              @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                              @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        Object[] argumentValues = new Object[1];
+        long[] values = Arrays.stream((long[]) lists.getInnerList(list)).filter(x -> {
+            argumentValues[0] = generators.next(generator);
+            return NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+        }).toArray();
+        return new LongList(values);
+    }
 
-  @Specialization(
-      guards = {"isBooleanKind(getResultType())"},
-      limit = "3")
-  protected BooleanList doBoolean(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    ArrayList<Boolean> llist = new ArrayList<>();
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
-      if (predicate) {
-        llist.add((Boolean) argumentValues[0]);
-      }
-    }
-    boolean[] values = new boolean[llist.size()];
-    for (int i = 0; i < values.length; i++) {
-      values[i] = llist.get(i);
-    }
-    return new BooleanList(values);
-  }
+    @Specialization(guards = {"isFloatKind(getResultType())"}, limit = "3")
+    protected FloatList doFloat(VirtualFrame frame, Object list, Closure function,
+                                @CachedLibrary("list") ListLibrary lists,
+                                @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                                @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        ArrayList<Float> llist = new ArrayList<>();
+        Object[] argumentValues = new Object[1];
+        while (generators.hasNext(generator)) {
+            argumentValues[0] = generators.next(generator);
+            Boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+            if (predicate) {
+                llist.add((Float) argumentValues[0]);
+            }
+        }
+        float[] values = new float[llist.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = llist.get(i);
+        }
+        return new FloatList(values);
 
-  @Specialization(
-      guards = {"isStringKind(getResultType())"},
-      limit = "3")
-  protected StringList doString(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    ArrayList<String> llist = new ArrayList<>();
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
-      if (predicate) {
-        llist.add((String) argumentValues[0]);
-      }
     }
-    String[] values = new String[llist.size()];
-    for (int i = 0; i < values.length; i++) {
-      values[i] = llist.get(i);
-    }
-    return new StringList(values);
-  }
 
-  @Specialization(limit = "3")
-  protected ObjectList doObject(
-      VirtualFrame frame,
-      Object list,
-      Closure function,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
-    Object[] values =
-        Arrays.stream((Object[]) lists.getInnerList(list))
-            .filter(
-                x -> {
-                  argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
-                })
-            .toArray();
-    return new ObjectList(values);
-  }
+    @Specialization(guards = {"isDoubleKind(getResultType())"}, limit = "3")
+    protected DoubleList doDouble(VirtualFrame frame, Object list, Closure function,
+                                  @CachedLibrary("list") ListLibrary lists,
+                                  @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                                  @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        Object[] argumentValues = new Object[1];
+        double[] values = Arrays.stream((double[]) lists.getInnerList(list)).filter(x -> {
+            argumentValues[0] = generators.next(generator);
+            return NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+        }).toArray();
+        return new DoubleList(values);
+    }
+
+    @Specialization(guards = {"isBooleanKind(getResultType())"}, limit = "3")
+    protected BooleanList doBoolean(VirtualFrame frame, Object list, Closure function,
+                                    @CachedLibrary("list") ListLibrary lists,
+                                    @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                                    @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        ArrayList<Boolean> llist = new ArrayList<>();
+        Object[] argumentValues = new Object[1];
+        while (generators.hasNext(generator)) {
+            argumentValues[0] = generators.next(generator);
+            boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+            if (predicate) {
+                llist.add((Boolean) argumentValues[0]);
+            }
+        }
+        boolean[] values = new boolean[llist.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = llist.get(i);
+        }
+        return new BooleanList(values);
+
+    }
+
+    @Specialization(guards = {"isStringKind(getResultType())"}, limit = "3")
+    protected StringList doString(VirtualFrame frame, Object list, Closure function,
+                                  @CachedLibrary("list") ListLibrary lists,
+                                  @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                                  @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        ArrayList<String> llist = new ArrayList<>();
+        Object[] argumentValues = new Object[1];
+        while (generators.hasNext(generator)) {
+            argumentValues[0] = generators.next(generator);
+            boolean predicate = NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+            if (predicate) {
+                llist.add((String) argumentValues[0]);
+            }
+        }
+        String[] values = new String[llist.size()];
+        for (int i = 0; i < values.length; i++) {
+            values[i] = llist.get(i);
+        }
+        return new StringList(values);
+    }
+
+    @Specialization(limit = "3")
+    protected ObjectList doObject(VirtualFrame frame, Object list, Closure function,
+                                  @CachedLibrary("list") ListLibrary lists,
+                                  @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
+                                  @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+        Object iterable = lists.toIterable(list);
+        Object generator = iterables.getGenerator(iterable);
+        Object[] argumentValues = new Object[1];
+        Object[] values = Arrays.stream((Object[]) lists.getInnerList(list)).filter(x -> {
+            argumentValues[0] = generators.next(generator);
+            return NullableTryableHandler.handleOptionTriablePredicate(function.call(argumentValues), getPredicateType(), false);
+        }).toArray();
+        return new ObjectList(values);
+    }
+
 }

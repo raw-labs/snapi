@@ -18,46 +18,46 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(TryableLibrary.class)
 public final class ByteTryable {
 
-  private final byte successValue;
-  private final String failureValue;
+    private final byte successValue;
+    private final String failureValue;
 
-  public ByteTryable(byte successValue, String failureValue) {
-    this.successValue = successValue;
-    this.failureValue = failureValue;
-  }
+    public ByteTryable(byte successValue, String failureValue) {
+        this.successValue = successValue;
+        this.failureValue = failureValue;
+    }
 
-  public static ByteTryable BuildSuccess(byte successValue) {
-    return new ByteTryable(successValue, null);
-  }
+    public static ByteTryable BuildSuccess(byte successValue) {
+        return new ByteTryable(successValue, null);
+    }
 
-  public static ByteTryable BuildFailure(String failureValue) {
-    return new ByteTryable((byte) 0, failureValue);
-  }
+    public static ByteTryable BuildFailure(String failureValue) {
+        return new ByteTryable((byte) 0, failureValue);
+    }
 
-  @ExportMessage
-  boolean isTryable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isTryable() {
+        return true;
+    }
 
-  @ExportMessage
-  public byte success() {
-    // assert(isSuccess());
-    return successValue;
-  }
+    @ExportMessage
+    public byte success() {
+        //assert(isSuccess());
+        return successValue;
+    }
 
-  @ExportMessage
-  public String failure() {
-    // assert(isFailure());
-    return failureValue;
-  }
+    @ExportMessage
+    public String failure() {
+        //assert(isFailure());
+        return failureValue;
+    }
 
-  @ExportMessage
-  public boolean isSuccess() {
-    return failureValue == null;
-  }
+    @ExportMessage
+    public boolean isSuccess() {
+        return failureValue == null;
+    }
 
-  @ExportMessage
-  public boolean isFailure() {
-    return failureValue != null;
-  }
+    @ExportMessage
+    public boolean isFailure() {
+        return failureValue != null;
+    }
 }

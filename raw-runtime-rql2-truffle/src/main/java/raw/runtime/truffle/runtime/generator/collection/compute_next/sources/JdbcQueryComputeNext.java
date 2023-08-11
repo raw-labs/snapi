@@ -25,52 +25,48 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @ExportLibrary(ComputeNextLibrary.class)
 public class JdbcQueryComputeNext {
 
-  private final LocationObject dbLocation;
-  private final String query;
-  private final DirectCallNode rowParser;
-  private final RuntimeContext context;
+    private final LocationObject dbLocation;
+    private final String query;
+    private final DirectCallNode rowParser;
+    private final RuntimeContext context;
 
-  private JdbcQuery rs = null;
-  private final JdbcExceptionHandler exceptionHandler;
+    private JdbcQuery rs = null;
+    private final JdbcExceptionHandler exceptionHandler;
 
-  public JdbcQueryComputeNext(
-      LocationObject dbLocation,
-      String query,
-      RuntimeContext context,
-      DirectCallNode rowParser,
-      JdbcExceptionHandler exceptionHandler) {
-    this.context = context;
-    this.dbLocation = dbLocation;
-    this.query = query;
-    this.rowParser = rowParser;
-    this.exceptionHandler = exceptionHandler;
-  }
 
-  @ExportMessage
-  void init() {
-    rs = new JdbcQuery(dbLocation.getLocationDescription(), query, context, exceptionHandler);
-  }
-
-  @ExportMessage
-  void close() {
-    if (rs != null) {
-      rs.close();
-      rs = null;
+    public JdbcQueryComputeNext(LocationObject dbLocation, String query, RuntimeContext context, DirectCallNode rowParser, JdbcExceptionHandler exceptionHandler) {
+        this.context = context;
+        this.dbLocation = dbLocation;
+        this.query = query;
+        this.rowParser = rowParser;
+        this.exceptionHandler = exceptionHandler;
     }
-  }
 
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
-
-  @ExportMessage
-  Object computeNext() {
-    boolean ok = rs.next();
-    if (ok) {
-      return rowParser.call(rs);
-    } else {
-      throw new BreakException();
+    @ExportMessage
+    void init() {
+        rs = new JdbcQuery(dbLocation.getLocationDescription(), query, context, exceptionHandler);
     }
-  }
+
+    @ExportMessage
+    void close() {
+        if (rs != null) {
+            rs.close();
+            rs = null;
+        }
+    }
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
+    }
+
+    @ExportMessage
+    Object computeNext() {
+        boolean ok = rs.next();
+        if (ok) {
+            return rowParser.call(rs);
+        } else {
+            throw new BreakException();
+        }
+    }
 }

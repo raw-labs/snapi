@@ -21,8 +21,8 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeInfo(shortName = "Interval.Weeks")
 @NodeChild("interval")
 public abstract class IntervalWeeksNode extends ExpressionNode {
-  @Specialization
-  protected int getWeeks(IntervalObject interval) {
-    return interval.getWeeks();
-  }
+    @Specialization
+    protected int getWeeks(IntervalObject interval) {
+        return interval.getWeeks();
+    }
 }

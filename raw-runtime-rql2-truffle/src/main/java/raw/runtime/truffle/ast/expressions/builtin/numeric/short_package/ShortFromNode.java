@@ -25,47 +25,48 @@ import java.math.BigDecimal;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class ShortFromNode extends ExpressionNode {
 
-  @Specialization
-  protected short fromByte(byte argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected short fromShort(short argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected short fromInt(int argument) {
-    return (short) argument;
-  }
-
-  @Specialization
-  protected short fromLong(long argument) {
-    return (short) argument;
-  }
-
-  @Specialization
-  protected short fromFloat(float argument) {
-    return (short) argument;
-  }
-
-  @Specialization
-  protected short fromDouble(double argument) {
-    return (short) argument;
-  }
-
-  @Specialization
-  protected short fromDecimal(BigDecimal argument) {
-    return argument.shortValue();
-  }
-
-  @Specialization
-  protected ObjectTryable fromString(String argument) {
-    try {
-      return ObjectTryable.BuildSuccess(Short.parseShort(argument));
-    } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to short");
+    @Specialization
+    protected short fromByte(byte argument) {
+        return argument;
     }
-  }
+
+    @Specialization
+    protected short fromShort(short argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected short fromInt(int argument) {
+        return (short) argument;
+    }
+
+    @Specialization
+    protected short fromLong(long argument) {
+        return (short) argument;
+    }
+
+    @Specialization
+    protected short fromFloat(float argument) {
+        return (short) argument;
+    }
+
+    @Specialization
+    protected short fromDouble(double argument) {
+        return (short) argument;
+    }
+
+    @Specialization
+    protected short fromDecimal(BigDecimal argument) {
+        return argument.shortValue();
+    }
+
+    @Specialization
+    protected ObjectTryable fromString(String argument) {
+        try {
+            return ObjectTryable.BuildSuccess(Short.parseShort(argument));
+        } catch (RuntimeException ex) {
+            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to short");
+        }
+    }
+
 }

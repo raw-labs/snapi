@@ -19,19 +19,22 @@ import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.or.OrObject;
 
 public class TypeMatchNode extends ExpressionNode {
-  @Node.Child private ExpressionNode typeExp;
+    @Node.Child
+    private ExpressionNode typeExp;
 
-  @Node.Children private ExpressionNode[] closureExps;
+    @Node.Children
+    private ExpressionNode[] closureExps;
 
-  public TypeMatchNode(ExpressionNode child, ExpressionNode[] children) {
-    this.typeExp = child;
-    this.closureExps = children;
-  }
+    public TypeMatchNode(ExpressionNode child, ExpressionNode[] children) {
+        this.typeExp = child;
+        this.closureExps = children;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    OrObject orType = (OrObject) this.typeExp.executeGeneric(frame);
+    public Object executeGeneric(VirtualFrame frame) {
+        OrObject orType = (OrObject) this.typeExp.executeGeneric(frame);
 
-    Closure closure = (Closure) closureExps[orType.getIndex()].executeGeneric(frame);
-    return closure.call(orType.getValue());
-  }
+        Closure closure = (Closure) closureExps[orType.getIndex()].executeGeneric(frame);
+        return closure.call(orType.getValue());
+    }
+
 }

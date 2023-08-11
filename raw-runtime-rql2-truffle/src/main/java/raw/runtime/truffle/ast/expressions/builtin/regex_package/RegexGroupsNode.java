@@ -29,32 +29,30 @@ import java.util.regex.PatternSyntaxException;
 @NodeChild(value = "pattern")
 public abstract class RegexGroupsNode extends ExpressionNode {
 
-  @Specialization
-  protected ObjectTryable regexGroups(String string, String regex) {
-    try {
-      Pattern pattern = RegexCache.get(regex);
-      Matcher matcher = pattern.matcher(string);
+    @Specialization
+    protected ObjectTryable regexGroups(String string, String regex) {
+        try {
+            Pattern pattern = RegexCache.get(regex);
+            Matcher matcher = pattern.matcher(string);
 
-      if (matcher.matches()) {
-        // Group zero is the full match
-        StringOption[] groups = new StringOption[matcher.groupCount()];
-        for (int i = 0; i < matcher.groupCount(); i++) {
-          String value = matcher.group(i + 1);
-          if (value == null) {
-            groups[i] = new StringOption();
-          } else {
-            groups[i] = new StringOption(value);
-          }
+            if (matcher.matches()) {
+                // Group zero is the full match
+                StringOption[] groups = new StringOption[matcher.groupCount()];
+                for (int i = 0; i < matcher.groupCount(); i++) {
+                    String value = matcher.group(i+1);
+                    if (value == null) {
+                        groups[i] = new StringOption();
+                    } else {
+                        groups[i] = new StringOption(value);
+                    }
+                }
+                return ObjectTryable.BuildSuccess(new ObjectList(groups));
+            } else {
+                String error = String.format("string '%s' does not match pattern '%s'", string, matcher.pattern().pattern());
+                return ObjectTryable.BuildFailure(error);
+            }
+        } catch (PatternSyntaxException e) {
+            return ObjectTryable.BuildFailure(e.getMessage());
         }
-        return ObjectTryable.BuildSuccess(new ObjectList(groups));
-      } else {
-        String error =
-            String.format(
-                "string '%s' does not match pattern '%s'", string, matcher.pattern().pattern());
-        return ObjectTryable.BuildFailure(error);
-      }
-    } catch (PatternSyntaxException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
     }
-  }
 }

@@ -22,8 +22,8 @@ import java.util.Base64;
 @NodeInfo(shortName = "Binary.FromString")
 @NodeChild(value = "binary")
 public abstract class BinaryFromStringNode extends ExpressionNode {
-  @Specialization
-  protected byte[] doFromString(String str) {
-    return str.getBytes();
-  }
+    @Specialization
+    protected byte[] doFromString(String str) {
+        return str.getBytes();
+    }
 }

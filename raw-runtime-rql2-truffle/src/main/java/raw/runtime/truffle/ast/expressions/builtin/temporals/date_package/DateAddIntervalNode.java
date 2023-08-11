@@ -28,13 +28,13 @@ import java.time.LocalDateTime;
 @NodeChild("interval")
 public abstract class DateAddIntervalNode extends ExpressionNode {
 
-  @Specialization
-  protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
+    @Specialization
+    protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
 
-    LocalDate date = dateObj.getDate();
+        LocalDate date = dateObj.getDate();
 
-    LocalDateTime result =
-        LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0, 0)
+        LocalDateTime result = LocalDateTime
+            .of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0, 0)
             .plusYears(intervalObj.getYears())
             .plusMonths(intervalObj.getMonths())
             .plusWeeks(intervalObj.getWeeks())
@@ -44,6 +44,6 @@ public abstract class DateAddIntervalNode extends ExpressionNode {
             .plusSeconds(intervalObj.getSeconds())
             .plusNanos(1000000L * intervalObj.getMillis());
 
-    return new TimestampObject(result);
-  }
+        return new TimestampObject(result);
+    }
 }

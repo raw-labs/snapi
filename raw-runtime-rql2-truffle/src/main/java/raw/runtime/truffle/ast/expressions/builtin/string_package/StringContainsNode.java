@@ -26,8 +26,9 @@ import java.nio.charset.Charset;
 @NodeChild(value = "s2")
 public abstract class StringContainsNode extends ExpressionNode {
 
-  @Specialization
-  protected Boolean doContains(String s1, String s2) {
-    return s1.contains(s2);
-  }
+    @Specialization
+    protected Boolean doContains(String s1, String s2) {
+        return s1.contains(s2);
+    }
 }
+

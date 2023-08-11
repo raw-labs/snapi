@@ -17,20 +17,20 @@ import java.util.HashMap;
 
 public class DateTimeFormatCache {
 
-  private static final ThreadLocal<HashMap<String, DateTimeFormatter>> formattersCache =
-      new ThreadLocal<>();
+    private static final ThreadLocal<HashMap<String, DateTimeFormatter>> formattersCache = new ThreadLocal<>();
 
-  public static DateTimeFormatter get(String template) throws IllegalArgumentException {
-    HashMap<String, DateTimeFormatter> formatters = formattersCache.get();
-    if (formatters == null) {
-      formatters = new HashMap<>();
-      formattersCache.set(formatters);
+    public static DateTimeFormatter get(String template) throws IllegalArgumentException {
+        HashMap<String, DateTimeFormatter> formatters = formattersCache.get();
+        if (formatters == null) {
+            formatters = new HashMap<>();
+            formattersCache.set(formatters);
+        }
+        DateTimeFormatter entry = formatters.get(template);
+        if (entry == null) {
+            entry = DateTimeFormatter.ofPattern(template);
+            formatters.put(template, entry);
+        }
+        return entry;
     }
-    DateTimeFormatter entry = formatters.get(template);
-    if (entry == null) {
-      entry = DateTimeFormatter.ofPattern(template);
-      formatters.put(template, entry);
-    }
-    return entry;
-  }
+
 }

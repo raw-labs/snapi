@@ -21,38 +21,38 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "%")
 public abstract class ModNode extends BinaryNode {
 
-  @Specialization
-  protected byte mod(byte left, byte right) {
-    return (byte) (left % right);
-  }
+    @Specialization
+    protected byte mod(byte left, byte right) {
+        return (byte) (left % right);
+    }
 
-  @Specialization
-  protected short mod(short left, short right) {
-    return (short) (left % right);
-  }
+    @Specialization
+    protected short mod(short left, short right) {
+        return (short) (left % right);
+    }
 
-  @Specialization
-  protected int mod(int left, int right) {
-    return left % right;
-  }
+    @Specialization
+    protected int mod(int left, int right) {
+        return left % right;
+    }
 
-  @Specialization
-  protected long mod(long left, long right) {
-    return left % right;
-  }
+    @Specialization
+    protected long mod(long left, long right) {
+        return left % right;
+    }
 
-  @Specialization
-  protected float mod(float left, float right) {
-    return left % right;
-  }
+    @Specialization
+    protected float mod(float left, float right) {
+        return left % right;
+    }
 
-  @Specialization
-  protected double mod(double left, double right) {
-    return left % right;
-  }
+    @Specialization
+    protected double mod(double left, double right) {
+        return left % right;
+    }
 
-  @Specialization
-  protected BigDecimal mod(BigDecimal left, BigDecimal right) {
-    return left.remainder(right);
-  }
+    @Specialization
+    protected BigDecimal mod(BigDecimal left, BigDecimal right) {
+        return left.remainder(right);
+    }
 }

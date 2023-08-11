@@ -24,8 +24,8 @@ import java.time.LocalDate;
 @NodeChild("d")
 public abstract class DateFromEpochDayNode extends ExpressionNode {
 
-  @Specialization
-  protected DateObject FromEpochDay(Long d) {
-    return new DateObject(LocalDate.ofEpochDay(d));
-  }
+    @Specialization
+    protected DateObject FromEpochDay(Long d) {
+        return new DateObject(LocalDate.ofEpochDay(d));
+    }
 }

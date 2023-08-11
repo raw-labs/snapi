@@ -23,7 +23,8 @@ import raw.runtime.truffle.runtime.option.ObjectOption;
 @NodeInfo(shortName = "NullableReadJdbcQuery")
 public class NullableReadJdbcQuery extends ExpressionNode {
 
-  @Child private DirectCallNode innerParse;
+  @Child
+  private DirectCallNode innerParse;
   private final String idx;
 
   public NullableReadJdbcQuery(ProgramExpressionNode innerParse, String idx) {
@@ -37,4 +38,5 @@ public class NullableReadJdbcQuery extends ExpressionNode {
     if (rs.isNull(idx, this)) return new EmptyOption();
     else return new ObjectOption(innerParse.call(rs, idx));
   }
+
 }

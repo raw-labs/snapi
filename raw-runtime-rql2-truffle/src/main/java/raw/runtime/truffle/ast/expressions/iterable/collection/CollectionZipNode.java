@@ -23,9 +23,9 @@ import raw.runtime.truffle.runtime.iterable.operations.ZipCollection;
 @NodeChild("parent1")
 @NodeChild("parent2")
 public abstract class CollectionZipNode extends ExpressionNode {
-  @Specialization
-  protected Object doZip(Object iterable1, Object iterable2) {
-    RawLanguage language = RawLanguage.get(this);
-    return new ZipCollection(iterable1, iterable2, language);
-  }
+    @Specialization
+    protected Object doZip(Object iterable1, Object iterable2) {
+        RawLanguage language = RawLanguage.get(this);
+        return new ZipCollection(iterable1, iterable2, language);
+    }
 }

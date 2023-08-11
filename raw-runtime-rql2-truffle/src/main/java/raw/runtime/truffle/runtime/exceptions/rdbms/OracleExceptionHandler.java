@@ -12,4 +12,5 @@
 
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
-public class OracleExceptionHandler extends JdbcExceptionHandler {}
+public class OracleExceptionHandler extends JdbcExceptionHandler {
+}

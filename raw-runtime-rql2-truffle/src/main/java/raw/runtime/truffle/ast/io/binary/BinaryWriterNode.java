@@ -27,22 +27,25 @@ import java.io.OutputStream;
 @NodeInfo(shortName = "Binary.Write")
 public class BinaryWriterNode extends StatementNode {
 
-  @Child private ExpressionNode binaryNode;
+    @Child
+    private ExpressionNode binaryNode;
 
-  @Child private DirectCallNode innerWriter;
+    @Child
+    private DirectCallNode innerWriter;
 
-  public BinaryWriterNode(ExpressionNode binaryNode, ProgramStatementNode innerWriter) {
-    this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
-    this.binaryNode = binaryNode;
-  }
-
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object binaryObject = binaryNode.executeGeneric(frame);
-    try (OutputStream os = RawContext.get(this).getOutput()) {
-      innerWriter.call(binaryObject, os);
-    } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+    public BinaryWriterNode(ExpressionNode binaryNode, ProgramStatementNode innerWriter) {
+        this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
+        this.binaryNode = binaryNode;
     }
-  }
+
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object binaryObject = binaryNode.executeGeneric(frame);
+        try (OutputStream os = RawContext.get(this).getOutput()) {
+            innerWriter.call(binaryObject, os);
+        } catch (IOException e) {
+            throw new RawTruffleRuntimeException(e.getMessage());
+        }
+    }
 }
+

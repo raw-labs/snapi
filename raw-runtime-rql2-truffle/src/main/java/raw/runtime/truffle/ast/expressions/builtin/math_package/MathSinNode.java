@@ -27,8 +27,8 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Math.Sin")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathSinNode extends ExpressionNode {
-  @Specialization
-  protected double doubleSin(double argument) {
-    return Math.sin(argument);
-  }
+    @Specialization
+    protected double doubleSin(double argument) {
+        return Math.sin(argument);
+    }
 }
