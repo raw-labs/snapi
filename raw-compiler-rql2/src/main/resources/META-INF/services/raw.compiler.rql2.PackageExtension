@@ -19,7 +19,6 @@ raw.compiler.rql2.builtin.DoublePackage
 raw.compiler.rql2.builtin.DecimalPackage
 raw.compiler.rql2.builtin.BinaryPackage
 raw.compiler.rql2.builtin.IntervalPackage
-raw.compiler.rql2.builtin.InternalPackage
 raw.compiler.rql2.builtin.JsonPackage
 raw.compiler.rql2.builtin.XmlPackage
 raw.compiler.rql2.builtin.ErrorPackage
