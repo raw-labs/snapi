@@ -47,9 +47,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class BinaryExpPlusTruffleTest extends TruffleCompilerTestContext with BinaryExpPlusTest
 @TruffleTests class BasicStagedCompilerTruffleTest extends TruffleCompilerTestContext with BasicStagedCompilerTest
 @TruffleTests class BinaryExpLtTruffleTest extends TruffleCompilerTestContext with BinaryExpLtTest
-
-// Weird test (perhaps works with RD-9229)
-// class PackageNameTruffleTest extends TruffleCompilerTestContext with PackageNameTest
+@TruffleTests class PackageNameTruffleTest extends TruffleCompilerTestContext with PackageNameTest
 
 // Xml reader
 // class StagedCompilerTruffleTest extends TruffleCompilerTestContext with StagedCompilerTest

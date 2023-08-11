@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
+import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import raw.compiler.base.errors.{BaseError, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
@@ -27,6 +28,17 @@ class JsonPackage extends PackageExtension {
   override def docs: PackageDoc = PackageDoc(
     description = "Library of functions for JSON data."
   )
+
+}
+
+object JsonPackage extends JsonPackage {
+
+  def outputWriteSupport(dataType: Type): Boolean = {
+    everywhere(query[Type] {
+      case _: FunType | _: PackageType | _: PackageEntryType | _: Rql2LocationType => return false;
+    })(dataType)
+    true
+  }
 
 }
 

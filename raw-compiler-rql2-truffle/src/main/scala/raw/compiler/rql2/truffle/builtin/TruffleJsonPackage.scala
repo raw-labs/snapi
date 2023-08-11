@@ -12,7 +12,9 @@
 
 package raw.compiler.rql2.truffle.builtin
 
+import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import com.oracle.truffle.api.frame.FrameDescriptor
+import org.fusesource.hawtjni.runtime.Library
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2.builtin.{ParseJsonEntry, PrintJsonEntry, ReadJsonEntry}
@@ -48,14 +50,14 @@ class TruffleReadJsonEntry extends ReadJsonEntry with TruffleEntryExtension {
       case Rql2IterableType(innerType, _) => new JsonReadCollectionNode(
           unnamedArgs.head.e,
           encoding,
-          JsonRecurse
+          JsonIO
             .recurseJsonParser(innerType.asInstanceOf[Rql2TypeWithProperties], dateFormat, timeFormat, timestampFormat)
         )
       case _ =>
         val parseNode = new JsonReadValueNode(
           unnamedArgs.head.e,
           encoding,
-          JsonRecurse
+          JsonIO
             .recurseJsonParser(t.asInstanceOf[Rql2TypeWithProperties], dateFormat, timeFormat, timestampFormat)
         )
         if (t.asInstanceOf[Rql2TypeWithProperties].props.contains(Rql2IsTryableTypeProperty())) {
@@ -82,7 +84,7 @@ class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
 
     val parseNode = new JsonParseNode(
       unnamedArgs.head.e,
-      JsonRecurse.recurseJsonParser(
+      JsonIO.recurseJsonParser(
         t.asInstanceOf[Rql2TypeWithProperties],
         dateFormat,
         timeFormat,
@@ -100,10 +102,10 @@ class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
 
 class TrufflePrintJsonEntry extends PrintJsonEntry with TruffleEntryExtension {
   override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode =
-    new JsonPrintNode(args.head.e, JsonRecurse.recurseJsonWriter(args.head.t.asInstanceOf[Rql2TypeWithProperties]))
+    new JsonPrintNode(args.head.e, JsonIO.recurseJsonWriter(args.head.t.asInstanceOf[Rql2TypeWithProperties]))
 }
 
-object JsonRecurse {
+object JsonIO {
 
   val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
   val frameDescriptor = new FrameDescriptor()

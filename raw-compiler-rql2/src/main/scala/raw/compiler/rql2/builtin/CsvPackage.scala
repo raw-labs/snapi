@@ -30,6 +30,44 @@ class CsvPackage extends PackageExtension {
 
 }
 
+object CsvPackage extends CsvPackage {
+
+  def outputWriteSupport(dataType: Type): Boolean = {
+    val innerRecordType = dataType match {
+      case Rql2IterableType(rType: Rql2RecordType, iProps) =>
+        if (iProps.nonEmpty) return false;
+        rType
+      case Rql2ListType(rType: Rql2RecordType, iProps) =>
+        if (iProps.nonEmpty) return false;
+        rType
+    }
+    if (innerRecordType.props.nonEmpty) return false;
+
+    def validColumnType(value: Type): Boolean = {
+      value match {
+        case _: Rql2ByteType => true
+        case _: Rql2ShortType => true
+        case _: Rql2IntType => true
+        case _: Rql2LongType => true
+        case _: Rql2FloatType => true
+        case _: Rql2DoubleType => true
+        case _: Rql2DecimalType => true
+        case _: Rql2StringType => true
+        case _: Rql2BoolType => true
+        case _: Rql2DateType => true
+        case _: Rql2TimeType => true
+        case _: Rql2TimestampType => true
+        case _: Rql2IntervalType => true
+        case _: Rql2BinaryType => true
+        case _ => false
+      }
+    }
+
+    innerRecordType.atts.forall(col => validColumnType(col.tipe))
+  }
+
+}
+
 class CsvInferAndReadEntry extends SugarEntryExtension with CsvEntryExtensionHelper {
 
   override def packageName: String = "Csv"

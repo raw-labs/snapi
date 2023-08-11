@@ -24,9 +24,9 @@ import raw.compiler.base.{BaseTree, CompilerContext}
 import raw.compiler.common.source.{Exp, IdnExp, IdnUse, SourceNode, SourceProgram}
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
-import raw.compiler.rql2.builtin.EnvironmentPackageBuilder
+import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, EnvironmentPackageBuilder, JsonPackage, StringPackage}
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonRecurse, TruffleBinaryWriter}
+import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
 import raw.compiler.{base, CompilerException, ErrorMessage, ProgramSettings}
 import raw.runtime.{
@@ -242,8 +242,18 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
     val tree = new Tree(program)(programContext.asInstanceOf[ProgramContext])
     val emitter = new TruffleEmitterImpl(tree)(programContext.asInstanceOf[ProgramContext])
-
     val Rql2Program(methods, me) = tree.root
+    val dataType = tree.analyzer.tipe(me.get)
+    val outputFormat = programContext.settings.getString(ProgramSettings.output_format)
+    outputFormat match {
+      case "csv" => if (!CsvPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+      case "json" => if (!JsonPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+      case "text" => if (!StringPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+      case "binary" => if (!BinaryPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+      case null | "" => // stage compilation
+      case _ => throw new CompilerException("unknown output format")
+    }
+
     methods.foreach(emitter.emitMethod)
     assert(me.isDefined)
     val bodyExp = me.get
@@ -254,10 +264,10 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
     // Wrap output node
 
-    val rootNode: RootNode = programContext.settings.getString(ProgramSettings.output_format) match {
+    val rootNode: RootNode = outputFormat match {
       case "csv" =>
         val lineSeparator = if (programContext.settings.getBoolean("raw.compiler.windows-line-ending")) "\r\n" else "\n"
-        tree.analyzer.tipe(me.get) match {
+        dataType match {
           case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
             assert(rProps.isEmpty)
             assert(iProps.isEmpty)
@@ -290,29 +300,23 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
           frameDescriptor,
           new JsonWriterNode(
             bodyExpNode,
-            JsonRecurse.recurseJsonWriter(tree.analyzer.tipe(me.get).asInstanceOf[Rql2TypeWithProperties])
+            JsonIO.recurseJsonWriter(dataType.asInstanceOf[Rql2TypeWithProperties])
           )
         )
-      case "binary" => tree.analyzer.tipe(me.get) match {
-          case binary: Rql2BinaryType => // nullable or tryable is OK
-            val writer = TruffleBinaryWriter(binary)
-            new ProgramStatementNode(
-              RawLanguage.getCurrentContext.getLanguage,
-              frameDescriptor,
-              new BinaryWriterNode(bodyExpNode, writer)
-            )
-          case _ => throw new CompilerException("unsupported type")
-        }
-      case "text" => tree.analyzer.tipe(me.get) match {
-          case text: Rql2StringType => // nullable or tryable is OK
-            val writer = TruffleBinaryWriter(text)
-            new ProgramStatementNode(
-              RawLanguage.getCurrentContext.getLanguage,
-              frameDescriptor,
-              new BinaryWriterNode(bodyExpNode, writer)
-            )
-          case _ => throw new CompilerException("unsupported type")
-        }
+      case "binary" =>
+        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2BinaryType])
+        new ProgramStatementNode(
+          RawLanguage.getCurrentContext.getLanguage,
+          frameDescriptor,
+          new BinaryWriterNode(bodyExpNode, writer)
+        )
+      case "text" =>
+        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2StringType])
+        new ProgramStatementNode(
+          RawLanguage.getCurrentContext.getLanguage,
+          frameDescriptor,
+          new BinaryWriterNode(bodyExpNode, writer)
+        )
       case null | "" => new ProgramExpressionNode(
           RawLanguage.getCurrentContext.getLanguage,
           frameDescriptor,
@@ -440,6 +444,9 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
         case _: FunType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: Rql2RecordType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
         case _: Rql2LocationType => getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+        case _: PackageType | _: PackageEntryType =>
+          // allocate some space but it won't be used
+          getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
       }
       addSlot(entity, slot)
       WriteLocalVariableNodeGen.create(recurseExp(e), slot, rql2Type)
@@ -506,6 +513,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
   }
 
   override def recurseExp(in: Exp): ExpressionNode = in match {
+    case _ if tipe(in).isInstanceOf[PackageType] || tipe(in).isInstanceOf[PackageEntryType] =>
+      new ZeroedConstNode(Rql2ByteType())
     case TypeExp(t: Rql2Type) => new ZeroedConstNode(t)
     case NullConst() => new OptionNoneNode(tipe(in))
     case BoolConst(v) => new BoolNode(v)
