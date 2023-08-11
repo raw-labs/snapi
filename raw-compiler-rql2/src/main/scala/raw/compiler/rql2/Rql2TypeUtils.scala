@@ -136,48 +136,6 @@ trait Rql2TypeUtils {
     true
   }
 
-  def rql2ToCommonType(t: Type): Type = {
-
-    t match {
-      case Rql2StringType(props) => handleProps(props, StringType())
-      case Rql2BoolType(props) => handleProps(props, BoolType())
-      case Rql2BinaryType(props) => handleProps(props, BinaryType())
-      case Rql2LocationType(props) => handleProps(props, LocationType())
-      case Rql2ByteType(props) => handleProps(props, ByteType())
-      case Rql2ShortType(props) => handleProps(props, ShortType())
-      case Rql2IntType(props) => handleProps(props, IntType())
-      case Rql2LongType(props) => handleProps(props, LongType())
-      case Rql2FloatType(props) => handleProps(props, FloatType())
-      case Rql2DoubleType(props) => handleProps(props, DoubleType())
-      case Rql2DecimalType(props) => handleProps(props, DecimalType())
-      case Rql2DateType(props) => handleProps(props, DateType())
-      case Rql2TimeType(props) => handleProps(props, TimeType())
-      case Rql2TimestampType(props) => handleProps(props, TimestampType())
-      case Rql2IntervalType(props) => handleProps(props, IntervalType())
-      case Rql2RegexType(n, props) => handleProps(props, RegexType(n))
-      case Rql2UndefinedType(props) => handleProps(props, NothingType())
-      case Rql2ListType(innerType, props) => handleProps(props, ListType(rql2ToCommonType(innerType)))
-      case Rql2IterableType(innerType, props) => handleProps(props, IterableType(rql2ToCommonType(innerType)))
-      case Rql2RecordType(atts, props) =>
-        handleProps(props, RecordType(atts.map(att => AttrType(att.idn, rql2ToCommonType(att.tipe)))))
-      case Rql2OrType(types, props) => handleProps(props, OrType(types.map(rql2ToCommonType)))
-      case ExpType(t) => rql2ToCommonType(t)
-      case PackageType(_) => VoidType()
-      case PackageEntryType(_, _) => VoidType()
-    }
-  }
-
-  protected def handleProps(props: Set[Rql2TypeProperty], t: Type): Type = {
-    var r = t
-    if (props.contains(Rql2IsNullableTypeProperty())) {
-      r = OptionType(r)
-    }
-    // TryType is handled last to make sure TryType is at the top.
-    if (props.contains(Rql2IsTryableTypeProperty())) {
-      r = TryType(r)
-    }
-    r
-  }
 }
 
 object Rql2TypeUtils extends Rql2TypeUtils

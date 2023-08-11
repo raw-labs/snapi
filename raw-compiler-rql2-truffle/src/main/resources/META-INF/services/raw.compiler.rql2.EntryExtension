@@ -62,7 +62,6 @@ raw.compiler.rql2.truffle.builtin.TruffleHttpUrlEncode
 raw.compiler.rql2.truffle.builtin.TruffleHttpUrlDecode
 raw.compiler.rql2.truffle.builtin.TruffleIntFromEntry
 raw.compiler.rql2.truffle.builtin.TruffleIntRangeEntry
-raw.compiler.rql2.truffle.builtin.TruffleToCommonInternalEntry
 raw.compiler.rql2.truffle.builtin.TruffleBuildIntervalEntry
 raw.compiler.rql2.truffle.builtin.TruffleIntervalToMillisEntryExtension
 raw.compiler.rql2.truffle.builtin.TruffleIntervalFromMillisEntryExtension
