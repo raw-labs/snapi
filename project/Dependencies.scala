@@ -71,7 +71,7 @@ object Dependencies {
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
-  val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
+  val postgresqlDeps = "org.postgresql" % "postgresql" % "42.6.0"
 
   val mysqlDeps = "mysql" % "mysql-connector-java" % "8.0.32"
 
