@@ -82,9 +82,9 @@ object Dependencies {
   val icuDeps = "com.ibm.icu" % "icu4j" % "72.1"
 
   val poiDeps = Seq(
-    "org.apache.poi" % "poi" % "5.2.2",
-    "org.apache.poi" % "poi-ooxml" % "5.2.2",
-    "org.apache.poi" % "poi-ooxml-lite" % "5.2.2"
+    "org.apache.poi" % "poi" % "5.2.3",
+    "org.apache.poi" % "poi-ooxml" % "5.2.3",
+    "org.apache.poi" % "poi-ooxml-lite" % "5.2.3"
   )
 
   val truffleDeps = Seq(
