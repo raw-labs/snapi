@@ -77,7 +77,7 @@ object Dependencies {
 
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre8"
 
-  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.29"
+  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
 
   val icuDeps = "com.ibm.icu" % "icu4j" % "72.1"
 
