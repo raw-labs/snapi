@@ -65,7 +65,7 @@ object Dependencies {
     "com.fasterxml.jackson.jakarta.rs" % "jackson-jakarta-rs-json-provider" % "2.15.2"
   )
 
-  val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.4"
+  val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5"
 
   val scalaJava8Compat = "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2"
 
