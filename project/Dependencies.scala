@@ -16,8 +16,8 @@ object Dependencies {
 
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.15"
 
-  val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.4.0"
-
+  val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
+  
   val slf4j = Seq(
     "org.slf4j" % "slf4j-api" % "2.0.5",
     "org.slf4j" % "log4j-over-slf4j" % "2.0.5",
