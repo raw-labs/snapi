@@ -141,16 +141,13 @@ To build the project, you will need to install:
 * [sbt](https://www.scala-sbt.org/), the Scala build system;
 * [GraalVM](https://www.graalvm.org/), the JDK compiler required by Snapi.
 
-We recommend using [SDKMAN](https://sdkman.io/) to install:
+We recommend using [SDKMAN](https://sdkman.io/) to install both:
 ```bash
 $ sdk install sbt
+$ sdk install java 17.0.7-graal
 ```
 
-As of the time of writing, GraalVM is not available in SDKMAN.
-Therefore, instead of using SDKMAN for GraalVM, you will need to install GraalVM manually from [here](https://www.graalvm.org/downloads/).
-Choose the latest GraalVM version from the 22.3.x branch.
-
-Once you have both installed, you can build the Snapi command-line REPL using sbt:
+Once you have both installed and have the GraalVM enabled in your console, you can build the Snapi command-line REPL using sbt:
 ```bash
 $ sbt buildSnapi
 ```
