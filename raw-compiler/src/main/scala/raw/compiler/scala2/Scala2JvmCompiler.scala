@@ -212,10 +212,13 @@ class Scala2JvmCompiler(
       val programSourcePath = sourceDir.resolve(idPart1).resolve(idPart2).resolve(id)
       val programClassPath = classDir.resolve(idPart1).resolve(idPart2).resolve(id)
 
-      // Just before emitting the code, check if it already exists.
-      // This could happen if another process concurrently generated this class and we don't know about it.
+      // Just before emitting the code, check if it already exists on DISK.
+      // This could happen if:
+      // a) in the past, a previous run left files on disk that generated this class.
+      // b) another process concurrently generated this class and we don't know about it (?)
       // If this happens, then reload all classes once again - just as we do during startup -, which means the one
-      // we needed is now available. Since we are under a directory lock, this is a safe operation.
+      // we needed is now available. We load all classes because this class may itself depend on other classes.
+      //  Since we are under a directory lock, this is a safe operation.
       if (Files.exists(programClassPath)) {
         logger.debug(s"Found code cache hit for $id. Re-loading all code caches and skipping Scala compilation.")
         // Load everything again.
@@ -252,12 +255,14 @@ class Scala2JvmCompiler(
       if (compilerReporter.hasErrors) {
         val errorMessage =
           if (compilerReporter.cancelled) {
-            logger.warn("Compilation cancelled")
-            "Compilation was cancelled"
+            logger.warn("Compilation cancelled.")
+            "Compilation cancelled"
           } else {
-            val compilerErrors = compilerReporter.infos.mkString("\n")
-            logger.warn(s"Errors during compilation. Compiler output:\n$compilerErrors")
-            compilerErrors
+            logger.warn("Compilation failed.")
+            // Log each error separately as they can be very large.
+            // Concatenating them could failed with "UTF8 String too large".
+            compilerReporter.infos.foreach(info => logger.warn(info.toString()))
+            "Compilation failed"
           }
 
         // The reporter keeps the state between runs, so it must be explicitly reset so that errors from previous
