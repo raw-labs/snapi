@@ -58,6 +58,8 @@ abstract class JvmCompiler(implicit settings: RawSettings) extends StrictLogging
    */
   def compile(id: String, code: => JvmCode): Unit = {
     // Check if class already compiled and loaded.
+    // In that case, do not even add it to the compile queue, where it would be wanting behind other compilations,
+    // which could be for unrelated queries.
     if (isClassCompiled(id)) {
       logger.debug(s"Class $id already compiled and loaded. Reusing.")
       return
@@ -86,11 +88,16 @@ abstract class JvmCompiler(implicit settings: RawSettings) extends StrictLogging
 
   private class CompileTask(id: String, jvmCode: JvmCode) extends Callable[Unit] {
     override def call(): Unit = {
-      // Compile code and obtain jar file.
-      doCompile(id, jvmCode)
+      if (isClassCompiled(id)) {
+        // Another task in this queue compiled the class already just before.
+        logger.debug(s"Class $id already compiled and loaded. Reusing.")
+      } else {
+        // Compile code and obtain jar file.
+        doCompile(id, jvmCode)
 
-      // Now that the jar has been loaded successfully, the class is available for others to use.
-      addClassCompiled(id)
+        // Now that the jar has been loaded successfully, the class is available for others to use.
+        addClassCompiled(id)
+      }
     }
   }
 
