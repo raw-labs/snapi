@@ -255,12 +255,14 @@ class Scala2JvmCompiler(
       if (compilerReporter.hasErrors) {
         val errorMessage =
           if (compilerReporter.cancelled) {
-            logger.warn("Compilation cancelled")
-            "Compilation was cancelled"
+            logger.warn("Compilation cancelled.")
+            "Compilation cancelled"
           } else {
-            val compilerErrors = compilerReporter.infos.mkString("\n")
-            logger.warn(s"Errors during compilation. Compiler output:\n$compilerErrors")
-            compilerErrors
+            logger.warn("Compilation failed.")
+            // Log each error separately as they can be very large.
+            // Concatenating them could failed with "UTF8 String too large".
+            compilerReporter.infos.foreach(info => logger.warn(info.toString()))
+            "Compilation failed"
           }
 
         // The reporter keeps the state between runs, so it must be explicitly reset so that errors from previous
