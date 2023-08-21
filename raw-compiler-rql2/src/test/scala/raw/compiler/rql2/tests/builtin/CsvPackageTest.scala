@@ -17,10 +17,15 @@ import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
 trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
 
+  val ttt = "\"\"\""
+
   private val data = tempFile("""a|b|c
     |1|10|100
     |2|20|200
     |3|30|300""".stripMargin)
+
+  private val dataWithEscaped = tempFile("""a|b|c
+    |1|10|\N""".stripMargin)
 
   private val headerLessData = tempFile("""1|10|100
     |2|20|200
@@ -140,10 +145,8 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     |{3, 30, 300}
     |]""".stripMargin))
 
-  test(rql"""Csv.InferAndRead("$data")""".stripMargin)(it => it should evaluateTo("""[
-    |{a: 1, b: 10, c: 100},
-    |{a: 2, b: 20, c: 200},
-    |{a: 3, b: 30, c: 300}
+  test(rql"""Csv.InferAndRead("$dataWithEscaped")""".stripMargin)(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))
 
   test(rql"""
@@ -480,7 +483,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   // Infer and Parse
-  val ttt = "\"\"\""
+
   test(
     s"""Csv.InferAndParse("1,2,3")"""
   )(_ should evaluateTo("""[{_1: 1, _2: 2, _3: 3}]"""))

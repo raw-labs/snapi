@@ -19,10 +19,11 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode
 import raw.runtime.truffle.ast.expressions.literals.{IntNode, StringNode}
-import raw.runtime.truffle.ast.expressions.option.OptionSomeNodeGen
+import raw.runtime.truffle.ast.expressions.option.{OptionNoneNode, OptionSomeNodeGen}
 import raw.runtime.truffle.ast.io.csv.reader.parser._
 import raw.runtime.truffle.ast.io.csv.writer.internal._
 import raw.runtime.truffle.ast.{ProgramExpressionNode, ProgramStatementNode}
+import raw.runtime.truffle.runtime.option.StringOption
 import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
 
 class TruffleCsvReadEntry extends CsvReadEntry with TruffleEntryExtension {
@@ -53,6 +54,7 @@ class TruffleCsvParseEntry extends CsvParseEntry with TruffleEntryExtension {
 class CsvColumnParser(
     encoding: ExpressionNode,
     skip: ExpressionNode,
+    escape: ExpressionNode,
     delimiter: ExpressionNode,
     quote: ExpressionNode,
     nulls: ExpressionNode,
@@ -76,6 +78,7 @@ class CsvColumnParser(
     val iterableParser = new IterableParseCsvString(
       str,
       skip,
+      escape,
       delimiter,
       quote,
       new ProgramExpressionNode(lang, frameDescriptor, recordParser),
@@ -103,6 +106,7 @@ class CsvColumnParser(
       url,
       encoding,
       skip,
+      escape,
       delimiter,
       quote,
       new ProgramExpressionNode(lang, frameDescriptor, recordParser),
@@ -168,6 +172,7 @@ object CsvColumnParser {
 
     val encoding = arg("encoding").getOrElse(new StringNode("utf-8"))
     val skip = arg("skip").getOrElse(new IntNode("0"))
+    val escape = arg("escape").getOrElse(new OptionNoneNode(Rql2StringType()))
     val delimiter = arg("delimiter").getOrElse(new StringNode(","))
     val quote = arg("quote").getOrElse(OptionSomeNodeGen.create(new StringNode("\"")))
     val nulls =
@@ -176,7 +181,7 @@ object CsvColumnParser {
     val timeFormat = arg("timeFormat").getOrElse(new StringNode("HH:mm[:ss[.SSS]]"))
     val dateFormat = arg("dateFormat").getOrElse(new StringNode("yyyy-M-d"))
     val timestampFormat = arg("timestampFormat").getOrElse(new StringNode("yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]"))
-    new CsvColumnParser(encoding, skip, delimiter, quote, nulls, nans, timeFormat, dateFormat, timestampFormat)
+    new CsvColumnParser(encoding, skip, escape, delimiter, quote, nulls, nans, timeFormat, dateFormat, timestampFormat)
   }
 
 }
