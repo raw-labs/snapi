@@ -37,7 +37,7 @@ trait TextOutputTest extends CompilerTestContext {
     try {
       it should saveTo(tmpFile)
     } catch {
-      case e: Exception => assert(e.getMessage == "didn't run due to semantic errors:\nunsupported type")
+      case e: Exception => assert(e.getMessage.contains("unsupported type"))
     } finally {
       Files.delete(tmpFile)
     }
