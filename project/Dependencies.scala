@@ -38,7 +38,7 @@ object Dependencies {
 
   val ehCache = "org.ehcache" % "ehcache" % "3.10.6"
 
-  val kryo = "com.esotericsoftware" % "kryo" % "5.4.0"
+  val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
   val commonsText = "org.apache.commons" % "commons-text" % "1.10.0"
 
