@@ -399,11 +399,7 @@ public final class JsonWriteNodes {
         LocalTime ts = value.getTime();
         // .format throws DateTimeException if its internal StringBuilder throws an IOException.
         // We consider it as an internal error and let it propagate.
-        if (ts.getNano() != 0) {
-          gen.writeString(fmtWithMS.format(ts));
-        } else {
-          gen.writeString(fmtWithoutMS.format(ts));
-        }
+        gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {
         throw new JsonWriterRawTruffleException(e.getMessage(), this);
       }
