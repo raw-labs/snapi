@@ -233,11 +233,12 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override def doEmit(signature: String, program: SourceProgram)(
       implicit programContext: raw.compiler.base.ProgramContext
   ): Entrypoint = {
-
     logger.debug(s"Output final program is:\n${prettyPrintOutput(program)}")
+
+    // We explicitly create and then enter the context during code emission.
+    // This context will be left on close in the TruffleProgramOutputWriter.
     val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
     ctx.initialize(RawLanguage.ID)
-    // (msb): I am not sure about this but seems it's needed.
     ctx.enter()
 
     val tree = new Tree(program)(programContext.asInstanceOf[ProgramContext])
