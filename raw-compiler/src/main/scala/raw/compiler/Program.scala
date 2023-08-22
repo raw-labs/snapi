@@ -51,8 +51,6 @@ final case class ProgramCrashError(message: String) extends ProgramError
 
 trait ProgramOutputWriter {
 
-  def id: String
-
   /**
    * Writes results to the output stream.
    * Blocks until all results are written, or until the thread is interrupted.

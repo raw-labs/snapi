@@ -13,9 +13,7 @@
 package raw.sources.jdbc.sqlserver
 
 import raw.creds.SqlServerCredential
-import raw.sources.{JdbcCacheKey, LocationDescription, LocationException, SourceContext}
-
-final case class SqlServerCacheKey(cred: SqlServerCredential) extends JdbcCacheKey
+import raw.sources.{LocationDescription, LocationException, SourceContext}
 
 object SqlServerClients {
 

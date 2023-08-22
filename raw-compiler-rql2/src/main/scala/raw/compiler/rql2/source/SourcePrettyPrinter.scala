@@ -18,7 +18,7 @@ import raw.compiler.common
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}
-import raw.utils.{RawUtils, StringEscape}
+import raw.utils.RawUtils
 
 import scala.collection.mutable
 
@@ -129,7 +129,7 @@ trait SourcePrettyPrinter
             case ByteConst(v) => if (RawUtils.endsWithIgnoreCase(v, 'b')) v else s"${v}b"
           }
         case BoolConst(v) => v.toString
-        case StringConst(v) => s""""${StringEscape.descape(v)}""""
+        case StringConst(v) => s""""${RawUtils.descape(v)}""""
         case BinaryConst(bytes) => s"""0x${bytes.map("%02x".format(_)).mkString}"""
       }
     case IfThenElse(e1, e2, e3) => "if" <+> e1 <+> "then" <> nest(line <> e2) <@> "else" <> nest(line <> e3)

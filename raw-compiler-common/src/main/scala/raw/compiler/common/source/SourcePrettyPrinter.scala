@@ -15,7 +15,7 @@ package raw.compiler.common.source
 import raw.compiler.base.CompilerProvider
 import raw.compiler.base.source._
 import raw.compiler.{base, common}
-import raw.utils.StringEscape
+import raw.utils.RawUtils
 
 trait SourcePrettyPrinter extends base.source.SourcePrettyPrinter with common.Keywords {
 
@@ -71,7 +71,7 @@ trait SourcePrettyPrinter extends base.source.SourcePrettyPrinter with common.Ke
     case Eval(r) => r match {
         case RawBridgeImpl(lang, p) =>
           val code = CompilerProvider.prettyPrint(lang, p)
-          method("$eval", s""""$lang"""", s""""${StringEscape.descape(code)}"""")
+          method("$eval", s""""$lang"""", s""""${RawUtils.descape(code)}"""")
         case RawBridgeRef(t, id) =>
           // Used exclusively when creating a program signature while templating code.
           method("$eval", t, id)

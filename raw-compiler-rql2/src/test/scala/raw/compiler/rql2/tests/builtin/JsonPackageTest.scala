@@ -15,8 +15,6 @@ package raw.compiler.rql2.tests.builtin
 import raw.compiler.RQLInterpolator
 import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
-import java.nio.file.Path
-
 trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
 
   override def failServices: Seq[FailAfter] = Seq(

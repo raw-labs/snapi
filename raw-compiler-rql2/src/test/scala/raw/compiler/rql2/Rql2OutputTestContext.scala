@@ -24,7 +24,6 @@ import raw.compiler.rql2.source._
 import raw.{RawTestSuite, SettingsTestContext}
 
 import java.nio.file.Path
-import scala.collection.mutable
 import scala.math.BigDecimal.RoundingMode
 import scala.util.control.NonFatal
 

@@ -24,8 +24,6 @@ import scala.collection.mutable
  */
 abstract class BaseRuntimeContext extends Closeable {
 
-  def id: String
-
   val paramsFromTemplating: mutable.Map[String, ParamValue]
 
   val programsFromTemplating: mutable.Map[String, Entrypoint]
@@ -66,7 +64,6 @@ object RuntimeContext {
  * The implementation of the runtime context.
  */
 class RuntimeContext(
-    val id: String,
     val sourceContext: SourceContext,
     val settings: RawSettings,
     val executionLogger: ExecutionLogger,

@@ -31,6 +31,56 @@ import scala.util.control.NonFatal
 // TODO (msb): Convert to package object?
 object RawUtils extends StrictLogging {
 
+  /**
+   * Convert a user string back to its original "intended" representation.
+   * e.g. if the user types "\t" we get the a single '\t' char out instead of the two byte string "\t".
+   */
+  def escape(s: String): String = {
+    var escapedStr = ""
+    var escape = false
+    for (c <- s) {
+      if (!escape) {
+        if (c == '\\') {
+          escape = true
+        } else {
+          escapedStr += c
+        }
+      } else {
+        escapedStr += (c match {
+          case '\\' => '\\'
+          case '\'' => '\''
+          case '"' => '"'
+          case 'b' => '\b'
+          case 'f' => '\f'
+          case 'n' => '\n'
+          case 'r' => '\r'
+          case 't' => '\t'
+        })
+        escape = false
+      }
+    }
+    escapedStr
+  }
+
+  /** Does the opposite of the method `escape`. */
+  def descape(s: String): String = {
+    var descapedStr = ""
+    for (c <- s) {
+      descapedStr += (c match {
+        case '\\' => "\\\\"
+        case '\'' => "\\'"
+        case '\"' => "\\\""
+        case '\b' => "\\b"
+        case '\f' => "\\f"
+        case '\n' => "\\n"
+        case '\r' => "\\r"
+        case '\t' => "\\t"
+        case _ => c
+      })
+    }
+    descapedStr
+  }
+
   def readEntireFile(path: Path, charset: Charset = StandardCharsets.UTF_8): String = {
     new String(Files.readAllBytes(path), charset)
   }
@@ -264,7 +314,7 @@ object RawUtils extends StrictLogging {
 
   def escapeLanguage(code: String): String = {
     val tquote = "\"\"\""
-    s"""$tquote ${StringEscape.descape(code)} $tquote""".stripMargin
+    s"""$tquote ${RawUtils.descape(code)} $tquote""".stripMargin
   }
 
   def bytesToString(size: Long): String = bytesToString(BigInt(size))

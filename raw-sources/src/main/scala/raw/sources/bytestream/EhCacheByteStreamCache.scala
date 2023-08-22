@@ -22,7 +22,7 @@ import org.ehcache.config.builders.{
 import org.ehcache.config.units.EntryUnit
 import org.ehcache.event.{CacheEvent, CacheEventListener, EventType}
 import org.ehcache.expiry.ExpiryPolicy
-import raw.api.Service
+import raw.api.RawService
 import raw.config.RawSettings
 import raw.sources.{ExpiryAfter, LocationDescription, NoExpiry}
 import raw.utils.RawUtils
@@ -59,7 +59,7 @@ object ByteStreamCache extends StrictLogging {
   }
 }
 
-trait ByteStreamCache extends Service {
+trait ByteStreamCache extends RawService {
   def getInputStream(rawUri: String, desc: LocationDescription)(inputStreamProvider: => InputStream): InputStream
   def cacheCompleteStream(locationDescription: LocationDescription, cachedStream: ByteArrayOutputStream): Unit
 }

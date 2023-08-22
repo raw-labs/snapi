@@ -12,7 +12,7 @@
 
 package raw.creds
 
-import raw.api.{AuthenticatedUser, Service}
+import raw.api.{AuthenticatedUser, RawService}
 import raw.creds.CredentialsService.{bucketNameRegex, credNamePattern}
 
 object CredentialsService {
@@ -59,7 +59,7 @@ object CredentialsService {
   }
 }
 
-trait CredentialsService extends Service {
+trait CredentialsService extends RawService {
 
   /** S3 buckets */
 

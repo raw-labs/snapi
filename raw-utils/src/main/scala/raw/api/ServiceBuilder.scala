@@ -18,6 +18,6 @@ trait ServiceBuilder {
 
   def name: String
 
-  def build(implicit settings: RawSettings): Service
+  def build(implicit settings: RawSettings): RawService
 
 }

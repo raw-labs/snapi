@@ -12,4 +12,4 @@
 
 package raw.api
 
-class ServiceException(message: String, cause: Throwable = null) extends RawException(message, cause)
+class RawServiceException(message: String, cause: Throwable = null) extends RawException(message, cause)

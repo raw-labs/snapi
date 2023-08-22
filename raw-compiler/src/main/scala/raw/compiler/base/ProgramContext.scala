@@ -31,8 +31,6 @@ class ProgramContext(
     val compilerContext: CompilerContext
 ) {
 
-  def id: String = runtimeContext.id
-
   def executionLogger: ExecutionLogger = runtimeContext.executionLogger
 
   ///////////////////////////////////////////////////////////////////////////

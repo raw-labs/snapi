@@ -39,8 +39,6 @@ class TruffleProgramOutputWriter(entrypoint: TruffleEntrypoint)(
 ) extends ProgramOutputWriter
     with StrictLogging {
 
-  override def id: String = programContext.id
-
   override def writeTo(outputStream: OutputStream): Unit = {
     try {
       try {

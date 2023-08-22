@@ -12,7 +12,7 @@
 
 package raw.compiler.common
 
-import raw.api.{AuthenticatedUser, Service}
+import raw.api.{AuthenticatedUser, RawService}
 import raw.compiler.base.ProgramContext
 import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
 import raw.compiler.scala2.{Scala2CompilerContext, Scala2JvmCompiler}
@@ -27,7 +27,7 @@ import raw.utils.RawConcurrentHashMap
 
 import scala.util.control.NonFatal
 
-class CompilerService(implicit settings: RawSettings) extends Service {
+class CompilerService(implicit settings: RawSettings) extends RawService {
 
   private val credentials = CredentialsServiceProvider()
   private val byteStreamCache = ByteStreamCache(settings)
@@ -68,20 +68,18 @@ class CompilerService(implicit settings: RawSettings) extends Service {
 
   def getProgramContext(
       compiler: Compiler,
-      id: String,
       code: String,
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): ProgramContext = {
     val programSettings = compiler.getProgramSettings(code, environment)
     val runtimeContext =
-      getRuntimeContext(compiler, id, maybeArguments, environment, NullExecutionLogger, programSettings)
+      getRuntimeContext(compiler, maybeArguments, environment, NullExecutionLogger, programSettings)
     compiler.getProgramContext(programSettings, runtimeContext)
   }
 
   private def getRuntimeContext(
       compiler: Compiler,
-      id: String,
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
       executionLogger: ExecutionLogger,
@@ -89,7 +87,6 @@ class CompilerService(implicit settings: RawSettings) extends Service {
   ): RuntimeContext = {
     val sourceContext = compiler.compilerContext.sourceContext
     new RuntimeContext(
-      id,
       sourceContext,
       programSettings,
       executionLogger,

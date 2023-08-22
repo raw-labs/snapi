@@ -18,9 +18,9 @@ import java.util.concurrent.LinkedBlockingQueue
 import java.util.concurrent.atomic.AtomicBoolean
 import scala.util.control.NonFatal
 
-object Service extends StrictLogging {
+object RawService extends StrictLogging {
 
-  private[raw] val services = new LinkedBlockingQueue[Service]
+  private[raw] val services = new LinkedBlockingQueue[RawService]
 
   /** Used by main's to stop all created services. */
   def stopAll(): Unit = {
@@ -39,9 +39,9 @@ object Service extends StrictLogging {
  *
  * Used for services (aka. components/modules) that may require centralized stopping.
  */
-trait Service extends StrictLogging {
+trait RawService extends StrictLogging {
 
-  import Service._
+  import RawService._
   protected val stopped = new AtomicBoolean(false)
 
   logger.debug(s"Adding service: $this")

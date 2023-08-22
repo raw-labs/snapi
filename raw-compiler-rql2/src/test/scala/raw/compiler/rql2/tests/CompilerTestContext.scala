@@ -20,9 +20,7 @@ import raw._
 import raw.api.{AuthenticatedUser, InteractiveUser, RawException}
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.common.source.{IdnExp, IdnUse}
 import raw.compiler.common.{Compiler, CompilerService}
-import raw.compiler.rql2.Tree
 import raw.compiler.rql2.source.Rql2Program
 import raw.compiler.{CompilerException, LSPRequest, ProgramEnvironment, ProgramOutputWriter}
 import raw.creds._
@@ -35,7 +33,6 @@ import raw.utils.RawUtils
 import java.io.{ByteArrayOutputStream, FileWriter}
 import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.{Files, Path, StandardOpenOption}
-import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable
 import scala.io.Source
 
@@ -539,11 +536,7 @@ trait CompilerTestContext
   // Helper Functions
   /////////////////////////////////////////////////////////////////////////
 
-  private val queryIdCounter = new AtomicInteger()
-
   private def getCompiler(): Compiler = compilerService.getCompiler(authorizedUser, getQueryEnvironment().language)
-
-  private def getQueryId(): String = s"query_${queryIdCounter.getAndIncrement()}}"
 
   private def getQueryEnvironment(
       scopes: Set[String] = Set.empty,
@@ -564,7 +557,6 @@ trait CompilerTestContext
   ): ProgramContext = {
     compilerService.getProgramContext(
       compiler,
-      getQueryId(),
       code,
       maybeArguments,
       getQueryEnvironment(scopes, options)

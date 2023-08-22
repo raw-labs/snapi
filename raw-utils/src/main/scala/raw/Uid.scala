@@ -12,6 +12,6 @@
 
 package raw
 
-case class Uid(uid: String) extends AnyVal {
+final case class Uid(uid: String) extends AnyVal {
   override def toString: String = uid
 }
