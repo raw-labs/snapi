@@ -266,7 +266,6 @@ lazy val rawUtils = (project in file("raw-utils"))
     libraryDependencies ++= Seq(
       scalaLogging,
       logbackClassic,
-      guava,
       scalaJava8Compat,
       typesafeConfig,
       loki4jAppender,
