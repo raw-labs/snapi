@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.builtin.{SQLServerQueryEntry, SQLServerReadEntry}
+import raw.compiler.rql2.builtin.SQLServerQueryEntry
 import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
@@ -22,12 +22,6 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuil
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.SqlServerExceptionHandler
 import raw.sources.CacheStrategy
-
-class TruffleSQLServerReadEntry extends SQLServerReadEntry with TruffleEntryExtension {
-
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = ???
-
-}
 
 class TruffleSQLServerQueryEntry extends SQLServerQueryEntry with TruffleEntryExtension {
 

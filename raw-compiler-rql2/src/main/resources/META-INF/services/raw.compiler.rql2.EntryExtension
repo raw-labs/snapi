@@ -1,12 +1,17 @@
 raw.compiler.rql2.builtin.MySQLInferAndReadEntry
+raw.compiler.rql2.builtin.MySQLReadEntry
 raw.compiler.rql2.builtin.MySQLInferAndQueryEntry
 raw.compiler.rql2.builtin.OracleInferAndReadEntry
+raw.compiler.rql2.builtin.OracleReadEntry
 raw.compiler.rql2.builtin.OracleInferAndQueryEntry
 raw.compiler.rql2.builtin.PostgreSQLInferAndReadEntry
+raw.compiler.rql2.builtin.PostgreSQLReadEntry
 raw.compiler.rql2.builtin.PostgreSQLInferAndQueryEntry
 raw.compiler.rql2.builtin.SQLServerInferAndReadEntry
+raw.compiler.rql2.builtin.SQLServerReadEntry
 raw.compiler.rql2.builtin.SQLServerInferAndQueryEntry
 raw.compiler.rql2.builtin.SnowflakeInferAndReadEntry
+raw.compiler.rql2.builtin.SnowflakeReadEntry
 raw.compiler.rql2.builtin.SnowflakeInferAndQueryEntry
 raw.compiler.rql2.builtin.CsvInferAndReadEntry
 raw.compiler.rql2.builtin.CsvInferAndParseEntry

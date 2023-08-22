@@ -70,7 +70,6 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
   }
 
   test(s"""SQLServer.InferAndRead("$sqlServRegDb", "$sqlServSchema", "$sqlServTable")""") { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -85,7 +84,6 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string))
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -99,7 +97,6 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""SQLServer.Read("$sqlServRegDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)))""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': An error occurred while converting the varchar value to JDBC data type INTEGER."), y: "y1"},
@@ -113,7 +110,6 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""SQLServer.InferAndRead("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}")""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -128,7 +124,6 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |   host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}" )""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': An error occurred while converting the varchar value to JDBC data type INTEGER."), y: "y1"},
@@ -166,10 +161,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""SQLServer.Read("$sqlServDb", "$sqlServSchema", "$sqlServTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""no credential found for sqlserver: $sqlServDb""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""no credential found for sqlserver: $sqlServDb""".stripMargin))
 
   // server does not exist
   test(
@@ -178,10 +170,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "does-not-exist", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs("""error connecting to database: does-not-exist""".stripMargin)
-  }
+  )(it => it should runErrorAs("""error connecting to database: does-not-exist""".stripMargin))
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
@@ -191,10 +180,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "${sqlServerCreds.password.get.toString}", port = 1234
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""connect timed out: ${sqlServerCreds.host}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""connect timed out: ${sqlServerCreds.host}""".stripMargin))
 
   // No password
   test(
@@ -203,10 +189,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${sqlServerCreds.host}"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs("""Login failed for user ''""".stripMargin)
-  }
+  )(it => it should runErrorAs("""Login failed for user ''""".stripMargin))
 
   // wrong password
   test(
@@ -215,10 +198,7 @@ trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${sqlServerCreds.host}", username = "${sqlServerCreds.username.get.toString}", password = "wrong!"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""Login failed for user '${sqlServerCreds.username.get.toString}'""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""Login failed for user '${sqlServerCreds.username.get.toString}'""".stripMargin))
 
   test(s"""SQLServer.InferAndQuery("$sqlServRegDb", "SELECT * FROM $sqlServSchema.$sqlServTable")""") { it =>
     it should evaluateTo(

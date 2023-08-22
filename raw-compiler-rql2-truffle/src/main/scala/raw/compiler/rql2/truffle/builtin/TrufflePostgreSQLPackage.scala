@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.builtin.{PostgreSQLQueryEntry, PostgreSQLReadEntry}
+import raw.compiler.rql2.builtin.PostgreSQLQueryEntry
 import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
@@ -23,16 +23,11 @@ import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.PostgreSQLExceptionHandler
 import raw.sources.CacheStrategy
 
-class TrufflePostgreSQLReadEntry extends PostgreSQLReadEntry with TruffleEntryExtension {
-
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = ???
-
-}
-
 class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry with TruffleEntryExtension {
 
   override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
     val db = args.head.e
+    val query = args(1).e
     val optionalArgs = args.collect {
       case TruffleArg(e, _, Some(idn)) => idn match {
           case "host" => ("db-host", e)
@@ -53,6 +48,6 @@ class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry with TruffleEntry
       types.toArray,
       CacheStrategy.NoCache
     )
-    TruffleJdbc.query(location, args(1).e, t, new PostgreSQLExceptionHandler())
+    TruffleJdbc.query(location, query, t, new PostgreSQLExceptionHandler())
   }
 }

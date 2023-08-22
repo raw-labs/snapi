@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.builtin.{SnowflakeQueryEntry, SnowflakeReadEntry}
+import raw.compiler.rql2.builtin.SnowflakeQueryEntry
 import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
@@ -22,12 +22,6 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuil
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.SnowflakeExceptionHandler
 import raw.sources.CacheStrategy
-
-class TruffleSnowflakeReadEntry extends SnowflakeReadEntry with TruffleEntryExtension {
-
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = ???
-
-}
 
 class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry with TruffleEntryExtension {
 
