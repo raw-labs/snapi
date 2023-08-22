@@ -31,6 +31,9 @@ import scala.collection.JavaConverters._
 final case class ScalaCode(code: String) extends JvmCode
 
 object Scala2JvmCompiler {
+  private val SCALA2_COMPILER_SETTINGS = "raw.compiler.scala2.settings"
+  private val SCALA2_MAX_CLASSES_ON_STARTUP = "raw.compiler.scala2.max-classes-on-startup"
+  private val SCALA2_CLASSPATH = "raw.compiler.scala2.classpath"
 
   // Unique counter (per prefix).
   private val counterByIdn = mutable.HashMap[String, Int]()
@@ -65,9 +68,9 @@ class Scala2JvmCompiler(
 
   import Scala2JvmCompiler._
 
-  private val compilerCmdSettings = settings.getString("raw.compiler.scala2.settings")
+  private val compilerCmdSettings = settings.getString(SCALA2_COMPILER_SETTINGS)
 
-  private val maxClassesOnStartup = settings.getInt("raw.compiler.scala2.max-classes-on-startup")
+  private val maxClassesOnStartup = settings.getInt(SCALA2_MAX_CLASSES_ON_STARTUP)
 
   // Create a unique base directory
   private val baseDir = Paths
@@ -90,7 +93,7 @@ class Scala2JvmCompiler(
   private def initializeCompiler(): Unit = {
     scalacSettings = new Settings
     scalacSettings.embeddedDefaults(classLoader)
-    settings.getStringList("raw.compiler.scala2.classpath").foreach(p => scalacSettings.classpath.append(p))
+    settings.getStringList(SCALA2_CLASSPATH).foreach(p => scalacSettings.classpath.append(p))
 
     // Needed for running unit tests.
     scalacSettings.usejavacp.value = true

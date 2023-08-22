@@ -19,6 +19,8 @@ import scala.collection.JavaConverters._
 
 object AuthServiceProvider {
 
+  private val AUTH_IMPL = "raw.auth.impl"
+
   private val services = ServiceLoader.load(classOf[AuthServiceBuilder]).asScala.toArray
 
   private var instance: AuthService = _
@@ -43,7 +45,7 @@ object AuthServiceProvider {
     if (services.isEmpty) {
       throw new GenericAuthException("no authentication service available")
     } else if (services.size > 1) {
-      val implClassName = settings.getString("raw.auth.impl")
+      val implClassName = settings.getString(AUTH_IMPL)
       services.find(p => p.name == implClassName) match {
         case Some(builder) => builder.build
         case None => throw new GenericAuthException(s"cannot find authentication service: $implClassName")

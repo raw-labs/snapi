@@ -35,14 +35,20 @@ case class DropboxAuth2TokenResponse(
     refreshToken: Option[String]
 )
 
+object DropboxOAuth2Client {
+  // TODO (msb): This could be given as an option to the credential and therefore removed from here!
+  private val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
+}
+
 class DropboxOAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
+  import DropboxOAuth2Client._
   import OAuth2Client._
 
   // https://www.dropbox.com/developers/documentation/http/documentation#oauth2-token
   logger.debug("Creating new Dropbox OAuth2 client")
 
   // TODO (ns): This could be given as an option to the credential
-  private val clientId = settings.getString("raw.sources.dropbox.clientId")
+  private val clientId = settings.getString(DROPBOX_CLIENT_ID)
 
   private val tokenUri = new URI("https://api.dropbox.com/oauth2/token")
   private val testAccessUri = new URI("https://api.dropboxapi.com/2/users/get_space_usage")

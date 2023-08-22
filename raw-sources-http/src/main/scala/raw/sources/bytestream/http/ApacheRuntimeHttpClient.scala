@@ -37,18 +37,26 @@ import java.util.concurrent.{Executors, TimeUnit}
 final class HttpClientException(message: String, cause: Throwable = null)
     extends ByteStreamException(s"http error: $message", cause)
 
-// TODO (msb): The existence of this is weird; also for the config settings it implies...
+object HttpClientSettings {
+  val HTTP_READ_TIMEOUT = "raw.sources.bytestream.http.read-timeout"
+  val HTTP_CONNECT_TIMEOUT = "raw.sources.bytestream.http.connect-timeout"
+}
+
 object ApacheRuntimeHttpClient {
 
-  // TODO: Transform this into dependency injection. Note that is requires 'settings'.
-  private val initLock = new Object
+  import HttpClientSettings._
+
+  private val HTTP_CONN_POOL_MAX_TOTAL = "raw.sources.bytestream.http.conn-pool-max-total"
+  private val HTTP_CONN_POOL_MAX_PER_ROUTE = "raw.sources.bytestream.http.conn-pool-max-per-route"
+
   private var apacheHttpClient: ApacheHttpClientHolder = _
+  private val apacheHttpClientInitLock = new Object
 
   protected[http] def buildApacheHttpClient(settings: RawSettings): ApacheHttpClientHolder = synchronized {
-    initLock.synchronized {
+    apacheHttpClientInitLock.synchronized {
       // Global Apache Http Client for all instances of HttpClient
       if (apacheHttpClient == null) {
-        val httpReadTimeout = settings.getDuration("raw.sources.bytestream.http.read-timeout", TimeUnit.MILLISECONDS)
+        val httpReadTimeout = settings.getDuration(HTTP_READ_TIMEOUT, TimeUnit.MILLISECONDS)
         val socketConfig = SocketConfig
           .custom()
           .setSoTimeout(Timeout.ofMilliseconds(httpReadTimeout))
@@ -57,8 +65,8 @@ object ApacheRuntimeHttpClient {
         val pool = PoolingHttpClientConnectionManagerBuilder
           .create()
           .setDefaultSocketConfig(socketConfig)
-          .setMaxConnTotal(settings.getInt("raw.sources.bytestream.http.conn-pool-max-total"))
-          .setMaxConnPerRoute(settings.getInt("raw.sources.bytestream.http.conn-pool-max-per-route"))
+          .setMaxConnTotal(settings.getInt(HTTP_CONN_POOL_MAX_TOTAL))
+          .setMaxConnPerRoute(settings.getInt(HTTP_CONN_POOL_MAX_PER_ROUTE))
           .build()
 
         val client = HttpClients
@@ -103,7 +111,7 @@ class ApacheRuntimeHttpClient(
   private val apacheHttpClient = ApacheRuntimeHttpClient.buildApacheHttpClient(settings)
 
   private val requestConfig = {
-    val httpConnectTimeout = settings.getDuration("raw.sources.bytestream.http.connect-timeout", TimeUnit.MILLISECONDS)
+    val httpConnectTimeout = settings.getDuration(HTTP_CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
     RequestConfig
       .custom()
       .setConnectTimeout(Timeout.ofMilliseconds(httpConnectTimeout.toInt))

@@ -46,7 +46,7 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
 
       //(CTM) I am having issues with sql.Time with timezones. I am seeing a shift if the time-zone was not set to UTC.
       // So setting it here according with raw.runtime (snowflake tests set this property to "UTC")
-      val maybeTz = settings.getStringOpt("raw.runtime.time-zone")
+      val maybeTz = settings.getStringOpt(RUNTIME_TIME_ZONE)
       maybeTz.foreach(tz => TimeZone.setDefault(TimeZone.getTimeZone(tz)))
       logger.info(s"current timezone ${TimeZone.getDefault}")
       val conn = DriverManager.getConnection(connectionString, props)

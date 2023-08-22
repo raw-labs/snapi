@@ -24,12 +24,18 @@ import raw.sources.bytestream.SeekableInputStream
 
 import java.io.Reader
 
+object HjsonInferrer {
+  private val HJSON_SAMPLE_SIZE = "raw.inferrer.local.hjson.sample-size"
+}
+
 class HjsonInferrer(implicit protected val sourceContext: SourceContext)
     extends InferrerErrorHandler
     with EncodingInferrer
     with JsonUtils {
 
-  private val defaultSampleSize = settings.getInt("raw.inferrer.local.hjson.sample-size")
+  import HjsonInferrer._
+
+  private val defaultSampleSize = settings.getInt(HJSON_SAMPLE_SIZE)
 
   def infer(
       is: SeekableInputStream,
