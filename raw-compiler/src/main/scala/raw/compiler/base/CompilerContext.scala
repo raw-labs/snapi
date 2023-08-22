@@ -19,11 +19,18 @@ import raw.config.RawSettings
 import raw.sources.SourceContext
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.inferrer.{InferrerException, InferrerProperties, InferrerService, InputFormatDescriptor}
-import raw.runtime.{ExecutionLogger, NullExecutionLogger}
+import raw.runtime.NullExecutionLogger
 import raw.utils.RawUtils
 
 import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
 import scala.concurrent.ExecutionException
+
+object CompilerContext {
+  private val INFERRER_THREAD_POOL_SIZE = "raw.compiler.inferrer.thread-pool-size"
+  private val INFERRER_TIMEOUT = "raw.compiler.inferrer.timeout"
+  private val INFERRER_CACHE_SIZE = "raw.compiler.inferrer.cache-size"
+  private val INFERRER_EXPIRY = "raw.compiler.inferrer.expiry"
+}
 
 /**
  * Contains state that is shared between different programs.
@@ -37,28 +44,19 @@ abstract class CompilerContext(
     implicit val settings: RawSettings
 ) extends StrictLogging {
 
-  private val inferrerThreadPoolSize = settings.getInt("raw.compiler.inferrer.thread-pool-size")
+  import CompilerContext._
+
+  private val inferrerThreadPoolSize = settings.getInt(INFERRER_THREAD_POOL_SIZE)
   private val inferrerThreadPool =
     Executors.newFixedThreadPool(inferrerThreadPoolSize, RawUtils.newThreadFactory("compiler-context-inferrer"))
-  private val inferrerTimeoutMillis = settings.getDuration("raw.compiler.inferrer.timeout").toMillis
-  private val inferrerCacheSize = settings.getInt("raw.compiler.inferrer.cache-size")
-  private val inferrerExpirySeconds = settings.getDuration("raw.compiler.inferrer.expiry").toSeconds
+  private val inferrerTimeoutMillis = settings.getDuration(INFERRER_TIMEOUT).toMillis
+  private val inferrerCacheSize = settings.getInt(INFERRER_CACHE_SIZE)
+  private val inferrerExpirySeconds = settings.getDuration(INFERRER_EXPIRY).toSeconds
 
   def infer(
       properties: InferrerProperties
   ): Either[String, InputFormatDescriptor] = {
     inferCache.get(properties)
-  }
-
-  // RQL compatible call (inferer results aren't cached)
-  def inferNoCache(
-      properties: InferrerProperties
-  )(implicit executionLogger: ExecutionLogger): Either[String, InputFormatDescriptor] = {
-    try {
-      Right(inferrer.infer(properties))
-    } catch {
-      case ex: InferrerException => Left(ex.getMessage)
-    }
   }
 
   private val inferCache: LoadingCache[InferrerProperties, Either[String, InputFormatDescriptor]] = CacheBuilder

@@ -31,14 +31,21 @@ import java.util.Base64
 import scala.collection.mutable
 import scala.collection.mutable.ArrayBuffer
 
-class JiraRESTException(message: String, val statusCode: Int, val cause: Throwable = null)
+class JiraReporterException(message: String, val statusCode: Int, val cause: Throwable = null)
     extends RawException(message, cause)
 
-class NotFoundJiraException(message: String) extends JiraRESTException(message, HttpStatus.SC_NOT_FOUND)
+class NotFoundJiraException(message: String) extends JiraReporterException(message, HttpStatus.SC_NOT_FOUND)
 
 object JiraCrashReporter extends StrictLogging {
-  private val defaultComponent = "Compiler"
-  private val baseUri = new URI("https://raw-labs.atlassian.net/rest/api/3/")
+
+  private val JIRA_CONNECTION_TIMEOUT = "raw.jira-crash-reporter.connection-timeout"
+  private val JIRA_USERNAME = "raw.jira-crash-reporter.username"
+  private val JIRA_TOKEN = "raw.jira-crash-reporter.token"
+  private val JIRA_PROJECT = "raw.jira-crash-reporter.project"
+  private val JIRA_COMPONENTS = "raw.jira-crash-reporter.components"
+
+  private val BASE_URI = new URI("https://raw-labs.atlassian.net/rest/api/3/")
+
   private val objectMapper = new ObjectMapper with ClassTagExtensions {
     registerModule(DefaultScalaModule)
     configure(SerializationFeature.INDENT_OUTPUT, true)
@@ -51,7 +58,7 @@ object JiraCrashReporter extends StrictLogging {
    * This version below must have been pre-created in Jira.
    * (Note that versions are persistent objects in Jira, identified by an id, which must be created explicitly).
    */
-  private val DefaultVersion = "0.0.0"
+  private val DEFAULT_VERSION = "0.0.0"
 
   private var _httpClient: HttpClient = _
   private val httpClientInitLock = new Object
@@ -59,7 +66,7 @@ object JiraCrashReporter extends StrictLogging {
   private def httpClient()(implicit settings: RawSettings): HttpClient = {
     httpClientInitLock.synchronized {
       if (_httpClient == null) {
-        val connectionTime = settings.getDuration("raw.jira-crash-reporter.connection-timeout")
+        val connectionTime = settings.getDuration(JIRA_CONNECTION_TIMEOUT)
         if (_httpClient == null) {
           _httpClient = HttpClient.newBuilder
             .version(Version.HTTP_1_1)
@@ -71,22 +78,25 @@ object JiraCrashReporter extends StrictLogging {
     _httpClient
   }
 
+  /**
+   * Create an issue on JIRA. The unique signature will ensure that we won't repeatedly be creating the same issue.
+   */
   def createIssue(
       summary: String,
       description: String,
       maybeVersionName: Option[String],
-      maybeThrowable: Option[Throwable]
+      maybeThrowable: Option[Throwable],
+      uniqueSignature: String
   )(implicit settings: RawSettings): Option[String] = {
-    val maybeUsername = settings.getStringOpt("raw.jira-crash-reporter.username")
-    val maybeToken = settings.getStringOpt("raw.jira-crash-reporter.token", false)
-    val maybeProject = settings.getStringOpt("raw.jira-crash-reporter.project")
-    val components = settings.getStringList("raw.jira-crash-reporter.components")
+    val maybeUsername = settings.getStringOpt(JIRA_USERNAME)
+    val maybeToken = settings.getStringOpt(JIRA_TOKEN, false)
+    val maybeProject = settings.getStringOpt(JIRA_PROJECT)
+    val components = settings.getStringList(JIRA_COMPONENTS)
     (maybeUsername, maybeToken, maybeProject) match {
       case (Some(user), Some(token), Some(project)) =>
         val effectiveComponents =
           if (components.isEmpty) {
-            logger.warn(s"No Jira project component specified. Using default: $defaultComponent")
-            Seq(defaultComponent)
+            throw new AssertionError(s"No JIRA project component specified in the configuration")
           } else {
             components
           }
@@ -100,11 +110,11 @@ object JiraCrashReporter extends StrictLogging {
             } catch {
               case ex: NotFoundJiraException =>
                 logger.info(
-                  s"Could not create new version: $versionName: ${ex.getMessage} Defaulting to $DefaultVersion"
+                  s"Could not create new version: $versionName: ${ex.getMessage} Defaulting to $DEFAULT_VERSION"
                 )
-                issueCreator.getVersionId(DefaultVersion).orElse {
+                issueCreator.getVersionId(DEFAULT_VERSION).orElse {
                   logger.warn(
-                    s"Could not find pre-defined default version: $DefaultVersion. This should have been created in Jira."
+                    s"Could not find pre-defined default version: $DEFAULT_VERSION. This should have been created in Jira."
                   )
                   None
                 }
@@ -140,11 +150,11 @@ private class JiraCrashReporter(username: String, token: String, project: String
   }
 
   private def throwUnexpectedResponse[T](response: HttpResponse[T]): Exception = {
-    new JiraRESTException(s"Unexpected response: ${response.body()}", response.statusCode())
+    new JiraReporterException(s"Unexpected response: ${response.body()}", response.statusCode())
   }
 
   def getProjectId(key: String): Long = {
-    val uri = new URIBuilder(baseUri).appendPath(s"project/$key").build()
+    val uri = new URIBuilder(BASE_URI).appendPath(s"project/$key").build()
     val request = requestBuilder
       .uri(uri)
       .GET()
@@ -161,7 +171,7 @@ private class JiraCrashReporter(username: String, token: String, project: String
   }
 
   def getVersionId(versionName: String): Option[Long] = {
-    val uri = new URIBuilder(baseUri)
+    val uri = new URIBuilder(BASE_URI)
       .appendPath(s"project/$projectId/version")
       .addParameter("query", versionName)
       .build()
@@ -205,7 +215,7 @@ private class JiraCrashReporter(username: String, token: String, project: String
   }
 
   private def getProjectComponents(): Set[String] = {
-    val uri = new URIBuilder(baseUri).appendPathSegments(s"project/$projectId/components").build()
+    val uri = new URIBuilder(BASE_URI).appendPathSegments(s"project/$projectId/components").build()
     val request = requestBuilder
       .uri(uri)
       .GET()
@@ -221,7 +231,7 @@ private class JiraCrashReporter(username: String, token: String, project: String
   }
 
   def createVersion(version: String): Long = {
-    val uri = new URIBuilder(baseUri).appendPath("version").build()
+    val uri = new URIBuilder(BASE_URI).appendPath("version").build()
 
     val data = Map[String, Any](
       "name" -> version,
@@ -255,7 +265,7 @@ private class JiraCrashReporter(username: String, token: String, project: String
       maybeVersionID: Option[Long],
       maybeThrowable: Option[Throwable]
   ): String = {
-    val uri = new URIBuilder(baseUri).appendPath("issue").build()
+    val uri = new URIBuilder(BASE_URI).appendPath("issue").build()
 
     val descriptionText = new StringBuilder(description)
 

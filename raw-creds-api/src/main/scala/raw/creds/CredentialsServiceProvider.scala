@@ -19,6 +19,8 @@ import scala.collection.JavaConverters._
 
 object CredentialsServiceProvider {
 
+  private val CREDS_IMPL = "raw.creds.impl"
+
   private val services = ServiceLoader.load(classOf[CredentialsServiceBuilder]).asScala.toArray
 
   private var instance: CredentialsService = _
@@ -50,7 +52,7 @@ object CredentialsServiceProvider {
     if (services.isEmpty) {
       throw new CredentialsException("no credentials service available")
     } else if (services.size > 1) {
-      val implClassName = settings.getString("raw.creds.impl")
+      val implClassName = settings.getString(CREDS_IMPL)
       services.find(p => p.name == implClassName) match {
         case Some(builder) => builder.build
         case None => throw new CredentialsException(s"cannot find credentials service: $implClassName")

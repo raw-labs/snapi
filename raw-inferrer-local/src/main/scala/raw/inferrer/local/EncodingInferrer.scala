@@ -23,13 +23,19 @@ import raw.sources.bytestream.SeekableInputStream
 
 private[inferrer] case class TextBuffer(reader: Reader, encoding: Encoding, confidence: Int)
 
+object EncodingInferrer {
+  private val ENCODING_DETECTION_READ_SIZE = "raw.inferrer.local.encoding-detection-read-size"
+}
+
 private[inferrer] trait EncodingInferrer extends StrictLogging {
+
+  import EncodingInferrer._
 
   protected def sourceContext: SourceContext
 
   protected val settings = sourceContext.settings
 
-  private val encodingDetectionReadSize = settings.getBytes("raw.inferrer.local.encoding-detection-read-size")
+  private val encodingDetectionReadSize = settings.getBytes(ENCODING_DETECTION_READ_SIZE)
 
   protected def getReader(is: SeekableInputStream, encoding: Encoding): Reader = {
     val stream = encoding match {

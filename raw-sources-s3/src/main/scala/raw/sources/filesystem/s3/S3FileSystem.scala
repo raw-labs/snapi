@@ -30,14 +30,23 @@ import java.util
 import java.util.concurrent.TimeUnit
 import scala.collection.JavaConverters._
 
+object S3FileSystem {
+  private val S3_CONNECT_TIMEOUT = "raw.sources.s3.connect-timeout"
+  private val S3_READ_TIMEOUT = "raw.sources.s3.read-timeout"
+  private val S3_MAX_CONNECTIONS = "raw.sources.s3.max-connections"
+  private val S3_DEFAULT_REGION = "raw.sources.s3.default-region"
+}
+
 class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends BaseFileSystem {
+
+  import S3FileSystem._
 
   private[sources] val fileSeparator: String = "/"
   private val fileSeparatorRegex: String = StringEscape.descape(fileSeparator)
 
-  private val s3ConnectTimeout = settings.getDuration("raw.sources.s3.connect-timeout", TimeUnit.MILLISECONDS)
-  private val s3ReadTimeout = settings.getDuration("raw.sources.s3.read-timeout", TimeUnit.MILLISECONDS)
-  private val s3MaxConnections = settings.getInt("raw.sources.s3.max-connections")
+  private val s3ConnectTimeout = settings.getDuration(S3_CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
+  private val s3ReadTimeout = settings.getDuration(S3_READ_TIMEOUT, TimeUnit.MILLISECONDS)
+  private val s3MaxConnections = settings.getInt(S3_MAX_CONNECTIONS)
 
   def bucketName: String = bucket.name
 
@@ -46,7 +55,7 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
       .standard()
       // see https://github.com/aws/aws-sdk-java/issues/1366
       .enableForceGlobalBucketAccess()
-      .withRegion(bucket.region.getOrElse(settings.getString("raw.sources.s3.default-region")))
+      .withRegion(bucket.region.getOrElse(settings.getString(S3_DEFAULT_REGION)))
 
     bucket.credentials match {
       case Some(AWSCredentials(accessKey, secretKey)) =>

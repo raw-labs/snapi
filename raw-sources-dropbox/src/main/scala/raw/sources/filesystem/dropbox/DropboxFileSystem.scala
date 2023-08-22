@@ -26,9 +26,11 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 object DropboxFileSystem {
+  private val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
+
   // Method also used by testing infrastructure
   private[sources] def buildDbxClientV2(cred: NewHttpAuth)(implicit settings: RawSettings): DbxClientV2 = {
-    val clientId = settings.getString("raw.sources.dropbox.clientId")
+    val clientId = settings.getString(DROPBOX_CLIENT_ID)
     val dropboxConfig = DbxRequestConfig.newBuilder(clientId).build()
     val dbxCred = cred match {
       case BasicAuth(user, password, _) => new DbxCredential(null, null, null, user, password)

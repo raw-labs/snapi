@@ -23,13 +23,19 @@ import raw.sources.bytestream.SeekableInputStream
 
 import scala.collection.mutable.ArrayBuffer
 
+object JsonInferrer {
+  private val JSON_SAMPLE_SIZE = "raw.inferrer.local.json.sample-size"
+}
+
 class JsonInferrer(implicit protected val sourceContext: SourceContext)
     extends InferrerErrorHandler
     with EncodingInferrer
     with TextTypeInferrer
     with JsonUtils {
 
-  private val defaultSampleSize = settings.getInt("raw.inferrer.local.json.sample-size")
+  import JsonInferrer._
+
+  private val defaultSampleSize = settings.getInt(JSON_SAMPLE_SIZE)
 
   def infer(
       is: SeekableInputStream,

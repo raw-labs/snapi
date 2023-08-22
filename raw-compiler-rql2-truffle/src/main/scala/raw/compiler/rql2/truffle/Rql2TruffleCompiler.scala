@@ -26,6 +26,7 @@ import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, EnvironmentPackageBuilder, JsonPackage, StringPackage}
 import raw.compiler.rql2.source._
+import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
 import raw.compiler.{base, CompilerException, ErrorMessage, ProgramSettings}
@@ -70,6 +71,10 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
 import scala.collection.mutable
+
+object Rql2TruffleCompiler {
+  private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
+}
 
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
@@ -267,7 +272,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
     val rootNode: RootNode = outputFormat match {
       case "csv" =>
-        val lineSeparator = if (programContext.settings.getBoolean("raw.compiler.windows-line-ending")) "\r\n" else "\n"
+        val lineSeparator = if (programContext.settings.getBoolean(WINDOWS_LINE_ENDING)) "\r\n" else "\n"
         dataType match {
           case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
             assert(rProps.isEmpty)

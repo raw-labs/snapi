@@ -43,7 +43,16 @@ final case class NativeIntervalType(nullable: Boolean) extends TableColumnType
 
 case object UnsupportedColumnType extends TableColumnType
 
+object JdbcClient {
+  private val CONNECT_TIMEOUT = "raw.sources.rdbms.connect-timeout"
+  private val READ_TIMEOUT = "raw.sources.rdbms.read-timeout"
+  private val NETWORK_TIMEOUT = "raw.sources.rdbms.network-timeout"
+  private val LOGIN_TIMEOUT = "raw.sources.rdbms.login-timeout"
+}
+
 abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLogging {
+
+  import JdbcClient._
 
   def hostname: String
 
@@ -153,17 +162,13 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     TableMetadata(columns.to, None)
   }
 
-  final protected def getConnectTimeout(timeUnit: TimeUnit): Long =
-    settings.getDuration("raw.sources.rdbms.connect-timeout", timeUnit)
+  final protected def getConnectTimeout(timeUnit: TimeUnit): Long = settings.getDuration(CONNECT_TIMEOUT, timeUnit)
 
-  final protected def getReadTimeout(timeUnit: TimeUnit): Long =
-    settings.getDuration("raw.sources.rdbms.read-timeout", timeUnit)
+  final protected def getReadTimeout(timeUnit: TimeUnit): Long = settings.getDuration(READ_TIMEOUT, timeUnit)
 
-  final protected def getNetworkTimeout(timeUnit: TimeUnit): Long =
-    settings.getDuration("raw.sources.rdbms.network-timeout", timeUnit)
+  final protected def getNetworkTimeout(timeUnit: TimeUnit): Long = settings.getDuration(NETWORK_TIMEOUT, timeUnit)
 
-  final protected def getLoginTimeout(timeUnit: TimeUnit): Long =
-    settings.getDuration("raw.sources.rdbms.login-timeout", timeUnit)
+  final protected def getLoginTimeout(timeUnit: TimeUnit): Long = settings.getDuration(LOGIN_TIMEOUT, timeUnit)
 
   class JdbcRelationalDatabaseSchemas extends Iterator[String] with Closeable {
 
