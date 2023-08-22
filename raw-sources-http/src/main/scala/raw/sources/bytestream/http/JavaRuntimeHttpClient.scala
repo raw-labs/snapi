@@ -67,8 +67,7 @@ class JavaRuntimeHttpClient(
   import HttpClientSettings._
 
   private val httpClient = JavaRuntimeHttpClient.buildHttpClient(settings)
-  private val httpReadTimeoutMillis =
-    settings.getDuration(HTTP_READ_TIMEOUT, TimeUnit.MILLISECONDS)
+  private val httpReadTimeoutMillis = settings.getDuration(HTTP_READ_TIMEOUT, TimeUnit.MILLISECONDS)
 
   private val requestBuilderTemplate = HttpRequest
     .newBuilder()
