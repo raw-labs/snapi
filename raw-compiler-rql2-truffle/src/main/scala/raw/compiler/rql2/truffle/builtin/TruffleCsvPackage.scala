@@ -19,11 +19,10 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode
 import raw.runtime.truffle.ast.expressions.literals.{IntNode, StringNode}
-import raw.runtime.truffle.ast.expressions.option.{OptionNoneNode, OptionSomeNodeGen}
+import raw.runtime.truffle.ast.expressions.option.OptionSomeNodeGen
 import raw.runtime.truffle.ast.io.csv.reader.parser._
 import raw.runtime.truffle.ast.io.csv.writer.internal._
 import raw.runtime.truffle.ast.{ProgramExpressionNode, ProgramStatementNode}
-import raw.runtime.truffle.runtime.option.StringOption
 import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
 
 class TruffleCsvReadEntry extends CsvReadEntry with TruffleEntryExtension {
@@ -172,7 +171,7 @@ object CsvColumnParser {
 
     val encoding = arg("encoding").getOrElse(new StringNode("utf-8"))
     val skip = arg("skip").getOrElse(new IntNode("0"))
-    val escape = arg("escape").getOrElse(new OptionNoneNode(Rql2StringType()))
+    val escape = arg("escape").getOrElse(OptionSomeNodeGen.create(new StringNode("\\")))
     val delimiter = arg("delimiter").getOrElse(new StringNode(","))
     val quote = arg("quote").getOrElse(OptionSomeNodeGen.create(new StringNode("\"")))
     val nulls =

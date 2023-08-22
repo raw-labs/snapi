@@ -93,12 +93,10 @@ public class IterableParseCsvString extends ExpressionNode {
                 }
             }
             Object escapeValue = escapeExp.executeGeneric(frame);
-            boolean useEscape = false;
             char escapeChar = 0;
             if (options.isDefined(escapeValue)) {
                 String escapeCharString = (String) options.get(escapeValue);
                 if (!escapeCharString.isEmpty()) {
-                    useEscape = true;
                     escapeChar = escapeCharString.charAt(0);
                 }
             }
@@ -112,7 +110,6 @@ public class IterableParseCsvString extends ExpressionNode {
                             delimiterValue.charAt(0),
                             useQuote,
                             quoteChar,
-                            useEscape,
                             escapeChar,
                             skipValue,
                             nulls,

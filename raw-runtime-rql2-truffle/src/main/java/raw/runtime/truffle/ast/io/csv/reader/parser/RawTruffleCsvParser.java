@@ -76,11 +76,7 @@ public class RawTruffleCsvParser {
             } else {
                 builder.disableQuoteChar();
             }
-            if (settings.useEscape) {
-                builder.setEscapeChar(settings.escapeChar);
-            } else {
-                builder.setEscapeChar('\\');
-            }
+            builder.setEscapeChar(settings.escapeChar);
             jacksonParser.setSchema(builder.build());
         } catch (IOException | IllegalArgumentException ex) {
             throw new CsvReaderRawTruffleException(stream, ex);
