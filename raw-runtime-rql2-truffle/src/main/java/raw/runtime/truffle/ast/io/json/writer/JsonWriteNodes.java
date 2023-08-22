@@ -356,9 +356,6 @@ public final class JsonWriteNodes {
   @GenerateUncached
   public abstract static class WriteTimestampJsonWriterNode extends Node {
 
-    // two different formatters, depending on whether there are milliseconds or not.
-    private static final DateTimeFormatter fmtWithoutMS =
-        DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss");
     private static final DateTimeFormatter fmtWithMS =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
@@ -371,11 +368,7 @@ public final class JsonWriteNodes {
         LocalDateTime ts = value.getTimestamp();
         // .format throws DateTimeException if its internal StringBuilder throws an IOException.
         // We consider it as an internal error and let it propagate.
-        if (ts.getNano() != 0) {
-          gen.writeString(fmtWithMS.format(ts));
-        } else {
-          gen.writeString(fmtWithoutMS.format(ts));
-        }
+        gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {
         throw new JsonWriterRawTruffleException(e.getMessage(), this);
       }
@@ -388,7 +381,6 @@ public final class JsonWriteNodes {
 
     // two different formatters, depending on whether there are milliseconds or not.
     private static final DateTimeFormatter fmtWithMS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
-    private static final DateTimeFormatter fmtWithoutMS = DateTimeFormatter.ofPattern("HH:mm:ss");
 
     public abstract void execute(TimeObject value, JsonGenerator gen);
 
