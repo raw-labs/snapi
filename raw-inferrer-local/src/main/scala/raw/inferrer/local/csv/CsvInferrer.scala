@@ -25,7 +25,7 @@ import raw.sources.{Encoding, SourceContext}
 object CsvInferrer {
   private val CSV_SAMPLE_SIZE = "raw.inferrer.local.csv.sample-size"
   private val CSV_SEPARATOR_SAMPLE_SIZE = "raw.inferrer.local.csv.separator-sample-size"
-  private val CSV_QUOTED_WEIGHT = "raw.inferrer.local.csv.quotedWeigth"
+  private val CSV_QUOTED_WEIGHT = "raw.inferrer.local.csv.quoted-weight"
 }
 
 class CsvInferrer(implicit protected val sourceContext: SourceContext)

@@ -108,6 +108,8 @@ class ApacheRuntimeHttpClient(
     with StrictLogging
     with RuntimeHttpClient {
 
+  import HttpClientSettings._
+
   private val apacheHttpClient = ApacheRuntimeHttpClient.buildApacheHttpClient(settings)
 
   private val requestConfig = {
