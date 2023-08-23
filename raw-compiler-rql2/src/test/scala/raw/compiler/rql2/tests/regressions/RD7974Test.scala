@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.regressions
 
 import org.scalatest.BeforeAndAfterEach
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.nio.file.Files
 
@@ -24,7 +24,7 @@ trait RD7974Test extends CompilerTestContext with BeforeAndAfterEach {
 
   override def afterEach(): Unit = {
     super.afterEach()
-    RawUtils.deleteTestPath(tmpFile)
+    deleteTestPath(tmpFile)
   }
 
   test("""let l = [3,2,1,0,-1,-2,-3]

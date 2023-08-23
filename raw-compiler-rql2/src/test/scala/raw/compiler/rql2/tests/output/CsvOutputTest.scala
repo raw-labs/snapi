@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.output
 
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.compiler.SnapiInterpolator
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.nio.file.Files
 
@@ -47,7 +47,7 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 
@@ -62,7 +62,7 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 
@@ -91,7 +91,7 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 
@@ -131,7 +131,7 @@ trait CsvOutputTest extends CompilerTestContext {
         )
       }
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 

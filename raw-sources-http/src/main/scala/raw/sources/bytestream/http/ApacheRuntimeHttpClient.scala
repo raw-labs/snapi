@@ -28,7 +28,7 @@ import org.apache.hc.core5.util.{TimeValue, Timeout}
 import raw.config._
 import raw.sources.LocationException
 import raw.sources.bytestream._
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.io.{ByteArrayInputStream, IOException, InputStream}
 import java.net._
@@ -79,7 +79,7 @@ object ApacheRuntimeHttpClient {
         apacheHttpClient = new ApacheHttpClientHolder(client, pool)
 
         Executors
-          .newSingleThreadScheduledExecutor(RawUtils.newThreadFactory("http-client-idle-connections-cleanup"))
+          .newSingleThreadScheduledExecutor(newThreadFactory("http-client-idle-connections-cleanup"))
           .scheduleAtFixedRate(() => { apacheHttpClient.closeIdleConnections() }, 1, 1, TimeUnit.MINUTES)
       }
     }

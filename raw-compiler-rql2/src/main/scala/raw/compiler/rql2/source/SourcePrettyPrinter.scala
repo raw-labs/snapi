@@ -18,7 +18,7 @@ import raw.compiler.common
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}
-import raw.utils.RawUtils
+import raw.utils._
 
 import scala.collection.mutable
 
@@ -121,15 +121,15 @@ trait SourcePrettyPrinter
         case _: NullConst => "null"
         case nc: NumberConst => nc match {
             case IntConst(v) => v
-            case LongConst(v) => if (RawUtils.endsWithIgnoreCase(v, 'l')) v else s"${v}L"
-            case FloatConst(v) => if (RawUtils.endsWithIgnoreCase(v, 'f')) v else s"${v}f"
-            case DoubleConst(v) => if (RawUtils.endsWithIgnoreCase(v, 'd')) v else s"${v}d"
-            case DecimalConst(v) => if (RawUtils.endsWithIgnoreCase(v, 'q')) v else s"${v}q"
-            case ShortConst(v) => if (RawUtils.endsWithIgnoreCase(v, 's')) v else s"${v}s"
-            case ByteConst(v) => if (RawUtils.endsWithIgnoreCase(v, 'b')) v else s"${v}b"
+            case LongConst(v) => if (endsWithIgnoreCase(v, 'l')) v else s"${v}L"
+            case FloatConst(v) => if (endsWithIgnoreCase(v, 'f')) v else s"${v}f"
+            case DoubleConst(v) => if (endsWithIgnoreCase(v, 'd')) v else s"${v}d"
+            case DecimalConst(v) => if (endsWithIgnoreCase(v, 'q')) v else s"${v}q"
+            case ShortConst(v) => if (endsWithIgnoreCase(v, 's')) v else s"${v}s"
+            case ByteConst(v) => if (endsWithIgnoreCase(v, 'b')) v else s"${v}b"
           }
         case BoolConst(v) => v.toString
-        case StringConst(v) => s""""${RawUtils.descape(v)}""""
+        case StringConst(v) => s""""${descape(v)}""""
         case BinaryConst(bytes) => s"""0x${bytes.map("%02x".format(_)).mkString}"""
       }
     case IfThenElse(e1, e2, e3) => "if" <+> e1 <+> "then" <> nest(line <> e2) <@> "else" <> nest(line <> e3)

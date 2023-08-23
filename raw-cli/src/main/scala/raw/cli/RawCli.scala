@@ -36,7 +36,7 @@ import raw.compiler.{
   ProgramOutputWriter
 }
 import raw.config.RawSettings
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.io.{ByteArrayOutputStream, PrintWriter}
 import scala.util.control.NonFatal
@@ -191,7 +191,7 @@ object RawCli extends App {
         }
       }
     } finally {
-      RawUtils.withSuppressNonFatalException(rawCli.stop())
+      withSuppressNonFatalException(rawCli.stop())
     }
   } catch {
     case _: EndOfFileException => // Exit gracefully and quietly.

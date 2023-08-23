@@ -1,16 +1,4 @@
-/*
- * Copyright 2023 RAW Labs S.A.
- *
- * Use of this software is governed by the Business Source License
- * included in the file licenses/BSL.txt.
- *
- * As of the Change Date specified in that file, in accordance with
- * the Business Source License, use of this software will be governed
- * by the Apache License, Version 2.0, included in the file
- * licenses/APL.txt.
- */
-
-package raw.utils
+package raw
 
 import com.google.common.io.Resources
 import com.google.common.util.concurrent.ThreadFactoryBuilder
@@ -23,13 +11,13 @@ import java.net.URL
 import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.{FileSystemNotFoundException, Files, Path, Paths, StandardCopyOption}
 import java.util.Locale
-import java.util.concurrent._
+import java.util.concurrent.{ExecutorService, SynchronousQueue, ThreadFactory, ThreadPoolExecutor, TimeUnit}
 import java.util.zip.ZipFile
-import scala.collection.JavaConverters._
-import scala.util.control.NonFatal
 
-// TODO (msb): Convert to package object?
-object RawUtils extends StrictLogging {
+import scala.util.control.NonFatal
+import scala.collection.JavaConverters._
+
+package object utils extends StrictLogging {
 
   /**
    * Convert a user string back to its original "intended" representation.
@@ -168,14 +156,14 @@ object RawUtils extends StrictLogging {
   }
 
   def deleteTestDirectory(directory: Path): Unit = {
-    RawUtils.withSuppressNonFatalException {
+    withSuppressNonFatalException {
       FileUtils.deleteDirectory(directory.toFile)
 
     }
   }
 
   def deleteTestFile(file: Path): Unit = {
-    RawUtils.withSuppressNonFatalException {
+    withSuppressNonFatalException {
       val deleted = Files.deleteIfExists(file)
       if (!deleted) {
         logger.warn(s"Could not delete test file: $file")
@@ -314,7 +302,7 @@ object RawUtils extends StrictLogging {
 
   def escapeLanguage(code: String): String = {
     val tquote = "\"\"\""
-    s"""$tquote ${RawUtils.descape(code)} $tquote""".stripMargin
+    s"""$tquote ${descape(code)} $tquote""".stripMargin
   }
 
   def bytesToString(size: Long): String = bytesToString(BigInt(size))

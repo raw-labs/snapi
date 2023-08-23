@@ -25,7 +25,7 @@ import org.ehcache.expiry.ExpiryPolicy
 import raw.api.RawService
 import raw.config.RawSettings
 import raw.sources.{ExpiryAfter, LocationDescription, NoExpiry}
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.io.{ByteArrayInputStream, ByteArrayOutputStream, InputStream}
 import java.time.Duration
@@ -196,6 +196,6 @@ class EhCacheByteStreamCache(implicit settings: RawSettings) extends ByteStreamC
   }
 
   override def doStop(): Unit = {
-    RawUtils.withSuppressNonFatalException(cacheManager.close())
+    withSuppressNonFatalException(cacheManager.close())
   }
 }

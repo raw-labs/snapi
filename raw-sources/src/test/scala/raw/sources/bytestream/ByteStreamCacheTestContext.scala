@@ -13,7 +13,7 @@
 package raw.sources.bytestream
 
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.RawUtils
+import raw.utils._
 import raw.{RawTestSuite, SettingsTestContext}
 
 trait ByteStreamCacheTestContext extends SettingsTestContext with BeforeAndAfterAll {
@@ -28,7 +28,7 @@ trait ByteStreamCacheTestContext extends SettingsTestContext with BeforeAndAfter
 
   override def afterAll(): Unit = {
     if (byteStreamCache != null) {
-      RawUtils.withSuppressNonFatalException(byteStreamCache.stop())
+      withSuppressNonFatalException(byteStreamCache.stop())
       byteStreamCache = null
     }
     super.afterAll()

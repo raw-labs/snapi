@@ -14,7 +14,7 @@ package raw.sources.bytestream
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.LocationDescription
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.io.{ByteArrayOutputStream, InputStream}
 
@@ -68,7 +68,7 @@ private class ByteStreamCacheInputStream(
 
   override def close(): Unit = {
     if (!exceededMaxSize) {
-      RawUtils.withSuppressNonFatalException {
+      withSuppressNonFatalException {
         // Try to read until EOF to trigger the caching. We need to be sure that the reader using this stream has read
         // everything before we cache, we do not cache partially read streams.
         // If there are only a few characters left, like a carriage return and empty lines at the end of the file,

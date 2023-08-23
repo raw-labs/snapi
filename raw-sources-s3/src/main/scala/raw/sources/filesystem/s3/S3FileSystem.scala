@@ -23,7 +23,7 @@ import raw.config._
 import raw.creds.{AWSCredentials, S3Bucket}
 import raw.sources.bytestream.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
 import raw.sources.filesystem._
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.io.InputStream
 import java.util
@@ -42,7 +42,7 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
   import S3FileSystem._
 
   private[sources] val fileSeparator: String = "/"
-  private val fileSeparatorRegex: String = RawUtils.descape(fileSeparator)
+  private val fileSeparatorRegex: String = descape(fileSeparator)
 
   private val s3ConnectTimeout = settings.getDuration(S3_CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
   private val s3ReadTimeout = settings.getDuration(S3_READ_TIMEOUT, TimeUnit.MILLISECONDS)
