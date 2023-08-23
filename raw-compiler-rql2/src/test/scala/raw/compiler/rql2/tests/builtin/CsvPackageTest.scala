@@ -17,10 +17,18 @@ import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
 trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
 
+  val ttt = "\"\"\""
+
   private val data = tempFile("""a|b|c
     |1|10|100
     |2|20|200
     |3|30|300""".stripMargin)
+
+  private val dataWithEscaped = tempFile("""a|b|c
+    |1|10|\N""".stripMargin)
+
+  private val dataWithQuoted = tempFile("""a|b|c
+    |1|10|"N"""".stripMargin)
 
   private val headerLessData = tempFile("""1|10|100
     |2|20|200
@@ -138,12 +146,6 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     |{1, 10, 100},
     |{2, 20, 200},
     |{3, 30, 300}
-    |]""".stripMargin))
-
-  test(rql"""Csv.InferAndRead("$data")""".stripMargin)(it => it should evaluateTo("""[
-    |{a: 1, b: 10, c: 100},
-    |{a: 2, b: 20, c: 200},
-    |{a: 3, b: 30, c: 300}
     |]""".stripMargin))
 
   test(rql"""
@@ -480,7 +482,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   // Infer and Parse
-  val ttt = "\"\"\""
+
   test(
     s"""Csv.InferAndParse("1,2,3")"""
   )(_ should evaluateTo("""[{_1: 1, _2: 2, _3: 3}]"""))
@@ -524,5 +526,45 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   test(rql"""Csv.InferAndParse("1,2,3", escape="\\", quotes=["\""])""")(it => it should run)
+
+  test(rql"""Csv.InferAndRead("$dataWithEscaped")""".stripMargin)(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "N"}
+    |]""".stripMargin))
+
+  test(
+    rql"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1)""".stripMargin
+  )(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "N"}
+    |]""".stripMargin))
+
+  test(
+    rql"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, escape=null)""".stripMargin
+  )(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "\\N"}
+    |]""".stripMargin))
+
+  test(
+    rql"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, escape="\\")""".stripMargin
+  )(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "N"}
+    |]""".stripMargin))
+
+  test(
+    rql"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, quote=null)""".stripMargin
+  )(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "\"N\""}
+    |]""".stripMargin))
+
+  test(
+    rql"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1)""".stripMargin
+  )(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "N"}
+    |]""".stripMargin))
+
+  test(
+    rql"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1 , quote="\"")""".stripMargin
+  )(it => it should evaluateTo("""[
+    |{a: 1, b: 10, c: "N"}
+    |]""".stripMargin))
 
 }
