@@ -49,7 +49,6 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class BinaryExpLtTruffleTest extends TruffleCompilerTestContext with BinaryExpLtTest
 @TruffleTests class PackageNameTruffleTest extends TruffleCompilerTestContext with PackageNameTest
 
-// Xml reader
-// class StagedCompilerTruffleTest extends TruffleCompilerTestContext with StagedCompilerTest
+@TruffleTests class StagedCompilerTruffleTest extends TruffleCompilerTestContext with StagedCompilerTest
 
 @TruffleTests class LetFunTruffleTest extends TruffleCompilerTestContext with LetFunTest

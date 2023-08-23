@@ -17,6 +17,7 @@ public class RawTruffleCsvParserSettings {
   public final char delimiter;
   public final boolean useQuote;
   public final char quoteChar;
+  public final char escapeChar;
   public final int headerLines;
   public final String[] nulls;
   public final String[] nans;
@@ -28,6 +29,7 @@ public class RawTruffleCsvParserSettings {
       char delimiter,
       boolean useQuote,
       char quoteChar,
+      char escapeChar,
       int headerLines,
       String[] nulls,
       String[] nans,
@@ -37,6 +39,7 @@ public class RawTruffleCsvParserSettings {
     this.delimiter = delimiter;
     this.useQuote = useQuote;
     this.quoteChar = quoteChar;
+    this.escapeChar = escapeChar;
     this.headerLines = headerLines;
     this.nulls = nulls;
     this.nans = nans;
