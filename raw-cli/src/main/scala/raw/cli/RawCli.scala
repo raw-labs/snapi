@@ -32,10 +32,10 @@ import raw.compiler.{
   ErrorMessage,
   ErrorPosition,
   ProgramDefinition,
-  ProgramEnvironment,
   ProgramOutputWriter
 }
 import raw.config.RawSettings
+import raw.runtime.ProgramEnvironment
 import raw.utils._
 
 import java.io.{ByteArrayOutputStream, PrintWriter}
