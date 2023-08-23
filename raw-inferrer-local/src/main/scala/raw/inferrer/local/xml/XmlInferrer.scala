@@ -21,13 +21,19 @@ import raw.sources.bytestream.SeekableInputStream
 
 import java.io.Reader
 
+object XmlInferrer {
+  private val XML_SAMPLE_SIZE = "raw.inferrer.local.xml.sample-size"
+}
+
 class XmlInferrer(implicit protected val sourceContext: SourceContext)
     extends InferrerErrorHandler
     with XmlMergeTypes
     with EncodingInferrer
     with StrictLogging {
 
-  private val defaultSampleSize = settings.getInt("raw.inferrer.local.xml.sample-size")
+  import XmlInferrer._
+
+  private val defaultSampleSize = settings.getInt(XML_SAMPLE_SIZE)
 
   def infer(is: SeekableInputStream, maybeEncoding: Option[Encoding], maybeSampleSize: Option[Int])(
       implicit executionLogger: ExecutionLogger

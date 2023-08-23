@@ -28,7 +28,7 @@ import java.util.zip.ZipFile
 import scala.collection.JavaConverters._
 import scala.util.control.NonFatal
 
-// TODO: Convert to package object?
+// TODO (msb): Convert to package object?
 object RawUtils extends StrictLogging {
 
   def readEntireFile(path: Path, charset: Charset = StandardCharsets.UTF_8): String = {
@@ -84,6 +84,10 @@ object RawUtils extends StrictLogging {
 
   lazy val isWindows: Boolean = {
     System.getProperty("os.name").contains("Windows")
+  }
+
+  lazy val isMacOS: Boolean = {
+    System.getProperty("os.name").toLowerCase().contains("mac os x")
   }
 
   def withSuppressNonFatalException(f: => Unit): Unit = {
@@ -312,11 +316,6 @@ object RawUtils extends StrictLogging {
 
   def getFileNameWithoutExtension(path: Path): String = {
     com.google.common.io.Files.getNameWithoutExtension(path.getFileName.toString)
-  }
-
-  def isMacOS: Boolean = {
-    val osName = System.getProperty("os.name").toLowerCase()
-    osName.startsWith("mac os x")
   }
 
 }

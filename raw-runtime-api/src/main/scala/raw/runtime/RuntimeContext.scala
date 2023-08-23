@@ -58,6 +58,10 @@ abstract class BaseRuntimeContext extends Closeable {
 
 }
 
+object RuntimeContext {
+  private val RUNTIME_TIME_ZONE = "raw.runtime.time-zone"
+}
+
 /**
  * The implementation of the runtime context.
  */
@@ -69,9 +73,12 @@ class RuntimeContext(
     val maybeArguments: Option[Array[(String, ParamValue)]],
     val scopes: Set[String]
 ) extends BaseRuntimeContext {
+
+  import RuntimeContext._
+
   override def close(): Unit = {}
 
-  private val zoneID = settings.getStringOpt("raw.runtime.time-zone").map(ZoneId.of).getOrElse(ZoneId.systemDefault())
+  private val zoneID = settings.getStringOpt(RUNTIME_TIME_ZONE).map(ZoneId.of).getOrElse(ZoneId.systemDefault())
 
   private val now: LocalDateTime = LocalDateTime.now(zoneID)
 

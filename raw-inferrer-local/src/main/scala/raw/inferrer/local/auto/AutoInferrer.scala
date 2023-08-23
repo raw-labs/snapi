@@ -27,6 +27,10 @@ import raw.sources._
 import raw.sources.bytestream.ByteStreamLocation
 import raw.sources.filesystem.{DirectoryMetadata, FileSystemLocation}
 
+object AutoInferrer {
+  private val USE_BUFFERED_SEEKABLE_IS = "raw.inferrer.local.use-buffered-seekable-is"
+}
+
 class AutoInferrer(
     textInferrer: TextInferrer,
     csvInferrer: CsvInferrer,
@@ -38,6 +42,8 @@ class AutoInferrer(
     extends InferrerErrorHandler
     with EncodingInferrer
     with StrictLogging {
+
+  import AutoInferrer._
 
   def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int])(
       implicit executionLogger: ExecutionLogger
@@ -92,7 +98,7 @@ class AutoInferrer(
     // and pass those to inferrers.
 
     val is =
-      if (sourceContext.settings.getBoolean("raw.inferrer.local.use-buffered-seekable-is")) {
+      if (sourceContext.settings.getBoolean(USE_BUFFERED_SEEKABLE_IS)) {
         new InferrerBufferedSeekableIS(location.getSeekableInputStream)
       } else {
         location.getSeekableInputStream

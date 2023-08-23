@@ -72,19 +72,19 @@ class RawCli(writer: PrintWriter) extends StrictLogging {
 
       val user = InteractiveUser(Uid("local"), "Local user", "local@localhost", Seq.empty)
 
-      val queryDefinition = ProgramDefinition(code, None, None, environment)
+      val programDefinition = ProgramDefinition(code, None, None, environment)
 
-      val compiler = compilerService.getCompiler(user, queryDefinition.environment.language)
+      val compiler = compilerService.getCompiler(user, programDefinition.environment.language)
       val programContext = compilerService.getProgramContext(
         compiler,
         id,
-        queryDefinition.code,
-        queryDefinition.parameters,
-        queryDefinition.environment
+        programDefinition.code,
+        programDefinition.parameters,
+        programDefinition.environment
       )
       compiler
-        .execute(queryDefinition.code, queryDefinition.decl, Array.empty)(programContext) match {
-        case Left(errors) => prettyPrintError(queryDefinition.code, errors)
+        .execute(programDefinition.code, programDefinition.decl, Array.empty)(programContext) match {
+        case Left(errors) => prettyPrintError(programDefinition.code, errors)
         case Right(actualQuery) =>
           query = actualQuery
           // TODO (msb): This is far from ideal as it can OoO... unfortunately, I could not get the writer to print directly
