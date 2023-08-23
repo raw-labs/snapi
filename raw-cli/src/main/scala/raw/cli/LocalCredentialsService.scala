@@ -16,7 +16,7 @@ import raw.api.AuthenticatedUser
 import raw.config.RawSettings
 import raw.creds._
 
-class LocalCredentialsService(implicit settings: RawSettings) extends CredentialsService {
+class LocalCredentialsService extends CredentialsService {
 
   override protected def doRegisterS3Bucket(user: AuthenticatedUser, bucket: S3Bucket): Boolean = {
     false
