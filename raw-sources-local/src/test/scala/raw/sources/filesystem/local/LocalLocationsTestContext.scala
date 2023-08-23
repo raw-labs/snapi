@@ -62,16 +62,12 @@ trait LocalLocationsTestContext {
 
   lazy val publicationsHjsonLocalDirectory = localPath(getResource("data/publications/publications-hjson"))
 
-  lazy val publicationsHjsonGzipLocalDirectory =
-    localPath(getResource("data/publications/publications-hjson-gzip"))
-  lazy val publicationsHjsonBzip2LocalDirectory =
-    localPath(getResource("data/publications/publications-hjson-bzip2"))
-  lazy val publicationsHjsonLz4LocalDirectory =
-    localPath(getResource("data/publications/publications-hjson-lz4"))
+  lazy val publicationsHjsonGzipLocalDirectory = localPath(getResource("data/publications/publications-hjson-gzip"))
+  lazy val publicationsHjsonBzip2LocalDirectory = localPath(getResource("data/publications/publications-hjson-bzip2"))
+  lazy val publicationsHjsonLz4LocalDirectory = localPath(getResource("data/publications/publications-hjson-lz4"))
   lazy val publicationsHjsonDeflateLocalDirectory =
     localPath(getResource("data/publications/publications-hjson-deflate"))
-  lazy val publicationsHjsonSnappyLocalDirectory =
-    localPath(getResource("data/publications/publications-hjson-snappy"))
+  lazy val publicationsHjsonSnappyLocalDirectory = localPath(getResource("data/publications/publications-hjson-snappy"))
   lazy val publicationsHjsonBzip2LocalFile = localPath(getResource("data/publications/publications.hjson.bz2"))
   lazy val publicationsHjsonGzLocalFile = localPath(getResource("data/publications/publications.hjson.gz"))
 

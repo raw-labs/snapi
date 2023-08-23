@@ -134,7 +134,9 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     it should typeErrorAs("unsupported type")
   )
 
-  test(snapi"""Csv.Read("$data", type collection(record(a: binary)))""")(it => it should typeErrorAs("unsupported type"))
+  test(snapi"""Csv.Read("$data", type collection(record(a: binary)))""")(it =>
+    it should typeErrorAs("unsupported type")
+  )
 
   test(snapi"""Csv.Read("$data", type collection(record(
     |  a: int,
