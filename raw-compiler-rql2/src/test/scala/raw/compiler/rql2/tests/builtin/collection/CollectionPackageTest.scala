@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.tests.CompilerTestContext
 
@@ -428,19 +428,19 @@ trait CollectionPackageTest extends CompilerTestContext {
     |jane, 21, engineering, 13.7
     |bob, 19, sales, 14.2""".stripMargin)
 
-  test(rql"""let people = Csv.InferAndRead("$people")
+  test(snapi"""let people = Csv.InferAndRead("$people")
     |in people.name""".stripMargin)(it => it should evaluateTo("""["john", "jane", "bob"]""".stripMargin))
 
-  test(rql"""let people = Try.Transform(Csv.InferAndRead("$people"), x -> x)
+  test(snapi"""let people = Try.Transform(Csv.InferAndRead("$people"), x -> x)
     |in people.name""".stripMargin)(it => it should evaluateTo("""["john", "jane", "bob"]""".stripMargin))
 
   test(
-    rql"""let people =  Csv.Read("$people", type collection(record(name: string, age: int, occupation: string, salary: double)), skip = 1)
+    snapi"""let people =  Csv.Read("$people", type collection(record(name: string, age: int, occupation: string, salary: double)), skip = 1)
       |in Collection.Max(people.salary)""".stripMargin
   )(it => it should evaluateTo("""14.2""".stripMargin))
 
   test(
-    rql"""let people =  Csv.InferAndRead("$people") in Collection.Max(people.salary)""".stripMargin
+    snapi"""let people =  Csv.InferAndRead("$people") in Collection.Max(people.salary)""".stripMargin
   )(it => it should evaluateTo("""14.2""".stripMargin))
 
   // Exists

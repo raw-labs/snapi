@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait OffHeapEquiJoinTest extends OffHeapDatasets {
 
@@ -23,7 +23,7 @@ trait OffHeapEquiJoinTest extends OffHeapDatasets {
 
   // Collections
   test(
-    rql"""// equi-join
+    snapi"""// equi-join
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    join = Collection.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
@@ -35,7 +35,7 @@ trait OffHeapEquiJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// equi-join
+    snapi"""// equi-join
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    join = Collection.EquiJoin(olympics, bands, o -> o.year, b -> b.birthYear)
@@ -47,12 +47,12 @@ trait OffHeapEquiJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// equi-join large
+    snapi"""// equi-join large
       |let bands = $NTimesBandMembers,
       |    olympics = $olympics,
       |    join = Collection.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
       |    in Collection.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
-  )(_ should evaluateTo(rql"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
+  )(_ should evaluateTo(snapi"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
     |{firstName: "David", lastName: "Marks", city: "London"},
     |{firstName: "Cyril", lastName: "Neville", city: "London"},
     |{firstName: "Jordan", lastName: "Ruddess", city: "Melbourne"}
@@ -60,7 +60,7 @@ trait OffHeapEquiJoinTest extends OffHeapDatasets {
 
   // Lists
   test(
-    rql"""// equi-join
+    snapi"""// equi-join
       |let bands = List.From($bandMembers),
       |    olympics = List.From($olympics),
       |    join = List.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
@@ -72,7 +72,7 @@ trait OffHeapEquiJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// equi-join
+    snapi"""// equi-join
       |let bands = List.From($bandMembers),
       |    olympics = List.From($olympics),
       |    join = List.EquiJoin(olympics, bands, o -> o.year, b -> b.birthYear)
@@ -84,12 +84,12 @@ trait OffHeapEquiJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// equi-join large
+    snapi"""// equi-join large
       |let bands = List.From($NTimesBandMembers),
       |    olympics = List.From($olympics),
       |    join = List.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
       |    in List.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
-  )(_ should evaluateTo(rql"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
+  )(_ should evaluateTo(snapi"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
     |{firstName: "David", lastName: "Marks", city: "London"},
     |{firstName: "Cyril", lastName: "Neville", city: "London"},
     |{firstName: "Jordan", lastName: "Ruddess", city: "Melbourne"}

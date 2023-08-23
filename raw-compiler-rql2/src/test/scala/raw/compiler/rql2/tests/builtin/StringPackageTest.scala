@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.builtin
 
 import java.util.Base64
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
 import java.nio.file.Path
@@ -185,14 +185,14 @@ trait StringPackageTest extends CompilerTestContext with FailAfterNServer {
   private val saying = "Tant va la cruche à l'eau qu'à la fin elle se casse."
   private val data = tempFile(saying)
 
-  test(rql"""String.Read("$data")""")(_ should evaluateTo(s""""$saying""""))
-  test(rql"""let urls = List.Build("$data", "file:/not/found")
-    |in List.Transform(urls, u -> String.Read(u))""".stripMargin)(_ should evaluateTo(rql"""List.Build(
+  test(snapi"""String.Read("$data")""")(_ should evaluateTo(s""""$saying""""))
+  test(snapi"""let urls = List.Build("$data", "file:/not/found")
+    |in List.Transform(urls, u -> String.Read(u))""".stripMargin)(_ should evaluateTo(snapi"""List.Build(
     |  "$saying",
     |  Error.Build("file system error: path not found: /not/found")
     |)""".stripMargin))
 
-  test(rql"""String.ReadLines("$data")""")(_ should evaluateTo(s""" ["$saying"] """))
+  test(snapi"""String.ReadLines("$data")""")(_ should evaluateTo(s""" ["$saying"] """))
 
   val logs: Path = tempFile(
     """2022-09-14 15:09:49.186+0200 [jvm-compiler-0] DEBUG r.c.jvm.RawMutableURLClassLoader - Adding URL: file:/tmp/raw-compilation/be20ee6a-c9db-4602-9c49-afbd3989aa33/classes/2022/9/14/15/___$0$Json/
@@ -222,7 +222,7 @@ trait StringPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   test(
-    rql"""let
+    snapi"""let
       |  lines = String.ReadLines("$logs"),
       |  parsed = Collection.Transform(lines, x -> {
       |    timestamp: Timestamp.Parse(String.SubString(x, 1, 23), "yyyy-M-d H:m:s.SSS"),

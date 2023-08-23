@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
@@ -38,37 +38,37 @@ trait CollectionUnionTest extends CompilerTestContext with LocalLocationsTestCon
     |Beach Boys|Bruce|Johnston|1942
     |Beach Boys|David|Marks|1948""".stripMargin)
 
-  test(rql"""let beeGees = Csv.InferAndRead("$beeGees"),
+  test(snapi"""let beeGees = Csv.InferAndRead("$beeGees"),
     |    beachBoys = Csv.InferAndRead("$beachBoys")
     |in {bg: Collection.Count(beeGees), bb: Collection.Count(beachBoys)}
     |""".stripMargin)(_ should evaluateTo("{bg: 3, bb: 5}"))
 
-  test(rql"""let beeGees = Csv.InferAndRead("$beeGees"),
+  test(snapi"""let beeGees = Csv.InferAndRead("$beeGees"),
     |    beachBoys = Csv.InferAndRead("$beachBoys")
     |in Collection.Count(Collection.Union(beeGees, beachBoys))
     |""".stripMargin)(_ should evaluateTo("8"))
 
   // try/null URLs
-  test(rql"""let b: string = "$beeGees",
+  test(snapi"""let b: string = "$beeGees",
     |    bb: string = "$beachBoys",
     |    beeGees = Csv.InferAndRead(b),
     |    beachBoys = Csv.InferAndRead(bb)
     |in Collection.Count(Collection.Union(beeGees, beachBoys))
     |""".stripMargin)(_ should evaluateTo("8"))
 
-  test(rql"""let beeGees = Csv.InferAndRead("$beeGees"),
+  test(snapi"""let beeGees = Csv.InferAndRead("$beeGees"),
     |    beachBoys = Csv.InferAndRead("$beachBoys")
     |in {bg: Collection.Count(beeGees), bb: Collection.Count(beachBoys), bgbb: Collection.Count(Collection.Union(beeGees, beachBoys))}
     |""".stripMargin)(_ should evaluateTo("{bg: 3, bb: 5, bgbb: 8}"))
 
-  test(rql"""let beeGees = Csv.InferAndRead("$beeGees"),
+  test(snapi"""let beeGees = Csv.InferAndRead("$beeGees"),
     |    beachBoys = Csv.InferAndRead("$beachBoys"),
     |    nevilleBrothers = Csv.InferAndRead("$nevilleBrothers")
     |in Collection.Distinct(Collection.Transform(Collection.Union(beeGees, beachBoys, nevilleBrothers), x -> x.lastName))
     |""".stripMargin)(_ should evaluateTo("""["Neville", "Gibb", "Love", "Wilson", "Jardine", "Johnston", "Marks"]"""))
 
   // same without Csv.InferAndRead
-  test(rql"""let readCsv(url: string) =
+  test(snapi"""let readCsv(url: string) =
     |      let rows = Collection.Transform(String.ReadLines(url), l -> String.Split(l, "|")),
     |          records = Collection.Transform(rows, r -> {band: List.Get(r, 0), firstName: List.Get(r, 1),
     |                                                     lastName: List.Get(r, 2), birthYear: Int.From(List.Get(r, 3))})
@@ -83,7 +83,7 @@ trait CollectionUnionTest extends CompilerTestContext with LocalLocationsTestCon
 
   private val integers = tempFile("[1,2,3,4,5]")
   // try/null string
-  test(rql"""let url: string = "$integers",
+  test(snapi"""let url: string = "$integers",
     |    numbers = Json.InferAndRead(url)
     |in Collection.Union(numbers, numbers)
     |""".stripMargin)(_ should evaluateTo("[1,2,3,4,5,1,2,3,4,5]"))

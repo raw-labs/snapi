@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait OffHeapOrderByTest extends OffHeapDatasets {
 
@@ -24,7 +24,7 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
   // OrderBy Collections
 
   test(
-    rql"""// order-by
+    snapi"""// order-by
       |let bands = $bandMembers,
       |    orderedBySomething = Collection.OrderBy(bands, p -> p.birthYear, "DESC", p -> p.lastName, "ASC")
       |    in Collection.Transform(orderedBySomething, p -> p.lastName + " (" + String.From(p.birthYear) + ")")""".stripMargin
@@ -51,12 +51,12 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
   }
 
   test(
-    rql"""// order-by
+    snapi"""// order-by
       |let bands = $NTimesBandMembers,
       |    orderedBySomething = Collection.OrderBy(bands, p -> p.birthYear, "DESC", p -> p.lastName, "ASC")
       |    in Collection.Transform(orderedBySomething, p -> p.lastName + " (" + String.From(p.birthYear) + ")")""".stripMargin
   ) {
-    _ should orderEvaluateTo(rql"""
+    _ should orderEvaluateTo(snapi"""
       | Collection.Unnest(
       | Collection.Build(
       |   "Myung (1967)",
@@ -79,7 +79,7 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |   ), i -> Collection.Transform(Int.Range(0, $N), _ -> i))""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = $bandMembers,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.firstName, "ASC", p -> p.lastName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
@@ -88,18 +88,18 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |"Maurice Gibb", "Mike Love", "Mike Mangini", "Robin Gibb"]""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = $NTimesBandMembers,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.firstName, "ASC", p -> p.lastName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo(
-      rql"""Collection.Unnest(Collection.Build("Aaron Neville", "Al Jardine", "Art Neville", "Barry Gibb", "Brian Wilson", "Bruce Johnston",
+      snapi"""Collection.Unnest(Collection.Build("Aaron Neville", "Al Jardine", "Art Neville", "Barry Gibb", "Brian Wilson", "Bruce Johnston",
         |"Charles Neville", "Cyril Neville", "David Marks", "James LaBrie", "John Myung", "John Petrucci", "Jordan Ruddess",
         |"Maurice Gibb", "Mike Love", "Mike Mangini", "Robin Gibb"), i -> Collection.Transform(Int.Range(0, $N), _ -> i))""".stripMargin
     )
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = $bandMembers,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
@@ -124,11 +124,11 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |]""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = $NTimesBandMembers,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
-    _ should orderEvaluateTo(rql"""Collection.Unnest(Collection.Build(
+    _ should orderEvaluateTo(snapi"""Collection.Unnest(Collection.Build(
       |"Barry Gibb",
       |"Maurice Gibb",
       |"Robin Gibb",
@@ -148,7 +148,7 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |"Brian Wilson"), i -> Collection.Transform(Int.Range(0, $N), _ -> i))""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = $bandMembers,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "DESC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
@@ -173,11 +173,11 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |]""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = $NTimesBandMembers,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "DESC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
-    _ should orderEvaluateTo(rql"""Collection.Unnest(Collection.Build(
+    _ should orderEvaluateTo(snapi"""Collection.Unnest(Collection.Build(
       |"Robin Gibb",
       |"Maurice Gibb",
       |"Barry Gibb",
@@ -201,7 +201,7 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
   // OrderBy Lists
 
   test(
-    rql"""// order-by
+    snapi"""// order-by
       |let bands = List.From($bandMembers),
       |    orderedBySomething = List.OrderBy(bands, p -> p.birthYear, "DESC", p -> p.lastName, "ASC")
       |    in List.Transform(orderedBySomething, p -> p.lastName + " (" + String.From(p.birthYear) + ")")""".stripMargin
@@ -228,12 +228,12 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
   }
 
   test(
-    rql"""// order-by
+    snapi"""// order-by
       |let bands = List.From($NTimesBandMembers),
       |    orderedBySomething = List.OrderBy(bands, p -> p.birthYear, "DESC", p -> p.lastName, "ASC")
       |    in List.Transform(orderedBySomething, p -> p.lastName + " (" + String.From(p.birthYear) + ")")""".stripMargin
   ) {
-    _ should orderEvaluateTo(rql"""
+    _ should orderEvaluateTo(snapi"""
       | Collection.Unnest(
       | Collection.Build(
       |   "Myung (1967)",
@@ -256,7 +256,7 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |   ), i -> Collection.Transform(Int.Range(0, $N), _ -> i))""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = List.From($bandMembers),
     |    orderedBySomething = List.OrderBy(bands, p -> p.firstName, "ASC", p -> p.lastName, "ASC")
     |    in List.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
@@ -265,18 +265,18 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |"Maurice Gibb", "Mike Love", "Mike Mangini", "Robin Gibb"]""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = List.From($NTimesBandMembers),
     |    orderedBySomething = List.OrderBy(bands, p -> p.firstName, "ASC", p -> p.lastName, "ASC")
     |    in List.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo(
-      rql"""Collection.Unnest(Collection.Build("Aaron Neville", "Al Jardine", "Art Neville", "Barry Gibb", "Brian Wilson", "Bruce Johnston",
+      snapi"""Collection.Unnest(Collection.Build("Aaron Neville", "Al Jardine", "Art Neville", "Barry Gibb", "Brian Wilson", "Bruce Johnston",
         |"Charles Neville", "Cyril Neville", "David Marks", "James LaBrie", "John Myung", "John Petrucci", "Jordan Ruddess",
         |"Maurice Gibb", "Mike Love", "Mike Mangini", "Robin Gibb"), i -> Collection.Transform(Int.Range(0, $N), _ -> i))""".stripMargin
     )
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = List.From($bandMembers),
     |    orderedBySomething = List.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "ASC")
     |    in List.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
@@ -301,11 +301,11 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |]""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = List.From($NTimesBandMembers),
     |    orderedBySomething = List.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "ASC")
     |    in List.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
-    _ should orderEvaluateTo(rql"""Collection.Unnest(Collection.Build(
+    _ should orderEvaluateTo(snapi"""Collection.Unnest(Collection.Build(
       |"Barry Gibb",
       |"Maurice Gibb",
       |"Robin Gibb",
@@ -325,7 +325,7 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |"Brian Wilson"), i -> Collection.Transform(Int.Range(0, $N), _ -> i))""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = List.From($bandMembers),
     |    orderedBySomething = List.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "DESC")
     |    in List.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
@@ -350,11 +350,11 @@ trait OffHeapOrderByTest extends OffHeapDatasets {
       |]""".stripMargin)
   }
 
-  test(rql"""// order-by
+  test(snapi"""// order-by
     |let bands = List.From($NTimesBandMembers),
     |    orderedBySomething = List.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "DESC")
     |    in List.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
-    _ should orderEvaluateTo(rql"""Collection.Unnest(Collection.Build(
+    _ should orderEvaluateTo(snapi"""Collection.Unnest(Collection.Build(
       |"Robin Gibb",
       |"Maurice Gibb",
       |"Barry Gibb",

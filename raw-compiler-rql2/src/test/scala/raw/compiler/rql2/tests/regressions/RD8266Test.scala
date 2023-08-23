@@ -37,7 +37,7 @@ trait RD8266Test extends CompilerTestContext with StrictLogging {
   }
 
   test("LSP ClassCastException") { _ =>
-    val code = rql"""getAuth0Users(
+    val code = snapi"""getAuth0Users(
       |    email: string = null,
       |    start_date: = Date.FromTimestamp(Date.SubtractInterval(Date.Now(), Interval.Build(months = 1))),
       |    last_login_since: date = Date.FromTimestamp(Date.SubtractInterval(Date.Now(), Interval.Build(years = 1))),

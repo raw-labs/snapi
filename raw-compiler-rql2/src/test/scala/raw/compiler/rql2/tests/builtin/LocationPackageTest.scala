@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.creds.{DropboxTestCreds, S3TestCreds}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
@@ -68,7 +68,7 @@ trait LocationPackageTest
 
   // Checking that describe is not adding backticks everywhere
   // Only the 'type' field should have them
-  test(rql"""
+  test(snapi"""
     |let
     |  desc = Location.Describe("$csvWithReservedKeyword")
     |in

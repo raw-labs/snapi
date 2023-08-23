@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait OffHeapDistinctTest extends CompilerTestContext {
@@ -22,12 +22,12 @@ trait OffHeapDistinctTest extends CompilerTestContext {
   property("raw.runtime.kryo.output-buffer-size", "1kB")
   property("raw.runtime.kryo.input-buffer-size", "1kB")
 
-  private val distinctContent = rql"""
+  private val distinctContent = snapi"""
     |Collection.Transform(Int.Range(0, 1000), n ->
     |  "The answer to life, the universe, and everything is " + String.From(n)) """.stripMargin
 
   // Collections
-  test(rql"""// distinct
+  test(snapi"""// distinct
     |Collection.Distinct(
     |  Collection.Unnest(
     |    Int.Range(0, 100),
@@ -35,7 +35,7 @@ trait OffHeapDistinctTest extends CompilerTestContext {
     |  )
     |)""".stripMargin)(_ should evaluateTo(distinctContent))
 
-  test(rql"""// distinct
+  test(snapi"""// distinct
     |Collection.Distinct(
     |  Collection.Unnest(
     |    Int.Range(0, 500),
@@ -44,7 +44,7 @@ trait OffHeapDistinctTest extends CompilerTestContext {
     |)""".stripMargin)(_ should evaluateTo(distinctContent))
 
   // Lists
-  test(rql"""// distinct
+  test(snapi"""// distinct
     |List.Distinct(
     |  List.Unnest(
     |    List.From(Int.Range(0, 100)),
@@ -52,7 +52,7 @@ trait OffHeapDistinctTest extends CompilerTestContext {
     |  )
     |)""".stripMargin)(_ should evaluateTo(distinctContent))
 
-  test(rql"""// distinct
+  test(snapi"""// distinct
     |List.Distinct(
     |  List.Unnest(
     |    List.From(Int.Range(0, 500)),

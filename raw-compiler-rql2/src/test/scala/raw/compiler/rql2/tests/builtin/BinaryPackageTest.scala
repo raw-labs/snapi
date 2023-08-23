@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 import java.nio.file.Path
@@ -37,10 +37,10 @@ trait BinaryPackageTest extends CompilerTestContext {
 
   test(s"""Binary.Base64(Binary.Read("file:/not/found"))""")(_ should runErrorAs("path not found"))
 
-  test(rql"""let urls = List.Build("$hello", "file:/not/found")
+  test(snapi"""let urls = List.Build("$hello", "file:/not/found")
     |in List.Transform(urls, u -> Binary.Base64(Binary.Read(u)))""".stripMargin)(
     _ should evaluateTo(
-      rql"""List.Build("$helloBase64", Error.Build("file system error: path not found: /not/found"))"""
+      snapi"""List.Build("$helloBase64", Error.Build("file system error: path not found: /not/found"))"""
     )
   )
 

@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait TypePackageTest extends CompilerTestContext {
@@ -24,9 +24,9 @@ trait TypePackageTest extends CompilerTestContext {
     |  {"host": "server-03", "disks": {"partitions": ["/dev/sda1", "/dev/sda2", "/dev/sda3"]}}
     |]""".stripMargin)
 
-  test(rql"""Json.InferAndRead("$orType")""")(_ should run)
+  test(snapi"""Json.InferAndRead("$orType")""")(_ should run)
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -41,7 +41,7 @@ trait TypePackageTest extends CompilerTestContext {
     |   )
     |)""".stripMargin)(_ should runErrorAs("expected")) // expected one of .... but got
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -57,7 +57,7 @@ trait TypePackageTest extends CompilerTestContext {
     |   )
     |)""".stripMargin)(_ should runErrorAs("only one handler function per type is expected"))
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -71,7 +71,7 @@ trait TypePackageTest extends CompilerTestContext {
     |   )
     |)""".stripMargin)(_ should runErrorAs("handler functions should be provided for all types"))
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -86,7 +86,7 @@ trait TypePackageTest extends CompilerTestContext {
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2L, 3L]"))
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -101,7 +101,7 @@ trait TypePackageTest extends CompilerTestContext {
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2L, 3L]"))
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.InferAndRead("$orType")
     |in Collection.Transform(
     |   items,
@@ -111,7 +111,7 @@ trait TypePackageTest extends CompilerTestContext {
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2L, 3L]"))
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -126,7 +126,7 @@ trait TypePackageTest extends CompilerTestContext {
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2d, 9.42d]"))
 
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -145,7 +145,7 @@ trait TypePackageTest extends CompilerTestContext {
 
   // One of the function is null. This turns the whole `Type.Match` to `null` since it doesn't expect null function
   // arguments. That's why both applications of `Type.Match` result to `null`.
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,
@@ -164,7 +164,7 @@ trait TypePackageTest extends CompilerTestContext {
 
   // One of the function is an error. This turns the whole `Type.Match` to `null` since it doesn't expect null function
   // arguments. That's why both applications of `Type.Match` result to `null`.
-  test(rql"""
+  test(snapi"""
     |let items = Json.Read("$orType", type collection(
     |  record(
     |      host: string,

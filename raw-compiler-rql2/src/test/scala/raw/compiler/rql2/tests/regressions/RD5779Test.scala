@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 import java.nio.file.Path
@@ -22,7 +22,7 @@ trait RD5779Test extends CompilerTestContext {
     |  {"a": 1, "b": 10}
     |]""".stripMargin)
 
-  test(rql"""let data = Json.Read("$data", type collection(record(a: int, b: int)))
+  test(snapi"""let data = Json.Read("$data", type collection(record(a: int, b: int)))
     |in Json.Print(data)""".stripMargin)(_ should evaluateTo(""" "[{\"a\":1,\"b\":10}]"  """))
 
   test("""let

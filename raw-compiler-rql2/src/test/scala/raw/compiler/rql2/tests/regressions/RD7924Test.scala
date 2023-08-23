@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 import java.nio.file.Path
@@ -27,19 +27,19 @@ trait RD7924Test extends CompilerTestContext {
 
   val collectionOfInts: Path = tempFile("""  [1, 2] """)
 
-  test(rql"""Location.Describe("$collectionOfStrings").`type`""") {
+  test(snapi"""Location.Describe("$collectionOfStrings").`type`""") {
     _ should evaluateTo(""" "collection(string)" """)
   }
 
-  test(rql"""Location.Describe("$string").`type`""") {
+  test(snapi"""Location.Describe("$string").`type`""") {
     _ should evaluateTo(""" "string" """)
   }
 
-  test(rql"""Location.Describe("$int").`type`""") {
+  test(snapi"""Location.Describe("$int").`type`""") {
     _ should evaluateTo(""" "int" """)
   }
 
-  test(rql"""Location.Describe("$collectionOfInts").`type`""") {
+  test(snapi"""Location.Describe("$collectionOfInts").`type`""") {
     _ should evaluateTo(""" "collection(int)" """)
   }
 }

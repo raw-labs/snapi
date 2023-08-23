@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.list
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
@@ -20,7 +20,7 @@ import raw.sources.filesystem.local.LocalLocationsTestContext
 trait ListOrderByTest extends CompilerTestContext with LocalLocationsTestContext {
 
   // using String.ReadLines
-  test(rql"""let regions = List.From(Collection.Transform(
+  test(snapi"""let regions = List.From(Collection.Transform(
     |  String.ReadLines("$tpchRegionTblLocal"),
     |  l ->
     |      let tokens = String.Split(l, "|")
@@ -37,7 +37,7 @@ trait ListOrderByTest extends CompilerTestContext with LocalLocationsTestContext
   )
 
   // using String.ReadLines
-  test(rql"""let regions = List.From(Collection.Transform(
+  test(snapi"""let regions = List.From(Collection.Transform(
     |  String.ReadLines("$tpchRegionTblLocal"),
     |  l ->
     |      let tokens = String.Split(l, "|")
@@ -68,7 +68,7 @@ trait ListOrderByTest extends CompilerTestContext with LocalLocationsTestContext
     |Beach Boys|David|Marks|1948""".stripMargin)
 
   test(
-    rql"""let bands = List.From(Csv.InferAndRead("$coolBands")),
+    snapi"""let bands = List.From(Csv.InferAndRead("$coolBands")),
       |    orderedBySomething = List.OrderBy(bands, p -> p.birthYear, "DESC", p -> p.lastName, "ASC")
       |    in List.Transform(orderedBySomething, p -> p.lastName + " (" + String.From(p.birthYear) + ")")""".stripMargin
   ) {

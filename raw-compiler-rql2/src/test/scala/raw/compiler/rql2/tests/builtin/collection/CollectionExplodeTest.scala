@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
@@ -34,15 +34,15 @@ trait CollectionExplodeTest extends CompilerTestContext with LocalLocationsTestC
     |  }
     |]""".stripMargin)
 
-  test(rql"""let nba = Json.InferAndRead("$nba")
+  test(snapi"""let nba = Json.InferAndRead("$nba")
     |in Collection.Explode(nba,
     |    n -> n.players
     |)""".stripMargin)(_ should run)
 
-  test(rql"""let nba = Json.InferAndRead("$nba")
+  test(snapi"""let nba = Json.InferAndRead("$nba")
     |in Collection.Count(Collection.Explode(nba, n -> n.players))""".stripMargin)(_ should evaluateTo("5"))
 
-  test(rql"""let nba = Json.InferAndRead("$nba")
+  test(snapi"""let nba = Json.InferAndRead("$nba")
     |in Collection.Transform(
     |     Collection.Explode(nba, n -> n.players),
     |     r -> {team: r.team.city + " " + r.team.name, player: r.name + " (" + String.From(r.number) + ")"}
@@ -54,12 +54,12 @@ trait CollectionExplodeTest extends CompilerTestContext with LocalLocationsTestC
     |   {team: "Los Angeles Lakers", player: "Kareem Abdul-Jabbar (33)"}
     |]""".stripMargin))
 
-  test(rql"""let articles = Json.InferAndRead("$publicationsSmallJsonLocal")
+  test(snapi"""let articles = Json.InferAndRead("$publicationsSmallJsonLocal")
     |in Collection.Unnest(
     |     Collection.Filter(articles, a -> Collection.Count(a.authors) == 3),
     |     p -> p.controlledterms)""".stripMargin)(_ should run)
 
-  test(rql"""let articles = Json.InferAndRead("$publicationsSmallJsonLocal")
+  test(snapi"""let articles = Json.InferAndRead("$publicationsSmallJsonLocal")
     |in Collection.Explode(
     |     Collection.Filter(articles, a -> Collection.Count(a.authors) == 3),
     |     p -> p.controlledterms)""".stripMargin)(_ should run)
@@ -80,7 +80,7 @@ trait CollectionExplodeTest extends CompilerTestContext with LocalLocationsTestC
     |   ] }
     |]""".stripMargin)
 
-  test(rql"""let nba = Json.InferAndRead("$nullNba")
+  test(snapi"""let nba = Json.InferAndRead("$nullNba")
     |in Collection.Transform(
     |     Collection.Explode(nba, n -> n.players),
     |     r -> {team: r.team.city + " " + r.team.name, player: r.name + " (" + String.From(r.number) + ")"}
@@ -108,7 +108,7 @@ trait CollectionExplodeTest extends CompilerTestContext with LocalLocationsTestC
     |   ] }
     |]""".stripMargin)
 
-  test(rql"""let nbaType = type collection(
+  test(snapi"""let nbaType = type collection(
     |    record(
     |        team: record(name: string, city: string),
     |        players: collection(record(name: string, number: int)))),

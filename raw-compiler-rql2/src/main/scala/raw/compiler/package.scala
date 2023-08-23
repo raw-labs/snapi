@@ -16,15 +16,14 @@ import raw.sources.Location
 
 import java.nio.file.Path
 
-// TODO (msb): Move this elsewhere. It's so reduced now that probably can be made available in Executor?
 package object compiler {
 
   /**
    * An interpolator for RQL code.
    */
-  implicit class RQLInterpolator(val sc: StringContext) extends AnyVal {
+  implicit class SnapiInterpolator(val sc: StringContext) extends AnyVal {
 
-    def rql(args: Any*): String = {
+    def snapi(args: Any*): String = {
       val strings = sc.parts.iterator
       val expressions = args.iterator
       val buf = new StringBuffer(strings.next)

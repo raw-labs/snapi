@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
 trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
@@ -46,7 +46,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
       // scala engine: columns are given as "CSV column index" instead of "character index"
       // + duplicates the location
       it should runErrorAs(
-        rql"""failed to read CSV (line 1 column 3): failed to parse CSV (line 1, col 3), not enough columns found"""
+        snapi"""failed to read CSV (line 1 column 3): failed to parse CSV (line 1, col 3), not enough columns found"""
       )
     }
   )
@@ -55,30 +55,30 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     |2|20|200
     |3|30|300|3.14""".stripMargin)
 
-  test(rql"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter="|")""")(it =>
+  test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter="|")""")(it =>
     if (language == "rql2-truffle") {
       it should runErrorAs(
-        rql"failed to read CSV (line 2 column 9) (url: $badData): not enough columns found"
+        snapi"failed to read CSV (line 2 column 9) (url: $badData): not enough columns found"
       )
     } else {
       // scala engine: columns are given as "CSV column index" instead of "character index"
       // + duplicates the location
       it should runErrorAs(
-        rql"""failed to read CSV (line 2 column 4) (url: $badData): failed to parse CSV (line 2, col 4), not enough columns found"""
+        snapi"""failed to read CSV (line 2 column 4) (url: $badData): failed to parse CSV (line 2, col 4), not enough columns found"""
       )
     }
   )
 
-  test(rql"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter=";")""")(it =>
+  test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter=";")""")(it =>
     if (language == "rql2-truffle") {
       it should runErrorAs(
-        rql"failed to read CSV (line 1 column 14) (url: $badData): not enough columns found"
+        snapi"failed to read CSV (line 1 column 14) (url: $badData): not enough columns found"
       )
     } else {
       // scala engine: columns are given as "CSV column index" instead of "character index"
       // + duplicates the location
       it should runErrorAs(
-        rql"""failed to read CSV (line 1 column 2) (url: $badData): failed to parse CSV (line 1, col 2), not enough columns found"""
+        snapi"""failed to read CSV (line 1 column 2) (url: $badData): failed to parse CSV (line 1, col 2), not enough columns found"""
       )
     }
   )
@@ -128,27 +128,27 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     |  d: location
     |)))""".stripMargin)(it => it should typeErrorAs("unsupported type"))
 
-  test(rql"""Csv.Read("$data", type collection(int))""")(it => it should typeErrorAs("unsupported type"))
+  test(snapi"""Csv.Read("$data", type collection(int))""")(it => it should typeErrorAs("unsupported type"))
 
-  test(rql"""Csv.Read("$data", type collection(record(a: list(int))))""")(it =>
+  test(snapi"""Csv.Read("$data", type collection(record(a: list(int))))""")(it =>
     it should typeErrorAs("unsupported type")
   )
 
-  test(rql"""Csv.Read("$data", type collection(record(a: binary)))""")(it => it should typeErrorAs("unsupported type"))
+  test(snapi"""Csv.Read("$data", type collection(record(a: binary)))""")(it => it should typeErrorAs("unsupported type"))
 
-  test(rql"""Csv.Read("$data", type collection(record(
+  test(snapi"""Csv.Read("$data", type collection(record(
     |  a: int,
     |  c: record(a: int),
     |  d: location
     |)))""".stripMargin)(it => it should typeErrorAs("unsupported type"))
 
-  test(rql"""Csv.InferAndRead("$headerLessData")""".stripMargin)(it => it should evaluateTo("""[
+  test(snapi"""Csv.InferAndRead("$headerLessData")""".stripMargin)(it => it should evaluateTo("""[
     |{1, 10, 100},
     |{2, 20, 200},
     |{3, 30, 300}
     |]""".stripMargin))
 
-  test(rql"""
+  test(snapi"""
     |let data = Csv.InferAndRead("$data")
     |in
     |    Collection.Count(data)""".stripMargin) { it =>
@@ -156,7 +156,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     it should evaluateTo("3")
   }
 
-  test(rql"""
+  test(snapi"""
     |let data = Csv.InferAndRead("$data"),
     |    filter = Collection.Filter(data, r -> r.a > 1)
     |in
@@ -165,7 +165,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     it should evaluateTo("2")
   }
 
-  test(rql"""
+  test(snapi"""
     |let data = Csv.Read("$data", type collection(record(a:int, b:int, c:int)), skip = 1, delimiter = "|"),
     |    filter = Collection.Filter(data, r -> r.a > 1)
     |in
@@ -191,23 +191,23 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
 
   // Errors
 
-  test(rql"""let d = Csv.Read("$data", type collection(record(a: int, b: int, c: int)))
+  test(snapi"""let d = Csv.Read("$data", type collection(record(a: int, b: int, c: int)))
     |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
 
-  test(rql"""let d = Csv.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))
+  test(snapi"""let d = Csv.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))
     |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
 
-  test(rql"""let d = Csv.Read("file:/not/found", type collection(record(a: int, b: int, c: int))),
+  test(snapi"""let d = Csv.Read("file:/not/found", type collection(record(a: int, b: int, c: int))),
     |c = Collection.Count(d)
     |in Try.IsError(c)""".stripMargin)(_ should evaluateTo("true"))
 
-  test(rql"""Csv.InferAndRead("file:/not/found")""".stripMargin)(it => it should runErrorAs("path not found"))
+  test(snapi"""Csv.InferAndRead("file:/not/found")""".stripMargin)(it => it should runErrorAs("path not found"))
 
-  test(rql"""Csv.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))""".stripMargin)(it =>
+  test(snapi"""Csv.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))""".stripMargin)(it =>
     it should runErrorAs("path not found")
   )
 
-  test(rql"""let urls = List.Build("file:/not/found", "$data"),
+  test(snapi"""let urls = List.Build("file:/not/found", "$data"),
     |    contents = List.Transform(urls, u -> Csv.Read(u, type collection(record(a: int, b: int, c: int)),
     |                                                  delimiter="|", skip=1)),
     |    counts = List.Transform(contents, c -> Collection.Count(c))
@@ -215,7 +215,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     _ should evaluateTo("""List.Build(Error.Build("file system error: path not found: /not/found"), 3L)""")
   )
 
-  test(rql"""List.Build(
+  test(snapi"""List.Build(
     |    Collection.Count(Csv.InferAndRead("file:/not/found")),
     |    Collection.Count(Csv.InferAndRead("$data"))
     |)""".stripMargin)(
@@ -226,24 +226,24 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   private val csvWithNulls =
     tempFile("a, b, c\n" + (1 to 1000).map(n => s"$n, #$n, $n.2").mkString("\n") + "\nNA,NA,NA", "csv")
 
-  test(rql"""Csv.InferAndRead("$csvWithNulls", sampleSize = 100, nulls = ["NA"])""")(it => it should run)
+  test(snapi"""Csv.InferAndRead("$csvWithNulls", sampleSize = 100, nulls = ["NA"])""")(it => it should run)
 
-  test(rql"""Csv.InferAndRead("$csvWithNulls", sampleSize = 100, preferNulls = true, nulls = ["NA"])""")(it =>
+  test(snapi"""Csv.InferAndRead("$csvWithNulls", sampleSize = 100, preferNulls = true, nulls = ["NA"])""")(it =>
     it should run
   )
 
-  test(rql"""Csv.InferAndRead("$csvWithNulls", sampleSize = -1, preferNulls = false, nulls = ["NA"])""")(it =>
+  test(snapi"""Csv.InferAndRead("$csvWithNulls", sampleSize = -1, preferNulls = false, nulls = ["NA"])""")(it =>
     it should run
   )
 
   // Because file was sampled but with preferNulls as false, the last line has errors instead of nulls.
-  test(rql"""let
+  test(snapi"""let
     |  data = Csv.InferAndRead("$csvWithNulls", sampleSize = 100, preferNulls = false)
     |in
     |  Collection.Filter(data, row -> Try.IsError(row.a))""".stripMargin)(it =>
     if (language == "rql2-truffle") {
       it should evaluateTo(
-        rql"""[{
+        snapi"""[{
           |  a : Error.Build("failed to parse CSV (url: $csvWithNulls: line 1002, col 1), cannot parse 'NA' as an int"),
           |  b : "NA", // it's not parsed as a null in that test since we didn't pass it in the nulls list
           |  c : Error.Build("failed to parse CSV (url: $csvWithNulls: line 1002, col 7), cannot parse 'NA' as a double")
@@ -267,15 +267,15 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   private val csvWithTypeChange =
     tempFile("a, b, c\n" + (1 to 1000).map(n => s"$n, #$n, $n.2").mkString("\n") + "\nhello,,world", "csv")
 
-  test(rql"""Csv.InferAndRead("$csvWithTypeChange", sampleSize = 100)""")(it => it should run)
+  test(snapi"""Csv.InferAndRead("$csvWithTypeChange", sampleSize = 100)""")(it => it should run)
 
-  test(rql"""let
+  test(snapi"""let
     |  data = Csv.InferAndRead("$csvWithTypeChange", sampleSize = 100)
     |in
     |  Collection.Filter(data, row -> Try.IsError(row.a))""".stripMargin)(it =>
     if (language == "rql2-truffle") {
       it should evaluateTo(
-        rql"""[{
+        snapi"""[{
           |  a : Error.Build("failed to parse CSV (url: $csvWithTypeChange: line 1002, col 1), cannot parse 'hello' as an int"),
           |  b : null,
           |  c : Error.Build("failed to parse CSV (url: $csvWithTypeChange: line 1002, col 8), cannot parse 'world' as a double")
@@ -366,7 +366,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
       |1;10;100;1000;3.14;6.28;9.42;true;2023-12-25;01:02:03;2023-12-25T01:02:03
       |120;2500;25000;250000;30.14;60.28;90.42;false;2023-02-05;11:12:13;2023-02-05T11:12:13""".stripMargin)
 
-  test(rql"""Csv.InferAndRead("$csvWithAllTypes")""") { it =>
+  test(snapi"""Csv.InferAndRead("$csvWithAllTypes")""") { it =>
     it should evaluateTo("""[
       |{byteCol: Int.From("1"), shortCol:Int.From("10"), intCol: Int.From("100"), longCol: Int.From("1000"),
       | floatCol: Double.From("3.14"), doubleCol: Double.From("6.28"), decimalCol: Double.From("9.42"), boolCol: true,
@@ -379,7 +379,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
       |]""".stripMargin)
   }
 
-  test(rql"""Csv.Read("$csvWithAllTypes", type collection(
+  test(snapi"""Csv.Read("$csvWithAllTypes", type collection(
     |    record(
     |        byteCol: byte,
     |        shortCol: short,
@@ -407,7 +407,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
         |]""".stripMargin)
   )
 
-  test(rql"""Csv.Read("$csvWithAllTypes", type collection(
+  test(snapi"""Csv.Read("$csvWithAllTypes", type collection(
     |    record(
     |        byteCol: byte,
     |        shortCol: short,
@@ -423,7 +423,7 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     |    )
     |), delimiter = ";", skip = 0)""".stripMargin)(it =>
     if (language == "rql2-truffle") {
-      it should evaluateTo(rql"""[
+      it should evaluateTo(snapi"""[
         |{byteCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte"),
         | shortCol:Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short"),
         | intCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int"),
@@ -508,61 +508,61 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   )(_ should evaluateTo("""[]"""))
 
   test(
-    rql"""Csv.Read("$data", type collection(record(_1: int, _2: int, _3: int)), delimiter="|", escape="\\", quote="\"")"""
+    snapi"""Csv.Read("$data", type collection(record(_1: int, _2: int, _3: int)), delimiter="|", escape="\\", quote="\"")"""
   )(it => it should run)
 
   test(
-    rql"""Csv.Read("$data", type collection(record(_1: int, _2: int, _3: int)), delimiter="|", escape=null, quote=null)"""
+    snapi"""Csv.Read("$data", type collection(record(_1: int, _2: int, _3: int)), delimiter="|", escape=null, quote=null)"""
   )(it => it should run)
 
-  test(rql"""Csv.InferAndRead("$data", escape="\\", quotes=["\""])""")(it => it should run)
+  test(snapi"""Csv.InferAndRead("$data", escape="\\", quotes=["\""])""")(it => it should run)
 
-  test(rql"""Csv.Parse("1,2,3", type collection(record(_1: int, _2: int, _3: int)), escape="\\", quote="\"")""")(it =>
+  test(snapi"""Csv.Parse("1,2,3", type collection(record(_1: int, _2: int, _3: int)), escape="\\", quote="\"")""")(it =>
     it should run
   )
 
-  test(rql"""Csv.Parse("1,2,3", type collection(record(_1: int, _2: int, _3: int)), escape=null, quote=null)""")(it =>
+  test(snapi"""Csv.Parse("1,2,3", type collection(record(_1: int, _2: int, _3: int)), escape=null, quote=null)""")(it =>
     it should run
   )
 
-  test(rql"""Csv.InferAndParse("1,2,3", escape="\\", quotes=["\""])""")(it => it should run)
+  test(snapi"""Csv.InferAndParse("1,2,3", escape="\\", quotes=["\""])""")(it => it should run)
 
-  test(rql"""Csv.InferAndRead("$dataWithEscaped")""".stripMargin)(it => it should evaluateTo("""[
+  test(snapi"""Csv.InferAndRead("$dataWithEscaped")""".stripMargin)(it => it should evaluateTo("""[
     |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))
 
   test(
-    rql"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1)""".stripMargin
+    snapi"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1)""".stripMargin
   )(it => it should evaluateTo("""[
     |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))
 
   test(
-    rql"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, escape=null)""".stripMargin
+    snapi"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, escape=null)""".stripMargin
   )(it => it should evaluateTo("""[
     |{a: 1, b: 10, c: "\\N"}
     |]""".stripMargin))
 
   test(
-    rql"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, escape="\\")""".stripMargin
+    snapi"""Csv.Read("$dataWithEscaped", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, escape="\\")""".stripMargin
   )(it => it should evaluateTo("""[
     |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))
 
   test(
-    rql"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, quote=null)""".stripMargin
+    snapi"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1, quote=null)""".stripMargin
   )(it => it should evaluateTo("""[
     |{a: 1, b: 10, c: "\"N\""}
     |]""".stripMargin))
 
   test(
-    rql"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1)""".stripMargin
+    snapi"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1)""".stripMargin
   )(it => it should evaluateTo("""[
     |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))
 
   test(
-    rql"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1 , quote="\"")""".stripMargin
+    snapi"""Csv.Read("$dataWithQuoted", type collection(record(a:int,b:int,c:string)), delimiter="|", skip=1 , quote="\"")""".stripMargin
   )(it => it should evaluateTo("""[
     |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))

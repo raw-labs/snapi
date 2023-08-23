@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
 trait XmlPackageTest extends CompilerTestContext {
@@ -32,7 +32,7 @@ trait XmlPackageTest extends CompilerTestContext {
     | <time>03:01:02</time>
     |</items>""".stripMargin)
 
-  test(rql"""Xml.Read("$allTypes", type record(
+  test(snapi"""Xml.Read("$allTypes", type record(
     |  byte: byte,
     |  short: short,
     |  int: int,
@@ -153,71 +153,71 @@ trait XmlPackageTest extends CompilerTestContext {
     |</person>
     |<person/>""".stripMargin)
 
-  test(rql"""Xml.InferAndRead("$simple")""") { it =>
+  test(snapi"""Xml.InferAndRead("$simple")""") { it =>
     it should typeAs("record(name: string, age: int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }
 
-  test(rql"""Xml.Read("$simple", type record(name: string, age: int))""") { it =>
+  test(snapi"""Xml.Read("$simple", type record(name: string, age: int))""") { it =>
     it should typeAs("record(name: string, age: int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }
 
-  test(rql"""Xml.Read("$simple", type record(name: string, age: bool or int))""") { it =>
+  test(snapi"""Xml.Read("$simple", type record(name: string, age: bool or int))""") { it =>
     it should typeAs("record(name: string, age: bool or int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }
 
-  test(rql"""Xml.Read("$simple", type record(name: int or string, age: int))""") { it =>
+  test(snapi"""Xml.Read("$simple", type record(name: int or string, age: int))""") { it =>
     it should typeAs("record(name: int or string, age: int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }
 
-  test(rql"""Xml.Read("$simple", type record(name: int or string, age: bool or int))""") { it =>
+  test(snapi"""Xml.Read("$simple", type record(name: int or string, age: bool or int))""") { it =>
     it should typeAs("record(name: int or string, age: bool or int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }
 
-  test(rql"""Xml.InferAndRead("$simpleWithNestedRecord")""") { it =>
+  test(snapi"""Xml.InferAndRead("$simpleWithNestedRecord")""") { it =>
     it should typeAs("record(name: string, dimensions: record(width: int, height: int))")
     it should evaluateTo("{name: \"hulk\", dimensions: {width: 1600, height: 900}}")
   }
 
   test(
-    rql"""Xml.Read("$simpleWithNestedRecord", type record(name: string, dimensions: record(width: int, height: int)))"""
+    snapi"""Xml.Read("$simpleWithNestedRecord", type record(name: string, dimensions: record(width: int, height: int)))"""
   ) { it =>
     it should typeAs("record(name: string, dimensions: record(width: int, height: int))")
     it should evaluateTo("{name: \"hulk\", dimensions: {width: 1600, height: 900}}")
   }
 
-  test(rql"""Xml.InferAndRead("$simpleWithList")""") { it =>
+  test(snapi"""Xml.InferAndRead("$simpleWithList")""") { it =>
     it should typeAs("record(name: string, age: collection(int))")
     it should evaluateTo("{name: \"jane\", age: [1, 2, 3]}")
   }
 
-  test(rql"""Xml.Read("$simpleWithList", type record(name: string, age: collection(int)))""") { it =>
+  test(snapi"""Xml.Read("$simpleWithList", type record(name: string, age: collection(int)))""") { it =>
     it should typeAs("record(name: string, age: collection(int))")
     it should evaluateTo("{name: \"jane\", age: [1, 2, 3]}")
   }
 
-  test(rql"""Xml.Read("$simpleWithList", type record(name: string, age: list(int)))""") { it =>
+  test(snapi"""Xml.Read("$simpleWithList", type record(name: string, age: list(int)))""") { it =>
     it should typeAs("record(name: string, age: list(int))")
     it should evaluateTo("{name: \"jane\", age: [1, 2, 3]}")
   }
 
-  test(rql"""Xml.InferAndRead("$simpleWithAttributes")""") { it =>
+  test(snapi"""Xml.InferAndRead("$simpleWithAttributes")""") { it =>
     it should typeAs("record(`@name`: string, `@age`: int, name: string, last: string)")
     it should evaluateTo("{`@name`: \"jane\", `@age`: 32, name: \"jane\", last: \"doe\"}")
   }
 
   test(
-    rql"""Xml.Read("$simpleWithAttributes", type record(`@name`: string, `@age`: int, name: string, last: string))"""
+    snapi"""Xml.Read("$simpleWithAttributes", type record(`@name`: string, `@age`: int, name: string, last: string))"""
   ) { it =>
     it should typeAs("record(`@name`: string, `@age`: int, name: string, last: string)")
     it should evaluateTo("{`@name`: \"jane\", `@age`: 32, name: \"jane\", last: \"doe\"}")
   }
 
-  test(rql"""Xml.InferAndRead("$simpleWithNumericText")""") { it =>
+  test(snapi"""Xml.InferAndRead("$simpleWithNumericText")""") { it =>
     it should typeAs("record(last: string, `#text`: collection(string), first: string)")
     it should evaluateTo(
       "{last: \"Mercury\", `#text`: [\"\\n   123\\n   \", \"\\n   456\\n   \"], first: \"Freddie\"}"
@@ -225,7 +225,7 @@ trait XmlPackageTest extends CompilerTestContext {
   }
 
   test(
-    rql"""Xml.Read("$simpleWithNumericText", type record(last: string, `#text`: collection(string), first: string))"""
+    snapi"""Xml.Read("$simpleWithNumericText", type record(last: string, `#text`: collection(string), first: string))"""
   ) { it =>
     it should typeAs("record(last: string, `#text`: collection(string), first: string)")
     it should evaluateTo(
@@ -234,7 +234,7 @@ trait XmlPackageTest extends CompilerTestContext {
   }
 
   test(
-    rql"""Xml.Read("$simpleWithNumericText", type record(last: string, `#text`: collection(int), first: string))"""
+    snapi"""Xml.Read("$simpleWithNumericText", type record(last: string, `#text`: collection(int), first: string))"""
   ) { it =>
     it should typeAs("record(last: string, `#text`: collection(int), first: string)")
     it should evaluateTo(
@@ -242,7 +242,7 @@ trait XmlPackageTest extends CompilerTestContext {
     )
   }
 
-  test(rql"""Xml.InferAndRead("$simpleWithText")""") { it =>
+  test(snapi"""Xml.InferAndRead("$simpleWithText")""") { it =>
     it should typeAs("record(last: string, `#text`: collection(string), first: string)")
     it should evaluateTo(
       "{last: \"Mercury\", `#text`: [\"\\n   Is this the real life?\\n   \", \"Is this just fantasy?\"], first: \"Freddie\"}"
@@ -263,61 +263,61 @@ trait XmlPackageTest extends CompilerTestContext {
     )
   }
 
-  test(rql"""Xml.InferAndRead("$twoPeople")""") { it =>
+  test(snapi"""Xml.InferAndRead("$twoPeople")""") { it =>
     it should typeAs("collection(record(name: string, age: int))")
     it should evaluateTo(
       """[{name: "john", age: 34}, {name: "jane", age: 34}]"""
     )
   }
 
-  test(rql"""Xml.Read("$twoPeople", type collection(record(name: string, age: int)))""") { it =>
+  test(snapi"""Xml.Read("$twoPeople", type collection(record(name: string, age: int)))""") { it =>
     it should typeAs("collection(record(name: string, age: int))")
     it should evaluateTo(
       """[{name: "john", age: 34}, {name: "jane", age: 34}]"""
     )
   }
 
-  test(rql"""Xml.Read("$twoPeople", type list(record(name: string, age: int)))""") { it =>
+  test(snapi"""Xml.Read("$twoPeople", type list(record(name: string, age: int)))""") { it =>
     it should typeAs("list(record(name: string, age: int))")
     it should evaluateTo(
       """[{name: "john", age: 34}, {name: "jane", age: 34}]"""
     )
   }
 
-  test(rql"""Xml.InferAndRead("$nullableField")""") { it =>
+  test(snapi"""Xml.InferAndRead("$nullableField")""") { it =>
     it should typeAs("collection(record(name: string, age: int))")
     it should evaluateTo(
       """[{name: "john", age: 34}, {name: "jane", age: null}]"""
     )
   }
 
-  test(rql"""Xml.Read("$nullableField", type collection(record(name: string, age: int)))""") { it =>
+  test(snapi"""Xml.Read("$nullableField", type collection(record(name: string, age: int)))""") { it =>
     it should typeAs("collection(record(name: string, age: int))")
     it should evaluateTo(
       """[{name: "john", age: 34}, {name: "jane", age: null}]"""
     )
   }
 
-  test(rql"""Xml.InferAndRead("$nullableRecord")""") { it =>
+  test(snapi"""Xml.InferAndRead("$nullableRecord")""") { it =>
     it should typeAs("collection(record(name: string, age: int))")
     it should evaluateTo(
       """[{name: "john", age: 34}, {name: null, age: null}]"""
     )
   }
 
-  test(rql"""Xml.Read("$nullableRecord", type collection(record(name: string, age: int)))""") { it =>
+  test(snapi"""Xml.Read("$nullableRecord", type collection(record(name: string, age: int)))""") { it =>
     it should typeAs("collection(record(name: string, age: int))")
     it should evaluateTo(
       """[{name: "john", age: 34}, {name: null, age: null}]"""
     )
   }
 
-  test(rql"""Xml.Read("$simple", type record(name: string))""") { it =>
+  test(snapi"""Xml.Read("$simple", type record(name: string))""") { it =>
     it should typeAs("record(name: string)")
     it should evaluateTo("{name: \"john\"}")
   }
 
-  test(rql"""Xml.Read("$simple", type record(age: int))""") { it =>
+  test(snapi"""Xml.Read("$simple", type record(age: int))""") { it =>
     it should typeAs("record(age: int)")
     it should evaluateTo("{age: 34}")
   }
@@ -333,7 +333,7 @@ trait XmlPackageTest extends CompilerTestContext {
   test("""Xml.Parse("a", type record(a: location))""".stripMargin)(it => it should runErrorAs("unsupported type"))
 
   test(
-    rql"""Xml.Read("$data", type record(`@place`: string, name: string, age: int, ints: list(int)))""".stripMargin
+    snapi"""Xml.Read("$data", type record(`@place`: string, name: string, age: int, ints: list(int)))""".stripMargin
   )(it => it should evaluateTo("""{
     |  `@place`: "world",
     |  name: "john",
@@ -342,7 +342,7 @@ trait XmlPackageTest extends CompilerTestContext {
     |}
     |""".stripMargin))
 
-  test(rql"""Xml.InferAndRead("$data")""".stripMargin)(it => it should evaluateTo("""{
+  test(snapi"""Xml.InferAndRead("$data")""".stripMargin)(it => it should evaluateTo("""{
     |  `@place`: "world",
     |  name: "john",
     |  age: 34,
@@ -372,7 +372,7 @@ trait XmlPackageTest extends CompilerTestContext {
     |<person place="moon"> <name>bob</name> <age>36</age> </person>
     |""".stripMargin)
 
-  test(rql"""Xml.InferAndRead("$personList")""".stripMargin) { it =>
+  test(snapi"""Xml.InferAndRead("$personList")""".stripMargin) { it =>
     it should evaluateTo("""[
       |  {`@place`: "world", name: "john", age: 34},
       |  {`@place`: "venus", name: "jane", age: 32},
@@ -386,7 +386,7 @@ trait XmlPackageTest extends CompilerTestContext {
     |<item><name>Microphone</name> <type>device</type> <price>99</price></item>
     |""".stripMargin)
 
-  test(rql"""Collection.Filter(
+  test(snapi"""Collection.Filter(
     |  Xml.InferAndRead("$fileWithAKeywordField"),
     |  i -> i.price < 10
     |)""".stripMargin)(
@@ -412,7 +412,7 @@ trait XmlPackageTest extends CompilerTestContext {
     _ should typeErrorAs("unsupported type")
   )
 
-  test(rql"""Xml.InferAndRead("$data2")""") { it =>
+  test(snapi"""Xml.InferAndRead("$data2")""") { it =>
     it should evaluateTo("""[
       | {a: 1, b: 10, c: 100},
       | {a: 2, b: 20, c: 200},
@@ -421,34 +421,34 @@ trait XmlPackageTest extends CompilerTestContext {
   }
 // Error handling
 
-  test(rql"""let d = Xml.Read("$data2", type collection(record(a: int, b: int, c: int)))
+  test(snapi"""let d = Xml.Read("$data2", type collection(record(a: int, b: int, c: int)))
     |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
 
-  test(rql"""let d = Xml.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))
+  test(snapi"""let d = Xml.Read("file:/not/found", type collection(record(a: int, b: int, c: int)))
     |in Try.IsError(d)""".stripMargin)(_ should typeErrorAs("cannot be applied to a collection"))
 
-  test(rql"""let d = Xml.Read("file:/not/found", type collection(record(a: int, b: int, c: int))),
+  test(snapi"""let d = Xml.Read("file:/not/found", type collection(record(a: int, b: int, c: int))),
     |c = Collection.Count(d)
     |in Try.IsError(c)""".stripMargin)(_ should evaluateTo("true"))
 
-  test(rql"""let d = Xml.Read("file:/not/found", type record(a: int, b: int, c: list(int))),
+  test(snapi"""let d = Xml.Read("file:/not/found", type record(a: int, b: int, c: list(int))),
     |c = List.Count(d.c)
     |in Try.IsError(c)""".stripMargin)(_ should evaluateTo("true"))
 
-  test(rql"""Xml.InferAndRead("file:/not/found")""".stripMargin)(it => it should runErrorAs("path not found"))
+  test(snapi"""Xml.InferAndRead("file:/not/found")""".stripMargin)(it => it should runErrorAs("path not found"))
 
-  test(rql"""Xml.Read("file:/not/found", type collection(int))""".stripMargin)(it =>
+  test(snapi"""Xml.Read("file:/not/found", type collection(int))""".stripMargin)(it =>
     it should runErrorAs("path not found")
   )
 
-  test(rql"""let urls = List.Build("file:/not/found", "$data2"),
+  test(snapi"""let urls = List.Build("file:/not/found", "$data2"),
     |    contents = List.Transform(urls, u -> Xml.Read(u, type collection(record(a: int, b: int, c: int)))),
     |    counts = List.Transform(contents, c -> Collection.Count(c))
     |in counts""".stripMargin)(
     _ should evaluateTo("""List.Build(Error.Build("file system error: path not found: /not/found"), 3L)""")
   )
 
-  test(rql"""List.Build(
+  test(snapi"""List.Build(
     |    Collection.Count(Xml.InferAndRead("file:/not/found")),
     |    Collection.Count(Xml.InferAndRead("$data2"))
     |)""".stripMargin)(
@@ -462,7 +462,7 @@ trait XmlPackageTest extends CompilerTestContext {
     |  <n>3</n>
     |</top>""".stripMargin)
 
-  test(rql"""Xml.Read("$strings", type record(n: list(int)))""".stripMargin)(
+  test(snapi"""Xml.Read("$strings", type record(n: list(int)))""".stripMargin)(
     _ should orderEvaluateTo(
       """{ n: [
         |  1,
@@ -480,7 +480,7 @@ trait XmlPackageTest extends CompilerTestContext {
     |  <n>3</n>
     |</top>""".stripMargin)
 
-  test(rql"""Xml.Read("$recordInTheMiddle", type record(n: list(int))) """.stripMargin)(
+  test(snapi"""Xml.Read("$recordInTheMiddle", type record(n: list(int))) """.stripMargin)(
     _ should orderEvaluateTo("""{ n: [
       |  1,
       |  2,
@@ -497,7 +497,7 @@ trait XmlPackageTest extends CompilerTestContext {
     |  <n>4</n>
     |</top>""".stripMargin)
 
-  test(rql"""Xml.Read("$unexpectedTags", type record(n: list(int))) """.stripMargin)(
+  test(snapi"""Xml.Read("$unexpectedTags", type record(n: list(int))) """.stripMargin)(
     _ should orderEvaluateTo(
       """{n: [1, 2, 3, 4]}"""
     )
@@ -509,7 +509,7 @@ trait XmlPackageTest extends CompilerTestContext {
     |<person age="36" place="moon"> <name>bob</name> <job>accounting</job> </person>
     |</top>""".stripMargin)
 
-  test(rql"""let
+  test(snapi"""let
     |  t = type record(
     |    person: list(
     |      record(`@age`: int, `@place`: string, name: string, job: string)
@@ -532,14 +532,14 @@ trait XmlPackageTest extends CompilerTestContext {
     )
   )
 
-  test(rql"""Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
+  test(snapi"""Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
     _ should runErrorAs(
-      rql"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 
   test(
-    rql"""Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9)"""
+    snapi"""Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9)"""
   )(
     _ should evaluateTo(s"""[
       | {a: 1, b: "#1", c: 1.1},
@@ -555,35 +555,35 @@ trait XmlPackageTest extends CompilerTestContext {
   )
 
   test(
-    rql"""Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
+    snapi"""Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
   )(
     _ should runErrorAs(
-      rql"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 
   test(
-    rql"""Collection.Count(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
+    snapi"""Collection.Count(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
   )(
     _ should runErrorAs(
-      rql"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
+      snapi"failed to read XML (line 10 column 49) (url: $junkAfter10Items): Unexpected character '#' (code 35) in epilog"
     )
   )
 
   test(
-    rql"""Try.IsError(Collection.Count(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
+    snapi"""Try.IsError(Collection.Count(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
   ) {
     _ should evaluateTo("true")
   }
 
   test(
-    rql"""Try.IsError( List.From(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
+    snapi"""Try.IsError( List.From(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
   ) {
     _ should evaluateTo("true")
   }
 
   test(
-    rql""" List.From( Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))) , 9 )) """
+    snapi""" List.From( Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))) , 9 )) """
   ) {
     _ should evaluateTo(s"""[
       | {a: 1, b: "#1", c: 1.1},
@@ -598,7 +598,7 @@ trait XmlPackageTest extends CompilerTestContext {
       |]""".stripMargin)
   }
 
-  test(rql"""Try.IsError(
+  test(snapi"""Try.IsError(
     |  List.From(Collection.Take(Xml.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9))
     |)""".stripMargin) {
     _ should evaluateTo("false")
@@ -615,13 +615,13 @@ trait XmlPackageTest extends CompilerTestContext {
     |   </list>
     |</top>""".stripMargin)
 
-  test(rql"""Xml.Read("$orRecords",
+  test(snapi"""Xml.Read("$orRecords",
     |type record(list: collection(record(a: int, b: int) or record(c: string, d: bool)))
     |)""".stripMargin)(
     _ should run
   )
 
-  test(rql"""Xml.InferAndRead("$orRecords")""".stripMargin)(
+  test(snapi"""Xml.InferAndRead("$orRecords")""".stripMargin)(
     _ should run
   )
 

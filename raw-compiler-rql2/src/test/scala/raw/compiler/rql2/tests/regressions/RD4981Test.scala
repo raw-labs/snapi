@@ -12,34 +12,34 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
 trait RD4981Test extends CompilerTestContext with LocalLocationsTestContext {
 
-  test(rql"""let
+  test(snapi"""let
     |    data = Csv.InferAndRead("$airportsLocal"),
     |    country: string = "France"
     |    in Collection.Transform(data, row -> row.Country == country and row.City == "Paris")""".stripMargin)(
     _ should run
   )
 
-  test(rql"""let
+  test(snapi"""let
     |    data = Csv.InferAndRead("$airportsLocal"),
     |    search_by_country(country: string) = Collection.Filter(data, row -> row.Country == country and row.City == "Paris")
     |in
     |    search_by_country("France")
     |    """.stripMargin)(_ should run)
 
-  test(rql"""let
+  test(snapi"""let
     |    data = Csv.InferAndRead("$airportsLocal"),
     |    search_by_country(country: string) = Collection.Transform(data, row -> row.Country == country and row.City == "Paris")
     |in
     |    search_by_country("France")
     |    """.stripMargin)(_ should run)
 
-  test(rql"""let
+  test(snapi"""let
     |    data = Csv.InferAndRead("$airportsLocal"),
     |    search_by_country(country: string) = Collection.Filter(data, row -> row.Country == country and row.City == "Paris"),
     |    count_by_country(country: string) = Collection.Count(search_by_country(country))
