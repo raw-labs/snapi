@@ -12,12 +12,13 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{Pos, ProgramEnvironment, RenameLSPRequest, RenameLSPResponse}
+import raw.compiler.{Pos, RenameLSPRequest, RenameLSPResponse}
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait LspRenameTest extends CompilerTestContext {
 
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   test("rename identifier at usage test") { _ =>
     val code = """let
@@ -25,7 +26,7 @@ trait LspRenameTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(2, 1)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(2, 1)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 2 && p.column == 1))
@@ -37,7 +38,7 @@ trait LspRenameTest extends CompilerTestContext {
   test("another rename identifier at usage test") { _ =>
     val code = """let b = 5
       |in b""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(2, 4)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(2, 4)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 1 && p.column == 5))
@@ -52,7 +53,7 @@ trait LspRenameTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(4, 1)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(4, 1)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 2 && p.column == 1))
@@ -67,7 +68,7 @@ trait LspRenameTest extends CompilerTestContext {
       |rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(5, 1)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(5, 1)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 5 && p.column == 1))
@@ -82,7 +83,7 @@ trait LspRenameTest extends CompilerTestContext {
       |rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(2, 5)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(2, 5)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 4 && p.column == 1))
@@ -97,7 +98,7 @@ trait LspRenameTest extends CompilerTestContext {
       |rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(2, 5)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(2, 5)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 4 && p.column == 1))
@@ -116,7 +117,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(2, 5)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(2, 5)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 8 && p.column == 11))
@@ -130,7 +131,7 @@ trait LspRenameTest extends CompilerTestContext {
       |b(v: int): int = v
       |in
       |b(2)""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(2, 1)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(2, 1)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 4 && p.column == 1))
@@ -148,7 +149,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(8, 11)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(8, 11)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 8 && p.column == 11))
@@ -166,7 +167,7 @@ trait LspRenameTest extends CompilerTestContext {
       | in Collection.Build(a,b,c)
       |in
       |let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(2, 19)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(2, 19)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 2 && p.column == 19))
@@ -186,7 +187,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(4, 28)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(4, 28)))
     response match {
       case RenameLSPResponse(positions, _) =>
         assert(positions.exists(p => p.line == 2 && p.column == 19))
@@ -206,7 +207,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(RenameLSPRequest(code, queryEnvironment, Pos(1, 1)))
+    val response = doLsp(RenameLSPRequest(code, programEnvironment, Pos(1, 1)))
     response match {
       case RenameLSPResponse(positions, _) => assert(positions.length == 0)
       case r => throw new AssertionError(s"Unexpected response: $r")

@@ -16,7 +16,6 @@ import raw.api.{AuthenticatedUser, RawService}
 import raw.compiler.base.ProgramContext
 import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
 import raw.compiler.scala2.{Scala2CompilerContext, Scala2JvmCompiler}
-import raw.compiler.{ProgramEnvironment, ProgramSettings}
 import raw.config.RawSettings
 import raw.creds.CredentialsServiceProvider
 import raw.inferrer.InferrerServiceProvider
@@ -72,25 +71,23 @@ class CompilerService(implicit settings: RawSettings) extends RawService {
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): ProgramContext = {
-    val programSettings = compiler.getProgramSettings(code, environment)
-    val runtimeContext = getRuntimeContext(compiler, maybeArguments, environment, NullExecutionLogger, programSettings)
-    compiler.getProgramContext(programSettings, runtimeContext)
+    val runtimeContext = getRuntimeContext(compiler, maybeArguments, environment, NullExecutionLogger)
+    compiler.getProgramContext(runtimeContext)
   }
 
   private def getRuntimeContext(
       compiler: Compiler,
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
-      executionLogger: ExecutionLogger,
-      programSettings: ProgramSettings
+      executionLogger: ExecutionLogger
   ): RuntimeContext = {
     val sourceContext = compiler.compilerContext.sourceContext
     new RuntimeContext(
       sourceContext,
-      programSettings,
+      settings,
       executionLogger,
       maybeArguments,
-      environment.scopes
+      environment
     )
   }
 

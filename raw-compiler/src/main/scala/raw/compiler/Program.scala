@@ -15,7 +15,7 @@ package raw.compiler
 import com.fasterxml.jackson.annotation.{JsonProperty, JsonSubTypes, JsonTypeInfo}
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import raw.api.RawException
-import raw.runtime.ParamValue
+import raw.runtime.{ParamValue, ProgramEnvironment}
 
 import java.io.OutputStream
 
@@ -24,14 +24,6 @@ final case class ProgramDefinition(
     decl: Option[String],
     parameters: Option[Array[(String, ParamValue)]],
     environment: ProgramEnvironment
-)
-
-final case class ProgramEnvironment(
-    language: Option[String],
-    scopes: Set[String],
-    options: Map[String, String],
-    // Note: intention is to pass the x-raw-correlation-id header around
-    maybeTraceId: Option[String] = None
 )
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")

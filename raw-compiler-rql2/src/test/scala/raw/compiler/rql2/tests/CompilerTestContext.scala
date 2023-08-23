@@ -22,11 +22,11 @@ import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.common.{Compiler, CompilerService}
 import raw.compiler.rql2.source.Rql2Program
-import raw.compiler.{CompilerException, LSPRequest, ProgramEnvironment, ProgramOutputWriter}
+import raw.compiler.{CompilerException, LSPRequest, ProgramOutputWriter}
 import raw.creds._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.SimpleInferrerTestContext
-import raw.runtime.{DebugExecutionLogger, ExecutionLogger, ParamValue}
+import raw.runtime.{DebugExecutionLogger, ExecutionLogger, ParamValue, ProgramEnvironment}
 import raw.sources.bytestream.ByteStreamCacheTestContext
 import raw.utils._
 

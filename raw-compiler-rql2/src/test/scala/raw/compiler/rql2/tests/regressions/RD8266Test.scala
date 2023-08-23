@@ -15,13 +15,14 @@ package raw.compiler.rql2.tests.regressions
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler._
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait RD8266Test extends CompilerTestContext with StrictLogging {
 
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   def dotAutoCompleteTest(code: String, line: Int, col: Int) = {
-    val response = doLsp(DotAutoCompleteLSPRequest(code, queryEnvironment, Pos(line, col)))
+    val response = doLsp(DotAutoCompleteLSPRequest(code, programEnvironment, Pos(line, col)))
     response match {
       case AutoCompleteLSPResponse(entries, _) => entries.toSeq
       case _ => throw new AssertionError(s"Unexpected response: $response")
@@ -29,7 +30,7 @@ trait RD8266Test extends CompilerTestContext with StrictLogging {
   }
 
   def hoverRequest(code: String, line: Int, col: Int) = {
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(line, col)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(line, col)))
     response match {
       case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse
       case _ => throw new AssertionError(s"Unexpected response: $response")

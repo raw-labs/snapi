@@ -29,7 +29,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
-import raw.compiler.{base, CompilerException, ErrorMessage, ProgramSettings}
+import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime.{
   Entrypoint,
   ParamBool,
@@ -250,7 +250,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     val emitter = new TruffleEmitterImpl(tree)(programContext.asInstanceOf[ProgramContext])
     val Rql2Program(methods, me) = tree.root
     val dataType = tree.analyzer.tipe(me.get)
-    val outputFormat = programContext.settings.getString(ProgramSettings.output_format)
+    val outputFormat = programContext.runtimeContext.environment.options.getOrElse("output-format", defaultOutputFormat)
     outputFormat match {
       case "csv" => if (!CsvPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
       case "json" => if (!JsonPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")

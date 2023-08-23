@@ -12,26 +12,13 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.{
-  AutoCompleteLSPResponse,
-  DotAutoCompleteLSPRequest,
-  FieldLSPAutoCompleteResponse,
-  FunParamLSPAutoCompleteResponse,
-  LSPResponse,
-  LetBindLSPAutoCompleteResponse,
-  LetFunLSPAutoCompleteResponse,
-  LetFunRecAutoCompleteResponse,
-  PackageEntryLSPAutoCompleteResponse,
-  PackageLSPAutoCompleteResponse,
-  Pos,
-  ProgramEnvironment,
-  WordAutoCompleteLSPRequest
-}
+import raw.compiler.{AutoCompleteLSPResponse, DotAutoCompleteLSPRequest, FieldLSPAutoCompleteResponse, FunParamLSPAutoCompleteResponse, LSPResponse, LetBindLSPAutoCompleteResponse, LetFunLSPAutoCompleteResponse, LetFunRecAutoCompleteResponse, PackageEntryLSPAutoCompleteResponse, PackageLSPAutoCompleteResponse, Pos, WordAutoCompleteLSPRequest}
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait RD5851Test extends CompilerTestContext {
 
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   def autoCompleteNames(response: LSPResponse): Seq[String] = {
     response match {
@@ -49,7 +36,7 @@ trait RD5851Test extends CompilerTestContext {
   }
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[String]): Unit = {
-    val response = doLsp(DotAutoCompleteLSPRequest(code, queryEnvironment, Pos(line, col)))
+    val response = doLsp(DotAutoCompleteLSPRequest(code, programEnvironment, Pos(line, col)))
     val actual = autoCompleteNames(response)
     assert(actual == expectedFields)
   }
@@ -61,7 +48,7 @@ trait RD5851Test extends CompilerTestContext {
       prefix: String,
       expected: Seq[String]
   ): Unit = {
-    val response = doLsp(WordAutoCompleteLSPRequest(code, queryEnvironment, prefix, Pos(line, col)))
+    val response = doLsp(WordAutoCompleteLSPRequest(code, programEnvironment, prefix, Pos(line, col)))
     val actual = autoCompleteNames(response)
     // Check that all expected are in actual.
     // actual can have more though - e.g. built-in packages.

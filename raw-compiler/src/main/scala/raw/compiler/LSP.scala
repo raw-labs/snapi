@@ -14,6 +14,7 @@ package raw.compiler
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import raw.runtime.ProgramEnvironment
 
 //This one is repeated on Kiama, ErrorPosition, and at some points in Repose,
 //is there any way for every project to reuse the same classes?
