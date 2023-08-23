@@ -39,7 +39,7 @@ class TryTransformEntry extends EntryExtension {
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = idx match {
     case 0 => Right(ExpParam(IsTryable()))
     case 1 =>
-      val ExpArg(_, t) = prevMandatoryArgs(0)
+      val ExpArg(_, t) = prevMandatoryArgs.head
       val innerType = removeProp(t, Rql2IsTryableTypeProperty())
       Right(
         ExpParam(FunType(Vector(innerType), Vector.empty, DoesNotHaveTypeProperties(Set(Rql2IsTryableTypeProperty()))))
@@ -78,7 +78,7 @@ class TryIsErrorEntry extends EntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     Right(
-      ExpParam(HasTypeProperties(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())))
+      ExpParam(IsTryable())
     )
   }
 
@@ -86,7 +86,7 @@ class TryIsErrorEntry extends EntryExtension {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs(0).t match {
+  )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs.head.t match {
     case _: Rql2IterableType => Left("cannot be applied to a collection")
     case _ => Right(Rql2BoolType())
   }
@@ -121,7 +121,7 @@ class TryIsSuccessEntry extends EntryExtension {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs(0).t match {
+  )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs.head.t match {
     case _: Rql2IterableType => Left("cannot be applied to a collection")
     case _ => Right(Rql2BoolType())
   }
@@ -176,7 +176,7 @@ class TryUnsafeGetEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(removeProp(mandatoryArgs(0).t, Rql2IsTryableTypeProperty()))
+    Right(removeProp(mandatoryArgs.head.t, Rql2IsTryableTypeProperty()))
   }
 
 }

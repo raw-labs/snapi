@@ -74,7 +74,7 @@ class ErrorBuildWithTypeEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val TypeArg(t) = mandatoryArgs(0)
+    val TypeArg(t) = mandatoryArgs.head
     Right(addProp(t, Rql2IsTryableTypeProperty()))
   }
 
@@ -91,7 +91,7 @@ class ErrorGetEntry extends EntryExtension {
   override def nrMandatoryParams: Int = 1
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
-    Right(ExpParam(HasTypeProperties(Set(Rql2IsTryableTypeProperty()))))
+    Right(ExpParam(IsTryable()))
   }
 
   override def returnType(

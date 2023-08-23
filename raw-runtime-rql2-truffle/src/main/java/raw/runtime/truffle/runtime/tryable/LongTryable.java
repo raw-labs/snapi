@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.tryable;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 // before anything else, looks like final tree is "too simple"
 // and misses the cast phase
@@ -21,46 +22,50 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(TryableLibrary.class)
 public final class LongTryable {
 
-  private final long successValue;
-  private final String failureValue;
+    private final long successValue;
+    private final String failureValue;
 
-  public LongTryable(long successValue, String failureValue) {
-    this.successValue = successValue;
-    this.failureValue = failureValue;
-  }
+    public LongTryable(long successValue, String failureValue) {
+        this.successValue = successValue;
+        this.failureValue = failureValue;
+    }
 
-  public static LongTryable BuildSuccess(long successValue) {
-    return new LongTryable(successValue, null);
-  }
+    public static LongTryable BuildSuccess(long successValue) {
+        return new LongTryable(successValue, null);
+    }
 
-  public static LongTryable BuildFailure(String failureValue) {
-    return new LongTryable(0, failureValue);
-  }
+    public static LongTryable BuildFailure(String failureValue) {
+        return new LongTryable(0, failureValue);
+    }
 
-  @ExportMessage
-  boolean isTryable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isTryable() {
+        return true;
+    }
 
-  @ExportMessage
-  long success() {
-    // assert(isSuccess());
-    return successValue;
-  }
+    @ExportMessage
+    long success() {
+        if (!isSuccess()) {
+            throw new RawTruffleRuntimeException(failureValue);
+        }
+        return successValue;
+    }
 
-  @ExportMessage
-  String failure() {
-    // assert(isFailure());
-    return failureValue;
-  }
+    @ExportMessage
+    String failure() {
+        if (!isFailure()) {
+            throw new RawTruffleRuntimeException("not a failure");
+        }
+        return failureValue;
+    }
 
-  @ExportMessage
-  boolean isSuccess() {
-    return failureValue == null;
-  }
+    @ExportMessage
+    boolean isSuccess() {
+        return failureValue == null;
+    }
 
-  @ExportMessage
-  boolean isFailure() {
-    return failureValue != null;
-  }
+    @ExportMessage
+    boolean isFailure() {
+        return failureValue != null;
+    }
 }

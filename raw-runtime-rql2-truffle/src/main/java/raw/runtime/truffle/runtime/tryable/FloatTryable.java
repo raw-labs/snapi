@@ -14,50 +14,55 @@ package raw.runtime.truffle.runtime.tryable;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ExportLibrary(TryableLibrary.class)
 public final class FloatTryable {
 
-  private final float successValue;
-  private final String failureValue;
+    private final float successValue;
+    private final String failureValue;
 
-  public FloatTryable(float successValue, String failureValue) {
-    this.successValue = successValue;
-    this.failureValue = failureValue;
-  }
+    public FloatTryable(float successValue, String failureValue) {
+        this.successValue = successValue;
+        this.failureValue = failureValue;
+    }
 
-  public static FloatTryable BuildSuccess(float successValue) {
-    return new FloatTryable(successValue, null);
-  }
+    public static FloatTryable BuildSuccess(float successValue) {
+        return new FloatTryable(successValue, null);
+    }
 
-  public static FloatTryable BuildFailure(String failureValue) {
-    return new FloatTryable(0, failureValue);
-  }
+    public static FloatTryable BuildFailure(String failureValue) {
+        return new FloatTryable(0, failureValue);
+    }
 
-  @ExportMessage
-  boolean isTryable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isTryable() {
+        return true;
+    }
 
-  @ExportMessage
-  public float success() {
-    // assert(isSuccess());
-    return successValue;
-  }
+    @ExportMessage
+    public float success() {
+        if (!isSuccess()) {
+            throw new RawTruffleRuntimeException(failureValue);
+        }
+        return successValue;
+    }
 
-  @ExportMessage
-  public String failure() {
-    // assert(isFailure());
-    return failureValue;
-  }
+    @ExportMessage
+    public String failure() {
+        if (!isFailure()) {
+            throw new RawTruffleRuntimeException("not a failure");
+        }
+        return failureValue;
+    }
 
-  @ExportMessage
-  public boolean isSuccess() {
-    return failureValue == null;
-  }
+    @ExportMessage
+    public boolean isSuccess() {
+        return failureValue == null;
+    }
 
-  @ExportMessage
-  public boolean isFailure() {
-    return failureValue != null;
-  }
+    @ExportMessage
+    public boolean isFailure() {
+        return failureValue != null;
+    }
 }
