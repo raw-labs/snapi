@@ -91,12 +91,9 @@ trait CompilerTestContext
       case ((user, name), _) => withSuppressNonFatalException(credentials.unregisterRDBMSServer(user, name))
     }
     newHttpCreds.foreach {
-      case (user, (name, _)) =>
-        withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
+      case (user, (name, _)) => withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
     }
-    dropboxTokens.foreach {
-      case (user, _) => withSuppressNonFatalException(credentials.unregisterDropboxToken(user))
-    }
+    dropboxTokens.foreach { case (user, _) => withSuppressNonFatalException(credentials.unregisterDropboxToken(user)) }
     secrets.foreach {
       case (user, secret) => withSuppressNonFatalException(credentials.unregisterSecret(user, secret.name))
     }
