@@ -37,6 +37,8 @@ class ProgramContext(
 
   private val stageCompilerCache = new mutable.HashMap[Rql2Program, Either[BaseError, Value]]
 
+  def getInferCache: Map[InferrerProperties, Either[String, InputFormatDescriptor]] = inferCache.toMap
+
   def infer(
       inferrerProperties: InferrerProperties
   ): Either[String, InputFormatDescriptor] = {
