@@ -34,22 +34,12 @@ trait JsonOutputTest extends CompilerTestContext {
     val path: Path = Files.createTempFile("", "")
     try {
       it should saveToInFormat(path, "json")
-      if (language == "rql2-truffle") {
-        path should contain(
-          """[{"byteCol":1,"shortCol":10,"intCol":100,"longCol":1000,"floatCol":3.14,"doubleCol":6.28,"decimalCol":9.42,"boolCol":true,""" +
-            """"dateCol":"2023-12-25","timeCol":"01:02:03","timestampCol":"2023-12-25T01:02:03","binaryCol":"SGVsbG8gV29ybGQh"},""" +
-            """{"byteCol":120,"shortCol":2500,"intCol":25000,"longCol":250000,"floatCol":30.14,"doubleCol":60.28,"decimalCol":90.42,"boolCol":false,""" +
-            """"dateCol":"2023-02-05","timeCol":"11:12:13","timestampCol":"2023-02-05T11:12:13","binaryCol":"T2xhbGEh"}]""".stripMargin
-        )
-      } else {
-        // scala adds .SSS to the time and timestamp columns (even if no milliseconds are present in the value).
-        path should contain(
-          """[{"byteCol":1,"shortCol":10,"intCol":100,"longCol":1000,"floatCol":3.14,"doubleCol":6.28,"decimalCol":9.42,"boolCol":true,""" +
-            """"dateCol":"2023-12-25","timeCol":"01:02:03.000","timestampCol":"2023-12-25T01:02:03.000","binaryCol":"SGVsbG8gV29ybGQh"},""" +
-            """{"byteCol":120,"shortCol":2500,"intCol":25000,"longCol":250000,"floatCol":30.14,"doubleCol":60.28,"decimalCol":90.42,"boolCol":false,""" +
-            """"dateCol":"2023-02-05","timeCol":"11:12:13.000","timestampCol":"2023-02-05T11:12:13.000","binaryCol":"T2xhbGEh"}]""".stripMargin
-        )
-      }
+      path should contain(
+        """[{"byteCol":1,"shortCol":10,"intCol":100,"longCol":1000,"floatCol":3.14,"doubleCol":6.28,"decimalCol":9.42,"boolCol":true,""" +
+          """"dateCol":"2023-12-25","timeCol":"01:02:03.000","timestampCol":"2023-12-25T01:02:03.000","binaryCol":"SGVsbG8gV29ybGQh"},""" +
+          """{"byteCol":120,"shortCol":2500,"intCol":25000,"longCol":250000,"floatCol":30.14,"doubleCol":60.28,"decimalCol":90.42,"boolCol":false,""" +
+          """"dateCol":"2023-02-05","timeCol":"11:12:13.000","timestampCol":"2023-02-05T11:12:13.000","binaryCol":"T2xhbGEh"}]""".stripMargin
+      )
     } finally {
       RawUtils.deleteTestPath(path)
     }
