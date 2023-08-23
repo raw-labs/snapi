@@ -12,7 +12,13 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{AutoCompleteLSPResponse, DotAutoCompleteLSPRequest, FieldLSPAutoCompleteResponse, PackageEntryLSPAutoCompleteResponse, Pos}
+import raw.compiler.{
+  AutoCompleteLSPResponse,
+  DotAutoCompleteLSPRequest,
+  FieldLSPAutoCompleteResponse,
+  PackageEntryLSPAutoCompleteResponse,
+  Pos
+}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.runtime.ProgramEnvironment
 

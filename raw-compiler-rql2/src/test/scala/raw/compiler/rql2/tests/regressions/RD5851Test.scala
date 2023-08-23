@@ -12,7 +12,20 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.{AutoCompleteLSPResponse, DotAutoCompleteLSPRequest, FieldLSPAutoCompleteResponse, FunParamLSPAutoCompleteResponse, LSPResponse, LetBindLSPAutoCompleteResponse, LetFunLSPAutoCompleteResponse, LetFunRecAutoCompleteResponse, PackageEntryLSPAutoCompleteResponse, PackageLSPAutoCompleteResponse, Pos, WordAutoCompleteLSPRequest}
+import raw.compiler.{
+  AutoCompleteLSPResponse,
+  DotAutoCompleteLSPRequest,
+  FieldLSPAutoCompleteResponse,
+  FunParamLSPAutoCompleteResponse,
+  LSPResponse,
+  LetBindLSPAutoCompleteResponse,
+  LetFunLSPAutoCompleteResponse,
+  LetFunRecAutoCompleteResponse,
+  PackageEntryLSPAutoCompleteResponse,
+  PackageLSPAutoCompleteResponse,
+  Pos,
+  WordAutoCompleteLSPRequest
+}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.runtime.ProgramEnvironment
 

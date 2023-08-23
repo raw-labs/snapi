@@ -12,7 +12,17 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{EntryDoc, ErrorLSPResponse, HoverLSPRequest, HoverLSPResponse, PackageDoc, PackageEntryLSPHoverResponse, PackageLSPHoverResponse, Pos, TypeHoverResponse}
+import raw.compiler.{
+  EntryDoc,
+  ErrorLSPResponse,
+  HoverLSPRequest,
+  HoverLSPResponse,
+  PackageDoc,
+  PackageEntryLSPHoverResponse,
+  PackageLSPHoverResponse,
+  Pos,
+  TypeHoverResponse
+}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.runtime.ProgramEnvironment
 
