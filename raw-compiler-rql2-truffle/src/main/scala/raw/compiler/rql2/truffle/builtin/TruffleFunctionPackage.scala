@@ -16,7 +16,9 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.FunctionInvokeAfterEntry
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.ast.expressions.builtin.function_package.FunctionInvokeAfterNodeGen
 
 class TruffleFunctionInvokeAfterEntry extends FunctionInvokeAfterEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = super.toTruffle(t, args)
+  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode =
+    FunctionInvokeAfterNodeGen.create(args.head.e, args(1).e)
 }

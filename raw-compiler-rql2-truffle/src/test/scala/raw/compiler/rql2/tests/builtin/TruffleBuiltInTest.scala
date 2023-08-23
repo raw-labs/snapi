@@ -25,10 +25,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class EnvironmentPackageTruffleTest extends TruffleCompilerTestContext with EnvironmentPackageTest
 @TruffleTests class ErrorPackageTruffleTest extends TruffleCompilerTestContext with ErrorPackageTest
 @TruffleTests class FloatPackageTruffleTest extends TruffleCompilerTestContext with FloatPackageTest
-
-// InvokeAfter
-// class FunctionPackageTruffleTest extends TruffleCompilerTestContext with FunctionPackageTest
-
+@TruffleTests class FunctionPackageTruffleTest extends TruffleCompilerTestContext with FunctionPackageTest
 @TruffleTests class HttpPackageTruffleTest extends TruffleCompilerTestContext with HttpPackageTest
 @TruffleTests class IntervalPackageTruffleTest extends TruffleCompilerTestContext with IntervalPackageTest
 @TruffleTests class IntPackageTruffleTest extends TruffleCompilerTestContext with IntPackageTest
