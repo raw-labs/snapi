@@ -143,9 +143,11 @@ class CsvColumnParser(
         }
       case r: Rql2TypeWithProperties =>
         assert(r.props.isEmpty)
+        // These would be types returned by the inferrer. Not all types are expected
+        // from the inferrer.
         r match {
           case _: Rql2IntType => new IntParseCsvNode()
-          case _: Rql2FloatType => new FloatParseCsvNode()
+          case _: Rql2LongType => new LongParseCsvNode()
           case _: Rql2DoubleType => new DoubleParseCsvNode()
           case _: Rql2DecimalType => new DecimalParseCsvNode()
           case _: Rql2BoolType => new BoolParseCsvNode()
