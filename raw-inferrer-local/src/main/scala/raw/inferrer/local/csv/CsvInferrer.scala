@@ -22,16 +22,24 @@ import raw.inferrer._
 import raw.sources.bytestream.SeekableInputStream
 import raw.sources.{Encoding, SourceContext}
 
+object CsvInferrer {
+  private val CSV_SAMPLE_SIZE = "raw.inferrer.local.csv.sample-size"
+  private val CSV_SEPARATOR_SAMPLE_SIZE = "raw.inferrer.local.csv.separator-sample-size"
+  private val CSV_QUOTED_WEIGHT = "raw.inferrer.local.csv.quoted-weight"
+}
+
 class CsvInferrer(implicit protected val sourceContext: SourceContext)
     extends EncodingInferrer
     with InferrerErrorHandler
     with StrictLogging {
 
-  private val defaultSampleSize = settings.getInt("raw.inferrer.local.csv.sample-size")
+  import CsvInferrer._
 
-  private val separatorSampleSize = settings.getInt("raw.inferrer.local.csv.separator-sample-size")
+  private val defaultSampleSize = settings.getInt(CSV_SAMPLE_SIZE)
 
-  private val quotedWeight = settings.getDouble("raw.inferrer.local.csv.quotedWeigth")
+  private val separatorSampleSize = settings.getInt(CSV_SEPARATOR_SAMPLE_SIZE)
+
+  private val quotedWeight = settings.getDouble(CSV_QUOTED_WEIGHT)
 
   private val defaultDelimiters = Seq(',', '\t', ';', '|', ' ')
 

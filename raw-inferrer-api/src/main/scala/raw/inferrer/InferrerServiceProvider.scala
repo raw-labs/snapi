@@ -18,6 +18,8 @@ import raw.sources.SourceContext
 
 object InferrerServiceProvider {
 
+  private val INFERRER_IMPL = "raw.inferrer.impl"
+
   private val services = ServiceLoader.load(classOf[InferrerServiceBuilder]).asScala.toArray
 
   def apply()(implicit sourceContext: SourceContext): InferrerService = {
@@ -29,7 +31,7 @@ object InferrerServiceProvider {
     if (services.isEmpty) {
       throw new InferrerException("no inferrer service available")
     } else if (services.length > 1) {
-      val implClassName = sourceContext.settings.getString("raw.inferrer.impl")
+      val implClassName = sourceContext.settings.getString(INFERRER_IMPL)
       services.find(p => p.name == implClassName) match {
         case Some(builder) => builder.build
         case None => throw new InferrerException(s"cannot find inferrer service: $implClassName")

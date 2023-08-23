@@ -32,6 +32,8 @@ import scala.collection.mutable
 // TODO (msb): The existence of this is weird; also for the config settings it implies...
 object JavaRuntimeHttpClient {
 
+  import HttpClientSettings._
+
   // TODO: Transform this into dependency injection. Note that is requires 'settings'.
   private val initLock = new Object
   private var httpClient: HttpClient = _
@@ -39,7 +41,7 @@ object JavaRuntimeHttpClient {
   protected[http] def buildHttpClient(settings: RawSettings): HttpClient = {
     initLock.synchronized {
       if (httpClient == null) {
-        val connectTimeout = settings.getDuration("raw.sources.bytestream.http.connect-timeout", TimeUnit.MILLISECONDS)
+        val connectTimeout = settings.getDuration(HTTP_CONNECT_TIMEOUT, TimeUnit.MILLISECONDS)
         this.httpClient = java.net.http.HttpClient.newBuilder
           .version(Version.HTTP_1_1)
           .connectTimeout(Duration.ofMillis(connectTimeout))
@@ -62,9 +64,10 @@ class JavaRuntimeHttpClient(
     with RuntimeHttpClient
     with StrictLogging {
 
+  import HttpClientSettings._
+
   private val httpClient = JavaRuntimeHttpClient.buildHttpClient(settings)
-  private val httpReadTimeoutMillis =
-    settings.getDuration("raw.sources.bytestream.http.read-timeout", TimeUnit.MILLISECONDS)
+  private val httpReadTimeoutMillis = settings.getDuration(HTTP_READ_TIMEOUT, TimeUnit.MILLISECONDS)
 
   private val requestBuilderTemplate = HttpRequest
     .newBuilder()

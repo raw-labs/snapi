@@ -24,15 +24,21 @@ import scala.util.matching.Regex
 
 private case class RegexToType(regex: Regex, atts: Seq[SourceAttrType])
 
+object TextInferrer {
+  private val TEXT_SAMPLE_SIZE = "raw.inferrer.local.text.sample-size"
+}
+
 class TextInferrer(implicit protected val sourceContext: SourceContext)
     extends InferrerErrorHandler
     with EncodingInferrer
     with StrictLogging {
 
+  import TextInferrer._
+
   // Minimum match to accept a regex expression (1 = 100%)
   private val minMatch = 0.95
 
-  private val defaultSampleSize = settings.getInt("raw.inferrer.local.text.sample-size")
+  private val defaultSampleSize = settings.getInt(TEXT_SAMPLE_SIZE)
 
   def infer(is: SeekableInputStream, maybeEncoding: Option[Encoding], maybeSampleSize: Option[Int])(
       implicit executionLogger: ExecutionLogger

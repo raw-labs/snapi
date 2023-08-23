@@ -63,8 +63,9 @@ class TruffleProgramOutputWriter(entrypoint: TruffleEntrypoint)(
         programContext.runtimeContext.close()
       }
     } finally {
-      // (msb): I am not sure about this. I create/initialize/enter the context during emission in the 'doEmit' of the
-      // Rql2TruffleCompiler since it's needed there.
+      // We explicitly created and then entered the context during code emission.
+      // Now we explicitly leave and close the context.
+      entrypoint.context.leave()
       entrypoint.context.close()
     }
   }
