@@ -39,7 +39,6 @@ import raw.config.RawSettings
 import raw.utils.RawUtils
 
 import java.io.{ByteArrayOutputStream, PrintWriter}
-import java.util.UUID
 import scala.util.control.NonFatal
 
 class RawCli(writer: PrintWriter) extends StrictLogging {
@@ -64,7 +63,6 @@ class RawCli(writer: PrintWriter) extends StrictLogging {
 
   def query(code: String, silent: Boolean = false): Unit = {
     try {
-      val id = UUID.randomUUID().toString
       var query: ProgramOutputWriter = null
 
       val environment =
@@ -77,7 +75,6 @@ class RawCli(writer: PrintWriter) extends StrictLogging {
       val compiler = compilerService.getCompiler(user, programDefinition.environment.language)
       val programContext = compilerService.getProgramContext(
         compiler,
-        id,
         programDefinition.code,
         programDefinition.parameters,
         programDefinition.environment

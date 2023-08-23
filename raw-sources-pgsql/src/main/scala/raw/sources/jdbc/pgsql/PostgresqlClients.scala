@@ -13,9 +13,7 @@
 package raw.sources.jdbc.pgsql
 
 import raw.creds.PostgresqlCredential
-import raw.sources.{JdbcCacheKey, LocationDescription, LocationException, SourceContext}
-
-final case class PostgresqlCacheKey(cred: PostgresqlCredential) extends JdbcCacheKey
+import raw.sources.{LocationDescription, LocationException, SourceContext}
 
 object PostgresqlClients {
 
