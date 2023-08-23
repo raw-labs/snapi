@@ -272,7 +272,12 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
     val rootNode: RootNode = outputFormat match {
       case "csv" =>
-        val lineSeparator = if (programContext.settings.getBoolean(WINDOWS_LINE_ENDING)) "\r\n" else "\n"
+        val windowsLineEnding = programContext.runtimeContext.environment.options.get("windows-line-ending") match {
+          case Some("true") => true
+          case Some("false") => false
+          case None => programContext.settings.getBoolean(WINDOWS_LINE_ENDING)
+        }
+        val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
         dataType match {
           case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
             assert(rProps.isEmpty)
