@@ -19,7 +19,7 @@ import raw.inferrer._
 import raw.sources._
 import raw.sources.bytestream.ByteStreamCacheTestContext
 import raw.sources.filesystem.local.LocalPath
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.io._
 import java.time.Duration
@@ -57,8 +57,8 @@ class LocalInferrerTest
           inferrer.infer(AutoInferrerProperties(LocationDescription(l1.rawUri), None))
         assert(detectedEncoding == encoding)
       } finally {
-        RawUtils.withSuppressNonFatalException(inferrer.stop())
-        RawUtils.withSuppressNonFatalException(f.delete())
+        withSuppressNonFatalException(inferrer.stop())
+        withSuppressNonFatalException(f.delete())
       }
     }
   }
@@ -66,17 +66,17 @@ class LocalInferrerTest
   test("Can call inferrer in parallel") { _ =>
     val files = Array(
       new LocalPath(
-        RawUtils.getResource("data/publications/authors.json"),
+        getResource("data/publications/authors.json"),
         ExpiryAfter(Duration.ofMillis(0)),
         NoRetry()
       ),
       new LocalPath(
-        RawUtils.getResource("data/publications/publications.json"),
+        getResource("data/publications/publications.json"),
         ExpiryAfter(Duration.ofMillis(0)),
         NoRetry()
       ),
       new LocalPath(
-        RawUtils.getResource("data/publications/publications.hjson"),
+        getResource("data/publications/publications.hjson"),
         ExpiryAfter(Duration.ofMillis(0)),
         NoRetry()
       )
@@ -99,8 +99,8 @@ class LocalInferrerTest
         })
       }
     } finally {
-      RawUtils.withSuppressNonFatalException(inferrer.stop())
-      RawUtils.withSuppressNonFatalException(ex.shutdownNow())
+      withSuppressNonFatalException(inferrer.stop())
+      withSuppressNonFatalException(ex.shutdownNow())
     }
   }
 
@@ -228,7 +228,7 @@ class LocalInferrerTest
             |      `record_timestamp`: string)))""".stripMargin
       )
     } finally {
-      RawUtils.withSuppressNonFatalException(inferrer.stop())
+      withSuppressNonFatalException(inferrer.stop())
     }
   }
 }

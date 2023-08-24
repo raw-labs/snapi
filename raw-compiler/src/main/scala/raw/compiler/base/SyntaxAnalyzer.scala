@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.parsing._
 import org.bitbucket.inkytonik.kiama.util._
 import raw.compiler.base.source._
-import raw.utils.StringEscape
+import raw.utils._
 
 import scala.util.matching.Regex
 
@@ -181,20 +181,19 @@ trait SyntaxAnalyzer extends Keywords with StrictLogging {
   final protected lazy val escapedIdent: Parser[String] = escapedIdentRegex ^^ { s => s.drop(1).dropRight(1) }
 
   final protected lazy val stringLitEscaped: Parser[String] = stringLitTripleRegex ^^ { s =>
-    StringEscape.escape(s.drop(3).dropRight(3))
+    escape(s.drop(3).dropRight(3))
   } |
-    stringLitRegex ^^ { s => StringEscape.escape(s.drop(1).dropRight(1)) }
+    stringLitRegex ^^ { s => escape(s.drop(1).dropRight(1)) }
 
   final protected lazy val stringLit: Parser[String] = tripleQuoteStringLit | singleQuoteStringLit
 
   final protected lazy val singleQuoteStringLit: Parser[String] = stringLitRegex ^^ { s =>
-    StringEscape.escape(s).drop(1).dropRight(1)
+    escape(s).drop(1).dropRight(1)
   }
 
   final protected lazy val tripleQuoteStringLit: Parser[String] = stringLitTripleRegex ^^ { s =>
     s.drop(3).dropRight(3)
   }
-
   final protected def method1[T](kw: String, p1: => Parser[T]): Parser[T] = s"(?i)$kw\\b".r ~> "(" ~> p1 <~ ")"
 
   final protected def method2[T, U](kw: String, p1: => Parser[T], p2: => Parser[U]): Parser[T ~ U] =

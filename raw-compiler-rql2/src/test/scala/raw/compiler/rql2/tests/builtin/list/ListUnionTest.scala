@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.list
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
@@ -41,30 +41,30 @@ trait ListUnionTest extends CompilerTestContext with LocalLocationsTestContext {
   private val integers = tempFile("[1,2,3,4,5]")
   private val doubles = tempFile("[1.9,2.9,3.9,4.9,5.9]")
   // try/null string
-  test(rql"""let url: string = "$integers",
+  test(snapi"""let url: string = "$integers",
     |    numbers = Json.InferAndRead(url)
     |in Collection.Union(numbers, numbers)
     |""".stripMargin)(_ should evaluateTo("[1,2,3,4,5,1,2,3,4,5]"))
 
   // try list (because of List.From)
-  test(rql"""let numbers = List.From(Json.InferAndRead("$doubles"))
+  test(snapi"""let numbers = List.From(Json.InferAndRead("$doubles"))
     |in List.Union(numbers, numbers)
     |""".stripMargin)(_ should evaluateTo("[1.9,2.9,3.9,4.9,5.9,1.9,2.9,3.9,4.9,5.9]"))
 
   // merge-like Union (doubles/ints are turned into doubles)
-  test(rql"""
+  test(snapi"""
     |let doubles = List.From(Json.InferAndRead("$doubles")),
     |    integers = List.From(Json.InferAndRead("$integers"))
     |in List.Union(doubles, integers)
     |""".stripMargin) { it =>
-    it should evaluateTo(rql"""
+    it should evaluateTo(snapi"""
       |let doubles = List.From(Json.InferAndRead("$doubles")),
       |    integers = List.From(Json.InferAndRead("$integers"))
       |in List.Union(integers, doubles)""".stripMargin)
     it should evaluateTo("""[1.0,2.0,3.0,4.0,5.0,1.9,2.9,3.9,4.9,5.9]""")
   }
 
-  test(rql"""let beeGees = List.From(Csv.InferAndRead("$beeGees")),
+  test(snapi"""let beeGees = List.From(Csv.InferAndRead("$beeGees")),
     |    beachBoys = List.From(Csv.InferAndRead("$beachBoys")),
     |    nevilleBrothers = List.From(Csv.InferAndRead("$nevilleBrothers"))
     |in List.Distinct(List.Transform(List.Union(beeGees, beachBoys, nevilleBrothers), x -> x.lastName))
@@ -73,7 +73,7 @@ trait ListUnionTest extends CompilerTestContext with LocalLocationsTestContext {
   )
 
   // same without Csv.InferAndRead
-  test(rql"""let readCsv(url: string) =
+  test(snapi"""let readCsv(url: string) =
     |      let rows = List.Transform(List.From(String.ReadLines(url)), l -> String.Split(l, "|")),
     |          records = List.Transform(rows, r -> {band: List.Get(r, 0), firstName: List.Get(r, 1),
     |                                                     lastName: List.Get(r, 2), birthYear: Int.From(List.Get(r, 3))})

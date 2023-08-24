@@ -20,22 +20,19 @@ import raw._
 import raw.api.{AuthenticatedUser, InteractiveUser, RawException}
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.common.source.{IdnExp, IdnUse}
 import raw.compiler.common.{Compiler, CompilerService}
-import raw.compiler.rql2.Tree
 import raw.compiler.rql2.source.Rql2Program
-import raw.compiler.{CompilerException, LSPRequest, ProgramEnvironment, ProgramOutputWriter}
+import raw.compiler.{CompilerException, LSPRequest, ProgramOutputWriter}
 import raw.creds._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.SimpleInferrerTestContext
-import raw.runtime.{DebugExecutionLogger, ExecutionLogger, ParamValue}
+import raw.runtime.{DebugExecutionLogger, ExecutionLogger, ParamValue, ProgramEnvironment}
 import raw.sources.bytestream.ByteStreamCacheTestContext
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.io.{ByteArrayOutputStream, FileWriter}
 import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.{Files, Path, StandardOpenOption}
-import java.util.concurrent.atomic.AtomicInteger
 import scala.collection.mutable
 import scala.io.Source
 
@@ -88,26 +85,23 @@ trait CompilerTestContext
 
   override def afterAll(): Unit = {
     s3Buckets.foreach {
-      case (user, bucket) => RawUtils.withSuppressNonFatalException(credentials.unregisterS3Bucket(user, bucket.name))
+      case (user, bucket) => withSuppressNonFatalException(credentials.unregisterS3Bucket(user, bucket.name))
     }
     rdbmsServers.foreach {
-      case ((user, name), _) => RawUtils.withSuppressNonFatalException(credentials.unregisterRDBMSServer(user, name))
+      case ((user, name), _) => withSuppressNonFatalException(credentials.unregisterRDBMSServer(user, name))
     }
     newHttpCreds.foreach {
-      case (user, (name, _)) =>
-        RawUtils.withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
+      case (user, (name, _)) => withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
     }
-    dropboxTokens.foreach {
-      case (user, _) => RawUtils.withSuppressNonFatalException(credentials.unregisterDropboxToken(user))
-    }
+    dropboxTokens.foreach { case (user, _) => withSuppressNonFatalException(credentials.unregisterDropboxToken(user)) }
     secrets.foreach {
-      case (user, secret) => RawUtils.withSuppressNonFatalException(credentials.unregisterSecret(user, secret.name))
+      case (user, secret) => withSuppressNonFatalException(credentials.unregisterSecret(user, secret.name))
     }
     for (f <- dataFiles) {
-      RawUtils.deleteTestPath(f.path)
+      deleteTestPath(f.path)
     }
     if (compilerService != null) {
-      RawUtils.withSuppressNonFatalException(compilerService.stop())
+      withSuppressNonFatalException(compilerService.stop())
       compilerService = null
     }
     super.afterAll()
@@ -147,7 +141,7 @@ trait CompilerTestContext
     dataFiles.append(ViewFileContent(content, charset, path))
   }
   def tempFile(data: String, extension: String = "data", charset: Charset = StandardCharsets.UTF_8): Path = {
-    val path = RawUtils.saveToTemporaryFileNoDeleteOnExit(data, "tempFile", s".$extension", charset)
+    val path = saveToTemporaryFileNoDeleteOnExit(data, "tempFile", s".$extension", charset)
     dataFile(data, charset, path)
     path
   }
@@ -539,11 +533,7 @@ trait CompilerTestContext
   // Helper Functions
   /////////////////////////////////////////////////////////////////////////
 
-  private val queryIdCounter = new AtomicInteger()
-
   private def getCompiler(): Compiler = compilerService.getCompiler(authorizedUser, getQueryEnvironment().language)
-
-  private def getQueryId(): String = s"query_${queryIdCounter.getAndIncrement()}}"
 
   private def getQueryEnvironment(
       scopes: Set[String] = Set.empty,
@@ -564,7 +554,6 @@ trait CompilerTestContext
   ): ProgramContext = {
     compilerService.getProgramContext(
       compiler,
-      getQueryId(),
       code,
       maybeArguments,
       getQueryEnvironment(scopes, options)

@@ -21,7 +21,6 @@ import raw.runtime.Entrypoint
 import raw.runtime.interpreter.Value
 
 import java.util.UUID
-import java.util.concurrent.atomic.AtomicInteger
 import scala.annotation.nowarn
 
 final class InitPhase[P](program: P) extends Phase[P] {
@@ -49,9 +48,9 @@ trait PhaseDescriptor[P] {
 }
 
 object Compiler {
-  private val counter = new AtomicInteger()
-
-  def nextId(): Int = counter.getAndIncrement()
+  val OUTPUT_FORMAT = "raw.compiler.output-format"
+  private val SKIP_PHASES = "raw.compiler.skip-phases"
+  private val STOP_AT_PHASE = "raw.compiler.stop-at-phase"
 }
 
 // TODO (msb): Add method to obtain constants, built-in functions and reserved keywords.
@@ -59,7 +58,11 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     implicit val compilerContext: CompilerContext
 ) extends StrictLogging {
 
-  final protected val compilerId = Compiler.nextId()
+  import Compiler._
+
+  protected val defaultOutputFormat = compilerContext.settings.getString(OUTPUT_FORMAT)
+  private val skipPhases = compilerContext.settings.getStringList(SKIP_PHASES)
+  private val maybeStopAtPhase = compilerContext.settings.getStringOpt(STOP_AT_PHASE)
 
   protected def phases: Seq[PhaseDescriptor[P]]
 
@@ -242,15 +245,14 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
         // No phases in compiler
         root
       } else {
-        val skipPhases = programContext.settings.skipPhases
-        val stopAtPhase = programContext.settings.stopAtPhase.getOrElse(phases.last.name)
+        val stopAtPhase = maybeStopAtPhase.getOrElse(phases.last.name)
         // FIXME (msb): Generalize Phases
         val pipeline = buildPipeline(new InitPhase(root), skipPhases, stopAtPhase)
         assert(pipeline.hasNext, "Compiler pipeline didn't produce any output tree")
         val outputProgram = pipeline.next()
         assert(!pipeline.hasNext, "Compiler pipeline produced more than one output tree")
 
-        if (programContext.settings.stopAtPhase.isEmpty) {
+        if (maybeStopAtPhase.isEmpty) {
           programContext.trace(s"Output program is:\n${prettyPrintOutput(outputProgram)}")
         }
 

@@ -29,7 +29,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
-import raw.compiler.{base, CompilerException, ErrorMessage, ProgramSettings}
+import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime.{
   Entrypoint,
   ParamBool,
@@ -250,7 +250,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     val emitter = new TruffleEmitterImpl(tree)(programContext.asInstanceOf[ProgramContext])
     val Rql2Program(methods, me) = tree.root
     val dataType = tree.analyzer.tipe(me.get)
-    val outputFormat = programContext.settings.getString(ProgramSettings.output_format)
+    val outputFormat = programContext.runtimeContext.environment.options.getOrElse("output-format", defaultOutputFormat)
     outputFormat match {
       case "csv" => if (!CsvPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
       case "json" => if (!JsonPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
@@ -272,7 +272,12 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
     val rootNode: RootNode = outputFormat match {
       case "csv" =>
-        val lineSeparator = if (programContext.settings.getBoolean(WINDOWS_LINE_ENDING)) "\r\n" else "\n"
+        val windowsLineEnding = programContext.runtimeContext.environment.options.get("windows-line-ending") match {
+          case Some("true") => true
+          case Some("false") => false
+          case None => programContext.settings.getBoolean(WINDOWS_LINE_ENDING)
+        }
+        val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
         dataType match {
           case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
             assert(rProps.isEmpty)

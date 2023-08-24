@@ -12,10 +12,10 @@
 
 package raw.inferrer
 
-import raw.api.{RawException, Service}
+import raw.api.{RawException, RawService}
 import raw.runtime.ExecutionLogger
 
-trait InferrerService extends Service {
+trait InferrerService extends RawService {
 
   // Using an exception for inference is reasonable because we often want inference to exit early.
   @throws[RawException]

@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait RD5631Test extends CompilerTestContext {
 
@@ -79,7 +79,7 @@ trait RD5631Test extends CompilerTestContext {
     |}
     |""".stripMargin)
 
-  test(rql"""main() =
+  test(snapi"""main() =
     |  let
     |    json_type = type record(
     |    version: string,

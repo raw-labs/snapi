@@ -12,18 +12,18 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
 trait RD5238Test extends CompilerTestContext with LocalLocationsTestContext {
 
-  test(rql"""
+  test(snapi"""
     |let region1 = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    region2 = Csv.InferAndRead("$tpchRegionCsvLocal")
     |in [Collection.Count(region1), Collection.Count(region2)]""".stripMargin)(_ should orderEvaluateTo("[6L, 6L]"))
 
-  test(rql"""
+  test(snapi"""
     |let region = Csv.InferAndRead("$tpchRegionCsvLocal")
     |in [Collection.Count(region), Collection.Count(region)]""".stripMargin)(
     _ should orderEvaluateTo("[6L, 6L]")

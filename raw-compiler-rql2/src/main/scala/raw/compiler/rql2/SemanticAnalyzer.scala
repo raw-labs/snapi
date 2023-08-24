@@ -19,7 +19,7 @@ import org.bitbucket.inkytonik.kiama.util.Entity
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
-import raw.compiler.{common, ProgramSettings}
+import raw.compiler.common
 import raw.compiler.common.ProgramParamEntity
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.TypePackageBuilder
@@ -41,6 +41,7 @@ import raw.compiler.rql2.errors.{
   UnexpectedOptionalArgument
 }
 import raw.compiler.rql2.source._
+import raw.runtime.ProgramEnvironment
 import raw.runtime.interpreter._
 
 import scala.collection.mutable
@@ -1553,12 +1554,19 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       else Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, Let(lets.to, e))))
     }
 
-    // for truffle staged compiler
     def getProgramContext = {
-      if (programContext.compilerContext.language == "rql") programContext
-      else new ProgramContext(
-        ProgramSettings.buildFromOptions(Map("output-format" -> ""), programContext.settings),
-        programContext.runtimeContext
+      // Create a clone of the RuntimeContext overriding the output format setting.
+      val runtimeContext = programContext.runtimeContext
+      val environment = runtimeContext.environment
+      new ProgramContext(
+        programContext.runtimeContext.cloneWith(newEnvironment =
+          ProgramEnvironment(
+            environment.language,
+            environment.scopes,
+            environment.options + ("output-format" -> ""),
+            environment.maybeTraceId
+          )
+        )
       )(programContext.compilerContext)
     }
 

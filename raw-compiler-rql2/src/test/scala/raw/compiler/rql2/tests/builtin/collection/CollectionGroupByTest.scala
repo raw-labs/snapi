@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.errors.KeyNotComparable
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
@@ -39,7 +39,7 @@ trait CollectionGroupByTest extends CompilerTestContext with LocalLocationsTestC
     |)""".stripMargin
 
   // test against a short but easy to infer CSV file
-  test(rql"""let lineitem = Csv.InferAndRead("$tpchLineitemCsvLocal"),
+  test(snapi"""let lineitem = Csv.InferAndRead("$tpchLineitemCsvLocal"),
     |    groups = Collection.GroupBy(lineitem, row -> row.l_returnflag)
     |in groups
     |""".stripMargin) { it =>
@@ -65,7 +65,7 @@ trait CollectionGroupByTest extends CompilerTestContext with LocalLocationsTestC
   }
 
   // test against a short but easy to infer CSV file
-  test(rql"""let lineitem = Csv.InferAndRead("$tpchLineitemCsvLocal"),
+  test(snapi"""let lineitem = Csv.InferAndRead("$tpchLineitemCsvLocal"),
     |    groups = Collection.GroupBy(lineitem, row -> row.l_returnflag)
     |in Collection.Transform(groups, g -> {
     |        _1: g.key,
@@ -78,7 +78,7 @@ trait CollectionGroupByTest extends CompilerTestContext with LocalLocationsTestC
 
   // test with a hardcoded record type (file is larger)
   test(
-    rql"""let lineitem = Csv.Read("$tpchLineitemTblLocal", type collection($lineitemType), skip=0, delimiter="|"),
+    snapi"""let lineitem = Csv.Read("$tpchLineitemTblLocal", type collection($lineitemType), skip=0, delimiter="|"),
       |    groups = Collection.GroupBy(lineitem, row -> row.l_returnflag)
       |    in Collection.Transform(groups, g -> {
       |        _1: g.key,
@@ -87,10 +87,10 @@ trait CollectionGroupByTest extends CompilerTestContext with LocalLocationsTestC
       |""".stripMargin
   )(it => it should evaluateTo("""[{_1: "R", _2: 14902}, {_1: "A", _2: 14876}, {_1: "N", _2: 30397}]"""))
 
-  test(rql"""let articles = Json.InferAndRead("$publicationsJsonLocal")
+  test(snapi"""let articles = Json.InferAndRead("$publicationsJsonLocal")
     |in Collection.GroupBy(articles, a -> Collection.Count(a.authors))""".stripMargin)(_ should run)
 
-  test(rql"""let articles = Json.InferAndRead("$publicationsJsonLocal")
+  test(snapi"""let articles = Json.InferAndRead("$publicationsJsonLocal")
     |in Collection.Transform(
     |     Collection.GroupBy(articles, a -> Collection.Count(a.authors)),
     |     g -> {nAuthors: g.key, count: Collection.Count(g.group)}
@@ -112,7 +112,7 @@ trait CollectionGroupByTest extends CompilerTestContext with LocalLocationsTestC
     |   {"a": 1, "b": [1,2,3,5,6]}
     |]""".stripMargin)
 
-  test(rql"""
+  test(snapi"""
     |let groupByRow = Collection.GroupBy(Json.InferAndRead("$jsonWithDuplicates"), r -> r),
     |    pseudoDistinct = Collection.Transform(groupByRow, g -> g.key)
     |in pseudoDistinct""".stripMargin) { it =>

@@ -12,9 +12,8 @@
 
 package raw.compiler.common
 
-import com.typesafe.config.ConfigException
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
-import raw.compiler.{CompilerException, ProgramSettings}
+import raw.compiler.CompilerException
 import raw.compiler.base.source._
 import raw.compiler.base._
 import raw.compiler.common.source._
@@ -56,28 +55,10 @@ abstract class Compiler(implicit compilerContext: CompilerContext)
     None
   }
 
-  def getProgramSettings(
-      source: String,
-      environment: ProgramEnvironment
-  ): ProgramSettings = {
-    getProgramSettings(environment.options)
-  }
-
   def getProgramContext(
-      programSettings: ProgramSettings,
       runtimeContext: RuntimeContext
   ): ProgramContext = {
-    new ProgramContext(programSettings, runtimeContext, compilerContext)
-  }
-
-  protected def getProgramSettings(options: Map[String, String]): ProgramSettings = {
-    try {
-      ProgramSettings.buildFromOptions(options, compilerContext.settings)
-    } catch {
-      case ex: ConfigException =>
-        logger.warn(s"Error parsing options: $options", ex)
-        throw new CompilerException("invalid options")
-    }
+    new ProgramContext(runtimeContext, compilerContext)
   }
 
   final def getProgramDescription(

@@ -12,8 +12,9 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{FormatCodeLSPRequest, FormatCodeLSPResponse, ProgramEnvironment}
+import raw.compiler.{FormatCodeLSPRequest, FormatCodeLSPResponse}
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait LspCommentsFormatTest extends CompilerTestContext {
   val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)

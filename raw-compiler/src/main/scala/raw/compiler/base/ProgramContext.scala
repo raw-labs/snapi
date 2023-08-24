@@ -12,9 +12,9 @@
 
 package raw.compiler.base
 
-import raw.compiler.ProgramSettings
 import raw.compiler.base.errors.{BaseError, ExternalError}
 import raw.compiler.base.source.{BaseProgram, Type}
+import raw.config.RawSettings
 
 import java.time.Duration
 import raw.runtime.ExecutionLogger
@@ -26,12 +26,11 @@ import scala.collection.mutable
  * Contains state that is shared between compilation phases of a single program.
  */
 class ProgramContext(
-    val settings: ProgramSettings,
     val runtimeContext: RuntimeContext,
     val compilerContext: CompilerContext
 ) {
 
-  def id: String = runtimeContext.id
+  def settings: RawSettings = runtimeContext.settings
 
   def executionLogger: ExecutionLogger = runtimeContext.executionLogger
 

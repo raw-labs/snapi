@@ -17,17 +17,17 @@ import raw.compiler.{
   DotAutoCompleteLSPRequest,
   FieldLSPAutoCompleteResponse,
   PackageEntryLSPAutoCompleteResponse,
-  Pos,
-  ProgramEnvironment
+  Pos
 }
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait LspDotAutoCompleteTest extends CompilerTestContext {
 
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
-    val response = doLsp(DotAutoCompleteLSPRequest(code, queryEnvironment, Pos(line, col)))
+    val response = doLsp(DotAutoCompleteLSPRequest(code, programEnvironment, Pos(line, col)))
     response match {
       case AutoCompleteLSPResponse(entries, _) =>
         assert(entries.toSeq == expectedFields.map(ef => FieldLSPAutoCompleteResponse(ef._1, ef._2)))
@@ -55,7 +55,7 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
 
   test("package autocomplete for string package test") { _ =>
     val code = """String""".stripMargin
-    val response = doLsp(DotAutoCompleteLSPRequest(code, queryEnvironment, Pos(1, 6)))
+    val response = doLsp(DotAutoCompleteLSPRequest(code, programEnvironment, Pos(1, 6)))
     response match {
       case AutoCompleteLSPResponse(entries, _) =>
         assert(
@@ -79,7 +79,7 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
 
   test("package autocomplete for non existing package test") { _ =>
     val code = """Stringz""".stripMargin
-    val response = doLsp(DotAutoCompleteLSPRequest(code, queryEnvironment, Pos(1, 7)))
+    val response = doLsp(DotAutoCompleteLSPRequest(code, programEnvironment, Pos(1, 7)))
     response match {
       case AutoCompleteLSPResponse(entries, _) => assert(entries.length == 0)
       case r => throw new AssertionError(s"Should have returned empty response")

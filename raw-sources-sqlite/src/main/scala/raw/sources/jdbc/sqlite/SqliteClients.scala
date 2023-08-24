@@ -13,9 +13,7 @@
 package raw.sources.jdbc.sqlite
 
 import raw.sources.bytestream.ByteStreamLocationProvider
-import raw.sources.{JdbcCacheKey, LocationDescription, SourceContext}
-
-final case class SqliteCacheKey(locationDescription: LocationDescription) extends JdbcCacheKey
+import raw.sources.{LocationDescription, SourceContext}
 
 object SqliteClients {
 

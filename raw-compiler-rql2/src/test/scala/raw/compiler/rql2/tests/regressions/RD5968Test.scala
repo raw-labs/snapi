@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RD5968Test extends CompilerTestContext {
@@ -41,21 +41,21 @@ trait RD5968Test extends CompilerTestContext {
     |   2
     |</person>""".stripMargin)
 
-  test(rql"""let
+  test(snapi"""let
     |    data = Xml.InferAndRead("$cdataFile")
     |in
     |    Collection.Transform(data.`#text`, x -> String.Trim(x))""".stripMargin)(
     _ should evaluateTo("""["Text here!", "<a>Hello!</a>"]""".stripMargin)
   )
 
-  test(rql"""let
+  test(snapi"""let
     |    data = Xml.InferAndRead("$entityReferenceFile")
     |in
     |    Collection.Transform(data.`#text`, x -> String.Trim(x))""".stripMargin)(
     _ should evaluateTo("""["Text here!", "<a>Hello!</a>"]""".stripMargin)
   )
 
-  test(rql"""let
+  test(snapi"""let
     |   data = Xml.Read("$textInts", type record(name: string, age: int, `#text`: list(int)))
     |in
     |    data.`#text`""".stripMargin)(

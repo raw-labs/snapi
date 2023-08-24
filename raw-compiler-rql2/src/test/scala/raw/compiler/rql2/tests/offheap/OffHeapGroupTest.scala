@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait OffHeapGroupTest extends OffHeapDatasets {
 
@@ -22,92 +22,92 @@ trait OffHeapGroupTest extends OffHeapDatasets {
   property("raw.runtime.kryo.input-buffer-size", "1kB")
 
   // Collection
-  test(rql"""// group-by
+  test(snapi"""// group-by
     |let bands = $bandMembers,
     |    groupBySomething = Collection.GroupBy(bands, p -> p.band)
     |    in Collection.Transform(groupBySomething, r -> {r.key, count: Collection.Count(r.group)})""".stripMargin) {
     _ should evaluateTo(
-      rql"""[{key: "Bee Gees", count: 3}, {key: "Neville Brothers", count: 4}, {key: "Beach Boys", count: 5}, {key: "Dream Theater", count: 5}]"""
+      snapi"""[{key: "Bee Gees", count: 3}, {key: "Neville Brothers", count: 4}, {key: "Beach Boys", count: 5}, {key: "Dream Theater", count: 5}]"""
     )
   }
 
   test(
-    rql"""// group-by
+    snapi"""// group-by
       |let bands = $NTimesBandMembers,
       |    groupBySomething = Collection.GroupBy(bands, p -> p.band)
       |    in Collection.Transform(groupBySomething, r -> {r.key, count: Collection.Count(r.group)})""".stripMargin
   ) {
     _ should evaluateTo(
-      rql"""[{key: "Bee Gees", count: 3 * $N}, {key: "Neville Brothers", count: 4 * $N}, {key: "Beach Boys", count: 5 * $N}, {key: "Dream Theater", count: 5 * $N}]"""
+      snapi"""[{key: "Bee Gees", count: 3 * $N}, {key: "Neville Brothers", count: 4 * $N}, {key: "Beach Boys", count: 5 * $N}, {key: "Dream Theater", count: 5 * $N}]"""
     )
   }
 
   test(
-    rql"""// group-by
+    snapi"""// group-by
       |let bands = $bandMembers,
       |    groupBySomething = Collection.GroupBy(bands, p -> p.birthYear)
       |    in Collection.Transform(groupBySomething, r -> {r.key, count: Collection.Count(r.group)})""".stripMargin
   ) {
     _ should evaluateTo(
-      rql"""[{key: 1949, count: 2}, {key: 1946, count: 1}, {key: 1941, count: 2},
+      snapi"""[{key: 1949, count: 2}, {key: 1946, count: 1}, {key: 1941, count: 2},
         |{key: 1937, count: 1}, {key: 1938, count: 1}, {key: 1948, count: 2},
         |{key: 1942, count: 3}, {key: 1956, count: 1}, {key: 1963, count: 2}, {key: 1967, count: 2}]""".stripMargin
     )
   }
 
-  test(rql"""// group-by
+  test(snapi"""// group-by
     |let bands = $NTimesBandMembers,
     |    groupBySomething = Collection.GroupBy(bands, p -> p.birthYear)
     |    in Collection.Transform(groupBySomething, r -> {r.key, count: Collection.Count(r.group)})""".stripMargin) {
     _ should evaluateTo(
-      rql"""[{key: 1949, count: 2 * $N}, {key: 1946, count: 1 * $N}, {key: 1941, count: 2 * $N},
+      snapi"""[{key: 1949, count: 2 * $N}, {key: 1946, count: 1 * $N}, {key: 1941, count: 2 * $N},
         |{key: 1937, count: 1 * $N}, {key: 1938, count: 1 * $N}, {key: 1948, count: 2 * $N},
         |{key: 1942, count: 3 * $N}, {key: 1956, count: $N}, {key: 1963, count: 2 * $N}, {key: 1967, count: 2 * $N}]""".stripMargin
     )
   }
 
   // List
-  test(rql"""// group-by
+  test(snapi"""// group-by
     |let bands = List.From($bandMembers),
     |    groupBySomething = List.GroupBy(bands, p -> p.band)
     |    in List.Transform(groupBySomething, r -> {r.key, count: List.Count(r.group)})""".stripMargin) {
     _ should evaluateTo(
-      rql"""[{key: "Bee Gees", count: 3}, {key: "Neville Brothers", count: 4}, {key: "Beach Boys", count: 5}, {key: "Dream Theater", count: 5}]"""
+      snapi"""[{key: "Bee Gees", count: 3}, {key: "Neville Brothers", count: 4}, {key: "Beach Boys", count: 5}, {key: "Dream Theater", count: 5}]"""
     )
   }
 
   test(
-    rql"""// group-by
+    snapi"""// group-by
       |let bands = List.From($NTimesBandMembers),
       |    groupBySomething = List.GroupBy(bands, p -> p.band)
       |    in List.Transform(groupBySomething, r -> {r.key, count: List.Count(r.group)})""".stripMargin
   ) {
     _ should evaluateTo(
-      rql"""[{key: "Bee Gees", count: 3 * $N}, {key: "Neville Brothers", count: 4 * $N}, {key: "Beach Boys", count: 5 * $N}, {key: "Dream Theater", count: 5 * $N}]"""
+      snapi"""[{key: "Bee Gees", count: 3 * $N}, {key: "Neville Brothers", count: 4 * $N}, {key: "Beach Boys", count: 5 * $N}, {key: "Dream Theater", count: 5 * $N}]"""
     )
   }
 
   test(
-    rql"""// group-by
+    snapi"""// group-by
       |let bands = List.From($bandMembers),
       |    groupBySomething = List.GroupBy(bands, p -> p.birthYear)
       |    in List.Transform(groupBySomething, r -> {r.key, count: List.Count(r.group)})""".stripMargin
   ) {
     _ should evaluateTo(
-      rql"""[{key: 1949, count: 2}, {key: 1946, count: 1}, {key: 1941, count: 2},
+      snapi"""[{key: 1949, count: 2}, {key: 1946, count: 1}, {key: 1941, count: 2},
         |{key: 1937, count: 1}, {key: 1938, count: 1}, {key: 1948, count: 2},
         |{key: 1942, count: 3}, {key: 1956, count: 1}, {key: 1963, count: 2}, {key: 1967, count: 2}]""".stripMargin
     )
   }
 
   test(
-    rql"""// group-by
+    snapi"""// group-by
       |let bands = List.From($NTimesBandMembers),
       |    groupBySomething = List.GroupBy(bands, p -> p.birthYear)
       |    in List.Transform(groupBySomething, r -> {r.key, count: List.Count(r.group)})""".stripMargin
   ) {
     _ should evaluateTo(
-      rql"""[{key: 1949, count: 2 * $N}, {key: 1946, count: 1 * $N}, {key: 1941, count: 2 * $N},
+      snapi"""[{key: 1949, count: 2 * $N}, {key: 1946, count: 1 * $N}, {key: 1941, count: 2 * $N},
         |{key: 1937, count: 1 * $N}, {key: 1938, count: 1 * $N}, {key: 1948, count: 2 * $N},
         |{key: 1942, count: 3 * $N}, {key: 1956, count: $N}, {key: 1963, count: 2 * $N}, {key: 1967, count: 2 * $N}]""".stripMargin
     )

@@ -13,16 +13,16 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait RD5697Test extends CompilerTestContext {
 
   private val jsonFile = tempFile("""{"a": 12, "b": 14}""")
 
-  test(rql"""Json.Read("$jsonFile", type record(a: int, b: int))""")(_ should run)
-  test(rql"""Json.Read("$jsonFile", type record(a: int))""")(_ should run)
-  test(rql"""Json.Read("$jsonFile", type record(b: int))""")(_ should run)
-  test(rql"""Json.Read("$jsonFile", type record(a: int, b: int, c: int))""")(_ should run)
+  test(snapi"""Json.Read("$jsonFile", type record(a: int, b: int))""")(_ should run)
+  test(snapi"""Json.Read("$jsonFile", type record(a: int))""")(_ should run)
+  test(snapi"""Json.Read("$jsonFile", type record(b: int))""")(_ should run)
+  test(snapi"""Json.Read("$jsonFile", type record(a: int, b: int, c: int))""")(_ should run)
 
   private val xmlFile = tempFile("""<?xml version="1.0"?>
     |<r>
@@ -31,9 +31,9 @@ trait RD5697Test extends CompilerTestContext {
     |</r>
     |""".stripMargin)
 
-  test(rql"""Xml.Read("$xmlFile", type record(a: int, b: int))""")(_ should run)
-  test(rql"""Xml.Read("$xmlFile", type record(a: int))""")(_ should run)
-  test(rql"""Xml.Read("$xmlFile", type record(b: int))""")(_ should run)
-  test(rql"""Xml.Read("$xmlFile", type record(a: int, b: int, c: int))""")(_ should run)
+  test(snapi"""Xml.Read("$xmlFile", type record(a: int, b: int))""")(_ should run)
+  test(snapi"""Xml.Read("$xmlFile", type record(a: int))""")(_ should run)
+  test(snapi"""Xml.Read("$xmlFile", type record(b: int))""")(_ should run)
+  test(snapi"""Xml.Read("$xmlFile", type record(a: int, b: int, c: int))""")(_ should run)
 
 }

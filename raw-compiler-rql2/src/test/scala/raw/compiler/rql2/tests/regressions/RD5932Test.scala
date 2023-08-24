@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.creds.S3TestCreds
 import raw.compiler.rql2.tests.CompilerTestContext
 
@@ -27,10 +27,10 @@ trait RD5932Test extends CompilerTestContext with S3TestCreds {
 
   s3Bucket(authorizedUser, UnitTestPrivateBucket)
 
-  test(rql"""Json.InferAndRead("$data")""")(it => it should run)
+  test(snapi"""Json.InferAndRead("$data")""")(it => it should run)
 
   test(
-    rql"""let
+    snapi"""let
       |     data = Json.Read(
       |        "$data",
       |        type collection(record(id: int, network_interface: string or collection(undefined)))
@@ -41,7 +41,7 @@ trait RD5932Test extends CompilerTestContext with S3TestCreds {
   )(it => it should evaluateTo(""" [] """.stripMargin))
 
   test(
-    rql"""let
+    snapi"""let
       |     data = Json.Read(
       |        "$data",
       |        type collection(record(id: int, network_interface: string or collection(undefined)))

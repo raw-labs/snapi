@@ -14,7 +14,7 @@ package raw.creds.mock
 
 import raw.{RawTestSuite, SettingsTestContext}
 import raw.creds.CredentialsTestContext
-import raw.utils.RawUtils
+import raw.utils._
 
 trait MockCredentialsTestContext extends CredentialsTestContext {
   this: RawTestSuite with SettingsTestContext =>
@@ -32,7 +32,7 @@ trait MockCredentialsTestContext extends CredentialsTestContext {
 
   override def afterAll(): Unit = {
     if (mockCredentialsService != null) {
-      RawUtils.withSuppressNonFatalException(mockCredentialsService.stop())
+      withSuppressNonFatalException(mockCredentialsService.stop())
       mockCredentialsService = null
     }
     super.afterAll()

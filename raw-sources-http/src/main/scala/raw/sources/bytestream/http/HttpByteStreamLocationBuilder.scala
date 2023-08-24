@@ -24,20 +24,13 @@ import raw.config.RawSettings
 import raw.creds._
 import raw.sources.bytestream.ByteStreamLocationBuilder
 import raw.sources.bytestream.http.oauth2clients.Auth0OAuth2Client
-import raw.sources.{InputStreamCacheKey, LocationDescription, LocationException, SourceContext}
+import raw.sources.{LocationDescription, LocationException, SourceContext}
 import java.io.IOException
 import java.net.{HttpURLConnection, MalformedURLException, URISyntaxException}
 import java.nio.charset.StandardCharsets
 import java.util.Base64
 
 import scala.collection.mutable
-
-final case class HttpCacheKey(
-    method: String,
-    args: Array[(String, String)],
-    headers: Array[(String, String)],
-    body: Option[Array[Byte]]
-) extends InputStreamCacheKey
 
 object HttpByteStreamLocationBuilder extends StrictLogging {
   private val jsonMapReader: ObjectReader = {

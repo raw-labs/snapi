@@ -20,7 +20,7 @@ import raw.sources.SourceContext
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.inferrer.{InferrerException, InferrerProperties, InferrerService, InputFormatDescriptor}
 import raw.runtime.NullExecutionLogger
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
 import scala.concurrent.ExecutionException
@@ -48,7 +48,7 @@ abstract class CompilerContext(
 
   private val inferrerThreadPoolSize = settings.getInt(INFERRER_THREAD_POOL_SIZE)
   private val inferrerThreadPool =
-    Executors.newFixedThreadPool(inferrerThreadPoolSize, RawUtils.newThreadFactory("compiler-context-inferrer"))
+    Executors.newFixedThreadPool(inferrerThreadPoolSize, newThreadFactory("compiler-context-inferrer"))
   private val inferrerTimeoutMillis = settings.getDuration(INFERRER_TIMEOUT).toMillis
   private val inferrerCacheSize = settings.getInt(INFERRER_CACHE_SIZE)
   private val inferrerExpirySeconds = settings.getDuration(INFERRER_EXPIRY).toSeconds

@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait OffHeapDatasets extends CompilerTestContext {
@@ -37,10 +37,10 @@ trait OffHeapDatasets extends CompilerTestContext {
     |Dream Theater|Jordan|Ruddess|1956
     |Dream Theater|Mike|Mangini|1963""".stripMargin)
 
-  private val onceTheBandMembers = rql"""String.ReadLines("$csvBandMembers")"""
+  private val onceTheBandMembers = snapi"""String.ReadLines("$csvBandMembers")"""
   private val nTimesTheBandMembers = s"""Collection.Unnest(Int.Range(0, $N), _ -> $onceTheBandMembers)"""
 
-  protected val olympics = rql"""Collection.Build(
+  protected val olympics = snapi"""Collection.Build(
     |   {year: 2016, city: "Rio de Janeiro"},
     |   {year: 2012, city: "London"},
     |   {year: 2008, city: "Beijing"},
@@ -71,7 +71,7 @@ trait OffHeapDatasets extends CompilerTestContext {
     |   {year: 1896, city: "Athens"}
     |)""".stripMargin
 
-  protected val bandMembers: String = rql"""
+  protected val bandMembers: String = snapi"""
     |let tokens = Collection.Transform($onceTheBandMembers, l -> String.Split(l, "|"))
     |in Collection.Transform(tokens, i -> {
     |     band: List.Get(i, 0),
@@ -80,7 +80,7 @@ trait OffHeapDatasets extends CompilerTestContext {
     |     birthYear: Int.From(List.Get(i, 3))
     |})""".stripMargin
 
-  protected val NTimesBandMembers: String = rql"""
+  protected val NTimesBandMembers: String = snapi"""
     |let tokens = Collection.Transform($nTimesTheBandMembers, l -> String.Split(l, "|"))
     |in Collection.Transform(tokens, i -> {
     |     band: List.Get(i, 0),

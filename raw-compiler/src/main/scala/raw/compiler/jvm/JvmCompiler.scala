@@ -14,7 +14,7 @@ package raw.compiler.jvm
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.config.RawSettings
-import raw.utils.RawUtils
+import raw.utils._
 
 import java.util.concurrent._
 
@@ -27,9 +27,7 @@ object JvmCompiler {
   private val COMPILATION_TIMEOUT = "raw.compiler.jvm.compilation-timeout"
 
   // Compilation thread pool.
-  private val compilerThreadPool = Executors.newSingleThreadScheduledExecutor(
-    RawUtils.newThreadFactory("jvm-compiler")
-  )
+  private val compilerThreadPool = Executors.newSingleThreadScheduledExecutor(newThreadFactory("jvm-compiler"))
 
 }
 

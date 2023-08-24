@@ -14,6 +14,7 @@ package raw.compiler.rql2.tests.lsp
 
 import raw.compiler._
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait LspBrokenCodeTest extends CompilerTestContext {
 

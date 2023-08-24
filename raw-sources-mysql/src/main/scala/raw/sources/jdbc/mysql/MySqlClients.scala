@@ -13,9 +13,7 @@
 package raw.sources.jdbc.mysql
 
 import raw.creds.MySqlCredential
-import raw.sources.{JdbcCacheKey, LocationDescription, LocationException, SourceContext}
-
-final case class MySqlCacheKey(cred: MySqlCredential) extends JdbcCacheKey
+import raw.sources.{LocationDescription, LocationException, SourceContext}
 
 object MySqlClients {
 

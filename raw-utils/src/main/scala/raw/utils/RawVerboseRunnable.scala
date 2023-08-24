@@ -26,7 +26,7 @@ import com.typesafe.scalalogging.StrictLogging
  * https://github.com/jcabi/jcabi-log/blob/master/src/main/java/com/jcabi/log/VerboseRunnable.java
  * @param propagate Whether to rethrow the exception.
  */
-class VerboseRunnable(delegate: Runnable, propagate: Boolean = false) extends Runnable with StrictLogging {
+class RawVerboseRunnable(delegate: Runnable, propagate: Boolean = false) extends Runnable with StrictLogging {
   override def run(): Unit = {
     try {
       delegate.run()

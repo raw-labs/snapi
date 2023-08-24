@@ -21,17 +21,17 @@ import raw.compiler.{
   PackageEntryLSPHoverResponse,
   PackageLSPHoverResponse,
   Pos,
-  ProgramEnvironment,
   TypeHoverResponse
 }
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait LspHoverTest extends CompilerTestContext {
 
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   private def getVarInfoAt(code: String, line: Int, col: Int): TypeHoverResponse =
-    doLsp(HoverLSPRequest(code, queryEnvironment, Pos(line, col))) match {
+    doLsp(HoverLSPRequest(code, programEnvironment, Pos(line, col))) match {
       case HoverLSPResponse(response: TypeHoverResponse, _) => response
       case r => throw new java.lang.Exception(s"Unexpected response: $r")
     }
@@ -42,7 +42,7 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 1)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(2, 1)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -56,7 +56,7 @@ trait LspHoverTest extends CompilerTestContext {
 
   test("hover package doc type output test") { _ =>
     val code = """String""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(1, 2)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(1, 2)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case PackageLSPHoverResponse(name: String, doc: PackageDoc) =>
@@ -70,7 +70,7 @@ trait LspHoverTest extends CompilerTestContext {
 
   test("hover entry doc type output test") { _ =>
     val code = """String.Lower("HI")""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(1, 9)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(1, 9)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case PackageEntryLSPHoverResponse(name: String, doc: EntryDoc) =>
@@ -84,7 +84,7 @@ trait LspHoverTest extends CompilerTestContext {
 
   test("hover non existing entry test") { _ =>
     val code = """String.NonExistingFunction("HI")""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(1, 9)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(1, 9)))
     response shouldBe a[ErrorLSPResponse]
   }
 
@@ -94,7 +94,7 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 1)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(2, 1)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -112,7 +112,7 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |aaaaaaa
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(4, 3)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(4, 3)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -133,7 +133,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 3)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(2, 3)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -151,7 +151,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(5, 1)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(5, 1)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -168,7 +168,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(4, 1)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(4, 1)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -185,7 +185,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 7)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(2, 7)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -202,7 +202,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  b(v: int): int = v
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 3)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(2, 3)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -223,7 +223,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(8, 16)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(8, 16)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -244,7 +244,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 19)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(2, 19)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -265,7 +265,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(3, 30)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(3, 30)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -286,7 +286,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(1, 1)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(1, 1)))
     response shouldBe a[ErrorLSPResponse]
   }
 
@@ -295,7 +295,7 @@ trait LspHoverTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(4, 33)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(4, 33)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>
@@ -312,7 +312,7 @@ trait LspHoverTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(4, 48)))
+    val response = doLsp(HoverLSPRequest(code, programEnvironment, Pos(4, 48)))
     response match {
       case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
           case TypeHoverResponse(name: String, tipe: String) =>

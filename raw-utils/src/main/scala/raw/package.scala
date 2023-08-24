@@ -15,4 +15,5 @@ package object raw {
   def !!! = throw new AssertionError("RAW assertion error")
 
   def !!!(message: String): Nothing = throw new AssertionError(message)
+
 }

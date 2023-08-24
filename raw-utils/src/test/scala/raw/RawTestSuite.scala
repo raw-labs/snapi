@@ -15,7 +15,7 @@ package raw
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.funsuite.FixtureAnyFunSuite
 import org.scalatest.{BeforeAndAfterAll, Outcome}
-import raw.api.Service
+import raw.api.RawService
 
 import java.lang.management.ManagementFactory
 import java.util.concurrent.atomic.AtomicBoolean
@@ -47,18 +47,18 @@ trait RawTestSuite extends FixtureAnyFunSuite with BeforeAndAfterAll with Strict
 
   override def beforeAll(): Unit = {
     // If a previous test suite crashed, clean its leftovers anyway.
-    Service.stopAll()
+    RawService.stopAll()
     super.beforeAll()
   }
 
   override def afterAll(): Unit = {
     logger.info("Checking if all services have stopped")
     var attempts = 10
-    while (!Service.isStopped() && attempts > 0) {
+    while (!RawService.isStopped() && attempts > 0) {
       attempts -= 1
       logger.debug(s"Waiting for services to terminate gracefully. Attempts left: $attempts")
       Thread.sleep(1000)
     }
-    assert(Service.isStopped(), s"Not all services stopped properly. Still running: ${Service.services}")
+    assert(RawService.isStopped(), s"Not all services stopped properly. Still running: ${RawService.services}")
   }
 }

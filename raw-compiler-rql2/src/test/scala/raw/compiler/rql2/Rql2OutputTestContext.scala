@@ -18,13 +18,11 @@ import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.google.common.collect.HashMultiset
 import org.bitbucket.inkytonik.kiama.util.Positions
-import raw.compiler.ProgramSettings
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.source._
 import raw.{RawTestSuite, SettingsTestContext}
 
 import java.nio.file.Path
-import scala.collection.mutable
 import scala.math.BigDecimal.RoundingMode
 import scala.util.control.NonFatal
 
@@ -33,7 +31,7 @@ import scala.collection.JavaConverters._
 trait Rql2OutputTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
-  property(ProgramSettings.output_format, "json")
+  property(raw.compiler.Compiler.OUTPUT_FORMAT, "json")
 
   def outputParser(
       queryResultPath: Path,

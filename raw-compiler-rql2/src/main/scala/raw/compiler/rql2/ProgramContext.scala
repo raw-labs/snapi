@@ -13,7 +13,6 @@
 package raw.compiler.rql2
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.compiler.ProgramSettings
 import raw.compiler.base.CompilerContext
 import raw.compiler.base.errors.BaseError
 import raw.compiler.rql2.source.Rql2Program
@@ -23,12 +22,9 @@ import raw.runtime.interpreter.Value
 
 import scala.collection.mutable
 
-class ProgramContext(
-    settings: ProgramSettings,
-    runtimeContext: RuntimeContext
-)(
+class ProgramContext(runtimeContext: RuntimeContext)(
     implicit override val compilerContext: CompilerContext
-) extends raw.compiler.base.ProgramContext(settings, runtimeContext, compilerContext)
+) extends raw.compiler.base.ProgramContext(runtimeContext, compilerContext)
     with StrictLogging {
 
   private val inferCache = new mutable.HashMap[InferrerProperties, Either[String, InputFormatDescriptor]]
