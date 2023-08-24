@@ -18,10 +18,10 @@ import raw.runtime.ProgramEnvironment
 
 trait LspFormatCodeTest extends CompilerTestContext {
 
-  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   def assertFormattedCode(code: String, expected: String) = {
-    val response = doLsp(FormatCodeLSPRequest(code, programEnvironment))
+    val response = doLsp(FormatCodeLSPRequest(code, environment))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
         logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")

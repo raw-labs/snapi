@@ -19,11 +19,11 @@ import raw.runtime.ProgramEnvironment
 
 trait LspValidateTest extends CompilerTestContext {
 
-  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   test("validate simple code test") { _ =>
     val code = """String.Lower("Hello")""".stripMargin
-    val response = doLsp(ValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(ValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) => assert(errors.isEmpty)
       case r => throw new AssertionError(s"Unexpected response: $r")
@@ -32,7 +32,7 @@ trait LspValidateTest extends CompilerTestContext {
 
   test("validate broken code") { _ =>
     val code = """broken code""".stripMargin
-    val response = doLsp(ValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(ValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) => assert(errors.nonEmpty)
       case r => throw new AssertionError(s"Unexpected response: $r")
@@ -45,7 +45,7 @@ trait LspValidateTest extends CompilerTestContext {
       |  ct = type collection(int or string),
       |  x = 12
       |in x""".stripMargin
-    val response = doLsp(ValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(ValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) => assert(errors.isEmpty)
       case r => throw new AssertionError(s"Unexpected response: $r")
@@ -57,7 +57,7 @@ trait LspValidateTest extends CompilerTestContext {
       |   data = DoesNotExist.InferAndRead("http://somewhere")
       |in
       |    data""".stripMargin
-    val response = doLsp(AiValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(AiValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) =>
         assert(errors.size == 1)
@@ -70,7 +70,7 @@ trait LspValidateTest extends CompilerTestContext {
     val code = """let
       |   data = Json.InferAndRead("http://somewhere")
       |in  String.DoesNotExist(data.value)""".stripMargin
-    val response = doLsp(AiValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(AiValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) =>
         assert(errors.size == 1)
@@ -85,7 +85,7 @@ trait LspValidateTest extends CompilerTestContext {
       |   rec sum(x: int) = if x == 0 then 0 else x + sum(x - 1)
       |in
       |   sum(data)""".stripMargin
-    val response = doLsp(AiValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(AiValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) =>
         assert(errors.size == 1)
@@ -99,7 +99,7 @@ trait LspValidateTest extends CompilerTestContext {
       |   data = Json.InferAndRead("http://somewhere", foo="unknown")
       |in
       |   data""".stripMargin
-    val response = doLsp(AiValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(AiValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) =>
         assert(errors.size == 1)
@@ -113,7 +113,7 @@ trait LspValidateTest extends CompilerTestContext {
       |   data = Json.InferAndRead("http://somewhere", type int)
       |in
       |   data""".stripMargin
-    val response = doLsp(AiValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(AiValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) =>
         assert(errors.size == 1)
@@ -127,7 +127,7 @@ trait LspValidateTest extends CompilerTestContext {
       |   data = Json.Read()
       |in
       |   data""".stripMargin
-    val response = doLsp(AiValidateLSPRequest(code, programEnvironment))
+    val response = doLsp(AiValidateLSPRequest(code, environment))
     response match {
       case ErrorLSPResponse(errors: List[ErrorMessage]) =>
         assert(errors.size == 1)
