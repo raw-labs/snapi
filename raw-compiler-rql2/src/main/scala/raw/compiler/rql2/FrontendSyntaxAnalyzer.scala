@@ -300,6 +300,8 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
       ifThenElse |
       nullConst |
       boolConst |
+      // Because of the way we parse strings, we need to try triple quotes first
+      tripleQStringConst |
       stringConst |
       numberConst |
       lists |
@@ -377,7 +379,11 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val boolConst: Parser[BoolConst] = tokTrue ^^^ BoolConst(true) | tokFalse ^^^ BoolConst(false)
 
-  final protected lazy val stringConst: Parser[StringConst] = stringLit ^^ { s => StringConst(s) }
+  final protected lazy val stringConst: Parser[StringConst] = singleQuoteStringLit ^^ { s => StringConst(s) }
+
+  final protected lazy val tripleQStringConst: Parser[TripleQuotedStringConst] = tripleQuoteStringLit ^^ { s =>
+    TripleQuotedStringConst(s)
+  }
 
   private def stringToNumberConst(v: String): NumberConst = v.last.toLower match {
     case 'b' => ByteConst(v.dropRight(1))

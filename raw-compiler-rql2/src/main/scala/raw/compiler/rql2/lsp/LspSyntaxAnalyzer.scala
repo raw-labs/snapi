@@ -63,6 +63,8 @@ class LspSyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(pos
       ifThenElse |
       nullConst |
       boolConst |
+      // Because of the way we parse strings, we need to try triple quotes first
+      tripleQStringConst |
       stringConst |
       numberConst |
       lists |

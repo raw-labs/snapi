@@ -788,6 +788,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             case _: DecimalConst => Rql2DecimalType()
           }
         case _: StringConst => Rql2StringType()
+        case _: TripleQuotedStringConst => Rql2StringType()
         case _: BoolConst => Rql2BoolType()
         case _: BinaryConst => Rql2BinaryType()
       }

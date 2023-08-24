@@ -238,4 +238,26 @@ trait LspFormatCodeTest extends CompilerTestContext {
     )
   }
 
+  val triple = "\"\"\""
+  test("triple quote string") { _ =>
+    val code =
+      s"""let x = ${triple}
+        |    Hello!
+        |    World!
+        |${triple}
+        |in x
+        |""".stripMargin
+    assertFormattedCode(
+      code,
+      s"""let
+        |    x = ${triple}
+        |    Hello!
+        |    World!
+        |${triple}
+        |in
+        |    x""".stripMargin
+    )
+
+  }
+
 }
