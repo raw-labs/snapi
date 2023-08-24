@@ -16,8 +16,6 @@ import raw.compiler.base.errors.{BaseError, ExternalError}
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.config.RawSettings
 
-import java.time.Duration
-import raw.runtime.ExecutionLogger
 import raw.runtime.RuntimeContext
 
 import scala.collection.mutable
@@ -32,40 +30,6 @@ class ProgramContext(
 
   def settings: RawSettings = runtimeContext.settings
 
-  def executionLogger: ExecutionLogger = runtimeContext.executionLogger
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Metrics
-  ///////////////////////////////////////////////////////////////////////////
-
-  def addPhaseTiming(phaseName: String, duration: Duration): Unit = {
-    trace(s"Phase timing for $phaseName: ${duration.toMillis} ms")
-  }
-
-  def addCompilerTiming(name: String, duration: Duration): Unit = {
-    trace(s"Compiler timing for $name: ${duration.toMillis} ms")
-  }
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Logging
-  ///////////////////////////////////////////////////////////////////////////
-
-  def warn(msg: String): Unit = {
-    executionLogger.warn(msg)
-  }
-
-  def info(msg: String): Unit = {
-    executionLogger.info(msg)
-  }
-
-  def debug(msg: String): Unit = {
-    executionLogger.debug(msg)
-  }
-
-  def trace(msg: String): Unit = {
-    executionLogger.trace(msg)
-  }
-
   ///////////////////////////////////////////////////////////////////////////
   // Validate program cache
   ///////////////////////////////////////////////////////////////////////////
@@ -79,6 +43,19 @@ class ProgramContext(
         .validate(language, program)(this)
         .left
         .map(errors => Seq(ExternalError(program, language, errors)))
+    )
+  }
+
+  def dumpDebugInfo: List[(String, String)] = {
+    List(
+      "Trace ID" -> runtimeContext.environment.maybeTraceId.getOrElse("<undefined"),
+      "Arguments" -> runtimeContext.maybeArguments
+        .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
+        .getOrElse("n/a"),
+      "Language" -> runtimeContext.environment.language.getOrElse("<default>"),
+      "Scopes" -> runtimeContext.environment.scopes.mkString(","),
+      "Options" -> runtimeContext.environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n"),
+      "Settings" -> runtimeContext.settings.toString
     )
   }
 

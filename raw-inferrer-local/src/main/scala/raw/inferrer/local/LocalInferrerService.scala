@@ -15,7 +15,6 @@ package raw.inferrer.local
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
 import raw.api.RawException
-import raw.runtime.ExecutionLogger
 import raw.inferrer._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import raw.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}
@@ -71,9 +70,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     }
   }
 
-  override def infer(
-      properties: InferrerProperties
-  )(implicit executionLogger: ExecutionLogger): InputFormatDescriptor = {
+  override def infer(properties: InferrerProperties): InputFormatDescriptor = {
     try {
       properties match {
         case tbl: SqlTableInferrerProperties =>
@@ -308,7 +305,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
       locations: Iterator[ByteStreamLocation],
       maybeSampleFiles: Option[Int],
       doInference: ByteStreamLocation => InputFormatDescriptor
-  )(implicit executionLogger: ExecutionLogger): InputFormatDescriptor = {
+  ): InputFormatDescriptor = {
     if (!locations.hasNext) {
       throw new LocalInferrerException("location is empty")
     }
@@ -342,20 +339,18 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
 
   private def mergeDescriptors(
       l: Seq[InputFormatDescriptor]
-  )(implicit executionLogger: ExecutionLogger): InputFormatDescriptor = {
+  ): InputFormatDescriptor = {
     l.tail.foldLeft(l.head)((acc, desc) => mergeDescriptors(acc, desc))
   }
 
-  private def mergeDescriptors(x: InputFormatDescriptor, y: InputFormatDescriptor)(
-      implicit executionLogger: ExecutionLogger
-  ): InputFormatDescriptor = (x, y) match {
+  private def mergeDescriptors(x: InputFormatDescriptor, y: InputFormatDescriptor): InputFormatDescriptor = (x, y) match {
     case (TextInputStreamFormatDescriptor(ec1, conf1, format1), TextInputStreamFormatDescriptor(ec2, conf2, format2)) =>
       val (encoding, confidence) =
         if (conf1 > conf2) (ec1, conf1)
         else (ec2, conf2)
 
       if (ec1 != ec2) {
-        executionLogger.warn(
+        logger.debug(
           s"Detected different encodings: $ec1 (confidence: $conf1); $ec2 (confidence: $conf2). Choosing $encoding."
         )
       }

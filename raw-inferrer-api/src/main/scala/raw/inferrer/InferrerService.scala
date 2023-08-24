@@ -13,13 +13,12 @@
 package raw.inferrer
 
 import raw.api.{RawException, RawService}
-import raw.runtime.ExecutionLogger
 
 trait InferrerService extends RawService {
 
   // Using an exception for inference is reasonable because we often want inference to exit early.
   @throws[RawException]
-  def infer(properties: InferrerProperties)(implicit executionLogger: ExecutionLogger): InputFormatDescriptor
+  def infer(properties: InferrerProperties): InputFormatDescriptor
 
   def prettyPrint(sourceType: SourceType): String
 

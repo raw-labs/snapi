@@ -19,7 +19,6 @@ import raw.config.RawSettings
 import raw.sources.SourceContext
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.inferrer.{InferrerException, InferrerProperties, InferrerService, InputFormatDescriptor}
-import raw.runtime.NullExecutionLogger
 import raw.utils._
 
 import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
@@ -46,12 +45,13 @@ abstract class CompilerContext(
 
   import CompilerContext._
 
-  private val inferrerThreadPoolSize = settings.getInt(INFERRER_THREAD_POOL_SIZE)
-  private val inferrerThreadPool =
-    Executors.newFixedThreadPool(inferrerThreadPoolSize, newThreadFactory("compiler-context-inferrer"))
   private val inferrerTimeoutMillis = settings.getDuration(INFERRER_TIMEOUT).toMillis
   private val inferrerCacheSize = settings.getInt(INFERRER_CACHE_SIZE)
   private val inferrerExpirySeconds = settings.getDuration(INFERRER_EXPIRY).toSeconds
+
+  private val inferrerThreadPoolSize = settings.getInt(INFERRER_THREAD_POOL_SIZE)
+  private val inferrerThreadPool =
+    Executors.newFixedThreadPool(inferrerThreadPoolSize, newThreadFactory("compiler-context-inferrer"))
 
   def infer(
       properties: InferrerProperties
@@ -67,7 +67,7 @@ abstract class CompilerContext(
       def load(properties: InferrerProperties): Either[String, InputFormatDescriptor] = {
         val inferrerFuture = inferrerThreadPool.submit(() => {
           try {
-            Right(inferrer.infer(properties)(NullExecutionLogger))
+            Right(inferrer.infer(properties))
           } catch {
             case ex: InferrerException => Left(ex.getMessage)
           }

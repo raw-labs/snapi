@@ -26,7 +26,7 @@ import raw.compiler.{CompilerException, LSPRequest, ProgramOutputWriter}
 import raw.creds._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.SimpleInferrerTestContext
-import raw.runtime.{DebugExecutionLogger, ExecutionLogger, ParamValue, ProgramEnvironment}
+import raw.runtime.{ ParamValue, ProgramEnvironment}
 import raw.sources.bytestream.ByteStreamCacheTestContext
 import raw.utils._
 
@@ -495,7 +495,7 @@ trait CompilerTestContext
   /////////////////////////////////////////////////////////////////////////
   // saveTo
   /////////////////////////////////////////////////////////////////////////
-  class SaveTo(path: Path, options: Map[String, String], executionLogger: ExecutionLogger = DebugExecutionLogger)
+  class SaveTo(path: Path, options: Map[String, String])
       extends Matcher[TestData] {
     def apply(q: TestData): MatchResult = {
       val maybeQueryResult = doExecute(q.q, savePath = Some(path), options = options)
@@ -510,16 +510,14 @@ trait CompilerTestContext
 
   def saveTo(
       path: Path,
-      executionLogger: ExecutionLogger = DebugExecutionLogger,
       options: Map[String, String] = Map.empty
-  ): SaveTo = new SaveTo(path, options, executionLogger)
+  ): SaveTo = new SaveTo(path, options)
 
   def saveToInFormat(
       path: Path,
       format: String,
-      executionLogger: ExecutionLogger = DebugExecutionLogger,
       options: Map[String, String] = Map.empty
-  ): SaveTo = new SaveTo(path, options + ("output-format" -> format), executionLogger)
+  ): SaveTo = new SaveTo(path, options + ("output-format" -> format))
 
   // a Matcher[Path] that compares the content of the file at the given path to the given string.
   protected def contain(content: String): Matcher[Path] = be(content) compose { p: Path =>

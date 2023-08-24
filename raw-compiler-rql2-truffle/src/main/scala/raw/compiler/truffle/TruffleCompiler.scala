@@ -41,24 +41,20 @@ class TruffleProgramOutputWriter(entrypoint: TruffleEntrypoint)(
 
   override def writeTo(outputStream: OutputStream): Unit = {
     try {
-      try {
-        RawLanguage.getCurrentContext.setOutput(outputStream)
-        RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
+      RawLanguage.getCurrentContext.setOutput(outputStream)
+      RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
 
-        try {
-          val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
-          target.call()
-        } catch {
-          case ex: RawTruffleRuntimeException =>
-            // Instead of passing the cause, we pass null, because otherwise when running Scala2 tests it tries to
-            // the AbstractTruffleException which is not exported in JVM (not GraalVM), so it fails.
-            throw new CompilerExecutionException(
-              ex.getMessage,
-              null
-            )
-        }
-      } finally {
-        programContext.runtimeContext.close()
+      try {
+        val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
+        target.call()
+      } catch {
+        case ex: RawTruffleRuntimeException =>
+          // Instead of passing the cause, we pass null, because otherwise when running Scala2 tests it tries to
+          // the AbstractTruffleException which is not exported in JVM (not GraalVM), so it fails.
+          throw new CompilerExecutionException(
+            ex.getMessage,
+            null
+          )
       }
     } finally {
       // We explicitly created and then entered the context during code emission.

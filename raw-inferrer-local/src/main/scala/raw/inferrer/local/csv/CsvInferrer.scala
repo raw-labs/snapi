@@ -15,7 +15,6 @@ package raw.inferrer.local.csv
 import java.io.Reader
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.runtime.ExecutionLogger
 import raw.inferrer.local._
 import raw.inferrer.local.text.TextLineIterator
 import raw.inferrer._
@@ -54,7 +53,7 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       skip: Option[Int],
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
-  )(implicit executionLogger: ExecutionLogger): TextInputStreamFormatDescriptor = {
+  ): TextInputStreamFormatDescriptor = {
     withErrorHandling {
       val r = getTextBuffer(is, maybeEncoding)
       try {
@@ -86,7 +85,7 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       skip: Option[Int],
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
-  )(implicit executionLogger: ExecutionLogger): TextInputFormatDescriptor = {
+  ): TextInputFormatDescriptor = {
     withErrorHandling {
       val delimiters = maybeDelimiters.getOrElse(defaultDelimiters)
 
@@ -123,7 +122,7 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       if (grouped.nonEmpty) {
         val best = grouped.keySet.max
         if (grouped(best).length > 1)
-          executionLogger.warn(s"CSV file with more than one 'best' option for separator. Choosing first.")
+          logger.debug(s"CSV file with more than one 'best' option for separator. Choosing first.")
         val sniffer = grouped(best).head
         // parsing the rest of the lines to get the type
         val nobjs = maybeSampleSize.getOrElse(defaultSampleSize)

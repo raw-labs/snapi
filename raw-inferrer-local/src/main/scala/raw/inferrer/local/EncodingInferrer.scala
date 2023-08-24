@@ -17,7 +17,6 @@ import com.ibm.icu.text.CharsetDetector
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
-import raw.runtime.ExecutionLogger
 import raw.sources._
 import raw.sources.bytestream.SeekableInputStream
 
@@ -47,9 +46,7 @@ private[inferrer] trait EncodingInferrer extends StrictLogging {
     new InputStreamReader(stream, encoding.charset)
   }
 
-  protected def getTextBuffer(is: SeekableInputStream, maybeEncoding: Option[Encoding])(
-      implicit executionLogger: ExecutionLogger
-  ): TextBuffer = {
+  protected def getTextBuffer(is: SeekableInputStream, maybeEncoding: Option[Encoding]): TextBuffer = {
     val (encoding, confidence) = maybeEncoding match {
       case None =>
         val (encoding, confidence) = guessEncoding(is)
@@ -61,9 +58,7 @@ private[inferrer] trait EncodingInferrer extends StrictLogging {
     TextBuffer(reader, encoding, confidence)
   }
 
-  private[inferrer] def guessEncoding(
-      is: SeekableInputStream
-  )(implicit executionLogger: ExecutionLogger): (Encoding, Int) = {
+  private[inferrer] def guessEncoding(is: SeekableInputStream): (Encoding, Int) = {
     val sample = getByteSample(is, encodingDetectionReadSize.toInt)
     val detector = new CharsetDetector()
     detector.setText(sample)
@@ -74,7 +69,7 @@ private[inferrer] trait EncodingInferrer extends StrictLogging {
         s"could not detect encoding: detected charset ${charsetMatch.getName} with confidence ${charsetMatch.getConfidence} (less than 10)"
       )
     } else if (charsetMatch.getConfidence < 50) {
-      executionLogger.warn(
+      logger.debug(
         s"Charset detection ${charsetMatch.getName} with low confidence: ${charsetMatch.getConfidence}"
       )
     }
