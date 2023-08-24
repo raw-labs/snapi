@@ -249,11 +249,11 @@ class SQLServerReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
     val tipe = FunAppArg(TypeExp(mandatoryArgs(3).asInstanceOf[TypeArg].t), None)
     val optArgs = optionalArgs.map { case (idn, ExpArg(e, _)) => FunAppArg(e, Some(idn)) }
 
-    val select = BinaryExp(
-      Plus(),
-      BinaryExp(Plus(), BinaryExp(Plus(), StringConst("SELECT * FROM "), schema.e), StringConst(".")),
-      table.e
-    )
+    // SQLServer needs the schema and the table to be quoted
+    def quoted(e: Exp) = BinaryExp(Plus(), BinaryExp(Plus(), StringConst("\""), e), StringConst("\""))
+
+    val tableRef = BinaryExp(Plus(), BinaryExp(Plus(), quoted(schema.e), StringConst(".")), quoted(table.e))
+    val select = BinaryExp(Plus(), StringConst("SELECT * FROM "), tableRef)
     val query = FunAppArg(select, None)
     FunApp(
       Proj(PackageIdnExp("SQLServer"), "Query"),

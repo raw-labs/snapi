@@ -256,7 +256,9 @@ class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
     val tipe = FunAppArg(TypeExp(mandatoryArgs(2).asInstanceOf[TypeArg].t), None)
     val optArgs = optionalArgs.map { case (idn, ExpArg(e, _)) => FunAppArg(e, Some(idn)) }
 
-    val select = BinaryExp(Plus(), StringConst("SELECT * FROM "), table.e)
+    // MySql needs the table name to be quoted with backticks
+    def quoted(e: Exp) = BinaryExp(Plus(), BinaryExp(Plus(), StringConst("`"), e), StringConst("`"))
+    val select = BinaryExp(Plus(), StringConst("SELECT * FROM "), quoted(table.e))
     val query = FunAppArg(select, None)
     FunApp(
       Proj(PackageIdnExp("MySQL"), "Query"),

@@ -269,6 +269,7 @@ class OracleReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
     val tipe = FunAppArg(TypeExp(mandatoryArgs(3).asInstanceOf[TypeArg].t), None)
     val optArgs = optionalArgs.map { case (idn, ExpArg(e, _)) => FunAppArg(e, Some(idn)) }
 
+    // Oracle doesn't need the schema and the table to be quoted
     val select = BinaryExp(
       Plus(),
       BinaryExp(Plus(), BinaryExp(Plus(), StringConst("SELECT * FROM "), schema.e), StringConst(".")),
