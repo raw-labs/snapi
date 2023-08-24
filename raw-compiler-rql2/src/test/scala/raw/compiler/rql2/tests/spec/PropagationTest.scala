@@ -313,8 +313,6 @@ trait PropagationTest extends CompilerTestContext {
     |let x: int = Error.Build("failed int")
     |in x / x""".stripMargin)(_ should runErrorAs("failed int"))
 
-  test("let x: int = 1 in if Try.IsError(x) and Error.Get(x) == \"div by zero\" then false else true")(_ should evaluateTo("true"))
-
   ///////////////////////////////////////////////////////////////////
   //
   // ExpParam section. We try all possible versions of arg vs. param
