@@ -14,7 +14,7 @@ package raw.sources.filesystem.local
 
 import raw.sources.bytestream.{DelegatingSeekableInputStream, SeekableInputStream}
 import raw.sources.filesystem._
-import raw.utils.{RawUtils, StringEscape}
+import raw.utils._
 
 import java.io._
 import java.nio.file._
@@ -24,14 +24,15 @@ import scala.collection.mutable.ArrayBuffer
 class LocalFileSystem extends BaseFileSystem {
 
   private[sources] val fileSeparator: String = File.separator
-  private val fileSeparatorRegex: String = StringEscape.descape(fileSeparator)
+
+  private val fileSeparatorRegex: String = descape(fileSeparator)
 
   // TODO (msb): This should fail to create if not on developer mode?
   // TODO (msb): And if so, should require all paths to be under some certain base path?
 
   private def sanitizePath(path: String): String = {
     // Currently there's no need to sanitize path because the Java APIs handle it for us.
-    if (RawUtils.isWindows) path.replaceFirst("^/(.:/)", "$1")
+    if (isWindows) path.replaceFirst("^/(.:/)", "$1")
     else path
   }
 

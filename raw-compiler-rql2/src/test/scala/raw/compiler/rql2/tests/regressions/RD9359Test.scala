@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 import java.nio.file.{Files, Path}
 
@@ -37,7 +37,7 @@ trait RD9359Test extends CompilerTestContext {
     }
   }
 
-  test(rql"""Csv.InferAndRead("$duplicateColumnCsv")""") { it =>
+  test(snapi"""Csv.InferAndRead("$duplicateColumnCsv")""") { it =>
     it should evaluateTo(s"""[{a:1,b:2,a:3},{a:4,b:5,a:6},{a:7,b:8,a:9}]""")
     val path: Path = Files.createTempFile("", "")
     try {
@@ -50,13 +50,13 @@ trait RD9359Test extends CompilerTestContext {
 
   test(s"""Csv.InferAndParse($ttt$duplicateCsvString$ttt).b""")(it => it should evaluateTo(s"""[2,5,8]"""))
 
-  test(rql"""Csv.InferAndRead("$duplicateColumnCsv").b""")(it => it should evaluateTo(s"""[2,5,8]"""))
+  test(snapi"""Csv.InferAndRead("$duplicateColumnCsv").b""")(it => it should evaluateTo(s"""[2,5,8]"""))
 
   test(s"""Collection.Transform(Csv.InferAndParse($ttt$duplicateCsvString$ttt), r -> r.a)""") { it =>
     it should runErrorAs("record has more than one field with the same name: a")
   }
 
-  test(rql"""Collection.Transform(Csv.InferAndRead("$duplicateColumnCsv"), r -> r.a)""") { it =>
+  test(snapi"""Collection.Transform(Csv.InferAndRead("$duplicateColumnCsv"), r -> r.a)""") { it =>
     it should runErrorAs("record has more than one field with the same name: a")
   }
 
@@ -64,7 +64,7 @@ trait RD9359Test extends CompilerTestContext {
     it should runErrorAs("record has more than one field with the same name: a")
   }
 
-  test(rql"""Csv.InferAndRead("$duplicateColumnCsv").a""") { it =>
+  test(snapi"""Csv.InferAndRead("$duplicateColumnCsv").a""") { it =>
     it should runErrorAs("record has more than one field with the same name: a")
   }
 

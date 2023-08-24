@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.list
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.errors.KeyNotComparable
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
@@ -49,7 +49,7 @@ trait ListJoinTest extends CompilerTestContext with LocalLocationsTestContext {
     |]
     |""".stripMargin
 
-  test(rql"""let regions = List.From(Csv.InferAndRead("$tpchRegionCsvLocal")),
+  test(snapi"""let regions = List.From(Csv.InferAndRead("$tpchRegionCsvLocal")),
     |    nations = List.From(Csv.InferAndRead("$tpchNationCsvLocal"))
     |in
     |List.Transform(
@@ -57,7 +57,7 @@ trait ListJoinTest extends CompilerTestContext with LocalLocationsTestContext {
     |  row -> {region: row.r_name, nation: row.n_name})
     |""".stripMargin)(it => it should evaluateTo(listOfCountries))
 
-  test(rql"""let regions = List.From(Csv.InferAndRead("$tpchRegionCsvLocal")),
+  test(snapi"""let regions = List.From(Csv.InferAndRead("$tpchRegionCsvLocal")),
     |    nations = List.From(Csv.InferAndRead("$tpchNationCsvLocal"))
     |in
     |List.Transform(

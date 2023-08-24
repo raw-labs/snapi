@@ -12,14 +12,14 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.errors.KeyNotComparable
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
 trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestContext {
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    nations = Csv.InferAndRead("$tpchNationCsvLocal")
     |in
     |Collection.Transform(
@@ -28,7 +28,7 @@ trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestCont
     |""".stripMargin)(it => it should evaluateTo(listOfCountries))
 
   // nullable/tryable records
-  test(rql"""let rType = type collection(record(r_regionkey: int, r_name: string, r_comment: string)),
+  test(snapi"""let rType = type collection(record(r_regionkey: int, r_name: string, r_comment: string)),
     |    nType = type collection(
     |        record(
     |            n_nationkey: int,
@@ -43,7 +43,7 @@ trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestCont
     |  row -> {region: row.r_name, nation: row.n_name})
     |""".stripMargin)(it => it should evaluateTo(listOfCountries))
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    nations = Csv.InferAndRead("$tpchNationCsvLocal")
     |in
     |Collection.Transform(
@@ -51,7 +51,7 @@ trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestCont
     |  row -> {region: row.r_name, nation: row.n_name})
     |""".stripMargin)(it => it should evaluateTo(listOfCountries))
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    nations = Csv.InferAndRead("$tpchNationCsvLocal"),
     |    countries = Collection.Transform(
     |      Collection.EquiJoin(regions, nations, r -> r.r_regionkey, n -> n.n_regionkey),
@@ -68,7 +68,7 @@ trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestCont
       |}""".stripMargin)
   }
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    nations = Csv.InferAndRead("$tpchNationCsvLocal"),
     |    countries = Collection.Transform(
     |      Collection.Join(regions, nations, row -> row.r_regionkey == row.n_regionkey),
@@ -86,7 +86,7 @@ trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestCont
   }
 
   // nullable/tryable records
-  test(rql"""let rType = type collection(record(r_regionkey: int, r_name: string, r_comment: string)),
+  test(snapi"""let rType = type collection(record(r_regionkey: int, r_name: string, r_comment: string)),
     |    nType = type collection(
     |        record(
     |            n_nationkey: int,
@@ -110,30 +110,30 @@ trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestCont
       |}""".stripMargin)
   }
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    keys = Collection.From([0, 2, 4])
     |in Collection.Transform(Collection.EquiJoin(regions, keys, r -> r.r_regionkey, k -> k), row -> row.r_name)
     |""".stripMargin)(it => it should evaluateTo("""["AFRICA", "ASIA", "MIDDLE EAST"]"""))
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    keys = Collection.From([0, 2, 4])
     |in Collection.Transform(Collection.Join(regions, keys, row -> row.r_regionkey == row._1), row -> row.r_name)
     |""".stripMargin)(it => it should evaluateTo("""["AFRICA", "ASIA", "MIDDLE EAST"]"""))
 
-  test(rql"""let keys = Collection.From([0, 2, 4])
+  test(snapi"""let keys = Collection.From([0, 2, 4])
     |in Collection.EquiJoin(keys, keys, row -> row, row -> row + 2)
     |""".stripMargin)(it => it should evaluateTo("""[{_1: 2, _2: 0}, {_1: 4, _2: 2}]"""))
 
-  test(rql"""let keys = Collection.From([0, 2, 4])
+  test(snapi"""let keys = Collection.From([0, 2, 4])
     |in Collection.Join(keys, keys, row -> row._1 == row._2 + 2)
     |""".stripMargin)(it => it should evaluateTo("""[{_1: 2, _2: 0}, {_1: 4, _2: 2}]"""))
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    keys = Collection.From([])
     |in Collection.Transform(Collection.Join(regions, keys, row -> row.r_regionkey == row._1), row -> row.r_name)
     |""".stripMargin)(it => it should evaluateTo("""[]"""))
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal"),
     |    keys = Collection.From([])
     |in Collection.Transform(Collection.Join(keys, regions, row -> row.r_regionkey == row._1), row -> row.r_name)
     |""".stripMargin)(it => it should evaluateTo("""[]"""))

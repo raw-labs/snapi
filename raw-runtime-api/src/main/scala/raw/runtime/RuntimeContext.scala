@@ -24,8 +24,6 @@ import scala.collection.mutable
  */
 abstract class BaseRuntimeContext extends Closeable {
 
-  def id: String
-
   val paramsFromTemplating: mutable.Map[String, ParamValue]
 
   val programsFromTemplating: mutable.Map[String, Entrypoint]
@@ -66,13 +64,14 @@ object RuntimeContext {
  * The implementation of the runtime context.
  */
 class RuntimeContext(
-    val id: String,
     val sourceContext: SourceContext,
     val settings: RawSettings,
     val executionLogger: ExecutionLogger,
     val maybeArguments: Option[Array[(String, ParamValue)]],
-    val scopes: Set[String]
+    val environment: ProgramEnvironment
 ) extends BaseRuntimeContext {
+
+  def scopes: Set[String] = environment.scopes
 
   import RuntimeContext._
 
@@ -87,5 +86,21 @@ class RuntimeContext(
   override val paramsFromTemplating: mutable.Map[String, ParamValue] = mutable.HashMap[String, ParamValue]()
 
   override val programsFromTemplating: mutable.Map[String, Entrypoint] = mutable.HashMap[String, Entrypoint]()
+
+  def cloneWith(
+      newSourceContext: SourceContext = sourceContext,
+      newSettings: RawSettings = settings,
+      newExecutionLogger: ExecutionLogger = executionLogger,
+      newMaybeArguments: Option[Array[(String, ParamValue)]] = maybeArguments,
+      newEnvironment: ProgramEnvironment = environment
+  ): RuntimeContext = {
+    new RuntimeContext(
+      newSourceContext,
+      newSettings,
+      newExecutionLogger,
+      newMaybeArguments,
+      newEnvironment
+    )
+  }
 
 }

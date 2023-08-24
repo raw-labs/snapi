@@ -12,15 +12,16 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{FormatCodeLSPRequest, FormatCodeLSPResponse, ProgramEnvironment}
+import raw.compiler.{FormatCodeLSPRequest, FormatCodeLSPResponse}
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait LspFormatCodeTest extends CompilerTestContext {
 
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   def assertFormattedCode(code: String, expected: String) = {
-    val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment))
+    val response = doLsp(FormatCodeLSPRequest(code, programEnvironment))
     response match {
       case FormatCodeLSPResponse(formattedCode, errors) =>
         logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")

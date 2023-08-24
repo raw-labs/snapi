@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait OffHeapJoinTest extends OffHeapDatasets {
 
@@ -23,7 +23,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
 
   // Collections
   test(
-    rql"""// join with equi-predicate
+    snapi"""// join with equi-predicate
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    join = Collection.Join(bands, olympics, r -> r.birthYear == r.year)
@@ -36,7 +36,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
 
   // same with two parameters in the predicate function
   test(
-    rql"""// join with equi-predicate
+    snapi"""// join with equi-predicate
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    join = Collection.Join(bands, olympics, (musician, game) -> musician.birthYear == game.year)
@@ -49,7 +49,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
 
   // same with *typed* parameters in the predicate function
   test(
-    rql"""// join with equi-predicate
+    snapi"""// join with equi-predicate
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    zikos = type record(band: string, firstName: string, lastName: string, birthYear: int),
@@ -63,7 +63,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// join with equi-predicate
+    snapi"""// join with equi-predicate
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    join = Collection.Join(olympics, bands, r -> r.birthYear == r.year)
@@ -76,7 +76,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
 
   // same with two parameters in the predicate function
   test(
-    rql"""// join with equi-predicate
+    snapi"""// join with equi-predicate
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    join = Collection.Join(olympics, bands, (game, musician) -> musician.birthYear == game.year)
@@ -88,7 +88,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// join with equi-predicate, take(1)
+    snapi"""// join with equi-predicate, take(1)
       |let bands = $bandMembers,
       |    olympics = $olympics,
       |    join = Collection.Join(olympics, bands, r -> r.birthYear == r.year)
@@ -96,12 +96,12 @@ trait OffHeapJoinTest extends OffHeapDatasets {
   )(_ should run)
 
   test(
-    rql"""// join with equi-predicate large
+    snapi"""// join with equi-predicate large
       |let bands = $NTimesBandMembers,
       |    olympics = $olympics,
       |    join = Collection.Join(bands, olympics, r -> r.birthYear == r.year)
       |    in Collection.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
-  )(_ should evaluateTo(rql"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
+  )(_ should evaluateTo(snapi"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
     |{firstName: "David", lastName: "Marks", city: "London"},
     |{firstName: "Cyril", lastName: "Neville", city: "London"},
     |{firstName: "Jordan", lastName: "Ruddess", city: "Melbourne"}
@@ -109,7 +109,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
 
   // Lists
   test(
-    rql"""// join with equi-predicate
+    snapi"""// join with equi-predicate
       |let bands = List.From($bandMembers),
       |    olympics = List.From($olympics),
       |    join = List.Join(bands, olympics, r -> r.birthYear == r.year)
@@ -121,7 +121,7 @@ trait OffHeapJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// join with equi-predicate
+    snapi"""// join with equi-predicate
       |let bands = List.From($bandMembers),
       |    olympics = List.From($olympics),
       |    join = List.Join(olympics, bands, r -> r.birthYear == r.year)
@@ -133,12 +133,12 @@ trait OffHeapJoinTest extends OffHeapDatasets {
     |]""".stripMargin))
 
   test(
-    rql"""// join with equi-predicate large
+    snapi"""// join with equi-predicate large
       |let bands = List.From($NTimesBandMembers),
       |    olympics = List.From($olympics),
       |    join = List.Join(bands, olympics, r -> r.birthYear == r.year)
       |    in List.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
-  )(_ should evaluateTo(rql"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
+  )(_ should evaluateTo(snapi"""Collection.Unnest(Int.Range(0, $N), i -> Collection.Build(
     |{firstName: "David", lastName: "Marks", city: "London"},
     |{firstName: "Cyril", lastName: "Neville", city: "London"},
     |{firstName: "Jordan", lastName: "Ruddess", city: "Melbourne"}

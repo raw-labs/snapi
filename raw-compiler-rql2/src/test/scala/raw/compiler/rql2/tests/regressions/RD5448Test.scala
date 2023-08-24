@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RD5448Test extends CompilerTestContext {
@@ -26,15 +26,15 @@ trait RD5448Test extends CompilerTestContext {
   private val jsonFile = tempFile(jsonString)
   private val jsonType = "collection(record(a: int, b: int, c: int))"
 
-  test(rql"""Json.Parse($ttt$jsonString$ttt, type $jsonType)""")(_ should run)
-  test(rql"""Json.InferAndRead("$jsonFile")""")(_ should run)
-  test(rql"""Json.Read("$jsonFile", type $jsonType)""")(_ should run)
+  test(snapi"""Json.Parse($ttt$jsonString$ttt, type $jsonType)""")(_ should run)
+  test(snapi"""Json.InferAndRead("$jsonFile")""")(_ should run)
+  test(snapi"""Json.Read("$jsonFile", type $jsonType)""")(_ should run)
 
-  test(rql"""let s: string = $ttt$jsonString$ttt in Json.Parse(s, type $jsonType)""".stripMargin)(
+  test(snapi"""let s: string = $ttt$jsonString$ttt in Json.Parse(s, type $jsonType)""".stripMargin)(
     _ should run
   )
-  test(rql"""let url: string = "$jsonFile" in Json.InferAndRead(url)""")(_ should run)
-  test(rql"""let url: string = "$jsonFile" in Json.Read(url, type $jsonType)""")(_ should run)
+  test(snapi"""let url: string = "$jsonFile" in Json.InferAndRead(url)""")(_ should run)
+  test(snapi"""let url: string = "$jsonFile" in Json.Read(url, type $jsonType)""")(_ should run)
 
   private val xmlCollectionString = """
     |<person place="world"> <name>john</name> <age>34</age> </person>
@@ -45,13 +45,13 @@ trait RD5448Test extends CompilerTestContext {
   private val xmlCollectionFile = tempFile(xmlCollectionString)
   private val xmlCollectionType = "collection(record(person: string, name: string, age: int))"
 
-  test(rql"""Xml.Parse($ttt$xmlCollectionString$ttt, type $xmlCollectionType)""")(_ should run)
-  test(rql"""Xml.InferAndRead("$xmlCollectionFile")""")(_ should run)
-  test(rql"""Xml.Read("$xmlCollectionFile", type $xmlCollectionType)""")(_ should run)
+  test(snapi"""Xml.Parse($ttt$xmlCollectionString$ttt, type $xmlCollectionType)""")(_ should run)
+  test(snapi"""Xml.InferAndRead("$xmlCollectionFile")""")(_ should run)
+  test(snapi"""Xml.Read("$xmlCollectionFile", type $xmlCollectionType)""")(_ should run)
 
-  test(rql"""let s: string = $ttt$xmlCollectionString$ttt in Xml.Parse(s, type $xmlCollectionType)""")(_ should run)
-  test(rql"""let url: string = "$xmlCollectionFile" in Xml.InferAndRead(url)""")(_ should run)
-  test(rql"""let url: string = "$xmlCollectionFile" in Xml.Read(url, type $xmlCollectionType)""")(_ should run)
+  test(snapi"""let s: string = $ttt$xmlCollectionString$ttt in Xml.Parse(s, type $xmlCollectionType)""")(_ should run)
+  test(snapi"""let url: string = "$xmlCollectionFile" in Xml.InferAndRead(url)""")(_ should run)
+  test(snapi"""let url: string = "$xmlCollectionFile" in Xml.Read(url, type $xmlCollectionType)""")(_ should run)
 
   private val csvString = """a|b|c
     |1|10|100
@@ -61,13 +61,13 @@ trait RD5448Test extends CompilerTestContext {
   private val csvFile = tempFile(csvString)
   private val csvType = "collection(record(a: int, b: int, c: int))"
 
-  test(rql"""Csv.Parse($ttt$csvString$ttt, type $csvType, skip = 1, delimiter = "|")""")(_ should run)
-  test(rql"""Csv.InferAndRead("$csvFile")""")(_ should run)
-  test(rql"""Csv.Read("$csvFile", type $csvType, skip = 1, delimiter = "|")""")(_ should run)
+  test(snapi"""Csv.Parse($ttt$csvString$ttt, type $csvType, skip = 1, delimiter = "|")""")(_ should run)
+  test(snapi"""Csv.InferAndRead("$csvFile")""")(_ should run)
+  test(snapi"""Csv.Read("$csvFile", type $csvType, skip = 1, delimiter = "|")""")(_ should run)
 
-  test(rql"""let s: string = $ttt$csvString$ttt in Csv.Parse(s, type $csvType, skip = 1, delimiter = "|")""")(
+  test(snapi"""let s: string = $ttt$csvString$ttt in Csv.Parse(s, type $csvType, skip = 1, delimiter = "|")""")(
     _ should run
   )
-  test(rql"""let url: string = "$csvFile" in Csv.InferAndRead(url)""")(_ should run)
-  test(rql"""let url: string = "$csvFile" in Csv.Read(url, type $csvType, skip = 1, delimiter = "|")""")(_ should run)
+  test(snapi"""let url: string = "$csvFile" in Csv.InferAndRead(url)""")(_ should run)
+  test(snapi"""let url: string = "$csvFile" in Csv.Read(url, type $csvType, skip = 1, delimiter = "|")""")(_ should run)
 }

@@ -12,7 +12,7 @@
 
 package raw.inferrer
 
-import raw.api.ServiceException
+import raw.api.RawServiceException
 
 class InferrerException(message: String, cause: Throwable = null)
-    extends ServiceException(s"inference error: $message", cause)
+    extends RawServiceException(s"inference error: $message", cause)

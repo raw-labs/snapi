@@ -22,14 +22,14 @@ import raw.compiler.{
   PackageEntryLSPAutoCompleteResponse,
   PackageLSPAutoCompleteResponse,
   Pos,
-  ProgramEnvironment,
   WordAutoCompleteLSPRequest
 }
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.ProgramEnvironment
 
 trait LspWordAutoCompleteTest extends CompilerTestContext {
 
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   private def wordAutoCompleteTest(
       code: String,
@@ -38,7 +38,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
       prefix: String,
       expected: Seq[(String, Option[String])]
   ): Unit = {
-    val response = doLsp(WordAutoCompleteLSPRequest(code, queryEnvironment, prefix, Pos(line, col)))
+    val response = doLsp(WordAutoCompleteLSPRequest(code, programEnvironment, prefix, Pos(line, col)))
     response match {
       case AutoCompleteLSPResponse(entries, _) =>
         val actual = entries.map {

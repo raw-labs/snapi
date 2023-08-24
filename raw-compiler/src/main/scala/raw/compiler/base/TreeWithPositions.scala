@@ -16,7 +16,7 @@ import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.CompilerParserException
 import raw.compiler.base.source._
 import raw.compiler._
-import raw.utils.RawUtils
+import raw.utils._
 
 abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](
     val originalSource: String,
@@ -81,7 +81,7 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
         |======
         |$prettyErrors""".stripMargin
       if (messageTooBig(msg)) {
-        val p = RawUtils.saveToTemporaryFileNoDeleteOnExit(msg, "deepcheck-", ".log")
+        val p = saveToTemporaryFileNoDeleteOnExit(msg, "deepcheck-", ".log")
         logger.debug(s"""Tree has semantic errors!
           |Details in ${p.toAbsolutePath.toString}""".stripMargin)
       } else {

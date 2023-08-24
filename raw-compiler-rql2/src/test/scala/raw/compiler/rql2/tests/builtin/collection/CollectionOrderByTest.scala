@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
@@ -32,7 +32,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
     |Beach Boys|Bruce|Johnston|1942
     |Beach Boys|David|Marks|1948""".stripMargin)
 
-  private val manualCsv: String = rql"""
+  private val manualCsv: String = snapi"""
     |let tokens = Collection.Transform(String.ReadLines("$coolBandsWithoutHeader"), l -> String.Split(l, "|"))
     |in Collection.Transform(tokens, i -> {
     |     band: List.Get(i, 0),
@@ -42,7 +42,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
     |})""".stripMargin
 
   test(
-    rql"""let bands = $manualCsv,
+    snapi"""let bands = $manualCsv,
       |    orderedBySomething = Collection.OrderBy(bands, p -> p.birthYear, "DESC", p -> p.lastName, "ASC")
       |    in Collection.Transform(orderedBySomething, p -> p.lastName + " (" + String.From(p.birthYear) + ")")""".stripMargin
   ) {
@@ -63,7 +63,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
   }
 
   // using String.ReadLines
-  test(rql"""let regions = Collection.Transform(
+  test(snapi"""let regions = Collection.Transform(
     |  String.ReadLines("$tpchRegionTblLocal"),
     |  l ->
     |      let tokens = String.Split(l, "|")
@@ -79,7 +79,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
     _ should orderEvaluateTo("""["AFRICA", "AMERICA", "ASIA", "EUROPE", "MIDDLE EAST"]""")
   )
 
-  test(rql"""let regions = Collection.Transform(
+  test(snapi"""let regions = Collection.Transform(
     |  String.ReadLines("$tpchRegionTblLocal"),
     |  l ->
     |      let tokens = String.Split(l, "|")
@@ -94,7 +94,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
     |     r -> r.r_name)""".stripMargin)(
     _ should orderEvaluateTo("""["MIDDLE EAST", "EUROPE", "ASIA", "AMERICA", "AFRICA"]""")
   )
-  test(rql"""let bands = $manualCsv,
+  test(snapi"""let bands = $manualCsv,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.firstName, "ASC", p -> p.lastName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo("""[
@@ -113,7 +113,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
       |]""".stripMargin)
   }
 
-  test(rql"""let bands = $manualCsv,
+  test(snapi"""let bands = $manualCsv,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo("""[
@@ -132,7 +132,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
       |]""".stripMargin)
   }
 
-  test(rql"""let bands = $manualCsv,
+  test(snapi"""let bands = $manualCsv,
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "DESC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo("""[
@@ -151,21 +151,21 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
       |]""".stripMargin)
   }
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
     |in Collection.Transform(
     |     Collection.OrderBy(regions, r -> r.r_name, "ASC"),
     |     r -> r.r_name)""".stripMargin)(
     _ should orderEvaluateTo("""[null, "AFRICA", "AMERICA", "ASIA", "EUROPE", "MIDDLE EAST"]""")
   )
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
     |in Collection.Transform(
     |     Collection.OrderBy(regions, r -> r.r_name, "DESC"),
     |     r -> r.r_name)""".stripMargin)(
     _ should orderEvaluateTo("""["MIDDLE EAST", "EUROPE", "ASIA", "AMERICA", "AFRICA", null]""")
   )
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
     |in Collection.Transform(
     |     Collection.OrderBy(regions, r -> String.Length(r.r_name), "ASC"),
     |     r -> {name: r.r_name, len: String.Length(r.r_name)})""".stripMargin)(_ should orderEvaluateTo("""[
@@ -177,7 +177,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
     |  {name: "MIDDLE EAST", len: 11}
     |]""".stripMargin))
 
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
     |in Collection.Transform(
     |     Collection.OrderBy(regions, r -> String.Length(r.r_name), "DESC"),
     |     r -> {name: r.r_name, len: String.Length(r.r_name)})""".stripMargin)(_ should orderEvaluateTo("""[
@@ -190,9 +190,9 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
     |]""".stripMargin))
 
   // default ordering
-  test(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
+  test(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
     |in Collection.OrderBy(regions, r -> r.r_name, "ASC")""".stripMargin)(
-    _ should orderEvaluateTo(rql"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
+    _ should orderEvaluateTo(snapi"""let regions = Csv.InferAndRead("$tpchRegionCsvLocal")
       |in Collection.OrderBy(regions, r -> r.r_name, "ASC")""".stripMargin)
   )
 
@@ -210,7 +210,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
     |Beach Boys|Bruce|Johnston|1942
     |Beach Boys|David|Marks|1948""".stripMargin)
 
-  test(rql"""let bands = Csv.InferAndRead("$coolBands"),
+  test(snapi"""let bands = Csv.InferAndRead("$coolBands"),
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.firstName, "ASC", p -> p.lastName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo("""[
@@ -229,7 +229,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
       |]""".stripMargin)
   }
 
-  test(rql"""let bands = Csv.InferAndRead("$coolBands"),
+  test(snapi"""let bands = Csv.InferAndRead("$coolBands"),
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "ASC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo("""[
@@ -248,7 +248,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
       |]""".stripMargin)
   }
 
-  test(rql"""let bands = Csv.InferAndRead("$coolBands"),
+  test(snapi"""let bands = Csv.InferAndRead("$coolBands"),
     |    orderedBySomething = Collection.OrderBy(bands, p -> p.lastName, "ASC", p -> p.firstName, "DESC")
     |    in Collection.Transform(orderedBySomething, p -> p.firstName + " " + p.lastName)""".stripMargin) {
     _ should orderEvaluateTo("""[
@@ -268,7 +268,7 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
   }
 
   test(
-    rql"""let bands = Csv.InferAndRead("$coolBands"),
+    snapi"""let bands = Csv.InferAndRead("$coolBands"),
       |    orderedBySomething = Collection.OrderBy(bands, p -> p.birthYear, "DESC", p -> p.lastName, "ASC")
       |    in Collection.Transform(orderedBySomething, p -> p.lastName + " (" + String.From(p.birthYear) + ")")""".stripMargin
   ) {

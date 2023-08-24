@@ -16,7 +16,7 @@ import java.time.Instant
 import java.time.temporal.ChronoUnit
 import com.fasterxml.jackson.annotation.JsonIgnore
 import raw.Uid
-import raw.api.{AuthenticatedUser, Service}
+import raw.api.{AuthenticatedUser, RawService}
 
 object AuthService {
   val PERMISSION_MANAGEMENT = "management"
@@ -25,7 +25,7 @@ object AuthService {
   val AllPermissions = Seq(PERMISSION_IMPERSONATE, PERMISSION_MANAGEMENT)
 }
 
-trait AuthService extends Service {
+trait AuthService extends RawService {
   def public: PublicAuthService
 
   def mgmt: MgmtAuthService

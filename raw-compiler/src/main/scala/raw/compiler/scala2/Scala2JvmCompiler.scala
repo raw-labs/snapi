@@ -14,7 +14,7 @@ package raw.compiler.scala2
 
 import org.apache.commons.io.FileUtils
 import raw.api.RawException
-import raw.compiler.{CompilerException, ProgramSettings}
+import raw.compiler.CompilerException
 import raw.compiler.jvm.{JvmCode, JvmCompiler, RawMutableURLClassLoader}
 import raw.config.RawSettings
 import raw.runtime.JvmEntrypoint
@@ -33,6 +33,7 @@ final case class ScalaCode(code: String) extends JvmCode
 object Scala2JvmCompiler {
   private val SCALA2_COMPILER_SETTINGS = "raw.compiler.scala2.settings"
   private val SCALA2_MAX_CLASSES_ON_STARTUP = "raw.compiler.scala2.max-classes-on-startup"
+  private val SCALA2_COMPILATION_DIRECTORY = "raw.compiler.scala2.compilation-directory"
   private val SCALA2_CLASSPATH = "raw.compiler.scala2.classpath"
 
   // Unique counter (per prefix).
@@ -73,9 +74,7 @@ class Scala2JvmCompiler(
   private val maxClassesOnStartup = settings.getInt(SCALA2_MAX_CLASSES_ON_STARTUP)
 
   // Create a unique base directory
-  private val baseDir = Paths
-    .get(settings.getString(ProgramSettings.scala_compilation_directory))
-    .resolve("20221027T1030")
+  private val baseDir = Paths.get(settings.getString(SCALA2_COMPILATION_DIRECTORY)).resolve("20221027T1030")
 
   // Location for the generated Scala sources
   private val sourceDir = baseDir.resolve("src")

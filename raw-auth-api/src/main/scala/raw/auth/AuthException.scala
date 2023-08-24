@@ -12,10 +12,10 @@
 
 package raw.auth
 
-import raw.api.ServiceException
+import raw.api.RawServiceException
 
 abstract class AuthException(message: String, cause: Throwable = null)
-    extends ServiceException(s"authentication error: $message", cause)
+    extends RawServiceException(s"authentication error: $message", cause)
 
 // Status 400
 class GenericAuthException(message: String, cause: Throwable = null) extends AuthException(message, cause)

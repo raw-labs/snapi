@@ -85,11 +85,8 @@ abstract class Compiler(implicit compilerContext: CompilerContext) extends raw.c
     throw new AssertionError("operation not supported")
   }
 
-  override def getProgramContext(
-      programSettings: ProgramSettings,
-      runtimeContext: RuntimeContext
-  ): ProgramContext = {
-    new ProgramContext(programSettings, runtimeContext)
+  override def getProgramContext(runtimeContext: RuntimeContext): ProgramContext = {
+    new ProgramContext(runtimeContext)
   }
 
   private def formatErrors(errors: Seq[BaseError], positions: Positions): List[ErrorMessage] = {

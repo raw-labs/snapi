@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.list
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
@@ -34,7 +34,7 @@ trait ListExplodeTest extends CompilerTestContext with LocalLocationsTestContext
     |  }
     |]""".stripMargin)
 
-  test(rql"""let nba = List.From(Json.InferAndRead("$nba"))
+  test(snapi"""let nba = List.From(Json.InferAndRead("$nba"))
     |in List.Transform(
     |     List.Explode(nba, n -> List.From(n.players)),
     |     r -> {team: r.team.city + " " + r.team.name, player: r.name + " (" + String.From(r.number) + ")"}
@@ -62,7 +62,7 @@ trait ListExplodeTest extends CompilerTestContext with LocalLocationsTestContext
     |   ] }
     |]""".stripMargin)
 
-  test(rql"""let nba = List.From(Json.InferAndRead("$nullNba"))
+  test(snapi"""let nba = List.From(Json.InferAndRead("$nullNba"))
     |in List.Transform(
     |     List.Explode(nba, n -> List.From(n.players)),
     |     r -> {team: r.team.city + " " + r.team.name, player: r.name + " (" + String.From(r.number) + ")"}
@@ -90,7 +90,7 @@ trait ListExplodeTest extends CompilerTestContext with LocalLocationsTestContext
     |   ] }
     |]""".stripMargin)
 
-  test(rql"""let nbaType = type list(
+  test(snapi"""let nbaType = type list(
     |    record(
     |        team: record(name: string, city: string),
     |        players: list(record(name: string, number: int)))),

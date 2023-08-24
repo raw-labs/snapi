@@ -15,9 +15,7 @@ package raw.sources.filesystem.dropbox
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.{BearerToken, DropboxToken}
 import raw.sources.filesystem.{FileSystemException, FileSystemLocation, FileSystemLocationBuilder}
-import raw.sources.{FileSystemCacheKey, LocationDescription, SourceContext}
-
-final case class DropboxCacheKey(name: Option[String], cred: AnyRef) extends FileSystemCacheKey
+import raw.sources.{LocationDescription, SourceContext}
 
 object DropboxFileSystemLocationBuilder {
   val dropboxRegex = "dropbox:(?://([^/]+)?)?(.*)".r

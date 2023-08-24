@@ -17,12 +17,6 @@ import raw.config.RawSettings
 import raw.creds.CredentialsService
 import raw.sources.bytestream.ByteStreamCache
 
-trait InputStreamCacheKey
-
-trait FileSystemCacheKey
-
-trait JdbcCacheKey
-
 class SourceContext(
     val user: AuthenticatedUser,
     val credentialsService: CredentialsService,

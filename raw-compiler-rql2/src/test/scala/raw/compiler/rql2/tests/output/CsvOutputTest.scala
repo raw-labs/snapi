@@ -13,8 +13,8 @@
 package raw.compiler.rql2.tests.output
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.RQLInterpolator
-import raw.utils.RawUtils
+import raw.compiler.SnapiInterpolator
+import raw.utils._
 
 import java.nio.file.Files
 
@@ -47,11 +47,11 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 
-  test(rql"""Csv.InferAndRead("$csvWithAllTypes")""") { it =>
+  test(snapi"""Csv.InferAndRead("$csvWithAllTypes")""") { it =>
     val path = Files.createTempFile("", "")
     try {
       it should saveToInFormat(path, "csv")
@@ -62,11 +62,11 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 
-  test(rql"""Csv.Read("$csvWithAllTypes", type collection(
+  test(snapi"""Csv.Read("$csvWithAllTypes", type collection(
     |    record(
     |        byteCol: byte,
     |        shortCol: short,
@@ -91,11 +91,11 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 
-  test(rql"""Csv.Read("$csvWithAllTypes", type collection(
+  test(snapi"""Csv.Read("$csvWithAllTypes", type collection(
     |    record(
     |        byteCol: byte,
     |        shortCol: short,
@@ -115,7 +115,7 @@ trait CsvOutputTest extends CompilerTestContext {
       it should saveToInFormat(path, "csv")
       if (language == "rql2-truffle") {
         path should contain(
-          rql"""byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol
+          snapi"""byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol
             |"failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte","failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short","failed to parse CSV (url: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int","failed to parse CSV (url: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long","failed to parse CSV (url: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float","failed to parse CSV (url: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double","failed to parse CSV (url: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal","failed to parse CSV (url: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool","failed to parse CSV (url: $csvWithAllTypes: line 1, col 71), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 79), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 87), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'"
             |1,10,100,1000,3.14,6.28,9.42,true,2023-12-25,01:02:03,2023-12-25T01:02:03
             |120,2500,25000,250000,30.14,60.28,90.42,false,2023-02-05,11:12:13,2023-02-05T11:12:13
@@ -131,7 +131,7 @@ trait CsvOutputTest extends CompilerTestContext {
         )
       }
     } finally {
-      RawUtils.deleteTestPath(path)
+      deleteTestPath(path)
     }
   }
 
