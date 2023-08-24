@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestContext {
 
@@ -38,7 +38,7 @@ trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestCon
     |]""".stripMargin)
 
   // just checking that we indeed get an error row in `leaders`
-  test(rql"""let musicians = Json.InferAndRead("$musicians"),
+  test(snapi"""let musicians = Json.InferAndRead("$musicians"),
     |    leaders = Collection.Transform(musicians, nestedPeople -> List.Get(List.From(nestedPeople), 2)),
     |    combos = Json.InferAndRead("$combos")
     |in leaders
@@ -49,7 +49,7 @@ trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestCon
   // We filter the single Wayne Shorter `combo` (prior to the join)
   // The join with `leaders` is a full cartesian.
   // It should match the Wayne Shorter combo with both rows of `leaders`: Wayne Shorter and error
-  test(rql"""let musicians = Json.InferAndRead("$musicians"),
+  test(snapi"""let musicians = Json.InferAndRead("$musicians"),
     |    leaders = Collection.Transform(musicians, nestedPeople -> List.Get(List.From(nestedPeople), 2)),
     |    combos = Json.InferAndRead("$combos")
     |in  Collection.Join(Collection.Filter(combos, c -> c.leader == "Wayne Shorter"), leaders, x -> true)
@@ -61,7 +61,7 @@ trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestCon
   // Now the predicate on the combo column is the join predicate. Because the failed `leader` record leads to a full
   // failed join row, the predicate will apply to a failed merged record and fail too.
   // It should match combo/Wayne Shorter with the successfull row only (leader Wayne Shorter) and error
-  test(rql"""let musicians = Json.InferAndRead("$musicians"),
+  test(snapi"""let musicians = Json.InferAndRead("$musicians"),
     |    leaders = Collection.Transform(musicians, nestedPeople -> List.Get(List.From(nestedPeople), 2)),
     |    combos = Json.InferAndRead("$combos")
     |in
@@ -73,7 +73,7 @@ trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestCon
   )
 
   // Now using a predicate on both rows
-  test(rql"""let musicians = Json.InferAndRead("$musicians"),
+  test(snapi"""let musicians = Json.InferAndRead("$musicians"),
     |    leaders = Collection.Transform(musicians, nestedPeople -> List.Get(List.From(nestedPeople), 2)),
     |    combos = Json.InferAndRead("$combos")
     |in Collection.Join(combos, leaders, row -> row.leader == row.name) // should match Wayne Shorter only
@@ -84,7 +84,7 @@ trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestCon
   )
 
   // Same with EquiJoin
-  test(rql"""let musicians = Json.InferAndRead("$musicians"),
+  test(snapi"""let musicians = Json.InferAndRead("$musicians"),
     |    leaders = Collection.Transform(musicians, nestedPeople -> List.Get(List.From(nestedPeople), 2)),
     |    combos = Json.InferAndRead("$combos")
     |in Collection.EquiJoin(combos, leaders, combo -> combo.leader, musician -> musician.name) // should match Wayne Shorter only
@@ -95,7 +95,7 @@ trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestCon
   )
 
   // Same with EquiJoin but swapped
-  test(rql"""let musicians = Json.InferAndRead("$musicians"),
+  test(snapi"""let musicians = Json.InferAndRead("$musicians"),
     |    leaders = Collection.Transform(musicians, nestedPeople -> List.Get(List.From(nestedPeople), 2)),
     |    combos = Json.InferAndRead("$combos")
     |in Collection.EquiJoin(leaders, combos, musician -> musician.name, combo -> combo.leader) // should match Wayne Shorter only

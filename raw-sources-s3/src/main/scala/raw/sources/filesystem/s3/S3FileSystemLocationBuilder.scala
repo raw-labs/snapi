@@ -15,9 +15,7 @@ package raw.sources.filesystem.s3
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.{AWSCredentials, S3Bucket}
 import raw.sources.filesystem.{FileSystemLocation, FileSystemLocationBuilder}
-import raw.sources.{FileSystemCacheKey, LocationDescription, LocationException, SourceContext}
-
-final case class S3CacheKey(cred: S3Bucket) extends FileSystemCacheKey
+import raw.sources.{LocationDescription, LocationException, SourceContext}
 
 class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictLogging {
 

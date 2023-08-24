@@ -14,7 +14,7 @@ package raw.compiler.base.source
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler.base.{Keywords, PrettyPrinter, SyntaxAnalyzer}
-import raw.utils.StringEscape
+import raw.utils._
 
 import scala.language.implicitConversions
 
@@ -31,7 +31,7 @@ trait SourcePrettyPrinter extends PrettyPrinter with Keywords with StrictLogging
     else name
   }
 
-  protected def dquoted(s: String): Doc = dquotes(StringEscape.descape(s))
+  protected def dquoted(s: String): Doc = dquotes(descape(s))
 
   def ident(idn: String): String = {
     if (SyntaxAnalyzer.identRegex.unapplySeq(idn).isDefined && !isReserved(idn)) {

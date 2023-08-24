@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 
 trait RD5784Test extends CompilerTestContext {
 
@@ -24,7 +24,7 @@ trait RD5784Test extends CompilerTestContext {
     |</r>
     |""".stripMargin)
 
-  test(rql"""typealiasFun() =
+  test(snapi"""typealiasFun() =
     |    let
     |        _type =  type record(a: int, b: int)
     |    in

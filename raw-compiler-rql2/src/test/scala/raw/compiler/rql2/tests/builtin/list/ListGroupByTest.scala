@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.list
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.errors.KeyNotComparable
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
@@ -39,7 +39,7 @@ trait ListGroupByTest extends CompilerTestContext with LocalLocationsTestContext
     |)""".stripMargin
 
   // test against a short but easy to infer CSV file
-  test(rql"""let lineitem = List.From(Csv.InferAndRead("$tpchLineitemCsvLocal")),
+  test(snapi"""let lineitem = List.From(Csv.InferAndRead("$tpchLineitemCsvLocal")),
     |    groups = List.GroupBy(lineitem, row -> row.l_returnflag)
     |in groups
     |""".stripMargin) { it =>
@@ -65,7 +65,7 @@ trait ListGroupByTest extends CompilerTestContext with LocalLocationsTestContext
   }
 
   // test against a short but easy to infer CSV file
-  test(rql"""let lineitem = List.From(Csv.InferAndRead("$tpchLineitemCsvLocal")),
+  test(snapi"""let lineitem = List.From(Csv.InferAndRead("$tpchLineitemCsvLocal")),
     |    groups = List.GroupBy(lineitem, row -> row.l_returnflag)
     |in List.Transform(groups, g -> {
     |        _1: g.key,
@@ -78,7 +78,7 @@ trait ListGroupByTest extends CompilerTestContext with LocalLocationsTestContext
 
   // test with a hardcoded record type (file is larger)
   test(
-    rql"""let lineitem = List.From(Csv.Read("$tpchLineitemTblLocal", type collection($lineitemType), skip=0, delimiter="|")),
+    snapi"""let lineitem = List.From(Csv.Read("$tpchLineitemTblLocal", type collection($lineitemType), skip=0, delimiter="|")),
       |    groups = List.GroupBy(lineitem, row -> row.l_returnflag)
       |    in List.Transform(groups, g -> {
       |        _1: g.key,

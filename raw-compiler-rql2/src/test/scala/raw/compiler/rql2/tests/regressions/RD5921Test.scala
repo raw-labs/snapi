@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RD5921Test extends CompilerTestContext {
@@ -22,7 +22,7 @@ trait RD5921Test extends CompilerTestContext {
     |<a>3<b>Hello!</b></a>
     |<a><b>Hello!</b>4</a>""".stripMargin)
 
-  test(rql"""Xml.Read("$data1", type collection(string))""") {
+  test(snapi"""Xml.Read("$data1", type collection(string))""") {
     _ should evaluateTo(""" [
       | "1",
       | "2",
@@ -78,7 +78,7 @@ trait RD5921Test extends CompilerTestContext {
     |<a><b>21<c>something</c></b><b><c>something else</c>22</b></a>
     |<a><b><c></c></b><b><c>something</c></b></a>""".stripMargin)
 
-  test(rql"""Xml.Read("$data2", type collection(record(b: collection(string))))""") {
+  test(snapi"""Xml.Read("$data2", type collection(record(b: collection(string))))""") {
     _ should evaluateTo(""" [
       | {b: ["Hello", "World!"]},
       | {b: [

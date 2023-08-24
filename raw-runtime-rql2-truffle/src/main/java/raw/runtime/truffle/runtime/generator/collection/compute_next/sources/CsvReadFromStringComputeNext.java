@@ -16,7 +16,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import raw.runtime.truffle.ast.io.csv.reader.CsvParserOperations;
+import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
@@ -44,9 +44,9 @@ public class CsvReadFromStringComputeNext {
 
   @ExportMessage
   void init(
-      @Cached("create()") CsvParserOperations.InitCsvParserNode initParser,
+      @Cached("create()") CsvParserNodes.InitCsvParserNode initParser,
       @Cached.Shared("closeParser") @Cached("create()")
-          CsvParserOperations.CloseCsvParserNode closeParser) {
+          CsvParserNodes.CloseCsvParserNode closeParser) {
     try {
       parser = initParser.execute(stream, settings);
     } catch (CsvReaderRawTruffleException ex) {
@@ -65,7 +65,7 @@ public class CsvReadFromStringComputeNext {
   @ExportMessage
   void close(
       @Cached.Shared("closeParser") @Cached("create()")
-          CsvParserOperations.CloseCsvParserNode closeParser) {
+          CsvParserNodes.CloseCsvParserNode closeParser) {
     closeParser.execute(parser);
   }
 

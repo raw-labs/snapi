@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RD3784Test extends CompilerTestContext {
@@ -36,26 +36,26 @@ trait RD3784Test extends CompilerTestContext {
     "csv"
   )
 
-  test(rql"""let data = Csv.InferAndRead("$data", nans=["nan"]),
+  test(snapi"""let data = Csv.InferAndRead("$data", nans=["nan"]),
     |       floats = Collection.Transform(data, d -> d.v)
     |in Collection.Transform(
     |     Collection.GroupBy(floats, d -> d),
     |     g -> { g.key, count: Collection.Count(g.group) }
-    |)""".stripMargin)(_ should evaluateTo(rql"""Csv.InferAndRead("$result", nans=["nan"])"""))
+    |)""".stripMargin)(_ should evaluateTo(snapi"""Csv.InferAndRead("$result", nans=["nan"])"""))
 
-  test(rql"""let data = Csv.Read("$data", type collection(record(v: double)), skip=1, nans=["nan"]),
+  test(snapi"""let data = Csv.Read("$data", type collection(record(v: double)), skip=1, nans=["nan"]),
     |       floats = Collection.Transform(data, d -> d.v)
     |in Collection.Transform(
     |     Collection.GroupBy(floats, d -> d),
     |     g -> { g.key, count: Collection.Count(g.group) }
-    |)""".stripMargin)(_ should evaluateTo(rql"""Csv.InferAndRead("$result", nans=["nan"])"""))
+    |)""".stripMargin)(_ should evaluateTo(snapi"""Csv.InferAndRead("$result", nans=["nan"])"""))
 
-  test(rql"""let data = Csv.Read("$data", type collection(record(v: float)), skip=1, nans=["nan"]),
+  test(snapi"""let data = Csv.Read("$data", type collection(record(v: float)), skip=1, nans=["nan"]),
     |       floats = Collection.Transform(data, d -> d.v)
     |in Collection.Transform(
     |     Collection.GroupBy(floats, d -> d),
     |     g -> { g.key, count: Collection.Count(g.group) }
-    |)""".stripMargin)(_ should evaluateTo(rql"""Csv.InferAndRead("$result", nans=["nan"])"""))
+    |)""".stripMargin)(_ should evaluateTo(snapi"""Csv.InferAndRead("$result", nans=["nan"])"""))
 
   private val dataWithNulls = tempFile(
     """v
@@ -79,31 +79,31 @@ trait RD3784Test extends CompilerTestContext {
     "csv"
   )
 
-  test(rql"""let data = Csv.InferAndRead("$dataWithNulls", nans=["nan"], nulls=["null"]),
+  test(snapi"""let data = Csv.InferAndRead("$dataWithNulls", nans=["nan"], nulls=["null"]),
     |       floats = Collection.Transform(data, d -> d.v)
     |in Collection.Transform(
     |     Collection.GroupBy(floats, d -> d),
     |     g -> { g.key, count: Collection.Count(g.group) }
     |)""".stripMargin)(
-    _ should evaluateTo(rql"""Csv.InferAndRead("$resultWithNulls", nans=["nan"], nulls=["null"])""")
+    _ should evaluateTo(snapi"""Csv.InferAndRead("$resultWithNulls", nans=["nan"], nulls=["null"])""")
   )
 
   test(
-    rql"""let data = Csv.Read("$dataWithNulls", type collection(record(v: double)), skip=1, nans=["nan"], nulls=["null"]),
+    snapi"""let data = Csv.Read("$dataWithNulls", type collection(record(v: double)), skip=1, nans=["nan"], nulls=["null"]),
       |       floats = Collection.Transform(data, d -> d.v)
       |in Collection.Transform(
       |     Collection.GroupBy(floats, d -> d),
       |     g -> { g.key, count: Collection.Count(g.group) }
       |)""".stripMargin
-  )(_ should evaluateTo(rql"""Csv.InferAndRead("$resultWithNulls", nans=["nan"], nulls=["null"])"""))
+  )(_ should evaluateTo(snapi"""Csv.InferAndRead("$resultWithNulls", nans=["nan"], nulls=["null"])"""))
 
   test(
-    rql"""let data = Csv.Read("$dataWithNulls", type collection(record(v: float)), skip=1, nans=["nan"], nulls=["null"]),
+    snapi"""let data = Csv.Read("$dataWithNulls", type collection(record(v: float)), skip=1, nans=["nan"], nulls=["null"]),
       |       floats = Collection.Transform(data, d -> d.v)
       |in Collection.Transform(
       |     Collection.GroupBy(floats, d -> d),
       |     g -> { g.key, count: Collection.Count(g.group) }
       |)""".stripMargin
-  )(_ should evaluateTo(rql"""Csv.InferAndRead("$resultWithNulls", nans=["nan"], nulls=["null"])"""))
+  )(_ should evaluateTo(snapi"""Csv.InferAndRead("$resultWithNulls", nans=["nan"], nulls=["null"])"""))
 
 }

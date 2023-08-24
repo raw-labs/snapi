@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.RQLInterpolator
+import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait StagedCompilerTest extends CompilerTestContext {
@@ -45,25 +45,25 @@ trait StagedCompilerTest extends CompilerTestContext {
 //    it should evaluateTo("3")
 //  }
 
-  test(rql"""
+  test(snapi"""
     |let f: string = "$data",
     |    data = Json.InferAndRead(f)
     |in
     |    data""".stripMargin)(it => it should run)
 
-  test(rql"""
+  test(snapi"""
     |let f: string = "$dataXml",
     |    data = Xml.InferAndRead(f)
     |in
     |    data""".stripMargin)(it => it should run)
 
-  test(rql"""
+  test(snapi"""
     |let f: string = "$dataCsv",
     |    data = Csv.InferAndRead(f)
     |in
     |    data""".stripMargin)(it => it should run)
 
-  test(rql"""
+  test(snapi"""
     |let f: string = "$data",
     |    data = Json.InferAndRead(f)
     |in
