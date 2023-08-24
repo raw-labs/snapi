@@ -18,19 +18,23 @@ import raw.compiler.common.source.Exp
 import raw.compiler.rql2.{
   Arg,
   EntryExtension,
+  ExpArg,
   ExpParam,
   PackageExtension,
   Param,
   ProgramContext,
   SugarEntryExtension,
+  TypeArg,
   TypeParam,
   ValueArg,
   ValueParam
 }
 import raw.compiler.rql2.source.{
+  BinaryExp,
   FunApp,
   FunAppArg,
   PackageIdnExp,
+  Plus,
   Proj,
   Rql2IntType,
   Rql2StringType,
@@ -153,7 +157,7 @@ class MySQLInferAndReadEntry extends SugarEntryExtension with SqlTableExtensionH
   }
 }
 
-class MySQLReadEntry extends EntryExtension with SqlTableExtensionHelper {
+class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
 
   override def packageName: String = "MySQL"
 
@@ -240,6 +244,27 @@ class MySQLReadEntry extends EntryExtension with SqlTableExtensionHelper {
     validateTableType(t)
   }
 
+  override def desugar(
+      t: Type,
+      args: Seq[FunAppArg],
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Exp = {
+    val db = FunAppArg(mandatoryArgs.head.asInstanceOf[ExpArg].e, None)
+    val table = FunAppArg(mandatoryArgs(1).asInstanceOf[ExpArg].e, None)
+    val tipe = FunAppArg(TypeExp(mandatoryArgs(2).asInstanceOf[TypeArg].t), None)
+    val optArgs = optionalArgs.map { case (idn, ExpArg(e, _)) => FunAppArg(e, Some(idn)) }
+
+    // MySql needs the table name to be quoted with backticks
+    def quoted(e: Exp) = BinaryExp(Plus(), BinaryExp(Plus(), StringConst("`"), e), StringConst("`"))
+    val select = BinaryExp(Plus(), StringConst("SELECT * FROM "), quoted(table.e))
+    val query = FunAppArg(select, None)
+    FunApp(
+      Proj(PackageIdnExp("MySQL"), "Query"),
+      Vector(db, query, tipe) ++ optArgs
+    )
+  }
 }
 
 class MySQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensionHelper {

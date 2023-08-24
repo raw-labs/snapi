@@ -85,7 +85,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
   property("raw.sources.rdbms.network-timeout", "10s")
 
   test(s"""Snowflake.InferAndRead("snowflake", "$snowflakeSchema", "$snowflakeMainTable")""") { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -100,7 +99,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string))
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -116,7 +114,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   options = [{"timezone", "UTC"}]
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -130,7 +127,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""Snowflake.Read("snowflake", "$snowflakeSchema", "$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)))""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x1."), y: "y1"},
@@ -141,7 +137,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
   }
 
   test(s"""Snowflake.InferAndRead("snowflake", "$snowflakeSchema", "$snowflakeSideTable")""") { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {
@@ -190,7 +185,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
     |        x: string
     |   ))
     |)""".stripMargin) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {
@@ -231,7 +225,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""Snowflake.InferAndRead("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
       |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}")""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -246,7 +239,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |   accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}" )""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x1."), y: "y1"},
@@ -288,10 +280,7 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""Snowflake.Read("${snowflakeCreds.database}", "$snowflakeSchema", "$snowflakeMainTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""no credential found for Snowflake: ${snowflakeCreds.database}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""no credential found for Snowflake: ${snowflakeCreds.database}""".stripMargin))
 
   // server does not exist
   test(
@@ -301,7 +290,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  accountID = "does-not-exist", username = "${snowflakeCreds.username.get.toString}", password = "${snowflakeCreds.password.get.toString}"
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should runErrorAs(
       """IO error connecting to does-not-exist: JDBC driver encountered communication error. Message: HTTP status=403.""".stripMargin
     )
@@ -314,10 +302,7 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  accountID = "${snowflakeCreds.accountIdentifier}"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""authentication failed""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""authentication failed""".stripMargin))
 
   // wrong password
   test(
@@ -327,7 +312,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  accountID = "${snowflakeCreds.accountIdentifier}", username = "${snowflakeCreds.username.get.toString}", password = "wrong!"
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should runErrorAs(
       s"""unable to establish connection to ${snowflakeCreds.accountIdentifier}: Incorrect username or password was specified.""".stripMargin
     )
@@ -390,7 +374,6 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   options = [{"timezone", "America/Los_Angeles"}]
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {

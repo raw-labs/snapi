@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.builtin.{MySQLQueryEntry, MySQLReadEntry}
+import raw.compiler.rql2.builtin.MySQLQueryEntry
 import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
@@ -22,12 +22,6 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuil
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler
 import raw.sources.CacheStrategy
-
-class TruffleMySQLReadEntry extends MySQLReadEntry with TruffleEntryExtension {
-
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = ???
-
-}
 
 class TruffleMySQLQueryEntry extends MySQLQueryEntry with TruffleEntryExtension {
 

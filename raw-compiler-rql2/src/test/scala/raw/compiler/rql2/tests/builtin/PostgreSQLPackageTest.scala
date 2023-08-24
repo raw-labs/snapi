@@ -73,7 +73,6 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
   }
 
   test(s"""PostgreSQL.InferAndRead("pgsql", "$pgSchema", "$pgTable")""") { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -88,7 +87,6 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string))
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -102,7 +100,6 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""PostgreSQL.Read("pgsql", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)))""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Bad value for type int : x1"), y: "y1"},
@@ -116,7 +113,6 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}")""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -131,7 +127,6 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}" )""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Bad value for type int : x1"), y: "y1"},
@@ -164,7 +159,6 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
   test(
     s"""PostgreSQL.InferAndRead("${pgsqlCreds.database}", "$pgSchema", "$pgTable" )""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should runErrorAs(s"""inference error: no credential found for postgresql: ${pgsqlCreds.database}""".stripMargin)
   }
 
@@ -172,10 +166,7 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""PostgreSQL.Read("${pgsqlCreds.database}", "$pgSchema", "$pgTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""no credential found for postgresql: ${pgsqlCreds.database}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""no credential found for postgresql: ${pgsqlCreds.database}""".stripMargin))
 
   // server does not exist
   test(
@@ -184,10 +175,7 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${badMysqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "${pgsqlCreds.password.get.toString}"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
@@ -206,10 +194,7 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${pgsqlCreds.host}"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""error connecting to database: ${pgsqlCreds.host}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""error connecting to database: ${pgsqlCreds.host}""".stripMargin))
 
   // wrong password
   test(
@@ -218,10 +203,7 @@ trait PostgreSQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get.toString}", password = "wrong!"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs("""authentication failed""".stripMargin)
-  }
+  )(it => it should runErrorAs("""authentication failed""".stripMargin))
 
   test(s"""PostgreSQL.InferAndQuery("pgsql", "SELECT * FROM $pgSchema.$pgTable")""") { it =>
     it should evaluateTo(

@@ -121,7 +121,6 @@ raw.compiler.rql2.truffle.builtin.TruffleMathSqrtEntry
 raw.compiler.rql2.truffle.builtin.TruffleMathTanEntry
 raw.compiler.rql2.truffle.builtin.TruffleMathSquareEntry
 raw.compiler.rql2.truffle.builtin.TruffleMathFloorEntry
-raw.compiler.rql2.truffle.builtin.TruffleMySQLReadEntry
 raw.compiler.rql2.truffle.builtin.TruffleMySQLQueryEntry
 raw.compiler.rql2.truffle.builtin.TruffleNullableEmptyEntry
 raw.compiler.rql2.truffle.builtin.TruffleNullableBuildEntry
@@ -129,9 +128,7 @@ raw.compiler.rql2.truffle.builtin.TruffleNullableIsNullEntry
 raw.compiler.rql2.truffle.builtin.TruffleNullableUnsafeGetEntry
 raw.compiler.rql2.truffle.builtin.TruffleNullableTransformEntry
 raw.compiler.rql2.truffle.builtin.TruffleFlatMapNullableTryableEntry
-raw.compiler.rql2.truffle.builtin.TruffleOracleReadEntry
 raw.compiler.rql2.truffle.builtin.TruffleOracleQueryEntry
-raw.compiler.rql2.truffle.builtin.TrufflePostgreSQLReadEntry
 raw.compiler.rql2.truffle.builtin.TrufflePostgreSQLQueryEntry
 raw.compiler.rql2.truffle.builtin.TruffleRecordBuildEntry
 raw.compiler.rql2.truffle.builtin.TruffleRecordConcatEntry
@@ -144,10 +141,8 @@ raw.compiler.rql2.truffle.builtin.TruffleRegexMatchesEntry
 raw.compiler.rql2.truffle.builtin.TruffleRegexFirstMatchInEntry
 raw.compiler.rql2.truffle.builtin.TruffleRegexGroupsEntry
 raw.compiler.rql2.truffle.builtin.TruffleS3BuildEntry
-raw.compiler.rql2.truffle.builtin.TruffleSQLServerReadEntry
 raw.compiler.rql2.truffle.builtin.TruffleSQLServerQueryEntry
 raw.compiler.rql2.truffle.builtin.TruffleShortFromEntry
-raw.compiler.rql2.truffle.builtin.TruffleSnowflakeReadEntry
 raw.compiler.rql2.truffle.builtin.TruffleSnowflakeQueryEntry
 raw.compiler.rql2.truffle.builtin.TruffleStringContainsEntry
 raw.compiler.rql2.truffle.builtin.TruffleStringFromEntry

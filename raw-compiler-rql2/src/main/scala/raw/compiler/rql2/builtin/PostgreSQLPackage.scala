@@ -139,7 +139,7 @@ class PostgreSQLInferAndReadEntry extends SugarEntryExtension with SqlTableExten
   }
 }
 
-class PostgreSQLReadEntry extends EntryExtension with SqlTableExtensionHelper {
+class PostgreSQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
 
   override def packageName: String = "PostgreSQL"
 
@@ -235,6 +235,29 @@ class PostgreSQLReadEntry extends EntryExtension with SqlTableExtensionHelper {
     validateTableType(t)
   }
 
+  override def desugar(
+      t: Type,
+      args: Seq[FunAppArg],
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Exp = {
+    val db = FunAppArg(mandatoryArgs.head.asInstanceOf[ExpArg].e, None)
+    val schema = FunAppArg(mandatoryArgs(1).asInstanceOf[ExpArg].e, None)
+    val table = FunAppArg(mandatoryArgs(2).asInstanceOf[ExpArg].e, None)
+    val tipe = FunAppArg(TypeExp(mandatoryArgs(3).asInstanceOf[TypeArg].t), None)
+    val optArgs = optionalArgs.map { case (idn, ExpArg(e, _)) => FunAppArg(e, Some(idn)) }
+
+    // Postgres needs the schema and the table to be quoted
+    def quoted(e: Exp) = BinaryExp(Plus(), BinaryExp(Plus(), StringConst("\""), e), StringConst("\""))
+    val tableRef = BinaryExp(Plus(), BinaryExp(Plus(), quoted(schema.e), StringConst(".")), quoted(table.e))
+    val select = BinaryExp(Plus(), StringConst("SELECT * FROM "), tableRef)
+    val query = FunAppArg(select, None)
+    FunApp(
+      Proj(PackageIdnExp("PostgreSQL"), "Query"),
+      Vector(db, query, tipe) ++ optArgs
+    )
+  }
 }
 
 class PostgreSQLInferAndQueryEntry extends SugarEntryExtension with SqlTableExtensionHelper {

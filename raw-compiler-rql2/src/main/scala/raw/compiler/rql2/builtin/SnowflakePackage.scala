@@ -166,7 +166,7 @@ class SnowflakeInferAndReadEntry extends SugarEntryExtension with SqlTableExtens
   }
 }
 
-class SnowflakeReadEntry extends EntryExtension with SqlTableExtensionHelper {
+class SnowflakeReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
 
   override def packageName: String = "Snowflake"
 
@@ -249,7 +249,7 @@ class SnowflakeReadEntry extends EntryExtension with SqlTableExtensionHelper {
       case "username" => Right(ExpParam(Rql2StringType()))
       case "password" => Right(ExpParam(Rql2StringType()))
       case "options" => Right(
-          ValueParam(
+          ExpParam(
             Rql2ListType(
               Rql2RecordType(
                 Vector(
@@ -271,6 +271,35 @@ class SnowflakeReadEntry extends EntryExtension with SqlTableExtensionHelper {
   )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
     val t = mandatoryArgs(3).t
     validateTableType(t)
+  }
+
+  override def desugar(
+      t: Type,
+      args: Seq[FunAppArg],
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Exp = {
+    val db = FunAppArg(mandatoryArgs.head.asInstanceOf[ExpArg].e, None)
+    val schema = FunAppArg(mandatoryArgs(1).asInstanceOf[ExpArg].e, None)
+    val table = FunAppArg(mandatoryArgs(2).asInstanceOf[ExpArg].e, None)
+    val tipe = FunAppArg(TypeExp(mandatoryArgs(3).asInstanceOf[TypeArg].t), None)
+    val optArgs = optionalArgs.map { case (idn, ExpArg(e, _)) => FunAppArg(e, Some(idn)) }
+
+    // Snowflake needs the schema and the table to be quoted
+    def quoted(e: Exp) = BinaryExp(
+      Plus(),
+      BinaryExp(Plus(), StringConst("\""), e),
+      StringConst("\"")
+    )
+
+    val tableRef = BinaryExp(Plus(), BinaryExp(Plus(), quoted(schema.e), StringConst(".")), quoted(table.e))
+    val select = BinaryExp(Plus(), StringConst("SELECT * FROM "), tableRef)
+    val query = FunAppArg(select, None)
+    FunApp(
+      Proj(PackageIdnExp("Snowflake"), "Query"),
+      Vector(db, query, tipe) ++ optArgs
+    )
   }
 
 }

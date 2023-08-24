@@ -73,7 +73,6 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
   }
 
   test(s"""MySQL.InferAndRead("$mysqlRegDb", "$mysqlTable")""") { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -88,7 +87,6 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: string, y: string))
       |)""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -102,7 +100,6 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""MySQL.Read("$mysqlRegDb", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)))""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot determine value type from string 'x1'"), y: "y1"},
@@ -116,7 +113,6 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""MySQL.InferAndRead("${mysqlCreds.database}", "$mysqlTable",
       |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}")""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -131,7 +127,6 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |   host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}")""".stripMargin
   ) { it =>
-    assume(language != "rql2-truffle")
     it should orderEvaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot determine value type from string 'x1'"), y: "y1"},
@@ -171,10 +166,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     s"""MySQL.Read("${mysqlCreds.database}", "$mysqlTable",
       |   type collection(record(a: int, b: int, c: double, d: double, x: int, y: string))
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""no credential found for mysql: ${mysqlCreds.database}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""no credential found for mysql: ${mysqlCreds.database}""".stripMargin))
 
   // server does not exist
   test(
@@ -183,10 +175,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${badMysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""unknown host: ${badMysqlCreds.host}""".stripMargin))
 
   // wrong port
   // When there is a wrong port supplied  the test takes a long time to run and we get  an connect time out error.
@@ -196,10 +185,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "${mysqlCreds.password.get.toString}", port = 1234
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs(s"""connect timed out: ${mysqlCreds.database}""".stripMargin)
-  }
+  )(it => it should runErrorAs(s"""connect timed out: ${mysqlCreds.database}""".stripMargin))
 
   // No password
   test(
@@ -208,10 +194,7 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${mysqlCreds.host}"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs("""authentication failed""".stripMargin)
-  }
+  )(it => it should runErrorAs("""authentication failed""".stripMargin))
 
   // wrong password
   test(
@@ -220,13 +203,9 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
       |  type collection(record(a: int, b: int, c: double, d: double, x: int, y: string)),
       |  host = "${mysqlCreds.host}", username = "${mysqlCreds.username.get.toString}", password = "wrong!"
       |)""".stripMargin
-  ) { it =>
-    assume(language != "rql2-truffle")
-    it should runErrorAs("""authentication failed""".stripMargin)
-  }
+  )(it => it should runErrorAs("""authentication failed""".stripMargin))
 
   test(s"""MySQL.InferAndQuery("$mysqlRegDb", "SELECT * FROM ${mysqlCreds.database}.$mysqlTable")""") { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
@@ -276,7 +255,6 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
   }
 
   test(s"""MySQL.InferAndRead("$mysqlRegDb", "higher_case_columns")""") { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         | {ID: 1, Name: "john", Surname: "doe", Address: "123 memory lane"},
@@ -303,7 +281,6 @@ trait MySQLPackageTest extends CompilerTestContext with RDBMSTestCreds {
     |       Surname: string,
     |       Address: string))
     |)""".stripMargin) { it =>
-    assume(language != "rql2-truffle")
     it should evaluateTo(
       """[
         | {ID: 1, Name: "john", Surname: "doe", Address: "123 memory lane"},
