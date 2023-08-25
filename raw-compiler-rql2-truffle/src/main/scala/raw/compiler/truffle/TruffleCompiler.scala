@@ -25,10 +25,7 @@ import java.io.OutputStream
 
 trait TruffleCompiler[N <: BaseNode, P <: N, E <: N] { this: raw.compiler.Compiler[N, P, E] =>
 
-  // TODO how about removing 'args' from parameters?
-  override def execute(entrypoint: Entrypoint, args: Array[Any])(
-      implicit programContext: ProgramContext
-  ): ProgramOutputWriter = {
+  override def execute(entrypoint: Entrypoint)(implicit programContext: ProgramContext): ProgramOutputWriter = {
     new TruffleProgramOutputWriter(entrypoint.asInstanceOf[TruffleEntrypoint])
   }
 

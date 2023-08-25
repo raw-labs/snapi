@@ -107,7 +107,7 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     for (
       program <- parseAndValidate(source, maybeDecl);
       entrypoint <- compile(program)
-    ) yield execute(entrypoint, args)
+    ) yield execute(entrypoint)
   }
 
   final def validate(
@@ -184,7 +184,7 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     throw new AssertionError("This compiler does not support eval")
   }
 
-  def execute(entrypoint: Entrypoint, args: Array[Any])(implicit programContext: ProgramContext): ProgramOutputWriter
+  def execute(entrypoint: Entrypoint)(implicit programContext: ProgramContext): ProgramOutputWriter
 
   final def signature(program: P): String = {
     // Compute unique key for the program.

@@ -48,14 +48,14 @@ class ProgramContext(
 
   def dumpDebugInfo: List[(String, String)] = {
     List(
-      "Trace ID" -> runtimeContext.environment.maybeTraceId.getOrElse("<undefined"),
+      "Trace ID" -> runtimeContext.environment.maybeTraceId.getOrElse("<undefined>"),
       "Arguments" -> runtimeContext.maybeArguments
         .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
-        .getOrElse("n/a"),
+        .getOrElse("<undefined>"),
       "Language" -> runtimeContext.environment.language.getOrElse("<default>"),
       "Scopes" -> runtimeContext.environment.scopes.mkString(","),
-      "Options" -> runtimeContext.environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n"),
-      "Settings" -> runtimeContext.settings.toString
+      "Options" -> runtimeContext.environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
+      //"Settings" -> runtimeContext.settings.toString
     )
   }
 
