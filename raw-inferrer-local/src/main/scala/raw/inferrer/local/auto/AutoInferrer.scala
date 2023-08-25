@@ -84,7 +84,10 @@ class AutoInferrer(
     }
   }
 
-  private def inferTextFormats(location: ByteStreamLocation, maybeSampleSize: Option[Int]): TextInputStreamFormatDescriptor = {
+  private def inferTextFormats(
+      location: ByteStreamLocation,
+      maybeSampleSize: Option[Int]
+  ): TextInputStreamFormatDescriptor = {
     // Will try multiple inferrers in turn
     // The current code instantiates a decoded stream of Char and passes
     // it to several text format inferrers. If needed to try inferrers in
