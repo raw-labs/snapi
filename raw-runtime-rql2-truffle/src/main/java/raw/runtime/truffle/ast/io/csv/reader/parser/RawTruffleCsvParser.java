@@ -203,22 +203,6 @@ public class RawTruffleCsvParser {
     }
 
     @CompilerDirectives.TruffleBoundary
-    short getShort(ExpressionNode location) {
-        try {
-            try {
-                return jacksonParser.getShortValue();
-            } catch (JsonProcessingException ex) {
-                String malformed =
-                        jacksonParser.getText(); // shouldn't throw since we read already the token
-                throw new CsvParserRawTruffleException(
-                        String.format("cannot parse '%s' as a short", malformed), this, stream, location);
-            }
-        } catch (IOException ex) {
-            throw new CsvReaderRawTruffleException(stream, ex, location);
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
     Object getOptionShort(ExpressionNode location) {
         try {
             try {
@@ -310,29 +294,6 @@ public class RawTruffleCsvParser {
             } catch (JsonProcessingException ex) {
                 throw new CsvParserRawTruffleException(
                         String.format("cannot parse '%s' as a long", jacksonParser.getText()),
-                        this,
-                        stream,
-                        location);
-            }
-        } catch (IOException ex) {
-            throw new CsvReaderRawTruffleException(stream, ex, location);
-        }
-    }
-
-    @CompilerDirectives.TruffleBoundary
-    float getFloat(ExpressionNode location) {
-        try {
-            try {
-                String token = jacksonParser.getText();
-                for (String nanToken : nans) {
-                    if (token.equals(nanToken)) {
-                        return Float.NaN;
-                    }
-                }
-                return jacksonParser.getFloatValue();
-            } catch (JsonProcessingException ex) {
-                throw new CsvParserRawTruffleException(
-                        String.format("cannot parse '%s' as a float", jacksonParser.getText()),
                         this,
                         stream,
                         location);
