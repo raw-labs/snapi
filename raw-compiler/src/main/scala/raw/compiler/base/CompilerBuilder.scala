@@ -32,7 +32,7 @@ trait CompilerBuilder {
 
   def eval(program: BaseProgram)(implicit programContext: ProgramContext): Either[List[ErrorMessage], Value]
 
-  def execute(entrypoint: Entrypoint, args: Array[Any])(implicit programContext: ProgramContext): ProgramOutputWriter
+  def execute(entrypoint: Entrypoint)(implicit programContext: ProgramContext): ProgramOutputWriter
 
   def clone(program: BaseProgram)(implicit compilerContext: CompilerContext): BaseProgram
 

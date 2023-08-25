@@ -14,7 +14,6 @@ package raw.inferrer.local.auto
 
 import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
-import raw.runtime.ExecutionLogger
 import raw.inferrer._
 import raw.inferrer.local._
 import raw.inferrer.local.csv.CsvInferrer
@@ -45,9 +44,7 @@ class AutoInferrer(
 
   import AutoInferrer._
 
-  def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int])(
-      implicit executionLogger: ExecutionLogger
-  ): InputStreamFormatDescriptor = {
+  def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int]): InputStreamFormatDescriptor = {
     withErrorHandling {
       val maybeFileExtension = {
         val i = location.rawUri.lastIndexOf('.')
@@ -87,8 +84,9 @@ class AutoInferrer(
     }
   }
 
-  private def inferTextFormats(location: ByteStreamLocation, maybeSampleSize: Option[Int])(
-      implicit executionLogger: ExecutionLogger
+  private def inferTextFormats(
+      location: ByteStreamLocation,
+      maybeSampleSize: Option[Int]
   ): TextInputStreamFormatDescriptor = {
     // Will try multiple inferrers in turn
     // The current code instantiates a decoded stream of Char and passes

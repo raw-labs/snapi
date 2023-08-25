@@ -31,7 +31,7 @@ import raw.runtime.ProgramEnvironment
 
 trait RD5851Test extends CompilerTestContext {
 
-  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   def autoCompleteNames(response: LSPResponse): Seq[String] = {
     response match {
@@ -49,7 +49,7 @@ trait RD5851Test extends CompilerTestContext {
   }
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[String]): Unit = {
-    val response = doLsp(DotAutoCompleteLSPRequest(code, programEnvironment, Pos(line, col)))
+    val response = doLsp(DotAutoCompleteLSPRequest(code, environment, Pos(line, col)))
     val actual = autoCompleteNames(response)
     assert(actual == expectedFields)
   }
@@ -61,7 +61,7 @@ trait RD5851Test extends CompilerTestContext {
       prefix: String,
       expected: Seq[String]
   ): Unit = {
-    val response = doLsp(WordAutoCompleteLSPRequest(code, programEnvironment, prefix, Pos(line, col)))
+    val response = doLsp(WordAutoCompleteLSPRequest(code, environment, prefix, Pos(line, col)))
     val actual = autoCompleteNames(response)
     // Check that all expected are in actual.
     // actual can have more though - e.g. built-in packages.

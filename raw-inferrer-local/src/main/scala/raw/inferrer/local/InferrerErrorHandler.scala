@@ -14,7 +14,6 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.api.RawException
-import raw.runtime.ExecutionLogger
 
 import scala.util.control.NonFatal
 
@@ -24,12 +23,12 @@ trait InferrerErrorHandler extends StrictLogging {
    * Catch only LocalInferrerException; other RawExceptions are not caught as they are "terminal" to the inference,
    * e.g. credentials missing, I/O problems, etc.
    */
-  protected def tryInfer[T](format: String, f: => T)(implicit executionLogger: ExecutionLogger): Either[String, T] = {
+  protected def tryInfer[T](format: String, f: => T): Either[String, T] = {
     try {
       Right(f)
     } catch {
       case ex: LocalInferrerException =>
-        executionLogger.trace(s"Tried to infer as $format but failed: ${ex.getMessage}")
+        logger.trace(s"Tried to infer as $format but failed: ${ex.getMessage}")
         Left(ex.getMessage)
     }
   }

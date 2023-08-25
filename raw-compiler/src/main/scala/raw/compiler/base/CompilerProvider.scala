@@ -70,11 +70,11 @@ object CompilerProvider {
     builder.eval(program)
   }
 
-  def execute(language: String, entrypoint: Entrypoint, args: Array[Any])(
+  def execute(language: String, entrypoint: Entrypoint)(
       implicit programContext: ProgramContext
   ): ProgramOutputWriter = {
     val builder = apply(language)
-    builder.execute(entrypoint, args)
+    builder.execute(entrypoint)
   }
 
   def clone(language: String, program: BaseProgram)(implicit compilerContext: CompilerContext): BaseProgram = {

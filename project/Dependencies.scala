@@ -16,7 +16,7 @@ object Dependencies {
 
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.15"
 
-  val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.4.0"
+  val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
   val slf4j = Seq(
     "org.slf4j" % "slf4j-api" % "2.0.5",
@@ -38,7 +38,7 @@ object Dependencies {
 
   val ehCache = "org.ehcache" % "ehcache" % "3.10.6"
 
-  val kryo = "com.esotericsoftware" % "kryo" % "5.4.0"
+  val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
   val commonsText = "org.apache.commons" % "commons-text" % "1.10.0"
 
@@ -73,13 +73,13 @@ object Dependencies {
 
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
 
-  val mysqlDeps = "mysql" % "mysql-connector-java" % "8.0.32"
+  val mysqlDeps = "mysql" % "mysql-connector-java" % "8.0.33"
 
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre8"
 
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.29"
 
-  val icuDeps = "com.ibm.icu" % "icu4j" % "72.1"
+  val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
 
   val poiDeps = Seq(
     "org.apache.poi" % "poi" % "5.2.2",

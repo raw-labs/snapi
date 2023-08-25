@@ -36,6 +36,7 @@ public abstract class CollectionFirstNode extends ExpressionNode {
       @CachedLibrary(limit = "1") OptionLibrary options) {
     try {
       Object generator = iterables.getGenerator(iterable);
+      generators.init(generator);
       if (!generators.hasNext(generator)) {
         return ObjectTryable.BuildSuccess(new ObjectOption());
       }

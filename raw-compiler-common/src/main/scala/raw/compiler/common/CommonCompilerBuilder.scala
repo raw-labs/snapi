@@ -44,11 +44,9 @@ trait CommonCompilerBuilder extends CompilerBuilder {
     compiler.eval(program.asInstanceOf[SourceProgram])
   }
 
-  override def execute(entrypoint: Entrypoint, args: Array[Any])(
-      implicit programContext: ProgramContext
-  ): ProgramOutputWriter = {
+  override def execute(entrypoint: Entrypoint)(implicit programContext: ProgramContext): ProgramOutputWriter = {
     val compiler = getCompiler(programContext.compilerContext)
-    compiler.execute(entrypoint, args)
+    compiler.execute(entrypoint)
   }
 
   override def clone(program: BaseProgram)(implicit compilerContext: CompilerContext): BaseProgram = {
