@@ -757,7 +757,7 @@ trait CompilerTestContext
     try {
       val compiler = getCompiler()
       val programContext = getProgramContextFromSource(compiler, query, maybeArgs.map(_.toArray), scopes, options)
-      val executeResult = compiler.execute(query, maybeDecl, Array.empty)(programContext)
+      val executeResult = compiler.execute(query, maybeDecl)(programContext)
 
       executeResult.left.map(errs => errs.map(err => err.toString).mkString(",")).right.flatMap {
         queryResult: ProgramOutputWriter =>
