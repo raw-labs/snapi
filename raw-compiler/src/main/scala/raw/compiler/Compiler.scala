@@ -101,8 +101,7 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
 
   def execute(
       source: String,
-      maybeDecl: Option[String],
-      args: Array[Any]
+      maybeDecl: Option[String]
   )(implicit programContext: ProgramContext): Either[List[ErrorMessage], ProgramOutputWriter] = {
     for (
       program <- parseAndValidate(source, maybeDecl);
