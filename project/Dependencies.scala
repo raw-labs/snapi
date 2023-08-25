@@ -46,7 +46,7 @@ object Dependencies {
 
   val commonsLang = "org.apache.commons" % "commons-lang3" % "3.12.0"
 
-  val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
+  val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
 
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
 
