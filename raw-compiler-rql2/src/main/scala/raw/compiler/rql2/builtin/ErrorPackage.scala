@@ -74,7 +74,7 @@ class ErrorBuildWithTypeEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    val TypeArg(t) = mandatoryArgs.head
+    val TypeArg(t) = mandatoryArgs(0)
     Right(addProp(t, Rql2IsTryableTypeProperty()))
   }
 
