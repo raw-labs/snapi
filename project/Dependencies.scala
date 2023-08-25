@@ -79,7 +79,7 @@ object Dependencies {
 
   val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.29"
 
-  val icuDeps = "com.ibm.icu" % "icu4j" % "72.1"
+  val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
 
   val poiDeps = Seq(
     "org.apache.poi" % "poi" % "5.2.2",
