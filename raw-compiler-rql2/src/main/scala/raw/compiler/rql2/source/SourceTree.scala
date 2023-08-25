@@ -269,6 +269,7 @@ final case class BoolConst(value: Boolean) extends Const
 
 final case class StringConst(value: String) extends Const
 
+final case class TripleQuotedStringConst(value: String) extends Const
 final case class BinaryConst(bytes: Array[Byte]) extends Const
 
 /**

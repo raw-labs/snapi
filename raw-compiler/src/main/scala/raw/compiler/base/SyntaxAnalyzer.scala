@@ -185,9 +185,15 @@ trait SyntaxAnalyzer extends Keywords with StrictLogging {
   } |
     stringLitRegex ^^ { s => escape(s.drop(1).dropRight(1)) }
 
-  final protected lazy val stringLit: Parser[String] = stringLitTripleRegex ^^ { s => s.drop(3).dropRight(3) } |
-    stringLitRegex ^^ { s => escape(s).drop(1).dropRight(1) }
+  final protected lazy val stringLit: Parser[String] = tripleQuoteStringLit | singleQuoteStringLit
 
+  final protected lazy val singleQuoteStringLit: Parser[String] = stringLitRegex ^^ { s =>
+    escape(s).drop(1).dropRight(1)
+  }
+
+  final protected lazy val tripleQuoteStringLit: Parser[String] = stringLitTripleRegex ^^ { s =>
+    s.drop(3).dropRight(3)
+  }
   final protected def method1[T](kw: String, p1: => Parser[T]): Parser[T] = s"(?i)$kw\\b".r ~> "(" ~> p1 <~ ")"
 
   final protected def method2[T, U](kw: String, p1: => Parser[T], p2: => Parser[U]): Parser[T ~ U] =
