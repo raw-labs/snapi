@@ -85,11 +85,18 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override protected def doEval(
       tree: BaseTree[SourceNode, SourceProgram, Exp]
   )(implicit programContext: raw.compiler.base.ProgramContext): Value = {
-    val entrypoint = doCompile(tree).asInstanceOf[TruffleEntrypoint]
+    val TruffleEntrypoint(context, node, _) = doCompile(tree).asInstanceOf[TruffleEntrypoint]
     RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
-    val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
-    val res = target.call()
-    convertAnyToValue(res, tree.rootType.get)
+    val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
+    try {
+      val res = target.call()
+      convertAnyToValue(res, tree.rootType.get)
+    } finally {
+      // We explicitly created and then entered the context during code emission.
+      // Now we explicitly leave and close the context.
+      context.leave()
+      context.close()
+    }
   }
 
   override def parseAndValidate(source: String, maybeDecl: Option[String])(
