@@ -101,13 +101,12 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
 
   def execute(
       source: String,
-      maybeDecl: Option[String],
-      args: Array[Any]
+      maybeDecl: Option[String]
   )(implicit programContext: ProgramContext): Either[List[ErrorMessage], ProgramOutputWriter] = {
     for (
       program <- parseAndValidate(source, maybeDecl);
       entrypoint <- compile(program)
-    ) yield execute(entrypoint, args)
+    ) yield execute(entrypoint)
   }
 
   final def validate(
@@ -184,7 +183,7 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     throw new AssertionError("This compiler does not support eval")
   }
 
-  def execute(entrypoint: Entrypoint, args: Array[Any])(implicit programContext: ProgramContext): ProgramOutputWriter
+  def execute(entrypoint: Entrypoint)(implicit programContext: ProgramContext): ProgramOutputWriter
 
   final def signature(program: P): String = {
     // Compute unique key for the program.
@@ -211,12 +210,12 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
 
   protected def doEmit(signature: String, program: P)(implicit programContext: ProgramContext): Entrypoint
 
-  private def withCompilerTiming[T](name: String)(f: => T)(implicit programContext: ProgramContext): T = {
+  private def withCompilerTiming[T](name: String)(f: => T): T = {
     val start = Stopwatch.createStarted()
     try {
       f
     } finally {
-      programContext.addCompilerTiming(name, start.elapsed)
+      logger.trace(s"Compiler timing for $name: ${start.elapsed.toMillis} ms")
     }
   }
 
@@ -253,7 +252,7 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
         assert(!pipeline.hasNext, "Compiler pipeline produced more than one output tree")
 
         if (maybeStopAtPhase.isEmpty) {
-          programContext.trace(s"Output program is:\n${prettyPrintOutput(outputProgram)}")
+          logger.trace(s"Output program is:\n${prettyPrintOutput(outputProgram)}")
         }
 
         outputProgram
@@ -279,12 +278,12 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
         cur = instance
         if (stopAtPhase == name) {
           if (stopAtPhase != phases.last.name) {
-            programContext.info(s"Stopping at phase $name")
+            logger.info(s"Stopping at phase $name")
           }
           return cur
         }
       } else {
-        programContext.info(s"Skipping phase $name")
+        logger.info(s"Skipping phase $name")
       }
     }
     throw new AssertionError(

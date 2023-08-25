@@ -15,7 +15,6 @@ package raw.inferrer.local.json
 import java.io.Reader
 import com.fasterxml.jackson.core._
 import com.fasterxml.jackson.core.exc.InputCoercionException
-import raw.runtime.ExecutionLogger
 import raw.inferrer._
 import raw.inferrer.local._
 import raw.sources._
@@ -41,8 +40,6 @@ class JsonInferrer(implicit protected val sourceContext: SourceContext)
       is: SeekableInputStream,
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
-  )(
-      implicit executionLogger: ExecutionLogger
   ): TextInputStreamFormatDescriptor = {
     withErrorHandling {
       val buffer = getTextBuffer(is, maybeEncoding)

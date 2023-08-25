@@ -14,7 +14,6 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import raw._
-import raw.runtime.NullExecutionLogger
 import raw.inferrer._
 import raw.sources._
 import raw.sources.bytestream.ByteStreamCacheTestContext
@@ -50,7 +49,6 @@ class LocalInferrerTest
       out.close()
       val l1 = new LocalPath(f.toPath, ExpiryAfter(Duration.ofMillis(0)), NoRetry())
       implicit val sourceContext = new SourceContext(null, null, byteStreamCache, settings)
-      implicit val executionLogger = NullExecutionLogger
       val inferrer = new LocalInferrerService
       try {
         val TextInputStreamFormatDescriptor(detectedEncoding, _, LinesInputFormatDescriptor(_, _, _)) =
@@ -87,7 +85,6 @@ class LocalInferrerTest
     ex.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy)
 
     implicit val sourceContext = new SourceContext(null, null, byteStreamCache, settings)
-    implicit val executionLogger = NullExecutionLogger
     val inferrer = new LocalInferrerService
     try {
       for (i <- 0 to 100) {

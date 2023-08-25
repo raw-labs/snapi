@@ -10,16 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.inferrer
+package raw.compiler
 
-import raw.api.{RawException, RawService}
+import raw.runtime.{ParamValue, ProgramEnvironment}
 
-trait InferrerService extends RawService {
-
-  // Using an exception for inference is reasonable because we often want inference to exit early.
-  @throws[RawException]
-  def infer(properties: InferrerProperties): InputFormatDescriptor
-
-  def prettyPrint(sourceType: SourceType): String
-
-}
+final case class ProgramDefinition(
+    code: String,
+    decl: Option[String],
+    parameters: Option[Array[(String, ParamValue)]],
+    environment: ProgramEnvironment
+)

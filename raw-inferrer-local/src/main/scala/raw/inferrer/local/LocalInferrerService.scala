@@ -15,7 +15,6 @@ package raw.inferrer.local
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
 import raw.api.RawException
-import raw.runtime.ExecutionLogger
 import raw.inferrer._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import raw.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}
@@ -71,9 +70,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     }
   }
 
-  override def infer(
-      properties: InferrerProperties
-  )(implicit executionLogger: ExecutionLogger): InputFormatDescriptor = {
+  override def infer(properties: InferrerProperties): InputFormatDescriptor = {
     try {
       properties match {
         case tbl: SqlTableInferrerProperties =>
@@ -308,7 +305,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
       locations: Iterator[ByteStreamLocation],
       maybeSampleFiles: Option[Int],
       doInference: ByteStreamLocation => InputFormatDescriptor
-  )(implicit executionLogger: ExecutionLogger): InputFormatDescriptor = {
+  ): InputFormatDescriptor = {
     if (!locations.hasNext) {
       throw new LocalInferrerException("location is empty")
     }
@@ -342,123 +339,125 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
 
   private def mergeDescriptors(
       l: Seq[InputFormatDescriptor]
-  )(implicit executionLogger: ExecutionLogger): InputFormatDescriptor = {
+  ): InputFormatDescriptor = {
     l.tail.foldLeft(l.head)((acc, desc) => mergeDescriptors(acc, desc))
   }
 
-  private def mergeDescriptors(x: InputFormatDescriptor, y: InputFormatDescriptor)(
-      implicit executionLogger: ExecutionLogger
-  ): InputFormatDescriptor = (x, y) match {
-    case (TextInputStreamFormatDescriptor(ec1, conf1, format1), TextInputStreamFormatDescriptor(ec2, conf2, format2)) =>
-      val (encoding, confidence) =
-        if (conf1 > conf2) (ec1, conf1)
-        else (ec2, conf2)
+  private def mergeDescriptors(x: InputFormatDescriptor, y: InputFormatDescriptor): InputFormatDescriptor =
+    (x, y) match {
+      case (
+            TextInputStreamFormatDescriptor(ec1, conf1, format1),
+            TextInputStreamFormatDescriptor(ec2, conf2, format2)
+          ) =>
+        val (encoding, confidence) =
+          if (conf1 > conf2) (ec1, conf1)
+          else (ec2, conf2)
 
-      if (ec1 != ec2) {
-        executionLogger.warn(
-          s"Detected different encodings: $ec1 (confidence: $conf1); $ec2 (confidence: $conf2). Choosing $encoding."
-        )
-      }
+        if (ec1 != ec2) {
+          logger.debug(
+            s"Detected different encodings: $ec1 (confidence: $conf1); $ec2 (confidence: $conf2). Choosing $encoding."
+          )
+        }
 
-      val merge = (format1, format2) match {
-        case (
-              JsonInputFormatDescriptor(t1, sp1, tf1, df1, tsf1),
-              JsonInputFormatDescriptor(t2, sp2, tf2, df2, tsf2)
-            ) =>
-          if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
-            throw new LocalInferrerException("incompatible json files found")
+        val merge = (format1, format2) match {
+          case (
+                JsonInputFormatDescriptor(t1, sp1, tf1, df1, tsf1),
+                JsonInputFormatDescriptor(t2, sp2, tf2, df2, tsf2)
+              ) =>
+            if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
+              throw new LocalInferrerException("incompatible json files found")
 
-          JsonInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
-        case (
-              XmlInputFormatDescriptor(t1, sampled1, tf1, df1, tsf1),
-              XmlInputFormatDescriptor(t2, sampled2, tf2, df2, tsf2)
-            ) =>
-          if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
-            throw new LocalInferrerException("incompatible json files found")
-          XmlInputFormatDescriptor(XmlMergeTypes.maxOf(t1, t2), sampled1 || sampled2, tf1, df1, tsf1)
-        case (
-              HjsonInputFormatDescriptor(t1, sp1, tf1, df1, tsf1),
-              HjsonInputFormatDescriptor(t2, sp2, tf2, df2, tsf2)
-            ) =>
-          if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
-            throw new LocalInferrerException("incompatible hjson files found")
+            JsonInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
+          case (
+                XmlInputFormatDescriptor(t1, sampled1, tf1, df1, tsf1),
+                XmlInputFormatDescriptor(t2, sampled2, tf2, df2, tsf2)
+              ) =>
+            if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
+              throw new LocalInferrerException("incompatible json files found")
+            XmlInputFormatDescriptor(XmlMergeTypes.maxOf(t1, t2), sampled1 || sampled2, tf1, df1, tsf1)
+          case (
+                HjsonInputFormatDescriptor(t1, sp1, tf1, df1, tsf1),
+                HjsonInputFormatDescriptor(t2, sp2, tf2, df2, tsf2)
+              ) =>
+            if (tf1 != tf2 || df1 != df2 || tsf1 != tsf2)
+              throw new LocalInferrerException("incompatible hjson files found")
 
-          HjsonInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
-        case (LinesInputFormatDescriptor(t1, r1, sp1), LinesInputFormatDescriptor(t2, r2, sp2)) =>
-          // if the regexes are not the same then it defaults to simple text without a regex
-          if (r1 == r2) LinesInputFormatDescriptor(MergeTypes.maxOf(t1, t2), r1, sp1 || sp2)
-          else LinesInputFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, sp1 || sp2)
-        case (
-              CsvInputFormatDescriptor(
-                t1,
-                hasHeader1,
-                sep1,
-                nulls1,
-                multiline1,
-                nans1,
-                skip1,
-                escape1,
-                quote1,
-                sampled1,
-                tf1,
-                df1,
-                tsf1
-              ),
-              CsvInputFormatDescriptor(
-                t2,
-                hasHeader2,
-                sep2,
-                nulls2,
-                multiline2,
-                nans2,
-                skip2,
-                escape2,
-                quote2,
-                sampled2,
-                tf2,
-                df2,
-                tsf2
-              )
-            ) =>
-          if (
-            sep1 != sep2 || nulls1 != nulls2 || nans1 != nans2 || hasHeader1 != hasHeader2 || skip1 != skip2 || escape1 != escape2 || quote1 != quote2
-          ) {
-            throw new LocalInferrerException("incompatible CSV files found")
-          }
-          val t = CsvMergeTypes.maxOf(t1, t2)
-          t match {
-            case SourceCollectionType(SourceRecordType(_, _), _) => CsvInputFormatDescriptor(
-                t,
-                hasHeader1,
-                sep1,
-                nulls1,
-                multiline1 || multiline2,
-                nans1,
-                skip1,
-                escape1,
-                quote1,
-                sampled1 || sampled2,
-                if (tf1 == tf2) tf1 else None,
-                if (df1 == df2) df1 else None,
-                if (tsf1 == tsf2) tsf1 else None
-              )
-            case _ => throw new LocalInferrerException("incompatible CSV files found")
-          }
+            HjsonInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sp1 || sp2, tf1, df1, tsf1)
+          case (LinesInputFormatDescriptor(t1, r1, sp1), LinesInputFormatDescriptor(t2, r2, sp2)) =>
+            // if the regexes are not the same then it defaults to simple text without a regex
+            if (r1 == r2) LinesInputFormatDescriptor(MergeTypes.maxOf(t1, t2), r1, sp1 || sp2)
+            else LinesInputFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, sp1 || sp2)
+          case (
+                CsvInputFormatDescriptor(
+                  t1,
+                  hasHeader1,
+                  sep1,
+                  nulls1,
+                  multiline1,
+                  nans1,
+                  skip1,
+                  escape1,
+                  quote1,
+                  sampled1,
+                  tf1,
+                  df1,
+                  tsf1
+                ),
+                CsvInputFormatDescriptor(
+                  t2,
+                  hasHeader2,
+                  sep2,
+                  nulls2,
+                  multiline2,
+                  nans2,
+                  skip2,
+                  escape2,
+                  quote2,
+                  sampled2,
+                  tf2,
+                  df2,
+                  tsf2
+                )
+              ) =>
+            if (
+              sep1 != sep2 || nulls1 != nulls2 || nans1 != nans2 || hasHeader1 != hasHeader2 || skip1 != skip2 || escape1 != escape2 || quote1 != quote2
+            ) {
+              throw new LocalInferrerException("incompatible CSV files found")
+            }
+            val t = CsvMergeTypes.maxOf(t1, t2)
+            t match {
+              case SourceCollectionType(SourceRecordType(_, _), _) => CsvInputFormatDescriptor(
+                  t,
+                  hasHeader1,
+                  sep1,
+                  nulls1,
+                  multiline1 || multiline2,
+                  nans1,
+                  skip1,
+                  escape1,
+                  quote1,
+                  sampled1 || sampled2,
+                  if (tf1 == tf2) tf1 else None,
+                  if (df1 == df2) df1 else None,
+                  if (tsf1 == tsf2) tsf1 else None
+                )
+              case _ => throw new LocalInferrerException("incompatible CSV files found")
+            }
 
-        // Defaults to lines of text if nothing else
-        case _ => LinesInputFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, false)
-      }
-      TextInputStreamFormatDescriptor(encoding, confidence, merge)
-    case (
-          ExcelInputFormatDescriptor(t1, sheet1, x01, y01, x11, y11),
-          ExcelInputFormatDescriptor(t2, sheet2, x02, y02, x12, y12)
-        ) =>
-      if (sheet1 != sheet2 || x01 != x02 || y01 != y02 || x11 != x12 || y11 != y12) {
-        throw new LocalInferrerException("incompatible excel files found")
-      }
-      ExcelInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sheet1, x01, y01, x11, y11)
-    case _ => throw new LocalInferrerException(s"incompatible formats found")
-  }
+          // Defaults to lines of text if nothing else
+          case _ => LinesInputFormatDescriptor(SourceCollectionType(SourceStringType(false), false), None, false)
+        }
+        TextInputStreamFormatDescriptor(encoding, confidence, merge)
+      case (
+            ExcelInputFormatDescriptor(t1, sheet1, x01, y01, x11, y11),
+            ExcelInputFormatDescriptor(t2, sheet2, x02, y02, x12, y12)
+          ) =>
+        if (sheet1 != sheet2 || x01 != x02 || y01 != y02 || x11 != x12 || y11 != y12) {
+          throw new LocalInferrerException("incompatible excel files found")
+        }
+        ExcelInputFormatDescriptor(MergeTypes.maxOf(t1, t2), sheet1, x01, y01, x11, y11)
+      case _ => throw new LocalInferrerException(s"incompatible formats found")
+    }
 
   override def doStop(): Unit = {}
 

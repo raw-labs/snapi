@@ -14,7 +14,6 @@ package raw.inferrer.local.hjson
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import raw.runtime.ExecutionLogger
 import raw.inferrer._
 import raw.inferrer.local._
 import raw.inferrer.local.json.JsonUtils
@@ -41,8 +40,6 @@ class HjsonInferrer(implicit protected val sourceContext: SourceContext)
       is: SeekableInputStream,
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
-  )(
-      implicit executionLogger: ExecutionLogger
   ): TextInputStreamFormatDescriptor = {
     withErrorHandling {
       val r = getTextBuffer(is, maybeEncoding)
