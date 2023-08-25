@@ -250,7 +250,6 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     // We explicitly create and then enter the context during code emission.
     // This context will be left on close in the TruffleProgramOutputWriter.
     val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
-    logger.debug(s"initializing context: $ctx")
     ctx.initialize(RawLanguage.ID)
     ctx.enter()
 
@@ -508,9 +507,6 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
       new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
     val argNames = fp.ps.map(_.i.idn).toArray
-    logger.debug(
-      "Registering function " + name + " with args " + argNames.mkString(",") + " ctx:" + RawLanguage.getCurrentContext
-    )
     RawLanguage.getCurrentContext.getFunctionRegistry
       .register(name, argNames, rootCallTarget)
   }
@@ -529,7 +525,6 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     val functionRootBody =
       new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
-    logger.debug("Registering function " + name + " with args " + Array("x").mkString(","))
     val f = RawLanguage.getCurrentContext.getFunctionRegistry
       .register(name, Array("x"), rootCallTarget)
     new ClosureNode(f, Array.empty) // no default values for these lambdas
@@ -569,7 +564,6 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
         case b: MethodEntity =>
           val funcName = getFuncIdn(b)
           val registry = RawLanguage.getCurrentContext.getFunctionRegistry
-          logger.debug(s"getting function $funcName from ctx: ${RawLanguage.getCurrentContext}")
           val function = registry.getFunction(funcName)
           val defaultArgs = for (p <- b.d.p.ps) yield p.e.map(recurseExp).orNull
           new MethodRefNode(function, defaultArgs.toArray)
