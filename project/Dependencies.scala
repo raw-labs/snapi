@@ -44,7 +44,7 @@ object Dependencies {
 
   val commonsIO = "commons-io" % "commons-io" % "2.11.0"
 
-  val commonsLang = "org.apache.commons" % "commons-lang3" % "3.12.0"
+  val commonsLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
 
   val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
 
