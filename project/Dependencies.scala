@@ -3,7 +3,7 @@ import sbt._
 
 object Dependencies {
   val scalacVersion =
-    "2.12.15" // In a common place to be used when importing scalac and setting the project Scala version.
+    "2.12.18" // In a common place to be used when importing scalac and setting the project Scala version.
 
   val scalaCompiler = Seq(
     "org.scala-lang" % "scala-compiler" % scalacVersion,
