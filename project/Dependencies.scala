@@ -19,10 +19,10 @@ object Dependencies {
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
   val slf4j = Seq(
-    "org.slf4j" % "slf4j-api" % "2.0.5",
-    "org.slf4j" % "log4j-over-slf4j" % "2.0.5",
-    "org.slf4j" % "jcl-over-slf4j" % "2.0.5",
-    "org.slf4j" % "jul-to-slf4j" % "2.0.5"
+    "org.slf4j" % "slf4j-api" % "2.0.7",
+    "org.slf4j" % "log4j-over-slf4j" % "2.0.7",
+    "org.slf4j" % "jcl-over-slf4j" % "2.0.7",
+    "org.slf4j" % "jul-to-slf4j" % "2.0.7"
   )
 
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
