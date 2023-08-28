@@ -14,51 +14,55 @@ package raw.runtime.truffle.runtime.tryable;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ExportLibrary(TryableLibrary.class)
 public final class BooleanTryable {
 
-  private final boolean successValue;
-  private final String failureValue;
+    private final boolean successValue;
+    private final String failureValue;
 
-  public BooleanTryable(boolean successValue, String failureValue) {
-    this.successValue = successValue;
-    this.failureValue = failureValue;
-  }
+    public BooleanTryable(boolean successValue, String failureValue) {
+        this.successValue = successValue;
+        this.failureValue = failureValue;
+    }
 
-  public static BooleanTryable BuildSuccess(boolean successValue) {
-    return new BooleanTryable(successValue, null);
-  }
+    public static BooleanTryable BuildSuccess(boolean successValue) {
+        return new BooleanTryable(successValue, null);
+    }
 
-  public static BooleanTryable BuildFailure(String failureValue) {
-    return new BooleanTryable(false, failureValue);
-  }
+    public static BooleanTryable BuildFailure(String failureValue) {
+        return new BooleanTryable(false, failureValue);
+    }
 
-  @ExportMessage
-  boolean isTryable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isTryable() {
+        return true;
+    }
 
-  @ExportMessage
-  public boolean success() {
-    // assert(isSuccess());
-    return successValue;
-  }
+    @ExportMessage
+    public boolean success() {
+        if (!isSuccess()) {
+            throw new RawTruffleRuntimeException(failureValue);
+        }
+        return successValue;
+    }
 
-  @ExportMessage
-  public String failure() {
-    // assert(isFailure());
-    return failureValue;
-  }
+    @ExportMessage
+    public String failure() {
+        if (!isFailure()) {
+            throw new RawTruffleRuntimeException("not a failure");
+        }
+        return failureValue;
+    }
 
-  @ExportMessage
-  public boolean isSuccess() {
-    return failureValue == null;
-  }
+    @ExportMessage
+    public boolean isSuccess() {
+        return failureValue == null;
+    }
 
-  @ExportMessage
-  public boolean isFailure() {
-    return failureValue != null;
-  }
+    @ExportMessage
+    public boolean isFailure() {
+        return failureValue != null;
+    }
 }
