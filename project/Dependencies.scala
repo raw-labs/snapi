@@ -14,7 +14,7 @@ object Dependencies {
 
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
 
-  val scalatest = "org.scalatest" %% "scalatest" % "3.2.15"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
 
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
