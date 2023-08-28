@@ -20,8 +20,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Math.Log10")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathLog10Node extends ExpressionNode {
-  @Specialization
-  protected double doubleLog10(double argument) {
-    return Math.log10(argument);
-  }
+    @Specialization
+    protected double doubleLog10(double argument) {
+        return Math.log10(argument);
+    }
 }

@@ -25,9 +25,9 @@ import java.nio.charset.StandardCharsets;
 @NodeChild(value = "str")
 public abstract class HttpUrlEncodeNode extends ExpressionNode {
 
-  @Specialization
-  @TruffleBoundary
-  public String encode(String str) {
-    return URLEncoder.encode(str, StandardCharsets.UTF_8);
-  }
+    @Specialization
+    @TruffleBoundary
+    public String encode(String str) {
+        return URLEncoder.encode(str, StandardCharsets.UTF_8);
+    }
 }

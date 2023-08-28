@@ -21,8 +21,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string")
 public abstract class StringLowerNode extends ExpressionNode {
 
-  @Specialization
-  protected String stringLower(String string) {
-    return string.toLowerCase();
-  }
+    @Specialization
+    protected String stringLower(String string) {
+        return string.toLowerCase();
+    }
 }

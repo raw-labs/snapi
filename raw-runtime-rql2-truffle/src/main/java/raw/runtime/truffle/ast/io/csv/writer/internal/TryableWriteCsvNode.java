@@ -27,31 +27,31 @@ import java.io.IOException;
 @NodeInfo(shortName = "TryableWriteCsv")
 public class TryableWriteCsvNode extends StatementNode {
 
-  @Child private DirectCallNode valueWriter;
+    @Child private DirectCallNode valueWriter;
 
-  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(3);
+    @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(3);
 
-  public TryableWriteCsvNode(ProgramStatementNode valueWriter) {
-    this.valueWriter = DirectCallNode.create(valueWriter.getCallTarget());
-  }
-
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    Object tryable = args[0];
-    CsvGenerator generator = (CsvGenerator) args[1];
-    if (tryables.isSuccess(tryable)) {
-      valueWriter.call(tryables.success(tryable), generator);
-    } else {
-      doWriteError(tryables.failure(tryable), generator);
+    public TryableWriteCsvNode(ProgramStatementNode valueWriter) {
+        this.valueWriter = DirectCallNode.create(valueWriter.getCallTarget());
     }
-  }
 
-  @CompilerDirectives.TruffleBoundary
-  private void doWriteError(String message, CsvGenerator gen) {
-    try {
-      gen.writeString(message);
-    } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        Object tryable = args[0];
+        CsvGenerator generator = (CsvGenerator) args[1];
+        if (tryables.isSuccess(tryable)) {
+            valueWriter.call(tryables.success(tryable), generator);
+        } else {
+            doWriteError(tryables.failure(tryable), generator);
+        }
     }
-  }
+
+    @CompilerDirectives.TruffleBoundary
+    private void doWriteError(String message, CsvGenerator gen) {
+        try {
+            gen.writeString(message);
+        } catch (IOException e) {
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+        }
+    }
 }

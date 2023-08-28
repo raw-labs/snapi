@@ -27,12 +27,12 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeChild("step")
 public abstract class TimestampRangeNode extends ExpressionNode {
 
-  private static final IntervalObject zero = new IntervalObject(0, 0, 0, 0, 0, 0, 0, 0);
+    private static final IntervalObject zero = new IntervalObject(0, 0, 0, 0, 0, 0, 0, 0);
 
-  @Specialization
-  protected Object doRange(TimestampObject start, TimestampObject end, IntervalObject step) {
-    if (step.compareTo(zero) <= 0)
-      throw new RawTruffleRuntimeException("range step has to be strictly positive", this);
-    return new RangeCollection(start, end, step);
-  }
+    @Specialization
+    protected Object doRange(TimestampObject start, TimestampObject end, IntervalObject step) {
+        if (step.compareTo(zero) <= 0)
+            throw new RawTruffleRuntimeException("range step has to be strictly positive", this);
+        return new RangeCollection(start, end, step);
+    }
 }

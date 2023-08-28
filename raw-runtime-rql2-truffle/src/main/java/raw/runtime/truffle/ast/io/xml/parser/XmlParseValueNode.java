@@ -22,45 +22,47 @@ import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 @NodeInfo(shortName = "XmlParseValue")
 public class XmlParseValueNode extends ExpressionNode {
 
-  @Child private ExpressionNode stringExp;
+    @Child private ExpressionNode stringExp;
 
-  @Child private DirectCallNode childDirectCall;
-  @Child
-  private ExpressionNode dateFormatExp;
-  @Child
-  private ExpressionNode timeFormatExp;
-  @Child
-  private ExpressionNode datetimeFormatExp;
+    @Child private DirectCallNode childDirectCall;
+    @Child private ExpressionNode dateFormatExp;
+    @Child private ExpressionNode timeFormatExp;
+    @Child private ExpressionNode datetimeFormatExp;
 
-  private RawTruffleXmlParser parser;
+    private RawTruffleXmlParser parser;
 
-  public XmlParseValueNode(ExpressionNode stringExp, ExpressionNode dateFormatExp, ExpressionNode timeFormatExp, ExpressionNode datetimeFormatExp,
-                           RootNode readerNode) {
-    this.stringExp = stringExp;
-    this.dateFormatExp = dateFormatExp;
-    this.timeFormatExp = timeFormatExp;
-    this.datetimeFormatExp = datetimeFormatExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
-  }
-
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    try {
-      String string = (String) stringExp.executeGeneric(virtualFrame);
-      RawTruffleStringCharStream stream = new RawTruffleStringCharStream(string);
-
-      String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
-      String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
-      String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
-      RawTruffleXmlParserSettings settings = new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
-
-      parser = RawTruffleXmlParser.create(stream, settings);
-      parser.nextToken(); // consume START_OBJECT
-      parser.assertCurrentTokenIsStartTag(); // because it's the top level object
-      return this.childDirectCall.call(parser); // ... and we start to parse it.
-    } finally {
-      if (parser != null) parser.close();
-      parser = null;
+    public XmlParseValueNode(
+            ExpressionNode stringExp,
+            ExpressionNode dateFormatExp,
+            ExpressionNode timeFormatExp,
+            ExpressionNode datetimeFormatExp,
+            RootNode readerNode) {
+        this.stringExp = stringExp;
+        this.dateFormatExp = dateFormatExp;
+        this.timeFormatExp = timeFormatExp;
+        this.datetimeFormatExp = datetimeFormatExp;
+        this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
     }
-  }
+
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        try {
+            String string = (String) stringExp.executeGeneric(virtualFrame);
+            RawTruffleStringCharStream stream = new RawTruffleStringCharStream(string);
+
+            String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
+            String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
+            String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
+            RawTruffleXmlParserSettings settings =
+                    new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
+
+            parser = RawTruffleXmlParser.create(stream, settings);
+            parser.nextToken(); // consume START_OBJECT
+            parser.assertCurrentTokenIsStartTag(); // because it's the top level object
+            return this.childDirectCall.call(parser); // ... and we start to parse it.
+        } finally {
+            if (parser != null) parser.close();
+            parser = null;
+        }
+    }
 }

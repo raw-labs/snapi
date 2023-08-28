@@ -15,18 +15,18 @@ package raw.runtime.truffle.runtime.exceptions.json;
 import com.oracle.truffle.api.nodes.Node;
 
 public class JsonOrTypeException extends JsonParserRawTruffleException {
-  public JsonOrTypeException(String[] messages, Node location) {
-    super(createMessage(messages), location);
-  }
-
-  private static String createMessage(String[] messages) {
-    StringBuilder sb = new StringBuilder();
-    sb.append("failed to parse or type:\n");
-
-    for (int i = 0; i < messages.length; i++) {
-      sb.append(String.format("\t %d: %s", i, messages[i].replaceAll("\n", "\n\t")));
+    public JsonOrTypeException(String[] messages, Node location) {
+        super(createMessage(messages), location);
     }
 
-    return sb.toString();
-  }
+    private static String createMessage(String[] messages) {
+        StringBuilder sb = new StringBuilder();
+        sb.append("failed to parse or type:\n");
+
+        for (int i = 0; i < messages.length; i++) {
+            sb.append(String.format("\t %d: %s", i, messages[i].replaceAll("\n", "\n\t")));
+        }
+
+        return sb.toString();
+    }
 }

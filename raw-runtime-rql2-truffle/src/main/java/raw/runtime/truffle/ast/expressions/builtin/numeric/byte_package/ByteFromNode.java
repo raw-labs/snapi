@@ -25,47 +25,47 @@ import java.math.BigDecimal;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class ByteFromNode extends ExpressionNode {
 
-  @Specialization
-  protected byte fromByte(byte argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected byte fromShort(short argument) {
-    return (byte) argument;
-  }
-
-  @Specialization
-  protected byte fromInt(int argument) {
-    return (byte) argument;
-  }
-
-  @Specialization
-  protected byte fromLong(long argument) {
-    return (byte) argument;
-  }
-
-  @Specialization
-  protected byte fromFloat(float argument) {
-    return (byte) argument;
-  }
-
-  @Specialization
-  protected byte fromDouble(double argument) {
-    return (byte) argument;
-  }
-
-  @Specialization
-  protected byte fromDecimal(BigDecimal argument) {
-    return argument.byteValue();
-  }
-
-  @Specialization
-  protected ObjectTryable fromString(String argument) {
-    try {
-      return ObjectTryable.BuildSuccess(Byte.parseByte(argument));
-    } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to byte");
+    @Specialization
+    protected byte fromByte(byte argument) {
+        return argument;
     }
-  }
+
+    @Specialization
+    protected byte fromShort(short argument) {
+        return (byte) argument;
+    }
+
+    @Specialization
+    protected byte fromInt(int argument) {
+        return (byte) argument;
+    }
+
+    @Specialization
+    protected byte fromLong(long argument) {
+        return (byte) argument;
+    }
+
+    @Specialization
+    protected byte fromFloat(float argument) {
+        return (byte) argument;
+    }
+
+    @Specialization
+    protected byte fromDouble(double argument) {
+        return (byte) argument;
+    }
+
+    @Specialization
+    protected byte fromDecimal(BigDecimal argument) {
+        return argument.byteValue();
+    }
+
+    @Specialization
+    protected ObjectTryable fromString(String argument) {
+        try {
+            return ObjectTryable.BuildSuccess(Byte.parseByte(argument));
+        } catch (RuntimeException ex) {
+            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to byte");
+        }
+    }
 }

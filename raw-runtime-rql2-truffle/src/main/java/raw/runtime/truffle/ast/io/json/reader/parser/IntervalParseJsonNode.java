@@ -24,11 +24,12 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeInfo(shortName = "IntervalParseJson")
 public abstract class IntervalParseJsonNode extends ExpressionNode {
 
-  @Specialization
-  protected IntervalObject doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseIntervalJsonParserNode parse) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
-  }
+    @Specialization
+    protected IntervalObject doParse(
+            VirtualFrame frame,
+            @Cached("create()") JsonParserNodes.ParseIntervalJsonParserNode parse) {
+        Object[] args = frame.getArguments();
+        JsonParser parser = (JsonParser) args[0];
+        return parse.execute(parser);
+    }
 }

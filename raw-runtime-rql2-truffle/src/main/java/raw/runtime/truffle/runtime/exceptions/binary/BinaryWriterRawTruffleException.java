@@ -16,7 +16,7 @@ import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class BinaryWriterRawTruffleException extends RawTruffleRuntimeException {
-  public BinaryWriterRawTruffleException(String message, Node location) {
-    super(message, location);
-  }
+    public BinaryWriterRawTruffleException(String message, Node location) {
+        super(message, location);
+    }
 }

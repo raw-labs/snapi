@@ -28,22 +28,23 @@ import java.time.LocalDateTime;
 @NodeChild("interval")
 public abstract class DateAddIntervalNode extends ExpressionNode {
 
-  @Specialization
-  protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
+    @Specialization
+    protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
 
-    LocalDate date = dateObj.getDate();
+        LocalDate date = dateObj.getDate();
 
-    LocalDateTime result =
-        LocalDateTime.of(date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0, 0)
-            .plusYears(intervalObj.getYears())
-            .plusMonths(intervalObj.getMonths())
-            .plusWeeks(intervalObj.getWeeks())
-            .plusDays(intervalObj.getDays())
-            .plusHours(intervalObj.getHours())
-            .plusMinutes(intervalObj.getMinutes())
-            .plusSeconds(intervalObj.getSeconds())
-            .plusNanos(1000000L * intervalObj.getMillis());
+        LocalDateTime result =
+                LocalDateTime.of(
+                                date.getYear(), date.getMonthValue(), date.getDayOfMonth(), 0, 0, 0)
+                        .plusYears(intervalObj.getYears())
+                        .plusMonths(intervalObj.getMonths())
+                        .plusWeeks(intervalObj.getWeeks())
+                        .plusDays(intervalObj.getDays())
+                        .plusHours(intervalObj.getHours())
+                        .plusMinutes(intervalObj.getMinutes())
+                        .plusSeconds(intervalObj.getSeconds())
+                        .plusNanos(1000000L * intervalObj.getMillis());
 
-    return new TimestampObject(result);
-  }
+        return new TimestampObject(result);
+    }
 }

@@ -27,48 +27,51 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class DistinctCollection {
 
-  final Object iterable;
+    final Object iterable;
 
-  final RawLanguage language;
+    final RawLanguage language;
 
-  final Rql2TypeWithProperties rowType;
-  private final RuntimeContext context;
+    final Rql2TypeWithProperties rowType;
+    private final RuntimeContext context;
 
-  public DistinctCollection(
-      Object iterable, Rql2TypeWithProperties vType, RawLanguage language, RuntimeContext context) {
-    this.iterable = iterable;
-    this.language = language;
-    this.rowType = vType;
-    this.context = context;
-  }
-
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
-
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
-
-  private int compareKey(Object key1, Object key2) {
-    return (int) operators.doOperation(compare, key1, key2);
-  }
-
-  @ExportMessage
-  Object getGenerator(
-      @CachedLibrary(limit = "5") IterableLibrary iterables,
-      @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    OffHeapDistinct index = new OffHeapDistinct(this::compareKey, rowType, language, context);
-    Object generator = iterables.getGenerator(iterable);
-    try {
-      generators.init(generator);
-      while (generators.hasNext(generator)) {
-        Object next = generators.next(generator);
-        index.put(next);
-      }
-    } finally {
-      generators.close(generator);
+    public DistinctCollection(
+            Object iterable,
+            Rql2TypeWithProperties vType,
+            RawLanguage language,
+            RuntimeContext context) {
+        this.iterable = iterable;
+        this.language = language;
+        this.rowType = vType;
+        this.context = context;
     }
-    return index.generator();
-  }
+
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
+
+    private final CompareOperator compare = new CompareOperator();
+    private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
+
+    private int compareKey(Object key1, Object key2) {
+        return (int) operators.doOperation(compare, key1, key2);
+    }
+
+    @ExportMessage
+    Object getGenerator(
+            @CachedLibrary(limit = "5") IterableLibrary iterables,
+            @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+        OffHeapDistinct index = new OffHeapDistinct(this::compareKey, rowType, language, context);
+        Object generator = iterables.getGenerator(iterable);
+        try {
+            generators.init(generator);
+            while (generators.hasNext(generator)) {
+                Object next = generators.next(generator);
+                index.put(next);
+            }
+        } finally {
+            generators.close(generator);
+        }
+        return index.generator();
+    }
 }

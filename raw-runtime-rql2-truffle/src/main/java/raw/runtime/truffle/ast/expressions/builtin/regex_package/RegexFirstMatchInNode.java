@@ -28,18 +28,18 @@ import java.util.regex.PatternSyntaxException;
 @NodeChild(value = "pattern")
 public abstract class RegexFirstMatchInNode extends ExpressionNode {
 
-  @Specialization
-  protected ObjectTryable regexFirstMatchIn(String string, String regex) {
-    try {
-      Pattern pattern = RegexCache.get(regex);
-      Matcher match = pattern.matcher(string);
-      if (match.find()) {
-        return ObjectTryable.BuildSuccess(new StringOption(match.group()));
-      } else {
-        return ObjectTryable.BuildSuccess(new StringOption());
-      }
-    } catch (PatternSyntaxException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+    @Specialization
+    protected ObjectTryable regexFirstMatchIn(String string, String regex) {
+        try {
+            Pattern pattern = RegexCache.get(regex);
+            Matcher match = pattern.matcher(string);
+            if (match.find()) {
+                return ObjectTryable.BuildSuccess(new StringOption(match.group()));
+            } else {
+                return ObjectTryable.BuildSuccess(new StringOption());
+            }
+        } catch (PatternSyntaxException e) {
+            return ObjectTryable.BuildFailure(e.getMessage());
+        }
     }
-  }
 }

@@ -28,16 +28,16 @@ import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandle
 @NodeChild("list")
 public abstract class ListMinNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
-  protected Object doCollection(
-      Object list,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "1") AggregationLibrary aggregations,
-      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-    Object iterable = lists.toIterable(list);
-    Object aggregation = new SingleAggregation(new MinAggregator());
-    Object result = aggregations.aggregate(aggregation, iterable);
-    RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-    return nullableTryables.boxOption(handler, result);
-  }
+    @Specialization(limit = "3")
+    protected Object doCollection(
+            Object list,
+            @CachedLibrary("list") ListLibrary lists,
+            @CachedLibrary(limit = "1") AggregationLibrary aggregations,
+            @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+        Object iterable = lists.toIterable(list);
+        Object aggregation = new SingleAggregation(new MinAggregator());
+        Object result = aggregations.aggregate(aggregation, iterable);
+        RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
+        return nullableTryables.boxOption(handler, result);
+    }
 }

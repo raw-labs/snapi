@@ -27,21 +27,21 @@ import raw.runtime.truffle.runtime.list.StringList;
 @NodeChild("record")
 public abstract class RecordFieldsNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
-  protected StringList doFields(
-      Object record,
-      @CachedLibrary("record") InteropLibrary records,
-      @CachedLibrary(limit = "1") InteropLibrary libraries) {
-    try {
-      Object keys = records.getMembers(record);
-      long length = libraries.getArraySize(keys);
-      String[] members = new String[(int) length];
-      for (int i = 0; i < length; i++) {
-        members[i] = (String) libraries.readArrayElement(keys, i);
-      }
-      return new StringList(members);
-    } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+    @Specialization(limit = "3")
+    protected StringList doFields(
+            Object record,
+            @CachedLibrary("record") InteropLibrary records,
+            @CachedLibrary(limit = "1") InteropLibrary libraries) {
+        try {
+            Object keys = records.getMembers(record);
+            long length = libraries.getArraySize(keys);
+            String[] members = new String[(int) length];
+            for (int i = 0; i < length; i++) {
+                members[i] = (String) libraries.readArrayElement(keys, i);
+            }
+            return new StringList(members);
+        } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
+            throw new RawTruffleInternalErrorException(e, this);
+        }
     }
-  }
 }

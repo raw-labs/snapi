@@ -22,22 +22,22 @@ import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 import java.io.ByteArrayOutputStream;
 
 public class KryoWriteNode extends ExpressionNode {
-  private final ExpressionNode valueNode;
-  private final KryoWriterLibrary writers = KryoWriterLibrary.getUncached();
-  private final Rql2TypeWithProperties t;
+    private final ExpressionNode valueNode;
+    private final KryoWriterLibrary writers = KryoWriterLibrary.getUncached();
+    private final Rql2TypeWithProperties t;
 
-  public KryoWriteNode(ExpressionNode valueNode, Rql2TypeWithProperties t) {
-    this.valueNode = valueNode;
-    this.t = t;
-  }
+    public KryoWriteNode(ExpressionNode valueNode, Rql2TypeWithProperties t) {
+        this.valueNode = valueNode;
+        this.t = t;
+    }
 
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    ByteArrayOutputStream array = new ByteArrayOutputStream();
-    Output output = new Output(array);
-    KryoWriter writer = new KryoWriter();
-    writers.write(writer, output, t, valueNode.executeGeneric(virtualFrame));
-    output.close();
-    return array.toByteArray();
-  }
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        ByteArrayOutputStream array = new ByteArrayOutputStream();
+        Output output = new Output(array);
+        KryoWriter writer = new KryoWriter();
+        writers.write(writer, output, t, valueNode.executeGeneric(virtualFrame));
+        output.close();
+        return array.toByteArray();
+    }
 }

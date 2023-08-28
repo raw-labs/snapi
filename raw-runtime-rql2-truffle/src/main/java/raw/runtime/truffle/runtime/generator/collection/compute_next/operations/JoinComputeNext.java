@@ -40,147 +40,147 @@ import java.nio.file.Files;
 @ExportLibrary(ComputeNextLibrary.class)
 public class JoinComputeNext {
 
-  protected final Object leftIterable;
-  protected final Object rightIterable;
-  private Object leftGen = null;
-  private final Closure remap;
-  private final Closure predicate;
+    protected final Object leftIterable;
+    protected final Object rightIterable;
+    private Object leftGen = null;
+    private final Closure remap;
+    private final Closure predicate;
 
-  private Object leftRow = null;
-  private Object rightRow = null;
-  Object nullableTryable = new RuntimeNullableTryableHandler();
-  Input kryoRight = null;
-  private final int kryoOutputBufferSize;
-  private final KryoWriter writer;
-  private final KryoReader reader;
-  private final Rql2TypeWithProperties rightRowType; // grouped key and value types.
-  private final KryoWriterLibrary writers = KryoWriterLibrary.getUncached();
-  private final KryoReaderLibrary readers = KryoReaderLibrary.getUncached();
-  private int spilledRight = 0;
-  private int readRight = 0;
-  private final File diskRight;
-  private final Boolean reshapeBeforePredicate;
+    private Object leftRow = null;
+    private Object rightRow = null;
+    Object nullableTryable = new RuntimeNullableTryableHandler();
+    Input kryoRight = null;
+    private final int kryoOutputBufferSize;
+    private final KryoWriter writer;
+    private final KryoReader reader;
+    private final Rql2TypeWithProperties rightRowType; // grouped key and value types.
+    private final KryoWriterLibrary writers = KryoWriterLibrary.getUncached();
+    private final KryoReaderLibrary readers = KryoReaderLibrary.getUncached();
+    private int spilledRight = 0;
+    private int readRight = 0;
+    private final File diskRight;
+    private final Boolean reshapeBeforePredicate;
 
-  private final NullableTryableLibrary nullableTryables =
-      NullableTryableLibrary.getFactory().createDispatched(1);
+    private final NullableTryableLibrary nullableTryables =
+            NullableTryableLibrary.getFactory().createDispatched(1);
 
-  public JoinComputeNext(
-      Object leftIterable,
-      Object rightIterable,
-      Closure remap,
-      Closure predicate,
-      Boolean reshapeBeforePredicate,
-      Rql2TypeWithProperties rightRowType,
-      RuntimeContext context,
-      RawLanguage language) {
-    this.leftIterable = leftIterable;
-    this.rightIterable = rightIterable;
-    this.remap = remap;
-    this.predicate = predicate;
-    this.kryoOutputBufferSize =
-        (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
-    this.writer = new KryoWriter();
-    this.reader = new KryoReader(language);
-    this.rightRowType = rightRowType;
-    this.reshapeBeforePredicate = reshapeBeforePredicate;
-    this.diskRight = IOUtils.getScratchFile("cartesian.", ".kryo", context).toFile();
-  }
-
-  @ExportMessage
-  void init(
-      @CachedLibrary(limit = "5") IterableLibrary iterables,
-      @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    // initialize left
-    leftGen = iterables.getGenerator(leftIterable);
-    generators.init(leftGen);
-
-    // save right to disk
-    Output buffer;
-    try {
-      buffer = new Output(new FileOutputStream(diskRight), kryoOutputBufferSize);
-    } catch (FileNotFoundException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+    public JoinComputeNext(
+            Object leftIterable,
+            Object rightIterable,
+            Closure remap,
+            Closure predicate,
+            Boolean reshapeBeforePredicate,
+            Rql2TypeWithProperties rightRowType,
+            RuntimeContext context,
+            RawLanguage language) {
+        this.leftIterable = leftIterable;
+        this.rightIterable = rightIterable;
+        this.remap = remap;
+        this.predicate = predicate;
+        this.kryoOutputBufferSize =
+                (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
+        this.writer = new KryoWriter();
+        this.reader = new KryoReader(language);
+        this.rightRowType = rightRowType;
+        this.reshapeBeforePredicate = reshapeBeforePredicate;
+        this.diskRight = IOUtils.getScratchFile("cartesian.", ".kryo", context).toFile();
     }
-    Object rightGen = iterables.getGenerator(rightIterable);
-    try {
-      generators.init(rightGen);
-      while (generators.hasNext(rightGen)) {
-        Object row = generators.next(rightGen);
-        writers.write(writer, buffer, rightRowType, row);
-        spilledRight++;
-      }
-    } finally {
-      generators.close(rightGen);
-      buffer.close();
-    }
-  }
 
-  @ExportMessage
-  void close(@CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    generators.close(leftGen);
-    if (kryoRight != null) kryoRight.close();
-  }
+    @ExportMessage
+    void init(
+            @CachedLibrary(limit = "5") IterableLibrary iterables,
+            @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+        // initialize left
+        leftGen = iterables.getGenerator(leftIterable);
+        generators.init(leftGen);
 
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
-
-  @ExportMessage
-  Object computeNext(@CachedLibrary(limit = "3") GeneratorLibrary generators) {
-    Object row = null;
-
-    while (row == null) {
-      if (leftRow == null || rightRow == null) {
-        if (leftRow == null) {
-          if (generators.hasNext(leftGen)) {
-            leftRow = generators.next(leftGen);
-          } else {
-            // end of left, nothing else to read
-            throw new BreakException();
-          }
-        }
-        if (kryoRight == null) {
-          try {
-            kryoRight = new Input(new FileInputStream(diskRight));
-          } catch (FileNotFoundException e) {
+        // save right to disk
+        Output buffer;
+        try {
+            buffer = new Output(new FileOutputStream(diskRight), kryoOutputBufferSize);
+        } catch (FileNotFoundException e) {
             throw new RawTruffleRuntimeException(e.getMessage());
-          }
-          readRight = 0;
         }
-        if (rightRow == null) {
-          if (readRight < spilledRight) {
-            rightRow = readers.read(reader, kryoRight, rightRowType);
-            row = check(leftRow, rightRow);
-            readRight++;
-            rightRow = null;
-          } else {
-            // end of right, reset currentLeft to make sure we try another round
-            leftRow = null;
-            kryoRight.close();
-            rightRow = kryoRight = null;
-          }
+        Object rightGen = iterables.getGenerator(rightIterable);
+        try {
+            generators.init(rightGen);
+            while (generators.hasNext(rightGen)) {
+                Object row = generators.next(rightGen);
+                writers.write(writer, buffer, rightRowType, row);
+                spilledRight++;
+            }
+        } finally {
+            generators.close(rightGen);
+            buffer.close();
         }
-      }
     }
-    return row;
-  }
 
-  private Object check(Object leftRow, Object rightRow) {
-    Boolean pass;
-    Object row = null;
-    if (reshapeBeforePredicate) {
-      row = remap.call(leftRow, rightRow);
-      pass =
-          nullableTryables.handleOptionTriablePredicate(
-              nullableTryable, predicate.call(row), false);
-      if (!pass) row = null;
-    } else {
-      pass =
-          nullableTryables.handleOptionTriablePredicate(
-              nullableTryable, predicate.call(leftRow, rightRow), false);
-      if (pass) row = remap.call(leftRow, rightRow);
+    @ExportMessage
+    void close(@CachedLibrary(limit = "5") GeneratorLibrary generators) {
+        generators.close(leftGen);
+        if (kryoRight != null) kryoRight.close();
     }
-    return row;
-  }
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
+    }
+
+    @ExportMessage
+    Object computeNext(@CachedLibrary(limit = "3") GeneratorLibrary generators) {
+        Object row = null;
+
+        while (row == null) {
+            if (leftRow == null || rightRow == null) {
+                if (leftRow == null) {
+                    if (generators.hasNext(leftGen)) {
+                        leftRow = generators.next(leftGen);
+                    } else {
+                        // end of left, nothing else to read
+                        throw new BreakException();
+                    }
+                }
+                if (kryoRight == null) {
+                    try {
+                        kryoRight = new Input(new FileInputStream(diskRight));
+                    } catch (FileNotFoundException e) {
+                        throw new RawTruffleRuntimeException(e.getMessage());
+                    }
+                    readRight = 0;
+                }
+                if (rightRow == null) {
+                    if (readRight < spilledRight) {
+                        rightRow = readers.read(reader, kryoRight, rightRowType);
+                        row = check(leftRow, rightRow);
+                        readRight++;
+                        rightRow = null;
+                    } else {
+                        // end of right, reset currentLeft to make sure we try another round
+                        leftRow = null;
+                        kryoRight.close();
+                        rightRow = kryoRight = null;
+                    }
+                }
+            }
+        }
+        return row;
+    }
+
+    private Object check(Object leftRow, Object rightRow) {
+        Boolean pass;
+        Object row = null;
+        if (reshapeBeforePredicate) {
+            row = remap.call(leftRow, rightRow);
+            pass =
+                    nullableTryables.handleOptionTriablePredicate(
+                            nullableTryable, predicate.call(row), false);
+            if (!pass) row = null;
+        } else {
+            pass =
+                    nullableTryables.handleOptionTriablePredicate(
+                            nullableTryable, predicate.call(leftRow, rightRow), false);
+            if (pass) row = remap.call(leftRow, rightRow);
+        }
+        return row;
+    }
 }

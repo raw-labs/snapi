@@ -21,17 +21,17 @@ import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.DA
 
 public class DateObject implements TruffleObject {
 
-  private final LocalDate date;
+    private final LocalDate date;
 
-  public DateObject(LocalDate date) {
-    this.date = date;
-  }
+    public DateObject(LocalDate date) {
+        this.date = date;
+    }
 
-  public LocalDate getDate() {
-    return date;
-  }
+    public LocalDate getDate() {
+        return date;
+    }
 
-  public String toString() {
-    return date.format(DATE_FORMATTER);
-  }
+    public String toString() {
+        return date.format(DATE_FORMATTER);
+    }
 }

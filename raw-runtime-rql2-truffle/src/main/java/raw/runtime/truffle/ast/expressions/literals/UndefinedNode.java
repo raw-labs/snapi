@@ -18,10 +18,10 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class UndefinedNode extends ExpressionNode {
 
-  public UndefinedNode() {}
+    public UndefinedNode() {}
 
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    throw new RawTruffleRuntimeException("Should never execute undefined node", this);
-  }
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        throw new RawTruffleRuntimeException("Should never execute undefined node", this);
+    }
 }

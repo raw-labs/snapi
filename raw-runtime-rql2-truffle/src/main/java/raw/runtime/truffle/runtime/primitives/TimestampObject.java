@@ -22,17 +22,17 @@ import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.TI
 
 public class TimestampObject implements TruffleObject {
 
-  private final LocalDateTime timestamp;
+    private final LocalDateTime timestamp;
 
-  public TimestampObject(LocalDateTime timestamp) {
-    this.timestamp = timestamp;
-  }
+    public TimestampObject(LocalDateTime timestamp) {
+        this.timestamp = timestamp;
+    }
 
-  public LocalDateTime getTimestamp() {
-    return timestamp;
-  }
+    public LocalDateTime getTimestamp() {
+        return timestamp;
+    }
 
-  public String toString() {
-    return timestamp.format(TIMESTAMP_FORMATTER);
-  }
+    public String toString() {
+        return timestamp.format(TIMESTAMP_FORMATTER);
+    }
 }

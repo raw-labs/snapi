@@ -26,29 +26,18 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeInfo(shortName = "IterableParseCsvString")
 public class IterableParseCsvString extends ExpressionNode {
 
-    @Child
-    private DirectCallNode childDirectCall;
-    @Child
-    private ExpressionNode strExp;
-    @Child
-    private ExpressionNode skip;
-    @Child
-    private ExpressionNode delimiterExp;
-    @Child
-    private ExpressionNode quoteExp;
+    @Child private DirectCallNode childDirectCall;
+    @Child private ExpressionNode strExp;
+    @Child private ExpressionNode skip;
+    @Child private ExpressionNode delimiterExp;
+    @Child private ExpressionNode quoteExp;
 
-    @Child
-    private ExpressionNode escapeExp;
-    @Child
-    private ExpressionNode nullsExp;
-    @Child
-    private ExpressionNode nansExp;
-    @Child
-    private ExpressionNode dateFormatExp;
-    @Child
-    private ExpressionNode timeFormatExp;
-    @Child
-    private ExpressionNode datetimeFormatExp;
+    @Child private ExpressionNode escapeExp;
+    @Child private ExpressionNode nullsExp;
+    @Child private ExpressionNode nansExp;
+    @Child private ExpressionNode dateFormatExp;
+    @Child private ExpressionNode timeFormatExp;
+    @Child private ExpressionNode datetimeFormatExp;
 
     private final OptionLibrary options = OptionLibrary.getFactory().getUncached();
 

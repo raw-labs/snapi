@@ -26,24 +26,24 @@ import java.time.format.DateTimeFormatter;
 @NodeInfo(shortName = "DateWriteCsv")
 public class DateWriteCsvNode extends StatementNode {
 
-  private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
 
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    DateObject value = (DateObject) args[0];
-    CsvGenerator generator = (CsvGenerator) args[1];
-    doWrite(value, generator);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private void doWrite(DateObject value, CsvGenerator gen) {
-    try {
-      // .format throws DateTimeException if its internal StringBuilder throws an IOException.
-      // We consider it as an internal error and let it propagate.
-      gen.writeString(formatter.format(value.getDate()));
-    } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        DateObject value = (DateObject) args[0];
+        CsvGenerator generator = (CsvGenerator) args[1];
+        doWrite(value, generator);
     }
-  }
+
+    @CompilerDirectives.TruffleBoundary
+    private void doWrite(DateObject value, CsvGenerator gen) {
+        try {
+            // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+            // We consider it as an internal error and let it propagate.
+            gen.writeString(formatter.format(value.getDate()));
+        } catch (IOException e) {
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+        }
+    }
 }

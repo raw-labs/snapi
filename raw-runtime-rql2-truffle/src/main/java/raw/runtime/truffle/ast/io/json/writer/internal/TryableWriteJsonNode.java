@@ -25,27 +25,27 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeInfo(shortName = "TryableWriteJson")
 public class TryableWriteJsonNode extends StatementNode {
 
-  @Child private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
-  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+    @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
 
-  @Child
-  JsonWriteNodes.WriteStringJsonWriterNode writeString =
-      JsonWriteNodesFactory.WriteStringJsonWriterNodeGen.create();
+    @Child
+    JsonWriteNodes.WriteStringJsonWriterNode writeString =
+            JsonWriteNodesFactory.WriteStringJsonWriterNodeGen.create();
 
-  public TryableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
-    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-  }
-
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    Object tryable = args[0];
-    JsonGenerator gen = (JsonGenerator) args[1];
-    if (tryables.isSuccess(tryable)) {
-      childDirectCall.call(tryables.success(tryable), gen);
-    } else {
-      writeString.execute(tryables.failure(tryable), gen);
+    public TryableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
+        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
     }
-  }
+
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        Object tryable = args[0];
+        JsonGenerator gen = (JsonGenerator) args[1];
+        if (tryables.isSuccess(tryable)) {
+            childDirectCall.call(tryables.success(tryable), gen);
+        } else {
+            writeString.execute(tryables.failure(tryable), gen);
+        }
+    }
 }

@@ -25,35 +25,35 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @ExportLibrary(IterableLibrary.class)
 public class CsvCollection {
 
-  private final LocationObject location;
-  private final DirectCallNode rowParser;
+    private final LocationObject location;
+    private final DirectCallNode rowParser;
 
-  private final RuntimeContext context;
+    private final RuntimeContext context;
 
-  private final String encoding;
-  private final RawTruffleCsvParserSettings settings;
+    private final String encoding;
+    private final RawTruffleCsvParserSettings settings;
 
-  public CsvCollection(
-      LocationObject location,
-      RuntimeContext context,
-      DirectCallNode rowParser,
-      String encoding,
-      RawTruffleCsvParserSettings settings) {
-    this.location = location;
-    this.rowParser = rowParser;
-    this.context = context;
-    this.encoding = encoding;
-    this.settings = settings;
-  }
+    public CsvCollection(
+            LocationObject location,
+            RuntimeContext context,
+            DirectCallNode rowParser,
+            String encoding,
+            RawTruffleCsvParserSettings settings) {
+        this.location = location;
+        this.rowParser = rowParser;
+        this.context = context;
+        this.encoding = encoding;
+        this.settings = settings;
+    }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
 
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(
-        new CsvReadComputeNext(location, context, rowParser, encoding, settings));
-  }
+    @ExportMessage
+    Object getGenerator() {
+        return new CollectionAbstractGenerator(
+                new CsvReadComputeNext(location, context, rowParser, encoding, settings));
+    }
 }

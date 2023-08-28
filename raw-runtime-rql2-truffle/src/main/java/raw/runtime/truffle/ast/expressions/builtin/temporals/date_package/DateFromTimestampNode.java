@@ -26,9 +26,9 @@ import java.time.LocalDateTime;
 @NodeChild("timestamp")
 public abstract class DateFromTimestampNode extends ExpressionNode {
 
-  @Specialization
-  protected DateObject fromEpochDay(TimestampObject timestamp) {
-    LocalDateTime ts = timestamp.getTimestamp();
-    return new DateObject(LocalDate.of(ts.getYear(), ts.getMonth(), ts.getDayOfMonth()));
-  }
+    @Specialization
+    protected DateObject fromEpochDay(TimestampObject timestamp) {
+        LocalDateTime ts = timestamp.getTimestamp();
+        return new DateObject(LocalDate.of(ts.getYear(), ts.getMonth(), ts.getDayOfMonth()));
+    }
 }

@@ -19,20 +19,20 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.ShortRead")
 public class ShortReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+    private final String idx;
 
-  public ShortReadJdbcQuery(String idx) {
-    this.idx = idx;
-  }
+    public ShortReadJdbcQuery(String idx) {
+        this.idx = idx;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    return this.executeShort(frame);
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executeShort(frame);
+    }
 
-  @Override
-  public final short executeShort(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getShort(idx, this);
-  }
+    @Override
+    public final short executeShort(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        return rs.getShort(idx, this);
+    }
 }

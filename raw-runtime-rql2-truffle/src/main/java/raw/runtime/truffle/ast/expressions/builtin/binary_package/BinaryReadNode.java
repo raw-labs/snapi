@@ -32,18 +32,18 @@ import java.io.InputStream;
 @NodeChild(value = "binary")
 public abstract class BinaryReadNode extends ExpressionNode {
 
-  @Specialization
-  protected Object doExecute(LocationObject locationObject) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    InputStream stream = null;
-    try {
-      stream = (new TruffleInputStream(locationObject, context)).getInputStream();
-      byte[] bytes = stream.readAllBytes();
-      return ObjectTryable.BuildSuccess(bytes);
-    } catch (IOException | RawTruffleRuntimeException ex) {
-      return StringTryable.BuildFailure(ex.getMessage());
-    } finally {
-      IOUtils.closeQuietly(stream);
+    @Specialization
+    protected Object doExecute(LocationObject locationObject) {
+        RuntimeContext context = RawContext.get(this).getRuntimeContext();
+        InputStream stream = null;
+        try {
+            stream = (new TruffleInputStream(locationObject, context)).getInputStream();
+            byte[] bytes = stream.readAllBytes();
+            return ObjectTryable.BuildSuccess(bytes);
+        } catch (IOException | RawTruffleRuntimeException ex) {
+            return StringTryable.BuildFailure(ex.getMessage());
+        } finally {
+            IOUtils.closeQuietly(stream);
+        }
     }
-  }
 }

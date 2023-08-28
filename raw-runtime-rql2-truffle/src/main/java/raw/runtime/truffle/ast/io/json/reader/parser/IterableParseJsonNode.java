@@ -23,18 +23,18 @@ import raw.runtime.truffle.runtime.list.ListLibrary;
 @NodeInfo(shortName = "IterableParseJson")
 public class IterableParseJsonNode extends ExpressionNode {
 
-  @Child private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
-  private final ListLibrary lists = ListLibrary.getFactory().createDispatched(1);
+    private final ListLibrary lists = ListLibrary.getFactory().createDispatched(1);
 
-  public IterableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
-    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-  }
+    public IterableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
+        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-    Object list = this.childDirectCall.call(parser);
-    return lists.toIterable(list);
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JsonParser parser = (JsonParser) args[0];
+        Object list = this.childDirectCall.call(parser);
+        return lists.toIterable(list);
+    }
 }

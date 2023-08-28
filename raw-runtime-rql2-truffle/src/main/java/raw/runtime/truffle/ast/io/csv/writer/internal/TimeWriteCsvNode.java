@@ -27,31 +27,31 @@ import java.time.format.DateTimeFormatter;
 @NodeInfo(shortName = "TimeWriteCsv")
 public class TimeWriteCsvNode extends StatementNode {
 
-  // two different formatters, depending on whether there are milliseconds or not.
-  private final DateTimeFormatter fmtWithoutMS = DateTimeFormatter.ofPattern("HH:mm:ss");
-  private final DateTimeFormatter fmtWithMS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+    // two different formatters, depending on whether there are milliseconds or not.
+    private final DateTimeFormatter fmtWithoutMS = DateTimeFormatter.ofPattern("HH:mm:ss");
+    private final DateTimeFormatter fmtWithMS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    TimeObject value = (TimeObject) args[0];
-    CsvGenerator generator = (CsvGenerator) args[1];
-    doWrite(value, generator);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private void doWrite(TimeObject value, CsvGenerator gen) {
-    try {
-      LocalTime ts = value.getTime();
-      // .format throws DateTimeException if its internal StringBuilder throws an IOException.
-      // We consider it as an internal error and let it propagate.
-      if (ts.getNano() != 0) {
-        gen.writeString(fmtWithMS.format(ts));
-      } else {
-        gen.writeString(fmtWithoutMS.format(ts));
-      }
-    } catch (IOException e) {
-      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        TimeObject value = (TimeObject) args[0];
+        CsvGenerator generator = (CsvGenerator) args[1];
+        doWrite(value, generator);
     }
-  }
+
+    @CompilerDirectives.TruffleBoundary
+    private void doWrite(TimeObject value, CsvGenerator gen) {
+        try {
+            LocalTime ts = value.getTime();
+            // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+            // We consider it as an internal error and let it propagate.
+            if (ts.getNano() != 0) {
+                gen.writeString(fmtWithMS.format(ts));
+            } else {
+                gen.writeString(fmtWithoutMS.format(ts));
+            }
+        } catch (IOException e) {
+            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+        }
+    }
 }

@@ -28,24 +28,22 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 @NodeInfo(shortName = "XmlReadValue")
 public class XmlReadValueNode extends ExpressionNode {
 
-    @Child
-    private ExpressionNode locationExp;
+    @Child private ExpressionNode locationExp;
 
-    @Child
-    private ExpressionNode encodingExp;
-    @Child
-    private ExpressionNode dateFormatExp;
-    @Child
-    private ExpressionNode timeFormatExp;
-    @Child
-    private ExpressionNode datetimeFormatExp;
+    @Child private ExpressionNode encodingExp;
+    @Child private ExpressionNode dateFormatExp;
+    @Child private ExpressionNode timeFormatExp;
+    @Child private ExpressionNode datetimeFormatExp;
 
-    @Child
-    private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
     public XmlReadValueNode(
-        ExpressionNode locationExp, ExpressionNode encodingExp,
-        ExpressionNode dateFormatExp, ExpressionNode timeFormatExp, ExpressionNode datetimeFormatExp, RootNode readerNode) {
+            ExpressionNode locationExp,
+            ExpressionNode encodingExp,
+            ExpressionNode dateFormatExp,
+            ExpressionNode timeFormatExp,
+            ExpressionNode datetimeFormatExp,
+            RootNode readerNode) {
         this.locationExp = locationExp;
         this.encodingExp = encodingExp;
         this.dateFormatExp = dateFormatExp;
@@ -58,16 +56,19 @@ public class XmlReadValueNode extends ExpressionNode {
     public Object executeGeneric(VirtualFrame virtualFrame) {
         RawTruffleXmlParser parser = null;
         try {
-            LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
+            LocationObject locationObject =
+                    (LocationObject) locationExp.executeGeneric(virtualFrame);
             String encoding = (String) encodingExp.executeGeneric(virtualFrame);
             RuntimeContext context = RawContext.get(this).getRuntimeContext();
 
             TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
-            TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
+            TruffleCharInputStream stream =
+                    new TruffleCharInputStream(truffleInputStream, encoding);
             String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
             String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
             String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
-            RawTruffleXmlParserSettings settings = new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
+            RawTruffleXmlParserSettings settings =
+                    new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
 
             try {
                 parser = RawTruffleXmlParser.create(stream, settings);

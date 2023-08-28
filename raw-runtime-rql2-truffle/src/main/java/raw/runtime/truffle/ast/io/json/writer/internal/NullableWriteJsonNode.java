@@ -25,27 +25,27 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeInfo(shortName = "NullableWriteJson")
 public class NullableWriteJsonNode extends StatementNode {
 
-  @Child private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
-  @Child private OptionLibrary options = OptionLibrary.getFactory().createDispatched(1);
+    @Child private OptionLibrary options = OptionLibrary.getFactory().createDispatched(1);
 
-  @Child
-  JsonWriteNodes.WriteNullJsonWriterNode writeNullNode =
-      JsonWriteNodesFactory.WriteNullJsonWriterNodeGen.create();
+    @Child
+    JsonWriteNodes.WriteNullJsonWriterNode writeNullNode =
+            JsonWriteNodesFactory.WriteNullJsonWriterNodeGen.create();
 
-  public NullableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
-    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-  }
-
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    Object option = args[0];
-    JsonGenerator gen = (JsonGenerator) args[1];
-    if (options.isDefined(option)) {
-      childDirectCall.call(options.get(option), gen);
-    } else {
-      writeNullNode.execute(gen);
+    public NullableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
+        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
     }
-  }
+
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        Object option = args[0];
+        JsonGenerator gen = (JsonGenerator) args[1];
+        if (options.isDefined(option)) {
+            childDirectCall.call(options.get(option), gen);
+        } else {
+            writeNullNode.execute(gen);
+        }
+    }
 }

@@ -22,43 +22,43 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 
 @ExportLibrary(AggregatorLibrary.class)
 public class MinAggregator {
-  CompareOperator compareOperator;
+    CompareOperator compareOperator;
 
-  public MinAggregator() {
-    this.compareOperator = new CompareOperator();
-  }
-
-  @ExportMessage
-  public boolean isAggregator() {
-    return true;
-  }
-
-  @ExportMessage(limit = "3")
-  public Object merge(
-      Object current,
-      Object next,
-      @CachedLibrary("this.compareOperator") OperatorLibrary operators,
-      @CachedLibrary(limit = "3") OptionLibrary options) {
-    if (options.isDefined(current)) {
-      if (options.isDefined(next)) {
-        // if both are defined, pick the smallest
-        if ((int) operators.doOperation(this.compareOperator, current, next) < 0) {
-          return current;
-        } else {
-          return next;
-        }
-      } else {
-        // if only current is defined, return it
-        return current;
-      }
-    } else {
-      // left is not defined, return right (perhaps not defined either, but fine)
-      return next;
+    public MinAggregator() {
+        this.compareOperator = new CompareOperator();
     }
-  }
 
-  @ExportMessage(limit = "3")
-  public Object zero() {
-    return new EmptyOption();
-  }
+    @ExportMessage
+    public boolean isAggregator() {
+        return true;
+    }
+
+    @ExportMessage(limit = "3")
+    public Object merge(
+            Object current,
+            Object next,
+            @CachedLibrary("this.compareOperator") OperatorLibrary operators,
+            @CachedLibrary(limit = "3") OptionLibrary options) {
+        if (options.isDefined(current)) {
+            if (options.isDefined(next)) {
+                // if both are defined, pick the smallest
+                if ((int) operators.doOperation(this.compareOperator, current, next) < 0) {
+                    return current;
+                } else {
+                    return next;
+                }
+            } else {
+                // if only current is defined, return it
+                return current;
+            }
+        } else {
+            // left is not defined, return right (perhaps not defined either, but fine)
+            return next;
+        }
+    }
+
+    @ExportMessage(limit = "3")
+    public Object zero() {
+        return new EmptyOption();
+    }
 }

@@ -18,37 +18,37 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class FloatOption {
 
-  private float value;
+    private float value;
 
-  private boolean isDefined;
+    private boolean isDefined;
 
-  public FloatOption() {
-    this.isDefined = false;
-  }
+    public FloatOption() {
+        this.isDefined = false;
+    }
 
-  public FloatOption(float value) {
-    this.isDefined = true;
-    this.value = value;
-  }
+    public FloatOption(float value) {
+        this.isDefined = true;
+        this.value = value;
+    }
 
-  @ExportMessage
-  boolean isOption() {
-    return true;
-  }
+    @ExportMessage
+    boolean isOption() {
+        return true;
+    }
 
-  @ExportMessage
-  public float get() {
-    return value;
-  }
+    @ExportMessage
+    public float get() {
+        return value;
+    }
 
-  @ExportMessage
-  public void set(Object value) {
-    this.value = (float) value;
-    this.isDefined = true;
-  }
+    @ExportMessage
+    public void set(Object value) {
+        this.value = (float) value;
+        this.isDefined = true;
+    }
 
-  @ExportMessage
-  public boolean isDefined() {
-    return isDefined;
-  }
+    @ExportMessage
+    public boolean isDefined() {
+        return isDefined;
+    }
 }

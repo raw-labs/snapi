@@ -16,7 +16,7 @@ import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class CsvWriterRawTruffleException extends RawTruffleRuntimeException {
-  public CsvWriterRawTruffleException(String message, Throwable cause, Node location) {
-    super("failed to write CSV: " + message, cause, location);
-  }
+    public CsvWriterRawTruffleException(String message, Throwable cause, Node location) {
+        super("failed to write CSV: " + message, cause, location);
+    }
 }

@@ -23,8 +23,7 @@ import raw.runtime.truffle.runtime.option.ObjectOption;
 @NodeInfo(shortName = "OptionParseXmlText")
 public class OptionParseXmlTextNode extends ExpressionNode {
 
-    @Child
-    private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
     public OptionParseXmlTextNode(ProgramExpressionNode childProgramStatementNode) {
         this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());

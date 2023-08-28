@@ -32,11 +32,9 @@ import java.util.*;
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
 
-    @Children
-    private DirectCallNode[] childDirectCalls;
+    @Children private DirectCallNode[] childDirectCalls;
 
-    @Child
-    private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
+    @Child private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
 
     // Field name and its index in the childDirectCalls array
     private final int fieldsSize;
@@ -50,9 +48,9 @@ public class RecordParseXmlNode extends ExpressionNode {
     private final BitSet bitSet;
 
     public RecordParseXmlNode(
-        ProgramExpressionNode[] childProgramExpressionNode,
-        String[] fieldNames,
-        Rql2TypeWithProperties[] fieldTypes) {
+            ProgramExpressionNode[] childProgramExpressionNode,
+            String[] fieldNames,
+            Rql2TypeWithProperties[] fieldTypes) {
         this.fieldTypes = fieldTypes;
         this.fields = fieldNames;
         this.fieldsSize = childProgramExpressionNode.length;
@@ -63,7 +61,7 @@ public class RecordParseXmlNode extends ExpressionNode {
             fieldsIndex.put(fieldName, index);
             // register the parser for the field
             this.childDirectCalls[index] =
-                DirectCallNode.create(childProgramExpressionNode[index].getCallTarget());
+                    DirectCallNode.create(childProgramExpressionNode[index].getCallTarget());
             // take note of fields that should be parsed as attributes
             if (fieldName.startsWith("@")) {
                 attributesIndex.put(fieldName, index);
@@ -111,7 +109,8 @@ public class RecordParseXmlNode extends ExpressionNode {
 
         // * text content in case of #text field,
         // * START_ELEMENT in case of field,
-        // * the record END_ELEMENT in the end, possibly first if the record has no fields (all nulls or
+        // * the record END_ELEMENT in the end, possibly first if the record has no fields (all
+        // nulls or
         // empty lists)
         while (!parser.onEndTag()) {
             // we're inside the object, so the current token is a field name, or text content if the
@@ -142,20 +141,23 @@ public class RecordParseXmlNode extends ExpressionNode {
         }
         // process nullable fields (null when not found)
         if (bitSet.cardinality() != this.fieldsSize) {
-            // not all fields were found in the JSON. Fill the missing nullable ones with nulls or fail.
+            // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
+            // fail.
             for (int i = 0; i < fieldsSize; i++) {
                 String fieldName = fields[i];
                 if (!bitSet.get(i)) {
                     if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
-                        // It's OK, the field is nullable. If it's tryable, make a success null, else a plain
+                        // It's OK, the field is nullable. If it's tryable, make a success null,
+                        // else a plain
                         // null.
                         Object nullValue =
-                            fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())
-                                ? ObjectTryable.BuildSuccess(new EmptyOption())
-                                : new EmptyOption();
+                                fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())
+                                        ? ObjectTryable.BuildSuccess(new EmptyOption())
+                                        : new EmptyOption();
                         record.writeIdx(i, fieldName, nullValue);
                     } else {
-                        throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
+                        throw new XmlParserRawTruffleException(
+                                "field not found: " + fieldName, parser, this);
                     }
                 }
             }
@@ -163,7 +165,8 @@ public class RecordParseXmlNode extends ExpressionNode {
         return record;
     }
 
-    private void parseTagContent(RawTruffleXmlParser parser, String fieldName, RecordObject record) {
+    private void parseTagContent(
+            RawTruffleXmlParser parser, String fieldName, RecordObject record) {
         Integer index = fieldsIndex.get(fieldName);
         if (index != null) {
             applyParser(parser, index, fieldName, record);
@@ -174,7 +177,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     }
 
     private void applyParser(
-        RawTruffleXmlParser parser, int index, String fieldName, RecordObject record) {
+            RawTruffleXmlParser parser, int index, String fieldName, RecordObject record) {
         Object value = childDirectCalls[index].call(parser);
         storeFieldValue(fieldName, index, value, record);
     }
@@ -182,7 +185,8 @@ public class RecordParseXmlNode extends ExpressionNode {
     private void storeFieldValue(String fieldName, int index, Object value, RecordObject record) {
         ArrayList<Object> collectionField = collectionValues.get(fieldName);
         if (collectionField != null) {
-            // if the field is a collection or a list, add the item to the list instead writing it in the
+            // if the field is a collection or a list, add the item to the list instead writing it
+            // in the
             // record.
             collectionField.add(value);
         } else {

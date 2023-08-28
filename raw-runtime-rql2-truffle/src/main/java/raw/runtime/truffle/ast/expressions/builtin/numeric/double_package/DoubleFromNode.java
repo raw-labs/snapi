@@ -25,47 +25,47 @@ import java.math.BigDecimal;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class DoubleFromNode extends ExpressionNode {
 
-  @Specialization
-  protected double fromByte(byte argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected double fromShort(short argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected double fromInt(int argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected double fromLong(long argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected double fromFloat(float argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected double fromDouble(double argument) {
-    return argument;
-  }
-
-  @Specialization
-  protected double fromDecimal(BigDecimal argument) {
-    return argument.doubleValue();
-  }
-
-  @Specialization
-  protected ObjectTryable fromString(String argument) {
-    try {
-      return ObjectTryable.BuildSuccess(Double.parseDouble(argument));
-    } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to double");
+    @Specialization
+    protected double fromByte(byte argument) {
+        return argument;
     }
-  }
+
+    @Specialization
+    protected double fromShort(short argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected double fromInt(int argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected double fromLong(long argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected double fromFloat(float argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected double fromDouble(double argument) {
+        return argument;
+    }
+
+    @Specialization
+    protected double fromDecimal(BigDecimal argument) {
+        return argument.doubleValue();
+    }
+
+    @Specialization
+    protected ObjectTryable fromString(String argument) {
+        try {
+            return ObjectTryable.BuildSuccess(Double.parseDouble(argument));
+        } catch (RuntimeException ex) {
+            return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to double");
+        }
+    }
 }

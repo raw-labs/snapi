@@ -33,16 +33,18 @@ import java.util.HashMap;
 @NodeChild("format")
 public abstract class TimestampParseNode extends ExpressionNode {
 
-  @Specialization
-  public Object parse(String str, String format) {
-    try {
-      DateTimeFormatter formatter = DateTimeFormatCache.get(format);
-      return ObjectTryable.BuildSuccess(new TimestampObject(LocalDateTime.parse(str, formatter)));
-    } catch (IllegalArgumentException ex) {
-      return ObjectTryable.BuildFailure("invalid timestamp template: " + format);
-    } catch (DateTimeParseException ex) {
-      return ObjectTryable.BuildFailure(
-          String.format("string '%s' does not match timestamp template '%s'", str, format));
+    @Specialization
+    public Object parse(String str, String format) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatCache.get(format);
+            return ObjectTryable.BuildSuccess(
+                    new TimestampObject(LocalDateTime.parse(str, formatter)));
+        } catch (IllegalArgumentException ex) {
+            return ObjectTryable.BuildFailure("invalid timestamp template: " + format);
+        } catch (DateTimeParseException ex) {
+            return ObjectTryable.BuildFailure(
+                    String.format(
+                            "string '%s' does not match timestamp template '%s'", str, format));
+        }
     }
-  }
 }

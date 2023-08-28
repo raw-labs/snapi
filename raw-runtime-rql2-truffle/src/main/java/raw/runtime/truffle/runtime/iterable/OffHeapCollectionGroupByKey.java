@@ -28,38 +28,43 @@ import java.util.Comparator;
 // OffHeap GroupBy where the set of nested values is returned as an iterable
 public class OffHeapCollectionGroupByKey extends OffHeapGroupByKey {
 
-  public OffHeapCollectionGroupByKey(
-      Comparator<Object> keyCompare,
-      Rql2TypeWithProperties kType,
-      Rql2TypeWithProperties rowType,
-      RawLanguage language,
-      RuntimeContext context) {
-    super(
-        keyCompare, kType, rowType, language, context, new CollectionGroupByRecordShaper(language));
-  }
+    public OffHeapCollectionGroupByKey(
+            Comparator<Object> keyCompare,
+            Rql2TypeWithProperties kType,
+            Rql2TypeWithProperties rowType,
+            RawLanguage language,
+            RuntimeContext context) {
+        super(
+                keyCompare,
+                kType,
+                rowType,
+                language,
+                context,
+                new CollectionGroupByRecordShaper(language));
+    }
 }
 
 class CollectionGroupByRecordShaper extends GroupByRecordShaper {
 
-  private InteropLibrary records = null;
+    private InteropLibrary records = null;
 
-  public CollectionGroupByRecordShaper(RawLanguage language) {
-    super(language);
-  }
+    public CollectionGroupByRecordShaper(RawLanguage language) {
+        super(language);
+    }
 
-  public Object makeRow(Object key, Object[] values) {
-    RecordObject record = language.createRecord();
-    if (records == null) {
-      records = InteropLibrary.getFactory().create(record);
+    public Object makeRow(Object key, Object[] values) {
+        RecordObject record = language.createRecord();
+        if (records == null) {
+            records = InteropLibrary.getFactory().create(record);
+        }
+        try {
+            records.writeMember(record, "key", key);
+            records.writeMember(record, "group", new ObjectList(values).toIterable());
+        } catch (UnsupportedMessageException
+                | UnknownIdentifierException
+                | UnsupportedTypeException e) {
+            throw new RawTruffleInternalErrorException(e);
+        }
+        return record;
     }
-    try {
-      records.writeMember(record, "key", key);
-      records.writeMember(record, "group", new ObjectList(values).toIterable());
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException e) {
-      throw new RawTruffleInternalErrorException(e);
-    }
-    return record;
-  }
 }

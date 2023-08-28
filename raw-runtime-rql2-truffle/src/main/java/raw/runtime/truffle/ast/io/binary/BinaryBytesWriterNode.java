@@ -24,25 +24,25 @@ import java.io.OutputStream;
 @NodeInfo(shortName = "Binary.BytesWrite")
 public class BinaryBytesWriterNode extends StatementNode {
 
-  @CompilerDirectives.TruffleBoundary
-  private void doWrite(OutputStream os, byte[] binaryData) {
-    try {
-      os.write(binaryData);
-    } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+    @CompilerDirectives.TruffleBoundary
+    private void doWrite(OutputStream os, byte[] binaryData) {
+        try {
+            os.write(binaryData);
+        } catch (IOException e) {
+            throw new RawTruffleRuntimeException(e.getMessage());
+        }
     }
-  }
 
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    byte[] binaryData;
-    if (args[0] instanceof byte[]) {
-      binaryData = (byte[]) args[0];
-    } else {
-      binaryData = ((String) args[0]).getBytes();
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        byte[] binaryData;
+        if (args[0] instanceof byte[]) {
+            binaryData = (byte[]) args[0];
+        } else {
+            binaryData = ((String) args[0]).getBytes();
+        }
+        OutputStream output = (OutputStream) args[1];
+        doWrite(output, binaryData);
     }
-    OutputStream output = (OutputStream) args[1];
-    doWrite(output, binaryData);
-  }
 }

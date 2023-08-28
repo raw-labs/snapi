@@ -19,7 +19,8 @@ import java.util.List;
 
 public class XmlOrTypeParserException extends XmlParserRawTruffleException {
 
-    public XmlOrTypeParserException(List<String> parseErrors, RawTruffleXmlParser parser, Node location) {
+    public XmlOrTypeParserException(
+            List<String> parseErrors, RawTruffleXmlParser parser, Node location) {
         super(createMessage(parseErrors), parser, location);
     }
 
@@ -33,5 +34,4 @@ public class XmlOrTypeParserException extends XmlParserRawTruffleException {
 
         return sb.toString();
     }
-
 }

@@ -22,8 +22,8 @@ import java.util.Base64;
 @NodeInfo(shortName = "Binary.Base64")
 @NodeChild(value = "binary")
 public abstract class BinaryBase64Node extends ExpressionNode {
-  @Specialization
-  protected String doBase64(byte[] binary) {
-    return Base64.getEncoder().encodeToString(binary);
-  }
+    @Specialization
+    protected String doBase64(byte[] binary) {
+        return Base64.getEncoder().encodeToString(binary);
+    }
 }

@@ -19,24 +19,24 @@ import raw.runtime.truffle.runtime.operators.CompareOperator;
 @ExportLibrary(AggregatorLibrary.class)
 public class CountAggregator {
 
-  CompareOperator compareOperator;
+    CompareOperator compareOperator;
 
-  public CountAggregator() {
-    this.compareOperator = new CompareOperator();
-  }
+    public CountAggregator() {
+        this.compareOperator = new CompareOperator();
+    }
 
-  @ExportMessage
-  public boolean isAggregator() {
-    return true;
-  }
+    @ExportMessage
+    public boolean isAggregator() {
+        return true;
+    }
 
-  @ExportMessage(limit = "3")
-  public Object merge(Object current, Object next) {
-    return ((long) current) + 1;
-  }
+    @ExportMessage(limit = "3")
+    public Object merge(Object current, Object next) {
+        return ((long) current) + 1;
+    }
 
-  @ExportMessage(limit = "3")
-  public Object zero() {
-    return 0L;
-  }
+    @ExportMessage(limit = "3")
+    public Object zero() {
+        return 0L;
+    }
 }

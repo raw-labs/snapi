@@ -17,19 +17,19 @@ import raw.runtime.truffle.ExpressionNode;
 
 public class BinaryConstNode extends ExpressionNode {
 
-  private final byte[] value;
+    private final byte[] value;
 
-  public BinaryConstNode(byte[] value) {
-    this.value = value;
-  }
+    public BinaryConstNode(byte[] value) {
+        this.value = value;
+    }
 
-  @Override
-  public final byte[] executeBinary(VirtualFrame virtualFrame) {
-    return value;
-  }
+    @Override
+    public final byte[] executeBinary(VirtualFrame virtualFrame) {
+        return value;
+    }
 
-  @Override
-  public final Object executeGeneric(VirtualFrame virtualFrame) {
-    return value;
-  }
+    @Override
+    public final Object executeGeneric(VirtualFrame virtualFrame) {
+        return value;
+    }
 }

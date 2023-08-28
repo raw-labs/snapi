@@ -40,11 +40,11 @@ public class XmlReadComputeNext {
     private TruffleCharInputStream stream;
 
     public XmlReadComputeNext(
-        LocationObject locationObject,
-        String encoding,
-        RuntimeContext context,
-        DirectCallNode parseNextCallNode,
-        RawTruffleXmlParserSettings settings) {
+            LocationObject locationObject,
+            String encoding,
+            RuntimeContext context,
+            DirectCallNode parseNextCallNode,
+            RawTruffleXmlParserSettings settings) {
         this.encoding = encoding;
         this.context = context;
         this.settings = settings;

@@ -21,8 +21,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string")
 public abstract class StringReverseNode extends ExpressionNode {
 
-  @Specialization
-  protected String reverse(String string) {
-    return new StringBuilder(string).reverse().toString();
-  }
+    @Specialization
+    protected String reverse(String string) {
+        return new StringBuilder(string).reverse().toString();
+    }
 }

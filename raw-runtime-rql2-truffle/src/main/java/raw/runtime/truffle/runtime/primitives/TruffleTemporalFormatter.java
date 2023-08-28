@@ -15,9 +15,10 @@ package raw.runtime.truffle.runtime.primitives;
 import java.time.format.DateTimeFormatter;
 
 public class TruffleTemporalFormatter {
-  public static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-  public static final DateTimeFormatter TIME_FORMATTER =
-      DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
-  public static final DateTimeFormatter TIMESTAMP_FORMATTER =
-      DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
+    public static final DateTimeFormatter DATE_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd");
+    public static final DateTimeFormatter TIME_FORMATTER =
+            DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
+    public static final DateTimeFormatter TIMESTAMP_FORMATTER =
+            DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 }

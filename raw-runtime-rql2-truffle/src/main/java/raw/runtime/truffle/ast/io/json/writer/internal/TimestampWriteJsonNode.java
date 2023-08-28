@@ -23,12 +23,12 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeInfo(shortName = "TimestampWriteJson")
 public class TimestampWriteJsonNode extends StatementNode {
 
-  @Child
-  JsonWriteNodes.WriteTimestampJsonWriterNode writeTimestamp =
-      JsonWriteNodesFactory.WriteTimestampJsonWriterNodeGen.create();
+    @Child
+    JsonWriteNodes.WriteTimestampJsonWriterNode writeTimestamp =
+            JsonWriteNodesFactory.WriteTimestampJsonWriterNodeGen.create();
 
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    writeTimestamp.execute((TimestampObject) args[0], (JsonGenerator) args[1]);
-  }
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        writeTimestamp.execute((TimestampObject) args[0], (JsonGenerator) args[1]);
+    }
 }

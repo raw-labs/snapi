@@ -22,8 +22,8 @@ import raw.runtime.truffle.runtime.list.ListLibrary;
 @NodeInfo(shortName = "Collection.From")
 @NodeChild("iterable")
 public abstract class CollectionFromNode extends ExpressionNode {
-  @Specialization(limit = "3")
-  protected Object doFrom(Object list, @CachedLibrary("list") ListLibrary lists) {
-    return lists.toIterable(list);
-  }
+    @Specialization(limit = "3")
+    protected Object doFrom(Object list, @CachedLibrary("list") ListLibrary lists) {
+        return lists.toIterable(list);
+    }
 }

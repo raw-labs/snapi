@@ -25,23 +25,21 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @NodeInfo(shortName = "XmlReadCollection")
 public class XmlReadCollectionNode extends ExpressionNode {
 
-    @Child
-    private ExpressionNode locationExp;
-    @Child
-    private ExpressionNode encodingExp;
-    @Child
-    private ExpressionNode dateFormatExp;
-    @Child
-    private ExpressionNode timeFormatExp;
-    @Child
-    private ExpressionNode datetimeFormatExp;
+    @Child private ExpressionNode locationExp;
+    @Child private ExpressionNode encodingExp;
+    @Child private ExpressionNode dateFormatExp;
+    @Child private ExpressionNode timeFormatExp;
+    @Child private ExpressionNode datetimeFormatExp;
 
-    @Child
-    private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
     public XmlReadCollectionNode(
-        ExpressionNode locationExp, ExpressionNode encodingExp,
-        ExpressionNode dateFormatExp, ExpressionNode timeFormatExp, ExpressionNode datetimeFormatExp, RootNode readerNode) {
+            ExpressionNode locationExp,
+            ExpressionNode encodingExp,
+            ExpressionNode dateFormatExp,
+            ExpressionNode timeFormatExp,
+            ExpressionNode datetimeFormatExp,
+            RootNode readerNode) {
         this.locationExp = locationExp;
         this.encodingExp = encodingExp;
         this.dateFormatExp = dateFormatExp;
@@ -57,7 +55,8 @@ public class XmlReadCollectionNode extends ExpressionNode {
         String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
         String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
         String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
-        RawTruffleXmlParserSettings settings = new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
+        RawTruffleXmlParserSettings settings =
+                new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
         RuntimeContext context = RawContext.get(this).getRuntimeContext();
         return new XmlReadCollection(locationObject, encoding, context, childDirectCall, settings);
     }

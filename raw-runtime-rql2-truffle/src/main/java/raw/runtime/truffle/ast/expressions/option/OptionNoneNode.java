@@ -21,15 +21,15 @@ import raw.runtime.truffle.runtime.option.EmptyOption;
 @NodeInfo(shortName = "Option.None")
 public class OptionNoneNode extends ExpressionNode {
 
-  private final Type tipe;
+    private final Type tipe;
 
-  public OptionNoneNode(Type tipe) {
-    this.tipe = tipe;
-  }
+    public OptionNoneNode(Type tipe) {
+        this.tipe = tipe;
+    }
 
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    // TODO (msb): Create per type if we want to 'set()'.
-    return new EmptyOption();
-  }
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        // TODO (msb): Create per type if we want to 'set()'.
+        return new EmptyOption();
+    }
 }

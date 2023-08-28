@@ -25,34 +25,35 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @ExportLibrary(IterableLibrary.class)
 public class XmlReadCollection {
 
-  private final LocationObject locationObject;
-  private final DirectCallNode parseNextRootNode;
-  private RawTruffleXmlParserSettings settings;
-  private final RuntimeContext context;
+    private final LocationObject locationObject;
+    private final DirectCallNode parseNextRootNode;
+    private RawTruffleXmlParserSettings settings;
+    private final RuntimeContext context;
 
-  private final String encoding;
+    private final String encoding;
 
-  public XmlReadCollection(
-      LocationObject locationObject,
-      String encoding,
-      RuntimeContext context,
-      DirectCallNode parseNextRootNode,
-      RawTruffleXmlParserSettings settings) {
-    this.locationObject = locationObject;
-    this.parseNextRootNode = parseNextRootNode;
-    this.settings = settings;
-    this.context = context;
-    this.encoding = encoding;
-  }
+    public XmlReadCollection(
+            LocationObject locationObject,
+            String encoding,
+            RuntimeContext context,
+            DirectCallNode parseNextRootNode,
+            RawTruffleXmlParserSettings settings) {
+        this.locationObject = locationObject;
+        this.parseNextRootNode = parseNextRootNode;
+        this.settings = settings;
+        this.context = context;
+        this.encoding = encoding;
+    }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
 
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(
-        new XmlReadComputeNext(locationObject, encoding, context, parseNextRootNode, settings));
-  }
+    @ExportMessage
+    Object getGenerator() {
+        return new CollectionAbstractGenerator(
+                new XmlReadComputeNext(
+                        locationObject, encoding, context, parseNextRootNode, settings));
+    }
 }

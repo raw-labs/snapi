@@ -26,8 +26,7 @@ import java.util.ArrayList;
 @NodeInfo(shortName = "OrTypeParseXml")
 public class OrTypeParseXml extends ExpressionNode {
 
-    @Children
-    private DirectCallNode[] options;
+    @Children private DirectCallNode[] options;
 
     public OrTypeParseXml(ProgramExpressionNode[] options) {
         this.options = new DirectCallNode[options.length];
@@ -59,6 +58,5 @@ public class OrTypeParseXml extends ExpressionNode {
             }
         }
         throw new XmlOrTypeParserException(parseErrors, parser, this);
-
     }
 }

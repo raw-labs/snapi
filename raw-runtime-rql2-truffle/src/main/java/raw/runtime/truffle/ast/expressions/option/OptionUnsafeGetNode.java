@@ -23,12 +23,12 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeInfo(shortName = "Option.UnsafeGet")
 @NodeChild("option")
 public abstract class OptionUnsafeGetNode extends ExpressionNode {
-  @Specialization(guards = "options.isOption(option)", limit = "1")
-  protected Object doObject(Object option, @CachedLibrary("option") OptionLibrary options) {
-    if (options.isDefined(option)) {
-      return options.get(option);
-    } else {
-      throw new RawTruffleUnexpectedNullException(this);
+    @Specialization(guards = "options.isOption(option)", limit = "1")
+    protected Object doObject(Object option, @CachedLibrary("option") OptionLibrary options) {
+        if (options.isDefined(option)) {
+            return options.get(option);
+        } else {
+            throw new RawTruffleUnexpectedNullException(this);
+        }
     }
-  }
 }

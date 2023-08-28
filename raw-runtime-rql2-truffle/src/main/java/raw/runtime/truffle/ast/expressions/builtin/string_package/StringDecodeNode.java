@@ -26,13 +26,14 @@ import java.nio.charset.Charset;
 @NodeChild(value = "encoding")
 public abstract class StringDecodeNode extends ExpressionNode {
 
-  @Specialization
-  protected ObjectTryable stringDecode(byte[] bytes, String encodingName) {
-    if (Encoding.fromEncodingString(encodingName).isRight()) {
-      Charset charset = Encoding.fromEncodingString(encodingName).right().get().charset();
-      return ObjectTryable.BuildSuccess(new String(bytes, charset));
-    } else {
-      return ObjectTryable.BuildFailure(Encoding.fromEncodingString(encodingName).left().get());
+    @Specialization
+    protected ObjectTryable stringDecode(byte[] bytes, String encodingName) {
+        if (Encoding.fromEncodingString(encodingName).isRight()) {
+            Charset charset = Encoding.fromEncodingString(encodingName).right().get().charset();
+            return ObjectTryable.BuildSuccess(new String(bytes, charset));
+        } else {
+            return ObjectTryable.BuildFailure(
+                    Encoding.fromEncodingString(encodingName).left().get());
+        }
     }
-  }
 }

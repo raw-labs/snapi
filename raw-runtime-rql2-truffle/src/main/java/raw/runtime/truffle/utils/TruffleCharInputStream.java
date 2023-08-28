@@ -15,20 +15,20 @@ package raw.runtime.truffle.utils;
 import java.io.Reader;
 
 public class TruffleCharInputStream extends RawTruffleCharStream {
-  TruffleInputStream stream;
+    TruffleInputStream stream;
 
-  String encoding;
+    String encoding;
 
-  public TruffleCharInputStream(TruffleInputStream stream, String encoding) {
-    this.encoding = encoding;
-    this.stream = stream;
-  }
+    public TruffleCharInputStream(TruffleInputStream stream, String encoding) {
+        this.encoding = encoding;
+        this.stream = stream;
+    }
 
-  public Reader getReader() {
-    return stream.getReader(encoding);
-  }
+    public Reader getReader() {
+        return stream.getReader(encoding);
+    }
 
-  public String positionDescription() {
-    return "url: " + stream.getUrl();
-  }
+    public String positionDescription() {
+        return "url: " + stream.getUrl();
+    }
 }

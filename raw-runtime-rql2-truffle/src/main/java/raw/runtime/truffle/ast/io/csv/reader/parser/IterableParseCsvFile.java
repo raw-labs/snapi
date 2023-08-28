@@ -29,30 +29,18 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @NodeInfo(shortName = "IterableParseCsvFile")
 public class IterableParseCsvFile extends ExpressionNode {
 
-    @Child
-    private DirectCallNode childDirectCall;
-    @Child
-    private ExpressionNode location;
-    @Child
-    private ExpressionNode encodingExp;
-    @Child
-    private ExpressionNode skipExp;
-    @Child
-    private ExpressionNode delimiterExp;
-    @Child
-    private ExpressionNode quoteExp;
-    @Child
-    private ExpressionNode escapeExp;
-    @Child
-    private ExpressionNode nullsExp;
-    @Child
-    private ExpressionNode nansExp;
-    @Child
-    private ExpressionNode dateFormatExp;
-    @Child
-    private ExpressionNode timeFormatExp;
-    @Child
-    private ExpressionNode datetimeFormatExp;
+    @Child private DirectCallNode childDirectCall;
+    @Child private ExpressionNode location;
+    @Child private ExpressionNode encodingExp;
+    @Child private ExpressionNode skipExp;
+    @Child private ExpressionNode delimiterExp;
+    @Child private ExpressionNode quoteExp;
+    @Child private ExpressionNode escapeExp;
+    @Child private ExpressionNode nullsExp;
+    @Child private ExpressionNode nansExp;
+    @Child private ExpressionNode dateFormatExp;
+    @Child private ExpressionNode timeFormatExp;
+    @Child private ExpressionNode datetimeFormatExp;
 
     private final OptionLibrary options = OptionLibrary.getFactory().getUncached();
 
@@ -125,7 +113,8 @@ public class IterableParseCsvFile extends ExpressionNode {
                             dateFormat,
                             timeFormat,
                             datetimeFormat);
-            return new CsvCollection(locationValue, context, childDirectCall, encodingValue, settings);
+            return new CsvCollection(
+                    locationValue, context, childDirectCall, encodingValue, settings);
         } catch (UnexpectedResultException ex) {
             throw new CsvParserRawTruffleException(ex.getMessage(), 0, 0, ex, this);
         }

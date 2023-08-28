@@ -20,11 +20,11 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "LongParseXml")
 public abstract class LongParseXmlNode extends ExpressionNode {
 
-  @Specialization
-  public long parse(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-    String value = (String) args[1];
-    return parser.longFrom(value);
-  }
+    @Specialization
+    public long parse(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+        String value = (String) args[1];
+        return parser.longFrom(value);
+    }
 }

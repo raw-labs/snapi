@@ -33,5 +33,4 @@ public abstract class FunctionInvokeAfterNode extends ExpressionNode {
             throw new RawTruffleInternalErrorException(e);
         }
     }
-
 }

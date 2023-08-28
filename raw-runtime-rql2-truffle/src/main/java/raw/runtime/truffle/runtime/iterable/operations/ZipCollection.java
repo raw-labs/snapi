@@ -22,28 +22,29 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
 public class ZipCollection {
-  final Object parentIterable1;
-  final Object parentIterable2;
+    final Object parentIterable1;
+    final Object parentIterable2;
 
-  final RawLanguage language;
+    final RawLanguage language;
 
-  public ZipCollection(Object iterable1, Object iterable2, RawLanguage language) {
-    this.parentIterable1 = iterable1;
-    this.parentIterable2 = iterable2;
-    this.language = language;
-  }
+    public ZipCollection(Object iterable1, Object iterable2, RawLanguage language) {
+        this.parentIterable1 = iterable1;
+        this.parentIterable2 = iterable2;
+        this.language = language;
+    }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
 
-  @ExportMessage
-  Object getGenerator(
-      @CachedLibrary("this.parentIterable1") IterableLibrary iterables1,
-      @CachedLibrary("this.parentIterable2") IterableLibrary iterables2) {
-    Object generator1 = iterables1.getGenerator(parentIterable1);
-    Object generator2 = iterables2.getGenerator(parentIterable2);
-    return new CollectionAbstractGenerator(new ZipComputeNext(generator1, generator2, language));
-  }
+    @ExportMessage
+    Object getGenerator(
+            @CachedLibrary("this.parentIterable1") IterableLibrary iterables1,
+            @CachedLibrary("this.parentIterable2") IterableLibrary iterables2) {
+        Object generator1 = iterables1.getGenerator(parentIterable1);
+        Object generator2 = iterables2.getGenerator(parentIterable2);
+        return new CollectionAbstractGenerator(
+                new ZipComputeNext(generator1, generator2, language));
+    }
 }

@@ -17,19 +17,19 @@ import raw.runtime.truffle.ExpressionNode;
 
 public class FloatNode extends ExpressionNode {
 
-  private final String value;
+    private final String value;
 
-  public FloatNode(String value) {
-    this.value = value;
-  }
+    public FloatNode(String value) {
+        this.value = value;
+    }
 
-  @Override
-  public final float executeFloat(VirtualFrame virtualFrame) {
-    return Float.parseFloat(value);
-  }
+    @Override
+    public final float executeFloat(VirtualFrame virtualFrame) {
+        return Float.parseFloat(value);
+    }
 
-  @Override
-  public final Object executeGeneric(VirtualFrame virtualFrame) {
-    return Float.parseFloat(value);
-  }
+    @Override
+    public final Object executeGeneric(VirtualFrame virtualFrame) {
+        return Float.parseFloat(value);
+    }
 }

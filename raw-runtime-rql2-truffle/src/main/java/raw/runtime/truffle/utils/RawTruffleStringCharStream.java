@@ -17,17 +17,17 @@ import java.io.StringReader;
 
 public class RawTruffleStringCharStream extends RawTruffleCharStream {
 
-  private final String string;
+    private final String string;
 
-  public RawTruffleStringCharStream(String content) {
-    this.string = content;
-  }
+    public RawTruffleStringCharStream(String content) {
+        this.string = content;
+    }
 
-  public Reader getReader() {
-    return new StringReader(string);
-  }
+    public Reader getReader() {
+        return new StringReader(string);
+    }
 
-  public String positionDescription() {
-    return null;
-  }
+    public String positionDescription() {
+        return null;
+    }
 }

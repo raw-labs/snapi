@@ -20,14 +20,14 @@ import raw.runtime.truffle.runtime.iterable.sources.ExpressionCollection;
 @NodeInfo(shortName = "Collection.Build")
 public class CollectionBuildNode extends ExpressionNode {
 
-  private final ExpressionNode[] exps;
+    private final ExpressionNode[] exps;
 
-  public CollectionBuildNode(ExpressionNode[] exps) {
-    this.exps = exps;
-  }
+    public CollectionBuildNode(ExpressionNode[] exps) {
+        this.exps = exps;
+    }
 
-  @Override
-  public Object executeGeneric(VirtualFrame frame) {
-    return new ExpressionCollection(exps, frame);
-  }
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        return new ExpressionCollection(exps, frame);
+    }
 }

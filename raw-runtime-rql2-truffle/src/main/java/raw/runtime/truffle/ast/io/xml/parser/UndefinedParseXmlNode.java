@@ -21,11 +21,11 @@ import raw.runtime.truffle.runtime.exceptions.xml.XmlExpectedNothingException;
 @NodeInfo(shortName = "UndefinedParseXml")
 public abstract class UndefinedParseXmlNode extends ExpressionNode {
 
-  @Specialization
-  public byte parse(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-    String value = (String) args[1];
-    throw new XmlExpectedNothingException(value, parser, this);
-  }
+    @Specialization
+    public byte parse(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+        String value = (String) args[1];
+        throw new XmlExpectedNothingException(value, parser, this);
+    }
 }

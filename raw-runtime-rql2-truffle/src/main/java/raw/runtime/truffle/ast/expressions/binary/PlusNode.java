@@ -22,64 +22,64 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 @NodeInfo(shortName = "+")
 public class PlusNode extends BinaryNode {
 
-  AddOperator sumAggregator;
-  OperatorLibrary aggregatorLibrary;
+    AddOperator sumAggregator;
+    OperatorLibrary aggregatorLibrary;
 
-  @Child ExpressionNode left;
+    @Child ExpressionNode left;
 
-  @Child ExpressionNode right;
+    @Child ExpressionNode right;
 
-  public PlusNode(ExpressionNode left, ExpressionNode right) {
-    this.left = left;
-    this.right = right;
-    sumAggregator = new AddOperator();
-    aggregatorLibrary = OperatorLibrary.getFactory().create(sumAggregator);
-  }
+    public PlusNode(ExpressionNode left, ExpressionNode right) {
+        this.left = left;
+        this.right = right;
+        sumAggregator = new AddOperator();
+        aggregatorLibrary = OperatorLibrary.getFactory().create(sumAggregator);
+    }
 
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    Object leftValue = left.executeGeneric(virtualFrame);
-    Object rightValue = right.executeGeneric(virtualFrame);
-    return aggregatorLibrary.doOperation(sumAggregator, leftValue, rightValue);
-  }
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        Object leftValue = left.executeGeneric(virtualFrame);
+        Object rightValue = right.executeGeneric(virtualFrame);
+        return aggregatorLibrary.doOperation(sumAggregator, leftValue, rightValue);
+    }
 
-  //    @Specialization
-  //    protected byte add(byte left, byte right) {
-  //        return (byte) (left + right);
-  //    }
-  //
-  //    @Specialization
-  //    protected short add(short left, short right) {
-  //        return (short) (left + right);
-  //    }
-  //
-  //    @Specialization
-  //    protected int add(int left, int right) {
-  //        return left + right;
-  //    }
-  //
-  //    @Specialization
-  //    protected long add(long left, long right) {
-  //        return left + right;
-  //    }
-  //
-  //    @Specialization
-  //    protected float add(float left, float right) {
-  //        return left + right;
-  //    }
-  //
-  //    @Specialization
-  //    protected double add(double left, double right) {
-  //        return left + right;
-  //    }
-  //
-  //    @Specialization
-  //    protected BigDecimal add(BigDecimal left, BigDecimal right) {
-  //        return left.add(right);
-  //    }
-  //
-  //    @Specialization
-  //    protected String add(String left, String right) {
-  //        return left.concat(right);
-  //    }
+    //    @Specialization
+    //    protected byte add(byte left, byte right) {
+    //        return (byte) (left + right);
+    //    }
+    //
+    //    @Specialization
+    //    protected short add(short left, short right) {
+    //        return (short) (left + right);
+    //    }
+    //
+    //    @Specialization
+    //    protected int add(int left, int right) {
+    //        return left + right;
+    //    }
+    //
+    //    @Specialization
+    //    protected long add(long left, long right) {
+    //        return left + right;
+    //    }
+    //
+    //    @Specialization
+    //    protected float add(float left, float right) {
+    //        return left + right;
+    //    }
+    //
+    //    @Specialization
+    //    protected double add(double left, double right) {
+    //        return left + right;
+    //    }
+    //
+    //    @Specialization
+    //    protected BigDecimal add(BigDecimal left, BigDecimal right) {
+    //        return left.add(right);
+    //    }
+    //
+    //    @Specialization
+    //    protected String add(String left, String right) {
+    //        return left.concat(right);
+    //    }
 }

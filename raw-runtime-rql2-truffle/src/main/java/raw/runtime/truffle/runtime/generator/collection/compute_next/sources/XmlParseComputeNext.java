@@ -35,8 +35,10 @@ public class XmlParseComputeNext {
     private RawTruffleStringCharStream stream;
 
     public XmlParseComputeNext(
-        String text, RuntimeContext context, DirectCallNode parseNextCallNode,
-        RawTruffleXmlParserSettings settings) {
+            String text,
+            RuntimeContext context,
+            DirectCallNode parseNextCallNode,
+            RawTruffleXmlParserSettings settings) {
         this.context = context;
         this.text = text;
         this.settings = settings;

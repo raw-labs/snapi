@@ -23,12 +23,12 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeInfo(shortName = "IntervalWriteJson")
 public class IntervalWriteJsonNode extends StatementNode {
 
-  @Child
-  JsonWriteNodes.WriteIntervalJsonWriterNode writeInterval =
-      JsonWriteNodesFactory.WriteIntervalJsonWriterNodeGen.create();
+    @Child
+    JsonWriteNodes.WriteIntervalJsonWriterNode writeInterval =
+            JsonWriteNodesFactory.WriteIntervalJsonWriterNodeGen.create();
 
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    writeInterval.execute((IntervalObject) args[0], (JsonGenerator) args[1]);
-  }
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        writeInterval.execute((IntervalObject) args[0], (JsonGenerator) args[1]);
+    }
 }

@@ -23,18 +23,18 @@ import raw.runtime.truffle.runtime.option.ObjectOption;
 @NodeInfo(shortName = "NullableReadJdbcQuery")
 public class NullableReadJdbcQuery extends ExpressionNode {
 
-  @Child private DirectCallNode innerParse;
-  private final String idx;
+    @Child private DirectCallNode innerParse;
+    private final String idx;
 
-  public NullableReadJdbcQuery(ProgramExpressionNode innerParse, String idx) {
-    this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
-    this.idx = idx;
-  }
+    public NullableReadJdbcQuery(ProgramExpressionNode innerParse, String idx) {
+        this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
+        this.idx = idx;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    if (rs.isNull(idx, this)) return new EmptyOption();
-    else return new ObjectOption(innerParse.call(rs, idx));
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        if (rs.isNull(idx, this)) return new EmptyOption();
+        else return new ObjectOption(innerParse.call(rs, idx));
+    }
 }

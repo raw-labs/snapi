@@ -20,20 +20,21 @@ import javax.xml.stream.XMLInputFactory;
 
 public class RawTruffleXmlParserFactory extends WstxInputFactory {
 
-  public RawTruffleXmlParserFactory() {
-    super();
-    setProperty(
-        WstxInputProperties.P_INPUT_PARSING_MODE, WstxInputProperties.PARSING_MODE_DOCUMENTS);
-    setProperty(XMLInputFactory2.P_LAZY_PARSING, true);
-    setProperty(XMLInputFactory.SUPPORT_DTD, false);
-  }
-
-  private static RawTruffleXmlParserFactory singleton = null;
-
-  public static RawTruffleXmlParserFactory singleton() {
-    if (singleton == null) {
-      singleton = new RawTruffleXmlParserFactory();
+    public RawTruffleXmlParserFactory() {
+        super();
+        setProperty(
+                WstxInputProperties.P_INPUT_PARSING_MODE,
+                WstxInputProperties.PARSING_MODE_DOCUMENTS);
+        setProperty(XMLInputFactory2.P_LAZY_PARSING, true);
+        setProperty(XMLInputFactory.SUPPORT_DTD, false);
     }
-    return singleton;
-  }
+
+    private static RawTruffleXmlParserFactory singleton = null;
+
+    public static RawTruffleXmlParserFactory singleton() {
+        if (singleton == null) {
+            singleton = new RawTruffleXmlParserFactory();
+        }
+        return singleton;
+    }
 }

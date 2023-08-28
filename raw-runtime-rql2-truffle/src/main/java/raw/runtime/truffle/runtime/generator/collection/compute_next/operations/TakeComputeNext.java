@@ -22,38 +22,38 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 @ExportLibrary(ComputeNextLibrary.class)
 public class TakeComputeNext {
 
-  final Object parent;
+    final Object parent;
 
-  private final long takeCount;
+    private final long takeCount;
 
-  private long currentCount = 0;
+    private long currentCount = 0;
 
-  public TakeComputeNext(Object parent, long takeCount) {
-    this.parent = parent;
-    this.takeCount = takeCount;
-  }
-
-  @ExportMessage
-  void init(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-    generators.init(parent);
-  }
-
-  @ExportMessage
-  void close(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-    generators.close(parent);
-  }
-
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
-
-  @ExportMessage
-  Object computeNext(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-    if (currentCount < takeCount && generators.hasNext(parent)) {
-      currentCount++;
-      return generators.next(parent);
+    public TakeComputeNext(Object parent, long takeCount) {
+        this.parent = parent;
+        this.takeCount = takeCount;
     }
-    throw new BreakException();
-  }
+
+    @ExportMessage
+    void init(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+        generators.init(parent);
+    }
+
+    @ExportMessage
+    void close(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+        generators.close(parent);
+    }
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
+    }
+
+    @ExportMessage
+    Object computeNext(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+        if (currentCount < takeCount && generators.hasNext(parent)) {
+            currentCount++;
+            return generators.next(parent);
+        }
+        throw new BreakException();
+    }
 }

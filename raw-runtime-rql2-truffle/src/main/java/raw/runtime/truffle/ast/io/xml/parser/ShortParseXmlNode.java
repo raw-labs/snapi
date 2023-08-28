@@ -20,11 +20,11 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "ShortParseXml")
 public abstract class ShortParseXmlNode extends ExpressionNode {
 
-  @Specialization
-  public short parse(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-    String value = (String) args[1];
-    return parser.shortFrom(value);
-  }
+    @Specialization
+    public short parse(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+        String value = (String) args[1];
+        return parser.shortFrom(value);
+    }
 }

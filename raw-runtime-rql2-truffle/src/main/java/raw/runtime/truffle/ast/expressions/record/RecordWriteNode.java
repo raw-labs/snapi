@@ -27,18 +27,21 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 @NodeChild("valueNode")
 public abstract class RecordWriteNode extends ExpressionNode {
 
-  static final int LIMIT = 3;
+    static final int LIMIT = 3;
 
-  @Specialization(limit = "LIMIT")
-  protected Object writeObject(
-      Object record, String name, Object value, @CachedLibrary("record") InteropLibrary records) {
-    try {
-      records.writeMember(record, name, value);
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+    @Specialization(limit = "LIMIT")
+    protected Object writeObject(
+            Object record,
+            String name,
+            Object value,
+            @CachedLibrary("record") InteropLibrary records) {
+        try {
+            records.writeMember(record, name, value);
+        } catch (UnsupportedMessageException
+                | UnknownIdentifierException
+                | UnsupportedTypeException e) {
+            throw new RawTruffleInternalErrorException(e, this);
+        }
+        return value;
     }
-    return value;
-  }
 }

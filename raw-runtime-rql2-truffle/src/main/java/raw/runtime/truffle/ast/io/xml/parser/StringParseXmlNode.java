@@ -20,9 +20,9 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "StringParseXml")
 public abstract class StringParseXmlNode extends ExpressionNode {
 
-  @Specialization
-  public String parse(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    return (String) args[1];
-  }
+    @Specialization
+    public String parse(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        return (String) args[1];
+    }
 }

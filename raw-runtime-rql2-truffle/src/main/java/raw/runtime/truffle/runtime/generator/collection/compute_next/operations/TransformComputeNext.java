@@ -23,36 +23,36 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class TransformComputeNext {
-  final Object parent;
-  final Closure transform;
+    final Object parent;
+    final Closure transform;
 
-  public TransformComputeNext(Object parent, Closure transform) {
-    this.parent = parent;
-    this.transform = transform;
-  }
-
-  @ExportMessage
-  void init(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-    generators.init(parent);
-  }
-
-  @ExportMessage
-  void close(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-    generators.close(parent);
-  }
-
-  @ExportMessage
-  public boolean isComputeNext() {
-    return true;
-  }
-
-  @ExportMessage
-  Object computeNext(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-    if (!generators.hasNext(parent)) {
-      throw new BreakException();
+    public TransformComputeNext(Object parent, Closure transform) {
+        this.parent = parent;
+        this.transform = transform;
     }
-    Object[] argumentValues = new Object[1];
-    argumentValues[0] = generators.next(parent);
-    return transform.call(argumentValues);
-  }
+
+    @ExportMessage
+    void init(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+        generators.init(parent);
+    }
+
+    @ExportMessage
+    void close(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+        generators.close(parent);
+    }
+
+    @ExportMessage
+    public boolean isComputeNext() {
+        return true;
+    }
+
+    @ExportMessage
+    Object computeNext(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+        if (!generators.hasNext(parent)) {
+            throw new BreakException();
+        }
+        Object[] argumentValues = new Object[1];
+        argumentValues[0] = generators.next(parent);
+        return transform.call(argumentValues);
+    }
 }

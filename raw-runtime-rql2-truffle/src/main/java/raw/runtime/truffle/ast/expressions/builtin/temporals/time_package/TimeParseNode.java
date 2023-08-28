@@ -33,16 +33,16 @@ import java.util.HashMap;
 @NodeChild("format")
 public abstract class TimeParseNode extends ExpressionNode {
 
-  @Specialization
-  public Object parse(String str, String format) {
-    try {
-      DateTimeFormatter formatter = DateTimeFormatCache.get(format);
-      return ObjectTryable.BuildSuccess(new TimeObject(LocalTime.parse(str, formatter)));
-    } catch (IllegalArgumentException ex) {
-      return ObjectTryable.BuildFailure("invalid time template: " + format);
-    } catch (DateTimeParseException ex) {
-      return ObjectTryable.BuildFailure(
-          String.format("string '%s' does not match time template '%s'", str, format));
+    @Specialization
+    public Object parse(String str, String format) {
+        try {
+            DateTimeFormatter formatter = DateTimeFormatCache.get(format);
+            return ObjectTryable.BuildSuccess(new TimeObject(LocalTime.parse(str, formatter)));
+        } catch (IllegalArgumentException ex) {
+            return ObjectTryable.BuildFailure("invalid time template: " + format);
+        } catch (DateTimeParseException ex) {
+            return ObjectTryable.BuildFailure(
+                    String.format("string '%s' does not match time template '%s'", str, format));
+        }
     }
-  }
 }

@@ -26,22 +26,31 @@ public class XmlReaderRawTruffleException extends RawTruffleRuntimeException {
         super(message, cause, location);
     }
 
-    public XmlReaderRawTruffleException(String message, RawTruffleCharStream stream, Node location) {
+    public XmlReaderRawTruffleException(
+            String message, RawTruffleCharStream stream, Node location) {
         super(createMessage(message, stream, null), null, location);
     }
 
-    public XmlReaderRawTruffleException(Throwable cause, RawTruffleCharStream stream, Node location) {
+    public XmlReaderRawTruffleException(
+            Throwable cause, RawTruffleCharStream stream, Node location) {
         super(createMessage(cause.getMessage(), stream, null), cause, location);
     }
 
-    public XmlReaderRawTruffleException(Throwable cause, RawTruffleXmlParser parser, RawTruffleCharStream stream, Node location) {
+    public XmlReaderRawTruffleException(
+            Throwable cause,
+            RawTruffleXmlParser parser,
+            RawTruffleCharStream stream,
+            Node location) {
         super(createMessage(cause.getMessage(), stream, parser), cause, location);
     }
 
-    private static String createMessage(String customMessage, RawTruffleCharStream stream, RawTruffleXmlParser parser) {
+    private static String createMessage(
+            String customMessage, RawTruffleCharStream stream, RawTruffleXmlParser parser) {
         StringBuilder builder = new StringBuilder("failed to read XML");
         if (parser != null) {
-            builder.append(String.format(" (line %d column %d)", parser.currentLine(), parser.currentColumn()));
+            builder.append(
+                    String.format(
+                            " (line %d column %d)", parser.currentLine(), parser.currentColumn()));
         }
         String position = stream.positionDescription();
         if (position != null) {
@@ -50,5 +59,4 @@ public class XmlReaderRawTruffleException extends RawTruffleRuntimeException {
         builder.append(": ").append(customMessage);
         return builder.toString();
     }
-
 }

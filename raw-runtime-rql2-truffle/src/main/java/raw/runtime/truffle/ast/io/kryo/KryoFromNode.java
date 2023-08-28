@@ -23,22 +23,22 @@ import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
 import java.io.ByteArrayInputStream;
 
 public class KryoFromNode extends ExpressionNode {
-  private final ExpressionNode valueNode;
-  private final Rql2TypeWithProperties t;
-  private final KryoReaderLibrary readers = KryoReaderLibrary.getUncached();
+    private final ExpressionNode valueNode;
+    private final Rql2TypeWithProperties t;
+    private final KryoReaderLibrary readers = KryoReaderLibrary.getUncached();
 
-  public KryoFromNode(ExpressionNode valueNode, Rql2TypeWithProperties t) {
-    this.valueNode = valueNode;
-    this.t = t;
-  }
+    public KryoFromNode(ExpressionNode valueNode, Rql2TypeWithProperties t) {
+        this.valueNode = valueNode;
+        this.t = t;
+    }
 
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    byte[] binary = (byte[]) valueNode.executeGeneric(virtualFrame);
-    Input input = new Input(new ByteArrayInputStream(binary));
-    KryoReader reader = new KryoReader(RawLanguage.get(this));
-    Object object = readers.read(reader, input, t);
-    input.close();
-    return object;
-  }
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        byte[] binary = (byte[]) valueNode.executeGeneric(virtualFrame);
+        Input input = new Input(new ByteArrayInputStream(binary));
+        KryoReader reader = new KryoReader(RawLanguage.get(this));
+        Object object = readers.read(reader, input, t);
+        input.close();
+        return object;
+    }
 }

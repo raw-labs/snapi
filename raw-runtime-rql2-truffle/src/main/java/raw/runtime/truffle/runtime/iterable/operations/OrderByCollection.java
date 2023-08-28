@@ -28,81 +28,81 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class OrderByCollection {
 
-  final Object parentIterable;
-  final Closure[] keyFunctions;
+    final Object parentIterable;
+    final Closure[] keyFunctions;
 
-  final int[] keyOrderings;
-  final Rql2TypeWithProperties[] keyTypes;
-  final Rql2TypeWithProperties rowType;
-  private final RawLanguage language;
-  private final RuntimeContext context;
+    final int[] keyOrderings;
+    final Rql2TypeWithProperties[] keyTypes;
+    final Rql2TypeWithProperties rowType;
+    private final RawLanguage language;
+    private final RuntimeContext context;
 
-  public OrderByCollection(
-      Object iterable,
-      Closure[] keyFunctions,
-      int[] keyOrderings,
-      Rql2TypeWithProperties[] keyTypes,
-      Rql2TypeWithProperties rowType,
-      RawLanguage language,
-      RuntimeContext context) {
-    this.parentIterable = iterable;
-    this.keyFunctions = keyFunctions;
-    this.keyOrderings = keyOrderings;
-    this.keyTypes = keyTypes;
-    this.rowType = rowType;
-    this.language = language;
-    this.context = context;
-  }
-
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
-
-  private int compareKeys(Object[] keys1, Object[] keys2) {
-    // Keys are compared in order, until a difference is found.
-    // If all keys are equal, then the rows are equal.
-    // If keys are different, the comparison result is multiplied by the 'order' of the key to
-    // reflect the "ASC/DESC".
-    for (int i = 0; i < keys1.length; i++) {
-      int cmp = (int) operators.doOperation(compare, keys1[i], keys2[i]);
-      if (cmp != 0) {
-        return keyOrderings[i] * cmp;
-      }
+    public OrderByCollection(
+            Object iterable,
+            Closure[] keyFunctions,
+            int[] keyOrderings,
+            Rql2TypeWithProperties[] keyTypes,
+            Rql2TypeWithProperties rowType,
+            RawLanguage language,
+            RuntimeContext context) {
+        this.parentIterable = iterable;
+        this.keyFunctions = keyFunctions;
+        this.keyOrderings = keyOrderings;
+        this.keyTypes = keyTypes;
+        this.rowType = rowType;
+        this.language = language;
+        this.context = context;
     }
-    return 0;
-  }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
+    private final CompareOperator compare = new CompareOperator();
+    private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
 
-  private Object[] computeKeys(Object v) {
-    Object[] argumentValues = new Object[1];
-    argumentValues[0] = v;
-    Object[] key = new Object[keyFunctions.length];
-    for (int i = 0; i < keyFunctions.length; i++) {
-      key[i] = keyFunctions[i].call(argumentValues);
+    private int compareKeys(Object[] keys1, Object[] keys2) {
+        // Keys are compared in order, until a difference is found.
+        // If all keys are equal, then the rows are equal.
+        // If keys are different, the comparison result is multiplied by the 'order' of the key to
+        // reflect the "ASC/DESC".
+        for (int i = 0; i < keys1.length; i++) {
+            int cmp = (int) operators.doOperation(compare, keys1[i], keys2[i]);
+            if (cmp != 0) {
+                return keyOrderings[i] * cmp;
+            }
+        }
+        return 0;
     }
-    return key;
-  }
 
-  @ExportMessage
-  Object getGenerator(
-      @CachedLibrary(limit = "5") IterableLibrary iterables,
-      @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(parentIterable);
-    OffHeapGroupByKeys groupByKeys =
-        new OffHeapGroupByKeys(this::compareKeys, keyTypes, rowType, language, context);
-    try {
-      generators.init(generator);
-      while (generators.hasNext(generator)) {
-        Object v = generators.next(generator);
-        Object[] key = computeKeys(v);
-        groupByKeys.put(key, v);
-      }
-    } finally {
-      generators.close(generator);
+    @ExportMessage
+    boolean isIterable() {
+        return true;
     }
-    return groupByKeys.generator();
-  }
+
+    private Object[] computeKeys(Object v) {
+        Object[] argumentValues = new Object[1];
+        argumentValues[0] = v;
+        Object[] key = new Object[keyFunctions.length];
+        for (int i = 0; i < keyFunctions.length; i++) {
+            key[i] = keyFunctions[i].call(argumentValues);
+        }
+        return key;
+    }
+
+    @ExportMessage
+    Object getGenerator(
+            @CachedLibrary(limit = "5") IterableLibrary iterables,
+            @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+        Object generator = iterables.getGenerator(parentIterable);
+        OffHeapGroupByKeys groupByKeys =
+                new OffHeapGroupByKeys(this::compareKeys, keyTypes, rowType, language, context);
+        try {
+            generators.init(generator);
+            while (generators.hasNext(generator)) {
+                Object v = generators.next(generator);
+                Object[] key = computeKeys(v);
+                groupByKeys.put(key, v);
+            }
+        } finally {
+            generators.close(generator);
+        }
+        return groupByKeys.generator();
+    }
 }

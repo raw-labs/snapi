@@ -21,18 +21,18 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 @NodeInfo(shortName = "ElementParseXml")
 public class ElementParseXmlPrimitiveNode extends ExpressionNode {
 
-  @Child private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
-  public ElementParseXmlPrimitiveNode(ProgramExpressionNode childProgramStatementNode) {
-    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-  }
+    public ElementParseXmlPrimitiveNode(ProgramExpressionNode childProgramStatementNode) {
+        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-    String text = parser.getAsString();
-    Object value = childDirectCall.call(parser, text);
-    parser.nextToken(); // Skip the end element
-    return value;
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+        String text = parser.getAsString();
+        Object value = childDirectCall.call(parser, text);
+        parser.nextToken(); // Skip the end element
+        return value;
+    }
 }

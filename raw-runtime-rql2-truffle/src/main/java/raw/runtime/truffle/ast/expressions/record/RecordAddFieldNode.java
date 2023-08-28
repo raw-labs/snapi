@@ -27,22 +27,22 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeChild("valueNode")
 public abstract class RecordAddFieldNode extends ExpressionNode {
 
-  @Specialization
-  protected Object doAddField(Object rec, String newKey, Object newValue) {
-    RecordObject record = (RecordObject) rec;
-    RecordObject newRecord = RawLanguage.get(this).createRecord();
-    String[] keys = record.keys();
-    int length = keys.length;
-    String member;
-    for (int i = 0; i < length; i++) {
-      member = keys[i];
-      try {
-        newRecord.writeIdx(i, member, record.readIdx(i));
-      } catch (InvalidArrayIndexException e) {
-        throw new RawTruffleInternalErrorException(e, this);
-      }
+    @Specialization
+    protected Object doAddField(Object rec, String newKey, Object newValue) {
+        RecordObject record = (RecordObject) rec;
+        RecordObject newRecord = RawLanguage.get(this).createRecord();
+        String[] keys = record.keys();
+        int length = keys.length;
+        String member;
+        for (int i = 0; i < length; i++) {
+            member = keys[i];
+            try {
+                newRecord.writeIdx(i, member, record.readIdx(i));
+            } catch (InvalidArrayIndexException e) {
+                throw new RawTruffleInternalErrorException(e, this);
+            }
+        }
+        newRecord.writeIdx(length, newKey, newValue);
+        return newRecord;
     }
-    newRecord.writeIdx(length, newKey, newValue);
-    return newRecord;
-  }
 }

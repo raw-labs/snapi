@@ -23,11 +23,12 @@ import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 @NodeInfo(shortName = "BinaryParseJson")
 public abstract class BinaryParseJsonNode extends ExpressionNode {
 
-  @Specialization
-  protected byte[] doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseBinaryJsonParserNode parse) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
-  }
+    @Specialization
+    protected byte[] doParse(
+            VirtualFrame frame,
+            @Cached("create()") JsonParserNodes.ParseBinaryJsonParserNode parse) {
+        Object[] args = frame.getArguments();
+        JsonParser parser = (JsonParser) args[0];
+        return parse.execute(parser);
+    }
 }

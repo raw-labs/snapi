@@ -25,14 +25,13 @@ import raw.runtime.truffle.runtime.tryable.ErrorTryable;
 @NodeInfo(shortName = "TryableParseAttributeXml")
 public class TryableParseAttributeXmlNode extends ExpressionNode {
 
-    @Child
-    private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
     private final RuntimeNullableTryableHandler nullableTryableHandler =
-        new RuntimeNullableTryableHandler();
+            new RuntimeNullableTryableHandler();
 
     @Child
     private NullableTryableLibrary nullableTryable =
-        NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+            NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
     public TryableParseAttributeXmlNode(ProgramExpressionNode childProgramStatementNode) {
         this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());

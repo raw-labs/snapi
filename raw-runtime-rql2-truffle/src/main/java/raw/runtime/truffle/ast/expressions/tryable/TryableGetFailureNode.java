@@ -22,10 +22,10 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeInfo(shortName = "Tryable.GetFailure")
 @NodeChild("tryable")
 public abstract class TryableGetFailureNode extends ExpressionNode {
-  @Specialization(
-      guards = {"tryables.isTryable(tryable)"},
-      limit = "1")
-  protected String getFailure(Object tryable, @CachedLibrary("tryable") TryableLibrary tryables) {
-    return tryables.failure(tryable);
-  }
+    @Specialization(
+            guards = {"tryables.isTryable(tryable)"},
+            limit = "1")
+    protected String getFailure(Object tryable, @CachedLibrary("tryable") TryableLibrary tryables) {
+        return tryables.failure(tryable);
+    }
 }

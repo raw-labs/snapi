@@ -29,41 +29,41 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeInfo(shortName = "Jdbc.RecordRead")
 public class RecordReadJdbcQuery extends ExpressionNode {
 
-  @Children private DirectCallNode[] childDirectCalls;
+    @Children private DirectCallNode[] childDirectCalls;
 
-  @Child private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
+    @Child private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
 
-  private final Rql2AttrType[] columns;
+    private final Rql2AttrType[] columns;
 
-  public RecordReadJdbcQuery(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
-    this.columns = columns;
-    this.childDirectCalls = new DirectCallNode[columnParsers.length];
-    for (int i = 0; i < columnParsers.length; i++) {
-      this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
+    public RecordReadJdbcQuery(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
+        this.columns = columns;
+        this.childDirectCalls = new DirectCallNode[columnParsers.length];
+        for (int i = 0; i < columnParsers.length; i++) {
+            this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
+        }
     }
-  }
 
-  @Override
-  public Object executeGeneric(VirtualFrame frame) {
-    return this.executeRecord(frame);
-  }
-
-  @Override
-  public final RecordObject executeRecord(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    RecordObject record = RawLanguage.get(this).createRecord();
-    for (int i = 0; i < columns.length; i++) {
-      String fieldName = columns[i].idn();
-      Object value = childDirectCalls[i].call(rs);
-      try {
-        records.writeMember(record, fieldName, value);
-      } catch (UnsupportedMessageException
-          | UnknownIdentifierException
-          | UnsupportedTypeException ex) {
-        throw new RawTruffleInternalErrorException(ex, this);
-      }
+    @Override
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executeRecord(frame);
     }
-    return record;
-  }
+
+    @Override
+    public final RecordObject executeRecord(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        RecordObject record = RawLanguage.get(this).createRecord();
+        for (int i = 0; i < columns.length; i++) {
+            String fieldName = columns[i].idn();
+            Object value = childDirectCalls[i].call(rs);
+            try {
+                records.writeMember(record, fieldName, value);
+            } catch (UnsupportedMessageException
+                    | UnknownIdentifierException
+                    | UnsupportedTypeException ex) {
+                throw new RawTruffleInternalErrorException(ex, this);
+            }
+        }
+        return record;
+    }
 }

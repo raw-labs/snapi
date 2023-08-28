@@ -27,50 +27,50 @@ import java.math.RoundingMode;
 @NodeInfo(shortName = "/")
 public abstract class DivNode extends BinaryNode {
 
-  @Specialization
-  protected ByteTryable divByte(byte a, byte b) {
-    return b != 0
-        ? ByteTryable.BuildSuccess((byte) (a / b))
-        : ByteTryable.BuildFailure("/ by zero");
-  }
+    @Specialization
+    protected ByteTryable divByte(byte a, byte b) {
+        return b != 0
+                ? ByteTryable.BuildSuccess((byte) (a / b))
+                : ByteTryable.BuildFailure("/ by zero");
+    }
 
-  @Specialization
-  protected ShortTryable divShort(short a, short b) {
-    return b != 0
-        ? ShortTryable.BuildSuccess((short) (a / b))
-        : ShortTryable.BuildFailure("/ by zero");
-  }
+    @Specialization
+    protected ShortTryable divShort(short a, short b) {
+        return b != 0
+                ? ShortTryable.BuildSuccess((short) (a / b))
+                : ShortTryable.BuildFailure("/ by zero");
+    }
 
-  @Specialization
-  protected IntTryable divInt(int a, int b) {
-    return b != 0 ? IntTryable.BuildSuccess(a / b) : IntTryable.BuildFailure("/ by zero");
-  }
+    @Specialization
+    protected IntTryable divInt(int a, int b) {
+        return b != 0 ? IntTryable.BuildSuccess(a / b) : IntTryable.BuildFailure("/ by zero");
+    }
 
-  @Specialization
-  protected LongTryable divLong(long a, long b) {
-    return b != 0 ? LongTryable.BuildSuccess(a / b) : LongTryable.BuildFailure("/ by zero");
-  }
+    @Specialization
+    protected LongTryable divLong(long a, long b) {
+        return b != 0 ? LongTryable.BuildSuccess(a / b) : LongTryable.BuildFailure("/ by zero");
+    }
 
-  @Specialization
-  protected FloatTryable divFloat(float a, float b) {
-    return b != 0 ? FloatTryable.BuildSuccess(a / b) : FloatTryable.BuildFailure("/ by zero");
-  }
+    @Specialization
+    protected FloatTryable divFloat(float a, float b) {
+        return b != 0 ? FloatTryable.BuildSuccess(a / b) : FloatTryable.BuildFailure("/ by zero");
+    }
 
-  @Specialization
-  protected DoubleTryable divDouble(double a, double b) {
-    return b != 0 ? DoubleTryable.BuildSuccess(a / b) : DoubleTryable.BuildFailure("/ by zero");
-  }
+    @Specialization
+    protected DoubleTryable divDouble(double a, double b) {
+        return b != 0 ? DoubleTryable.BuildSuccess(a / b) : DoubleTryable.BuildFailure("/ by zero");
+    }
 
-  @Specialization
-  protected ObjectTryable divDecimal(BigDecimal a, BigDecimal b) {
-    // Without the MathContext.DECIMAL128, we would get a:
-    // java.lang.ArithmeticException: Non-terminating decimal expansion; no exact representable
-    // decimal result.
-    // MathContext DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
-    // This means 34 digits before rounding
-    // TODO: Check if this the rounding mode we want.
-    return b.doubleValue() != 0
-        ? ObjectTryable.BuildSuccess(a.divide(b, MathContext.DECIMAL128))
-        : ObjectTryable.BuildFailure("/ by zero");
-  }
+    @Specialization
+    protected ObjectTryable divDecimal(BigDecimal a, BigDecimal b) {
+        // Without the MathContext.DECIMAL128, we would get a:
+        // java.lang.ArithmeticException: Non-terminating decimal expansion; no exact representable
+        // decimal result.
+        // MathContext DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
+        // This means 34 digits before rounding
+        // TODO: Check if this the rounding mode we want.
+        return b.doubleValue() != 0
+                ? ObjectTryable.BuildSuccess(a.divide(b, MathContext.DECIMAL128))
+                : ObjectTryable.BuildFailure("/ by zero");
+    }
 }

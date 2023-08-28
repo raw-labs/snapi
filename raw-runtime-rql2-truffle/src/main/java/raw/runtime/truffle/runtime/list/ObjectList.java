@@ -25,52 +25,52 @@ import java.util.Arrays;
 
 @ExportLibrary(ListLibrary.class)
 public class ObjectList {
-  private final Object[] list;
+    private final Object[] list;
 
-  public final CompareOperator compareOperator = new CompareOperator();
+    public final CompareOperator compareOperator = new CompareOperator();
 
-  public ObjectList(Object[] list) {
-    this.list = list;
-  }
-
-  @ExportMessage
-  boolean isList() {
-    return true;
-  }
-
-  @ExportMessage
-  public Object[] getInnerList() {
-    return list;
-  }
-
-  @ExportMessage
-  boolean isElementReadable(int index) {
-    return index >= 0 && index < list.length;
-  }
-
-  @ExportMessage
-  public Object get(long index) {
-    int idx = (int) index;
-    if (!isElementReadable(idx)) {
-      throw new IndexOutOfBoundsException("index out of bounds");
+    public ObjectList(Object[] list) {
+        this.list = list;
     }
-    return list[idx];
-  }
 
-  @ExportMessage
-  public int size() {
-    return list.length;
-  }
+    @ExportMessage
+    boolean isList() {
+        return true;
+    }
 
-  @ExportMessage
-  public Object toIterable() {
-    return new ListIterable(this);
-  }
+    @ExportMessage
+    public Object[] getInnerList() {
+        return list;
+    }
 
-  @ExportMessage
-  public Object sort(@CachedLibrary("this.compareOperator") OperatorLibrary operators) {
-    Object[] result = this.list.clone();
-    Arrays.sort(result, (o1, o2) -> (int) operators.doOperation(this.compareOperator, o1, o2));
-    return new ObjectList(result);
-  }
+    @ExportMessage
+    boolean isElementReadable(int index) {
+        return index >= 0 && index < list.length;
+    }
+
+    @ExportMessage
+    public Object get(long index) {
+        int idx = (int) index;
+        if (!isElementReadable(idx)) {
+            throw new IndexOutOfBoundsException("index out of bounds");
+        }
+        return list[idx];
+    }
+
+    @ExportMessage
+    public int size() {
+        return list.length;
+    }
+
+    @ExportMessage
+    public Object toIterable() {
+        return new ListIterable(this);
+    }
+
+    @ExportMessage
+    public Object sort(@CachedLibrary("this.compareOperator") OperatorLibrary operators) {
+        Object[] result = this.list.clone();
+        Arrays.sort(result, (o1, o2) -> (int) operators.doOperation(this.compareOperator, o1, o2));
+        return new ObjectList(result);
+    }
 }

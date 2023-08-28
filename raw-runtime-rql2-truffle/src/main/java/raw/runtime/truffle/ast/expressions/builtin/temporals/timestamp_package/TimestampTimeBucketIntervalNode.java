@@ -29,44 +29,48 @@ import java.time.ZoneOffset;
 @NodeChild("value")
 @NodeChild("timestamp")
 public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
-  @Specialization
-  protected TimestampObject fromUnixTimestamp(
-      IntervalObject intervalObj, TimestampObject timestampObj) {
+    @Specialization
+    protected TimestampObject fromUnixTimestamp(
+            IntervalObject intervalObj, TimestampObject timestampObj) {
 
-    LocalDateTime timestamp = timestampObj.getTimestamp();
-    LocalDateTime result;
+        LocalDateTime timestamp = timestampObj.getTimestamp();
+        LocalDateTime result;
 
-    if (intervalObj.toMillis() == 0)
-      throw new RawTruffleRuntimeException("interval cannot be empty in time_bucket", this);
+        if (intervalObj.toMillis() == 0)
+            throw new RawTruffleRuntimeException("interval cannot be empty in time_bucket", this);
 
-    if (intervalObj.getWeeks() == 0
-        && intervalObj.getDays() == 0
-        && intervalObj.getHours() == 0
-        && intervalObj.getMinutes() == 0
-        && intervalObj.getSeconds() == 0
-        && intervalObj.getMillis() == 0) {
-      // the interval is only months and years we can perform the calculation on months, no need for
-      // approximation
-      int months1 = 12 * timestamp.getYear() + (timestamp.getMonthValue() - 1);
-      int months2 = 12 * intervalObj.getYears() + intervalObj.getMonths();
-      int truncated = (months1 / months2) * months2;
-      int year = truncated / 12;
-      int month = truncated % 12 + 1;
+        if (intervalObj.getWeeks() == 0
+                && intervalObj.getDays() == 0
+                && intervalObj.getHours() == 0
+                && intervalObj.getMinutes() == 0
+                && intervalObj.getSeconds() == 0
+                && intervalObj.getMillis() == 0) {
+            // the interval is only months and years we can perform the calculation on months, no
+            // need for
+            // approximation
+            int months1 = 12 * timestamp.getYear() + (timestamp.getMonthValue() - 1);
+            int months2 = 12 * intervalObj.getYears() + intervalObj.getMonths();
+            int truncated = (months1 / months2) * months2;
+            int year = truncated / 12;
+            int month = truncated % 12 + 1;
 
-      result = LocalDateTime.of(year, month, 1, 0, 0, 0);
-    } else if (intervalObj.getYears() == 0 && intervalObj.getMonths() == 0) {
-      // 01-01-1973 starts on a sunday, so we give an offset so that week calculations are correct
-      long offset = LocalDateTime.of(1973, 1, 1, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli();
-      long millis1 = timestamp.toInstant(ZoneOffset.UTC).toEpochMilli();
-      long millis2 = intervalObj.toMillis();
-      long truncated = ((millis1 + offset) / millis2) * millis2 - offset;
+            result = LocalDateTime.of(year, month, 1, 0, 0, 0);
+        } else if (intervalObj.getYears() == 0 && intervalObj.getMonths() == 0) {
+            // 01-01-1973 starts on a sunday, so we give an offset so that week calculations are
+            // correct
+            long offset =
+                    LocalDateTime.of(1973, 1, 1, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli();
+            long millis1 = timestamp.toInstant(ZoneOffset.UTC).toEpochMilli();
+            long millis2 = intervalObj.toMillis();
+            long truncated = ((millis1 + offset) / millis2) * millis2 - offset;
 
-      result = LocalDateTime.ofInstant(Instant.ofEpochMilli(truncated), ZoneId.of("UTC"));
-    } else {
-      throw new RawTruffleRuntimeException(
-          "intervals in time_bucket cannot have years or months mixed with other fields.", this);
+            result = LocalDateTime.ofInstant(Instant.ofEpochMilli(truncated), ZoneId.of("UTC"));
+        } else {
+            throw new RawTruffleRuntimeException(
+                    "intervals in time_bucket cannot have years or months mixed with other fields.",
+                    this);
+        }
+
+        return new TimestampObject(result);
     }
-
-    return new TimestampObject(result);
-  }
 }

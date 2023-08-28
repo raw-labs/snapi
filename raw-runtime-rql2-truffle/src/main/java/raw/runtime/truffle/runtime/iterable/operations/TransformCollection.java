@@ -22,22 +22,22 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
 public class TransformCollection {
-  final Object parentIterable;
-  final Closure transform;
+    final Object parentIterable;
+    final Closure transform;
 
-  public TransformCollection(Object iterable, Closure transform) {
-    this.parentIterable = iterable;
-    this.transform = transform;
-  }
+    public TransformCollection(Object iterable, Closure transform) {
+        this.parentIterable = iterable;
+        this.transform = transform;
+    }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
+    @ExportMessage
+    boolean isIterable() {
+        return true;
+    }
 
-  @ExportMessage
-  Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(parentIterable);
-    return new CollectionAbstractGenerator(new TransformComputeNext(generator, transform));
-  }
+    @ExportMessage
+    Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
+        Object generator = iterables.getGenerator(parentIterable);
+        return new CollectionAbstractGenerator(new TransformComputeNext(generator, transform));
+    }
 }

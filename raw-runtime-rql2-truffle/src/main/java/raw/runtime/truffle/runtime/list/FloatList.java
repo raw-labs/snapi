@@ -23,50 +23,50 @@ import java.util.Arrays;
 @ExportLibrary(ListLibrary.class)
 public class FloatList {
 
-  private final float[] list;
+    private final float[] list;
 
-  public FloatList(float[] list) {
-    this.list = list;
-  }
-
-  @ExportMessage
-  boolean isList() {
-    return true;
-  }
-
-  @ExportMessage
-  public float[] getInnerList() {
-    return list;
-  }
-
-  @ExportMessage
-  boolean isElementReadable(int index) {
-    return index >= 0 && index < list.length;
-  }
-
-  @ExportMessage
-  public float get(long index) {
-    int idx = (int) index;
-    if (!isElementReadable(idx)) {
-      throw new IndexOutOfBoundsException("index out of bounds");
+    public FloatList(float[] list) {
+        this.list = list;
     }
-    return list[idx];
-  }
 
-  @ExportMessage
-  public int size() {
-    return list.length;
-  }
+    @ExportMessage
+    boolean isList() {
+        return true;
+    }
 
-  @ExportMessage
-  public Object toIterable() {
-    return new ListIterable(this);
-  }
+    @ExportMessage
+    public float[] getInnerList() {
+        return list;
+    }
 
-  @ExportMessage
-  public Object sort() {
-    float[] result = this.list.clone();
-    Arrays.sort(result);
-    return new FloatList(result);
-  }
+    @ExportMessage
+    boolean isElementReadable(int index) {
+        return index >= 0 && index < list.length;
+    }
+
+    @ExportMessage
+    public float get(long index) {
+        int idx = (int) index;
+        if (!isElementReadable(idx)) {
+            throw new IndexOutOfBoundsException("index out of bounds");
+        }
+        return list[idx];
+    }
+
+    @ExportMessage
+    public int size() {
+        return list.length;
+    }
+
+    @ExportMessage
+    public Object toIterable() {
+        return new ListIterable(this);
+    }
+
+    @ExportMessage
+    public Object sort() {
+        float[] result = this.list.clone();
+        Arrays.sort(result);
+        return new FloatList(result);
+    }
 }

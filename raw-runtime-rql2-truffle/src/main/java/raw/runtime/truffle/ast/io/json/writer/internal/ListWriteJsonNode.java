@@ -25,31 +25,31 @@ import raw.runtime.truffle.runtime.list.ListLibrary;
 @NodeInfo(shortName = "ListWriteJson")
 public class ListWriteJsonNode extends StatementNode {
 
-  @Child private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
-  @Child private ListLibrary listLibrary = ListLibrary.getFactory().createDispatched(1);
+    @Child private ListLibrary listLibrary = ListLibrary.getFactory().createDispatched(1);
 
-  @Child
-  private JsonWriteNodes.WriteStartArrayJsonWriterNode writeStartArrayNode =
-      JsonWriteNodesFactory.WriteStartArrayJsonWriterNodeGen.create();
+    @Child
+    private JsonWriteNodes.WriteStartArrayJsonWriterNode writeStartArrayNode =
+            JsonWriteNodesFactory.WriteStartArrayJsonWriterNodeGen.create();
 
-  @Child
-  private JsonWriteNodes.WriteEndArrayJsonWriterNode writeEndArrayNode =
-      JsonWriteNodesFactory.WriteEndArrayJsonWriterNodeGen.create();
+    @Child
+    private JsonWriteNodes.WriteEndArrayJsonWriterNode writeEndArrayNode =
+            JsonWriteNodesFactory.WriteEndArrayJsonWriterNodeGen.create();
 
-  public ListWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
-    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-  }
-
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    int listSize = (int) listLibrary.size(args[0]);
-    JsonGenerator gen = (JsonGenerator) args[1];
-    writeStartArrayNode.execute(gen);
-    for (int i = 0; i < listSize; i++) {
-      childDirectCall.call(listLibrary.get(args[0], i), gen);
+    public ListWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
+        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
     }
-    writeEndArrayNode.execute(gen);
-  }
+
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        int listSize = (int) listLibrary.size(args[0]);
+        JsonGenerator gen = (JsonGenerator) args[1];
+        writeStartArrayNode.execute(gen);
+        for (int i = 0; i < listSize; i++) {
+            childDirectCall.call(listLibrary.get(args[0], i), gen);
+        }
+        writeEndArrayNode.execute(gen);
+    }
 }

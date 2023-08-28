@@ -20,11 +20,11 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "ByteParseXml")
 public abstract class ByteParseXmlNode extends ExpressionNode {
 
-  @Specialization
-  public byte parse(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-    String value = (String) args[1];
-    return parser.byteFrom(value);
-  }
+    @Specialization
+    public byte parse(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+        String value = (String) args[1];
+        return parser.byteFrom(value);
+    }
 }

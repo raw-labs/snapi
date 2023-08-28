@@ -22,26 +22,26 @@ import java.util.Map;
 
 public final class ClosureNode extends ExpressionNode {
 
-  @CompilationFinal private final Function function;
+    @CompilationFinal private final Function function;
 
-  private final ExpressionNode[] defaultArgumentExps;
+    private final ExpressionNode[] defaultArgumentExps;
 
-  public ClosureNode(Function f, ExpressionNode[] defaultArgumentExps) {
-    this.function = f;
-    this.defaultArgumentExps = defaultArgumentExps;
-  }
-
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    int nArgs = defaultArgumentExps.length;
-    Object[] defaultArguments = new Object[nArgs];
-    for (int i = 0; i < nArgs; i++) {
-      if (defaultArgumentExps[i] != null) {
-        defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
-      } else {
-        defaultArguments[i] = null;
-      }
+    public ClosureNode(Function f, ExpressionNode[] defaultArgumentExps) {
+        this.function = f;
+        this.defaultArgumentExps = defaultArgumentExps;
     }
-    return new Closure(this.function, defaultArguments, virtualFrame.materialize(), this);
-  }
+
+    @Override
+    public Object executeGeneric(VirtualFrame virtualFrame) {
+        int nArgs = defaultArgumentExps.length;
+        Object[] defaultArguments = new Object[nArgs];
+        for (int i = 0; i < nArgs; i++) {
+            if (defaultArgumentExps[i] != null) {
+                defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
+            } else {
+                defaultArguments[i] = null;
+            }
+        }
+        return new Closure(this.function, defaultArguments, virtualFrame.materialize(), this);
+    }
 }

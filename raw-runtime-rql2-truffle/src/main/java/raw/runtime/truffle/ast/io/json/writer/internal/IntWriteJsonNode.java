@@ -22,12 +22,12 @@ import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 @NodeInfo(shortName = "IntWriteJson")
 public class IntWriteJsonNode extends StatementNode {
 
-  @Child
-  JsonWriteNodes.WriteIntJsonWriterNode writeInt =
-      JsonWriteNodesFactory.WriteIntJsonWriterNodeGen.create();
+    @Child
+    JsonWriteNodes.WriteIntJsonWriterNode writeInt =
+            JsonWriteNodesFactory.WriteIntJsonWriterNodeGen.create();
 
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    writeInt.execute((int) args[0], (JsonGenerator) args[1]);
-  }
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        writeInt.execute((int) args[0], (JsonGenerator) args[1]);
+    }
 }

@@ -26,39 +26,39 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @NodeInfo(shortName = "IterableWriteJson")
 public class IterableWriteJsonNode extends StatementNode {
 
-  @Child private DirectCallNode childDirectCall;
+    @Child private DirectCallNode childDirectCall;
 
-  @Child private IterableLibrary itrables = IterableLibrary.getFactory().createDispatched(1);
+    @Child private IterableLibrary itrables = IterableLibrary.getFactory().createDispatched(1);
 
-  @Child private GeneratorLibrary generators = GeneratorLibrary.getFactory().createDispatched(1);
+    @Child private GeneratorLibrary generators = GeneratorLibrary.getFactory().createDispatched(1);
 
-  @Child
-  private JsonWriteNodes.WriteStartArrayJsonWriterNode writeStartArrayNode =
-      JsonWriteNodesFactory.WriteStartArrayJsonWriterNodeGen.create();
+    @Child
+    private JsonWriteNodes.WriteStartArrayJsonWriterNode writeStartArrayNode =
+            JsonWriteNodesFactory.WriteStartArrayJsonWriterNodeGen.create();
 
-  @Child
-  private JsonWriteNodes.WriteEndArrayJsonWriterNode writeEndArrayNode =
-      JsonWriteNodesFactory.WriteEndArrayJsonWriterNodeGen.create();
+    @Child
+    private JsonWriteNodes.WriteEndArrayJsonWriterNode writeEndArrayNode =
+            JsonWriteNodesFactory.WriteEndArrayJsonWriterNodeGen.create();
 
-  public IterableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
-    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-  }
-
-  @Override
-  public void executeVoid(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    Object iterable = args[0];
-    JsonGenerator gen = (JsonGenerator) args[1];
-    Object generator = itrables.getGenerator(iterable);
-    try {
-      generators.init(generator);
-      writeStartArrayNode.execute(gen);
-      while (generators.hasNext(generator)) {
-        childDirectCall.call(generators.next(generator), gen);
-      }
-      writeEndArrayNode.execute(gen);
-    } finally {
-      generators.close(generator);
+    public IterableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
+        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
     }
-  }
+
+    @Override
+    public void executeVoid(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        Object iterable = args[0];
+        JsonGenerator gen = (JsonGenerator) args[1];
+        Object generator = itrables.getGenerator(iterable);
+        try {
+            generators.init(generator);
+            writeStartArrayNode.execute(gen);
+            while (generators.hasNext(generator)) {
+                childDirectCall.call(generators.next(generator), gen);
+            }
+            writeEndArrayNode.execute(gen);
+        } finally {
+            generators.close(generator);
+        }
+    }
 }

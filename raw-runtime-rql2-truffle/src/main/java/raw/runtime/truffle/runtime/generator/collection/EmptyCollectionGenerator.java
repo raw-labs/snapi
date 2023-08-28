@@ -23,24 +23,24 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 @ExportLibrary(GeneratorLibrary.class)
 public class EmptyCollectionGenerator {
 
-  @ExportMessage
-  boolean isGenerator() {
-    return true;
-  }
+    @ExportMessage
+    boolean isGenerator() {
+        return true;
+    }
 
-  @ExportMessage
-  void init() {}
+    @ExportMessage
+    void init() {}
 
-  @ExportMessage
-  void close() {}
+    @ExportMessage
+    void close() {}
 
-  @ExportMessage
-  Object next() {
-    throw new BreakException();
-  }
+    @ExportMessage
+    Object next() {
+        throw new BreakException();
+    }
 
-  @ExportMessage
-  boolean hasNext() {
-    return false;
-  }
+    @ExportMessage
+    boolean hasNext() {
+        return false;
+    }
 }

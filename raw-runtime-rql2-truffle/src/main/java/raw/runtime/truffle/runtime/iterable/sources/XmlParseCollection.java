@@ -31,8 +31,11 @@ public class XmlParseCollection {
     private final RawTruffleXmlParserSettings settings;
     private final RuntimeContext context;
 
-    public XmlParseCollection(String text, RuntimeContext context, DirectCallNode parseNextRootNode,
-                              RawTruffleXmlParserSettings settings) {
+    public XmlParseCollection(
+            String text,
+            RuntimeContext context,
+            DirectCallNode parseNextRootNode,
+            RawTruffleXmlParserSettings settings) {
         this.text = text;
         this.parseNextRootNode = parseNextRootNode;
         this.context = context;
@@ -47,6 +50,6 @@ public class XmlParseCollection {
     @ExportMessage
     Object getGenerator() {
         return new CollectionAbstractGenerator(
-            new XmlParseComputeNext(text, context, parseNextRootNode, settings));
+                new XmlParseComputeNext(text, context, parseNextRootNode, settings));
     }
 }
