@@ -1,4 +1,5 @@
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
+import com.google.googlejavaformat.java.JavaFormatterOptions
 import java.nio.file.attribute.PosixFilePermission
 import collection.JavaConverters._
 
@@ -15,6 +16,8 @@ import java.time.Year
 import Dependencies._
 
 publish / skip := true // don't publish the root project
+
+ThisBuild / javafmtStyle := JavaFormatterOptions.Style.AOSP
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
