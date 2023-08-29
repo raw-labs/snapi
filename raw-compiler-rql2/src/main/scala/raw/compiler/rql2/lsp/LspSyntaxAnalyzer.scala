@@ -87,7 +87,7 @@ class LspSyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(pos
 
   final private lazy val letAttr: Parser[Let] = {
     // Partially written "let", i.e. "in" part missing
-    (tokLet ~> repsep(letDecl, rep1(","))) ~ (opt(tokIn) ~> exp) ^^ { case d ~ e => Let(d, e) }
+    (tokLet ~> repsep(letDecl, rep1(","))) ~ (opt(",") ~> opt(tokIn) ~> exp) ^^ { case d ~ e => Let(d, e) }
   }
 
   // Closing bracket is optional
