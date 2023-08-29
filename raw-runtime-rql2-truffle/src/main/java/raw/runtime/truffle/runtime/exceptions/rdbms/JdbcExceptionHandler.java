@@ -20,17 +20,17 @@ import java.sql.SQLException;
 
 public class JdbcExceptionHandler {
 
-    public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs, Node location) {
-        return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, location);
-    }
+  public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs, Node location) {
+    return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, location);
+  }
 
-    public RawTruffleRuntimeException columnParseError(
-            SQLException e, String colName, Node location) {
-        return new JdbcParserRawTruffleException(
-                String.format("column '%s': %s", colName, e.getMessage()), e, location);
-    }
+  public RawTruffleRuntimeException columnParseError(
+      SQLException e, String colName, Node location) {
+    return new JdbcParserRawTruffleException(
+        String.format("column '%s': %s", colName, e.getMessage()), e, location);
+  }
 
-    public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs) {
-        return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, null);
-    }
+  public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs) {
+    return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, null);
+  }
 }

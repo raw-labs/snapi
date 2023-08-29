@@ -22,8 +22,8 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Math.Cos")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathCosNode extends ExpressionNode {
-    @Specialization
-    protected double doubleCos(double argument) {
-        return Math.cos(argument);
-    }
+  @Specialization
+  protected double doubleCos(double argument) {
+    return Math.cos(argument);
+  }
 }

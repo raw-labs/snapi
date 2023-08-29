@@ -24,12 +24,12 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "DecimalWriteJson")
 public class DecimalWriteJsonNode extends StatementNode {
 
-    @Child
-    JsonWriteNodes.WriteDecimalJsonWriterNode writeDate =
-            JsonWriteNodesFactory.WriteDecimalJsonWriterNodeGen.create();
+  @Child
+  JsonWriteNodes.WriteDecimalJsonWriterNode writeDate =
+      JsonWriteNodesFactory.WriteDecimalJsonWriterNodeGen.create();
 
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        writeDate.execute((BigDecimal) args[0], (JsonGenerator) args[1]);
-    }
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    writeDate.execute((BigDecimal) args[0], (JsonGenerator) args[1]);
+  }
 }

@@ -29,36 +29,36 @@ import java.io.OutputStream;
 
 public class JsonPrintNode extends ExpressionNode {
 
-    @Child private ExpressionNode valueExp;
+  @Child private ExpressionNode valueExp;
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    public JsonPrintNode(ExpressionNode valueExp, RootNode jsonWriterRootNode) {
-        this.valueExp = valueExp;
-        this.childDirectCall = DirectCallNode.create(jsonWriterRootNode.getCallTarget());
+  public JsonPrintNode(ExpressionNode valueExp, RootNode jsonWriterRootNode) {
+    this.valueExp = valueExp;
+    this.childDirectCall = DirectCallNode.create(jsonWriterRootNode.getCallTarget());
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    Object result = valueExp.executeGeneric(virtualFrame);
+    try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
+        JsonGenerator gen = createGenerator(stream)) {
+      childDirectCall.call(result, gen);
+      gen.flush();
+      return stream.toString();
+    } catch (IOException e) {
+      throw new RawTruffleRuntimeException(e.getMessage());
     }
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame virtualFrame) {
-        Object result = valueExp.executeGeneric(virtualFrame);
-        try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
-                JsonGenerator gen = createGenerator(stream)) {
-            childDirectCall.call(result, gen);
-            gen.flush();
-            return stream.toString();
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-        }
+  @CompilerDirectives.TruffleBoundary
+  private JsonGenerator createGenerator(OutputStream os) {
+    try {
+      JsonFactory jsonFactory = new JsonFactory();
+      jsonFactory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+      return jsonFactory.createGenerator(os, JsonEncoding.UTF8);
+    } catch (IOException ex) {
+      throw new RawTruffleRuntimeException(ex, this);
     }
-
-    @CompilerDirectives.TruffleBoundary
-    private JsonGenerator createGenerator(OutputStream os) {
-        try {
-            JsonFactory jsonFactory = new JsonFactory();
-            jsonFactory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-            return jsonFactory.createGenerator(os, JsonEncoding.UTF8);
-        } catch (IOException ex) {
-            throw new RawTruffleRuntimeException(ex, this);
-        }
-    }
+  }
 }

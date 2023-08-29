@@ -22,44 +22,44 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(AggregationLibrary.class)
 public class MultiAggregation {
-    Object[] aggregators;
+  Object[] aggregators;
 
-    public MultiAggregation(Object[] aggregators) {
-        this.aggregators = aggregators;
-    }
+  public MultiAggregation(Object[] aggregators) {
+    this.aggregators = aggregators;
+  }
 
-    @ExportMessage
-    public boolean isAggregation() {
-        return true;
-    }
+  @ExportMessage
+  public boolean isAggregation() {
+    return true;
+  }
 
-    @ExportMessage(limit = "3")
-    public Object aggregate(
-            Object iterable,
-            @CachedLibrary("iterable") IterableLibrary iterables,
-            @CachedLibrary(limit = "5") AggregatorLibrary aggregatorLibs,
-            @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-        Object generator = iterables.getGenerator(iterable);
-        try {
-            generators.init(generator);
-            Object[] results = new Object[aggregators.length];
-            for (int i = 0; i < aggregators.length; i++) {
-                results[i] = aggregatorLibs.zero(aggregators[i]);
-            }
-            if (!generators.hasNext(generator)) {
-                return results;
-            }
-            while (generators.hasNext(generator)) {
-                Object next = generators.next(generator);
-                for (int i = 0; i < aggregators.length; i++) {
-                    results[i] = aggregatorLibs.merge(aggregators[i], results[i], next);
-                }
-            }
-            return results;
-        } catch (RawTruffleRuntimeException ex) {
-            throw new RawTruffleRuntimeException(ex.getMessage());
-        } finally {
-            generators.close(generator);
+  @ExportMessage(limit = "3")
+  public Object aggregate(
+      Object iterable,
+      @CachedLibrary("iterable") IterableLibrary iterables,
+      @CachedLibrary(limit = "5") AggregatorLibrary aggregatorLibs,
+      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
+    Object generator = iterables.getGenerator(iterable);
+    try {
+      generators.init(generator);
+      Object[] results = new Object[aggregators.length];
+      for (int i = 0; i < aggregators.length; i++) {
+        results[i] = aggregatorLibs.zero(aggregators[i]);
+      }
+      if (!generators.hasNext(generator)) {
+        return results;
+      }
+      while (generators.hasNext(generator)) {
+        Object next = generators.next(generator);
+        for (int i = 0; i < aggregators.length; i++) {
+          results[i] = aggregatorLibs.merge(aggregators[i], results[i], next);
         }
+      }
+      return results;
+    } catch (RawTruffleRuntimeException ex) {
+      throw new RawTruffleRuntimeException(ex.getMessage());
+    } finally {
+      generators.close(generator);
     }
+  }
 }

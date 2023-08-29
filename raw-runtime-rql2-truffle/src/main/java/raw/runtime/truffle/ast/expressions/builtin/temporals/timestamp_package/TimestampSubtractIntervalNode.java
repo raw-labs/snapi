@@ -25,20 +25,20 @@ import java.time.LocalDateTime;
 @NodeChild("timestamp")
 @NodeChild("interval")
 public abstract class TimestampSubtractIntervalNode extends ExpressionNode {
-    @Specialization
-    protected TimestampObject subtractInterval(
-            TimestampObject timestampObj, IntervalObject interval) {
-        LocalDateTime timestamp = timestampObj.getTimestamp();
+  @Specialization
+  protected TimestampObject subtractInterval(
+      TimestampObject timestampObj, IntervalObject interval) {
+    LocalDateTime timestamp = timestampObj.getTimestamp();
 
-        return new TimestampObject(
-                timestamp
-                        .minusYears(interval.getYears())
-                        .minusMonths(interval.getMonths())
-                        .minusWeeks(interval.getWeeks())
-                        .minusDays(interval.getDays())
-                        .minusHours(interval.getHours())
-                        .minusMinutes(interval.getMinutes())
-                        .minusSeconds(interval.getSeconds())
-                        .minusNanos(1000000L * interval.getMillis()));
-    }
+    return new TimestampObject(
+        timestamp
+            .minusYears(interval.getYears())
+            .minusMonths(interval.getMonths())
+            .minusWeeks(interval.getWeeks())
+            .minusDays(interval.getDays())
+            .minusHours(interval.getHours())
+            .minusMinutes(interval.getMinutes())
+            .minusSeconds(interval.getSeconds())
+            .minusNanos(1000000L * interval.getMillis()));
+  }
 }

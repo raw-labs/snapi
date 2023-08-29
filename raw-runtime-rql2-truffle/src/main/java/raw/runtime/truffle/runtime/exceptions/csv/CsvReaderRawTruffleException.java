@@ -19,38 +19,36 @@ import raw.runtime.truffle.utils.RawTruffleCharStream;
 
 public class CsvReaderRawTruffleException extends RawTruffleRuntimeException {
 
-    public CsvReaderRawTruffleException(
-            String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
-        super(createMessage(message, parser, stream));
-    }
+  public CsvReaderRawTruffleException(
+      String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
+    super(createMessage(message, parser, stream));
+  }
 
-    public CsvReaderRawTruffleException(RawTruffleCharStream stream, Throwable cause) {
-        super(createMessage(cause.getMessage(), null, stream), cause, null);
-    }
+  public CsvReaderRawTruffleException(RawTruffleCharStream stream, Throwable cause) {
+    super(createMessage(cause.getMessage(), null, stream), cause, null);
+  }
 
-    public CsvReaderRawTruffleException(
-            RawTruffleCharStream stream, Throwable cause, Node location) {
-        super(createMessage(cause.getMessage(), null, stream), cause, location);
-    }
+  public CsvReaderRawTruffleException(RawTruffleCharStream stream, Throwable cause, Node location) {
+    super(createMessage(cause.getMessage(), null, stream), cause, location);
+  }
 
-    private static String createMessage(
-            String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("failed to read CSV");
-        if (parser != null) {
-            sb.append(
-                    String.format(
-                            " (line %d column %d)",
-                            parser.currentTokenLine(), parser.currentTokenColumn()));
-        }
-        if (stream != null) {
-            String position = stream.positionDescription();
-            if (position != null) {
-                sb.append(String.format(" (%s)", position));
-            }
-            sb.append(": ");
-        }
-        sb.append(message);
-        return sb.toString();
+  private static String createMessage(
+      String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("failed to read CSV");
+    if (parser != null) {
+      sb.append(
+          String.format(
+              " (line %d column %d)", parser.currentTokenLine(), parser.currentTokenColumn()));
     }
+    if (stream != null) {
+      String position = stream.positionDescription();
+      if (position != null) {
+        sb.append(String.format(" (%s)", position));
+      }
+      sb.append(": ");
+    }
+    sb.append(message);
+    return sb.toString();
+  }
 }

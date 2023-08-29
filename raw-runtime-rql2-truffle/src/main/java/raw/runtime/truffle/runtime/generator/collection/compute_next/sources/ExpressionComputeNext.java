@@ -23,38 +23,38 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 @ExportLibrary(ComputeNextLibrary.class)
 public final class ExpressionComputeNext {
 
-    private final ExpressionNode[] exps;
-    private final VirtualFrame frame;
-    private int position;
+  private final ExpressionNode[] exps;
+  private final VirtualFrame frame;
+  private int position;
 
-    public ExpressionComputeNext(ExpressionNode[] exps, VirtualFrame frame) {
-        this.frame = frame;
-        this.exps = exps;
-        this.position = 0;
+  public ExpressionComputeNext(ExpressionNode[] exps, VirtualFrame frame) {
+    this.frame = frame;
+    this.exps = exps;
+    this.position = 0;
+  }
+
+  @ExportMessage
+  void init() {}
+
+  @ExportMessage
+  void close() {}
+
+  @ExportMessage
+  public boolean isComputeNext() {
+    return true;
+  }
+
+  @ExportMessage
+  Object computeNext() {
+    if (position >= exps.length) {
+      throw new BreakException();
     }
-
-    @ExportMessage
-    void init() {}
-
-    @ExportMessage
-    void close() {}
-
-    @ExportMessage
-    public boolean isComputeNext() {
-        return true;
+    try {
+      return exps[position].executeGeneric(frame);
+    } catch (RawTruffleRuntimeException e) {
+      return new RawTruffleRuntimeException(e.getMessage());
+    } finally {
+      position++;
     }
-
-    @ExportMessage
-    Object computeNext() {
-        if (position >= exps.length) {
-            throw new BreakException();
-        }
-        try {
-            return exps[position].executeGeneric(frame);
-        } catch (RawTruffleRuntimeException e) {
-            return new RawTruffleRuntimeException(e.getMessage());
-        } finally {
-            position++;
-        }
-    }
+  }
 }

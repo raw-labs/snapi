@@ -25,32 +25,32 @@ import raw.runtime.truffle.utils.TruffleCharInputStream;
 @ExportLibrary(IterableLibrary.class)
 public class JsonReadCollection {
 
-    private final LocationObject locationObject;
-    private final DirectCallNode parseNextRootNode;
+  private final LocationObject locationObject;
+  private final DirectCallNode parseNextRootNode;
 
-    private final RuntimeContext context;
+  private final RuntimeContext context;
 
-    private final String encoding;
+  private final String encoding;
 
-    public JsonReadCollection(
-            LocationObject locationObject,
-            String encoding,
-            RuntimeContext context,
-            DirectCallNode parseNextRootNode) {
-        this.locationObject = locationObject;
-        this.parseNextRootNode = parseNextRootNode;
-        this.context = context;
-        this.encoding = encoding;
-    }
+  public JsonReadCollection(
+      LocationObject locationObject,
+      String encoding,
+      RuntimeContext context,
+      DirectCallNode parseNextRootNode) {
+    this.locationObject = locationObject;
+    this.parseNextRootNode = parseNextRootNode;
+    this.context = context;
+    this.encoding = encoding;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator() {
-        return new CollectionAbstractGenerator(
-                new JsonReadComputeNext(locationObject, encoding, context, parseNextRootNode));
-    }
+  @ExportMessage
+  Object getGenerator() {
+    return new CollectionAbstractGenerator(
+        new JsonReadComputeNext(locationObject, encoding, context, parseNextRootNode));
+  }
 }

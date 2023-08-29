@@ -30,63 +30,63 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 @ExportLibrary(ComputeNextLibrary.class)
 public class XmlReadComputeNext {
 
-    private final LocationObject locationObject;
-    private final DirectCallNode parseNextCallNode;
-    private final RuntimeContext context;
-    private final String encoding;
-    private RawTruffleXmlParser parser;
-    private final RawTruffleXmlParserSettings settings;
+  private final LocationObject locationObject;
+  private final DirectCallNode parseNextCallNode;
+  private final RuntimeContext context;
+  private final String encoding;
+  private RawTruffleXmlParser parser;
+  private final RawTruffleXmlParserSettings settings;
 
-    private TruffleCharInputStream stream;
+  private TruffleCharInputStream stream;
 
-    public XmlReadComputeNext(
-            LocationObject locationObject,
-            String encoding,
-            RuntimeContext context,
-            DirectCallNode parseNextCallNode,
-            RawTruffleXmlParserSettings settings) {
-        this.encoding = encoding;
-        this.context = context;
-        this.settings = settings;
-        this.locationObject = locationObject;
-        this.parseNextCallNode = parseNextCallNode;
+  public XmlReadComputeNext(
+      LocationObject locationObject,
+      String encoding,
+      RuntimeContext context,
+      DirectCallNode parseNextCallNode,
+      RawTruffleXmlParserSettings settings) {
+    this.encoding = encoding;
+    this.context = context;
+    this.settings = settings;
+    this.locationObject = locationObject;
+    this.parseNextCallNode = parseNextCallNode;
+  }
+
+  @ExportMessage
+  void init() {
+    try {
+      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
+      stream = new TruffleCharInputStream(truffleInputStream, encoding);
+      parser = RawTruffleXmlParser.create(stream, settings);
+      // move from null to the first token
+      int token = parser.nextToken(); // consume START_OBJECT
+      parser.assertCurrentTokenIsStartTag(); // because it's the top level object
+    } catch (RawTruffleRuntimeException ex) {
+      if (parser != null) parser.close();
+      throw ex;
     }
+  }
 
-    @ExportMessage
-    void init() {
-        try {
-            TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
-            stream = new TruffleCharInputStream(truffleInputStream, encoding);
-            parser = RawTruffleXmlParser.create(stream, settings);
-            // move from null to the first token
-            int token = parser.nextToken(); // consume START_OBJECT
-            parser.assertCurrentTokenIsStartTag(); // because it's the top level object
-        } catch (RawTruffleRuntimeException ex) {
-            if (parser != null) parser.close();
-            throw ex;
-        }
-    }
+  @ExportMessage
+  void close() {
+    if (parser != null) parser.close();
+  }
 
-    @ExportMessage
-    void close() {
-        if (parser != null) parser.close();
-    }
+  @ExportMessage
+  public boolean isComputeNext() {
+    return true;
+  }
 
-    @ExportMessage
-    public boolean isComputeNext() {
-        return true;
+  @ExportMessage
+  Object computeNext() {
+    if (parser.onEndTag()) {
+      throw new BreakException();
+    } else {
+      try {
+        return parseNextCallNode.call(parser);
+      } catch (XmlParserRawTruffleException e) {
+        throw new XmlReaderRawTruffleException(e, stream, null);
+      }
     }
-
-    @ExportMessage
-    Object computeNext() {
-        if (parser.onEndTag()) {
-            throw new BreakException();
-        } else {
-            try {
-                return parseNextCallNode.call(parser);
-            } catch (XmlParserRawTruffleException e) {
-                throw new XmlReaderRawTruffleException(e, stream, null);
-            }
-        }
-    }
+  }
 }

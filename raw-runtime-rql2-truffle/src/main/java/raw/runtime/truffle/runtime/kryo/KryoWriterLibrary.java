@@ -20,13 +20,12 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 
 @GenerateLibrary
 public abstract class KryoWriterLibrary extends Library {
-    public abstract void write(
-            Object receiver, Output kryo, Rql2TypeWithProperties t, Object value);
+  public abstract void write(Object receiver, Output kryo, Rql2TypeWithProperties t, Object value);
 
-    static final LibraryFactory<KryoWriterLibrary> FACTORY =
-            LibraryFactory.resolve(KryoWriterLibrary.class);
+  static final LibraryFactory<KryoWriterLibrary> FACTORY =
+      LibraryFactory.resolve(KryoWriterLibrary.class);
 
-    public static KryoWriterLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static KryoWriterLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 }

@@ -22,8 +22,8 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeInfo(shortName = "Timestamp.Year")
 @NodeChild("timestamp")
 public abstract class TimestampYearNode extends ExpressionNode {
-    @Specialization
-    protected int getYear(TimestampObject timestamp) {
-        return timestamp.getTimestamp().getYear();
-    }
+  @Specialization
+  protected int getYear(TimestampObject timestamp) {
+    return timestamp.getTimestamp().getYear();
+  }
 }

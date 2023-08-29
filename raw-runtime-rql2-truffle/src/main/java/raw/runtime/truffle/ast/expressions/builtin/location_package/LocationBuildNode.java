@@ -39,103 +39,94 @@ import java.time.Duration;
 @NodeInfo(shortName = "Location.Build")
 public class LocationBuildNode extends ExpressionNode {
 
-    private final String[] keys;
-    @Child private ExpressionNode url;
+  private final String[] keys;
+  @Child private ExpressionNode url;
 
-    @Children private ExpressionNode[] values;
+  @Children private ExpressionNode[] values;
 
-    private final Rql2TypeWithProperties[] types;
+  private final Rql2TypeWithProperties[] types;
 
-    private final CacheStrategy cacheStrategy;
+  private final CacheStrategy cacheStrategy;
 
-    public LocationBuildNode(
-            ExpressionNode url,
-            String[] keys,
-            ExpressionNode[] values,
-            Rql2TypeWithProperties[] types,
-            CacheStrategy cacheStrategy) {
-        assert values.length == keys.length;
-        assert values.length == types.length;
-        this.url = url;
-        this.keys = keys;
-        this.values = values;
-        this.types = types;
-        this.cacheStrategy = cacheStrategy;
+  public LocationBuildNode(
+      ExpressionNode url,
+      String[] keys,
+      ExpressionNode[] values,
+      Rql2TypeWithProperties[] types,
+      CacheStrategy cacheStrategy) {
+    assert values.length == keys.length;
+    assert values.length == types.length;
+    this.url = url;
+    this.keys = keys;
+    this.values = values;
+    this.types = types;
+    this.cacheStrategy = cacheStrategy;
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Map<LocationSettingKey, LocationSettingValue> map = new HashMap<>();
+    String url = (String) this.url.executeGeneric(frame);
+    for (int i = 0; i < this.keys.length; i++) {
+      Object value = this.values[i].executeGeneric(frame);
+      map =
+          map.$plus(
+              Tuple2.apply(
+                  new LocationSettingKey(keys[i]), buildLocationSettingValue(value, types[i])));
     }
+    return new LocationObject(url, map, this.cacheStrategy);
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        Map<LocationSettingKey, LocationSettingValue> map = new HashMap<>();
-        String url = (String) this.url.executeGeneric(frame);
-        for (int i = 0; i < this.keys.length; i++) {
-            Object value = this.values[i].executeGeneric(frame);
-            map =
-                    map.$plus(
-                            Tuple2.apply(
-                                    new LocationSettingKey(keys[i]),
-                                    buildLocationSettingValue(value, types[i])));
+  private LocationSettingValue buildLocationSettingValue(
+      Object value, Rql2TypeWithProperties type) {
+    try {
+      if (TypeGuards.isIntKind(type)) {
+        return new LocationIntSetting((Integer) value);
+      } else if (TypeGuards.isStringKind(type)) {
+        return new LocationStringSetting((String) value);
+      } else if (TypeGuards.isByteKind(type)) {
+        byte[] bytes = (byte[]) value;
+        VectorBuilder<Object> vec = new VectorBuilder<>();
+        for (byte aByte : bytes) {
+          vec = vec.$plus$eq(aByte);
         }
-        return new LocationObject(url, map, this.cacheStrategy);
-    }
-
-    private LocationSettingValue buildLocationSettingValue(
-            Object value, Rql2TypeWithProperties type) {
-        try {
-            if (TypeGuards.isIntKind(type)) {
-                return new LocationIntSetting((Integer) value);
-            } else if (TypeGuards.isStringKind(type)) {
-                return new LocationStringSetting((String) value);
-            } else if (TypeGuards.isByteKind(type)) {
-                byte[] bytes = (byte[]) value;
-                VectorBuilder<Object> vec = new VectorBuilder<>();
-                for (byte aByte : bytes) {
-                    vec = vec.$plus$eq(aByte);
-                }
-                return new raw.sources.LocationBinarySetting(vec.result());
-            } else if (TypeGuards.isBooleanKind(type)) {
-                return new LocationBooleanSetting((Boolean) value);
-            } else if (TypeGuards.isIntervalKind(type)) {
-                return new LocationDurationSetting(
-                        Duration.ofMillis(((IntervalObject) value).toMillis()));
-            } else if (TypeGuards.isListKind(type)
-                    && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
-                ListLibrary lists = ListLibrary.getFactory().create(value);
-                int[] ints = (int[]) lists.getInnerList(value);
-                return new raw.sources.LocationIntArraySetting(ints);
-            } else if (TypeGuards.isListKind(type)) {
-                ListLibrary listLibs = ListLibrary.getFactory().createDispatched(2);
-                InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
-                OptionLibrary options = OptionLibrary.getFactory().createDispatched(2);
-                VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
-                int size = (int) listLibs.size(value);
-                for (int i = 0; i < size; i++) {
-                    Object record = listLibs.get(value, i);
-                    Object keys = interops.getMembers(record);
-                    Object key =
-                            interops.readMember(
-                                    record, (String) interops.readArrayElement(keys, 0));
-                    Object val =
-                            interops.readMember(
-                                    record, (String) interops.readArrayElement(keys, 1));
-                    vec =
-                            vec.$plus$eq(
-                                    Tuple2.apply(
-                                            (String) options.get(key), (String) options.get(val)));
-                }
-                return new raw.sources.LocationKVSetting(vec.result());
-            } else if (TypeGuards.isBinaryKind(type)) {
-                VectorBuilder<Object> vec = new VectorBuilder<>();
-                for (byte aByte : (byte[]) value) {
-                    vec = vec.$plus$eq(aByte);
-                }
-                return new raw.sources.LocationBinarySetting(vec.result());
-            } else {
-                throw new RawTruffleInternalErrorException();
-            }
-        } catch (UnsupportedMessageException
-                | UnknownIdentifierException
-                | InvalidArrayIndexException e) {
-            throw new RawTruffleInternalErrorException(e, this);
+        return new raw.sources.LocationBinarySetting(vec.result());
+      } else if (TypeGuards.isBooleanKind(type)) {
+        return new LocationBooleanSetting((Boolean) value);
+      } else if (TypeGuards.isIntervalKind(type)) {
+        return new LocationDurationSetting(Duration.ofMillis(((IntervalObject) value).toMillis()));
+      } else if (TypeGuards.isListKind(type)
+          && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
+        ListLibrary lists = ListLibrary.getFactory().create(value);
+        int[] ints = (int[]) lists.getInnerList(value);
+        return new raw.sources.LocationIntArraySetting(ints);
+      } else if (TypeGuards.isListKind(type)) {
+        ListLibrary listLibs = ListLibrary.getFactory().createDispatched(2);
+        InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
+        OptionLibrary options = OptionLibrary.getFactory().createDispatched(2);
+        VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
+        int size = (int) listLibs.size(value);
+        for (int i = 0; i < size; i++) {
+          Object record = listLibs.get(value, i);
+          Object keys = interops.getMembers(record);
+          Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
+          Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
+          vec = vec.$plus$eq(Tuple2.apply((String) options.get(key), (String) options.get(val)));
         }
+        return new raw.sources.LocationKVSetting(vec.result());
+      } else if (TypeGuards.isBinaryKind(type)) {
+        VectorBuilder<Object> vec = new VectorBuilder<>();
+        for (byte aByte : (byte[]) value) {
+          vec = vec.$plus$eq(aByte);
+        }
+        return new raw.sources.LocationBinarySetting(vec.result());
+      } else {
+        throw new RawTruffleInternalErrorException();
+      }
+    } catch (UnsupportedMessageException
+        | UnknownIdentifierException
+        | InvalidArrayIndexException e) {
+      throw new RawTruffleInternalErrorException(e, this);
     }
+  }
 }

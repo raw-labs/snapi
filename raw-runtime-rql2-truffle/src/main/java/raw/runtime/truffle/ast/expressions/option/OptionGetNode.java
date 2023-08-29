@@ -23,10 +23,10 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeChild("option")
 public abstract class OptionGetNode extends ExpressionNode {
 
-    @Specialization(
-            guards = {"options.isOption(option)"},
-            limit = "1")
-    protected Object optionGet(Object option, @CachedLibrary("option") OptionLibrary options) {
-        return options.get(option);
-    }
+  @Specialization(
+      guards = {"options.isOption(option)"},
+      limit = "1")
+  protected Object optionGet(Object option, @CachedLibrary("option") OptionLibrary options) {
+    return options.get(option);
+  }
 }

@@ -27,28 +27,28 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 @NodeInfo(shortName = "Collection.Last")
 @NodeChild("parent")
 public abstract class CollectionLastNode extends ExpressionNode {
-    @Specialization(limit = "3")
-    protected ObjectTryable doObject(
-            Object iterable,
-            @CachedLibrary(limit = "1") GeneratorLibrary generators,
-            @CachedLibrary("iterable") IterableLibrary iterables,
-            @CachedLibrary(limit = "1") OptionLibrary options) {
-        try {
-            Object generator = iterables.getGenerator(iterable);
-            generators.init(generator);
-            if (!generators.hasNext(generator)) {
-                return ObjectTryable.BuildSuccess(new ObjectOption());
-            }
-            Object next = generators.next(generator);
-            while (generators.hasNext(generator)) {
-                next = generators.next(generator);
-            }
-            if (options.isOption(next)) {
-                return ObjectTryable.BuildSuccess(next);
-            }
-            return ObjectTryable.BuildSuccess(new ObjectOption(next));
-        } catch (RawTruffleRuntimeException e) {
-            return ObjectTryable.BuildFailure(e.getMessage());
-        }
+  @Specialization(limit = "3")
+  protected ObjectTryable doObject(
+      Object iterable,
+      @CachedLibrary(limit = "1") GeneratorLibrary generators,
+      @CachedLibrary("iterable") IterableLibrary iterables,
+      @CachedLibrary(limit = "1") OptionLibrary options) {
+    try {
+      Object generator = iterables.getGenerator(iterable);
+      generators.init(generator);
+      if (!generators.hasNext(generator)) {
+        return ObjectTryable.BuildSuccess(new ObjectOption());
+      }
+      Object next = generators.next(generator);
+      while (generators.hasNext(generator)) {
+        next = generators.next(generator);
+      }
+      if (options.isOption(next)) {
+        return ObjectTryable.BuildSuccess(next);
+      }
+      return ObjectTryable.BuildSuccess(new ObjectOption(next));
+    } catch (RawTruffleRuntimeException e) {
+      return ObjectTryable.BuildFailure(e.getMessage());
     }
+  }
 }

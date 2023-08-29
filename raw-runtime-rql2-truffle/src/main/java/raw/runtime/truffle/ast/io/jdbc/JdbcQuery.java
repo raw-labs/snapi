@@ -32,185 +32,185 @@ import java.sql.SQLException;
 
 public class JdbcQuery {
 
-    private final Connection connection;
-    private final ResultSet rs;
-    private final JdbcExceptionHandler exceptionHandler;
-    private final String url;
+  private final Connection connection;
+  private final ResultSet rs;
+  private final JdbcExceptionHandler exceptionHandler;
+  private final String url;
 
-    public JdbcQuery(
-            LocationDescription locationDescription,
-            String query,
-            RuntimeContext context,
-            JdbcExceptionHandler exceptionHandler) {
-        this.exceptionHandler = exceptionHandler;
-        this.url = locationDescription.url();
-        try {
-            connection =
-                    JdbcLocationProvider.build(locationDescription, context.sourceContext())
-                            .getJdbcConnection();
-            PreparedStatement stmt;
-            try {
-                stmt = connection.prepareStatement(query);
-                rs = stmt.executeQuery();
-            } catch (SQLException e) {
-                throw exceptionHandler.rewrite(e, this);
-            }
-        } catch (RawException e) {
-            // exceptions due to location errors (e.g. connection failures) are turned into runtime
-            // exceptions.
-            throw new JdbcReaderRawTruffleException(e.getMessage(), this, e, null);
-        }
+  public JdbcQuery(
+      LocationDescription locationDescription,
+      String query,
+      RuntimeContext context,
+      JdbcExceptionHandler exceptionHandler) {
+    this.exceptionHandler = exceptionHandler;
+    this.url = locationDescription.url();
+    try {
+      connection =
+          JdbcLocationProvider.build(locationDescription, context.sourceContext())
+              .getJdbcConnection();
+      PreparedStatement stmt;
+      try {
+        stmt = connection.prepareStatement(query);
+        rs = stmt.executeQuery();
+      } catch (SQLException e) {
+        throw exceptionHandler.rewrite(e, this);
+      }
+    } catch (RawException e) {
+      // exceptions due to location errors (e.g. connection failures) are turned into runtime
+      // exceptions.
+      throw new JdbcReaderRawTruffleException(e.getMessage(), this, e, null);
     }
+  }
 
-    public void close() {
-        if (rs != null) {
-            try {
-                rs.close();
-                connection.close();
-            } catch (SQLException ignored) {
-            }
-        }
+  public void close() {
+    if (rs != null) {
+      try {
+        rs.close();
+        connection.close();
+      } catch (SQLException ignored) {
+      }
     }
+  }
 
-    public boolean next() {
-        try {
-            return rs.next();
-        } catch (SQLException e) {
-            throw exceptionHandler.rewrite(e, this);
-        }
+  public boolean next() {
+    try {
+      return rs.next();
+    } catch (SQLException e) {
+      throw exceptionHandler.rewrite(e, this);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    byte getByte(String colName, Node node) {
-        try {
-            return rs.getByte(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  byte getByte(String colName, Node node) {
+    try {
+      return rs.getByte(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    short getShort(String colName, Node node) {
-        try {
-            return rs.getShort(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  short getShort(String colName, Node node) {
+    try {
+      return rs.getShort(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    int getInt(String colName, Node node) {
-        try {
-            return rs.getInt(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  int getInt(String colName, Node node) {
+    try {
+      return rs.getInt(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    long getLong(String colName, Node node) {
-        try {
-            return rs.getLong(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  long getLong(String colName, Node node) {
+    try {
+      return rs.getLong(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    float getFloat(String colName, Node node) {
-        try {
-            return rs.getFloat(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  float getFloat(String colName, Node node) {
+    try {
+      return rs.getFloat(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    double getDouble(String colName, Node node) {
-        try {
-            return rs.getDouble(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  double getDouble(String colName, Node node) {
+    try {
+      return rs.getDouble(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    BigDecimal getDecimal(String colName, Node node) {
-        try {
-            return rs.getBigDecimal(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  BigDecimal getDecimal(String colName, Node node) {
+    try {
+      return rs.getBigDecimal(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    String getString(String colName, Node node) {
-        try {
-            return rs.getString(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  String getString(String colName, Node node) {
+    try {
+      return rs.getString(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    boolean getBool(String colName, Node node) {
-        try {
-            return rs.getBoolean(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  boolean getBool(String colName, Node node) {
+    try {
+      return rs.getBoolean(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    DateObject getDate(String colName, Node node) {
-        try {
-            java.sql.Date sqlDate = rs.getDate(colName);
-            return new DateObject(sqlDate.toLocalDate());
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  DateObject getDate(String colName, Node node) {
+    try {
+      java.sql.Date sqlDate = rs.getDate(colName);
+      return new DateObject(sqlDate.toLocalDate());
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    TimeObject getTime(String colName, Node node) {
-        try {
-            java.sql.Time sqlTime = rs.getTime(colName);
-            return new TimeObject(sqlTime.toLocalTime());
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  TimeObject getTime(String colName, Node node) {
+    try {
+      java.sql.Time sqlTime = rs.getTime(colName);
+      return new TimeObject(sqlTime.toLocalTime());
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    TimestampObject getTimestamp(String colName, Node node) {
-        try {
-            java.sql.Timestamp sqlTimestamp = rs.getTimestamp(colName);
-            return new TimestampObject(sqlTimestamp.toLocalDateTime());
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  TimestampObject getTimestamp(String colName, Node node) {
+    try {
+      java.sql.Timestamp sqlTimestamp = rs.getTimestamp(colName);
+      return new TimestampObject(sqlTimestamp.toLocalDateTime());
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    byte[] getBytes(String colName, Node node) {
-        try {
-            return rs.getBytes(colName);
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  byte[] getBytes(String colName, Node node) {
+    try {
+      return rs.getBytes(colName);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    boolean isNull(String colName, Node node) {
-        try {
-            rs.getObject(colName);
-            return rs.wasNull();
-        } catch (SQLException e) {
-            throw exceptionHandler.columnParseError(e, colName, node);
-        }
+  @CompilerDirectives.TruffleBoundary
+  boolean isNull(String colName, Node node) {
+    try {
+      rs.getObject(colName);
+      return rs.wasNull();
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, colName, node);
     }
+  }
 
-    public String location() {
-        return url;
-    }
+  public String location() {
+    return url;
+  }
 }

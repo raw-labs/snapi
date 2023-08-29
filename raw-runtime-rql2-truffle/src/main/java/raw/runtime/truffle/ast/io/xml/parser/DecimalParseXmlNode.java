@@ -22,11 +22,11 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "DecimalParseXml")
 public abstract class DecimalParseXmlNode extends ExpressionNode {
 
-    @Specialization
-    public BigDecimal parse(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-        String value = (String) args[1];
-        return parser.decimalFrom(value);
-    }
+  @Specialization
+  public BigDecimal parse(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    String value = (String) args[1];
+    return parser.decimalFrom(value);
+  }
 }

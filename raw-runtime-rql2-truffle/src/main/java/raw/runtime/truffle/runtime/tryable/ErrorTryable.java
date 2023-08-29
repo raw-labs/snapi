@@ -18,41 +18,41 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ExportLibrary(TryableLibrary.class)
 public final class ErrorTryable {
-    private final String failureValue;
+  private final String failureValue;
 
-    private ErrorTryable(String failureValue) {
-        this.failureValue = failureValue;
-    }
+  private ErrorTryable(String failureValue) {
+    this.failureValue = failureValue;
+  }
 
-    public static ErrorTryable BuildFailure(String failureValue) {
-        return new ErrorTryable(failureValue);
-    }
+  public static ErrorTryable BuildFailure(String failureValue) {
+    return new ErrorTryable(failureValue);
+  }
 
-    @ExportMessage
-    boolean isTryable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isTryable() {
+    return true;
+  }
 
-    @ExportMessage
-    public boolean success() {
-        throw new RawTruffleRuntimeException(failureValue);
-    }
+  @ExportMessage
+  public boolean success() {
+    throw new RawTruffleRuntimeException(failureValue);
+  }
 
-    @ExportMessage
-    public String failure() {
-        if (!isFailure()) {
-            throw new RawTruffleRuntimeException("not a failure");
-        }
-        return failureValue;
+  @ExportMessage
+  public String failure() {
+    if (!isFailure()) {
+      throw new RawTruffleRuntimeException("not a failure");
     }
+    return failureValue;
+  }
 
-    @ExportMessage
-    public boolean isSuccess() {
-        return false;
-    }
+  @ExportMessage
+  public boolean isSuccess() {
+    return false;
+  }
 
-    @ExportMessage
-    public boolean isFailure() {
-        return true;
-    }
+  @ExportMessage
+  public boolean isFailure() {
+    return true;
+  }
 }

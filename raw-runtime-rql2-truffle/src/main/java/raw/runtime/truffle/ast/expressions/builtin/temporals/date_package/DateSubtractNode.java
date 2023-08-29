@@ -25,19 +25,19 @@ import java.time.LocalDate;
 @NodeChild("date1")
 @NodeChild("date2")
 public abstract class DateSubtractNode extends ExpressionNode {
-    @Specialization
-    protected IntervalObject getYear(DateObject date1, DateObject date2) {
-        LocalDate localDate1 = date1.getDate();
-        LocalDate localDate2 = date2.getDate();
+  @Specialization
+  protected IntervalObject getYear(DateObject date1, DateObject date2) {
+    LocalDate localDate1 = date1.getDate();
+    LocalDate localDate2 = date2.getDate();
 
-        return IntervalObject.normalize(
-                localDate1.getYear() - localDate2.getYear(),
-                localDate1.getMonthValue() - localDate2.getMonthValue(),
-                0,
-                localDate1.getDayOfMonth() - localDate2.getDayOfMonth(),
-                0,
-                0,
-                0,
-                0);
-    }
+    return IntervalObject.normalize(
+        localDate1.getYear() - localDate2.getYear(),
+        localDate1.getMonthValue() - localDate2.getMonthValue(),
+        0,
+        localDate1.getDayOfMonth() - localDate2.getDayOfMonth(),
+        0,
+        0,
+        0,
+        0);
+  }
 }

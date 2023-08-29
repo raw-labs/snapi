@@ -22,8 +22,8 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Math.Cot")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathCotNode extends ExpressionNode {
-    @Specialization
-    protected double doubleCot(double argument) {
-        return 1.0 / Math.tan(argument);
-    }
+  @Specialization
+  protected double doubleCot(double argument) {
+    return 1.0 / Math.tan(argument);
+  }
 }

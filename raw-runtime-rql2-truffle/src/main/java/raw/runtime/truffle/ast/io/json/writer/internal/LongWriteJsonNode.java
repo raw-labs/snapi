@@ -22,12 +22,12 @@ import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 @NodeInfo(shortName = "LongWriteJson")
 public class LongWriteJsonNode extends StatementNode {
 
-    @Child
-    JsonWriteNodes.WriteLongJsonWriterNode writeLong =
-            JsonWriteNodesFactory.WriteLongJsonWriterNodeGen.create();
+  @Child
+  JsonWriteNodes.WriteLongJsonWriterNode writeLong =
+      JsonWriteNodesFactory.WriteLongJsonWriterNodeGen.create();
 
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        writeLong.execute((long) args[0], (JsonGenerator) args[1]);
-    }
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    writeLong.execute((long) args[0], (JsonGenerator) args[1]);
+  }
 }

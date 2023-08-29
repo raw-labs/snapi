@@ -29,41 +29,40 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException
 // @NodeField(name = "childRootNode", type = RootNode.class)
 public class JsonParseNode extends ExpressionNode {
 
-    @Child private ExpressionNode strExp;
+  @Child private ExpressionNode strExp;
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    @Child
-    private InitJsonParserNode initParserNode =
-            JsonParserNodesFactory.InitJsonParserNodeGen.create();
+  @Child
+  private InitJsonParserNode initParserNode = JsonParserNodesFactory.InitJsonParserNodeGen.create();
 
-    @Child
-    private CloseJsonParserNode closeParserNode =
-            JsonParserNodesFactory.CloseJsonParserNodeGen.create();
+  @Child
+  private CloseJsonParserNode closeParserNode =
+      JsonParserNodesFactory.CloseJsonParserNodeGen.create();
 
-    @Child
-    private NextTokenJsonParserNode nextTokenNode =
-            JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+  @Child
+  private NextTokenJsonParserNode nextTokenNode =
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
-    private JsonParser parser;
+  private JsonParser parser;
 
-    public JsonParseNode(ExpressionNode strExp, RootNode readerNode) {
-        this.strExp = strExp;
-        this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+  public JsonParseNode(ExpressionNode strExp, RootNode readerNode) {
+    this.strExp = strExp;
+    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    try {
+      String str = (String) strExp.executeGeneric(virtualFrame);
+      parser = initParserNode.execute(str);
+      nextTokenNode.execute(parser);
+      return childDirectCall.call(parser);
+    } catch (RawTruffleRuntimeException e) {
+      throw new JsonReaderRawTruffleException();
+    } finally {
+      closeParserNode.execute(parser);
+      parser = null;
     }
-
-    @Override
-    public Object executeGeneric(VirtualFrame virtualFrame) {
-        try {
-            String str = (String) strExp.executeGeneric(virtualFrame);
-            parser = initParserNode.execute(str);
-            nextTokenNode.execute(parser);
-            return childDirectCall.call(parser);
-        } catch (RawTruffleRuntimeException e) {
-            throw new JsonReaderRawTruffleException();
-        } finally {
-            closeParserNode.execute(parser);
-            parser = null;
-        }
-    }
+  }
 }

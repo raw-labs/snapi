@@ -17,7 +17,7 @@ import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 
 public class XmlExpectedNothingException extends XmlParserRawTruffleException {
 
-    public XmlExpectedNothingException(String content, RawTruffleXmlParser parser, Node location) {
-        super(String.format("unexpected value found: '%s'", content), parser, location);
-    }
+  public XmlExpectedNothingException(String content, RawTruffleXmlParser parser, Node location) {
+    super(String.format("unexpected value found: '%s'", content), parser, location);
+  }
 }

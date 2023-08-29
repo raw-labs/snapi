@@ -22,8 +22,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "repetitions")
 public abstract class StringReplicateNode extends ExpressionNode {
 
-    @Specialization
-    protected String stringReplicate(String string, int repetitions) {
-        return string.repeat(repetitions);
-    }
+  @Specialization
+  protected String stringReplicate(String string, int repetitions) {
+    return string.repeat(repetitions);
+  }
 }

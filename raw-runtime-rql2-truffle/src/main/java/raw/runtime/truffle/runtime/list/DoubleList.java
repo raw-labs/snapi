@@ -22,50 +22,50 @@ import java.util.Arrays;
 
 @ExportLibrary(ListLibrary.class)
 public class DoubleList {
-    private final double[] list;
+  private final double[] list;
 
-    public DoubleList(double[] list) {
-        this.list = list;
-    }
+  public DoubleList(double[] list) {
+    this.list = list;
+  }
 
-    @ExportMessage
-    boolean isList() {
-        return true;
-    }
+  @ExportMessage
+  boolean isList() {
+    return true;
+  }
 
-    @ExportMessage
-    public double[] getInnerList() {
-        return list;
-    }
+  @ExportMessage
+  public double[] getInnerList() {
+    return list;
+  }
 
-    @ExportMessage
-    boolean isElementReadable(int index) {
-        return index >= 0 && index < list.length;
-    }
+  @ExportMessage
+  boolean isElementReadable(int index) {
+    return index >= 0 && index < list.length;
+  }
 
-    @ExportMessage
-    public double get(long index) {
-        int idx = (int) index;
-        if (!isElementReadable(idx)) {
-            throw new IndexOutOfBoundsException("index out of bounds");
-        }
-        return list[idx];
+  @ExportMessage
+  public double get(long index) {
+    int idx = (int) index;
+    if (!isElementReadable(idx)) {
+      throw new IndexOutOfBoundsException("index out of bounds");
     }
+    return list[idx];
+  }
 
-    @ExportMessage
-    public int size() {
-        return list.length;
-    }
+  @ExportMessage
+  public int size() {
+    return list.length;
+  }
 
-    @ExportMessage
-    public Object toIterable() {
-        return new ListIterable(this);
-    }
+  @ExportMessage
+  public Object toIterable() {
+    return new ListIterable(this);
+  }
 
-    @ExportMessage
-    public Object sort() {
-        double[] result = this.list.clone();
-        Arrays.sort(result);
-        return new DoubleList(result);
-    }
+  @ExportMessage
+  public Object sort() {
+    double[] result = this.list.clone();
+    Arrays.sort(result);
+    return new DoubleList(result);
+  }
 }

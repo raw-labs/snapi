@@ -24,25 +24,25 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 
 @NodeInfo(shortName = "Json.ReadArray")
 public class JsonReadCollectionNode extends ExpressionNode {
-    @Child private ExpressionNode locationExp;
+  @Child private ExpressionNode locationExp;
 
-    @Child private ExpressionNode encodingExp;
+  @Child private ExpressionNode encodingExp;
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    public JsonReadCollectionNode(
-            ExpressionNode locationExp, ExpressionNode encodingExp, RootNode readerNode) {
-        this.locationExp = locationExp;
-        this.encodingExp = encodingExp;
-        this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
-    }
+  public JsonReadCollectionNode(
+      ExpressionNode locationExp, ExpressionNode encodingExp, RootNode readerNode) {
+    this.locationExp = locationExp;
+    this.encodingExp = encodingExp;
+    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame virtualFrame) {
-        LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
-        String encoding = (String) encodingExp.executeGeneric(virtualFrame);
+  @Override
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
+    String encoding = (String) encodingExp.executeGeneric(virtualFrame);
 
-        RuntimeContext context = RawContext.get(this).getRuntimeContext();
-        return new JsonReadCollection(locationObject, encoding, context, childDirectCall);
-    }
+    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    return new JsonReadCollection(locationObject, encoding, context, childDirectCall);
+  }
 }

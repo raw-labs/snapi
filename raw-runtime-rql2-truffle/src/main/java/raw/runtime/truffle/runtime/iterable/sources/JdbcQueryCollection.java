@@ -25,34 +25,34 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @ExportLibrary(IterableLibrary.class)
 public class JdbcQueryCollection {
 
-    private final LocationObject dbLocation;
-    private final String query;
-    private final DirectCallNode rowParser;
+  private final LocationObject dbLocation;
+  private final String query;
+  private final DirectCallNode rowParser;
 
-    private final RuntimeContext context;
-    private final JdbcExceptionHandler exceptionHandler;
+  private final RuntimeContext context;
+  private final JdbcExceptionHandler exceptionHandler;
 
-    public JdbcQueryCollection(
-            LocationObject dbLocation,
-            String query,
-            RuntimeContext context,
-            DirectCallNode rowParser,
-            JdbcExceptionHandler exceptionHandler) {
-        this.dbLocation = dbLocation;
-        this.query = query;
-        this.rowParser = rowParser;
-        this.context = context;
-        this.exceptionHandler = exceptionHandler;
-    }
+  public JdbcQueryCollection(
+      LocationObject dbLocation,
+      String query,
+      RuntimeContext context,
+      DirectCallNode rowParser,
+      JdbcExceptionHandler exceptionHandler) {
+    this.dbLocation = dbLocation;
+    this.query = query;
+    this.rowParser = rowParser;
+    this.context = context;
+    this.exceptionHandler = exceptionHandler;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator() {
-        return new CollectionAbstractGenerator(
-                new JdbcQueryComputeNext(dbLocation, query, context, rowParser, exceptionHandler));
-    }
+  @ExportMessage
+  Object getGenerator() {
+    return new CollectionAbstractGenerator(
+        new JdbcQueryComputeNext(dbLocation, query, context, rowParser, exceptionHandler));
+  }
 }

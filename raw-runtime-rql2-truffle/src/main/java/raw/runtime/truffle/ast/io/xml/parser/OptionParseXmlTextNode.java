@@ -23,21 +23,21 @@ import raw.runtime.truffle.runtime.option.ObjectOption;
 @NodeInfo(shortName = "OptionParseXmlText")
 public class OptionParseXmlTextNode extends ExpressionNode {
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    public OptionParseXmlTextNode(ProgramExpressionNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-    }
+  public OptionParseXmlTextNode(ProgramExpressionNode childProgramStatementNode) {
+    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-        String text = (String) args[1];
-        if (text.isEmpty()) {
-            return new EmptyOption();
-        } else {
-            Object value = childDirectCall.call(parser, text);
-            return new ObjectOption(value);
-        }
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    String text = (String) args[1];
+    if (text.isEmpty()) {
+      return new EmptyOption();
+    } else {
+      Object value = childDirectCall.call(parser, text);
+      return new ObjectOption(value);
     }
+  }
 }

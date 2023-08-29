@@ -21,17 +21,17 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 @NodeInfo(shortName = "AttributeParsePrimitiveXml")
 public class AttributeParsePrimitiveXmlNode extends ExpressionNode {
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    public AttributeParsePrimitiveXmlNode(ProgramExpressionNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-    }
+  public AttributeParsePrimitiveXmlNode(ProgramExpressionNode childProgramStatementNode) {
+    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-        int index = (int) args[1];
-        String text = parser.getStringAttribute(index);
-        return childDirectCall.call(parser, text);
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    int index = (int) args[1];
+    String text = parser.getStringAttribute(index);
+    return childDirectCall.call(parser, text);
+  }
 }

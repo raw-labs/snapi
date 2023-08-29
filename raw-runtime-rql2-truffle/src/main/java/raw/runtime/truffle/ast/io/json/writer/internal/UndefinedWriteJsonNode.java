@@ -19,7 +19,7 @@ import raw.runtime.truffle.StatementNode;
 @NodeInfo(shortName = "UndefinedWriteJson")
 public class UndefinedWriteJsonNode extends StatementNode {
 
-    public void executeVoid(VirtualFrame frame) {
-        assert (false);
-    }
+  public void executeVoid(VirtualFrame frame) {
+    assert (false);
+  }
 }

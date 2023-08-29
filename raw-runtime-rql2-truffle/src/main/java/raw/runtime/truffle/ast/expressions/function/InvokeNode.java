@@ -24,37 +24,37 @@ import raw.runtime.truffle.runtime.function.Closure;
 @NodeInfo(shortName = "invoke")
 public final class InvokeNode extends ExpressionNode {
 
-    @Child private ExpressionNode functionNode;
-    @Children private final ExpressionNode[] argumentNodes;
+  @Child private ExpressionNode functionNode;
+  @Children private final ExpressionNode[] argumentNodes;
 
-    private final String[] argNames;
+  private final String[] argNames;
 
-    public InvokeNode(
-            ExpressionNode functionNode, String[] argNames, ExpressionNode[] argumentNodes) {
-        this.functionNode = functionNode;
-        assert (argNames.length == argumentNodes.length);
-        this.argNames = argNames;
-        this.argumentNodes = argumentNodes;
+  public InvokeNode(
+      ExpressionNode functionNode, String[] argNames, ExpressionNode[] argumentNodes) {
+    this.functionNode = functionNode;
+    assert (argNames.length == argumentNodes.length);
+    this.argNames = argNames;
+    this.argumentNodes = argumentNodes;
+  }
+
+  @ExplodeLoop
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    CompilerAsserts.compilationConstant(argumentNodes.length);
+
+    Closure closure = (Closure) functionNode.executeGeneric(frame);
+    Object[] argumentValues = new Object[argumentNodes.length];
+    for (int i = 0; i < argumentNodes.length; i++) {
+      argumentValues[i] = argumentNodes[i].executeGeneric(frame);
     }
+    return closure.callWithNames(argNames, argumentValues);
+  }
 
-    @ExplodeLoop
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        CompilerAsserts.compilationConstant(argumentNodes.length);
-
-        Closure closure = (Closure) functionNode.executeGeneric(frame);
-        Object[] argumentValues = new Object[argumentNodes.length];
-        for (int i = 0; i < argumentNodes.length; i++) {
-            argumentValues[i] = argumentNodes[i].executeGeneric(frame);
-        }
-        return closure.callWithNames(argNames, argumentValues);
+  @Override
+  public boolean hasTag(Class<? extends Tag> tag) {
+    if (tag == StandardTags.CallTag.class) {
+      return true;
     }
-
-    @Override
-    public boolean hasTag(Class<? extends Tag> tag) {
-        if (tag == StandardTags.CallTag.class) {
-            return true;
-        }
-        return super.hasTag(tag);
-    }
+    return super.hasTag(tag);
+  }
 }

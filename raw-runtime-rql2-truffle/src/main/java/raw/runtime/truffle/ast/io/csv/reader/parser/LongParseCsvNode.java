@@ -19,9 +19,9 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "IntParseCsv")
 public class LongParseCsvNode extends ExpressionNode {
 
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-        return parser.getLong(this);
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    return parser.getLong(this);
+  }
 }

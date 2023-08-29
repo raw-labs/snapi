@@ -24,23 +24,23 @@ import java.io.OutputStream;
 @NodeInfo(shortName = "Binary.NullableWrite")
 public class NullableBinaryWriterNode extends StatementNode {
 
-    @Child private DirectCallNode innerWriter;
+  @Child private DirectCallNode innerWriter;
 
-    @Child private OptionLibrary options = OptionLibrary.getFactory().createDispatched(1);
+  @Child private OptionLibrary options = OptionLibrary.getFactory().createDispatched(1);
 
-    public NullableBinaryWriterNode(ProgramStatementNode innerWriter) {
-        this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
-    }
+  public NullableBinaryWriterNode(ProgramStatementNode innerWriter) {
+    this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
+  }
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        Object nullable = args[0];
-        OutputStream output = (OutputStream) args[1];
-        if (options.isDefined(nullable)) {
-            // the nullable is defined, write its bytes using the inner writer (the plain binary
-            // writer)
-            innerWriter.call(options.get(nullable), output);
-        } // else don't write anything.
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    Object nullable = args[0];
+    OutputStream output = (OutputStream) args[1];
+    if (options.isDefined(nullable)) {
+      // the nullable is defined, write its bytes using the inner writer (the plain binary
+      // writer)
+      innerWriter.call(options.get(nullable), output);
+    } // else don't write anything.
+  }
 }

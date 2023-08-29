@@ -21,8 +21,8 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeInfo(shortName = "Interval.Hours")
 @NodeChild("interval")
 public abstract class IntervalHoursNode extends ExpressionNode {
-    @Specialization
-    protected int getHours(IntervalObject interval) {
-        return interval.getHours();
-    }
+  @Specialization
+  protected int getHours(IntervalObject interval) {
+    return interval.getHours();
+  }
 }

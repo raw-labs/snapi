@@ -25,21 +25,21 @@ import java.util.Base64;
 @NodeInfo(shortName = "BinaryWriteCsv")
 public class BinaryWriteCsvNode extends StatementNode {
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        byte[] value = (byte[]) args[0];
-        CsvGenerator generator = (CsvGenerator) args[1];
-        doWrite(value, generator);
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    byte[] value = (byte[]) args[0];
+    CsvGenerator generator = (CsvGenerator) args[1];
+    doWrite(value, generator);
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(byte[] value, CsvGenerator gen) {
-        try {
-            String result = Base64.getEncoder().encodeToString(value);
-            gen.writeString(result);
-        } catch (IOException e) {
-            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
-        }
+  @CompilerDirectives.TruffleBoundary
+  private void doWrite(byte[] value, CsvGenerator gen) {
+    try {
+      String result = Base64.getEncoder().encodeToString(value);
+      gen.writeString(result);
+    } catch (IOException e) {
+      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
     }
+  }
 }

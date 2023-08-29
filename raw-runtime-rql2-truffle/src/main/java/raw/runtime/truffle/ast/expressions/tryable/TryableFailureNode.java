@@ -23,8 +23,8 @@ import raw.runtime.truffle.runtime.tryable.*;
 @NodeChild("message")
 public abstract class TryableFailureNode extends ExpressionNode {
 
-    @Specialization
-    protected Object tryableFailure(String message) {
-        return ErrorTryable.BuildFailure(message);
-    }
+  @Specialization
+  protected Object tryableFailure(String message) {
+    return ErrorTryable.BuildFailure(message);
+  }
 }

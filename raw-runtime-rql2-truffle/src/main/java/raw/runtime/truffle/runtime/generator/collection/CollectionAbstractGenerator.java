@@ -26,69 +26,68 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 @ExportLibrary(GeneratorLibrary.class)
 public class CollectionAbstractGenerator {
 
-    private Object next = null;
+  private Object next = null;
 
-    private boolean isTerminated = false;
+  private boolean isTerminated = false;
 
-    final Object computeNext;
+  final Object computeNext;
 
-    public CollectionAbstractGenerator(Object computeNext) {
-        this.computeNext = computeNext;
+  public CollectionAbstractGenerator(Object computeNext) {
+    this.computeNext = computeNext;
+  }
+
+  @ExportMessage
+  boolean isGenerator() {
+    return true;
+  }
+
+  @ExportMessage
+  void init(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
+    computeNextLibrary.init(this.computeNext);
+  }
+
+  @ExportMessage
+  void close(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
+    computeNextLibrary.close(this.computeNext);
+  }
+
+  @ExportMessage
+  Object next(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
+    if (isTerminated) {
+      throw new BreakException();
     }
-
-    @ExportMessage
-    boolean isGenerator() {
-        return true;
+    if (next == null) {
+      try {
+        next = computeNextLibrary.computeNext(computeNext);
+      } catch (BreakException e) { // case end of data
+        this.isTerminated = true;
+        throw e;
+      } catch (RawTruffleRuntimeException e) { // case runtime exception
+        next = e;
+      }
+    } else if (next instanceof RawTruffleRuntimeException) { // if hasNext returned a runtime error
+      this.isTerminated = true;
+      throw (RawTruffleRuntimeException) next;
     }
+    Object result = next;
+    next = null;
+    return result;
+  }
 
-    @ExportMessage
-    void init(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
-        computeNextLibrary.init(this.computeNext);
+  @ExportMessage
+  boolean hasNext(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
+    if (isTerminated) {
+      return false;
+    } else if (next == null) {
+      try {
+        next = computeNextLibrary.computeNext(computeNext);
+      } catch (BreakException e) {
+        this.isTerminated = true;
+        return false;
+      } catch (RawTruffleRuntimeException e) { // store the runtime error
+        next = e;
+      }
     }
-
-    @ExportMessage
-    void close(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
-        computeNextLibrary.close(this.computeNext);
-    }
-
-    @ExportMessage
-    Object next(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
-        if (isTerminated) {
-            throw new BreakException();
-        }
-        if (next == null) {
-            try {
-                next = computeNextLibrary.computeNext(computeNext);
-            } catch (BreakException e) { // case end of data
-                this.isTerminated = true;
-                throw e;
-            } catch (RawTruffleRuntimeException e) { // case runtime exception
-                next = e;
-            }
-        } else if (next
-                instanceof RawTruffleRuntimeException) { // if hasNext returned a runtime error
-            this.isTerminated = true;
-            throw (RawTruffleRuntimeException) next;
-        }
-        Object result = next;
-        next = null;
-        return result;
-    }
-
-    @ExportMessage
-    boolean hasNext(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) {
-        if (isTerminated) {
-            return false;
-        } else if (next == null) {
-            try {
-                next = computeNextLibrary.computeNext(computeNext);
-            } catch (BreakException e) {
-                this.isTerminated = true;
-                return false;
-            } catch (RawTruffleRuntimeException e) { // store the runtime error
-                next = e;
-            }
-        }
-        return true;
-    }
+    return true;
+  }
 }

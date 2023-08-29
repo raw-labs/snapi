@@ -22,32 +22,32 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string")
 public abstract class StringCapitalizeNode extends ExpressionNode {
 
-    @Specialization
-    protected String doCapitalize(String str) {
-        // Based on StringUtils.capitalize() from Apache Commons Lang
-        final int strLen = str.length();
-        if (strLen == 0) {
-            return str;
-        }
-
-        final int firstCodepoint = str.codePointAt(0);
-        final int newCodePoint = Character.toTitleCase(firstCodepoint);
-        boolean changed = (firstCodepoint != newCodePoint);
-
-        final int[] newCodePoints = new int[strLen]; // cannot be longer than the char array
-        int outOffset = 0;
-        newCodePoints[outOffset++] = newCodePoint; // copy the first codepoint
-        for (int inOffset = Character.charCount(firstCodepoint); inOffset < strLen; ) {
-            final int codepoint = str.codePointAt(inOffset);
-            final int newCodepoint = Character.toLowerCase(codepoint);
-            newCodePoints[outOffset++] = newCodepoint;
-            changed = changed || (codepoint != newCodepoint);
-            inOffset += Character.charCount(codepoint);
-        }
-        if (changed) {
-            return new String(newCodePoints, 0, outOffset);
-        } else {
-            return str;
-        }
+  @Specialization
+  protected String doCapitalize(String str) {
+    // Based on StringUtils.capitalize() from Apache Commons Lang
+    final int strLen = str.length();
+    if (strLen == 0) {
+      return str;
     }
+
+    final int firstCodepoint = str.codePointAt(0);
+    final int newCodePoint = Character.toTitleCase(firstCodepoint);
+    boolean changed = (firstCodepoint != newCodePoint);
+
+    final int[] newCodePoints = new int[strLen]; // cannot be longer than the char array
+    int outOffset = 0;
+    newCodePoints[outOffset++] = newCodePoint; // copy the first codepoint
+    for (int inOffset = Character.charCount(firstCodepoint); inOffset < strLen; ) {
+      final int codepoint = str.codePointAt(inOffset);
+      final int newCodepoint = Character.toLowerCase(codepoint);
+      newCodePoints[outOffset++] = newCodepoint;
+      changed = changed || (codepoint != newCodepoint);
+      inOffset += Character.charCount(codepoint);
+    }
+    if (changed) {
+      return new String(newCodePoints, 0, outOffset);
+    } else {
+      return str;
+    }
+  }
 }

@@ -24,53 +24,53 @@ import raw.runtime.truffle.runtime.iterable.operations.EquiJoinCollection;
 
 @NodeInfo(shortName = "Collection.EquiJoin")
 public class CollectionEquiJoinNode extends ExpressionNode {
-    private final ExpressionNode left;
-    private final ExpressionNode right;
-    private final ExpressionNode leftKeyFun;
-    private final ExpressionNode rightKeyFun;
-    private final Rql2TypeWithProperties leftValueType;
-    private final Rql2TypeWithProperties rightValueType;
-    private final Rql2TypeWithProperties keyType;
-    private final ExpressionNode remapFun;
+  private final ExpressionNode left;
+  private final ExpressionNode right;
+  private final ExpressionNode leftKeyFun;
+  private final ExpressionNode rightKeyFun;
+  private final Rql2TypeWithProperties leftValueType;
+  private final Rql2TypeWithProperties rightValueType;
+  private final Rql2TypeWithProperties keyType;
+  private final ExpressionNode remapFun;
 
-    public CollectionEquiJoinNode(
-            ExpressionNode left,
-            ExpressionNode right,
-            ExpressionNode leftKeyFun,
-            ExpressionNode rightKeyFun,
-            Rql2TypeWithProperties keyType,
-            Rql2TypeWithProperties leftValueType,
-            Rql2TypeWithProperties rightValueType,
-            ExpressionNode remapFun) {
-        this.remapFun = remapFun;
-        this.keyType = keyType;
-        // left
-        this.left = left;
-        this.leftKeyFun = leftKeyFun;
-        this.leftValueType = leftValueType;
-        // right
-        this.right = right;
-        this.rightKeyFun = rightKeyFun;
-        this.rightValueType = rightValueType;
-    }
+  public CollectionEquiJoinNode(
+      ExpressionNode left,
+      ExpressionNode right,
+      ExpressionNode leftKeyFun,
+      ExpressionNode rightKeyFun,
+      Rql2TypeWithProperties keyType,
+      Rql2TypeWithProperties leftValueType,
+      Rql2TypeWithProperties rightValueType,
+      ExpressionNode remapFun) {
+    this.remapFun = remapFun;
+    this.keyType = keyType;
+    // left
+    this.left = left;
+    this.leftKeyFun = leftKeyFun;
+    this.leftValueType = leftValueType;
+    // right
+    this.right = right;
+    this.rightKeyFun = rightKeyFun;
+    this.rightValueType = rightValueType;
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame frame) {
-        Object leftIterable = left.executeGeneric(frame);
-        Closure leftKeyF = (Closure) leftKeyFun.executeGeneric(frame);
-        Object rightIterable = right.executeGeneric(frame);
-        Closure rightKeyF = (Closure) rightKeyFun.executeGeneric(frame);
-        Closure remapF = (Closure) remapFun.executeGeneric(frame);
-        return new EquiJoinCollection(
-                leftIterable,
-                leftKeyF,
-                leftValueType,
-                rightIterable,
-                rightKeyF,
-                rightValueType,
-                keyType,
-                remapF,
-                RawLanguage.get(this),
-                RawContext.get(this).getRuntimeContext());
-    }
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object leftIterable = left.executeGeneric(frame);
+    Closure leftKeyF = (Closure) leftKeyFun.executeGeneric(frame);
+    Object rightIterable = right.executeGeneric(frame);
+    Closure rightKeyF = (Closure) rightKeyFun.executeGeneric(frame);
+    Closure remapF = (Closure) remapFun.executeGeneric(frame);
+    return new EquiJoinCollection(
+        leftIterable,
+        leftKeyF,
+        leftValueType,
+        rightIterable,
+        rightKeyF,
+        rightValueType,
+        keyType,
+        remapF,
+        RawLanguage.get(this),
+        RawContext.get(this).getRuntimeContext());
+  }
 }

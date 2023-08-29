@@ -21,21 +21,21 @@ import raw.runtime.truffle.runtime.option.*;
 
 public final class TypeProtectCastOptionNode extends ExpressionNode {
 
-    @Child private ExpressionNode child;
+  @Child private ExpressionNode child;
 
-    private final RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-    private final NullableTryableLibrary nullableTryables =
-            NullableTryableLibrary.getFactory().create(handler);
+  private final RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
+  private final NullableTryableLibrary nullableTryables =
+      NullableTryableLibrary.getFactory().create(handler);
 
-    public TypeProtectCastOptionNode(ExpressionNode child) {
-        this.child = child;
+  public TypeProtectCastOptionNode(ExpressionNode child) {
+    this.child = child;
+  }
+
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    try {
+      return nullableTryables.boxOption(handler, child.executeGeneric(virtualFrame));
+    } catch (RawTruffleUnexpectedNullException e) {
+      return new EmptyOption();
     }
-
-    public Object executeGeneric(VirtualFrame virtualFrame) {
-        try {
-            return nullableTryables.boxOption(handler, child.executeGeneric(virtualFrame));
-        } catch (RawTruffleUnexpectedNullException e) {
-            return new EmptyOption();
-        }
-    }
+  }
 }

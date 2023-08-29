@@ -18,37 +18,37 @@ import com.oracle.truffle.api.library.ExportMessage;
 @ExportLibrary(OptionLibrary.class)
 public final class ShortOption {
 
-    private short value;
+  private short value;
 
-    private boolean isDefined;
+  private boolean isDefined;
 
-    public ShortOption() {
-        this.isDefined = false;
-    }
+  public ShortOption() {
+    this.isDefined = false;
+  }
 
-    public ShortOption(short value) {
-        this.isDefined = true;
-        this.value = value;
-    }
+  public ShortOption(short value) {
+    this.isDefined = true;
+    this.value = value;
+  }
 
-    @ExportMessage
-    boolean isOption() {
-        return true;
-    }
+  @ExportMessage
+  boolean isOption() {
+    return true;
+  }
 
-    @ExportMessage
-    public short get() {
-        return value;
-    }
+  @ExportMessage
+  public short get() {
+    return value;
+  }
 
-    @ExportMessage
-    public void set(Object value) {
-        this.value = (short) value;
-        this.isDefined = true;
-    }
+  @ExportMessage
+  public void set(Object value) {
+    this.value = (short) value;
+    this.isDefined = true;
+  }
 
-    @ExportMessage
-    public boolean isDefined() {
-        return isDefined;
-    }
+  @ExportMessage
+  public boolean isDefined() {
+    return isDefined;
+  }
 }

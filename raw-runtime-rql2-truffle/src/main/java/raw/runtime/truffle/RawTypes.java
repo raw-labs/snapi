@@ -19,21 +19,21 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 import java.math.BigDecimal;
 
 @TypeSystem({
-    boolean.class,
-    byte.class,
-    short.class,
-    int.class,
-    long.class,
-    float.class,
-    double.class,
-    byte[].class,
-    BigDecimal.class,
-    DateObject.class,
-    TimeObject.class,
-    IntervalObject.class,
-    TimestampObject.class,
-    LocationObject.class,
-    String.class,
-    RecordObject.class
+  boolean.class,
+  byte.class,
+  short.class,
+  int.class,
+  long.class,
+  float.class,
+  double.class,
+  byte[].class,
+  BigDecimal.class,
+  DateObject.class,
+  TimeObject.class,
+  IntervalObject.class,
+  TimestampObject.class,
+  LocationObject.class,
+  String.class,
+  RecordObject.class
 })
 public abstract class RawTypes {}

@@ -32,15 +32,15 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 @NodeChild("parent")
 public abstract class CollectionCountNode extends ExpressionNode {
 
-    @Specialization
-    protected ObjectTryable doCount(
-            Object iterable, @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
-        try {
-            Object aggregation = new SingleAggregation(new CountAggregator());
-            Object result = aggregations.aggregate(aggregation, iterable);
-            return ObjectTryable.BuildSuccess(result);
-        } catch (RawTruffleRuntimeException ex) {
-            return ObjectTryable.BuildFailure(ex.getMessage());
-        }
+  @Specialization
+  protected ObjectTryable doCount(
+      Object iterable, @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
+    try {
+      Object aggregation = new SingleAggregation(new CountAggregator());
+      Object result = aggregations.aggregate(aggregation, iterable);
+      return ObjectTryable.BuildSuccess(result);
+    } catch (RawTruffleRuntimeException ex) {
+      return ObjectTryable.BuildFailure(ex.getMessage());
     }
+  }
 }

@@ -25,32 +25,32 @@ import raw.runtime.truffle.runtime.tryable.ErrorTryable;
 @NodeInfo(shortName = "TryableParseXml")
 public class TryableParseXmlNode extends ExpressionNode {
 
-    @Child private DirectCallNode childDirectCall;
-    private final RuntimeNullableTryableHandler nullableTryableHandler =
-            new RuntimeNullableTryableHandler();
+  @Child private DirectCallNode childDirectCall;
+  private final RuntimeNullableTryableHandler nullableTryableHandler =
+      new RuntimeNullableTryableHandler();
 
-    @Child
-    private NullableTryableLibrary nullableTryable =
-            NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+  @Child
+  private NullableTryableLibrary nullableTryable =
+      NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
-    public TryableParseXmlNode(ProgramExpressionNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  public TryableParseXmlNode(ProgramExpressionNode childProgramStatementNode) {
+    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  }
+
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    try {
+      Object result = childDirectCall.call(args);
+      return nullableTryable.boxTryable(nullableTryableHandler, result);
+    } catch (XmlParserRawTruffleException ex) {
+      Object failure = ErrorTryable.BuildFailure(ex.getMessage());
+      try {
+        parser.finishConsuming();
+      } catch (XmlParserRawTruffleException e) {
+        return failure;
+      }
+      return failure;
     }
-
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-        try {
-            Object result = childDirectCall.call(args);
-            return nullableTryable.boxTryable(nullableTryableHandler, result);
-        } catch (XmlParserRawTruffleException ex) {
-            Object failure = ErrorTryable.BuildFailure(ex.getMessage());
-            try {
-                parser.finishConsuming();
-            } catch (XmlParserRawTruffleException e) {
-                return failure;
-            }
-            return failure;
-        }
-    }
+  }
 }

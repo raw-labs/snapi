@@ -25,25 +25,25 @@ import java.io.OutputStream;
 @NodeInfo(shortName = "Binary.TryableWrite")
 public class TryableBinaryWriterNode extends StatementNode {
 
-    @Child private DirectCallNode innerWriter;
+  @Child private DirectCallNode innerWriter;
 
-    @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
+  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
 
-    public TryableBinaryWriterNode(ProgramStatementNode innerWriter) {
-        this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
+  public TryableBinaryWriterNode(ProgramStatementNode innerWriter) {
+    this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
+  }
+
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    Object tryable = args[0];
+    OutputStream output = (OutputStream) args[1];
+    if (tryables.isSuccess(tryable)) {
+      // the tryable is a success, write its bytes using the inner writer.
+      innerWriter.call(tryables.success(tryable), output);
+    } else {
+      // else throw.
+      throw new BinaryWriterRawTruffleException(tryables.failure(tryable), this);
     }
-
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        Object tryable = args[0];
-        OutputStream output = (OutputStream) args[1];
-        if (tryables.isSuccess(tryable)) {
-            // the tryable is a success, write its bytes using the inner writer.
-            innerWriter.call(tryables.success(tryable), output);
-        } else {
-            // else throw.
-            throw new BinaryWriterRawTruffleException(tryables.failure(tryable), this);
-        }
-    }
+  }
 }

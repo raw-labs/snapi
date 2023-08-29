@@ -19,9 +19,9 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "OptionTimeParseCsv")
 public class OptionTimeParseCsvNode extends ExpressionNode {
 
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-        return parser.getOptionTime(this);
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    return parser.getOptionTime(this);
+  }
 }

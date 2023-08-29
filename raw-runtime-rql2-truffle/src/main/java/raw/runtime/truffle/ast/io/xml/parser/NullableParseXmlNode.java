@@ -28,36 +28,36 @@ import raw.runtime.truffle.runtime.option.EmptyOption;
 
 public class NullableParseXmlNode extends ExpressionNode {
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    @Child
-    private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-            JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+  @Child
+  private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
-    private final RuntimeNullableTryableHandler nullableTryableHandler =
-            new RuntimeNullableTryableHandler();
+  private final RuntimeNullableTryableHandler nullableTryableHandler =
+      new RuntimeNullableTryableHandler();
 
-    @Child
-    private NullableTryableLibrary nullableTryable =
-            NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+  @Child
+  private NullableTryableLibrary nullableTryable =
+      NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
-    public NullableParseXmlNode(ProgramExpressionNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  public NullableParseXmlNode(ProgramExpressionNode childProgramStatementNode) {
+    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  }
+
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
+    if (parser.getCurrentToken() == JsonToken.VALUE_NULL) {
+      nextTokenNode.execute(parser);
+      return new EmptyOption();
+    } else {
+      try {
+        Object result = childDirectCall.call(parser);
+        return nullableTryable.boxOption(nullableTryableHandler, result);
+      } catch (JsonExpectedNothingException ex) {
+        throw new JsonParserRawTruffleException("expected null but got non-null", this);
+      }
     }
-
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
-        if (parser.getCurrentToken() == JsonToken.VALUE_NULL) {
-            nextTokenNode.execute(parser);
-            return new EmptyOption();
-        } else {
-            try {
-                Object result = childDirectCall.call(parser);
-                return nullableTryable.boxOption(nullableTryableHandler, result);
-            } catch (JsonExpectedNothingException ex) {
-                throw new JsonParserRawTruffleException("expected null but got non-null", this);
-            }
-        }
-    }
+  }
 }

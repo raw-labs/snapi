@@ -22,8 +22,8 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Math.Floor")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathSquareNode extends ExpressionNode {
-    @Specialization
-    protected double doubleSquare(double argument) {
-        return Math.pow(argument, 2);
-    }
+  @Specialization
+  protected double doubleSquare(double argument) {
+    return Math.pow(argument, 2);
+  }
 }

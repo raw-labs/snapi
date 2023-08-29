@@ -24,20 +24,20 @@ import java.io.IOException;
 @NodeInfo(shortName = "BoolWriteCsv")
 public class BoolWriteCsvNode extends StatementNode {
 
-    @Override
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        boolean value = (boolean) args[0];
-        CsvGenerator generator = (CsvGenerator) args[1];
-        doWrite(value, generator);
-    }
+  @Override
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    boolean value = (boolean) args[0];
+    CsvGenerator generator = (CsvGenerator) args[1];
+    doWrite(value, generator);
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    private void doWrite(boolean value, CsvGenerator gen) {
-        try {
-            gen.writeBoolean(value);
-        } catch (IOException e) {
-            throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
-        }
+  @CompilerDirectives.TruffleBoundary
+  private void doWrite(boolean value, CsvGenerator gen) {
+    try {
+      gen.writeBoolean(value);
+    } catch (IOException e) {
+      throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
     }
+  }
 }

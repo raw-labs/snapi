@@ -25,48 +25,48 @@ import raw.runtime.truffle.ast.TypeGuards;
 @NodeField(name = "rql2Type", type = Rql2Type.class)
 public abstract class ReadLocalVariableNode extends ExpressionNode {
 
-    protected abstract int getSlot();
+  protected abstract int getSlot();
 
-    protected abstract Rql2Type getRql2Type();
+  protected abstract Rql2Type getRql2Type();
 
-    @Specialization(guards = "isBooleanKind(getRql2Type())")
-    protected final boolean doBoolean(VirtualFrame frame) {
-        return frame.getBoolean(getSlot());
-    }
+  @Specialization(guards = "isBooleanKind(getRql2Type())")
+  protected final boolean doBoolean(VirtualFrame frame) {
+    return frame.getBoolean(getSlot());
+  }
 
-    @Specialization(guards = "isByteKind(getRql2Type())")
-    protected final byte doByte(VirtualFrame frame) {
-        return frame.getByte(getSlot());
-    }
+  @Specialization(guards = "isByteKind(getRql2Type())")
+  protected final byte doByte(VirtualFrame frame) {
+    return frame.getByte(getSlot());
+  }
 
-    @Specialization(guards = "isShortKind(getRql2Type())")
-    protected final short doShort(VirtualFrame frame) {
-        return (short) frame.getInt(getSlot());
-    }
+  @Specialization(guards = "isShortKind(getRql2Type())")
+  protected final short doShort(VirtualFrame frame) {
+    return (short) frame.getInt(getSlot());
+  }
 
-    @Specialization(guards = "isIntKind(getRql2Type())")
-    protected final int doInt(VirtualFrame frame) {
-        return frame.getInt(getSlot());
-    }
+  @Specialization(guards = "isIntKind(getRql2Type())")
+  protected final int doInt(VirtualFrame frame) {
+    return frame.getInt(getSlot());
+  }
 
-    @Specialization(guards = "isLongKind(getRql2Type())")
-    protected final long doLong(VirtualFrame frame) {
-        return frame.getLong(getSlot());
-    }
+  @Specialization(guards = "isLongKind(getRql2Type())")
+  protected final long doLong(VirtualFrame frame) {
+    return frame.getLong(getSlot());
+  }
 
-    @Specialization(guards = "isFloatKind(getRql2Type())")
-    protected final float doFloat(VirtualFrame frame) {
-        return frame.getFloat(getSlot());
-    }
+  @Specialization(guards = "isFloatKind(getRql2Type())")
+  protected final float doFloat(VirtualFrame frame) {
+    return frame.getFloat(getSlot());
+  }
 
-    @Specialization(guards = "isDoubleKind(getRql2Type())")
-    protected final double doDouble(VirtualFrame frame) {
-        return frame.getDouble(getSlot());
-    }
+  @Specialization(guards = "isDoubleKind(getRql2Type())")
+  protected final double doDouble(VirtualFrame frame) {
+    return frame.getDouble(getSlot());
+  }
 
-    @Specialization(
-            replaces = {"doBoolean", "doByte", "doShort", "doInt", "doFloat", "doDouble", "doLong"})
-    protected final Object doObject(VirtualFrame frame) {
-        return frame.getObject(getSlot());
-    }
+  @Specialization(
+      replaces = {"doBoolean", "doByte", "doShort", "doInt", "doFloat", "doDouble", "doLong"})
+  protected final Object doObject(VirtualFrame frame) {
+    return frame.getObject(getSlot());
+  }
 }

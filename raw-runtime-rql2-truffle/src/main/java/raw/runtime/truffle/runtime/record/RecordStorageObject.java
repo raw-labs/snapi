@@ -18,7 +18,7 @@ import com.oracle.truffle.api.object.Shape;
 // This is an implementation of `DynamicObject` used as an internal storage of our RecordObject.
 class RecordStorageObject extends DynamicObject {
 
-    protected RecordStorageObject(Shape shape) {
-        super(shape);
-    }
+  protected RecordStorageObject(Shape shape) {
+    super(shape);
+  }
 }

@@ -25,46 +25,46 @@ import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandle
 @ExportLibrary(ComputeNextLibrary.class)
 public class FilterComputeNext {
 
-    final Object parent;
-    final Closure predicate;
+  final Object parent;
+  final Closure predicate;
 
-    public FilterComputeNext(Object parent, Closure predicate) {
-        this.parent = parent;
-        this.predicate = predicate;
+  public FilterComputeNext(Object parent, Closure predicate) {
+    this.parent = parent;
+    this.predicate = predicate;
+  }
+
+  @ExportMessage
+  void init(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+    generators.init(parent);
+  }
+
+  @ExportMessage
+  void close(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+    generators.close(parent);
+  }
+
+  @ExportMessage
+  public boolean isComputeNext() {
+    return true;
+  }
+
+  @ExportMessage
+  Object computeNext(
+      @CachedLibrary("this.parent") GeneratorLibrary generators,
+      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+    Object nullableTryable = new RuntimeNullableTryableHandler();
+    Object[] argumentValues = new Object[1];
+
+    while (generators.hasNext(parent)) {
+      Object v = generators.next(parent);
+      argumentValues[0] = v;
+      Boolean isPredicateTrue =
+          nullableTryables.handleOptionTriablePredicate(
+              nullableTryable, predicate.call(argumentValues), false);
+      if (isPredicateTrue) {
+        return v;
+      }
     }
-
-    @ExportMessage
-    void init(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-        generators.init(parent);
-    }
-
-    @ExportMessage
-    void close(@CachedLibrary("this.parent") GeneratorLibrary generators) {
-        generators.close(parent);
-    }
-
-    @ExportMessage
-    public boolean isComputeNext() {
-        return true;
-    }
-
-    @ExportMessage
-    Object computeNext(
-            @CachedLibrary("this.parent") GeneratorLibrary generators,
-            @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-        Object nullableTryable = new RuntimeNullableTryableHandler();
-        Object[] argumentValues = new Object[1];
-
-        while (generators.hasNext(parent)) {
-            Object v = generators.next(parent);
-            argumentValues[0] = v;
-            Boolean isPredicateTrue =
-                    nullableTryables.handleOptionTriablePredicate(
-                            nullableTryable, predicate.call(argumentValues), false);
-            if (isPredicateTrue) {
-                return v;
-            }
-        }
-        throw new BreakException();
-    }
+    throw new BreakException();
+  }
 }

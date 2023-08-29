@@ -21,20 +21,20 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Jdbc.DecimalRead")
 public class DecimalReadJdbcQuery extends ExpressionNode {
 
-    private final String idx;
+  private final String idx;
 
-    public DecimalReadJdbcQuery(String idx) {
-        this.idx = idx;
-    }
+  public DecimalReadJdbcQuery(String idx) {
+    this.idx = idx;
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        return this.executeBigDecimal(frame);
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    return this.executeBigDecimal(frame);
+  }
 
-    @Override
-    public final BigDecimal executeBigDecimal(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        JdbcQuery rs = (JdbcQuery) args[0];
-        return rs.getDecimal(idx, this);
-    }
+  @Override
+  public final BigDecimal executeBigDecimal(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    JdbcQuery rs = (JdbcQuery) args[0];
+    return rs.getDecimal(idx, this);
+  }
 }

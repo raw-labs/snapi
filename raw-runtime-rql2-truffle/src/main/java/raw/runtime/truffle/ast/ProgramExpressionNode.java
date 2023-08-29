@@ -22,25 +22,24 @@ import raw.runtime.truffle.RawLanguage;
 
 public final class ProgramExpressionNode extends RootNode {
 
-    private static final Source DUMMY_SOURCE =
-            Source.newBuilder(RawLanguage.ID, "", "dummy").build();
+  private static final Source DUMMY_SOURCE = Source.newBuilder(RawLanguage.ID, "", "dummy").build();
 
-    @Child private ExpressionNode bodyNode;
+  @Child private ExpressionNode bodyNode;
 
-    public ProgramExpressionNode(
-            RawLanguage language, FrameDescriptor frameDescriptor, ExpressionNode body) {
-        super(language, frameDescriptor);
-        this.bodyNode = body;
-        this.bodyNode.addRootTag();
-    }
+  public ProgramExpressionNode(
+      RawLanguage language, FrameDescriptor frameDescriptor, ExpressionNode body) {
+    super(language, frameDescriptor);
+    this.bodyNode = body;
+    this.bodyNode.addRootTag();
+  }
 
-    @Override
-    public SourceSection getSourceSection() {
-        return DUMMY_SOURCE.createUnavailableSection();
-    }
+  @Override
+  public SourceSection getSourceSection() {
+    return DUMMY_SOURCE.createUnavailableSection();
+  }
 
-    @Override
-    public Object execute(VirtualFrame frame) {
-        return bodyNode.executeGeneric(frame);
-    }
+  @Override
+  public Object execute(VirtualFrame frame) {
+    return bodyNode.executeGeneric(frame);
+  }
 }

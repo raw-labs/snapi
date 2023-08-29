@@ -22,50 +22,50 @@ import java.util.Arrays;
 
 @ExportLibrary(ListLibrary.class)
 public class ShortList {
-    private final short[] list;
+  private final short[] list;
 
-    public ShortList(short[] list) {
-        this.list = list;
-    }
+  public ShortList(short[] list) {
+    this.list = list;
+  }
 
-    @ExportMessage
-    boolean isList() {
-        return true;
-    }
+  @ExportMessage
+  boolean isList() {
+    return true;
+  }
 
-    @ExportMessage
-    public short[] getInnerList() {
-        return list;
-    }
+  @ExportMessage
+  public short[] getInnerList() {
+    return list;
+  }
 
-    @ExportMessage
-    boolean isElementReadable(int index) {
-        return index >= 0 && index < list.length;
-    }
+  @ExportMessage
+  boolean isElementReadable(int index) {
+    return index >= 0 && index < list.length;
+  }
 
-    @ExportMessage
-    public short get(long index) {
-        int idx = (int) index;
-        if (!isElementReadable(idx)) {
-            throw new IndexOutOfBoundsException("index out of bounds");
-        }
-        return list[idx];
+  @ExportMessage
+  public short get(long index) {
+    int idx = (int) index;
+    if (!isElementReadable(idx)) {
+      throw new IndexOutOfBoundsException("index out of bounds");
     }
+    return list[idx];
+  }
 
-    @ExportMessage
-    public int size() {
-        return list.length;
-    }
+  @ExportMessage
+  public int size() {
+    return list.length;
+  }
 
-    @ExportMessage
-    public Object toIterable() {
-        return new ListIterable(this);
-    }
+  @ExportMessage
+  public Object toIterable() {
+    return new ListIterable(this);
+  }
 
-    @ExportMessage
-    public Object sort() {
-        short[] result = this.list.clone();
-        Arrays.sort(result);
-        return new ShortList(result);
-    }
+  @ExportMessage
+  public Object sort() {
+    short[] result = this.list.clone();
+    Arrays.sort(result);
+    return new ShortList(result);
+  }
 }

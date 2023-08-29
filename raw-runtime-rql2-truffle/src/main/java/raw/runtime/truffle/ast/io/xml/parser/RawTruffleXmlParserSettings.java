@@ -14,14 +14,13 @@ package raw.runtime.truffle.ast.io.xml.parser;
 
 public class RawTruffleXmlParserSettings {
 
-    protected final String dateFormat;
-    protected final String timeFormat;
-    protected final String timestampFormat;
+  protected final String dateFormat;
+  protected final String timeFormat;
+  protected final String timestampFormat;
 
-    public RawTruffleXmlParserSettings(
-            String dateFormat, String timeFormat, String timestampFormat) {
-        this.dateFormat = dateFormat;
-        this.timeFormat = timeFormat;
-        this.timestampFormat = timestampFormat;
-    }
+  public RawTruffleXmlParserSettings(String dateFormat, String timeFormat, String timestampFormat) {
+    this.dateFormat = dateFormat;
+    this.timeFormat = timeFormat;
+    this.timestampFormat = timestampFormat;
+  }
 }

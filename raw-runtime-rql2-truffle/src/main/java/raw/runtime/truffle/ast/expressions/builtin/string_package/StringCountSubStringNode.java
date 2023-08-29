@@ -22,8 +22,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "string2")
 public abstract class StringCountSubStringNode extends ExpressionNode {
 
-    @Specialization
-    protected int stringCountSubString(String string1, String string2) {
-        return string1.split(string2, -1).length - 1;
-    }
+  @Specialization
+  protected int stringCountSubString(String string1, String string2) {
+    return string1.split(string2, -1).length - 1;
+  }
 }

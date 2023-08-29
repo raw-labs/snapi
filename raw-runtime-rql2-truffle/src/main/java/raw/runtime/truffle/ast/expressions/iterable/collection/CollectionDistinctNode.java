@@ -29,14 +29,11 @@ import raw.runtime.truffle.runtime.iterable.operations.DistinctCollection;
 @NodeField(name = "valueType", type = Rql2TypeWithProperties.class)
 public abstract class CollectionDistinctNode extends ExpressionNode {
 
-    protected abstract Rql2TypeWithProperties getValueType();
+  protected abstract Rql2TypeWithProperties getValueType();
 
-    @Specialization
-    protected Object doDistinct(Object iterable) {
-        return new DistinctCollection(
-                iterable,
-                getValueType(),
-                RawLanguage.get(this),
-                RawContext.get(this).getRuntimeContext());
-    }
+  @Specialization
+  protected Object doDistinct(Object iterable) {
+    return new DistinctCollection(
+        iterable, getValueType(), RawLanguage.get(this), RawContext.get(this).getRuntimeContext());
+  }
 }

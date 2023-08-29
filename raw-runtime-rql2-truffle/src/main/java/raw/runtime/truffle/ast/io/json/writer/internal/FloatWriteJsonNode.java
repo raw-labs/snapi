@@ -22,12 +22,12 @@ import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 @NodeInfo(shortName = "FloatWriteJson")
 public class FloatWriteJsonNode extends StatementNode {
 
-    @Child
-    JsonWriteNodes.WriteFloatJsonWriterNode writeFloat =
-            JsonWriteNodesFactory.WriteFloatJsonWriterNodeGen.create();
+  @Child
+  JsonWriteNodes.WriteFloatJsonWriterNode writeFloat =
+      JsonWriteNodesFactory.WriteFloatJsonWriterNodeGen.create();
 
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        writeFloat.execute((float) args[0], (JsonGenerator) args[1]);
-    }
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    writeFloat.execute((float) args[0], (JsonGenerator) args[1]);
+  }
 }

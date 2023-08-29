@@ -26,13 +26,13 @@ import java.util.regex.PatternSyntaxException;
 @NodeChild(value = "pattern")
 public abstract class RegexMatchesNode extends ExpressionNode {
 
-    @Specialization
-    protected ObjectTryable regexMatches(String string, String regex) {
-        try {
-            Pattern pattern = RegexCache.get(regex);
-            return ObjectTryable.BuildSuccess(pattern.matcher(string).matches());
-        } catch (PatternSyntaxException e) {
-            return ObjectTryable.BuildFailure(e.getMessage());
-        }
+  @Specialization
+  protected ObjectTryable regexMatches(String string, String regex) {
+    try {
+      Pattern pattern = RegexCache.get(regex);
+      return ObjectTryable.BuildSuccess(pattern.matcher(string).matches());
+    } catch (PatternSyntaxException e) {
+      return ObjectTryable.BuildFailure(e.getMessage());
     }
+  }
 }

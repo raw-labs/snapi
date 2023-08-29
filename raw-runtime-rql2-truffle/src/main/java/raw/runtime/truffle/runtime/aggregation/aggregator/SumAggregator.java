@@ -22,27 +22,25 @@ import raw.runtime.truffle.runtime.option.EmptyOption;
 
 @ExportLibrary(AggregatorLibrary.class)
 public class SumAggregator {
-    AddOperator addOperator;
+  AddOperator addOperator;
 
-    public SumAggregator() {
-        this.addOperator = new AddOperator();
-    }
+  public SumAggregator() {
+    this.addOperator = new AddOperator();
+  }
 
-    @ExportMessage
-    public boolean isAggregator() {
-        return true;
-    }
+  @ExportMessage
+  public boolean isAggregator() {
+    return true;
+  }
 
-    @ExportMessage(limit = "3")
-    public Object merge(
-            Object current,
-            Object next,
-            @CachedLibrary("this.addOperator") OperatorLibrary operators) {
-        return operators.doOperation(this.addOperator, current, next);
-    }
+  @ExportMessage(limit = "3")
+  public Object merge(
+      Object current, Object next, @CachedLibrary("this.addOperator") OperatorLibrary operators) {
+    return operators.doOperation(this.addOperator, current, next);
+  }
 
-    @ExportMessage(limit = "3")
-    public Object zero() {
-        return new EmptyOption();
-    }
+  @ExportMessage(limit = "3")
+  public Object zero() {
+    return new EmptyOption();
+  }
 }

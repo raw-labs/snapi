@@ -30,64 +30,64 @@ import java.io.IOException;
 
 public class OrParseJsonNode extends ExpressionNode {
 
-    @Children private DirectCallNode[] childDirectCalls;
+  @Children private DirectCallNode[] childDirectCalls;
 
-    @Child
-    private JsonParserNodes.InitJsonParserNode initParserNode =
-            JsonParserNodesFactory.InitJsonParserNodeGen.create();
+  @Child
+  private JsonParserNodes.InitJsonParserNode initParserNode =
+      JsonParserNodesFactory.InitJsonParserNodeGen.create();
 
-    @Child
-    private JsonParserNodes.CloseJsonParserNode closeParserNode =
-            JsonParserNodesFactory.CloseJsonParserNodeGen.create();
+  @Child
+  private JsonParserNodes.CloseJsonParserNode closeParserNode =
+      JsonParserNodesFactory.CloseJsonParserNodeGen.create();
 
-    @Child
-    private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-            JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+  @Child
+  private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
-    public OrParseJsonNode(ProgramExpressionNode[] childProgramExpressionNode) {
-        this.childDirectCalls = new DirectCallNode[childProgramExpressionNode.length];
-        for (int i = 0; i < childProgramExpressionNode.length; i++) {
-            this.childDirectCalls[i] =
-                    DirectCallNode.create(childProgramExpressionNode[i].getCallTarget());
-        }
+  public OrParseJsonNode(ProgramExpressionNode[] childProgramExpressionNode) {
+    this.childDirectCalls = new DirectCallNode[childProgramExpressionNode.length];
+    for (int i = 0; i < childProgramExpressionNode.length; i++) {
+      this.childDirectCalls[i] =
+          DirectCallNode.create(childProgramExpressionNode[i].getCallTarget());
     }
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        JsonParser parser = (JsonParser) args[0];
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    JsonParser parser = (JsonParser) args[0];
 
-        String nodeString;
-        JsonParser localParser = null;
-        Object value;
-        ObjectMapper mapper = new ObjectMapper();
-        String[] messages = new String[childDirectCalls.length];
+    String nodeString;
+    JsonParser localParser = null;
+    Object value;
+    ObjectMapper mapper = new ObjectMapper();
+    String[] messages = new String[childDirectCalls.length];
 
+    try {
+      nodeString = mapper.readValue(parser, JsonNode.class).toPrettyString();
+      for (int i = 0; i < childDirectCalls.length; i++) {
+        localParser = initParserNode.execute(nodeString);
+        nextTokenNode.execute(localParser);
         try {
-            nodeString = mapper.readValue(parser, JsonNode.class).toPrettyString();
-            for (int i = 0; i < childDirectCalls.length; i++) {
-                localParser = initParserNode.execute(nodeString);
-                nextTokenNode.execute(localParser);
-                try {
-                    value = childDirectCalls[i].call(localParser);
-                    // No exception was thrown. Local parser was consumed successfully by the
-                    // temporary
-                    // parser.
-                    // The real parser had been consumed as well, so we need to move to the next
-                    // token.
-                    nextTokenNode.execute(parser);
-                    return new OrObject(i, value);
-                } catch (RawTruffleRuntimeException ex) {
-                    messages[i] = ex.getMessage();
-                } finally {
-                    closeParserNode.execute(localParser);
-                    localParser = null;
-                }
-            }
-            throw new JsonOrTypeException(messages, this);
-        } catch (IOException e) {
-            throw new JsonParserRawTruffleException(e.getMessage(), this);
+          value = childDirectCalls[i].call(localParser);
+          // No exception was thrown. Local parser was consumed successfully by the
+          // temporary
+          // parser.
+          // The real parser had been consumed as well, so we need to move to the next
+          // token.
+          nextTokenNode.execute(parser);
+          return new OrObject(i, value);
+        } catch (RawTruffleRuntimeException ex) {
+          messages[i] = ex.getMessage();
         } finally {
-            closeParserNode.execute(localParser);
+          closeParserNode.execute(localParser);
+          localParser = null;
         }
+      }
+      throw new JsonOrTypeException(messages, this);
+    } catch (IOException e) {
+      throw new JsonParserRawTruffleException(e.getMessage(), this);
+    } finally {
+      closeParserNode.execute(localParser);
     }
+  }
 }

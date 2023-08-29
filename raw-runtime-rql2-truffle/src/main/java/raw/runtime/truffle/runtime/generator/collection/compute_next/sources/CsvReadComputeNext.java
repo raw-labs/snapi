@@ -32,66 +32,66 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 @ExportLibrary(ComputeNextLibrary.class)
 public class CsvReadComputeNext {
 
-    private final LocationObject location;
-    private RawTruffleCsvParser parser;
-    private final DirectCallNode rowParser;
-    private final RuntimeContext context;
+  private final LocationObject location;
+  private RawTruffleCsvParser parser;
+  private final DirectCallNode rowParser;
+  private final RuntimeContext context;
 
-    private TruffleCharInputStream stream;
-    private final String encoding;
-    private final RawTruffleCsvParserSettings settings;
+  private TruffleCharInputStream stream;
+  private final String encoding;
+  private final RawTruffleCsvParserSettings settings;
 
-    public CsvReadComputeNext(
-            LocationObject location,
-            RuntimeContext context,
-            DirectCallNode rowParser,
-            String encoding,
-            RawTruffleCsvParserSettings settings) {
-        this.context = context;
-        this.location = location;
-        this.rowParser = rowParser;
-        this.encoding = encoding;
-        this.settings = settings;
+  public CsvReadComputeNext(
+      LocationObject location,
+      RuntimeContext context,
+      DirectCallNode rowParser,
+      String encoding,
+      RawTruffleCsvParserSettings settings) {
+    this.context = context;
+    this.location = location;
+    this.rowParser = rowParser;
+    this.encoding = encoding;
+    this.settings = settings;
+  }
+
+  @ExportMessage
+  void init(
+      @Cached("create()") CsvParserNodes.InitCsvParserNode initParser,
+      @Cached.Shared("closeParser") @Cached("create()")
+          CsvParserNodes.CloseCsvParserNode closeParser) {
+    try {
+      TruffleInputStream truffleInputStream = new TruffleInputStream(location, context);
+      stream = new TruffleCharInputStream(truffleInputStream, encoding);
+      parser = initParser.execute(stream, settings);
+    } catch (RawTruffleRuntimeException ex) {
+      closeParser.execute(parser);
+      throw ex;
     }
+    parser.skipHeaderLines();
+  }
 
-    @ExportMessage
-    void init(
-            @Cached("create()") CsvParserNodes.InitCsvParserNode initParser,
-            @Cached.Shared("closeParser") @Cached("create()")
-                    CsvParserNodes.CloseCsvParserNode closeParser) {
-        try {
-            TruffleInputStream truffleInputStream = new TruffleInputStream(location, context);
-            stream = new TruffleCharInputStream(truffleInputStream, encoding);
-            parser = initParser.execute(stream, settings);
-        } catch (RawTruffleRuntimeException ex) {
-            closeParser.execute(parser);
-            throw ex;
-        }
-        parser.skipHeaderLines();
-    }
+  @ExportMessage
+  void close(
+      @Cached.Shared("closeParser") @Cached("create()")
+          CsvParserNodes.CloseCsvParserNode closeParser) {
+    closeParser.execute(parser);
+  }
 
-    @ExportMessage
-    void close(
-            @Cached.Shared("closeParser") @Cached("create()")
-                    CsvParserNodes.CloseCsvParserNode closeParser) {
-        closeParser.execute(parser);
-    }
+  @ExportMessage
+  public boolean isComputeNext() {
+    return true;
+  }
 
-    @ExportMessage
-    public boolean isComputeNext() {
-        return true;
+  @ExportMessage
+  Object computeNext() {
+    if (parser.done()) {
+      throw new BreakException();
     }
-
-    @ExportMessage
-    Object computeNext() {
-        if (parser.done()) {
-            throw new BreakException();
-        }
-        try {
-            return rowParser.call(parser);
-        } catch (CsvParserRawTruffleException e) {
-            // wrap any error with the stream location
-            throw new CsvReaderRawTruffleException(e.getMessage(), null, stream);
-        }
+    try {
+      return rowParser.call(parser);
+    } catch (CsvParserRawTruffleException e) {
+      // wrap any error with the stream location
+      throw new CsvReaderRawTruffleException(e.getMessage(), null, stream);
     }
+  }
 }

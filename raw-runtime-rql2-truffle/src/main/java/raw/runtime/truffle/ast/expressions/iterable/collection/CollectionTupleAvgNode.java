@@ -37,31 +37,30 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Collection.TupleAvg")
 @NodeChild("iterable")
 public abstract class CollectionTupleAvgNode extends ExpressionNode {
-    @Specialization
-    protected ObjectTryable doCollection(
-            Object iterable,
-            @CachedLibrary(limit = "1") AggregationLibrary aggregations,
-            @CachedLibrary(limit = "3") AggregatorLibrary aggregatorLibs,
-            @CachedLibrary(limit = "1") InteropLibrary records) {
-        try {
-            SumAggregator sumAggregator = new SumAggregator();
-            CountAggregator countAggregator = new CountAggregator();
-            Object[] aggregators = new Object[] {sumAggregator, countAggregator};
-            Object aggregation = new MultiAggregation(aggregators);
-            Object[] results = (Object[]) aggregations.aggregate(aggregation, iterable);
-            RecordObject record = RawLanguage.get(this).createRecord();
-            if ((long) results[1] == (long) aggregatorLibs.zero(countAggregator)) {
-                records.writeMember(record, "sum", aggregatorLibs.zero(sumAggregator));
-            } else {
-                records.writeMember(
-                        record, "sum", new ObjectOption(new BigDecimal(results[0].toString())));
-            }
-            records.writeMember(record, "count", results[1]);
-            return ObjectTryable.BuildSuccess(record);
-        } catch (UnsupportedMessageException
-                | UnknownIdentifierException
-                | UnsupportedTypeException ex) {
-            throw new RawTruffleInternalErrorException(ex);
-        }
+  @Specialization
+  protected ObjectTryable doCollection(
+      Object iterable,
+      @CachedLibrary(limit = "1") AggregationLibrary aggregations,
+      @CachedLibrary(limit = "3") AggregatorLibrary aggregatorLibs,
+      @CachedLibrary(limit = "1") InteropLibrary records) {
+    try {
+      SumAggregator sumAggregator = new SumAggregator();
+      CountAggregator countAggregator = new CountAggregator();
+      Object[] aggregators = new Object[] {sumAggregator, countAggregator};
+      Object aggregation = new MultiAggregation(aggregators);
+      Object[] results = (Object[]) aggregations.aggregate(aggregation, iterable);
+      RecordObject record = RawLanguage.get(this).createRecord();
+      if ((long) results[1] == (long) aggregatorLibs.zero(countAggregator)) {
+        records.writeMember(record, "sum", aggregatorLibs.zero(sumAggregator));
+      } else {
+        records.writeMember(record, "sum", new ObjectOption(new BigDecimal(results[0].toString())));
+      }
+      records.writeMember(record, "count", results[1]);
+      return ObjectTryable.BuildSuccess(record);
+    } catch (UnsupportedMessageException
+        | UnknownIdentifierException
+        | UnsupportedTypeException ex) {
+      throw new RawTruffleInternalErrorException(ex);
     }
+  }
 }

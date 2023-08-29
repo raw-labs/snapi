@@ -23,23 +23,23 @@ import java.util.HashMap;
 @ExportLibrary(MapLibrary.class)
 public final class IntMap {
 
-    private final HashMap<Integer, RecordObject> map = new HashMap<>();
+  private final HashMap<Integer, RecordObject> map = new HashMap<>();
 
-    @ExportMessage
-    static class Put {
-        @Specialization
-        @TruffleBoundary
-        static void doPut(IntMap receiver, Integer key, RecordObject value) {
-            receiver.map.put(key, value);
-        }
+  @ExportMessage
+  static class Put {
+    @Specialization
+    @TruffleBoundary
+    static void doPut(IntMap receiver, Integer key, RecordObject value) {
+      receiver.map.put(key, value);
     }
+  }
 
-    @ExportMessage
-    static class Get {
-        @Specialization
-        @TruffleBoundary
-        static Object doGet(IntMap receiver, Integer key) {
-            return receiver.map.get(key);
-        }
+  @ExportMessage
+  static class Get {
+    @Specialization
+    @TruffleBoundary
+    static Object doGet(IntMap receiver, Integer key) {
+      return receiver.map.get(key);
     }
+  }
 }

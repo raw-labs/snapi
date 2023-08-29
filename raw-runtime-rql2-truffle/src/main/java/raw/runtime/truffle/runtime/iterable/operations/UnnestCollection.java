@@ -22,22 +22,22 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
 public class UnnestCollection {
-    final Object parentIterable;
-    final Closure transform;
+  final Object parentIterable;
+  final Closure transform;
 
-    public UnnestCollection(Object iterable, Closure transform) {
-        this.parentIterable = iterable;
-        this.transform = transform;
-    }
+  public UnnestCollection(Object iterable, Closure transform) {
+    this.parentIterable = iterable;
+    this.transform = transform;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
-        Object parentGenerator = iterables.getGenerator(parentIterable);
-        return new CollectionAbstractGenerator(new UnnestComputeNext(parentGenerator, transform));
-    }
+  @ExportMessage
+  Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
+    Object parentGenerator = iterables.getGenerator(parentIterable);
+    return new CollectionAbstractGenerator(new UnnestComputeNext(parentGenerator, transform));
+  }
 }

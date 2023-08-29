@@ -26,21 +26,21 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeChild("function")
 public abstract class OptionFlatMapNode extends ExpressionNode {
 
-    @Specialization(
-            guards = {"options.isOption(option)"},
-            limit = "1")
-    protected Object optionFlatMap(
-            VirtualFrame frame,
-            Object option,
-            Closure closure,
-            @CachedLibrary("option") OptionLibrary options) {
-        if (options.isDefined(option)) {
-            Object v = options.get(option);
-            Object[] argumentValues = new Object[1];
-            argumentValues[0] = v;
-            return closure.call(argumentValues);
-        } else {
-            return option;
-        }
+  @Specialization(
+      guards = {"options.isOption(option)"},
+      limit = "1")
+  protected Object optionFlatMap(
+      VirtualFrame frame,
+      Object option,
+      Closure closure,
+      @CachedLibrary("option") OptionLibrary options) {
+    if (options.isDefined(option)) {
+      Object v = options.get(option);
+      Object[] argumentValues = new Object[1];
+      argumentValues[0] = v;
+      return closure.call(argumentValues);
+    } else {
+      return option;
     }
+  }
 }

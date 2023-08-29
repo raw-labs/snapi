@@ -19,26 +19,26 @@ import com.oracle.truffle.api.library.LibraryFactory;
 @GenerateLibrary
 public abstract class TryableLibrary extends Library {
 
-    static final LibraryFactory<TryableLibrary> FACTORY =
-            LibraryFactory.resolve(TryableLibrary.class);
+  static final LibraryFactory<TryableLibrary> FACTORY =
+      LibraryFactory.resolve(TryableLibrary.class);
 
-    public boolean isTryable(Object receiver) {
-        return false;
-    }
+  public boolean isTryable(Object receiver) {
+    return false;
+  }
 
-    public static LibraryFactory<TryableLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<TryableLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static TryableLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static TryableLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 
-    public abstract Object success(Object receiver);
+  public abstract Object success(Object receiver);
 
-    public abstract String failure(Object receiver);
+  public abstract String failure(Object receiver);
 
-    public abstract boolean isSuccess(Object receiver);
+  public abstract boolean isSuccess(Object receiver);
 
-    public abstract boolean isFailure(Object receiver);
+  public abstract boolean isFailure(Object receiver);
 }

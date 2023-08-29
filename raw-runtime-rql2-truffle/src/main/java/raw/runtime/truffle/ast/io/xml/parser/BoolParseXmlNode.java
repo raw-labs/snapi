@@ -20,11 +20,11 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "BoolParseXml")
 public abstract class BoolParseXmlNode extends ExpressionNode {
 
-    @Specialization
-    public boolean parse(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-        String value = (String) args[1];
-        return parser.boolFrom(value);
-    }
+  @Specialization
+  public boolean parse(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    String value = (String) args[1];
+    return parser.boolFrom(value);
+  }
 }

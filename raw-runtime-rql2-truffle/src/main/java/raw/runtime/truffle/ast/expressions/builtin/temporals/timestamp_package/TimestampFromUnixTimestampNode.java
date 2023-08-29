@@ -27,21 +27,18 @@ import java.util.NoSuchElementException;
 @NodeInfo(shortName = "Timestamp.FromUnixTimestamp")
 @NodeChild("epoch")
 public abstract class TimestampFromUnixTimestampNode extends ExpressionNode {
-    @Specialization
-    protected TimestampObject fromUnixTimestamp(long epoch) {
-        ZoneId zoneID;
-        RawContext context = RawContext.get(this);
-        try {
-            String zone =
-                    context.getRuntimeContext()
-                            .settings()
-                            .getStringOpt("raw.runtime.time-zone", true)
-                            .get();
-            zoneID = ZoneId.of(zone);
-        } catch (NoSuchElementException ex) {
-            zoneID = ZoneId.systemDefault();
-        }
-        Instant instant = Instant.ofEpochSecond(epoch);
-        return new TimestampObject(LocalDateTime.ofInstant(instant, zoneID));
+  @Specialization
+  protected TimestampObject fromUnixTimestamp(long epoch) {
+    ZoneId zoneID;
+    RawContext context = RawContext.get(this);
+    try {
+      String zone =
+          context.getRuntimeContext().settings().getStringOpt("raw.runtime.time-zone", true).get();
+      zoneID = ZoneId.of(zone);
+    } catch (NoSuchElementException ex) {
+      zoneID = ZoneId.systemDefault();
     }
+    Instant instant = Instant.ofEpochSecond(epoch);
+    return new TimestampObject(LocalDateTime.ofInstant(instant, zoneID));
+  }
 }

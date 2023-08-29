@@ -20,48 +20,48 @@ import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
 @ExportLibrary(ListLibrary.class)
 public class BooleanList {
-    private final boolean[] list;
+  private final boolean[] list;
 
-    public BooleanList(boolean[] list) {
-        this.list = list;
-    }
+  public BooleanList(boolean[] list) {
+    this.list = list;
+  }
 
-    @ExportMessage
-    boolean isList() {
-        return true;
-    }
+  @ExportMessage
+  boolean isList() {
+    return true;
+  }
 
-    @ExportMessage
-    public boolean[] getInnerList() {
-        return list;
-    }
+  @ExportMessage
+  public boolean[] getInnerList() {
+    return list;
+  }
 
-    @ExportMessage
-    boolean isElementReadable(int index) {
-        return index >= 0 && index < list.length;
-    }
+  @ExportMessage
+  boolean isElementReadable(int index) {
+    return index >= 0 && index < list.length;
+  }
 
-    @ExportMessage
-    public boolean get(long index) {
-        int idx = (int) index;
-        if (!isElementReadable(idx)) {
-            throw new IndexOutOfBoundsException("index out of bounds");
-        }
-        return list[idx];
+  @ExportMessage
+  public boolean get(long index) {
+    int idx = (int) index;
+    if (!isElementReadable(idx)) {
+      throw new IndexOutOfBoundsException("index out of bounds");
     }
+    return list[idx];
+  }
 
-    @ExportMessage
-    public int size() {
-        return list.length;
-    }
+  @ExportMessage
+  public int size() {
+    return list.length;
+  }
 
-    @ExportMessage
-    public Object toIterable() {
-        return new ListIterable(this);
-    }
+  @ExportMessage
+  public Object toIterable() {
+    return new ListIterable(this);
+  }
 
-    @ExportMessage
-    public Object sort() {
-        return this;
-    }
+  @ExportMessage
+  public Object sort() {
+    return this;
+  }
 }

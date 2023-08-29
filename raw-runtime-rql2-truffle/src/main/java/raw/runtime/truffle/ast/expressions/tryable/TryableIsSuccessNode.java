@@ -23,8 +23,8 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeChild("tryable")
 public abstract class TryableIsSuccessNode extends ExpressionNode {
 
-    @Specialization(limit = "1")
-    protected boolean isSuccess(Object tryable, @CachedLibrary("tryable") TryableLibrary tryables) {
-        return tryables.isSuccess(tryable);
-    }
+  @Specialization(limit = "1")
+  protected boolean isSuccess(Object tryable, @CachedLibrary("tryable") TryableLibrary tryables) {
+    return tryables.isSuccess(tryable);
+  }
 }

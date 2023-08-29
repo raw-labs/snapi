@@ -66,8 +66,7 @@ public interface PathMatcher {
    * <p>A simple implementation may return the given full path as-is in case of an actual pattern,
    * and the empty String in case of the pattern not containing any dynamic parts (i.e. the <code>
    * pattern</code> parameter being a static path that wouldn't qualify as an actual pattern). See
-   * {@link 
-   * #isPattern pattern} for details on what constitutes a pattern. A sophisticated
+   * {@link #isPattern pattern} for details on what constitutes a pattern. A sophisticated
    * implementation will differentiate between the static parts and the dynamic parts of the given
    * path pattern.
    *

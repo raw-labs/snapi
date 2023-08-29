@@ -22,8 +22,8 @@ import java.math.BigDecimal;
 @NodeInfo(shortName = "Math.Exp")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathExpNode extends ExpressionNode {
-    @Specialization
-    protected double doubleExp(double argument) {
-        return Math.exp(argument);
-    }
+  @Specialization
+  protected double doubleExp(double argument) {
+    return Math.exp(argument);
+  }
 }

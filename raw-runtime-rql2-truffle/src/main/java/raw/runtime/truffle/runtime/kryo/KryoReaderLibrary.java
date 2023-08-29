@@ -20,12 +20,12 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 
 @GenerateLibrary
 public abstract class KryoReaderLibrary extends Library {
-    public abstract Object read(Object receiver, Input input, Rql2TypeWithProperties t);
+  public abstract Object read(Object receiver, Input input, Rql2TypeWithProperties t);
 
-    static final LibraryFactory<KryoReaderLibrary> FACTORY =
-            LibraryFactory.resolve(KryoReaderLibrary.class);
+  static final LibraryFactory<KryoReaderLibrary> FACTORY =
+      LibraryFactory.resolve(KryoReaderLibrary.class);
 
-    public static KryoReaderLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static KryoReaderLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 }

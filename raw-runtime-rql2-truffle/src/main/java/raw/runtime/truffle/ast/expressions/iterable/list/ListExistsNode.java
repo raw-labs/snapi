@@ -31,32 +31,32 @@ import raw.runtime.truffle.runtime.list.ListLibrary;
 @NodeField(name = "predicateType", type = Rql2Type.class)
 public abstract class ListExistsNode extends ExpressionNode {
 
-    protected abstract Rql2Type getPredicateType();
+  protected abstract Rql2Type getPredicateType();
 
-    @Specialization(limit = "3")
-    protected boolean doList(
-            Object list,
-            Closure function,
-            @CachedLibrary("list") ListLibrary lists,
-            @CachedLibrary(limit = "2") IterableLibrary iterables,
-            @CachedLibrary(limit = "2") GeneratorLibrary generators) {
-        Object iterable = lists.toIterable(list);
-        Object generator = iterables.getGenerator(iterable);
-        try {
-            generators.init(generator);
-            Object[] argumentValues = new Object[1];
-            while (generators.hasNext(generator)) {
-                argumentValues[0] = generators.next(generator);
-                Boolean predicate =
-                        NullableTryableHandler.handleOptionTriablePredicate(
-                                function.call(argumentValues), getPredicateType(), false);
-                if (predicate) {
-                    return true;
-                }
-            }
-            return false;
-        } finally {
-            generators.close(generator);
+  @Specialization(limit = "3")
+  protected boolean doList(
+      Object list,
+      Closure function,
+      @CachedLibrary("list") ListLibrary lists,
+      @CachedLibrary(limit = "2") IterableLibrary iterables,
+      @CachedLibrary(limit = "2") GeneratorLibrary generators) {
+    Object iterable = lists.toIterable(list);
+    Object generator = iterables.getGenerator(iterable);
+    try {
+      generators.init(generator);
+      Object[] argumentValues = new Object[1];
+      while (generators.hasNext(generator)) {
+        argumentValues[0] = generators.next(generator);
+        Boolean predicate =
+            NullableTryableHandler.handleOptionTriablePredicate(
+                function.call(argumentValues), getPredicateType(), false);
+        if (predicate) {
+          return true;
         }
+      }
+      return false;
+    } finally {
+      generators.close(generator);
     }
+  }
 }

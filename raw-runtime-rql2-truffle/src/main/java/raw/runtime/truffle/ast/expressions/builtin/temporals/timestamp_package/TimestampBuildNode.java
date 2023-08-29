@@ -33,15 +33,14 @@ import java.util.concurrent.TimeUnit;
 @NodeChild("ms")
 public abstract class TimestampBuildNode extends ExpressionNode {
 
-    @Specialization
-    public Object buildTimestamp(int y, int m, int d, int h, int mi, int s, int ms) {
-        try {
-            return ObjectTryable.BuildSuccess(
-                    new TimestampObject(
-                            LocalDateTime.of(
-                                    y, m, d, h, mi, s, (int) TimeUnit.MILLISECONDS.toNanos(ms))));
-        } catch (DateTimeException e) {
-            return ObjectTryable.BuildFailure(e.getMessage());
-        }
+  @Specialization
+  public Object buildTimestamp(int y, int m, int d, int h, int mi, int s, int ms) {
+    try {
+      return ObjectTryable.BuildSuccess(
+          new TimestampObject(
+              LocalDateTime.of(y, m, d, h, mi, s, (int) TimeUnit.MILLISECONDS.toNanos(ms))));
+    } catch (DateTimeException e) {
+      return ObjectTryable.BuildFailure(e.getMessage());
     }
+  }
 }

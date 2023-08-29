@@ -30,18 +30,18 @@ import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 @NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
 public abstract class CollectionGroupByNode extends ExpressionNode {
 
-    protected abstract Rql2TypeWithProperties getKeyType();
+  protected abstract Rql2TypeWithProperties getKeyType();
 
-    protected abstract Rql2TypeWithProperties getRowType();
+  protected abstract Rql2TypeWithProperties getRowType();
 
-    @Specialization
-    protected Object doGroup(Object iterable, Closure keyFun) {
-        return new GroupByCollection(
-                iterable,
-                keyFun,
-                getKeyType(),
-                getRowType(),
-                RawLanguage.get(this),
-                RawContext.get(this).getRuntimeContext());
-    }
+  @Specialization
+  protected Object doGroup(Object iterable, Closure keyFun) {
+    return new GroupByCollection(
+        iterable,
+        keyFun,
+        getKeyType(),
+        getRowType(),
+        RawLanguage.get(this),
+        RawContext.get(this).getRuntimeContext());
+  }
 }

@@ -23,21 +23,21 @@ import raw.runtime.truffle.utils.TruffleCharInputStream;
 @ExportLibrary(IterableLibrary.class)
 public class ReadLinesCollection {
 
-    TruffleCharInputStream stream;
-    RuntimeContext context;
+  TruffleCharInputStream stream;
+  RuntimeContext context;
 
-    public ReadLinesCollection(TruffleCharInputStream stream, RuntimeContext context) {
-        this.stream = stream;
-        this.context = context;
-    }
+  public ReadLinesCollection(TruffleCharInputStream stream, RuntimeContext context) {
+    this.stream = stream;
+    this.context = context;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator() {
-        return new CollectionAbstractGenerator(new ReadLinesComputeNext(stream));
-    }
+  @ExportMessage
+  Object getGenerator() {
+    return new CollectionAbstractGenerator(new ReadLinesComputeNext(stream));
+  }
 }

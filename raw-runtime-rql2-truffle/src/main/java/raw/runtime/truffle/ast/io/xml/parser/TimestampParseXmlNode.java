@@ -21,11 +21,11 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeInfo(shortName = "TimestampParseXml")
 public abstract class TimestampParseXmlNode extends ExpressionNode {
 
-    @Specialization
-    public TimestampObject parse(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-        String value = (String) args[1];
-        return parser.timestampFrom(value);
-    }
+  @Specialization
+  public TimestampObject parse(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    String value = (String) args[1];
+    return parser.timestampFrom(value);
+  }
 }

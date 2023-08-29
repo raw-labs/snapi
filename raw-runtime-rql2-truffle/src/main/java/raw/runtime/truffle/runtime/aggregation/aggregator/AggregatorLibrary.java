@@ -19,22 +19,22 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 
 @GenerateLibrary
 public abstract class AggregatorLibrary extends Library {
-    static final LibraryFactory<AggregatorLibrary> FACTORY =
-            LibraryFactory.resolve(AggregatorLibrary.class);
+  static final LibraryFactory<AggregatorLibrary> FACTORY =
+      LibraryFactory.resolve(AggregatorLibrary.class);
 
-    public static LibraryFactory<AggregatorLibrary> getFactory() {
-        return FACTORY;
-    }
+  public static LibraryFactory<AggregatorLibrary> getFactory() {
+    return FACTORY;
+  }
 
-    public static AggregatorLibrary getUncached() {
-        return FACTORY.getUncached();
-    }
+  public static AggregatorLibrary getUncached() {
+    return FACTORY.getUncached();
+  }
 
-    public boolean isAggregator(Object receiver) {
-        return false;
-    }
+  public boolean isAggregator(Object receiver) {
+    return false;
+  }
 
-    public abstract Object merge(Object receiver, Object left, Object right);
+  public abstract Object merge(Object receiver, Object left, Object right);
 
-    public abstract Object zero(Object receiver);
+  public abstract Object zero(Object receiver);
 }

@@ -25,39 +25,39 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @NodeInfo(shortName = "XmlReadCollection")
 public class XmlReadCollectionNode extends ExpressionNode {
 
-    @Child private ExpressionNode locationExp;
-    @Child private ExpressionNode encodingExp;
-    @Child private ExpressionNode dateFormatExp;
-    @Child private ExpressionNode timeFormatExp;
-    @Child private ExpressionNode datetimeFormatExp;
+  @Child private ExpressionNode locationExp;
+  @Child private ExpressionNode encodingExp;
+  @Child private ExpressionNode dateFormatExp;
+  @Child private ExpressionNode timeFormatExp;
+  @Child private ExpressionNode datetimeFormatExp;
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    public XmlReadCollectionNode(
-            ExpressionNode locationExp,
-            ExpressionNode encodingExp,
-            ExpressionNode dateFormatExp,
-            ExpressionNode timeFormatExp,
-            ExpressionNode datetimeFormatExp,
-            RootNode readerNode) {
-        this.locationExp = locationExp;
-        this.encodingExp = encodingExp;
-        this.dateFormatExp = dateFormatExp;
-        this.timeFormatExp = timeFormatExp;
-        this.datetimeFormatExp = datetimeFormatExp;
-        this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
-    }
+  public XmlReadCollectionNode(
+      ExpressionNode locationExp,
+      ExpressionNode encodingExp,
+      ExpressionNode dateFormatExp,
+      ExpressionNode timeFormatExp,
+      ExpressionNode datetimeFormatExp,
+      RootNode readerNode) {
+    this.locationExp = locationExp;
+    this.encodingExp = encodingExp;
+    this.dateFormatExp = dateFormatExp;
+    this.timeFormatExp = timeFormatExp;
+    this.datetimeFormatExp = datetimeFormatExp;
+    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+  }
 
-    @Override
-    public Object executeGeneric(VirtualFrame virtualFrame) {
-        LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
-        String encoding = (String) encodingExp.executeGeneric(virtualFrame);
-        String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
-        String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
-        String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
-        RawTruffleXmlParserSettings settings =
-                new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
-        RuntimeContext context = RawContext.get(this).getRuntimeContext();
-        return new XmlReadCollection(locationObject, encoding, context, childDirectCall, settings);
-    }
+  @Override
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
+    String encoding = (String) encodingExp.executeGeneric(virtualFrame);
+    String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
+    String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);
+    String datetimeFormat = (String) datetimeFormatExp.executeGeneric(virtualFrame);
+    RawTruffleXmlParserSettings settings =
+        new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
+    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    return new XmlReadCollection(locationObject, encoding, context, childDirectCall, settings);
+  }
 }

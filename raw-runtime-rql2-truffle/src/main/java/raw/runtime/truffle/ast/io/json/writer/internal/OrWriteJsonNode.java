@@ -23,20 +23,20 @@ import raw.runtime.truffle.runtime.or.OrObject;
 @NodeInfo(shortName = "OrWriteJson")
 public class OrWriteJsonNode extends StatementNode {
 
-    @Children private DirectCallNode[] childDirectCalls;
+  @Children private DirectCallNode[] childDirectCalls;
 
-    public OrWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
-        this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
-        for (int i = 0; i < childProgramStatementNode.length; i++) {
-            this.childDirectCalls[i] =
-                    DirectCallNode.create(childProgramStatementNode[i].getCallTarget());
-        }
+  public OrWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
+    this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
+    for (int i = 0; i < childProgramStatementNode.length; i++) {
+      this.childDirectCalls[i] =
+          DirectCallNode.create(childProgramStatementNode[i].getCallTarget());
     }
+  }
 
-    public void executeVoid(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        OrObject or = (OrObject) args[0];
-        JsonGenerator gen = (JsonGenerator) args[1];
-        this.childDirectCalls[or.getIndex()].call(or.getValue(), gen);
-    }
+  public void executeVoid(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    OrObject or = (OrObject) args[0];
+    JsonGenerator gen = (JsonGenerator) args[1];
+    this.childDirectCalls[or.getIndex()].call(or.getValue(), gen);
+  }
 }

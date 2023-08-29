@@ -21,17 +21,17 @@ import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.TI
 
 public class TimeObject implements TruffleObject {
 
-    private final LocalTime time;
+  private final LocalTime time;
 
-    public TimeObject(LocalTime time) {
-        this.time = time;
-    }
+  public TimeObject(LocalTime time) {
+    this.time = time;
+  }
 
-    public LocalTime getTime() {
-        return time;
-    }
+  public LocalTime getTime() {
+    return time;
+  }
 
-    public String toString() {
-        return time.format(TIME_FORMATTER);
-    }
+  public String toString() {
+    return time.format(TIME_FORMATTER);
+  }
 }

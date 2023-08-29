@@ -18,47 +18,46 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
 
-    public XmlParserRawTruffleException(Throwable cause, Node location) {
-        super(cause.getMessage(), cause, location);
-    }
+  public XmlParserRawTruffleException(Throwable cause, Node location) {
+    super(cause.getMessage(), cause, location);
+  }
 
-    public XmlParserRawTruffleException(
-            String message, RawTruffleXmlParser parser, Throwable cause, Node location) {
-        super(
-                String.format(
-                        "failed to parse XML (line %d column %d): %s",
-                        parser.currentLine(), parser.currentColumn(), message),
-                cause,
-                location);
-    }
+  public XmlParserRawTruffleException(
+      String message, RawTruffleXmlParser parser, Throwable cause, Node location) {
+    super(
+        String.format(
+            "failed to parse XML (line %d column %d): %s",
+            parser.currentLine(), parser.currentColumn(), message),
+        cause,
+        location);
+  }
 
-    public XmlParserRawTruffleException(String message, RawTruffleXmlParser parser, Node location) {
-        super(
-                String.format(
-                        "failed to parse XML (line %d column %d): %s",
-                        parser.currentLine(), parser.currentColumn(), message),
-                location);
-    }
+  public XmlParserRawTruffleException(String message, RawTruffleXmlParser parser, Node location) {
+    super(
+        String.format(
+            "failed to parse XML (line %d column %d): %s",
+            parser.currentLine(), parser.currentColumn(), message),
+        location);
+  }
 
-    public XmlParserRawTruffleException(Throwable cause, RawTruffleXmlParser parser) {
-        // TODO
-        super(cause.getMessage(), cause, null);
-    }
+  public XmlParserRawTruffleException(Throwable cause, RawTruffleXmlParser parser) {
+    // TODO
+    super(cause.getMessage(), cause, null);
+  }
 
-    public XmlParserRawTruffleException(int line, int column, Throwable cause, Node location) {
-        super(
-                String.format(
-                        "failed to parse XML (line %d column %d): %s",
-                        line, column, cause.getMessage()),
-                cause,
-                location);
-    }
+  public XmlParserRawTruffleException(int line, int column, Throwable cause, Node location) {
+    super(
+        String.format(
+            "failed to parse XML (line %d column %d): %s", line, column, cause.getMessage()),
+        cause,
+        location);
+  }
 
-    public XmlParserRawTruffleException(
-            String message, int line, int column, Throwable cause, Node location) {
-        super(
-                String.format("failed to parse XML (line %d column %d): %s", line, column, message),
-                cause,
-                location);
-    }
+  public XmlParserRawTruffleException(
+      String message, int line, int column, Throwable cause, Node location) {
+    super(
+        String.format("failed to parse XML (line %d column %d): %s", line, column, message),
+        cause,
+        location);
+  }
 }

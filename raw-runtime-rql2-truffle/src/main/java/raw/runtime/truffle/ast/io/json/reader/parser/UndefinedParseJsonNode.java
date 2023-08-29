@@ -20,14 +20,14 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonExpectedNothingException;
 
 public class UndefinedParseJsonNode extends ExpressionNode {
 
-    public Object executeGeneric(VirtualFrame frame) {
-        JsonParser parser = (JsonParser) frame.getArguments()[0];
-        doParse(parser);
-        return null;
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    JsonParser parser = (JsonParser) frame.getArguments()[0];
+    doParse(parser);
+    return null;
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    private void doParse(JsonParser parser) {
-        throw new JsonExpectedNothingException(parser.currentToken().toString());
-    }
+  @CompilerDirectives.TruffleBoundary
+  private void doParse(JsonParser parser) {
+    throw new JsonExpectedNothingException(parser.currentToken().toString());
+  }
 }

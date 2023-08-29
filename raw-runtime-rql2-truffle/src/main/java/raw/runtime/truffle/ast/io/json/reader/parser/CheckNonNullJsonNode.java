@@ -25,22 +25,22 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException
 @NodeInfo(shortName = "CheckNonNullJson")
 public class CheckNonNullJsonNode extends ExpressionNode {
 
-    @Child private DirectCallNode childDirectCall;
+  @Child private DirectCallNode childDirectCall;
 
-    public CheckNonNullJsonNode(ProgramExpressionNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
-    }
+  public CheckNonNullJsonNode(ProgramExpressionNode childProgramStatementNode) {
+    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        JsonParser parser = (JsonParser) frame.getArguments()[0];
-        doCheck(parser);
-        return childDirectCall.call(parser);
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    JsonParser parser = (JsonParser) frame.getArguments()[0];
+    doCheck(parser);
+    return childDirectCall.call(parser);
+  }
 
-    @CompilerDirectives.TruffleBoundary
-    private void doCheck(JsonParser parser) {
-        if (parser.currentToken() == JsonToken.VALUE_NULL) {
-            throw new JsonParserRawTruffleException("null value found", this);
-        }
+  @CompilerDirectives.TruffleBoundary
+  private void doCheck(JsonParser parser) {
+    if (parser.currentToken() == JsonToken.VALUE_NULL) {
+      throw new JsonParserRawTruffleException("null value found", this);
     }
+  }
 }

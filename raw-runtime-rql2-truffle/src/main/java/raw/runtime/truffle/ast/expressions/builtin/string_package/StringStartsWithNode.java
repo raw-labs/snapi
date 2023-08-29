@@ -22,8 +22,8 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "prefix")
 public abstract class StringStartsWithNode extends ExpressionNode {
 
-    @Specialization
-    protected boolean stringReplace(String string, String prefix) {
-        return string.startsWith(prefix);
-    }
+  @Specialization
+  protected boolean stringReplace(String string, String prefix) {
+    return string.startsWith(prefix);
+  }
 }
