@@ -41,7 +41,7 @@ trait AwsPackageTest extends CompilerTestContext {
     |in List.Filter(data.regionInfo.item, x -> x.regionName == "us-east-1")
     |""".stripMargin) { it =>
     assume(xmlImplemented)
-    it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east--1.amazonaws.com"} ]""")
+    it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east-1.amazonaws.com"} ]""")
   }
 
   test("""let data = Xml.Read(
@@ -212,7 +212,7 @@ trait AwsPackageTest extends CompilerTestContext {
     |
     |""".stripMargin) { it =>
     assume(xmlImplemented)
-    it should evaluateTo(""" [""] """)
+    it should evaluateTo(""" [] """)
   }
 
   // querying monitoring aka could-watch to get cpu usage
