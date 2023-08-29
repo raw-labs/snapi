@@ -16,11 +16,11 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait AwsPackageTest extends CompilerTestContext {
 
-  val abraxasAccessKeyId = sys.env("RAW_ABRAXAS_ACCESS_KEY_ID")
-  val abraxasSecretAccessKey = sys.env("RAW_ABRAXAS_SECRET_ACCESS_KEY")
+  val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
+  val secretAccessKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
 
-  secret(authorizedUser, "abraxas-secret-key", abraxasSecretAccessKey)
-  secret(authorizedUser, "abraxas-key", abraxasAccessKeyId)
+  secret(authorizedUser, "aws-secret-key", secretAccessKey)
+  secret(authorizedUser, "aws-access-key", accessKeyId)
 
   def xmlImplemented: Boolean
 
@@ -28,8 +28,8 @@ trait AwsPackageTest extends CompilerTestContext {
 
   test("""let data = Xml.Read(
     |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "ec2",
     |       args = [
     |         {"Action", "DescribeRegions"},
@@ -38,16 +38,16 @@ trait AwsPackageTest extends CompilerTestContext {
     |    ),
     |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
     |)
-    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+    |in List.Filter(data.regionInfo.item, x -> x.regionName == "us-east-1")
     |""".stripMargin) { it =>
     assume(xmlImplemented)
-    it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+    it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east--1.amazonaws.com"} ]""")
   }
 
   test("""let data = Xml.Read(
     |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "ec2",
     |       region = "us-east-1",
     |       host = "ec2.amazonaws.com",
@@ -58,16 +58,16 @@ trait AwsPackageTest extends CompilerTestContext {
     |    ),
     |    type record(requestId: string, regionInfo: record(item: list(record(regionName: string, regionEndpoint: string))))
     |)
-    |in List.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+    |in List.Filter(data.regionInfo.item, x -> x.regionName == "us-east-1")
     |""".stripMargin) { it =>
     assume(xmlImplemented)
-    it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+    it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east-1.amazonaws.com"} ]""")
   }
 
   test("""let data = Xml.Read(
     |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "ec2",
     |       region = "us-east-1",
     |       host = "ec2.amazonaws.com",
@@ -87,8 +87,8 @@ trait AwsPackageTest extends CompilerTestContext {
 
   test("""let data = Xml.InferAndRead(
     |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "ec2",
     |       args = [
     |         {"Action", "DescribeRegions"},
@@ -96,18 +96,18 @@ trait AwsPackageTest extends CompilerTestContext {
     |       ]
     |    )
     |)
-    |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "eu-west-1")
+    |in Collection.Filter(data.regionInfo.item, x -> x.regionName == "us-east-1")
     |""".stripMargin) { it =>
     assume(xmlImplemented)
-    it should evaluateTo("""[ {regionName: "eu-west-1", regionEndpoint: "ec2.eu-west-1.amazonaws.com"} ]""")
+    it should evaluateTo("""[ {regionName: "us-east-1", regionEndpoint: "ec2.us-east-1.amazonaws.com"} ]""")
   }
 
   test(
-    s"""let query = $triple{"endTime": 1665655502, "limit": 1000, "logGroupName": "/aws/lambda/auth-proxy-v2-lambda-prod", "queryString": "fields @timestamp, @message, @clientTag, @username | limit 200", "startTime": 1665396297}$triple
+    s"""let query = $triple{"endTime": 1692891928, "limit": 1000, "logGroupName": "snapi-ci-tests-log-group", "queryString": "fields @timestamp, @message | limit 200", "startTime": 1692871828}$triple
       |in String.Read(
       |   Aws.SignedV4Request(
-      |      Environment.Secret("abraxas-key"),
-      |      Environment.Secret("abraxas-secret-key"),
+      |      Environment.Secret("aws-access-key"),
+      |      Environment.Secret("aws-secret-key"),
       |      "logs",
       |      region = "eu-west-1",
       |      method = "POST",
@@ -120,28 +120,25 @@ trait AwsPackageTest extends CompilerTestContext {
 
   test(
     s"""let query = $triple
-      |fields @timestamp, @message, @clientTag, @username
-      |    | filter @message like /.*AuthorizationProxyApp.*/
-      |    | filter @message like /.*prod.*/
-      |    | filter @message not like /.*KEEP_ME.*/
-      |    | parse @message /\"clientTag\": \"(?<@clientTag>([^\\\"]+))\"/
-      |    | parse @message /\"username\": \"(?<@username>([^\\\"]+))\"/
-      |    | sort @timestamp desc
-      |    | limit 200
+      |fields @timestamp, @message
+      |    | filter @message like /.*ATestFilter.*/
+      |    | filter @message like /.*hello-world.*/
+      |    | sort @timestamp asc
+      |    | limit 1
       |$triple
       |in String.Read(
       |   Aws.SignedV4Request(
-      |      Environment.Secret("abraxas-key"),
-      |      Environment.Secret("abraxas-secret-key"),
+      |      Environment.Secret("aws-access-key"),
+      |      Environment.Secret("aws-secret-key"),
       |      "logs",
       |      region = "eu-west-1",
       |      method = "POST",
       |      bodyString = Json.Print({
-      |        endTime: 1665655502,
+      |        endTime: 1692891928,
       |        limit: 1000,
-      |        logGroupName: "/aws/lambda/auth-proxy-v2-lambda-prod",
+      |        logGroupName: "snapi-ci-tests-log-group",
       |        queryString: query,
-      |        startTime: 1665396297
+      |        startTime: 1692871828
       |      }),
       |      headers = [
       |        {"x-amz-target", "Logs_20140328.StartQuery"},
@@ -155,11 +152,11 @@ trait AwsPackageTest extends CompilerTestContext {
   // listing ec2 instances
   test("""let data = Xml.Read(
     |   Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "ec2",
     |       region = "eu-west-1",
-    |       args = [{"Action", "DescribeInstances"}]
+    |       args = [{"Action", "DescribeInstances"}, { "Version", "2013-10-15"},{"Filter.1.Name", "tag:a-random-tag"},{"Filter.1.Value.1", "a-random-tag"} ]
     |   ),
     |   type record(
     |    reservationSet: record(
@@ -182,19 +179,20 @@ trait AwsPackageTest extends CompilerTestContext {
     |
     |""".stripMargin) { it =>
     assume(xmlImplemented)
-    it should run
+    // it should run
+    it should evaluateTo("""0""")
   }
 
   // Using iam to list users.
   test("""let data = Xml.Read(
     |   Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "iam",
     |       args = [
     |         {"Action", "ListUsers"},
     |         {"Version", "2010-05-08"},
-    |         {"PathPrefix", "/examples/"}
+    |         {"PathPrefix", "/dummy/"}
     |       ]
     |    ),
     |    type record(ListUsersResult: record(
@@ -210,11 +208,11 @@ trait AwsPackageTest extends CompilerTestContext {
     |        )
     |    ))
     |)
-    |in List.Filter(data.ListUsersResult.Users.member, x -> x.UserName == "abraxas").UserName
+    |in List.Filter(data.ListUsersResult.Users.member, x -> x.UserName == "dummy-user").UserName
     |
     |""".stripMargin) { it =>
     assume(xmlImplemented)
-    it should evaluateTo(""" ["abraxas" ] """)
+    it should evaluateTo(""" [""] """)
   }
 
   // querying monitoring aka could-watch to get cpu usage
@@ -240,8 +238,8 @@ trait AwsPackageTest extends CompilerTestContext {
     |   }),
     |   results = Json.InferAndRead(
     |       Aws.SignedV4Request(
-    |           Environment.Secret("abraxas-key"),
-    |           Environment.Secret("abraxas-secret-key"),
+    |           Environment.Secret("aws-access-key"),
+    |           Environment.Secret("aws-secret-key"),
     |           "monitoring",
     |           region = "eu-west-1",
     |           method = "POST",
@@ -260,14 +258,14 @@ trait AwsPackageTest extends CompilerTestContext {
   // iam does not support regions.
   test("""String.Read(
     |   Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "iam",
     |       region = "us-east-1",
     |       args = [
     |         {"Action", "ListUsers"},
     |         {"Version", "2010-05-08"},
-    |         {"PathPrefix", "/examples/"}
+    |         {"PathPrefix", "/dummy/"}
     |       ]
     |    )
     |)
@@ -276,8 +274,8 @@ trait AwsPackageTest extends CompilerTestContext {
   // Wrong path.
   test("""String.Read(
     |   Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "ec2",
     |       path = "/does-not-exist",
     |       args = [
@@ -294,8 +292,8 @@ trait AwsPackageTest extends CompilerTestContext {
   // Wrong service.
   test("""String.Read(
     |   Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "does-not-exist",
     |       args = [
     |         {"Action", "DescribeRegions"},
@@ -311,8 +309,8 @@ trait AwsPackageTest extends CompilerTestContext {
   // Wrong service but with correct host.
   test("""String.Read(
     |   Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "does-not-exist",
     |       host = "ec2.amazonaws.com",
     |       args = [
@@ -327,8 +325,8 @@ trait AwsPackageTest extends CompilerTestContext {
   test("""Try.IsError(
     |  String.Read(
     |    Aws.SignedV4Request(
-    |       Environment.Secret("abraxas-key"),
-    |       Environment.Secret("abraxas-secret-key"),
+    |       Environment.Secret("aws-access-key"),
+    |       Environment.Secret("aws-secret-key"),
     |       "does-not-exist",
     |       host = "ec2.amazonaws.com",
     |       args = [

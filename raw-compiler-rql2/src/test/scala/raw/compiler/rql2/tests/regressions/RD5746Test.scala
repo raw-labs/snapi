@@ -16,38 +16,34 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RD5746Test extends CompilerTestContext {
 
-  val abraxasAccessKeyId = sys.env("RAW_ABRAXAS_ACCESS_KEY_ID")
-  val abraxasSecretAccessKey = sys.env("RAW_ABRAXAS_SECRET_ACCESS_KEY")
+  val accessKeyId = sys.env("RAW_AWS_ACCESS_KEY_ID")
+  val secretAccessKey = sys.env("RAW_AWS_SECRET_ACCESS_KEY")
 
-  secret(authorizedUser, "abraxas-secret-key", abraxasSecretAccessKey)
-
-  secret(authorizedUser, "abraxas-key", abraxasAccessKeyId)
+  secret(authorizedUser, "aws-secret-key", secretAccessKey)
+  secret(authorizedUser, "aws-access-key", accessKeyId)
 
   test(s"""
     |let
     |  query = \"\"\"
-    |fields @timestamp, @message, @clientTag, @username
-    |    | filter @message like /.*AuthorizationProxyApp.*/
-    |    | filter @message like /.*prod.*/
-    |    | filter @message not like /.*KEEP_ME.*/
-    |    | parse @message /\"clientTag\": \"(?<@clientTag>([^\\\"]+))\"/
-    |    | parse @message /\"username\": \"(?<@username>([^\\\"]+))\"/
+    |fields @timestamp, @message
+    |    | filter @message like /.*ATestFilter.*/
+    |    | filter @message like /.*hello-world.*/
     |    | sort @timestamp desc
-    |    | limit 200
+    |    | limit 1
     |\"\"\",
     |  queryId = Json.InferAndRead(
     |    Aws.SignedV4Request(
-    |      Environment.Secret("abraxas-key"),
-    |      Environment.Secret("abraxas-secret-key"),
+    |      Environment.Secret("aws-access-key"),
+    |      Environment.Secret("aws-secret-key"),
     |      "logs",
     |      region = "eu-west-1",
     |      method = "POST",
     |      bodyString = Json.Print({
-    |      endTime: 1665655502,
+    |      endTime: 1692891928,
     |      limit: 1000,
-    |      logGroupName: "/aws/lambda/auth-proxy-v2-lambda-prod",
+    |      logGroupName: "snapi-ci-tests-log-group",
     |      queryString: query,
-    |      startTime: 1665396297
+    |      startTime: 1692871828
     |      }),
     |      headers = [
     |      {"x-amz-target", "Logs_20140328.StartQuery"},
