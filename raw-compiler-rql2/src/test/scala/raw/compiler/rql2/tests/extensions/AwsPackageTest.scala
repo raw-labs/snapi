@@ -155,7 +155,7 @@ trait AwsPackageTest extends CompilerTestContext {
     |       Environment.Secret("aws-access-key"),
     |       Environment.Secret("aws-secret-key"),
     |       "ec2",
-    |       region = "eu-west-1",
+    |       region = "us-east-1",
     |       args = [{"Action", "DescribeInstances"}, { "Version", "2013-10-15"},{"Filter.1.Name", "tag:a-random-tag"},{"Filter.1.Value.1", "a-random-tag"} ]
     |   ),
     |   type record(
