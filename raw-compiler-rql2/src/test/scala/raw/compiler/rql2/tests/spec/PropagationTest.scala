@@ -419,4 +419,9 @@ trait PropagationTest extends CompilerTestContext {
   test("""TestPackage.VarValueNullableStringArgs("a", Error.Build("argh!"), "c")""")(_ should runErrorAs("argh!"))
   test("""TestPackage.VarValueNullableStringArgs(Error.Build("argh!"), "b", "c")""")(_ should runErrorAs("argh!"))
 
+  test("""let
+    |    numbers: list(int) = [1, 2, 3, 4, 5]
+    |in
+    |    List.Get(numbers, 0) + List.Get(numbers, 1) + List.Get(numbers, 2) +
+    |    List.Get(numbers, 3) + List.Get(numbers, 4)""".stripMargin)(_ should run)
 }

@@ -68,4 +68,12 @@
 //    |    v1
 //    |""".stripMargin)(it => it should runErrorAs("a is not declared in package"))
 //
+//  test(s"""
+//    |customLib() = Library.Load("$simpleLib")
+//    |let MyLib = customLib(),
+//    |    v2 = MyLib.a(2)
+//    |in
+//    |    v2
+//    |""".stripMargin)(it => it should evaluateTo("4"))
+//
 //}

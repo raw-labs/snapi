@@ -33,6 +33,22 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
   }
 
   private def implicitCast(program: SourceProgram): SourceProgram = {
+
+    val castMethods = collection.mutable.LinkedHashMap.empty[(Type, Type), Rql2Method]
+
+    def registerCastMethod(arg: IdnDef, input: Type, output: Type, body: Exp) = {
+      val m = castMethods.get((input, output))
+      m match {
+        case Some(method) => IdnExp(method.i)
+        case None =>
+          val f = IdnDef()
+          val proto = FunProto(Vector(FunParam(arg, Some(input), None)), Some(output), FunBody(body))
+          val method = Rql2Method(proto, f)
+          castMethods((input, output)) = method
+          IdnExp(f)
+      }
+    }
+
     val tree = new Tree(program)
     lazy val analyzer = tree.analyzer
 
@@ -51,9 +67,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
               val a = removeProp(actual, Rql2IsTryableTypeProperty())
               val t = removeProp(expected, Rql2IsTryableTypeProperty())
               cast(IdnExp(arg.idn), a, t).map { xCode =>
-                val mapFun = FunAbs(
-                  FunProto(Vector(FunParam(arg, Some(a), None)), Some(t), FunBody(xCode))
-                )
+                val mapFun = registerCastMethod(arg, a, t, xCode)
                 TryPackageBuilder.Transform(e, mapFun)
               }
             } else {
@@ -77,9 +91,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                 val a = removeProp(actual, Rql2IsNullableTypeProperty())
                 val t = removeProp(expected, Rql2IsNullableTypeProperty())
                 cast(IdnExp(arg.idn), a, t).map { xCode =>
-                  val mapFun = FunAbs(
-                    FunProto(Vector(FunParam(arg, Some(a), None)), Some(t), FunBody(xCode))
-                  )
+                  val mapFun = registerCastMethod(arg, a, t, xCode)
                   NullablePackageBuilder.Transform(e, mapFun)
                 }
               } else {
@@ -153,9 +165,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                       case Rql2IterableType(a, _) =>
                         val arg = IdnDef()
                         cast(IdnExp(arg.idn), a, t).map { xCode =>
-                          val mapFun = FunAbs(
-                            FunProto(Vector(FunParam(arg, Some(a), None)), Some(t), FunBody(xCode))
-                          )
+                          val mapFun = registerCastMethod(arg, a, t, xCode)
                           CollectionPackageBuilder.Transform(e, mapFun)
                         }
                     }
@@ -165,9 +175,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                       case Rql2ListType(a, _) =>
                         val arg = IdnDef()
                         cast(IdnExp(arg.idn), a, t).map { xCode =>
-                          val mapFun = FunAbs(
-                            FunProto(Vector(FunParam(arg, Some(a), None)), Some(t), FunBody(xCode))
-                          )
+                          val mapFun = registerCastMethod(arg, a, t, xCode)
                           ListPackageBuilder.Transform(e, mapFun)
                         }
                     }
@@ -196,10 +204,14 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                                 Some(expectedField.idn)
                               )
                           }
-                          // and build a new record
-                          Some(
-                            Let(Vector(LetBind(e, src, None)), FunApp(Proj(PackageIdnExp("Record"), "Build"), params))
+                          // register the cast method and and build the new record
+                          val xform = registerCastMethod(
+                            src,
+                            actual,
+                            expected,
+                            FunApp(Proj(PackageIdnExp("Record"), "Build"), params)
                           )
+                          Some(FunApp(xform, Vector(FunAppArg(e, None))))
                         }
                     }
                   case FunType(eParamTypes, Vector(), eRType, _) =>
@@ -232,10 +244,11 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
     }
 
     // FunProto factorized logic
-    def handleProto(proto: FunProto, returnType: Type) = build(proto) <* congruence(s, id, s) <* rule[FunProto] {
-      case FunProto(rps, _, rb) =>
+    def handleProto(proto: FunProto) = build(proto) <* congruence(s, id, s) <* rule[FunProto] {
+      case FunProto(rps, maybeType, rb) =>
         // if expected/return type of body is different than the actual body type.
-        val retypedBody = for (b <- cast(rb.e, analyzer.tipe(proto.b.e), returnType)) yield FunBody(b)
+        val retypedBody = for (returnType <- maybeType; b <- cast(rb.e, analyzer.tipe(proto.b.e), returnType))
+          yield FunBody(b)
         val nb = retypedBody.getOrElse(rb)
         val nps = rps.zip(proto.ps).map {
           case (rp, p) => FunParam(
@@ -247,7 +260,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
               }
             )
         }
-        FunProto(nps, Some(returnType), nb)
+        FunProto(nps, maybeType, nb)
     }
     // Check if the argument type matches that of the parameter type.
     // If not, does the cast.
@@ -353,18 +366,10 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
               )
             )
         }
-      case f @ FunAbs(p) =>
-        val FunType(_, _, rType, _) = analyzer.tipe(f)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => FunAbs(nProto) }
-      case LetFun(p, idn) =>
-        val FunType(_, _, rType, _) = analyzer.idnType(idn)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => LetFun(nProto, idn) }
-      case LetFunRec(idn, p) =>
-        val FunType(_, _, rType, _) = analyzer.idnType(idn)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => LetFunRec(idn, nProto) }
-      case Rql2Method(p, idn) =>
-        val FunType(_, _, rType, _) = analyzer.idnType(idn)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => Rql2Method(nProto, idn) }
+      case f @ FunAbs(p) => handleProto(p) <* rule[Rql2Node] { case nProto: FunProto => FunAbs(nProto) }
+      case LetFun(p, idn) => handleProto(p) <* rule[Rql2Node] { case nProto: FunProto => LetFun(nProto, idn) }
+      case LetFunRec(idn, p) => handleProto(p) <* rule[Rql2Node] { case nProto: FunProto => LetFunRec(idn, nProto) }
+      case Rql2Method(p, idn) => handleProto(p) <* rule[Rql2Node] { case nProto: FunProto => Rql2Method(nProto, idn) }
       case unaryExp @ UnaryExp(op, e) => congruence(id, s) <* rule[Exp] {
           case UnaryExp(_, re) =>
             val t = analyzer.tipe(unaryExp)
@@ -421,9 +426,16 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
       // TODO (msb): LegacyCallLanguage args
     }))
 
-    val r = rewrite(s)(tree.root)
-    logger.debug("ImplicitCasts:\n" + format(r))
-    r
+    val mainCode = rewrite(s)(tree.root).asInstanceOf[Rql2Program]
+    val finalCode =
+      if (castMethods.isEmpty) mainCode
+      else {
+        // prepend the xform functions
+        val newMethods = (castMethods.values ++ mainCode.methods).toVector
+        Rql2Program(newMethods, mainCode.me)
+      }
+    logger.debug("ImplicitCasts:\n" + format(finalCode))
+    finalCode
   }
 
 }
