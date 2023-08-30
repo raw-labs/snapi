@@ -38,7 +38,8 @@ public class NullableBinaryWriterNode extends StatementNode {
     Object nullable = args[0];
     OutputStream output = (OutputStream) args[1];
     if (options.isDefined(nullable)) {
-      // the nullable is defined, write its bytes using the inner writer (the plain binary writer)
+      // the nullable is defined, write its bytes using the inner writer (the plain binary
+      // writer)
       innerWriter.call(options.get(nullable), output);
     } // else don't write anything.
   }

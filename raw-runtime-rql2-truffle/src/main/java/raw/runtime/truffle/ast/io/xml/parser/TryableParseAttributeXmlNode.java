@@ -25,26 +25,25 @@ import raw.runtime.truffle.runtime.tryable.ErrorTryable;
 @NodeInfo(shortName = "TryableParseAttributeXml")
 public class TryableParseAttributeXmlNode extends ExpressionNode {
 
-    @Child
-    private DirectCallNode childDirectCall;
-    private final RuntimeNullableTryableHandler nullableTryableHandler =
-        new RuntimeNullableTryableHandler();
+  @Child private DirectCallNode childDirectCall;
+  private final RuntimeNullableTryableHandler nullableTryableHandler =
+      new RuntimeNullableTryableHandler();
 
-    @Child
-    private NullableTryableLibrary nullableTryable =
-        NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+  @Child
+  private NullableTryableLibrary nullableTryable =
+      NullableTryableLibrary.getFactory().create(nullableTryableHandler);
 
-    public TryableParseAttributeXmlNode(ProgramExpressionNode childProgramStatementNode) {
-        this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  public TryableParseAttributeXmlNode(ProgramExpressionNode childProgramStatementNode) {
+    this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
+  }
+
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    try {
+      Object result = childDirectCall.call(args);
+      return nullableTryable.boxTryable(nullableTryableHandler, result);
+    } catch (RawTruffleRuntimeException ex) {
+      return ErrorTryable.BuildFailure(ex.getMessage());
     }
-
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        try {
-            Object result = childDirectCall.call(args);
-            return nullableTryable.boxTryable(nullableTryableHandler, result);
-        } catch (RawTruffleRuntimeException ex) {
-            return ErrorTryable.BuildFailure(ex.getMessage());
-        }
-    }
+  }
 }

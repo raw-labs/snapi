@@ -164,7 +164,8 @@ public class EquiJoinComputeNext {
       }
 
       int compare = compareKey(leftKey, rightKey);
-      // if keys aren't equal, reset the smallest of both (it will be read in the next iteration and
+      // if keys aren't equal, reset the smallest of both (it will be read in the next
+      // iteration and
       // will be larger)
       if (compare < 0) {
         leftKey = null;

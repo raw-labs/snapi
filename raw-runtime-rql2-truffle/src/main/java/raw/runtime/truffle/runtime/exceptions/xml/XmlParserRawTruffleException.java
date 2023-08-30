@@ -32,8 +32,7 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
-  public XmlParserRawTruffleException(
-      String message, RawTruffleXmlParser parser, Node location) {
+  public XmlParserRawTruffleException(String message, RawTruffleXmlParser parser, Node location) {
     super(
         String.format(
             "failed to parse XML (line %d column %d): %s",

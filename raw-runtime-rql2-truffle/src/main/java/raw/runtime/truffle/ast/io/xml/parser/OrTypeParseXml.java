@@ -26,39 +26,37 @@ import java.util.ArrayList;
 @NodeInfo(shortName = "OrTypeParseXml")
 public class OrTypeParseXml extends ExpressionNode {
 
-    @Children
-    private DirectCallNode[] options;
+  @Children private DirectCallNode[] options;
 
-    public OrTypeParseXml(ProgramExpressionNode[] options) {
-        this.options = new DirectCallNode[options.length];
-        for (int i = 0; i < options.length; i++) {
-            this.options[i] = DirectCallNode.create(options[i].getCallTarget());
-        }
+  public OrTypeParseXml(ProgramExpressionNode[] options) {
+    this.options = new DirectCallNode[options.length];
+    for (int i = 0; i < options.length; i++) {
+      this.options[i] = DirectCallNode.create(options[i].getCallTarget());
     }
+  }
 
-    public OrObject executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
-        String text = parser.elementAsString();
-        ArrayList<String> parseErrors = new ArrayList<>();
-        for (int i = 0; i < options.length; i++) {
-            DirectCallNode option = options[i];
-            RawTruffleXmlParser optionParser = parser.duplicateFor(text);
-            try {
-                optionParser.nextToken();
-                optionParser.assertCurrentTokenIsStartTag();
-                Object value = option.call(optionParser, text);
-                optionParser.close();
-                parser.expectEndTag(null);
-                parser.nextToken(); // skip end tag
-                return new OrObject(i, value);
-            } catch (XmlParserRawTruffleException e) {
-                String error = e.getMessage();
-                parseErrors.add(error);
-                optionParser.close();
-            }
-        }
-        throw new XmlOrTypeParserException(parseErrors, parser, this);
-
+  public OrObject executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
+    String text = parser.elementAsString();
+    ArrayList<String> parseErrors = new ArrayList<>();
+    for (int i = 0; i < options.length; i++) {
+      DirectCallNode option = options[i];
+      RawTruffleXmlParser optionParser = parser.duplicateFor(text);
+      try {
+        optionParser.nextToken();
+        optionParser.assertCurrentTokenIsStartTag();
+        Object value = option.call(optionParser, text);
+        optionParser.close();
+        parser.expectEndTag(null);
+        parser.nextToken(); // skip end tag
+        return new OrObject(i, value);
+      } catch (XmlParserRawTruffleException e) {
+        String error = e.getMessage();
+        parseErrors.add(error);
+        optionParser.close();
+      }
     }
+    throw new XmlOrTypeParserException(parseErrors, parser, this);
+  }
 }

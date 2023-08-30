@@ -366,7 +366,8 @@ public final class JsonWriteNodes {
     void doWrite(TimestampObject value, JsonGenerator gen) {
       try {
         LocalDateTime ts = value.getTimestamp();
-        // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+        // .format throws DateTimeException if its internal StringBuilder throws an
+        // IOException.
         // We consider it as an internal error and let it propagate.
         gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {
@@ -389,7 +390,8 @@ public final class JsonWriteNodes {
     void doWrite(TimeObject value, JsonGenerator gen) {
       try {
         LocalTime ts = value.getTime();
-        // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+        // .format throws DateTimeException if its internal StringBuilder throws an
+        // IOException.
         // We consider it as an internal error and let it propagate.
         gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {

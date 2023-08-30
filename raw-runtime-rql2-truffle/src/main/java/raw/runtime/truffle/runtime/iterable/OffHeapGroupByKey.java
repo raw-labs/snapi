@@ -39,7 +39,8 @@ class OffHeapGroupByKey {
       new ArrayList<>(); // list of files that contain the spilled data.
   private final long maxSize; // maximum size of a spilled file.
   private int
-      size; // estimated size of currently memory held objects (when reaching blockSize, spill to
+      size; // estimated size of currently memory held objects (when reaching blockSize, spill
+  // to
   // disk).
 
   private final Comparator<Object> keyCompare; // grouping key comparison function.
@@ -201,7 +202,8 @@ class OffHeapGroupByKey {
         return key;
       }
 
-      // extract a row from the current buffer. When reaching the end of the buffer, the key is set
+      // extract a row from the current buffer. When reaching the end of the buffer, the key
+      // is set
       // to null
       // so that it's reset in the next call to headKey().
       public Object readRow() {
@@ -276,7 +278,8 @@ class OffHeapGroupByKey {
     public Object next() {
       Object key = nextKey();
       // First walk through the buffers to find the ones that expose the same smallest key.
-      // Take note of the number of items stored in each in order to allocate the right amount of
+      // Take note of the number of items stored in each in order to allocate the right amount
+      // of
       // memory.
       int numberOfRows = 0;
       for (InputBuffer inputBuffer : inputBuffers) {
@@ -288,7 +291,8 @@ class OffHeapGroupByKey {
       // Allocate the exact amount of memory needed to store the values.
       Object[] values = new Object[numberOfRows];
 
-      // Walk through the buffers that had the matching key and read values into the single array.
+      // Walk through the buffers that had the matching key and read values into the single
+      // array.
       int n = 0;
       for (InputBuffer inputBuffer : inputBuffers) {
         if (keyCompare.compare(key, inputBuffer.headKey()) == 0) {

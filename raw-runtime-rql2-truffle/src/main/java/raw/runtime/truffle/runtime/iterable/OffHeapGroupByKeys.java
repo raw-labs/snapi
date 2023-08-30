@@ -47,7 +47,8 @@ public class OffHeapGroupByKeys {
       new ArrayList<>(); // list of files that contain the spilled data.
   private final long maxSize; // maximum size of a spilled file.
   private int
-      size; // estimated size of currently memory held objects (when reaching blockSize, spill to
+      size; // estimated size of currently memory held objects (when reaching blockSize, spill
+  // to
   // disk).
 
   private final Comparator<Object[]> keyCompare; // grouping keys compare function.
@@ -302,8 +303,10 @@ public class OffHeapGroupByKeys {
       if (currentKryoBuffer == null) {
         // we need to read the next keys and prepare the new buffer to read from.
         Object[] keys = nextKeys();
-        // First walk through the buffers to find the ones that expose the same smallest key.
-        // Take note of the number of items stored in each in order to allocate the right amount of
+        // First walk through the buffers to find the ones that expose the same smallest
+        // key.
+        // Take note of the number of items stored in each in order to allocate the right
+        // amount of
         // memory.
         for (InputBuffer inputBuffer : inputBuffers) {
           Object[] bufferKeys = inputBuffer.keys;

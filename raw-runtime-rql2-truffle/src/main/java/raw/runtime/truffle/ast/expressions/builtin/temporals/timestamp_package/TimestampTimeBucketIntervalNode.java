@@ -45,7 +45,8 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
         && intervalObj.getMinutes() == 0
         && intervalObj.getSeconds() == 0
         && intervalObj.getMillis() == 0) {
-      // the interval is only months and years we can perform the calculation on months, no need for
+      // the interval is only months and years we can perform the calculation on months, no
+      // need for
       // approximation
       int months1 = 12 * timestamp.getYear() + (timestamp.getMonthValue() - 1);
       int months2 = 12 * intervalObj.getYears() + intervalObj.getMonths();
@@ -55,7 +56,8 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
 
       result = LocalDateTime.of(year, month, 1, 0, 0, 0);
     } else if (intervalObj.getYears() == 0 && intervalObj.getMonths() == 0) {
-      // 01-01-1973 starts on a sunday, so we give an offset so that week calculations are correct
+      // 01-01-1973 starts on a sunday, so we give an offset so that week calculations are
+      // correct
       long offset = LocalDateTime.of(1973, 1, 1, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli();
       long millis1 = timestamp.toInstant(ZoneOffset.UTC).toEpochMilli();
       long millis2 = intervalObj.toMillis();
