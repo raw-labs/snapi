@@ -15,13 +15,10 @@ package raw.runtime.truffle.runtime.list;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.list.ListGenerator;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 import raw.runtime.truffle.runtime.operators.CompareOperator;
 import raw.runtime.truffle.runtime.operators.OperatorLibrary;
-
-import java.util.Arrays;
 
 @ExportLibrary(ListLibrary.class)
 public class ObjectList {

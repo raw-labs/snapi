@@ -13,9 +13,8 @@
 package raw.runtime.truffle.runtime.exceptions.xml;
 
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
-
 import java.util.List;
+import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 
 public class XmlOrTypeParserException extends XmlParserRawTruffleException {
 

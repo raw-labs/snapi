@@ -13,6 +13,17 @@
 package raw.runtime.truffle.ast.io.xml.parser;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.time.format.DateTimeParseException;
+import java.util.Objects;
+import java.util.Vector;
+import javax.xml.stream.XMLStreamConstants;
+import javax.xml.stream.XMLStreamException;
+import javax.xml.stream.XMLStreamReader;
 import org.apache.commons.text.StringEscapeUtils;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
@@ -23,18 +34,6 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.utils.RawTruffleCharStream;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
-
-import javax.xml.stream.XMLStreamConstants;
-import javax.xml.stream.XMLStreamException;
-import javax.xml.stream.XMLStreamReader;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.time.format.DateTimeParseException;
-import java.util.Objects;
-import java.util.Vector;
 
 public class RawTruffleXmlParser {
 

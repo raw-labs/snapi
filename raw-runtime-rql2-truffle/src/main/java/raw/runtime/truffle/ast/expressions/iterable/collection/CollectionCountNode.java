@@ -20,11 +20,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
 import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
 import raw.runtime.truffle.runtime.aggregation.aggregator.CountAggregator;
-import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
-import raw.runtime.truffle.runtime.tryable.LongTryable;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 // A.Z. Need to cache count somehow

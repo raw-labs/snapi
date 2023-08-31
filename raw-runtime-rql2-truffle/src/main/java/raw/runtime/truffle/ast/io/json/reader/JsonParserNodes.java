@@ -30,6 +30,15 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.io.IOException;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Base64;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
@@ -45,16 +54,6 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Base64;
 
 public final class JsonParserNodes {
 
@@ -416,7 +415,8 @@ public final class JsonParserNodes {
     String doParse(JsonParser parser) {
       try {
         if (!parser.currentToken().isScalarValue()) {
-          throw new JsonParserRawTruffleException("unexpected token: " + parser.currentToken(), this);
+          throw new JsonParserRawTruffleException(
+              "unexpected token: " + parser.currentToken(), this);
         }
         String v = parser.getText();
         parser.nextToken();

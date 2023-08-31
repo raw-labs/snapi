@@ -15,8 +15,6 @@ package raw.runtime.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.UnionComputeNext;
 import raw.runtime.truffle.runtime.iterable.sources.UnionCollection;
 
 @NodeInfo(shortName = "Collection.Union")

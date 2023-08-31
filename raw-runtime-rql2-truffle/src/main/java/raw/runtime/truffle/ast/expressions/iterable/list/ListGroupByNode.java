@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.rql2.source.Rql2Type;
+import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
@@ -32,8 +32,6 @@ import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.operators.CompareOperator;
 import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 import raw.runtime.truffle.runtime.record.RecordObject;
-
-import java.util.ArrayList;
 
 @NodeInfo(shortName = "List.GroupBy")
 @NodeChild("input")

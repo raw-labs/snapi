@@ -15,10 +15,9 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.concurrent.TimeUnit;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
-
-import java.util.concurrent.TimeUnit;
 
 @NodeInfo(shortName = "Timestamp.Millis")
 @NodeChild("timestamp")

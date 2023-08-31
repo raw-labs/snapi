@@ -15,13 +15,12 @@ package raw.runtime.truffle.ast.io.xml.parser;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlOrTypeParserException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.or.OrObject;
-
-import java.util.ArrayList;
 
 @NodeInfo(shortName = "OrTypeParseXml")
 public class OrTypeParseXml extends ExpressionNode {

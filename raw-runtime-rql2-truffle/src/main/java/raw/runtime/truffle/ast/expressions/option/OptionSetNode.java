@@ -15,8 +15,8 @@ package raw.runtime.truffle.ast.expressions.option;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
-import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 
 @NodeChild(value = "option", type = ExpressionNode.class)

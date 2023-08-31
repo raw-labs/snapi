@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;

@@ -15,11 +15,10 @@ package raw.runtime.truffle.ast.expressions.builtin.regex_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Regex.Matches")
 @NodeChild(value = "string")

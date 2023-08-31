@@ -17,9 +17,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.option.DoubleOption;
-import raw.runtime.truffle.runtime.option.IntOption;
-import raw.runtime.truffle.runtime.option.ObjectOption;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.tryable.*;
 

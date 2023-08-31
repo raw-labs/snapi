@@ -16,8 +16,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.BinaryNode;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 import raw.runtime.truffle.runtime.operators.CompareOperator;
+import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 
 @NodeInfo(shortName = "<")
 public class LtNode extends BinaryNode {
