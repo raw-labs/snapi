@@ -16,9 +16,8 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.record.RecordObject;
-
 import java.util.HashMap;
+import raw.runtime.truffle.runtime.record.RecordObject;
 
 @ExportLibrary(MapLibrary.class)
 public final class IntMap {

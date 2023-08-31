@@ -16,11 +16,10 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
-
 import java.math.BigDecimal;
 import java.util.Objects;
+import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
+import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 
 @ExportLibrary(OperatorLibrary.class)
 public class AddOperator {

@@ -19,9 +19,7 @@ import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.XmlParseComputeNext;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.XmlReadComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.primitives.LocationObject;
 
 @ExportLibrary(IterableLibrary.class)
 public class XmlParseCollection {

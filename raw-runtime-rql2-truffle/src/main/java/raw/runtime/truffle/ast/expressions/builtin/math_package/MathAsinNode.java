@@ -17,8 +17,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 // TODO: Check Acos comments
 @NodeInfo(shortName = "Math.Asin")
 @NodeChild(value = "argument", type = ExpressionNode.class)

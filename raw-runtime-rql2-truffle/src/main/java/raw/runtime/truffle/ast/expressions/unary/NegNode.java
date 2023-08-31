@@ -14,9 +14,8 @@ package raw.runtime.truffle.ast.expressions.unary;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeChild("value")
 public abstract class NegNode extends ExpressionNode {

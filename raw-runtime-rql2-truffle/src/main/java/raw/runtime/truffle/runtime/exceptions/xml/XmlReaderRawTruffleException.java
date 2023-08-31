@@ -16,9 +16,6 @@ import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.utils.RawTruffleCharStream;
-import raw.runtime.truffle.utils.TruffleCharInputStream;
-
-import javax.xml.stream.XMLStreamException;
 
 public class XmlReaderRawTruffleException extends RawTruffleRuntimeException {
 

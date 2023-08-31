@@ -13,11 +13,9 @@
 package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.interop.TruffleObject;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public final class IntervalObject implements TruffleObject {
 

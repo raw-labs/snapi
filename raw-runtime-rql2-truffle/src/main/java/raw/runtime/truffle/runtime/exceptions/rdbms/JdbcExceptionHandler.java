@@ -13,10 +13,9 @@
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
 import com.oracle.truffle.api.nodes.Node;
+import java.sql.SQLException;
 import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-
-import java.sql.SQLException;
 
 public class JdbcExceptionHandler {
 

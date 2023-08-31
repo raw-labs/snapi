@@ -17,8 +17,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 @NodeInfo(shortName = "Math.Cot")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathCotNode extends ExpressionNode {

@@ -15,9 +15,8 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.util.Arrays;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "String.LevenshteinDistance")
 @NodeChild(value = "string1")

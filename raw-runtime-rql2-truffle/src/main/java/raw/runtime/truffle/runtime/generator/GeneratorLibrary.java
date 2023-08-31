@@ -12,12 +12,9 @@
 
 package raw.runtime.truffle.runtime.generator;
 
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.GenerateLibrary;
 import com.oracle.truffle.api.library.Library;
 import com.oracle.truffle.api.library.LibraryFactory;
-import raw.runtime.truffle.runtime.exceptions.BreakException;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @GenerateLibrary
 public abstract class GeneratorLibrary extends Library {

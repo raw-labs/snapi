@@ -16,7 +16,6 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.operators.AddOperator;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
 import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 

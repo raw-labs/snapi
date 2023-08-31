@@ -20,6 +20,9 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Arrays;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -37,10 +40,6 @@ import raw.sources.bytestream.http.HttpByteStreamLocationBuilder;
 import raw.sources.bytestream.http.HttpResult;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
-
-import java.io.IOException;
-import java.io.InputStream;
-import java.util.Arrays;
 
 @NodeInfo(shortName = "Http.Read")
 @NodeChild(value = "locationObject")
