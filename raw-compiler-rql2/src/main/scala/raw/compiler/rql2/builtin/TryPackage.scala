@@ -78,7 +78,7 @@ class TryIsErrorEntry extends EntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     Right(
-      ExpParam(HasTypeProperties(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())))
+      ExpParam(IsTryable())
     )
   }
 
@@ -113,7 +113,7 @@ class TryIsSuccessEntry extends EntryExtension {
 
   override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
     Right(
-      ExpParam(HasTypeProperties(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())))
+      ExpParam(IsTryable())
     )
   }
 

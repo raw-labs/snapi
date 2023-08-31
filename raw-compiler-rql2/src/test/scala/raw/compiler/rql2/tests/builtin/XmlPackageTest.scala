@@ -642,4 +642,28 @@ trait XmlPackageTest extends CompilerTestContext {
       | Xml.Parse(s, type record(tag: list(byte), notag: list(byte), `#text`: list(byte), `@att`: list(byte)))
       |""".stripMargin
   )(it => it should evaluateTo("{tag: [Byte.From(2)], notag: [], `#text`: [Byte.From(3)], `@att`: [Byte.From(1)]}"))
+
+  // stripping unwanted fields.
+  test(snapi"""Xml.Read("$data", type record(`@place`: string, name: string))""") { it =>
+    it should typeAs("record(`@place`: string, name: string)")
+    it should evaluateTo("{`@place`: \"world\", name: \"john\"}")
+  }
+
+  // lists are accepted when parsing an attribute.
+  test(snapi"""Xml.Read("$data", type record(`@place`: list(string), name: string))""") { it =>
+    it should typeAs("record(`@place`: list(string), name: string)")
+    it should evaluateTo("{`@place`: [\"world\"], name: \"john\"}")
+  }
+
+  // collections are accepted when parsing an attribute.
+  test(snapi"""Xml.Read("$data", type record(`@place`: collection(string), name: string))""") { it =>
+    it should typeAs("record(`@place`: collection(string), name: string)")
+    it should evaluateTo("{`@place`: [\"world\"], name: \"john\"}")
+  }
+
+  // other types than primitives, lists and collections are not accepted when parsing an attribute (RD-5910).
+  test(snapi"""Xml.Read("$data", type record(`@place`: record(a: string), name: string))""") { it =>
+    it should typeErrorAs("unsupported type")
+  }
+
 }

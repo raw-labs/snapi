@@ -163,11 +163,22 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
     r
   }
 
+  protected def validateAttributeType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
+    case _: Rql2PrimitiveType => Right(t)
+    case Rql2ListType(primitive: Rql2PrimitiveType, _) => Right(Rql2ListType(primitive)) // strip the tryable/nullable
+    case Rql2IterableType(primitive: Rql2PrimitiveType, _) =>
+      Right(Rql2IterableType(primitive)) // strip the tryable/nullable
+    case _ => Left(Seq(UnsupportedType(t, t, None)))
+  }
+
   protected def validateXmlType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
     case _: Rql2LocationType | _: Rql2RegexType => Left(Seq(UnsupportedType(t, t, None)))
     case t: Rql2RecordType =>
       val atts = t.atts
-        .map(x => x.idn -> validateXmlType(x.tipe))
+        .map { x =>
+          val validation = if (x.idn.startsWith("@")) validateAttributeType(x.tipe) else validateXmlType(x.tipe)
+          x.idn -> validation
+        }
       val errors = atts.collect { case (_, Left(error)) => error }
       if (errors.nonEmpty) Left(errors.flatten)
       else Right(Rql2RecordType(atts.map(x => Rql2AttrType(x._1, x._2.right.get)), t.props))

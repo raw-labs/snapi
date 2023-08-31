@@ -26,53 +26,55 @@ import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 @ExportLibrary(ComputeNextLibrary.class)
 public class XmlParseComputeNext {
 
-    private final String text;
-    private final DirectCallNode parseNextCallNode;
-    private final RuntimeContext context;
-    private RawTruffleXmlParser parser;
-    private final RawTruffleXmlParserSettings settings;
+  private final String text;
+  private final DirectCallNode parseNextCallNode;
+  private final RuntimeContext context;
+  private RawTruffleXmlParser parser;
+  private final RawTruffleXmlParserSettings settings;
 
-    private RawTruffleStringCharStream stream;
+  private RawTruffleStringCharStream stream;
 
-    public XmlParseComputeNext(
-        String text, RuntimeContext context, DirectCallNode parseNextCallNode,
-        RawTruffleXmlParserSettings settings) {
-        this.context = context;
-        this.text = text;
-        this.settings = settings;
-        this.parseNextCallNode = parseNextCallNode;
+  public XmlParseComputeNext(
+      String text,
+      RuntimeContext context,
+      DirectCallNode parseNextCallNode,
+      RawTruffleXmlParserSettings settings) {
+    this.context = context;
+    this.text = text;
+    this.settings = settings;
+    this.parseNextCallNode = parseNextCallNode;
+  }
+
+  @ExportMessage
+  void init() {
+    try {
+      stream = new RawTruffleStringCharStream(text);
+      parser = RawTruffleXmlParser.create(stream, settings);
+      // move from null to the first token
+      int token = parser.nextToken(); // consume START_OBJECT
+      parser.assertCurrentTokenIsStartTag(); // because it's the top level object
+    } catch (RawTruffleRuntimeException ex) {
+      if (parser != null) parser.close();
+      throw ex;
     }
+  }
 
-    @ExportMessage
-    void init() {
-        try {
-            stream = new RawTruffleStringCharStream(text);
-            parser = RawTruffleXmlParser.create(stream, settings);
-            // move from null to the first token
-            int token = parser.nextToken(); // consume START_OBJECT
-            parser.assertCurrentTokenIsStartTag(); // because it's the top level object
-        } catch (RawTruffleRuntimeException ex) {
-            if (parser != null) parser.close();
-            throw ex;
-        }
-    }
+  @ExportMessage
+  void close() {
+    if (parser != null) parser.close();
+  }
 
-    @ExportMessage
-    void close() {
-        if (parser != null) parser.close();
-    }
+  @ExportMessage
+  public boolean isComputeNext() {
+    return true;
+  }
 
-    @ExportMessage
-    public boolean isComputeNext() {
-        return true;
+  @ExportMessage
+  Object computeNext() {
+    if (parser.onEndTag()) {
+      throw new BreakException();
+    } else {
+      return parseNextCallNode.call(parser);
     }
-
-    @ExportMessage
-    Object computeNext() {
-        if (parser.onEndTag()) {
-            throw new BreakException();
-        } else {
-            return parseNextCallNode.call(parser);
-        }
-    }
+  }
 }

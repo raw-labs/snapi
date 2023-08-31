@@ -83,7 +83,8 @@ public class AddOperator {
       } else return Objects.requireNonNullElse(left, right);
     }
 
-    // It is interesting that @CachedLibrary("comparator") does not go to int case for Object calls
+    // It is interesting that @CachedLibrary("comparator") does not go to int case for Object
+    // calls
     // instead it was going here again, and it was needed to make it
     // @CachedLibrary(limit = "1") to make it work.
     @Specialization(guards = {"left != null", "right != null"})

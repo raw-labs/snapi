@@ -215,7 +215,8 @@ public class CompareOperator {
       }
     }
 
-    // A.Z Here a paradox is created because for max null could be considered the least value but
+    // A.Z Here a paradox is created because for max null could be considered the least value
+    // but
     // then what happens to max. The goal is to ignore null and keep the value. That's why this
     // method is the only one that returns -2 or 2. The other methods return -1 or 1.
     @Specialization(guards = "left == null || right == null")

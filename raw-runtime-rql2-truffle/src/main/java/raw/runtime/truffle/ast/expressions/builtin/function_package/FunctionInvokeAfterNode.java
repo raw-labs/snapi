@@ -24,14 +24,13 @@ import raw.runtime.truffle.runtime.function.Closure;
 @NodeChild(value = "sleepTime")
 public abstract class FunctionInvokeAfterNode extends ExpressionNode {
 
-    @Specialization
-    protected Object invokeAfter(Closure function, long sleepTime) {
-        try {
-            Thread.sleep(sleepTime);
-            return function.call();
-        } catch (InterruptedException e) {
-            throw new RawTruffleInternalErrorException(e);
-        }
+  @Specialization
+  protected Object invokeAfter(Closure function, long sleepTime) {
+    try {
+      Thread.sleep(sleepTime);
+      return function.call();
+    } catch (InterruptedException e) {
+      throw new RawTruffleInternalErrorException(e);
     }
-
+  }
 }

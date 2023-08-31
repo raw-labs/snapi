@@ -57,4 +57,9 @@ class ProgramContext(runtimeContext: RuntimeContext)(
     stageCompilerCache.getOrElseUpdate(program, f)
   }
 
+  override def dumpDebugInfo: List[(String, String)] = {
+    super.dumpDebugInfo ++
+      List("Inferrer Cache" -> inferCache.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
+  }
+
 }

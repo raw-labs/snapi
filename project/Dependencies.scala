@@ -10,13 +10,13 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % scalacVersion
   )
 
-  val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.429"
+  val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
 
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
 
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.15"
 
-  val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.4.0"
+  val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
   val slf4j = Seq(
     "org.slf4j" % "slf4j-api" % "2.0.5",
@@ -38,19 +38,19 @@ object Dependencies {
 
   val ehCache = "org.ehcache" % "ehcache" % "3.10.6"
 
-  val kryo = "com.esotericsoftware" % "kryo" % "5.4.0"
+  val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
   val commonsText = "org.apache.commons" % "commons-text" % "1.10.0"
 
   val commonsIO = "commons-io" % "commons-io" % "2.11.0"
 
-  val commonsLang = "org.apache.commons" % "commons-lang3" % "3.12.0"
+  val commonsLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
 
-  val commonsCodec = "commons-codec" % "commons-codec" % "1.15"
+  val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
 
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
 
-  val guava = "com.google.guava" % "guava" % "32.0.1-jre"
+  val guava = "com.google.guava" % "guava" % "32.1.2-jre"
 
   val jacksonDeps = Seq(
     "com.fasterxml.jackson.core" % "jackson-core" % "2.15.2",
@@ -73,13 +73,13 @@ object Dependencies {
 
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
 
-  val mysqlDeps = "mysql" % "mysql-connector-java" % "8.0.32"
+  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0"
 
-  val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre8"
+  val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
 
-  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.29"
+  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
 
-  val icuDeps = "com.ibm.icu" % "icu4j" % "72.1"
+  val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
 
   val poiDeps = Seq(
     "org.apache.poi" % "poi" % "5.2.2",

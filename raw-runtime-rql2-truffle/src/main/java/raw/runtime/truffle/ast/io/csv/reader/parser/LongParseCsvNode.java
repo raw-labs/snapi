@@ -16,12 +16,12 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-@NodeInfo(shortName = "FloatParseCsv")
-public class FloatParseCsvNode extends ExpressionNode {
+@NodeInfo(shortName = "IntParseCsv")
+public class LongParseCsvNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-    return parser.getFloat(this);
+    return parser.getLong(this);
   }
 }

@@ -183,10 +183,11 @@ public final class JsonParserNodes {
     @CompilerDirectives.TruffleBoundary
     void skip(JsonParser parser) {
       try {
-        parser
-            .skipChildren(); // finish reading lists and records children (do nothing if not a list
+        parser.skipChildren(); // finish reading lists and records children (do nothing if
+        // not a list
         // or record)
-        parser.nextToken(); // swallow the next token (swallow closing braces, or int, float, etc.)
+        parser.nextToken(); // swallow the next token (swallow closing braces, or int,
+        // float, etc.)
       } catch (IOException e) {
         throw new JsonReaderRawTruffleException(e.getMessage(), this);
       }
@@ -415,7 +416,7 @@ public final class JsonParserNodes {
     String doParse(JsonParser parser) {
       try {
         if (!parser.currentToken().isScalarValue()) {
-          throw new JsonParserRawTruffleException("scalar value found", this);
+          throw new JsonParserRawTruffleException("unexpected token: " + parser.currentToken(), this);
         }
         String v = parser.getText();
         parser.nextToken();

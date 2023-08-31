@@ -19,19 +19,19 @@ import java.util.List;
 
 public class XmlOrTypeParserException extends XmlParserRawTruffleException {
 
-    public XmlOrTypeParserException(List<String> parseErrors, RawTruffleXmlParser parser, Node location) {
-        super(createMessage(parseErrors), parser, location);
+  public XmlOrTypeParserException(
+      List<String> parseErrors, RawTruffleXmlParser parser, Node location) {
+    super(createMessage(parseErrors), parser, location);
+  }
+
+  private static String createMessage(List<String> messages) {
+    StringBuilder sb = new StringBuilder();
+    sb.append("failed to parse or type:\n");
+
+    for (int i = 0; i < messages.size(); i++) {
+      sb.append(String.format("\t %d: %s", i, messages.get(i).replaceAll("\n", "\n\t")));
     }
 
-    private static String createMessage(List<String> messages) {
-        StringBuilder sb = new StringBuilder();
-        sb.append("failed to parse or type:\n");
-
-        for (int i = 0; i < messages.size(); i++) {
-            sb.append(String.format("\t %d: %s", i, messages.get(i).replaceAll("\n", "\n\t")));
-        }
-
-        return sb.toString();
-    }
-
+    return sb.toString();
+  }
 }

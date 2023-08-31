@@ -26,7 +26,7 @@ import raw.compiler.{CompilerException, LSPRequest, ProgramOutputWriter}
 import raw.creds._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.SimpleInferrerTestContext
-import raw.runtime.{DebugExecutionLogger, ExecutionLogger, ParamValue, ProgramEnvironment}
+import raw.runtime.{ParamValue, ProgramEnvironment}
 import raw.sources.bytestream.ByteStreamCacheTestContext
 import raw.utils._
 
@@ -495,8 +495,7 @@ trait CompilerTestContext
   /////////////////////////////////////////////////////////////////////////
   // saveTo
   /////////////////////////////////////////////////////////////////////////
-  class SaveTo(path: Path, options: Map[String, String], executionLogger: ExecutionLogger = DebugExecutionLogger)
-      extends Matcher[TestData] {
+  class SaveTo(path: Path, options: Map[String, String]) extends Matcher[TestData] {
     def apply(q: TestData): MatchResult = {
       val maybeQueryResult = doExecute(q.q, savePath = Some(path), options = options)
       maybeQueryResult match {
@@ -510,16 +509,14 @@ trait CompilerTestContext
 
   def saveTo(
       path: Path,
-      executionLogger: ExecutionLogger = DebugExecutionLogger,
       options: Map[String, String] = Map.empty
-  ): SaveTo = new SaveTo(path, options, executionLogger)
+  ): SaveTo = new SaveTo(path, options)
 
   def saveToInFormat(
       path: Path,
       format: String,
-      executionLogger: ExecutionLogger = DebugExecutionLogger,
       options: Map[String, String] = Map.empty
-  ): SaveTo = new SaveTo(path, options + ("output-format" -> format), executionLogger)
+  ): SaveTo = new SaveTo(path, options + ("output-format" -> format))
 
   // a Matcher[Path] that compares the content of the file at the given path to the given string.
   protected def contain(content: String): Matcher[Path] = be(content) compose { p: Path =>
@@ -690,7 +687,6 @@ trait CompilerTestContext
   def fastExecute(
       query: String,
       maybeDecl: Option[String] = None,
-      args: Array[Any] = Array.empty,
       savePath: Option[Path] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
@@ -701,7 +697,7 @@ trait CompilerTestContext
     try {
       val compiler = getCompiler()
       val programContext = getProgramContextFromSource(compiler, query, None, scopes, options)
-      val executeResult = compiler.execute(query, maybeDecl, args)(programContext)
+      val executeResult = compiler.execute(query, maybeDecl)(programContext)
 
       executeResult.left.map(errs => errs.map(err => err.toString).mkString(",")).right.flatMap {
         queryResult: ProgramOutputWriter =>
@@ -761,7 +757,7 @@ trait CompilerTestContext
     try {
       val compiler = getCompiler()
       val programContext = getProgramContextFromSource(compiler, query, maybeArgs.map(_.toArray), scopes, options)
-      val executeResult = compiler.execute(query, maybeDecl, Array.empty)(programContext)
+      val executeResult = compiler.execute(query, maybeDecl)(programContext)
 
       executeResult.left.map(errs => errs.map(err => err.toString).mkString(",")).right.flatMap {
         queryResult: ProgramOutputWriter =>

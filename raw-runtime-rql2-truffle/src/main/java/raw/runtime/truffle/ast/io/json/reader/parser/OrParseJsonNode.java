@@ -69,9 +69,11 @@ public class OrParseJsonNode extends ExpressionNode {
         nextTokenNode.execute(localParser);
         try {
           value = childDirectCalls[i].call(localParser);
-          // No exception was thrown. Local parser was consumed successfully by the temporary
+          // No exception was thrown. Local parser was consumed successfully by the
+          // temporary
           // parser.
-          // The real parser had been consumed as well, so we need to move to the next token.
+          // The real parser had been consumed as well, so we need to move to the next
+          // token.
           nextTokenNode.execute(parser);
           return new OrObject(i, value);
         } catch (RawTruffleRuntimeException ex) {

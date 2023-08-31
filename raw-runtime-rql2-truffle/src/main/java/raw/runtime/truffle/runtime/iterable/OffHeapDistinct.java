@@ -42,7 +42,8 @@ public class OffHeapDistinct {
       new ArrayList<>(); // list of files that contain the spilled data.
   private final long blockSize; // maximum size of a spilled file.
   private int
-      binarySize; // estimated size of currently memory held objects (when reaching blockSize, spill
+      binarySize; // estimated size of currently memory held objects (when reaching blockSize,
+  // spill
   // to disk).
 
   private final Comparator<Object> keyCompare; // grouping key compare function.

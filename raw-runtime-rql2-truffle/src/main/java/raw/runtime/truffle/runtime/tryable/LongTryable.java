@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.tryable;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 // before anything else, looks like final tree is "too simple"
 // and misses the cast phase
@@ -44,13 +45,17 @@ public final class LongTryable {
 
   @ExportMessage
   long success() {
-    // assert(isSuccess());
+    if (!isSuccess()) {
+      throw new RawTruffleRuntimeException(failureValue);
+    }
     return successValue;
   }
 
   @ExportMessage
   String failure() {
-    // assert(isFailure());
+    if (!isFailure()) {
+      throw new RawTruffleRuntimeException("not a failure");
+    }
     return failureValue;
   }
 

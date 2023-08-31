@@ -69,7 +69,7 @@ class RawSettings(
     }
   }
 
-  private def convertConfigToSparkConfSyntax(config: Config): Set[(String, String)] = {
+  private def convertConfigToFriendlyConfSyntax(config: Config): Set[(String, String)] = {
     config
       .entrySet()
       .asScala
@@ -89,7 +89,7 @@ class RawSettings(
   }
 
   override def toString: String = {
-    val settings = convertConfigToSparkConfSyntax(config)
+    val settings = convertConfigToFriendlyConfSyntax(config)
     settings
       .map(entry => s"${entry._1} -> ${entry._2}")
       .mkString("; ")

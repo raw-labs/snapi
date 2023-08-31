@@ -105,12 +105,14 @@ public class RecordParseJsonNode extends ExpressionNode {
     nextTokenNode.execute(parser); // skip the END_OBJECT token
 
     if (currentBitSet.cardinality() != this.fieldsSize) {
-      // not all fields were found in the JSON. Fill the missing nullable ones with nulls or fail.
+      // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
+      // fail.
       Object[] fields = fieldNamesMap.keySet().toArray();
       for (int i = 0; i < this.fieldsSize; i++) {
         if (!currentBitSet.get(i)) {
           if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
-            // It's OK, the field is nullable. If it's tryable, make a success null, else a plain
+            // It's OK, the field is nullable. If it's tryable, make a success null,
+            // else a plain
             // null.
             Object nullValue =
                 fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())

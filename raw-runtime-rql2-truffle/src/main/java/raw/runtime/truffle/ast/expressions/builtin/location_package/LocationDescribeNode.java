@@ -62,8 +62,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
           inferrer.infer(
               AutoInferrerProperties.apply(
                   locationObject.getLocationDescription(),
-                  sampleSize == Integer.MAX_VALUE ? Some.empty() : Some.apply(sampleSize)),
-              context.executionLogger());
+                  sampleSize == Integer.MAX_VALUE ? Some.empty() : Some.apply(sampleSize)));
 
       String format = "";
       String comment = "";

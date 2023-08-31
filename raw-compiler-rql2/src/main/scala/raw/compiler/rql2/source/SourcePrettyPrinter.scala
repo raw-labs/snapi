@@ -130,6 +130,7 @@ trait SourcePrettyPrinter
           }
         case BoolConst(v) => v.toString
         case StringConst(v) => s""""${descape(v)}""""
+        case TripleQuotedStringConst(v) => s"""\"\"\"$v\"\"\""""
         case BinaryConst(bytes) => s"""0x${bytes.map("%02x".format(_)).mkString}"""
       }
     case IfThenElse(e1, e2, e3) => "if" <+> e1 <+> "then" <> nest(line <> e2) <@> "else" <> nest(line <> e3)

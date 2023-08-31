@@ -202,7 +202,8 @@ public final class RecordObject implements TruffleObject {
   }
 
   @ExportMessage
-  // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey, etc.)
+  // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey,
+  // etc.)
   // and
   //  writeMember should expose a semantic matching the interop API.
   public void writeMember(String name, Object value) {

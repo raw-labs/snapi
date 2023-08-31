@@ -85,11 +85,18 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override protected def doEval(
       tree: BaseTree[SourceNode, SourceProgram, Exp]
   )(implicit programContext: raw.compiler.base.ProgramContext): Value = {
-    val entrypoint = doCompile(tree).asInstanceOf[TruffleEntrypoint]
+    val TruffleEntrypoint(context, node, _) = doCompile(tree).asInstanceOf[TruffleEntrypoint]
     RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
-    val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
-    val res = target.call()
-    convertAnyToValue(res, tree.rootType.get)
+    val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
+    try {
+      val res = target.call()
+      convertAnyToValue(res, tree.rootType.get)
+    } finally {
+      // We explicitly created and then entered the context during code emission.
+      // Now we explicitly leave and close the context.
+      context.leave()
+      context.close()
+    }
   }
 
   override def parseAndValidate(source: String, maybeDecl: Option[String])(
@@ -537,6 +544,7 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     case DoubleConst(v) => new DoubleNode(v)
     case DecimalConst(v) => new DecimalNode(v)
     case StringConst(v) => new StringNode(v)
+    case TripleQuotedStringConst(v) => new StringNode(v)
     case BinaryExp(And(), e1, e2) => new AndNode(recurseExp(e1), recurseExp(e2))
     case BinaryExp(Or(), e1, e2) => new OrNode(recurseExp(e1), recurseExp(e2))
     case BinaryExp(Plus(), e1, e2) => new PlusNode(recurseExp(e1), recurseExp(e2))

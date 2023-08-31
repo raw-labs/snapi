@@ -19,13 +19,13 @@ trait Phase[P] extends StrictLogging {
 
   protected def phaseName: String
 
-  final protected def withPhaseTiming[T](f: => T)(implicit context: ProgramContext): T = {
+  final protected def withPhaseTiming[T](f: => T): T = {
     val start = Stopwatch.createStarted()
     try {
       f
     } finally {
       val elapsed = start.elapsed()
-      context.addPhaseTiming(phaseName, elapsed)
+      logger.trace(s"Phase timing for $phaseName: ${elapsed.toMillis} ms")
     }
   }
 

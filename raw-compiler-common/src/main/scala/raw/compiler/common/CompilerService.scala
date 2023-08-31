@@ -71,21 +71,19 @@ class CompilerService(implicit settings: RawSettings) extends RawService {
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): ProgramContext = {
-    val runtimeContext = getRuntimeContext(compiler, maybeArguments, environment, NullExecutionLogger)
+    val runtimeContext = getRuntimeContext(compiler, maybeArguments, environment)
     compiler.getProgramContext(runtimeContext)
   }
 
   private def getRuntimeContext(
       compiler: Compiler,
       maybeArguments: Option[Array[(String, ParamValue)]],
-      environment: ProgramEnvironment,
-      executionLogger: ExecutionLogger
+      environment: ProgramEnvironment
   ): RuntimeContext = {
     val sourceContext = compiler.compilerContext.sourceContext
     new RuntimeContext(
       sourceContext,
       settings,
-      executionLogger,
       maybeArguments,
       environment
     )

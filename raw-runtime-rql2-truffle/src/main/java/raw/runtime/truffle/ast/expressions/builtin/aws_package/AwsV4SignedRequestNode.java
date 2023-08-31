@@ -166,14 +166,16 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       // Header names must be trimmed and lowercase, and sorted in code point order from
       // low to high. Note that there is a trailing \n.
       // Note: The request can include any headers; canonical_headers and signed_headers lists
-      // those that you want to be included in the hash of the request. "Host" and "x-amz-date" are
+      // those that you want to be included in the hash of the request. "Host" and
+      // "x-amz-date" are
       // always required.
       StringBuilder canonicalHeadersBuilder = new StringBuilder();
       StringBuilder signedHeadersBuilder = new StringBuilder();
       VectorBuilder<Tuple2<String, String>> headersParamsVec = new VectorBuilder<>();
 
       int headersSize = (int) headersLists.size(headers);
-      // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is defined
+      // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is
+      // defined
       int allHeadersSize = headersSize + 2;
       if (!sessionToken.equals("")) allHeadersSize++;
 
@@ -227,7 +229,8 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
         signedHeadersBuilder.deleteCharAt(signedHeadersBuilder.length() - 1);
       }
 
-      // List of signed headers: lists the headers in the canonical_headers list, delimited with
+      // List of signed headers: lists the headers in the canonical_headers list, delimited
+      // with
       // ";".
       String signedHeaders = signedHeadersBuilder.toString();
 

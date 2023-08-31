@@ -80,7 +80,7 @@ class RawCli(writer: PrintWriter) extends StrictLogging {
         programDefinition.environment
       )
       compiler
-        .execute(programDefinition.code, programDefinition.decl, Array.empty)(programContext) match {
+        .execute(programDefinition.code, programDefinition.decl)(programContext) match {
         case Left(errors) => prettyPrintError(programDefinition.code, errors)
         case Right(actualQuery) =>
           query = actualQuery

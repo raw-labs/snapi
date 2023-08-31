@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.tryable;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ExportLibrary(TryableLibrary.class)
 public final class ErrorTryable {
@@ -34,12 +35,14 @@ public final class ErrorTryable {
 
   @ExportMessage
   public boolean success() {
-    throw new AssertionError("Calling success get on ErrorTryable");
+    throw new RawTruffleRuntimeException(failureValue);
   }
 
   @ExportMessage
   public String failure() {
-    // assert(isFailure());
+    if (!isFailure()) {
+      throw new RawTruffleRuntimeException("not a failure");
+    }
     return failureValue;
   }
 

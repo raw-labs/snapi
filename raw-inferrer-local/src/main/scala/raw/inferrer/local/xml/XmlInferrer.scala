@@ -13,7 +13,6 @@
 package raw.inferrer.local.xml
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.runtime.ExecutionLogger
 import raw.inferrer._
 import raw.inferrer.local._
 import raw.sources._
@@ -35,8 +34,10 @@ class XmlInferrer(implicit protected val sourceContext: SourceContext)
 
   private val defaultSampleSize = settings.getInt(XML_SAMPLE_SIZE)
 
-  def infer(is: SeekableInputStream, maybeEncoding: Option[Encoding], maybeSampleSize: Option[Int])(
-      implicit executionLogger: ExecutionLogger
+  def infer(
+      is: SeekableInputStream,
+      maybeEncoding: Option[Encoding],
+      maybeSampleSize: Option[Int]
   ): TextInputStreamFormatDescriptor = {
     withErrorHandling {
       val r = getTextBuffer(is, maybeEncoding)

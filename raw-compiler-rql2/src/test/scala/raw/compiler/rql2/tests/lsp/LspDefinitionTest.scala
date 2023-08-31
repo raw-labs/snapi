@@ -18,7 +18,7 @@ import raw.runtime.ProgramEnvironment
 
 trait LspDefinitionTest extends CompilerTestContext {
 
-  val programEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
+  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   test("go to definition identifier at usage test") { _ =>
     val code = """let
@@ -26,7 +26,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(4, 1)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(4, 1)))
     response match {
       case DefinitionLSPResponse(Pos(line, column), _) =>
         assertResult(2)(line)
@@ -41,7 +41,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(2, 1)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(2, 1)))
     response match {
       case DefinitionLSPResponse(Pos(line, column), _) =>
         assertResult(2)(line)
@@ -56,7 +56,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(5, 1)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(5, 1)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(3)(line)
@@ -70,7 +70,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(4, 1)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(4, 1)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -84,7 +84,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(2, 7)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(2, 7)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -102,7 +102,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(2, 3)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(2, 3)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -116,7 +116,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  b(v: int): int = v
       |in
       |b(2)""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(2, 3)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(2, 3)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -134,7 +134,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(8, 15)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(8, 15)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -152,7 +152,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(2, 20)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(2, 20)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -170,7 +170,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(3, 29)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(3, 29)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -188,7 +188,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(1, 1)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(1, 1)))
     response shouldBe a[ErrorLSPResponse]
   }
 
@@ -197,7 +197,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(4, 32)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(4, 32)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -211,7 +211,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(4, 45)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(4, 45)))
     response match {
       case DefinitionLSPResponse(Pos(line, char), _) =>
         assertResult(2)(line)
@@ -222,7 +222,7 @@ trait LspDefinitionTest extends CompilerTestContext {
 
   test("go to definition of space should return empty result") { _ =>
     val code = """  let a = "hello" in a """.stripMargin
-    val response = doLsp(DefinitionLSPRequest(code, programEnvironment, Pos(1, 1)))
+    val response = doLsp(DefinitionLSPRequest(code, environment, Pos(1, 1)))
     response shouldBe a[ErrorLSPResponse]
   }
 

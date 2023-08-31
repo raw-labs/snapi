@@ -675,4 +675,8 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   )
 
+  // RD-5986
+  test("""Json.Parse("[10, 9, 8]", type string)""")(_ should runErrorAs("unexpected token: START_ARRAY"))
+  test("""Json.Parse("{\"a\": 12}", type string)""")(_ should runErrorAs("unexpected token: START_OBJECT"))
+
 }

@@ -26,27 +26,30 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 @ExportLibrary(IterableLibrary.class)
 public class XmlParseCollection {
 
-    private final String text;
-    private final DirectCallNode parseNextRootNode;
-    private final RawTruffleXmlParserSettings settings;
-    private final RuntimeContext context;
+  private final String text;
+  private final DirectCallNode parseNextRootNode;
+  private final RawTruffleXmlParserSettings settings;
+  private final RuntimeContext context;
 
-    public XmlParseCollection(String text, RuntimeContext context, DirectCallNode parseNextRootNode,
-                              RawTruffleXmlParserSettings settings) {
-        this.text = text;
-        this.parseNextRootNode = parseNextRootNode;
-        this.context = context;
-        this.settings = settings;
-    }
+  public XmlParseCollection(
+      String text,
+      RuntimeContext context,
+      DirectCallNode parseNextRootNode,
+      RawTruffleXmlParserSettings settings) {
+    this.text = text;
+    this.parseNextRootNode = parseNextRootNode;
+    this.context = context;
+    this.settings = settings;
+  }
 
-    @ExportMessage
-    boolean isIterable() {
-        return true;
-    }
+  @ExportMessage
+  boolean isIterable() {
+    return true;
+  }
 
-    @ExportMessage
-    Object getGenerator() {
-        return new CollectionAbstractGenerator(
-            new XmlParseComputeNext(text, context, parseNextRootNode, settings));
-    }
+  @ExportMessage
+  Object getGenerator() {
+    return new CollectionAbstractGenerator(
+        new XmlParseComputeNext(text, context, parseNextRootNode, settings));
+  }
 }
