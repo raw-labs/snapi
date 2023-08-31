@@ -42,7 +42,7 @@ object Dependencies {
 
   val commonsText = "org.apache.commons" % "commons-text" % "1.10.0"
 
-  val commonsIO = "commons-io" % "commons-io" % "2.11.0"
+  val commonsIO = "commons-io" % "commons-io" % "2.13.0"
 
   val commonsLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
 

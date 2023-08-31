@@ -18,6 +18,6 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 
-libraryDependencies += "commons-io" % "commons-io" % "2.11.0"
+libraryDependencies += "commons-io" % "commons-io" % "2.13.0"
 
 addSbtPlugin("com.lightbend.sbt" % "sbt-java-formatter" % "0.6.1")
