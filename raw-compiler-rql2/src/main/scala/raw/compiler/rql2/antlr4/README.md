@@ -1,7 +1,6 @@
 # Installation
 
-- Download the latest version with
-  `curl -O http://www.antlr.org/download/antlr-4.13.0-complete.jar`
+- Download the latest version from http://www.antlr.org/download/antlr-4.13.0-complete.jar
 
 - Move it to a directory of your choice, e.g. `/usr/local/lib/antlr-4.13.0-complete.jar`
 - Add the jar file to your classpath: `export CLASSPATH=".:/usr/local/lib/antlr-4.13.0-complete.jar:$CLASSPATH"`
