@@ -87,17 +87,25 @@ expr: number
     | let
     | expr_type // to check if this works correctly with recor(a:int)
     | <assoc=right> expr '.' ident fun_ar?  // projection
+    // | expr '.'  {notifyErrorListeners("Incomplete projection");}
     ;
 
-let: LET_TOKEN let_decl (',' let_decl)* IN_TOKEN expr;
+let: LET_TOKEN let_left IN_TOKEN expr;
+
+let_left: let_decl (',' let_decl)*
+        // | let_decl (let_decl)* {notifyErrorListeners("Missing ','");}
+        ;
 
 let_decl: let_bind
         | fun_dec
         ;
-//raw compiler rql2!!!!!!!!!!!
+
 let_bind: ident '=' expr | ident ':' type '=' expr;
 
-if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr;
+if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
+            // | IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN {notifyErrorListeners("Missing else expr");}
+            // | IF_TOKEN expr {notifyErrorListeners("Missing then body");}
+            ;
 
 lists: '[' (lists_element)? ']';
 lists_element: expr (',' expr)*;
