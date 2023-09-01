@@ -15,6 +15,8 @@ package raw.compiler.rql2.tests.regressions
 import raw.compiler.rql2.tests.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
+@TruffleTests class RD9485TruffleTest extends TruffleCompilerTestContext with RD9485Test
+
 @TruffleTests class RD9445TruffleTest extends TruffleCompilerTestContext with RD9445Test
 
 @TruffleTests class RD5631TruffleTest extends TruffleCompilerTestContext with RD5631Test

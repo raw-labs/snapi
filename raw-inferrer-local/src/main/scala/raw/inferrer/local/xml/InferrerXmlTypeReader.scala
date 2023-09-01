@@ -54,6 +54,10 @@ private[xml] class InferrerXmlTypeReader(reader: Reader, maxRepeatedTags: Int)
   // issue with eventReader and multi document mode : https://github.com/FasterXML/woodstox/issues/42
   private val xmlReader = factory.createXMLStreamReader(reader)
 
+  private var _sampled = false
+
+  def sampled: Boolean = _sampled || hasNext()
+
   skipToNext()
   assert(xmlReader.getEventType == XMLStreamConstants.START_ELEMENT)
   val topLevelLabel = xmlReader.getLocalName
@@ -93,11 +97,11 @@ private[xml] class InferrerXmlTypeReader(reader: Reader, maxRepeatedTags: Int)
     skipToNext()
   }
 
-  def atEndOfObj() = {
+  def atEndOfObj(): Boolean = {
     xmlReader.getEventType == XMLStreamConstants.END_ELEMENT
   }
 
-  def atEndOfDocument() = {
+  def atEndOfDocument(): Boolean = {
     xmlReader.getEventType == XMLStreamConstants.END_DOCUMENT
   }
 
@@ -143,6 +147,7 @@ private[xml] class InferrerXmlTypeReader(reader: Reader, maxRepeatedTags: Int)
         case XMLStreamConstants.START_ELEMENT =>
           val label = xmlReader.getLocalName
           if (tagCounter.getOrElseUpdate(label, 0) >= maxRepeatedTags && maxRepeatedTags > 0) {
+            _sampled = true
             skipObj()
           } else {
             tagCounter(label) += 1
