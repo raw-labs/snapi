@@ -104,4 +104,6 @@ object Dependencies {
     "org.jline" % "jline-terminal-jna" % "3.23.0",
     "org.jline" % "jline-reader" % "3.23.0"
   )
+
+  val antlr4 = "org.antlr" % "antlr4" % "4.13.0"
 }

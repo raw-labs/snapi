@@ -428,7 +428,8 @@ lazy val rawCompilerRql2 = (project in file("raw-compiler-rql2"))
     rawSourcesGithub % "test->test",
   )
   .settings(
-    buildSettings // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
+    buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
+    libraryDependencies += antlr4
   )
 
 val dummyJavadocJarTask = taskKey[File]("Creates a dummy javadoc jar file")

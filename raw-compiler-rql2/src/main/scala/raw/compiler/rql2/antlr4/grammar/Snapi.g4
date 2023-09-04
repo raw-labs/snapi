@@ -2,27 +2,39 @@ grammar Snapi;
 import SnapiLexerRules;
 
 // ============= program =================
-prog: stat EOF;
+prog: stat EOF
+    ;
 
-stat:  fun_dec*
-    |  fun_dec* expr
+stat:  fun_dec*                             # FunDecStat
+    |  fun_dec* expr                        # FunDecExprStat
     ;
 
 // function definition
-fun_dec : fun '=' expr;
-fun: normal_fun
-    | rec_fun
-    ;
-normal_fun: ident fun_proto ;
-rec_fun: REC_TOKEN normal_fun ;
-fun_proto: '(' fun_params? ')' ;
-fun_params: fun_param (',' fun_param)*;
-
-fun_param: attr
-        | attr '=' expr
+fun_dec : fun '=' expr                      # FunDec
         ;
 
-attr: ident ':' type;
+fun: normal_fun                             # NormalFun
+   | rec_fun                                # RecFun
+   ;
+
+normal_fun: ident fun_proto                 # NormalFunProto
+          ;
+
+rec_fun: REC_TOKEN normal_fun               # RecFunProto
+       ;
+
+fun_proto: '(' fun_params? ')'              # FunProto
+         ;
+
+fun_params: fun_param (',' fun_param)*      # FunParams
+          ;
+
+fun_param: attr                             # FunParamAttr
+         | attr '=' expr                    # FunParamAttrExpr
+         ;
+
+attr: ident ':' type
+    ;
 
 // the input parameters of a function
 fun_app: ident fun_ar ;
@@ -54,7 +66,7 @@ pure_type: premetive_type
 record_type: RECORD_TOKEN '(' attr (',' attr)* ')';
 iterable_type: COLLECTION_TOKEN '(' type ')';
 list_type: LIST_TOKEN '(' type ')';
-expr_type: TYPE_TOKEN type; // Why do we have to use TOKEN_TYPE here? Why not just type?
+expr_type: TYPE_TOKEN type;
 typealias_type: TYPE_TOKEN type '=' type;
 
 fun_type: '(' (fun_params | type)? ')' '->' type;
