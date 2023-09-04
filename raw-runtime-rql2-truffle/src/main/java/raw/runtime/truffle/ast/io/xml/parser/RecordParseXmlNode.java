@@ -122,7 +122,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       }
     }
     parser.expectEndTag(recordTag);
-    parser.nextToken(); // skip the END_OBJECT token
+
 
     // processing lists and collections
     for (String fieldName : collectionValues.keySet()) {
@@ -138,6 +138,8 @@ public class RecordParseXmlNode extends ExpressionNode {
         record.writeIdx(index, fieldName, list);
       }
     }
+
+    ArrayList<String> missingFields = new ArrayList<>();
     // process nullable fields (null when not found)
     if (bitSet.cardinality() != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
@@ -155,11 +157,25 @@ public class RecordParseXmlNode extends ExpressionNode {
                     : new EmptyOption();
             record.writeIdx(i, fieldName, nullValue);
           } else {
-            throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
+            missingFields.add(fieldName);
           }
         }
       }
     }
+
+    // if there are missing fields, throw an exception with all the missing fields
+    if (!missingFields.isEmpty()) {
+      StringBuilder strBuilder = new StringBuilder();
+      for (String fieldName:  missingFields) {
+        strBuilder.append(", ");
+        strBuilder.append(fieldName);
+      }
+      String missingFieldsStr = strBuilder.substring(2);
+      throw new XmlParserRawTruffleException("fields not found: " + missingFieldsStr, parser, this);
+    }
+    // Skipping the END_OBJECT token here after checking if everything is ok.
+    // Because if there is an exception TryableParseXmlNode will code will skip the current object
+    parser.nextToken();
     return record;
   }
 
