@@ -174,7 +174,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       throw new XmlParserRawTruffleException("fields not found: " + missingFieldsStr, parser, this);
     }
     // Skipping the END_OBJECT token here after checking if everything is ok.
-    // Because if there is an exception TryableParseXmlNode will code will skip the current object
+    // Because if there is an exception TryableParseXmlNode will skip the current object
     parser.nextToken();
     return record;
   }
