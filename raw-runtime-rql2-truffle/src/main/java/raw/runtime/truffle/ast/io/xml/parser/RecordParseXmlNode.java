@@ -139,7 +139,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       }
     }
 
-    ArrayList<String> missingFields = new ArrayList<>();
+    StringBuilder missingFields = new StringBuilder();
     // process nullable fields (null when not found)
     if (bitSet.cardinality() != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
@@ -157,20 +157,16 @@ public class RecordParseXmlNode extends ExpressionNode {
                     : new EmptyOption();
             record.writeIdx(i, fieldName, nullValue);
           } else {
-            missingFields.add(fieldName);
+            missingFields.append(", ");
+            missingFields.append(fieldName);
           }
         }
       }
     }
 
     // if there are missing fields, throw an exception with all the missing fields
-    if (!missingFields.isEmpty()) {
-      StringBuilder strBuilder = new StringBuilder();
-      for (String fieldName:  missingFields) {
-        strBuilder.append(", ");
-        strBuilder.append(fieldName);
-      }
-      String missingFieldsStr = strBuilder.substring(2);
+    if (missingFields.length() != 0) {
+      String missingFieldsStr = missingFields.substring(2);
       throw new XmlParserRawTruffleException("fields not found: " + missingFieldsStr, parser, this);
     }
     // Skipping the END_OBJECT token here after checking if everything is ok.
