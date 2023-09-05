@@ -9,6 +9,7 @@
  * by the Apache License, Version 2.0, included in the file
  * licenses/APL.txt.
  */
+
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
