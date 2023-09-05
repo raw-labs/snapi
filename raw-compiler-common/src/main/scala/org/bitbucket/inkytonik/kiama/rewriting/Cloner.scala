@@ -18,56 +18,52 @@ package rewriting
  */
 trait Cloner {
 
-    self : Rewriter =>
+  self: Rewriter =>
 
-    import org.bitbucket.inkytonik.kiama.relation.TreeRelation.isLeaf
+  import org.bitbucket.inkytonik.kiama.relation.TreeRelation.isLeaf
 
-    /**
-     * Deep clone the term `t`. Only applicable if the base type of the tree is
-     * a `Product`.
-     */
-    def deepclone[T <: Product](t : T) : T = {
+  /**
+   * Deep clone the term `t`. Only applicable if the base type of the tree is
+   * a `Product`.
+   */
+  def deepclone[T <: Product](t: T): T = {
 
-        val deepcloner =
-            everywherebu(rule[T] {
-                case n if isLeaf(n) =>
-                    copy(n)
-            })
+    val deepcloner = everywherebu(rule[T] {
+      case n if isLeaf(n) => copy(n)
+    })
 
-        rewrite(deepcloner)(t)
+    rewrite(deepcloner)(t)
 
-    }
+  }
 
-    /**
-     * Lazily deep clone the term `t`; i.e., only clone sub-trees if they occur
-     * elsewhere in the tree. Only applicable if the base type of the tree is a
-     * `Product`. The `bu` argument specifies the strategy to use when traversing
-     * the term. It should be a bottom-up traversal, but can be tailored to skip
-     * some sub-trees if desired. `bu` defaults to `everywherebu`.
-     */
-    def lazyclone[T <: Product](
-        t : T,
-        bu : Strategy => Strategy = everywherebu(_)
-    ) : T = {
+  /**
+   * Lazily deep clone the term `t`; i.e., only clone sub-trees if they occur
+   * elsewhere in the tree. Only applicable if the base type of the tree is a
+   * `Product`. The `bu` argument specifies the strategy to use when traversing
+   * the term. It should be a bottom-up traversal, but can be tailored to skip
+   * some sub-trees if desired. `bu` defaults to `everywherebu`.
+   */
+  def lazyclone[T <: Product](
+      t: T,
+      bu: Strategy => Strategy = everywherebu(_)
+  ): T = {
 
-        import org.bitbucket.inkytonik.kiama.util.Memoiser.makeIdMemoiser
+    import org.bitbucket.inkytonik.kiama.util.Memoiser.makeIdMemoiser
 
-        val seen = makeIdMemoiser[Product, Boolean]()
+    val seen = makeIdMemoiser[Product, Boolean]()
 
-        val lazycloner =
-            bu(rule[T] {
-                case n if isLeaf(n) =>
-                    if (seen.getOrDefault(n, false))
-                        copy(n)
-                    else {
-                        seen.put(n, true)
-                        n
-                    }
-            })
+    val lazycloner = bu(rule[T] {
+      case n if isLeaf(n) =>
+        if (seen.getOrDefault(n, false)) copy(n)
+        else {
+          seen.put(n, true)
+          n
+        }
+    })
 
-        rewrite(lazycloner)(t)
+    rewrite(lazycloner)(t)
 
-    }
+  }
 
 }
 
