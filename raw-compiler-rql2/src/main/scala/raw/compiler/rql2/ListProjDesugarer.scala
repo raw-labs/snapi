@@ -25,6 +25,7 @@ class ListProjDesugarer(protected val parent: Phase[SourceProgram], protected va
 ) extends PipelinedPhase {
 
   override protected def execute(program: SourceProgram): SourceProgram = {
+    for (_ <- 1 to 9) yield desugar(program)
     desugar(program)
   }
 

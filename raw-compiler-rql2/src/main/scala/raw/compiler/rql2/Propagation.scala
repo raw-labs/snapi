@@ -47,6 +47,7 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
     with Rql2TypeUtils {
 
   override protected def execute(program: SourceProgram): SourceProgram = {
+    for (_ <- 1 to 9) yield propagate(program)
     propagate(program)
   }
 
