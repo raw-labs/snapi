@@ -100,32 +100,30 @@ trait RD9485Test extends CompilerTestContext {
   }
 
   test(s"""Xml.InferAndRead("file://$xmlRecords", preferNulls=false)""") { it =>
-    it should evaluateTo(
-      """{
-        |  a: [
-        |     {
-        |         `@arg1`: 1.0,
-        |         `@arg2`: 2.0,
-        |         b: 3.0,
-        |         c: "Hello"
-        |     },
-        |     {
-        |         `@arg1`: 1.1,
-        |         `@arg2`: 2.2,
-        |         b: 3.3,
-        |         c: "World!"
-        |     },
-        |     {
-        |         `@arg1`: Error.Build("failed to parse XML (line 11 column 4): cannot cast 'Hello' to double"),
-        |         `@arg2`: Error.Build("failed to parse XML (line 11 column 4): cannot cast 'World!' to double"),
-        |         b: Error.Build("failed to parse XML (line 12 column 16): cannot cast 'Hello' to double"),
-        |         c: "Again!"
-        |     },
-        |     Error.Build("failed to parse XML (line 15 column 38): fields not found: @arg2, b, c")
-        |  ]
-        |}
-        |""".stripMargin)
+    it should evaluateTo("""{
+      |  a: [
+      |     {
+      |         `@arg1`: 1.0,
+      |         `@arg2`: 2.0,
+      |         b: 3.0,
+      |         c: "Hello"
+      |     },
+      |     {
+      |         `@arg1`: 1.1,
+      |         `@arg2`: 2.2,
+      |         b: 3.3,
+      |         c: "World!"
+      |     },
+      |     {
+      |         `@arg1`: Error.Build("failed to parse XML (line 11 column 4): cannot cast 'Hello' to double"),
+      |         `@arg2`: Error.Build("failed to parse XML (line 11 column 4): cannot cast 'World!' to double"),
+      |         b: Error.Build("failed to parse XML (line 12 column 16): cannot cast 'Hello' to double"),
+      |         c: "Again!"
+      |     },
+      |     Error.Build("failed to parse XML (line 15 column 38): fields not found: @arg2, b, c")
+      |  ]
+      |}
+      |""".stripMargin)
   }
-
 
 }
