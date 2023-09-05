@@ -22,7 +22,7 @@ trait Rql2TypeUtils {
 
   final def hasTypeConstraint(t: Type): Boolean = {
     // TODO (msb): Make use of TypeConstraint trait over base, common and rql2!
-    everywhere(query[Type] {
+    everywhere(query[Any] {
       case _: OneOfType => return true
       case _: ExpectedRegexType => return true
       case _: ExpectedRecordType => return true
@@ -39,7 +39,7 @@ trait Rql2TypeUtils {
 
   final def isTypeConstraint(t: Type): Boolean = {
     // TODO (msb): Make use of TypeConstraint trait over base, common and rql2!
-    (query[Type] {
+    (query[Any] {
       case _: OneOfType => return true
       case _: ExpectedRegexType => return true
       case _: ExpectedRecordType => return true
