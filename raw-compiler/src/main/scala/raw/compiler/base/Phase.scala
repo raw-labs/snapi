@@ -25,7 +25,7 @@ trait Phase[P] extends StrictLogging {
       f
     } finally {
       val elapsed = start.elapsed()
-      logger.trace(s"Phase timing for $phaseName: ${elapsed.toMillis} ms")
+      logger.info(s"Phase timing for $phaseName: ${elapsed.toMillis} ms")
     }
   }
 
