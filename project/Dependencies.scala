@@ -90,7 +90,7 @@ object Dependencies {
   val truffleDeps = Seq(
     "org.graalvm.truffle" % "truffle-api" % "22.3.1",
     "org.graalvm.truffle" % "truffle-dsl-processor" % "22.3.1" % Provided,
-    "org.graalvm.tools" % "profiler" % "22.3.1"
+    "org.graalvm.tools" % "profiler" % "22.3.3"
   )
 
   val jwtApi = "io.jsonwebtoken" % "jjwt-api" % "0.11.5"
