@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.http_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -47,6 +48,7 @@ import scala.collection.IndexedSeq;
 public abstract class HttpReadNode extends ExpressionNode {
 
   @Specialization(limit = "4")
+  @CompilerDirectives.TruffleBoundary
   protected ObjectTryable doRead(
       LocationObject locationObject,
       Object statusListOption,

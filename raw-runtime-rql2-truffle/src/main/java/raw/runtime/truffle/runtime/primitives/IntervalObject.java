@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,6 +64,7 @@ public final class IntervalObject implements TruffleObject {
     this.millis = (int) (rest %= 1000);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public IntervalObject(String interval) {
 
     Matcher matcher = pattern.matcher(interval);

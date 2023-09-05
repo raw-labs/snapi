@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.utils;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import scala.collection.immutable.Vector;
@@ -21,6 +22,7 @@ public class KryoFootPrint {
   private static Rql2TypeProperty nullable = new Rql2IsNullableTypeProperty();
   private static Rql2TypeProperty tryable = new Rql2IsTryableTypeProperty();
 
+  @CompilerDirectives.TruffleBoundary
   public static int of(Rql2TypeWithProperties type) {
     if (type.props().contains(tryable)) {
       return 1 + of((Rql2TypeWithProperties) type.cloneAndRemoveProp(tryable));

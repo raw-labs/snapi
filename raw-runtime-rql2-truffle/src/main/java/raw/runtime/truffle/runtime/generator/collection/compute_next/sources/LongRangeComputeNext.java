@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
@@ -44,7 +45,7 @@ public class LongRangeComputeNext {
   Object computeNext() {
     long current;
     try {
-      current = Math.addExact(position, step);
+      current = addExact(position, step);
     } catch (ArithmeticException e) {
       throw new BreakException();
     }
@@ -53,5 +54,10 @@ public class LongRangeComputeNext {
     }
     position = current;
     return position;
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private long addExact(long x, long y) {
+    return Math.addExact(x, y);
   }
 }

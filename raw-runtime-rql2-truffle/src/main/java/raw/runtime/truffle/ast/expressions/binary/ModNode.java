@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.binary;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
@@ -51,6 +52,7 @@ public abstract class ModNode extends BinaryNode {
   }
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected BigDecimal mod(BigDecimal left, BigDecimal right) {
     return left.remainder(right);
   }

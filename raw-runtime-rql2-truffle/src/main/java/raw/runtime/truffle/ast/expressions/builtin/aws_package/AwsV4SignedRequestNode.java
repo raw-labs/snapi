@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.builtin.aws_package;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -34,6 +35,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.helper_nodes.HelperNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
@@ -61,6 +63,7 @@ import scala.collection.immutable.VectorBuilder;
 @NodeChild("headers")
 public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
+  @CompilerDirectives.TruffleBoundary
   private byte[] hmacSHA256(String data, byte[] key) {
     try {
       String algorithm = "HmacSHA256";
@@ -81,6 +84,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     return hmacSHA256("aws4_request", kService);
   }
 
+  @CompilerDirectives.TruffleBoundary
   private String toHexString(byte[] bytes) {
     StringBuilder hexString = new StringBuilder();
     String hex;
@@ -93,14 +97,17 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
   }
 
   // Amazon needs timestamps for signing requests with specific formats.
+  @CompilerDirectives.TruffleBoundary
   private DateTimeFormatter formatterWithTimeZone() {
     return DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX").withZone(ZoneId.from(ZoneOffset.UTC));
   }
 
+  @CompilerDirectives.TruffleBoundary
   private DateTimeFormatter getDateFormatter() {
     return DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.from(ZoneOffset.UTC));
   }
 
+  @CompilerDirectives.TruffleBoundary
   private MessageDigest getSha256Digest() {
     try {
       return MessageDigest.getInstance("SHA-256");
@@ -123,6 +130,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       String bodyString,
       Object urlParams,
       Object headers,
+      @Cached("create()") HelperNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary(limit = "2") ListLibrary urlParamsLists,
       @CachedLibrary(limit = "2") ListLibrary headersLists,
       @CachedLibrary(limit = "2") InteropLibrary records) {
@@ -178,12 +186,8 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       if (!sessionToken.equals("")) allHeadersSize++;
 
       Object[] allHeaders = new Object[allHeadersSize];
-      System.arraycopy(
-          (Object[]) headersLists.getInnerList(headers),
-          0,
-          allHeaders,
-          0,
-          (int) headersLists.size(headers));
+      copyArrayNode.execute(
+          headersLists.getInnerList(headers), allHeaders, (int) headersLists.size(headers));
 
       allHeaders[headersSize] = RawLanguage.get(this).createRecord();
       records.writeMember(allHeaders[headersSize], "_1", "host");

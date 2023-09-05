@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import java.time.format.DateTimeFormatter;
 import java.util.HashMap;
 
@@ -20,6 +21,7 @@ public class DateTimeFormatCache {
   private static final ThreadLocal<HashMap<String, DateTimeFormatter>> formattersCache =
       new ThreadLocal<>();
 
+  @CompilerDirectives.TruffleBoundary
   public static DateTimeFormatter get(String template) throws IllegalArgumentException {
     HashMap<String, DateTimeFormatter> formatters = formattersCache.get();
     if (formatters == null) {
