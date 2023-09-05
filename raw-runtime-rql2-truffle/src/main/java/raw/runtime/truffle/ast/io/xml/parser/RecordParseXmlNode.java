@@ -123,7 +123,6 @@ public class RecordParseXmlNode extends ExpressionNode {
     }
     parser.expectEndTag(recordTag);
 
-
     // processing lists and collections
     for (String fieldName : collectionValues.keySet()) {
       // build an object list (for all cases)
