@@ -1,11 +1,13 @@
 /*
- * This file is part of Kiama.
+ * Copyright 2023 RAW Labs S.A.
  *
- * Copyright (C) 2008-2021 Anthony M Sloane, Macquarie University.
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
  *
- * This Source Code Form is subject to the terms of the Mozilla Public
- * License, v. 2.0. If a copy of the MPL was not distributed with this
- * file, You can obtain one at http://mozilla.org/MPL/2.0/.
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
  */
 
 package org.bitbucket.inkytonik.kiama
