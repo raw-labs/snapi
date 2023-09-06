@@ -88,8 +88,8 @@ object Dependencies {
   )
 
   val truffleDeps = Seq(
-    "org.graalvm.truffle" % "truffle-api" % "22.3.3",
-    "org.graalvm.truffle" % "truffle-dsl-processor" % "22.3.3" % Provided,
+    "org.graalvm.truffle" % "truffle-api" % "22.3.1",
+    "org.graalvm.truffle" % "truffle-dsl-processor" % "22.3.1" % Provided,
     "org.graalvm.tools" % "profiler" % "22.3.1"
   )
 
