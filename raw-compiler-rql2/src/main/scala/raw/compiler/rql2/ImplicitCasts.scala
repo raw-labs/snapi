@@ -29,7 +29,6 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
     with Rql2TypeUtils {
 
   override protected def execute(program: SourceProgram): SourceProgram = {
-    for (_ <- 1 to 49) yield implicitCast(program)
     implicitCast(program)
   }
 
