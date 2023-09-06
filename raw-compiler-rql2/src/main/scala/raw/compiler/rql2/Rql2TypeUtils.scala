@@ -21,39 +21,15 @@ import raw.inferrer._
 trait Rql2TypeUtils {
 
   final def hasTypeConstraint(t: Type): Boolean = {
-    // TODO (msb): Make use of TypeConstraint trait over base, common and rql2!
-    everywhere(query[Any] {
-      case _: OneOfType => return true
-      case _: ExpectedRegexType => return true
-      case _: ExpectedRecordType => return true
-      case _: ExpectedFunType => return true
-      case _: CastableToType => return true
-      case _: ExpectedProjType => return true
-      case _: MergeableType => return true
-      case _: HasTypeProperties => return true
-      case _: DoesNotHaveTypeProperties => return true
-      case _: AnythingType => return true
-    })(t)
+    everywhere(query[Any] { case _: CommonTypeConstraint | _: Rql2TypeConstraint | _: AnythingType => return true })(t)
     false
   }
 
   final def isTypeConstraint(t: Type): Boolean = {
-    // TODO (msb): Make use of TypeConstraint trait over base, common and rql2!
-    (query[Any] {
-      case _: OneOfType => return true
-      case _: ExpectedRegexType => return true
-      case _: ExpectedRecordType => return true
-      case _: ExpectedFunType => return true
-      case _: CastableToType => return true
-      case _: ExpectedProjType => return true
-      case _: MergeableType => return true
-      case _: HasTypeProperties => return true
-      case _: IsTryable => return true
-      case _: IsNullable => return true
-      case _: DoesNotHaveTypeProperties => return true
-      case _: AnythingType => return true
-    })(t)
-    false
+    t match {
+      case _: CommonTypeConstraint | _: Rql2TypeConstraint | _: AnythingType => true
+      case _ => false
+    }
   }
 
   final def getProps(t: Type): Set[Rql2TypeProperty] = t match {
