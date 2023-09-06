@@ -539,7 +539,7 @@ trait RD9528Test extends CompilerTestContext {
     |""".stripMargin
 
   test(v5_common_snapi + " 1 + 2") {
-    _ should (run and run and run)
+    _ should run // (run and run and run and ..) if willing to benchmark
   }
 
 }
