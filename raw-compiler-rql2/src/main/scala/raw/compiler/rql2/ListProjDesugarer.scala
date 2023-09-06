@@ -54,7 +54,7 @@ class ListProjDesugarer(protected val parent: Phase[SourceProgram], protected va
     }))
 
     val r = rewrite(s)(tree.root)
-    logger.debug("ListProjDesugarer:\n" + format(r))
+    logger.trace("ListProjDesugarer:\n" + format(r))
     r
   }
 

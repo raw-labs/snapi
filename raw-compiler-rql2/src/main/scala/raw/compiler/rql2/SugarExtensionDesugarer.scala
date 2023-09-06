@@ -67,7 +67,7 @@ class SugarExtensionDesugarer(protected val parent: Phase[SourceProgram], protec
     }))
 
     val r = rewrite(s)(tree.root)
-    logger.debug("SugarExtensionDesugarer:\n" + format(r))
+    logger.trace("SugarExtensionDesugarer:\n" + format(r))
     r
   }
 

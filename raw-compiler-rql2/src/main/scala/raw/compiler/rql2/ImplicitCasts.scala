@@ -422,7 +422,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
     }))
 
     val r = rewrite(s)(tree.root)
-    logger.debug("ImplicitCasts:\n" + format(r))
+    logger.trace("ImplicitCasts:\n" + format(r))
     r
   }
 
