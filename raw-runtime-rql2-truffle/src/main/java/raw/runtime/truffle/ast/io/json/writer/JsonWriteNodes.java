@@ -26,6 +26,12 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.io.IOException;
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
+import java.util.Base64;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
@@ -35,13 +41,6 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
-
-import java.io.IOException;
-import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeFormatter;
-import java.util.Base64;
 
 public final class JsonWriteNodes {
 
@@ -366,7 +365,8 @@ public final class JsonWriteNodes {
     void doWrite(TimestampObject value, JsonGenerator gen) {
       try {
         LocalDateTime ts = value.getTimestamp();
-        // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+        // .format throws DateTimeException if its internal StringBuilder throws an
+        // IOException.
         // We consider it as an internal error and let it propagate.
         gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {
@@ -389,7 +389,8 @@ public final class JsonWriteNodes {
     void doWrite(TimeObject value, JsonGenerator gen) {
       try {
         LocalTime ts = value.getTime();
-        // .format throws DateTimeException if its internal StringBuilder throws an IOException.
+        // .format throws DateTimeException if its internal StringBuilder throws an
+        // IOException.
         // We consider it as an internal error and let it propagate.
         gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {

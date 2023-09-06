@@ -15,10 +15,9 @@ package raw.runtime.truffle.ast.expressions.builtin.numeric.float_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
-import java.math.BigDecimal;
 
 @NodeInfo(shortName = "Float.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)

@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.exceptions;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.nodes.Node;
 

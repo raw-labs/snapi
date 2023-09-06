@@ -17,22 +17,21 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import java.io.*;
+import java.util.*;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.kryo.KryoReader;
 import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
 import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-
-import java.io.*;
-import java.util.*;
 
 /**
  * An ordered map with multiple keys, that spills to disk when it reaches a certain size. Similar to
@@ -47,7 +46,8 @@ public class OffHeapGroupByKeys {
       new ArrayList<>(); // list of files that contain the spilled data.
   private final long maxSize; // maximum size of a spilled file.
   private int
-      size; // estimated size of currently memory held objects (when reaching blockSize, spill to
+      size; // estimated size of currently memory held objects (when reaching blockSize, spill
+  // to
   // disk).
 
   private final Comparator<Object[]> keyCompare; // grouping keys compare function.
@@ -302,8 +302,10 @@ public class OffHeapGroupByKeys {
       if (currentKryoBuffer == null) {
         // we need to read the next keys and prepare the new buffer to read from.
         Object[] keys = nextKeys();
-        // First walk through the buffers to find the ones that expose the same smallest key.
-        // Take note of the number of items stored in each in order to allocate the right amount of
+        // First walk through the buffers to find the ones that expose the same smallest
+        // key.
+        // Take note of the number of items stored in each in order to allocate the right
+        // amount of
         // memory.
         for (InputBuffer inputBuffer : inputBuffers) {
           Object[] bufferKeys = inputBuffer.keys;

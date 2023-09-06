@@ -21,24 +21,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.list.ListLibrary;
-import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.sources.LocationKVSetting;
-import raw.sources.LocationSettingKey;
-import raw.sources.LocationSettingValue;
-import raw.sources.LocationStringSetting;
-import scala.Tuple2;
-import scala.collection.immutable.HashMap;
-import scala.collection.immutable.Map;
-import scala.collection.immutable.VectorBuilder;
-
-import javax.crypto.Mac;
-import javax.crypto.spec.SecretKeySpec;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.security.InvalidKeyException;
@@ -48,6 +30,22 @@ import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import java.time.format.DateTimeFormatter;
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ObjectList;
+import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.LocationKVSetting;
+import raw.sources.LocationSettingKey;
+import raw.sources.LocationSettingValue;
+import raw.sources.LocationStringSetting;
+import scala.Tuple2;
+import scala.collection.immutable.HashMap;
+import scala.collection.immutable.Map;
+import scala.collection.immutable.VectorBuilder;
 
 @NodeInfo(shortName = "Aws.V4SignedRequest")
 @NodeChild("key")
@@ -166,14 +164,16 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       // Header names must be trimmed and lowercase, and sorted in code point order from
       // low to high. Note that there is a trailing \n.
       // Note: The request can include any headers; canonical_headers and signed_headers lists
-      // those that you want to be included in the hash of the request. "Host" and "x-amz-date" are
+      // those that you want to be included in the hash of the request. "Host" and
+      // "x-amz-date" are
       // always required.
       StringBuilder canonicalHeadersBuilder = new StringBuilder();
       StringBuilder signedHeadersBuilder = new StringBuilder();
       VectorBuilder<Tuple2<String, String>> headersParamsVec = new VectorBuilder<>();
 
       int headersSize = (int) headersLists.size(headers);
-      // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is defined
+      // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is
+      // defined
       int allHeadersSize = headersSize + 2;
       if (!sessionToken.equals("")) allHeadersSize++;
 
@@ -227,7 +227,8 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
         signedHeadersBuilder.deleteCharAt(signedHeadersBuilder.length() - 1);
       }
 
-      // List of signed headers: lists the headers in the canonical_headers list, delimited with
+      // List of signed headers: lists the headers in the canonical_headers list, delimited
+      // with
       // ";".
       String signedHeaders = signedHeadersBuilder.toString();
 

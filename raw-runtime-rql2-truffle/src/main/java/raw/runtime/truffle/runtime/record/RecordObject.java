@@ -24,9 +24,8 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
-import raw.runtime.truffle.RawLanguage;
-
 import java.util.*;
+import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
 public final class RecordObject implements TruffleObject {
@@ -202,7 +201,8 @@ public final class RecordObject implements TruffleObject {
   }
 
   @ExportMessage
-  // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey, etc.)
+  // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey,
+  // etc.)
   // and
   //  writeMember should expose a semantic matching the interop API.
   public void writeMember(String name, Object value) {

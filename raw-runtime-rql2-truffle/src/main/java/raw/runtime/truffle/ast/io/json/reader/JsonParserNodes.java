@@ -30,6 +30,15 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.io.IOException;
+import java.io.Reader;
+import java.math.BigDecimal;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.format.DateTimeParseException;
+import java.util.ArrayList;
+import java.util.Base64;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
@@ -45,16 +54,6 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
-
-import java.io.IOException;
-import java.io.Reader;
-import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-import java.time.format.DateTimeParseException;
-import java.util.ArrayList;
-import java.util.Base64;
 
 public final class JsonParserNodes {
 
@@ -183,10 +182,11 @@ public final class JsonParserNodes {
     @CompilerDirectives.TruffleBoundary
     void skip(JsonParser parser) {
       try {
-        parser
-            .skipChildren(); // finish reading lists and records children (do nothing if not a list
+        parser.skipChildren(); // finish reading lists and records children (do nothing if
+        // not a list
         // or record)
-        parser.nextToken(); // swallow the next token (swallow closing braces, or int, float, etc.)
+        parser.nextToken(); // swallow the next token (swallow closing braces, or int,
+        // float, etc.)
       } catch (IOException e) {
         throw new JsonReaderRawTruffleException(e.getMessage(), this);
       }
@@ -415,7 +415,8 @@ public final class JsonParserNodes {
     String doParse(JsonParser parser) {
       try {
         if (!parser.currentToken().isScalarValue()) {
-          throw new JsonParserRawTruffleException("scalar value found", this);
+          throw new JsonParserRawTruffleException(
+              "unexpected token: " + parser.currentToken(), this);
         }
         String v = parser.getText();
         parser.nextToken();

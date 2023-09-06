@@ -17,8 +17,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.math.BigDecimal;
-
 @NodeInfo(shortName = "Math.Atn2")
 @NodeChild(value = "left", type = ExpressionNode.class)
 @NodeChild(value = "right", type = ExpressionNode.class)

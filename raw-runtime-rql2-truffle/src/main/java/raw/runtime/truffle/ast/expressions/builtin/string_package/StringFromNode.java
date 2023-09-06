@@ -12,15 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
+import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.*;
+
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.*;
-
-import java.math.BigDecimal;
-
-import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.*;
 
 @NodeInfo(shortName = "String.From")
 @NodeChild(value = "value")

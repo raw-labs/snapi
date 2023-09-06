@@ -17,8 +17,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 
-import java.util.Base64;
-
 @NodeInfo(shortName = "Binary.FromString")
 @NodeChild(value = "binary")
 public abstract class BinaryFromStringNode extends ExpressionNode {

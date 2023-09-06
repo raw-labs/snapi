@@ -19,6 +19,8 @@ import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.io.*;
+import java.util.*;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
@@ -31,9 +33,6 @@ import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
 
-import java.io.*;
-import java.util.*;
-
 /** A map that spills to disk when it reaches a certain size. */
 public class OffHeapDistinct {
   private final TreeSet<Object>
@@ -42,7 +41,8 @@ public class OffHeapDistinct {
       new ArrayList<>(); // list of files that contain the spilled data.
   private final long blockSize; // maximum size of a spilled file.
   private int
-      binarySize; // estimated size of currently memory held objects (when reaching blockSize, spill
+      binarySize; // estimated size of currently memory held objects (when reaching blockSize,
+  // spill
   // to disk).
 
   private final Comparator<Object> keyCompare; // grouping key compare function.

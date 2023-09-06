@@ -15,9 +15,8 @@ package raw.runtime.truffle.ast.expressions.builtin.binary_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.util.Base64;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "Binary.Base64")
 @NodeChild(value = "binary")

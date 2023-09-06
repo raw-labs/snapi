@@ -15,9 +15,8 @@ package raw.runtime.truffle.ast.io.xml.parser;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-
 import java.math.BigDecimal;
+import raw.runtime.truffle.ExpressionNode;
 
 @NodeInfo(shortName = "DecimalParseXml")
 public abstract class DecimalParseXmlNode extends ExpressionNode {

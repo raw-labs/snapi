@@ -370,11 +370,13 @@ public class AntPathMatcher implements PathMatcher {
    *       docs/cvs/commit.html</code>'
    *   <li>'<code>*.html</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>
    *       /docs/cvs/commit.html</code>'
-   *   <li>'<code>*</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>/docs/cvs/commit.html
+   *   <li>'<code>*</code>' and '<code>/docs/cvs/commit.html</code> -> '<code>
+   *       /docs/cvs/commit.html
    *       </code>'
    * </ul>
    *
-   * <p>Assumes that {@link #match} returns <code>true</code> for '<code>pattern</code>' and '<code>
+   * <p>Assumes that {@link #match} returns <code>true</code> for '<code>pattern</code>' and '
+   * <code>
    * path</code>', but does <strong>not</strong> enforce this.
    */
   public String extractPathWithinPattern(String pattern, String path) {

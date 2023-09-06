@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;

@@ -15,8 +15,8 @@ package raw.runtime.truffle.ast.controlflow;
 import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.BlockNode;
-import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.StatementNode;
 
 public final class ExpBlockNode extends ExpressionNode
     implements BlockNode.ElementExecutor<StatementNode> {

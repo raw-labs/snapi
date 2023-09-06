@@ -12,13 +12,12 @@
 
 package raw.runtime.truffle.utils;
 
-import raw.runtime.RuntimeContext;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import raw.runtime.RuntimeContext;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class IOUtils {
 

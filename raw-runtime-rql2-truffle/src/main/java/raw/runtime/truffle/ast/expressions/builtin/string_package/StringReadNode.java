@@ -15,6 +15,8 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.io.IOException;
+import java.io.Reader;
 import org.apache.commons.io.IOUtils;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
@@ -23,9 +25,6 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.tryable.StringTryable;
 import raw.runtime.truffle.utils.TruffleInputStream;
-
-import java.io.IOException;
-import java.io.Reader;
 
 @NodeInfo(shortName = "String.Read")
 @NodeChild("location")

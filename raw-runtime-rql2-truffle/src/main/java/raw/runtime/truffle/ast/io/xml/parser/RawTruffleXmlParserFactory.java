@@ -14,9 +14,8 @@ package raw.runtime.truffle.ast.io.xml.parser;
 
 import com.ctc.wstx.api.WstxInputProperties;
 import com.ctc.wstx.stax.WstxInputFactory;
-import org.codehaus.stax2.XMLInputFactory2;
-
 import javax.xml.stream.XMLInputFactory;
+import org.codehaus.stax2.XMLInputFactory2;
 
 public class RawTruffleXmlParserFactory extends WstxInputFactory {
 

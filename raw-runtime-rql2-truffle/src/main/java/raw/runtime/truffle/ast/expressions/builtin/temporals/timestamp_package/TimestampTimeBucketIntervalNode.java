@@ -15,15 +15,14 @@ package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
-
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.primitives.IntervalObject;
+import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
 @NodeInfo(shortName = "Timestamp.TimeBucketInterval")
 @NodeChild("value")
@@ -45,7 +44,8 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
         && intervalObj.getMinutes() == 0
         && intervalObj.getSeconds() == 0
         && intervalObj.getMillis() == 0) {
-      // the interval is only months and years we can perform the calculation on months, no need for
+      // the interval is only months and years we can perform the calculation on months, no
+      // need for
       // approximation
       int months1 = 12 * timestamp.getYear() + (timestamp.getMonthValue() - 1);
       int months2 = 12 * intervalObj.getYears() + intervalObj.getMonths();
@@ -55,7 +55,8 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
 
       result = LocalDateTime.of(year, month, 1, 0, 0, 0);
     } else if (intervalObj.getYears() == 0 && intervalObj.getMonths() == 0) {
-      // 01-01-1973 starts on a sunday, so we give an offset so that week calculations are correct
+      // 01-01-1973 starts on a sunday, so we give an offset so that week calculations are
+      // correct
       long offset = LocalDateTime.of(1973, 1, 1, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli();
       long millis1 = timestamp.toInstant(ZoneOffset.UTC).toEpochMilli();
       long millis2 = intervalObj.toMillis();

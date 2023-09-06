@@ -17,6 +17,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import java.io.IOException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
@@ -25,8 +26,6 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonOrTypeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.or.OrObject;
-
-import java.io.IOException;
 
 public class OrParseJsonNode extends ExpressionNode {
 
@@ -69,9 +68,11 @@ public class OrParseJsonNode extends ExpressionNode {
         nextTokenNode.execute(localParser);
         try {
           value = childDirectCalls[i].call(localParser);
-          // No exception was thrown. Local parser was consumed successfully by the temporary
+          // No exception was thrown. Local parser was consumed successfully by the
+          // temporary
           // parser.
-          // The real parser had been consumed as well, so we need to move to the next token.
+          // The real parser had been consumed as well, so we need to move to the next
+          // token.
           nextTokenNode.execute(parser);
           return new OrObject(i, value);
         } catch (RawTruffleRuntimeException ex) {

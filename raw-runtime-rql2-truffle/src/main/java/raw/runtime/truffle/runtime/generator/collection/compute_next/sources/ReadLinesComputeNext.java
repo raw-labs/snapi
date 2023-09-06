@@ -14,14 +14,13 @@ package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.io.BufferedReader;
+import java.io.IOException;
 import org.apache.commons.io.IOUtils;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.ReadLinesRawTruffleException;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
-
-import java.io.BufferedReader;
-import java.io.IOException;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class ReadLinesComputeNext {

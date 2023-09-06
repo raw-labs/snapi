@@ -19,10 +19,9 @@ import com.oracle.truffle.api.instrumentation.ProbeNode;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
+import java.math.BigDecimal;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
-
-import java.math.BigDecimal;
 
 @TypeSystemReference(RawTypes.class)
 @GenerateWrapper

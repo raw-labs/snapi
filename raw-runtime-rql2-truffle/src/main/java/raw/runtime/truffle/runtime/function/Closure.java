@@ -18,9 +18,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-
 import java.util.Objects;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
   private final Function function;
@@ -72,7 +71,8 @@ public class Closure {
         // no arg name was provided, use the index.
         args[i + 1] = arguments[i];
       } else {
-        // an arg name, ignore the current index 'i' and instead walk the arg names to find the
+        // an arg name, ignore the current index 'i' and instead walk the arg names to find
+        // the
         // real, and fill it in.
         int idx = 0;
         while (!Objects.equals(argNames[i], function.argNames[idx])) {

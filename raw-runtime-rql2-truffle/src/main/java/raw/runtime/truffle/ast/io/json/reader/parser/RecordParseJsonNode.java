@@ -18,6 +18,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.BitSet;
+import java.util.LinkedHashMap;
 import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
 import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -31,9 +33,6 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-
-import java.util.BitSet;
-import java.util.LinkedHashMap;
 
 @NodeInfo(shortName = "RecordParseJson")
 public class RecordParseJsonNode extends ExpressionNode {
@@ -105,12 +104,14 @@ public class RecordParseJsonNode extends ExpressionNode {
     nextTokenNode.execute(parser); // skip the END_OBJECT token
 
     if (currentBitSet.cardinality() != this.fieldsSize) {
-      // not all fields were found in the JSON. Fill the missing nullable ones with nulls or fail.
+      // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
+      // fail.
       Object[] fields = fieldNamesMap.keySet().toArray();
       for (int i = 0; i < this.fieldsSize; i++) {
         if (!currentBitSet.get(i)) {
           if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
-            // It's OK, the field is nullable. If it's tryable, make a success null, else a plain
+            // It's OK, the field is nullable. If it's tryable, make a success null,
+            // else a plain
             // null.
             Object nullValue =
                 fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())

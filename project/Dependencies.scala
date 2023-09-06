@@ -10,11 +10,11 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % scalacVersion
   )
 
-  val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.537"
+  val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
 
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
 
-  val scalatest = "org.scalatest" %% "scalatest" % "3.2.15"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
 
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
@@ -36,7 +36,7 @@ object Dependencies {
     "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.1"
   )
 
-  val ehCache = "org.ehcache" % "ehcache" % "3.10.6"
+  val ehCache = "org.ehcache" % "ehcache" % "3.10.8"
 
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
@@ -44,7 +44,7 @@ object Dependencies {
 
   val commonsIO = "commons-io" % "commons-io" % "2.11.0"
 
-  val commonsLang = "org.apache.commons" % "commons-lang3" % "3.12.0"
+  val commonsLang = "org.apache.commons" % "commons-lang3" % "3.13.0"
 
   val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
 
@@ -73,24 +73,24 @@ object Dependencies {
 
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
 
-  val mysqlDeps = "mysql" % "mysql-connector-java" % "8.0.33"
+  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0"
 
-  val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre8"
+  val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
 
-  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.29"
+  val snowflakeDeps = "net.snowflake" % "snowflake-jdbc" % "3.13.33"
 
   val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
 
   val poiDeps = Seq(
-    "org.apache.poi" % "poi" % "5.2.2",
-    "org.apache.poi" % "poi-ooxml" % "5.2.2",
-    "org.apache.poi" % "poi-ooxml-lite" % "5.2.2"
+    "org.apache.poi" % "poi" % "5.2.3",
+    "org.apache.poi" % "poi-ooxml" % "5.2.3",
+    "org.apache.poi" % "poi-ooxml-lite" % "5.2.3"
   )
 
   val truffleDeps = Seq(
     "org.graalvm.truffle" % "truffle-api" % "22.3.1",
     "org.graalvm.truffle" % "truffle-dsl-processor" % "22.3.1" % Provided,
-    "org.graalvm.tools" % "profiler" % "22.3.1"
+    "org.graalvm.tools" % "profiler" % "22.3.3"
   )
 
   val jwtApi = "io.jsonwebtoken" % "jjwt-api" % "0.11.5"

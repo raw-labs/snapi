@@ -45,4 +45,7 @@ trait ErrorPackageTest extends CompilerTestContext {
       """[2, 1, Error.Build("a Y error"), Error.Build("a X error"), Error.Build("a X error")]"""
     )
   )
+
+  test("""Error.Get("an error")""")(it => it should runErrorAs("not a failure"))
+
 }

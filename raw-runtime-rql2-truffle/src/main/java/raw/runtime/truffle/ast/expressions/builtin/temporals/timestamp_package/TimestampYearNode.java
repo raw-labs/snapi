@@ -16,7 +16,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.primitives.DateObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
 @NodeInfo(shortName = "Timestamp.Year")
