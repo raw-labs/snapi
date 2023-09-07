@@ -106,18 +106,14 @@ class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry wit
             outTypeWithProps.props.contains(Rql2IsTryableTypeProperty()) =>
         TryableFlatMapNodeGen.create(
           emitter.recurseExp(args(0).e),
-          emitter.recurseLambda(() =>
-            new InvokeNode(emitter.recurseExp(args(1).e), Array(null), Array(new ReadParamNode(0)))
-          )
+          emitter.recurseExp(args(1).e)
         )
 
       // Case #6 pure option
       case (eTypeWithProps: Rql2TypeWithProperties, inType, outTypeWithProps: Rql2TypeWithProperties)
           if eTypeWithProps.props == Set(Rql2IsNullableTypeProperty()) &&
             outTypeWithProps.props.contains(Rql2IsNullableTypeProperty()) =>
-        OptionFlatMapNodeGen.create(
-          emitter.recurseExp(args(0).e),
-          emitter.recurseExp(args(1).e))
+        OptionFlatMapNodeGen.create(emitter.recurseExp(args(0).e), emitter.recurseExp(args(1).e))
     }
   }
 
