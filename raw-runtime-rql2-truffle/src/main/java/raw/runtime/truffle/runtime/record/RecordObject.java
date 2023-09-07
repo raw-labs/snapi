@@ -35,7 +35,7 @@ public final class RecordObject implements TruffleObject {
   private final DynamicObject values;
   private final DynamicObjectLibrary valuesLibrary;
   private static final Shape rootShape =
-          Shape.newBuilder().layout(RecordStorageObject.class).build();
+      Shape.newBuilder().layout(RecordStorageObject.class).build();
 
   public RecordObject() {
     this.values = new RecordStorageObject(rootShape);
@@ -197,7 +197,7 @@ public final class RecordObject implements TruffleObject {
   // TODO replace all internal calls to writeMember by calls to addByKey
   public void addByKey(String key, Object value) {
     valuesLibrary.put(
-            values, keys.size(), value); // "key" to use in the dynamic object is the current index.
+        values, keys.size(), value); // "key" to use in the dynamic object is the current index.
     keys.add(key); // the original key is added (possible duplicate)
   }
 
