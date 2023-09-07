@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.operators;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
@@ -84,16 +85,19 @@ public class CompareOperator {
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doDecimal(CompareOperator comparator, BigDecimal left, BigDecimal right) {
       return left.compareTo(right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doString(CompareOperator comparator, String left, String right) {
       return left.compareTo(right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doDate(CompareOperator comparator, DateObject left, DateObject right) {
       LocalDate leftDate = left.getDate();
       LocalDate rightDate = right.getDate();
@@ -107,6 +111,7 @@ public class CompareOperator {
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doTimestamp(
         CompareOperator comparator, TimestampObject left, TimestampObject right) {
       LocalDateTime leftDate = left.getTimestamp();
@@ -121,6 +126,7 @@ public class CompareOperator {
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doTime(CompareOperator comparator, TimeObject left, TimeObject right) {
       LocalTime leftTime = left.getTime();
       LocalTime rightTime = right.getTime();
@@ -134,6 +140,7 @@ public class CompareOperator {
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doInterval(CompareOperator comparator, IntervalObject left, IntervalObject right) {
       return left.compareTo(right);
     }

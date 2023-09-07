@@ -42,6 +42,7 @@ public final class RecordObject implements TruffleObject {
     this.valuesLibrary = DynamicObjectLibrary.getFactory().create(values);
   }
 
+  @TruffleBoundary
   private Vector<String> getDistinctKeys() {
     if (distinctKeys == null) {
       distinctKeys = new Vector<>(keys.size());

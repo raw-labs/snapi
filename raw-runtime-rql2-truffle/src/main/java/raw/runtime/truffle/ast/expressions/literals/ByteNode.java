@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 
@@ -25,11 +26,16 @@ public class ByteNode extends ExpressionNode {
 
   @Override
   public final byte executeByte(VirtualFrame virtualFrame) {
-    return Byte.parseByte(value);
+    return parseByte();
   }
 
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
+    return parseByte();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private byte parseByte() {
     return Byte.parseByte(value);
   }
 }
