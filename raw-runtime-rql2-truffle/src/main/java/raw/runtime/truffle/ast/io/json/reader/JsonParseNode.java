@@ -13,7 +13,10 @@
 package raw.runtime.truffle.ast.io.json.reader;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.NodeField;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -22,47 +25,31 @@ import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 
-// @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "ParseJson")
-// @NodeChild(value = "str")
-// @NodeField(name = "resultType", type = Rql2TypeWithProperties.class)
-// @NodeField(name = "childRootNode", type = RootNode.class)
-public class JsonParseNode extends ExpressionNode {
+@NodeChild(value = "str")
+@NodeField(name = "childNode", type = RootNode.class)
+public abstract class JsonParseNode extends ExpressionNode {
 
-  @Child private ExpressionNode strExp;
+  protected abstract RootNode getChildNode();
 
-  @Child private DirectCallNode childDirectCall;
-
-  @Child
-  private InitJsonParserNode initParserNode = JsonParserNodesFactory.InitJsonParserNodeGen.create();
-
-  @Child
-  private CloseJsonParserNode closeParserNode =
-      JsonParserNodesFactory.CloseJsonParserNodeGen.create();
-
-  @Child
-  private NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
-
-  private JsonParser parser;
-
-  public JsonParseNode(ExpressionNode strExp, RootNode readerNode) {
-    this.strExp = strExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
-  }
-
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
+  @Specialization
+  protected Object doParse(
+      String str,
+      @Cached InitJsonParserNode initParserNode,
+      @Cached CloseJsonParserNode closeParserNode,
+      @Cached NextTokenJsonParserNode nextTokenNode,
+      @Cached("create(getChildNode().getCallTarget())") DirectCallNode childDirectCall) {
+    JsonParser parser = null;
     try {
-      String str = (String) strExp.executeGeneric(virtualFrame);
       parser = initParserNode.execute(str);
       nextTokenNode.execute(parser);
       return childDirectCall.call(parser);
     } catch (RawTruffleRuntimeException e) {
       throw new JsonReaderRawTruffleException();
     } finally {
-      closeParserNode.execute(parser);
-      parser = null;
+      if (parser != null) {
+        closeParserNode.execute(parser);
+      }
     }
   }
 }

@@ -33,15 +33,15 @@ public class OrParseJsonNode extends ExpressionNode {
 
   @Child
   private JsonParserNodes.InitJsonParserNode initParserNode =
-      JsonParserNodesFactory.InitJsonParserNodeGen.create();
+      JsonParserNodesFactory.InitJsonParserNodeGen.getUncached();
 
   @Child
   private JsonParserNodes.CloseJsonParserNode closeParserNode =
-      JsonParserNodesFactory.CloseJsonParserNodeGen.create();
+      JsonParserNodesFactory.CloseJsonParserNodeGen.getUncached();
 
   @Child
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
 
   public OrParseJsonNode(ProgramExpressionNode[] childProgramExpressionNode) {
     this.childDirectCalls = new DirectCallNode[childProgramExpressionNode.length];

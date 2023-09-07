@@ -33,15 +33,15 @@ public class RecordWriteJsonNode extends StatementNode {
 
   @Child
   private JsonWriteNodes.WriteStartObjectJsonWriterNode writeStartObjectNode =
-      JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.create();
+      JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.getUncached();
 
   @Child
   private JsonWriteNodes.WriteEndObjectJsonWriterNode writeEndObjectNode =
-      JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.create();
+      JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.getUncached();
 
   @Child
   private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode =
-      JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.create();
+      JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.getUncached();
 
   public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
     this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];

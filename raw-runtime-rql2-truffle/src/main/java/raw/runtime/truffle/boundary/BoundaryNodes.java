@@ -10,73 +10,113 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.helper_nodes;
+package raw.runtime.truffle.boundary;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.BitSet;
 
-public class HelperNodes {
-  @NodeInfo(shortName = "HelperNodes.CopyArray")
+public class BoundaryNodes {
+  @NodeInfo(shortName = "Boundary.CopyArray")
   @GenerateUncached
   public abstract static class CopyArrayNode extends Node {
 
     public abstract void execute(Object src, Object dest, int size);
 
     @Specialization
-    @TruffleBoundary
     void copyArray(boolean[] source, boolean[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(byte[] source, byte[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(short[] source, short[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(int[] source, int[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(long[] source, long[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(float[] source, float[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(double[] source, double[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(String[] source, String[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
     }
 
     @Specialization
-    @TruffleBoundary
     void copyArray(Object[] source, Object[] dest, int size) {
       System.arraycopy(source, 0, dest, 0, size);
+    }
+  }
+
+  @NodeInfo(shortName = "Boundary.ParseInt")
+  @GenerateUncached
+  public abstract static class ParseIntNode extends Node {
+
+    public abstract int execute(String str);
+
+    @Specialization
+    int exec(String str) {
+      return Integer.parseInt(str);
+    }
+  }
+
+  // BitSet
+  @NodeInfo(shortName = "Boundary.BitSetSet")
+  @GenerateUncached
+  public abstract static class BitSetSetNode extends Node {
+
+    public abstract void execute(BitSet bitSet, int index);
+
+    @Specialization
+    void exec(BitSet bitSet, int index) {
+      bitSet.set(index);
+    }
+  }
+
+  @NodeInfo(shortName = "Boundary.BitSetCardinality")
+  @GenerateUncached
+  public abstract static class BitSetCardinalityNode extends Node {
+
+    public abstract int execute(BitSet bitSet);
+
+    @Specialization
+    int exec(BitSet bitSet) {
+      return bitSet.cardinality();
+    }
+  }
+
+  @NodeInfo(shortName = "Boundary.BitSetGet")
+  @GenerateUncached
+  public abstract static class BitSetGetNode extends Node {
+
+    public abstract boolean execute(BitSet bitSet, int index);
+
+    @Specialization
+    boolean exec(BitSet bitSet, int index) {
+      return bitSet.get(index);
     }
   }
 }

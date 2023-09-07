@@ -21,6 +21,7 @@ import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
@@ -42,32 +43,60 @@ public final class RecordObject implements TruffleObject {
     this.valuesLibrary = DynamicObjectLibrary.getFactory().create(values);
   }
 
-  @TruffleBoundary
+  //  @TruffleBoundary
+  @ExplodeLoop
   private Vector<String> getDistinctKeys() {
     if (distinctKeys == null) {
       distinctKeys = new Vector<>(keys.size());
       // populate with all official keys (duplicates will appear once)
       Map<String, Boolean> keySet = new HashMap<>();
-      keys.forEach(k -> keySet.put(k, false));
+      initializeKeys(keySet);
       // add all keys in the order they appear in the keys vector
-      for (String key : keys) {
-        String newKey = key;
-        if (keySet.get(newKey)) {
+      int size = mapSize(keySet);
+      for (int i = 0; i < size; i++) {
+        String newKey = getKeyByIndex(i);
+        if (mapGetByKey(keySet, newKey)) {
           // the key was seen already, find a new key by enumerating other keys.
           int n = 1;
           do {
-            newKey = key + '_' + n++;
-          } while (keySet.containsKey(newKey));
-          keySet.put(newKey, true);
-        } else {
-          // else, keep the original name
-          // but keep track of the fact that we saw it
-          keySet.put(newKey, true);
+            newKey = getKeyByIndex(i) + '_' + n++;
+          } while (mapContains(keySet, newKey));
         }
+        mapPut(keySet, newKey);
         distinctKeys.add(newKey);
       }
     }
     return distinctKeys;
+  }
+
+  @TruffleBoundary
+  private void initializeKeys(Map<String, Boolean> keySet) {
+    keys.forEach(k -> keySet.put(k, false));
+  }
+
+  @TruffleBoundary
+  private boolean mapGetByKey(Map<String, Boolean> keySet, String key) {
+    return keySet.get(key);
+  }
+
+  @TruffleBoundary
+  private String getKeyByIndex(int index) {
+    return keys.get(index);
+  }
+
+  @TruffleBoundary
+  private boolean mapContains(Map<String, Boolean> keySet, String key) {
+    return keySet.containsKey(key);
+  }
+
+  @TruffleBoundary
+  private void mapPut(Map<String, Boolean> keySet, String key) {
+    keySet.put(key, true);
+  }
+
+  @TruffleBoundary
+  private int mapSize(Map<String, Boolean> keySet) {
+    return keySet.size();
   }
 
   @ExportMessage
@@ -91,12 +120,14 @@ public final class RecordObject implements TruffleObject {
     return true;
   }
 
+  @TruffleBoundary
   public String[] keys() {
     // Non-interop API. Return possibly duplicate keys.
     return keys.toArray(new String[0]);
   }
 
   @ExportMessage
+  @TruffleBoundary
   Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
     // This is the interop API, we return distinct keys.
     return new Keys(getDistinctKeys().toArray());

@@ -12,52 +12,39 @@
 
 package raw.runtime.truffle.ast.io.json.reader;
 
-import com.fasterxml.jackson.core.JsonEncoding;
-import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.NodeChild;
+import com.oracle.truffle.api.dsl.NodeField;
+import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
-public class JsonPrintNode extends ExpressionNode {
+@NodeInfo(shortName = "PrintJson")
+@NodeChild(value = "result")
+@NodeField(name = "childNode", type = RootNode.class)
+public abstract class JsonPrintNode extends ExpressionNode {
 
-  @Child private ExpressionNode valueExp;
+  protected abstract RootNode getChildNode();
 
-  @Child private DirectCallNode childDirectCall;
-
-  public JsonPrintNode(ExpressionNode valueExp, RootNode jsonWriterRootNode) {
-    this.valueExp = valueExp;
-    this.childDirectCall = DirectCallNode.create(jsonWriterRootNode.getCallTarget());
-  }
-
-  @Override
-  public Object executeGeneric(VirtualFrame virtualFrame) {
-    Object result = valueExp.executeGeneric(virtualFrame);
+  @Specialization
+  protected Object doParse(
+      Object result,
+      @Cached JsonWriteNodes.InitGeneratorJsonWriterNode initGenerator,
+      @Cached("create(getChildNode().getCallTarget())") DirectCallNode childDirectCall) {
     try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JsonGenerator gen = createGenerator(stream)) {
+        JsonGenerator gen = initGenerator.execute(stream)) {
       childDirectCall.call(result, gen);
       gen.flush();
       return stream.toString();
     } catch (IOException e) {
       throw new RawTruffleRuntimeException(e.getMessage());
-    }
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private JsonGenerator createGenerator(OutputStream os) {
-    try {
-      JsonFactory jsonFactory = new JsonFactory();
-      jsonFactory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
-      return jsonFactory.createGenerator(os, JsonEncoding.UTF8);
-    } catch (IOException ex) {
-      throw new RawTruffleRuntimeException(ex, this);
     }
   }
 }

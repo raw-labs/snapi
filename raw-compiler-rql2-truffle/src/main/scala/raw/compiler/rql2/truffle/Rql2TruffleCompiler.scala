@@ -59,7 +59,7 @@ import raw.runtime.truffle.ast.expressions.record.RecordProjNodeGen
 import raw.runtime.truffle.ast.expressions.unary._
 import raw.runtime.truffle.ast.io.binary.BinaryWriterNode
 import raw.runtime.truffle.ast.io.csv.writer.{CsvIterableWriterNode, CsvListWriterNode}
-import raw.runtime.truffle.ast.io.json.writer.JsonWriterNode
+import raw.runtime.truffle.ast.io.json.writer.{JsonWriterNode, JsonWriterNodeGen}
 import raw.runtime.truffle.ast.local._
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary
 import raw.runtime.truffle.runtime.iterable.IterableLibrary
@@ -316,7 +316,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       case "json" => new ProgramStatementNode(
           RawLanguage.getCurrentContext.getLanguage,
           frameDescriptor,
-          new JsonWriterNode(
+          JsonWriterNodeGen.create(
             bodyExpNode,
             JsonIO.recurseJsonWriter(dataType.asInstanceOf[Rql2TypeWithProperties])
           )

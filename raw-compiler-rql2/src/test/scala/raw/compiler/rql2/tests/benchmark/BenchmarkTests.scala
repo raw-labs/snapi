@@ -24,18 +24,18 @@ trait BenchmarkTests extends CompilerTestContext {
   //  test("""Math.Power(1,1)""")(it => it should run)
   //  test("""{a: {a: {a: {a: {a: {a: {a: {a: {a: {a: {a: {a: 1, b: 2}, b: 2}, b: 2}, b: 2}, b: 2}}}}}}}}""")(it => it should run)
 
-//  test("bug-test") { _ =>
-//    executeQuery(
-//      """main(url: string) =
-//        |  let gpxType = type record(
-//        |        trk: record(
-//        |            trkseg: record(
-//        |                trkpt: collection(record(`@lat`: double, `@lon`: double))))),
-//        |      gpx = Xml.Read(url, type gpxType)
-//        |  in gpx
-//        |
-//        |main("file:/home/ld/Downloads/Route Touristique du Champagne Montagne de Reims.gpx")""".stripMargin)
-//  }
+  test("bug-test") { _ =>
+    executeQuery(
+      """main(url: string) =
+        |  let gpxType = type record(
+        |        trk: record(
+        |            trkseg: record(
+        |                trkpt: collection(record(`@lat`: double, `@lon`: double))))),
+        |      gpx = Xml.Read(url, type gpxType)
+        |  in gpx
+        |
+        |main("file:/home/ld/Downloads/Route Touristique du Champagne Montagne de Reims.gpx")""".stripMargin)
+  }
 
 //  test("bug-test") { _ =>
 //    executeQuery("""main(url: string) =

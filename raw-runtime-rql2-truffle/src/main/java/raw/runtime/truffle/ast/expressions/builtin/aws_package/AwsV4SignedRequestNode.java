@@ -35,7 +35,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.helper_nodes.HelperNodes;
+import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
@@ -130,7 +130,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       String bodyString,
       Object urlParams,
       Object headers,
-      @Cached("create()") HelperNodes.CopyArrayNode copyArrayNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary(limit = "2") ListLibrary urlParamsLists,
       @CachedLibrary(limit = "2") ListLibrary headersLists,
       @CachedLibrary(limit = "2") InteropLibrary records) {
