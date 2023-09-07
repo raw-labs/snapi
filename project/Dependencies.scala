@@ -14,7 +14,7 @@ object Dependencies {
 
   val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
 
-  val scalatest = "org.scalatest" %% "scalatest" % "3.2.15"
+  val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
 
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
@@ -82,15 +82,15 @@ object Dependencies {
   val icuDeps = "com.ibm.icu" % "icu4j" % "73.2"
 
   val poiDeps = Seq(
-    "org.apache.poi" % "poi" % "5.2.2",
-    "org.apache.poi" % "poi-ooxml" % "5.2.2",
-    "org.apache.poi" % "poi-ooxml-lite" % "5.2.2"
+    "org.apache.poi" % "poi" % "5.2.3",
+    "org.apache.poi" % "poi-ooxml" % "5.2.3",
+    "org.apache.poi" % "poi-ooxml-lite" % "5.2.3"
   )
 
   val truffleDeps = Seq(
     "org.graalvm.truffle" % "truffle-api" % "22.3.1",
     "org.graalvm.truffle" % "truffle-dsl-processor" % "22.3.1" % Provided,
-    "org.graalvm.tools" % "profiler" % "22.3.1"
+    "org.graalvm.tools" % "profiler" % "22.3.3"
   )
 
   val jwtApi = "io.jsonwebtoken" % "jjwt-api" % "0.11.5"
