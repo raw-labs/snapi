@@ -21,7 +21,7 @@ import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.function.InvokeNode
 import raw.runtime.truffle.ast.expressions.option._
 import raw.runtime.truffle.ast.local.ReadParamNode
-import raw.runtime.truffle.ast.expressions.tryable.{TryableFlatMapNodeGen, TryableSuccessNodeGen}
+import raw.runtime.truffle.ast.expressions.tryable.{TryableFlatMapNodeGen, TryableNullableFlatMapNodeGen, TryableSuccessNodeGen}
 import raw.runtime.truffle.ast.expressions.option.{OptionGetOrElseNodeGen, OptionMapNodeGen}
 
 // FlatMapNullableTryableEntry looks like a regular flatMap functionality but it is
@@ -58,17 +58,9 @@ class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry wit
           if eTypeWithProps.props == Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()) &&
             getProps(inType).isEmpty &&
             outTypeWithProps.props == Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()) =>
-        TryableFlatMapNodeGen.create(
+        TryableNullableFlatMapNodeGen.create(
           emitter.recurseExp(args(0).e),
-          emitter.recurseLambda(() =>
-            OptionGetOrElseNodeGen.create(
-              OptionMapNodeGen.create(
-                new ReadParamNode(0),
-                emitter.recurseExp(args(1).e)
-              ),
-              TryableSuccessNodeGen.create(new OptionNoneNode(outType))
-            )
-          )
+          emitter.recurseExp(args(1).e)
         )
 
 //      // Case #3. No coverage for that one?
