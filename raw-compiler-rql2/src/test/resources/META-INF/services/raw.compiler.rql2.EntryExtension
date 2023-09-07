@@ -5,6 +5,7 @@ raw.compiler.rql2.tests.builtin.OptionalValueArgsTestEntry
 raw.compiler.rql2.tests.builtin.VarExpArgsTestEntry
 raw.compiler.rql2.tests.builtin.VarValueArgsTestEntry
 raw.compiler.rql2.tests.builtin.VarNullableStringValueTestEntry
+raw.compiler.rql2.tests.builtin.VarNullableStringExpTestEntry
 raw.compiler.rql2.tests.builtin.StrictArgsTestEntry
 raw.compiler.rql2.tests.builtin.StrictArgsColPassThroughTestEntry
 raw.compiler.rql2.tests.builtin.StrictArgsColConsumeTestEntry

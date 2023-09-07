@@ -5,6 +5,7 @@ raw.compiler.rql2.tests.builtin.TruffleOptionalValueArgsTestEntry
 raw.compiler.rql2.tests.builtin.TruffleVarExpArgsTestEntry
 raw.compiler.rql2.tests.builtin.TruffleVarValueArgsTestEntry
 raw.compiler.rql2.tests.builtin.TruffleVarNullableStringValueTestEntry
+raw.compiler.rql2.tests.builtin.TruffleVarNullableStringExpTestEntry
 raw.compiler.rql2.tests.builtin.TruffleStrictArgsTestEntry
 raw.compiler.rql2.tests.builtin.TruffleStrictArgsColPassThroughTestEntry
 raw.compiler.rql2.tests.builtin.TruffleByteValueArgTestEntry
