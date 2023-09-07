@@ -562,16 +562,17 @@ public final class JsonParserNodes {
     protected ObjectList doParseList(
         JsonParser parser,
         @Cached("create()") ParseAnyJsonParserNode parse,
-        @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-      if (parser.getCurrentToken() != JsonToken.START_ARRAY) {
+        @Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken,
+        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken) {
+      if (currentToken.execute(parser) != JsonToken.START_ARRAY) {
         throw new JsonUnexpectedTokenException(
-            JsonToken.START_ARRAY.asString(), parser.getCurrentToken().toString(), this);
+            JsonToken.START_ARRAY.asString(), currentToken.execute(parser).toString(), this);
       }
       nextToken.execute(parser);
 
       ArrayList<Object> alist = new ArrayList<>();
 
-      while (parser.getCurrentToken() != JsonToken.END_ARRAY) {
+      while (currentToken.execute(parser) != JsonToken.END_ARRAY) {
         alist.add(parse.execute(parser));
       }
       nextToken.execute(parser);
@@ -588,9 +589,9 @@ public final class JsonParserNodes {
     protected RecordObject doParse(
         JsonParser parser,
         @Cached("create()") ParseAnyJsonParserNode parse,
-        @Cached("create()") JsonParserNodes.NextTokenJsonParserNode nextToken,
-        @Cached("create()") JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached("create()") JsonParserNodes.CurrentFieldJsonParserNode currentField,
+        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken,
+        @Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken,
+        @Cached JsonParserNodes.CurrentFieldJsonParserNode currentField,
         @CachedLibrary(limit = "3") InteropLibrary records) {
       if (currentToken.execute(parser) != JsonToken.START_OBJECT) {
         throw new JsonUnexpectedTokenException(
@@ -617,20 +618,20 @@ public final class JsonParserNodes {
 
     @Specialization(guards = {"isString(parser)"})
     protected String doParse(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseStringJsonParserNode parse) {
+        JsonParser parser, @Cached JsonParserNodes.ParseStringJsonParserNode parse) {
       // (az) to do maybe add some logic to parse dates
       return parse.execute(parser);
     }
 
     @Specialization(guards = {"isBinary(parser)"})
     protected byte[] doParse(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseBinaryJsonParserNode parse) {
+        JsonParser parser, @Cached JsonParserNodes.ParseBinaryJsonParserNode parse) {
       return parse.execute(parser);
     }
 
     @Specialization(guards = {"isBoolean(parser)"})
     protected boolean doParseBoolean(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseBooleanJsonParserNode parse) {
+        JsonParser parser, @Cached JsonParserNodes.ParseBooleanJsonParserNode parse) {
       return parse.execute(parser);
     }
 
@@ -643,38 +644,37 @@ public final class JsonParserNodes {
     //        }
 
     @Specialization(guards = {"isInt(parser)"})
-    protected int doParse(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseIntJsonParserNode parse) {
+    protected int doParse(JsonParser parser, @Cached JsonParserNodes.ParseIntJsonParserNode parse) {
       return parse.execute(parser);
     }
 
     @Specialization(guards = {"isLong(parser)"})
     protected long doParse(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseLongJsonParserNode parse) {
+        JsonParser parser, @Cached JsonParserNodes.ParseLongJsonParserNode parse) {
       return parse.execute(parser);
     }
 
     @Specialization(guards = {"isFloat(parser)"})
     protected float doParse(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseFloatJsonParserNode parse) {
+        JsonParser parser, @Cached JsonParserNodes.ParseFloatJsonParserNode parse) {
       return parse.execute(parser);
     }
 
     @Specialization(guards = {"isDouble(parser)"})
     protected double doParse(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseDoubleJsonParserNode parse) {
+        JsonParser parser, @Cached JsonParserNodes.ParseDoubleJsonParserNode parse) {
       return parse.execute(parser);
     }
 
     @Specialization(guards = {"isDecimal(parser)"})
     protected BigDecimal doParse(
-        JsonParser parser, @Cached("create()") JsonParserNodes.ParseDecimalJsonParserNode parse) {
+        JsonParser parser, @Cached JsonParserNodes.ParseDecimalJsonParserNode parse) {
       return parse.execute(parser);
     }
 
     @Specialization(guards = {"isNull(parser)"})
     protected Object writeNull(
-        JsonParser parser, @Cached("create()") JsonParserNodes.SkipNextJsonParserNode skip) {
+        JsonParser parser, @Cached JsonParserNodes.SkipNextJsonParserNode skip) {
       skip.execute(parser);
       return new EmptyOption();
     }

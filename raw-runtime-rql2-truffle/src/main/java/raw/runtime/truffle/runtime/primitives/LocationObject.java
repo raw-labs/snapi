@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import raw.sources.CacheStrategy;
 import raw.sources.LocationDescription;
 import raw.sources.LocationSettingKey;
@@ -22,15 +23,18 @@ import scala.collection.immutable.Map;
 public class LocationObject {
   private final LocationDescription locationDescription;
 
+  @CompilerDirectives.TruffleBoundary
   public LocationObject(String url) {
     this.locationDescription =
         new LocationDescription(url, new HashMap<>(), CacheStrategy.NoCache());
   }
 
+  @CompilerDirectives.TruffleBoundary
   public LocationObject(String url, Map<LocationSettingKey, LocationSettingValue> params) {
     this.locationDescription = new LocationDescription(url, params, CacheStrategy.NoCache());
   }
 
+  @CompilerDirectives.TruffleBoundary
   public LocationObject(
       String url,
       Map<LocationSettingKey, LocationSettingValue> params,
@@ -38,6 +42,7 @@ public class LocationObject {
     this.locationDescription = new LocationDescription(url, params, cacheStrategy);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public LocationObject(LocationDescription locationDescription) {
     this.locationDescription = locationDescription;
   }
