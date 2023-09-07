@@ -52,6 +52,7 @@ public class RawTruffleCsvParser {
   private final CsvParser jacksonParser;
   final RawTruffleCharStream stream;
 
+  @CompilerDirectives.TruffleBoundary
   public RawTruffleCsvParser(RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
     this.stream = stream;
     try {
@@ -82,6 +83,7 @@ public class RawTruffleCsvParser {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   boolean startingNewLine(ExpressionNode location) {
     return jacksonParser.currentToken() == JsonToken.START_ARRAY;
   }
@@ -89,6 +91,7 @@ public class RawTruffleCsvParser {
   private int line = -1;
   private int column = -1;
 
+  @CompilerDirectives.TruffleBoundary
   void getNextField() {
     line = jacksonParser.getCurrentLocation().getLineNr();
     column = jacksonParser.getCurrentLocation().getColumnNr();
@@ -115,6 +118,7 @@ public class RawTruffleCsvParser {
     return column;
   }
 
+  @CompilerDirectives.TruffleBoundary
   public void finishLine(ExpressionNode location) {
     JsonToken token;
     do {
@@ -129,6 +133,7 @@ public class RawTruffleCsvParser {
   private static final TruffleLogger LOG =
       TruffleLogger.getLogger(RawLanguage.ID, RawTruffleRuntimeException.class);
 
+  @CompilerDirectives.TruffleBoundary
   public void close() {
     try {
       jacksonParser.close();
@@ -138,6 +143,7 @@ public class RawTruffleCsvParser {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public void skipHeaderLines() {
     try {
       for (int i = 0; i < headerLines; i++) {
@@ -154,6 +160,7 @@ public class RawTruffleCsvParser {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public boolean done() {
     try {
       return jacksonParser.nextToken() == null;

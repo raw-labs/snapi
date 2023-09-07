@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 
@@ -24,12 +25,17 @@ public final class IntNode extends ExpressionNode {
   }
 
   @Override
-  public final int executeInt(VirtualFrame virtualFrame) {
-    return Integer.parseInt(value);
+  public int executeInt(VirtualFrame virtualFrame) {
+    return parseInt();
   }
 
   @Override
-  public final Object executeGeneric(VirtualFrame virtualFrame) {
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+    return parseInt();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public int parseInt() {
     return Integer.parseInt(value);
   }
 }

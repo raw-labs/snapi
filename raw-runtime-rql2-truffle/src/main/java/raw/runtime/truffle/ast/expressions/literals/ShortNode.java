@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 
@@ -25,11 +26,16 @@ public class ShortNode extends ExpressionNode {
 
   @Override
   public final short executeShort(VirtualFrame virtualFrame) {
-    return Short.parseShort(value);
+    return parseShort();
   }
 
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
+    return parseShort();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public short parseShort() {
     return Short.parseShort(value);
   }
 }

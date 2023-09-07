@@ -17,6 +17,7 @@ import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import java.util.Objects;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
@@ -42,10 +43,14 @@ public class Closure {
   }
 
   // "plain" call, no named arguments. That's used internally by '.Filter', '.GroupBy', etc.
+  @ExplodeLoop
   public Object call(Object... arguments) {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
-    System.arraycopy(arguments, 0, args, 1, arguments.length);
+    // Do not replace, needed to avoid truffle boundary
+    for (int i = 0; i < arguments.length; i++) {
+      args[i + 1] = arguments[i];
+    }
     try {
       return interop.execute(function, args);
     } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
@@ -61,11 +66,15 @@ public class Closure {
 
   // call with named arguments. That's used by the invoke or other ways a function can be called
   // with named arguments.
+  @ExplodeLoop
   public Object callWithNames(String[] argNames, Object... arguments) {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
     // first fill in the default arguments (nulls if no default).
-    System.arraycopy(defaultArguments, 0, args, 1, function.argNames.length);
+    // Do not replace
+    for (int i = 0; i < function.argNames.length; i++) {
+      args[i + 1] = defaultArguments[i];
+    }
     for (int i = 0; i < argNames.length; i++) {
       if (argNames[i] == null) {
         // no arg name was provided, use the index.

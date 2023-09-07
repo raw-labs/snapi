@@ -36,6 +36,7 @@ public class JdbcQuery {
   private final JdbcExceptionHandler exceptionHandler;
   private final String url;
 
+  @CompilerDirectives.TruffleBoundary
   public JdbcQuery(
       LocationDescription locationDescription,
       String query,
@@ -61,6 +62,7 @@ public class JdbcQuery {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public void close() {
     if (rs != null) {
       try {
@@ -71,6 +73,7 @@ public class JdbcQuery {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public boolean next() {
     try {
       return rs.next();

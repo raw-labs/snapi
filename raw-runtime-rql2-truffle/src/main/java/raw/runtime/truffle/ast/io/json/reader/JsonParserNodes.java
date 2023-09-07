@@ -474,16 +474,19 @@ public final class JsonParserNodes {
 
     public abstract Object execute(JsonParser parser);
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isArray(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.START_ARRAY;
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isObject(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.START_OBJECT;
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isString(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.VALUE_STRING;
@@ -493,11 +496,13 @@ public final class JsonParserNodes {
       return false;
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isBoolean(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token.isBoolean();
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isInt(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -507,6 +512,7 @@ public final class JsonParserNodes {
       }
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isLong(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -516,6 +522,7 @@ public final class JsonParserNodes {
       }
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isFloat(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -525,6 +532,7 @@ public final class JsonParserNodes {
       }
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isDouble(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -534,6 +542,7 @@ public final class JsonParserNodes {
       }
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isDecimal(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -543,6 +552,7 @@ public final class JsonParserNodes {
       }
     }
 
+    @CompilerDirectives.TruffleBoundary
     public boolean isNull(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.VALUE_NULL;

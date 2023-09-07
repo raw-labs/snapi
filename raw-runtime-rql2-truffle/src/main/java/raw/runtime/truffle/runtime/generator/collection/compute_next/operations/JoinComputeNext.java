@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.generator.collection.compute_next.operations
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -85,6 +86,7 @@ public class JoinComputeNext {
   }
 
   @ExportMessage
+  @CompilerDirectives.TruffleBoundary
   void init(
       @CachedLibrary(limit = "5") IterableLibrary iterables,
       @CachedLibrary(limit = "5") GeneratorLibrary generators) {
@@ -139,11 +141,7 @@ public class JoinComputeNext {
           }
         }
         if (kryoRight == null) {
-          try {
-            kryoRight = new Input(new FileInputStream(diskRight));
-          } catch (FileNotFoundException e) {
-            throw new RawTruffleRuntimeException(e.getMessage());
-          }
+          kryoRight = createInput(diskRight);
           readRight = 0;
         }
         if (rightRow == null) {
@@ -162,6 +160,15 @@ public class JoinComputeNext {
       }
     }
     return row;
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private Input createInput(File file) {
+    try {
+      return new Input(new FileInputStream(file));
+    } catch (FileNotFoundException e) {
+      throw new RawTruffleRuntimeException(e.getMessage());
+    }
   }
 
   private Object check(Object leftRow, Object rightRow) {

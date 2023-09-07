@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.utils;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import java.io.Reader;
 
 public class TruffleCharInputStream extends RawTruffleCharStream {
@@ -24,10 +25,12 @@ public class TruffleCharInputStream extends RawTruffleCharStream {
     this.stream = stream;
   }
 
+  @CompilerDirectives.TruffleBoundary
   public Reader getReader() {
     return stream.getReader(encoding);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public String positionDescription() {
     return "url: " + stream.getUrl();
   }

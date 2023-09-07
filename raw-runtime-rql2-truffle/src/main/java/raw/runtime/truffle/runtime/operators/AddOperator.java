@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.operators;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -63,11 +64,13 @@ public class AddOperator {
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static Object doDecimal(AddOperator operator, BigDecimal left, BigDecimal right) {
       return left.add(right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static Object doString(AddOperator operator, String left, String right) {
       return left.concat(right);
     }
@@ -76,6 +79,7 @@ public class AddOperator {
     // then what happens to max. The goal is to ignore null and keep the value. That's why this
     // method is the only one that returns -2 or 2. The other methods return -1 or 1.
     @Specialization(guards = "left == null || right == null")
+    @CompilerDirectives.TruffleBoundary
     static Object doNull(AddOperator operator, Object left, Object right) {
       if (left == null && right == null) {
         return 0;

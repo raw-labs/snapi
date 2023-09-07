@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
@@ -26,6 +27,11 @@ public class DecimalNode extends ExpressionNode {
 
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
+    return createDecimal();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private BigDecimal createDecimal() {
     return new BigDecimal(value);
   }
 }

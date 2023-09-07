@@ -14,7 +14,6 @@ package raw.runtime.truffle.ast.expressions.option;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
@@ -30,10 +29,7 @@ public abstract class OptionFlatMapNode extends ExpressionNode {
       guards = {"options.isOption(option)"},
       limit = "1")
   protected Object optionFlatMap(
-      VirtualFrame frame,
-      Object option,
-      Closure closure,
-      @CachedLibrary("option") OptionLibrary options) {
+      Object option, Closure closure, @CachedLibrary("option") OptionLibrary options) {
     if (options.isDefined(option)) {
       Object v = options.get(option);
       Object[] argumentValues = new Object[1];

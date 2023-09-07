@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -33,6 +34,7 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 public abstract class TimestampBuildNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   public Object buildTimestamp(int y, int m, int d, int h, int mi, int s, int ms) {
     try {
       return ObjectTryable.BuildSuccess(

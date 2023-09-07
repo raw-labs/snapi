@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -23,6 +24,7 @@ import raw.runtime.truffle.ExpressionNode;
 public abstract class StringBase64Node extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected String stringBase64(String string) {
     return Base64.getEncoder().encodeToString(string.getBytes());
   }

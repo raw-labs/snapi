@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -49,6 +50,7 @@ import scala.Some;
 public abstract class LocationDescribeNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected Object doDescribe(
       LocationObject locationObject,
       int sampleSize,

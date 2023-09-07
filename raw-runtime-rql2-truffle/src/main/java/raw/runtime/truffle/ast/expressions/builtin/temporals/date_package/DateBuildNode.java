@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -28,6 +29,7 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 public abstract class DateBuildNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   public Object buildDate(int y, int m, int d) {
     try {
       return ObjectTryable.BuildSuccess(new DateObject(LocalDate.of(y, m, d)));

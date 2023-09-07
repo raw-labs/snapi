@@ -34,10 +34,12 @@ public class TruffleInputStream {
     this.locationObject = locationObject;
   }
 
+  @CompilerDirectives.TruffleBoundary
   public String getUrl() {
     return locationObject.getLocationDescription().url();
   }
 
+  @CompilerDirectives.TruffleBoundary
   public ByteStreamLocation getLocation() {
     try {
       return ByteStreamLocationProvider.build(
@@ -47,6 +49,7 @@ public class TruffleInputStream {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public boolean testAccess() {
     try {
       getLocation().testAccess();
@@ -56,6 +59,7 @@ public class TruffleInputStream {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public InputStream getInputStream() {
     try {
       return getLocation().getInputStream();
@@ -64,6 +68,7 @@ public class TruffleInputStream {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public Reader getReader(String encoding) {
     try {
       return getLocation().getReader(toEncoding(encoding));
@@ -82,6 +87,7 @@ public class TruffleInputStream {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public Reader getReader(Encoding encoding) {
     try {
       return getLocation().getReader(encoding);

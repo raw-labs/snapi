@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -25,12 +26,13 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 public abstract class StringSubStringNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected String stringSubstring(String string, int begin, int length) {
     if (begin <= 0) {
       throw new RawTruffleRuntimeException("invalid index: indexes start at 1", this);
     }
 
-    int end = 0;
+    int end;
     if (length >= 0 && begin - 1 + length < string.length()) {
       end = begin - 1 + length;
     } else {

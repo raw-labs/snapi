@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDate;
@@ -21,6 +22,7 @@ import raw.runtime.truffle.runtime.primitives.DateObject;
 @NodeInfo(shortName = "Date.Now")
 public abstract class DateNowNode extends ExpressionNode {
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected DateObject now() {
     return new DateObject(LocalDate.now());
   }

@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -23,6 +24,7 @@ import raw.runtime.truffle.ExpressionNode;
 public abstract class StringContainsNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected Boolean doContains(String s1, String s2) {
     return s1.contains(s2);
   }

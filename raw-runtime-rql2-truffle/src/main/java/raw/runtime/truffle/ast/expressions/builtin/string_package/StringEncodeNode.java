@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -26,6 +27,7 @@ import raw.sources.Encoding;
 public abstract class StringEncodeNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected ObjectTryable stringEncode(String string, String encodingName) {
     if (Encoding.fromEncodingString(encodingName).isRight()) {
       Charset charset = Encoding.fromEncodingString(encodingName).right().get().charset();

@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.time.LocalDateTime;
@@ -48,19 +49,24 @@ public class TimestampRangeComputeNext {
   Object computeNext() {
     if (current.isBefore(end)) {
       TimestampObject r = new TimestampObject(current);
-      current =
-          current
-              .plusYears(step.getYears())
-              .plusMonths(step.getMonths())
-              .plusWeeks(step.getWeeks())
-              .plusDays(step.getDays())
-              .plusHours(step.getHours())
-              .plusMinutes(step.getMinutes())
-              .plusSeconds(step.getSeconds())
-              .plusNanos(1000000L * step.getMillis());
+      addTime();
       return r;
     } else {
       throw new BreakException();
     }
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void addTime() {
+    current =
+        current
+            .plusYears(step.getYears())
+            .plusMonths(step.getMonths())
+            .plusWeeks(step.getWeeks())
+            .plusDays(step.getDays())
+            .plusHours(step.getHours())
+            .plusMinutes(step.getMinutes())
+            .plusSeconds(step.getSeconds())
+            .plusNanos(1000000L * step.getMillis());
   }
 }

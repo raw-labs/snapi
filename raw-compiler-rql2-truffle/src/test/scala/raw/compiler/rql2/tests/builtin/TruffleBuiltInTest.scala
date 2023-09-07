@@ -50,3 +50,4 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class TryPackageTruffleTest extends TruffleCompilerTestContext with TryPackageTest
 @TruffleTests class TypePackageTruffleTest extends TruffleCompilerTestContext with TypePackageTest
 @TruffleTests class XmlPackageTruffleTest extends TruffleCompilerTestContext with XmlPackageTest
+@TruffleTests class LocationPackageTruffleTest extends TruffleCompilerTestContext with LocationPackageTest

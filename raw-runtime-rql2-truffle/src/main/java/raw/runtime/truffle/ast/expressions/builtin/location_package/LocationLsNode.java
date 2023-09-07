@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -31,6 +32,7 @@ import scala.collection.IndexedSeq;
 @NodeChild("location")
 public abstract class LocationLsNode extends ExpressionNode {
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected Object doLs(LocationObject locationObject) {
     try {
       RuntimeContext context = RawContext.get(this).getRuntimeContext();
