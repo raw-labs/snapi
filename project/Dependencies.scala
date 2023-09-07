@@ -97,7 +97,7 @@ object Dependencies {
 
   val jwtImpl = "io.jsonwebtoken" % "jjwt-impl" % "0.11.5"
 
-  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.3"
+  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4"
 
   val jline = Seq(
     "org.jline" % "jline-terminal" % "3.23.0",
