@@ -25,5 +25,4 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class ListMkStringTruffleTest extends TruffleCompilerTestContext with ListMkStringTest
 @TruffleTests class ListOrderByTruffleTest extends TruffleCompilerTestContext with ListOrderByTest
 @TruffleTests class ListPackageTruffleTest extends TruffleCompilerTestContext with ListPackageTest
-
 @TruffleTests class ListUnionTruffleTest extends TruffleCompilerTestContext with ListUnionTest

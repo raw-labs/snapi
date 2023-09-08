@@ -73,8 +73,7 @@ public class Closure {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
     // first fill in the default arguments (nulls if no default).
-    // Do not replace
-    copyArrayNode.execute(defaultArguments, 0, args, 1, arguments.length);
+    copyArrayNode.execute(defaultArguments, 0, args, 1, function.argNames.length);
     for (int i = 0; i < argNames.length; i++) {
       if (argNames[i] == null) {
         // no arg name was provided, use the index.
