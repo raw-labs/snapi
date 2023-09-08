@@ -336,7 +336,7 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
     }
 
     val r = rewrite(s)(tree.root)
-    logger.debug("Propagation:\n" + format(r))
+    logger.trace("Propagation:\n" + format(r))
     r
   }
 
