@@ -12,17 +12,17 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
 import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
 import raw.runtime.truffle.runtime.aggregation.aggregator.MaxAggregator;
 import raw.runtime.truffle.runtime.list.ListLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 
 @NodeInfo(shortName = "List.Max")
 @NodeChild("list")
@@ -30,13 +30,12 @@ public abstract class ListMaxNode extends ExpressionNode {
   @Specialization(limit = "3")
   protected Object doCollection(
       Object list,
+      @Cached("create()") TryableNullableNodes.BoxOptionNode boxOption,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "1") AggregationLibrary aggregations,
-      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+      @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
     Object iterable = lists.toIterable(list);
     Object aggregation = new SingleAggregation(new MaxAggregator());
     Object result = aggregations.aggregate(aggregation, iterable);
-    RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-    return nullableTryables.boxOption(handler, result);
+    return boxOption.execute(result);
   }
 }

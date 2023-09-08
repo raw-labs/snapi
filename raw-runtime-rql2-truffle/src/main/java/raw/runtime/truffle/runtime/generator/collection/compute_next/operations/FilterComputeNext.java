@@ -12,15 +12,15 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class FilterComputeNext {
@@ -50,17 +50,16 @@ public class FilterComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @CachedLibrary("this.parent") GeneratorLibrary generators,
-      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-    Object nullableTryable = new RuntimeNullableTryableHandler();
+      @Cached("create()")
+          TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTryablePredicate,
+      @CachedLibrary("this.parent") GeneratorLibrary generators) {
     Object[] argumentValues = new Object[1];
 
     while (generators.hasNext(parent)) {
       Object v = generators.next(parent);
       argumentValues[0] = v;
       Boolean isPredicateTrue =
-          nullableTryables.handleOptionTriablePredicate(
-              nullableTryable, predicate.call(argumentValues), false);
+          handleOptionTryablePredicate.execute(predicate.call(argumentValues), false);
       if (isPredicateTrue) {
         return v;
       }

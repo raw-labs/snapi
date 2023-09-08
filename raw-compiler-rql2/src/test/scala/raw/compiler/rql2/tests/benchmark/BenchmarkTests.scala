@@ -24,6 +24,16 @@ trait BenchmarkTests extends CompilerTestContext {
   //  test("""Math.Power(1,1)""")(it => it should run)
   //  test("""{a: {a: {a: {a: {a: {a: {a: {a: {a: {a: {a: {a: 1, b: 2}, b: 2}, b: 2}, b: 2}, b: 2}}}}}}}}""")(it => it should run)
 
+  test("Json Writer range test") { _ =>
+    val started = System.currentTimeMillis()
+    fastExecute(
+      """let a = Int.Range(0,21474836,step=1), b = Collection.Transform(a, x -> x + 1) in b"""
+    )
+    val elapsed = System.currentTimeMillis()
+
+    logger.info("++++++++++ Average execution time time: " + (elapsed - started))
+  }
+
 //  test("bug-test") { _ =>
 //    executeQuery("""main(url: string) =
 //      |  let gpxType = type record(

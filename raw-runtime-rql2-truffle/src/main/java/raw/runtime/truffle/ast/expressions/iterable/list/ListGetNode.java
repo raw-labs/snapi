@@ -12,14 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.list.ListLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.tryable.ErrorTryable;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
@@ -47,11 +47,10 @@ public abstract class ListGetNode extends ExpressionNode {
   protected Object listGetTryable(
       Object list,
       int index,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+      @Cached("create()") TryableNullableNodes.BoxTryableNode boxTryable,
+      @CachedLibrary("list") ListLibrary lists) {
     Object v = lists.get(list, index);
-    RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-    return nullableTryables.boxTryable(handler, v);
+    return boxTryable.execute(v);
   }
 
   @Specialization

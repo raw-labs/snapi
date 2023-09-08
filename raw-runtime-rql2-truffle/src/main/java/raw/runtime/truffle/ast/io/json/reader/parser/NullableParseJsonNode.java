@@ -20,10 +20,10 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonExpectedNothingException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 
 public class NullableParseJsonNode extends ExpressionNode {
@@ -38,12 +38,9 @@ public class NullableParseJsonNode extends ExpressionNode {
   private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode =
       JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.getUncached();
 
-  private final RuntimeNullableTryableHandler nullableTryableHandler =
-      new RuntimeNullableTryableHandler();
-
   @Child
-  private NullableTryableLibrary nullableTryable =
-      NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+  private TryableNullableNodes.BoxOptionNode boxOption =
+      TryableNullableNodesFactory.BoxOptionNodeGen.create();
 
   public NullableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
@@ -58,7 +55,7 @@ public class NullableParseJsonNode extends ExpressionNode {
     } else {
       try {
         Object result = childDirectCall.call(parser);
-        return nullableTryable.boxOption(nullableTryableHandler, result);
+        return boxOption.execute(result);
       } catch (JsonExpectedNothingException ex) {
         throw new JsonParserRawTruffleException("expected null but got non-null", this);
       }

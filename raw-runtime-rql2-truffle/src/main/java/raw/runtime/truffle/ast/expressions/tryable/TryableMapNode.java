@@ -12,15 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
 @NodeInfo(shortName = "Tryable.Map")
@@ -30,18 +29,16 @@ public abstract class TryableMapNode extends ExpressionNode {
 
   @Specialization(guards = "tryables.isTryable(tryable)", limit = "1")
   protected Object doObject(
-      VirtualFrame frame,
       Object tryable,
       Closure closure,
-      @CachedLibrary("tryable") TryableLibrary tryables,
-      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+      @Cached("create()") TryableNullableNodes.BoxTryableNode boxTryable,
+      @CachedLibrary("tryable") TryableLibrary tryables) {
     if (tryables.isSuccess(tryable)) {
       Object v = tryables.success(tryable);
       Object[] argumentValues = new Object[1];
       argumentValues[0] = v;
       Object result = closure.call(argumentValues);
-      RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-      return nullableTryables.boxTryable(handler, result);
+      return boxTryable.execute(result);
     } else {
       return tryable;
     }

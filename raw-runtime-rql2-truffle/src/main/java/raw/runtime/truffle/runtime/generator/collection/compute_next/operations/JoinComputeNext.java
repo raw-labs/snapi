@@ -22,6 +22,8 @@ import java.io.*;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
@@ -32,8 +34,6 @@ import raw.runtime.truffle.runtime.kryo.KryoReader;
 import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
 import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.utils.IOUtils;
 
 @ExportLibrary(ComputeNextLibrary.class)
@@ -47,7 +47,6 @@ public class JoinComputeNext {
 
   private Object leftRow = null;
   private Object rightRow = null;
-  Object nullableTryable = new RuntimeNullableTryableHandler();
   Input kryoRight = null;
   private final int kryoOutputBufferSize;
   private final KryoWriter writer;
@@ -60,8 +59,8 @@ public class JoinComputeNext {
   private final File diskRight;
   private final Boolean reshapeBeforePredicate;
 
-  private final NullableTryableLibrary nullableTryables =
-      NullableTryableLibrary.getFactory().createDispatched(1);
+  TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTriablePredicateNode =
+      TryableNullableNodesFactory.HandleOptionTriablePredicateNodeGen.create();
 
   public JoinComputeNext(
       Object leftIterable,
@@ -176,14 +175,10 @@ public class JoinComputeNext {
     Object row = null;
     if (reshapeBeforePredicate) {
       row = remap.call(leftRow, rightRow);
-      pass =
-          nullableTryables.handleOptionTriablePredicate(
-              nullableTryable, predicate.call(row), false);
+      pass = handleOptionTriablePredicateNode.execute(predicate.call(row), false);
       if (!pass) row = null;
     } else {
-      pass =
-          nullableTryables.handleOptionTriablePredicate(
-              nullableTryable, predicate.call(leftRow, rightRow), false);
+      pass = handleOptionTriablePredicateNode.execute(predicate.call(leftRow, rightRow), false);
       if (pass) row = remap.call(leftRow, rightRow);
     }
     return row;

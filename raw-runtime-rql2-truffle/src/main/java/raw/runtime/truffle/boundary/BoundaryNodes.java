@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 
-public class BoundaryNodes {
+public final class BoundaryNodes {
   @NodeInfo(shortName = "Boundary.CopyArray")
   @GenerateUncached
   public abstract static class CopyArrayNode extends Node {
