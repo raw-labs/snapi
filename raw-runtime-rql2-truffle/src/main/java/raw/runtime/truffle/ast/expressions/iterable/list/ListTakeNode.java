@@ -43,7 +43,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (ByteList) list;
     }
     byte[] result = new byte[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new ByteList(result);
   }
 
@@ -60,7 +60,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (ShortList) list;
     }
     short[] result = new short[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new ShortList(result);
   }
 
@@ -77,7 +77,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (IntList) list;
     }
     int[] result = new int[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new IntList(result);
   }
 
@@ -94,7 +94,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (LongList) list;
     }
     long[] result = new long[num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new LongList(result);
   }
 
@@ -111,7 +111,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (FloatList) list;
     }
     float[] result = new float[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new FloatList(result);
   }
 
@@ -128,7 +128,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (DoubleList) list;
     }
     double[] result = new double[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new DoubleList(result);
   }
 
@@ -145,7 +145,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (BooleanList) list;
     }
     boolean[] result = new boolean[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new BooleanList(result);
   }
 
@@ -162,7 +162,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (StringList) list;
     }
     String[] result = new String[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new StringList(result);
   }
 
@@ -177,7 +177,7 @@ public abstract class ListTakeNode extends ExpressionNode {
       return (ObjectList) list;
     }
     Object[] result = new Object[(int) num];
-    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
+    copyArrayNode.execute(innerList, 0, result, 0, result.length);
     return new ObjectList(result);
   }
 }
