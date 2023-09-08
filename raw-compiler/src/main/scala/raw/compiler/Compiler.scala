@@ -215,7 +215,7 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     try {
       f
     } finally {
-      logger.trace(s"Compiler timing for $name: ${start.elapsed.toMillis} ms")
+      logger.info(s"Compiler timing for $name: ${start.elapsed.toMillis} ms")
     }
   }
 

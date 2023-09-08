@@ -756,13 +756,13 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     // Resolve the type (remove type alias)
     val rt = resolveType(t)
     // If any ErrorType anywhere nested in the tree, bring ErrorType() to the top.
-    val checkForErrorType = everywhere(query[ErrorType]({ case _: ErrorType => return ErrorType() }))
+    val checkForErrorType = everywhere(query[Any]({ case _: ErrorType => return ErrorType() }))
     checkForErrorType(rt)
     rt
   }
 
   private def resolveType(t: Type): Type = {
-    val s = everywheretd(rule[Type] { case TypeAliasType(idn) => resolveTypeAlias(idn) })
+    val s = everywheretd(rule[Any] { case TypeAliasType(idn) => resolveTypeAlias(idn) })
     rewrite(s)(t)
   }
 
