@@ -19,7 +19,11 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleEmitter, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.option._
-import raw.runtime.truffle.ast.expressions.tryable.{TryableFlatMapNodeGen, TryableNullableFlatMapNodeGen, TryableSuccessNodeGen}
+import raw.runtime.truffle.ast.expressions.tryable.{
+  TryableFlatMapNodeGen,
+  TryableNullableFlatMapNodeGen,
+  TryableSuccessNodeGen
+}
 import raw.runtime.truffle.ast.expressions.option.{OptionGetOrElseNodeGen, OptionMapNodeGen}
 
 // FlatMapNullableTryableEntry looks like a regular flatMap functionality but it is
@@ -32,25 +36,7 @@ class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry wit
     val eType = args(0).t
     val FunType(Vector(inType), _, outType, _) = args(1).t
     (eType, inType, outType) match {
-      // Case #1. The value is a try+nullable, but only the try needs to be checked (nullable is expected).
-      // And the function returns a try+null (likely it is try because of the extra try in the argument).
-      // That's kind of a tryable flatMap
-//      case (
-//            eTypeWithProps: Rql2TypeWithProperties,
-//            inTypeWithProps: Rql2TypeWithProperties,
-//            outTypeWithProps: Rql2TypeWithProperties
-//          )
-//          if eTypeWithProps.props == Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()) &&
-//            inTypeWithProps.props == Set(Rql2IsNullableTypeProperty()) &&
-//            outTypeWithProps.props == Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()) =>
-//        TryableFlatMapNodeGen.create(
-//          emitter.recurseExp(args(0).e),
-//          emitter.recurseLambda(() =>
-//            new InvokeNode(emitter.recurseExp(args(1).e), Array(null), Array(new ReadParamNode(0)))
-//          )
-//        )
-
-      // Case #2. The value is try+nullable, and both properties need to be checked before applying the function.
+      // The value is try+nullable, and both properties need to be checked before applying the function.
       // And the function returns a try+nullable. That's kind of a regular flatMap on a tryable+nullable.
       case (eTypeWithProps: Rql2TypeWithProperties, inType, outTypeWithProps: Rql2TypeWithProperties)
           if eTypeWithProps.props == Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()) &&
@@ -61,19 +47,7 @@ class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry wit
           emitter.recurseExp(args(1).e)
         )
 
-//      // Case #3. No coverage for that one?
-//      case (
-//            eTypeWithProps: Rql2TypeWithProperties,
-//            inTypeWithProps: Rql2TypeWithProperties,
-//            outTypeWithProps: Rql2TypeWithProperties
-//          )
-//          if eTypeWithProps.props == Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()) &&
-//            inTypeWithProps.props == Set(Rql2IsNullableTypeProperty()) &&
-//            outTypeWithProps.props.contains(Rql2IsNullableTypeProperty()) =>
-//        // Not implemented yet!
-//        ???
-
-      // Case #4. The value is a nullable, it's like an option.flatMap BUT the output is a try+nullable.
+      // The value is a nullable, it's like an option.flatMap BUT the output is a try+nullable.
       // If division is applied to a nullable, that would do that
       case (eTypeWithProps: Rql2TypeWithProperties, inType, outTypeWithProps: Rql2TypeWithProperties)
           if eTypeWithProps.props == Set(Rql2IsNullableTypeProperty()) &&
@@ -86,7 +60,7 @@ class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry wit
           TryableSuccessNodeGen.create(new OptionNoneNode(outType))
         )
 
-      // Case #5 Pure tryable
+      // Pure tryable
       case (eTypeWithProps: Rql2TypeWithProperties, inType, outTypeWithProps: Rql2TypeWithProperties)
           if eTypeWithProps.props.contains(Rql2IsTryableTypeProperty()) &&
             outTypeWithProps.props.contains(Rql2IsTryableTypeProperty()) =>
@@ -95,7 +69,7 @@ class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEntry wit
           emitter.recurseExp(args(1).e)
         )
 
-      // Case #6 pure option
+      // Pure option
       case (eTypeWithProps: Rql2TypeWithProperties, inType, outTypeWithProps: Rql2TypeWithProperties)
           if eTypeWithProps.props == Set(Rql2IsNullableTypeProperty()) &&
             outTypeWithProps.props.contains(Rql2IsNullableTypeProperty()) =>

@@ -28,25 +28,26 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 @NodeChild("function")
 public abstract class TryableNullableFlatMapNode extends ExpressionNode {
 
-    private final Object[] argumentValues = new Object[1];
-    private final ObjectTryable successNone = ObjectTryable.BuildSuccess(new EmptyOption());
+  private final Object[] argumentValues = new Object[1];
+  private final ObjectTryable successNone = ObjectTryable.BuildSuccess(new EmptyOption());
 
-    @Specialization(limit = "1")
-    protected Object doTryable(
-        Object tryable, Closure closure,
-        @CachedLibrary("tryable") TryableLibrary tryables,
-        @CachedLibrary(limit = "1") OptionLibrary nullables) {
-        if (tryables.isSuccess(tryable)) {
-            Object n = tryables.success(tryable);
-            if (nullables.isDefined(n)) {
-                Object v = nullables.get(n);
-                argumentValues[0] = v;
-                return closure.call(argumentValues);
-            } else {
-                return successNone;
-            }
-        } else {
-            return tryable;
-        }
+  @Specialization(limit = "1")
+  protected Object doTryable(
+      Object tryable,
+      Closure closure,
+      @CachedLibrary("tryable") TryableLibrary tryables,
+      @CachedLibrary(limit = "1") OptionLibrary nullables) {
+    if (tryables.isSuccess(tryable)) {
+      Object n = tryables.success(tryable);
+      if (nullables.isDefined(n)) {
+        Object v = nullables.get(n);
+        argumentValues[0] = v;
+        return closure.call(argumentValues);
+      } else {
+        return successNone;
+      }
+    } else {
+      return tryable;
     }
+  }
 }

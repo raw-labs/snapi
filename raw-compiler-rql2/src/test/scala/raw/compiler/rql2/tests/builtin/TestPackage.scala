@@ -172,10 +172,10 @@ class VarNullableStringExpTestEntry extends EntryExtension {
     Right(ExpParam(Rql2StringType(Set(Rql2IsNullableTypeProperty()))))
 
   override def returnType(
-                           mandatoryArgs: Seq[Arg],
-                           optionalArgs: Seq[(String, Arg)],
-                           varArgs: Seq[Arg]
-                         )(implicit programContext: ProgramContext): Either[String, Type] = {
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Either[String, Type] = {
     Right(Rql2StringType(Set(Rql2IsNullableTypeProperty())))
   }
 
