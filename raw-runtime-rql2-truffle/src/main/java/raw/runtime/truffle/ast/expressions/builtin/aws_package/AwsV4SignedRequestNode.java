@@ -187,7 +187,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
       Object[] allHeaders = new Object[allHeadersSize];
       copyArrayNode.execute(
-          headersLists.getInnerList(headers), allHeaders, (int) headersLists.size(headers));
+          headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
 
       allHeaders[headersSize] = RawLanguage.get(this).createRecord();
       records.writeMember(allHeaders[headersSize], "_1", "host");

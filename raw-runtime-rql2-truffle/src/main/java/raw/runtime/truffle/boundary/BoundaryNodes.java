@@ -23,51 +23,51 @@ public class BoundaryNodes {
   @GenerateUncached
   public abstract static class CopyArrayNode extends Node {
 
-    public abstract void execute(Object src, Object dest, int size);
+    public abstract void execute(Object source, int srcPos, Object dest, int destPos, int size);
 
     @Specialization
-    void copyArray(boolean[] source, boolean[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(boolean[] source, int srcPos, boolean[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(byte[] source, byte[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(byte[] source, int srcPos, byte[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(short[] source, short[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(short[] source, int srcPos, short[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(int[] source, int[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(int[] source, int srcPos, int[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(long[] source, long[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(long[] source, int srcPos, long[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(float[] source, float[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(float[] source, int srcPos, float[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(double[] source, double[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(double[] source, int srcPos, double[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(String[] source, String[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(String[] source, int srcPos, String[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
 
     @Specialization
-    void copyArray(Object[] source, Object[] dest, int size) {
-      System.arraycopy(source, 0, dest, 0, size);
+    void copyArray(Object[] source, int srcPos, Object[] dest, int destPos, int size) {
+      System.arraycopy(source, srcPos, dest, destPos, size);
     }
   }
 
