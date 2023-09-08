@@ -37,7 +37,8 @@ public class JsonReadValueNode extends ExpressionNode {
   @Child private DirectCallNode childDirectCall;
 
   @Child
-  private InitJsonParserNode initParserNode = JsonParserNodesFactory.InitJsonParserNodeGen.create();
+  private InitJsonParserNode initParserNode =
+      JsonParserNodesFactory.InitJsonParserNodeGen.getUncached();
 
   @Child
   private CloseJsonParserNode closeParserNode =

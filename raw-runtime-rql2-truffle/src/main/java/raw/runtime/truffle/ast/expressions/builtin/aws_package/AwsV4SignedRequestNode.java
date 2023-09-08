@@ -35,7 +35,7 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.helper_nodes.HelperNodes;
+import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
@@ -130,7 +130,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       String bodyString,
       Object urlParams,
       Object headers,
-      @Cached("create()") HelperNodes.CopyArrayNode copyArrayNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary(limit = "2") ListLibrary urlParamsLists,
       @CachedLibrary(limit = "2") ListLibrary headersLists,
       @CachedLibrary(limit = "2") InteropLibrary records) {
@@ -187,7 +187,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
       Object[] allHeaders = new Object[allHeadersSize];
       copyArrayNode.execute(
-          headersLists.getInnerList(headers), allHeaders, (int) headersLists.size(headers));
+          headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
 
       allHeaders[headersSize] = RawLanguage.get(this).createRecord();
       records.writeMember(allHeaders[headersSize], "_1", "host");

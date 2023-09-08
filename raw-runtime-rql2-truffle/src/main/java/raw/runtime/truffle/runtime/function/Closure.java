@@ -20,6 +20,8 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import java.util.Objects;
+import raw.runtime.truffle.boundary.BoundaryNodes;
+import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
@@ -32,6 +34,9 @@ public class Closure {
 
   private final Object[] defaultArguments;
 
+  private final BoundaryNodes.CopyArrayNode copyArrayNode =
+      BoundaryNodesFactory.CopyArrayNodeGen.getUncached();
+
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
   // and used later.
   public Closure(Function function, Object[] defaultArguments, MaterializedFrame frame, Node node) {
@@ -43,14 +48,11 @@ public class Closure {
   }
 
   // "plain" call, no named arguments. That's used internally by '.Filter', '.GroupBy', etc.
-  @ExplodeLoop
   public Object call(Object... arguments) {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
     // Do not replace, needed to avoid truffle boundary
-    for (int i = 0; i < arguments.length; i++) {
-      args[i + 1] = arguments[i];
-    }
+    copyArrayNode.execute(arguments, 0, args, 1, arguments.length);
     try {
       return interop.execute(function, args);
     } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
@@ -72,9 +74,7 @@ public class Closure {
     args[0] = frame;
     // first fill in the default arguments (nulls if no default).
     // Do not replace
-    for (int i = 0; i < function.argNames.length; i++) {
-      args[i + 1] = defaultArguments[i];
-    }
+    copyArrayNode.execute(defaultArguments, 0, args, 1, arguments.length);
     for (int i = 0; i < argNames.length; i++) {
       if (argNames[i] == null) {
         // no arg name was provided, use the index.

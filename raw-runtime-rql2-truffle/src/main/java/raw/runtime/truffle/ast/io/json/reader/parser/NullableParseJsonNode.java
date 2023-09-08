@@ -32,7 +32,11 @@ public class NullableParseJsonNode extends ExpressionNode {
 
   @Child
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
+
+  @Child
+  private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode =
+      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.getUncached();
 
   private final RuntimeNullableTryableHandler nullableTryableHandler =
       new RuntimeNullableTryableHandler();
@@ -48,7 +52,7 @@ public class NullableParseJsonNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    if (parser.getCurrentToken() == JsonToken.VALUE_NULL) {
+    if (currentTokenNode.execute(parser) == JsonToken.VALUE_NULL) {
       nextTokenNode.execute(parser);
       return new EmptyOption();
     } else {

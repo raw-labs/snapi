@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.helper_nodes.HelperNodes;
+import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.runtime.list.*;
 
 @ImportStatic(value = TypeGuards.class)
@@ -36,14 +36,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected ByteList doByte(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     byte[] innerList = (byte[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (ByteList) list;
     }
     byte[] result = new byte[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new ByteList(result);
   }
 
@@ -53,14 +53,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected ShortList doShort(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     short[] innerList = (short[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (ShortList) list;
     }
     short[] result = new short[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new ShortList(result);
   }
 
@@ -70,14 +70,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected IntList doInt(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     int[] innerList = (int[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (IntList) list;
     }
     int[] result = new int[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new IntList(result);
   }
 
@@ -87,14 +87,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected LongList doLong(
       Object list,
       int num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     long[] innerList = (long[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (LongList) list;
     }
     long[] result = new long[num];
-    arrayCopyNode.execute(innerList, result, num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new LongList(result);
   }
 
@@ -104,14 +104,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected FloatList doFloat(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     float[] innerList = (float[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (FloatList) list;
     }
     float[] result = new float[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new FloatList(result);
   }
 
@@ -121,14 +121,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected DoubleList doDouble(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     double[] innerList = (double[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (DoubleList) list;
     }
     double[] result = new double[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new DoubleList(result);
   }
 
@@ -138,14 +138,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected BooleanList doBoolean(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     boolean[] innerList = (boolean[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (BooleanList) list;
     }
     boolean[] result = new boolean[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new BooleanList(result);
   }
 
@@ -155,14 +155,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected StringList doString(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     String[] innerList = (String[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (StringList) list;
     }
     String[] result = new String[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new StringList(result);
   }
 
@@ -170,14 +170,14 @@ public abstract class ListTakeNode extends ExpressionNode {
   protected ObjectList doObject(
       Object list,
       long num,
-      @Cached("create()") HelperNodes.CopyArrayNode arrayCopyNode,
+      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary("list") ListLibrary lists) {
     Object[] innerList = (Object[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (ObjectList) list;
     }
     Object[] result = new Object[(int) num];
-    arrayCopyNode.execute(innerList, result, (int) num);
+    copyArrayNode.execute(innerList, 0, result, 0, innerList.length);
     return new ObjectList(result);
   }
 }
