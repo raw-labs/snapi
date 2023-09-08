@@ -60,7 +60,7 @@ public class JoinComputeNext {
   private final Boolean reshapeBeforePredicate;
 
   TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTriablePredicateNode =
-      TryableNullableNodesFactory.HandleOptionTriablePredicateNodeGen.create();
+      TryableNullableNodesFactory.HandleOptionTryablePredicateNodeGen.create();
 
   public JoinComputeNext(
       Object leftIterable,

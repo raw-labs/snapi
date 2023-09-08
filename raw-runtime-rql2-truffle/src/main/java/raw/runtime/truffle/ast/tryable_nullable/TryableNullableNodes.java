@@ -174,11 +174,10 @@ public class TryableNullableNodes {
         Object value,
         Object defaultValue,
         @Cached("create()") GetOrElseOptionNode getOrElseOption,
-        @CachedLibrary(limit = "1") TryableLibrary tryables) {
+        @CachedLibrary(limit = "2") TryableLibrary tryables) {
       if (tryables.isTryable(value)) {
-        TryableLibrary tries = TryableLibrary.getFactory().create(value);
-        if (tries.isSuccess(value)) {
-          Object innerValue = tries.success(value);
+        if (tryables.isSuccess(value)) {
+          Object innerValue = tryables.success(value);
           return getOrElseOption.execute(innerValue, defaultValue);
         } else {
           return defaultValue;
@@ -197,11 +196,10 @@ public class TryableNullableNodes {
 
     @Specialization
     static Object getOrElse(
-        Object value, Object defaultValue, @CachedLibrary(limit = "1") OptionLibrary nullables) {
+        Object value, Object defaultValue, @CachedLibrary(limit = "2") OptionLibrary nullables) {
       if (nullables.isOption(value)) {
-        OptionLibrary nulls = OptionLibrary.getFactory().create(value);
-        if (nulls.isDefined(value)) {
-          return nulls.get(value);
+        if (nullables.isDefined(value)) {
+          return nullables.get(value);
         } else {
           return defaultValue;
         }
@@ -221,20 +219,20 @@ public class TryableNullableNodes {
     static Boolean handleOptionTryablePredicate(
         Object maybeOptionTryable,
         Boolean defaultValue,
-        @Cached("create()") HandleOptionTryablePredicateNode handleOptionTryablePredicate,
+        @Cached("create()") HandleOptionPredicateNode handleOptionPredicateNode,
         @CachedLibrary(limit = "2") TryableLibrary tryables) {
       if (maybeOptionTryable != null) {
         if (tryables.isTryable(maybeOptionTryable)) {
           if (tryables.isSuccess(maybeOptionTryable)) {
             Object success = tryables.success(maybeOptionTryable);
-            return handleOptionTryablePredicate.execute(success, defaultValue);
+            return handleOptionPredicateNode.execute(success, defaultValue);
           } else if (defaultValue != null) {
             return defaultValue;
           } else {
             throw new RawTruffleRuntimeException(tryables.failure(maybeOptionTryable));
           }
         } else {
-          return handleOptionTryablePredicate.execute(maybeOptionTryable, defaultValue);
+          return handleOptionPredicateNode.execute(maybeOptionTryable, defaultValue);
         }
       } else {
         return defaultValue;
