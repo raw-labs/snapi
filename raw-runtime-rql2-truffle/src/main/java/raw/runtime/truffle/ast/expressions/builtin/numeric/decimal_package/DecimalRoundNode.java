@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.numeric.decimal_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -25,11 +26,13 @@ import raw.runtime.truffle.ExpressionNode;
 public abstract class DecimalRoundNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected BigDecimal fromInt(int argument, int precession) {
     return (new BigDecimal(argument)).round(new MathContext(precession + 1));
   }
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected BigDecimal fromBigDecimal(BigDecimal argument, int precession) {
     return argument.round(new MathContext(precession + 1));
   }

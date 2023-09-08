@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -63,6 +64,7 @@ public final class IntervalObject implements TruffleObject {
     this.millis = (int) (rest %= 1000);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public IntervalObject(String interval) {
 
     Matcher matcher = pattern.matcher(interval);
@@ -117,43 +119,6 @@ public final class IntervalObject implements TruffleObject {
           String.format("could not parse interval from string '%s'", interval));
     }
   }
-
-  //        str match {
-  //            case intervalRegex(y, m, w, d, h, mi, s1, s2, mil) =>
-  //                val (seconds, millis) =
-  //                if (s1 == null && s2 == null) (0, 0)
-  //          else if (s1 != null) (s1.toInt, 0)
-  //          else {
-  //                val milliseconds =
-  //                // if the length is smaller than 3 we have to add a multiplier
-  //                if (mil.length < 3) {
-  //                    val multiplier = (1 to (3 - mil.length)).foldLeft(1)((acc, _) => 10 * acc)
-  //                    mil.toInt * multiplier
-  //                } else {
-  //                    mil.substring(0, 3).toInt
-  //                }
-  //                val parsedSeconds = s2.toInt
-  //                // milliseconds will have the same sign as the seconds
-  //                if (parsedSeconds >= 0) {
-  //                    (s2.toInt, milliseconds)
-  //                } else {
-  //                    (s2.toInt, -milliseconds)
-  //                }
-  //            }
-  //
-  //            new RawInterval(
-  //            if (y == null) 0 else y.toInt,
-  //            if (m == null) 0 else m.toInt,
-  //            if (w == null) 0 else w.toInt,
-  //            if (d == null) 0 else d.toInt,
-  //            if (h == null) 0 else h.toInt,
-  //            if (mi == null) 0 else mi.toInt,
-  //                seconds,
-  //                millis
-  //        )
-  //            case _ => throw new RawRuntimeException(s"could not parse interval from string
-  // '$str'")
-  //        }
 
   public static IntervalObject normalize(
       int years, int months, int weeks, int days, int hours, int minutes, int seconds, int millis) {

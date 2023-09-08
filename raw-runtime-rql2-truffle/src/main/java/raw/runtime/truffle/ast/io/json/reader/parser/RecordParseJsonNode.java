@@ -14,9 +14,10 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
@@ -28,6 +29,8 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
+import raw.runtime.truffle.boundary.BoundaryNodes;
+import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.option.EmptyOption;
@@ -41,21 +44,31 @@ public class RecordParseJsonNode extends ExpressionNode {
 
   @Child
   private JsonParserNodes.SkipNextJsonParserNode skipNode =
-      JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
+      JsonParserNodesFactory.SkipNextJsonParserNodeGen.getUncached();
 
   @Child
   private JsonParserNodes.CurrentFieldJsonParserNode currentFieldNode =
-      JsonParserNodesFactory.CurrentFieldJsonParserNodeGen.create();
+      JsonParserNodesFactory.CurrentFieldJsonParserNodeGen.getUncached();
 
   @Child
   private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode =
-      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.create();
+      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.getUncached();
 
   @Child
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
 
-  @Child private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
+  @Child
+  private BoundaryNodes.BitSetSetNode bitSetSet =
+      BoundaryNodesFactory.BitSetSetNodeGen.getUncached();
+
+  @Child
+  private BoundaryNodes.BitSetCardinalityNode bitSetCardinality =
+      BoundaryNodesFactory.BitSetCardinalityNodeGen.getUncached();
+
+  @Child
+  private BoundaryNodes.BitSetGetNode bitSetGet =
+      BoundaryNodesFactory.BitSetGetNodeGen.getUncached();
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
@@ -76,10 +89,10 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
   }
 
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-
     BitSet currentBitSet = new BitSet(this.fieldsSize);
 
     if (currentTokenNode.execute(parser) != JsonToken.START_OBJECT) {
@@ -91,24 +104,25 @@ public class RecordParseJsonNode extends ExpressionNode {
     RecordObject record = RawLanguage.get(this).createRecord();
     while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
       String fieldName = currentFieldNode.execute(parser);
-      Integer index = fieldNamesMap.get(fieldName);
+      Integer index = mapGet(fieldNamesMap, fieldName);
       nextTokenNode.execute(parser); // skip the field name
       if (index != null) {
-        currentBitSet.set(index);
+        bitSetSet.execute(currentBitSet, index);
         record.writeIdx(index, fieldName, childDirectCalls[index].call(parser));
       } else {
         // skip the field value
         skipNode.execute(parser);
       }
     }
+
     nextTokenNode.execute(parser); // skip the END_OBJECT token
 
-    if (currentBitSet.cardinality() != this.fieldsSize) {
+    if (bitSetCardinality.execute(currentBitSet) != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
       // fail.
       Object[] fields = fieldNamesMap.keySet().toArray();
       for (int i = 0; i < this.fieldsSize; i++) {
-        if (!currentBitSet.get(i)) {
+        if (!bitSetGet.execute(currentBitSet, i)) {
           if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
@@ -125,5 +139,10 @@ public class RecordParseJsonNode extends ExpressionNode {
       }
     }
     return record;
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private Integer mapGet(LinkedHashMap<String, Integer> map, String key) {
+    return map.get(key);
   }
 }

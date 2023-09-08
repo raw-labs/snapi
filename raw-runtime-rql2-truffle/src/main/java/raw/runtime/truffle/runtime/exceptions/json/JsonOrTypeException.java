@@ -12,9 +12,11 @@
 
 package raw.runtime.truffle.runtime.exceptions.json;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 
 public class JsonOrTypeException extends JsonParserRawTruffleException {
+  @CompilerDirectives.TruffleBoundary
   public JsonOrTypeException(String[] messages, Node location) {
     super(createMessage(messages), location);
   }

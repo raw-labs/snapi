@@ -12,9 +12,11 @@
 
 package raw.runtime.truffle.runtime.exceptions.json;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 
 public class JsonRecordFieldNotFoundException extends JsonParserRawTruffleException {
+  @CompilerDirectives.TruffleBoundary
   public JsonRecordFieldNotFoundException(String fieldName, Node location) {
     super(String.format("'%s': not found", fieldName), location);
   }

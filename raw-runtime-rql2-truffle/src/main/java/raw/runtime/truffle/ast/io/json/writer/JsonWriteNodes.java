@@ -12,7 +12,10 @@
 
 package raw.runtime.truffle.ast.io.json.writer;
 
+import com.fasterxml.jackson.core.JsonEncoding;
+import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
@@ -27,6 +30,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
+import java.io.OutputStream;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -43,6 +47,25 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 public final class JsonWriteNodes {
+
+  @NodeInfo(shortName = "JsonWriter.InitGenerator")
+  @GenerateUncached
+  public abstract static class InitGeneratorJsonWriterNode extends Node {
+
+    public abstract JsonGenerator execute(OutputStream os);
+
+    @Specialization
+    @CompilerDirectives.TruffleBoundary
+    JsonGenerator createGenerator(OutputStream os) {
+      try {
+        JsonFactory jsonFactory = new JsonFactory();
+        jsonFactory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
+        return jsonFactory.createGenerator(os, JsonEncoding.UTF8);
+      } catch (IOException ex) {
+        throw new RawTruffleRuntimeException(ex, this);
+      }
+    }
+  }
 
   @NodeInfo(shortName = "JsonWriter.WriteStartArray")
   @GenerateUncached

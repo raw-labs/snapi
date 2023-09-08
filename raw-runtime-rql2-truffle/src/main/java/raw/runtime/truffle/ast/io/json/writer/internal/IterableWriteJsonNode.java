@@ -53,6 +53,7 @@ public class IterableWriteJsonNode extends StatementNode {
     try {
       generators.init(generator);
       writeStartArrayNode.execute(gen);
+
       while (generators.hasNext(generator)) {
         childDirectCall.call(generators.next(generator), gen);
       }

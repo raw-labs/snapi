@@ -42,6 +42,7 @@ public final class RecordObject implements TruffleObject {
     this.valuesLibrary = DynamicObjectLibrary.getFactory().create(values);
   }
 
+  @TruffleBoundary
   private Vector<String> getDistinctKeys() {
     if (distinctKeys == null) {
       distinctKeys = new Vector<>(keys.size());
@@ -183,6 +184,7 @@ public final class RecordObject implements TruffleObject {
   // Write a field by index. The String key should be provided
   // since all fields have names (possibly duplicated).
   // It's an internal API, a key/idx isn't supposed to be overwritten.
+  @TruffleBoundary
   public void writeIdx(int idx, String key, Object value) {
     if (idx >= keys.size()) {
       keys.setSize(idx + 1);

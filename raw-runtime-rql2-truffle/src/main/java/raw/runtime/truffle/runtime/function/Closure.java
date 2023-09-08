@@ -17,8 +17,11 @@ import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import java.util.Objects;
+import raw.runtime.truffle.boundary.BoundaryNodes;
+import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
@@ -30,6 +33,9 @@ public class Closure {
   private final Node node;
 
   private final Object[] defaultArguments;
+
+  private final BoundaryNodes.CopyArrayNode copyArrayNode =
+      BoundaryNodesFactory.CopyArrayNodeGen.getUncached();
 
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
   // and used later.
@@ -45,7 +51,8 @@ public class Closure {
   public Object call(Object... arguments) {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
-    System.arraycopy(arguments, 0, args, 1, arguments.length);
+    // Do not replace, needed to avoid truffle boundary
+    copyArrayNode.execute(arguments, 0, args, 1, arguments.length);
     try {
       return interop.execute(function, args);
     } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
@@ -61,11 +68,12 @@ public class Closure {
 
   // call with named arguments. That's used by the invoke or other ways a function can be called
   // with named arguments.
+  @ExplodeLoop
   public Object callWithNames(String[] argNames, Object... arguments) {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
     // first fill in the default arguments (nulls if no default).
-    System.arraycopy(defaultArguments, 0, args, 1, function.argNames.length);
+    copyArrayNode.execute(defaultArguments, 0, args, 1, function.argNames.length);
     for (int i = 0; i < argNames.length; i++) {
       if (argNames[i] == null) {
         // no arg name was provided, use the index.

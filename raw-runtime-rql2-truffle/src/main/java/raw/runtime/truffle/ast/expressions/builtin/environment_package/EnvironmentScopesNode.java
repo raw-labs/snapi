@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.environment_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.RuntimeContext;
@@ -24,6 +25,7 @@ import scala.collection.Iterator;
 public abstract class EnvironmentScopesNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   protected Object doScopes() {
     RuntimeContext context = RawContext.get(this).getRuntimeContext();
     String[] bl = new String[context.scopes().size()];

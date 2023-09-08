@@ -253,6 +253,7 @@ public class RawTruffleXmlParser {
     return stringBuilder.toString();
   }
 
+  @TruffleBoundary
   private void recordPosition() {
     currentLine = xmlStreamReader.getLocation().getLineNumber();
     currentColumn = xmlStreamReader.getLocation().getColumnNumber();

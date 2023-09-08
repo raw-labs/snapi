@@ -88,9 +88,10 @@ public class JsonReadComputeNext {
   }
 
   @ExportMessage
-  Object computeNext() {
+  Object computeNext(@Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken) {
     try {
-      if (parser.getCurrentToken() != JsonToken.END_ARRAY && parser.getCurrentToken() != null) {
+      JsonToken token = currentToken.execute(parser);
+      if (token != JsonToken.END_ARRAY && token != null) {
         return parseNextCallNode.call(parser);
       } else {
         throw new BreakException();

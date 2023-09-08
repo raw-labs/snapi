@@ -12,17 +12,15 @@
 
 package raw.compiler.rql2.truffle.builtin
 
-import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import com.oracle.truffle.api.frame.FrameDescriptor
-import org.fusesource.hawtjni.runtime.Library
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2.builtin.{ParseJsonEntry, PrintJsonEntry, ReadJsonEntry}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ast.expressions.literals.StringNode
-import raw.runtime.truffle.ast.io.json.reader.parser._
 import raw.runtime.truffle.ast.io.json.reader._
+import raw.runtime.truffle.ast.io.json.reader.parser._
 import raw.runtime.truffle.ast.io.json.writer.internal._
 import raw.runtime.truffle.ast.{ProgramExpressionNode, ProgramStatementNode}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
@@ -82,7 +80,7 @@ class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
       .collectFirst { case arg if arg.idn.contains("timestampFormat") => arg.e }
       .getOrElse(new StringNode("yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]"))
 
-    val parseNode = new JsonParseNode(
+    val parseNode = JsonParseNodeGen.create(
       unnamedArgs.head.e,
       JsonIO.recurseJsonParser(
         t.asInstanceOf[Rql2TypeWithProperties],
@@ -102,7 +100,7 @@ class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
 
 class TrufflePrintJsonEntry extends PrintJsonEntry with TruffleEntryExtension {
   override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode =
-    new JsonPrintNode(args.head.e, JsonIO.recurseJsonWriter(args.head.t.asInstanceOf[Rql2TypeWithProperties]))
+    JsonPrintNodeGen.create(args.head.e, JsonIO.recurseJsonWriter(args.head.t.asInstanceOf[Rql2TypeWithProperties]))
 }
 
 object JsonIO {
