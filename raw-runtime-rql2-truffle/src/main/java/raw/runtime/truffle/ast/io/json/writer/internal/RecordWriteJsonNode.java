@@ -61,6 +61,7 @@ public class RecordWriteJsonNode extends StatementNode {
       JsonGenerator gen = (JsonGenerator) args[1];
       Object keys = interops.getMembers(record);
       Object item;
+
       writeStartObjectNode.execute(gen);
       for (int i = 0; i < childDirectCalls.length; i++) {
         String member = (String) interops.readArrayElement(keys, i);
