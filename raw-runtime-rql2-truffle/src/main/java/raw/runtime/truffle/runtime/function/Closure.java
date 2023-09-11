@@ -32,9 +32,6 @@ public class Closure {
 
   private final Object[] defaultArguments;
 
-  //  private final BoundaryNodes.CopyArrayNode copyArrayNode =
-  //      BoundaryNodesFactory.CopyArrayNodeGen.getUncached();
-
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
   // and used later.
   public Closure(Function function, Object[] defaultArguments, MaterializedFrame frame, Node node) {
