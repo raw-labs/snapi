@@ -18,7 +18,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.interpreter.ShortValue;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.option.*;
 import raw.runtime.truffle.runtime.tryable.*;
@@ -38,7 +37,7 @@ public class TryableNullableNodes {
 
     @Specialization
     static Object doShort(short value) {
-      return new ShortValue(value);
+      return new ShortOption(value);
     }
 
     @Specialization
