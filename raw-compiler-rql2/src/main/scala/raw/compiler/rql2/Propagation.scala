@@ -350,7 +350,7 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
     case StringValue(v) => StringConst(v)
     case BoolValue(v) => BoolConst(v)
     case OptionValue(option) =>
-      val innerType = removeProp(t, Rql2IsNullableTypeProperty())
+      val innerType = resetProps(t, Set.empty)
       option
         .map(v => valueToExp(v, innerType))
         .map(NullablePackageBuilder.Build(_))
