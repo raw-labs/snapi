@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.expressions.builtin.aws_package;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -35,7 +34,6 @@ import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
@@ -185,7 +183,12 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       if (!sessionToken.equals("")) allHeadersSize++;
 
       Object[] allHeaders = new Object[allHeadersSize];
-      System.arraycopy((Object[])headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
+      System.arraycopy(
+          (Object[]) headersLists.getInnerList(headers),
+          0,
+          allHeaders,
+          0,
+          (int) headersLists.size(headers));
 
       allHeaders[headersSize] = RawLanguage.get(this).createRecord();
       records.writeMember(allHeaders[headersSize], "_1", "host");

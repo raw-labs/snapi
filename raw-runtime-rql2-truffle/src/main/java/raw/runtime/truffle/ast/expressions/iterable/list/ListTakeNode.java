@@ -18,7 +18,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.runtime.list.*;
 
 @ImportStatic(value = TypeGuards.class)
@@ -33,10 +32,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isByteKind(getResultType())"},
       limit = "3")
-  protected ByteList doByte(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected ByteList doByte(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     byte[] innerList = (byte[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (ByteList) list;
@@ -49,10 +45,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isShortKind(getResultType())"},
       limit = "3")
-  protected ShortList doShort(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected ShortList doShort(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     short[] innerList = (short[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (ShortList) list;
@@ -65,10 +58,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isIntKind(getResultType())"},
       limit = "3")
-  protected IntList doInt(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected IntList doInt(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     int[] innerList = (int[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (IntList) list;
@@ -81,10 +71,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isLongKind(getResultType())"},
       limit = "3")
-  protected LongList doLong(
-      Object list,
-      int num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected LongList doLong(Object list, int num, @CachedLibrary("list") ListLibrary lists) {
     long[] innerList = (long[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (LongList) list;
@@ -97,10 +84,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isFloatKind(getResultType())"},
       limit = "3")
-  protected FloatList doFloat(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected FloatList doFloat(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     float[] innerList = (float[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (FloatList) list;
@@ -113,10 +97,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isDoubleKind(getResultType())"},
       limit = "3")
-  protected DoubleList doDouble(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected DoubleList doDouble(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     double[] innerList = (double[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (DoubleList) list;
@@ -129,10 +110,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isBooleanKind(getResultType())"},
       limit = "3")
-  protected BooleanList doBoolean(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected BooleanList doBoolean(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     boolean[] innerList = (boolean[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (BooleanList) list;
@@ -145,10 +123,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   @Specialization(
       guards = {"isStringKind(getResultType())"},
       limit = "3")
-  protected StringList doString(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected StringList doString(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     String[] innerList = (String[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (StringList) list;
@@ -159,10 +134,7 @@ public abstract class ListTakeNode extends ExpressionNode {
   }
 
   @Specialization(limit = "3")
-  protected ObjectList doObject(
-      Object list,
-      long num,
-      @CachedLibrary("list") ListLibrary lists) {
+  protected ObjectList doObject(Object list, long num, @CachedLibrary("list") ListLibrary lists) {
     Object[] innerList = (Object[]) lists.getInnerList(list);
     if (num >= innerList.length) {
       return (ObjectList) list;
