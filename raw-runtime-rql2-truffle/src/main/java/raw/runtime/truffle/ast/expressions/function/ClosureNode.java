@@ -23,8 +23,7 @@ public final class ClosureNode extends ExpressionNode {
 
   @CompilationFinal private final Function function;
 
-  @Children
-  private final ExpressionNode[] defaultArgumentExps;
+  @Children private final ExpressionNode[] defaultArgumentExps;
 
   public ClosureNode(Function f, ExpressionNode[] defaultArgumentExps) {
     this.function = f;
