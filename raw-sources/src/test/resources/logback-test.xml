@@ -12,7 +12,7 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="raw" level="DEBUG"/>
+    <logger name="raw" level="TRACE"/>
     <logger name="org.apache.hc" level="INFO"/>
     <logger name="com.amazonaws.request" level="INFO"/>
     <logger name="org.apache.hadoop" level="WARN"/>
