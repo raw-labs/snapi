@@ -155,13 +155,12 @@ class Scala2JvmCompiler(
       }
     })
 
-    logger.trace("Compiler classpath: " + compiler.classPath.asURLs.mkString("\n"))
-
     // Create an instance of the compiler in advance of receiving a request. Creating a compiler
     // takes 200 to 400ms, which is sufficient to be noticeable in interactive sessions.
     // Additionally, using a single thread for compilation may make more efficient use of the
     // CPU caches, if the OS keeps this thread running in the same core.
     compiler = new Global(scalacSettings, compilerReporter)
+    logger.trace("Compiler classpath: " + compiler.classPath.asURLs.mkString("\n"))
   }
 
   private def listAllClassesInCache(): Seq[Path] = {
