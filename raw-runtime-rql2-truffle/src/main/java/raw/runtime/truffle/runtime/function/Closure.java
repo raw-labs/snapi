@@ -34,9 +34,6 @@ public class Closure {
 
   private final Object[] defaultArguments;
 
-  private final BoundaryNodes.CopyArrayNode copyArrayNode =
-      BoundaryNodesFactory.CopyArrayNodeGen.getUncached();
-
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
   // and used later.
   public Closure(Function function, Object[] defaultArguments, MaterializedFrame frame, Node node) {
@@ -51,8 +48,7 @@ public class Closure {
   public Object call(Object... arguments) {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
-    // Do not replace, needed to avoid truffle boundary
-    copyArrayNode.execute(arguments, 0, args, 1, arguments.length);
+    System.arraycopy(arguments, 0, args, 1, arguments.length);
     try {
       return interop.execute(function, args);
     } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
@@ -73,7 +69,7 @@ public class Closure {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
     // first fill in the default arguments (nulls if no default).
-    copyArrayNode.execute(defaultArguments, 0, args, 1, function.argNames.length);
+    System.arraycopy(defaultArguments, 0, args, 1, function.argNames.length);
     for (int i = 0; i < argNames.length; i++) {
       if (argNames[i] == null) {
         // no arg name was provided, use the index.

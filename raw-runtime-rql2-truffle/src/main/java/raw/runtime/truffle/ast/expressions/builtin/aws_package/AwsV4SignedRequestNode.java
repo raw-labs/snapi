@@ -130,7 +130,6 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       String bodyString,
       Object urlParams,
       Object headers,
-      @Cached BoundaryNodes.CopyArrayNode copyArrayNode,
       @CachedLibrary(limit = "2") ListLibrary urlParamsLists,
       @CachedLibrary(limit = "2") ListLibrary headersLists,
       @CachedLibrary(limit = "2") InteropLibrary records) {
@@ -186,8 +185,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       if (!sessionToken.equals("")) allHeadersSize++;
 
       Object[] allHeaders = new Object[allHeadersSize];
-      copyArrayNode.execute(
-          headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
+      System.arraycopy((Object[])headersLists.getInnerList(headers), 0, allHeaders, 0, (int) headersLists.size(headers));
 
       allHeaders[headersSize] = RawLanguage.get(this).createRecord();
       records.writeMember(allHeaders[headersSize], "_1", "host");
