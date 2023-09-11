@@ -54,8 +54,6 @@ public class Closure {
     for (int i = 0; i < arguments.length; i++) {
       args[i + 1] = arguments[i];
     }
-    //    // Do not replace, needed to avoid truffle boundary
-    //    copyArrayNode.execute(arguments, 0, args, 1, arguments.length);
     try {
       return interop.execute(function, args);
     } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
@@ -76,7 +74,6 @@ public class Closure {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
     // first fill in the default arguments (nulls if no default).
-    // copyArrayNode.execute(defaultArguments, 0, args, 1, function.argNames.length);
     for (int i = 0; i < argNames.length; i++) {
       args[i + 1] = defaultArguments[i];
     }

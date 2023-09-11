@@ -35,7 +35,8 @@ public abstract class TryableFlatMapNode extends ExpressionNode {
       Object tryable, Closure closure, @CachedLibrary("tryable") TryableLibrary tryables) {
     if (tryables.isSuccess(tryable)) {
       Object v = tryables.success(tryable);
-      Object[] argumentValues = {v};
+      Object[] argumentValues = new Object[1];
+      argumentValues[0] = v;
       return closure.call(argumentValues);
     } else {
       return tryable;
