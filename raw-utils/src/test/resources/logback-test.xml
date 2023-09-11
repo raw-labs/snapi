@@ -11,5 +11,5 @@
         <appender-ref ref="STDOUT"/>
     </root>
 
-    <logger name="raw" level="TRACE"/>
+    <logger name="raw" level="DEBUG"/>
 </configuration>
