@@ -12,6 +12,8 @@
 
 package raw.compiler.rql2.truffle
 
+import com.google.common.base.Stopwatch
+import com.google.common.cache.{Cache, CacheBuilder, CacheLoader, LoadingCache, RemovalListener, RemovalNotification}
 import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.frame.{FrameDescriptor, FrameSlotKind}
 import com.oracle.truffle.api.interop.InteropLibrary
@@ -26,10 +28,10 @@ import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, EnvironmentPackageBuilder, JsonPackage, StringPackage}
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{base, CompilerException, ErrorMessage, ProgramOutputWriter}
+import raw.inferrer.{InferrerException, InferrerProperties, InputFormatDescriptor}
 import raw.runtime.{
   Entrypoint,
   ParamBool,
@@ -45,7 +47,8 @@ import raw.runtime.{
   ParamShort,
   ParamString,
   ParamTime,
-  ParamTimestamp
+  ParamTimestamp,
+  ProgramEnvironment
 }
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
@@ -74,13 +77,64 @@ import scala.collection.mutable
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
+  private val CODE_CACHE_SIZE = "raw.compiler.code-cache.size"
 }
+
+private case class CodeCacheKey(source: String, maybeDecl: Option[String], environment: ProgramEnvironment)
 
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
     with TruffleCompiler[SourceNode, SourceProgram, Exp] {
 
+  import Rql2TruffleCompiler._
+
+  private val codeCacheSize = compilerContext.settings.getInt(CODE_CACHE_SIZE)
+
+  private val codeCache: Cache[CodeCacheKey, TruffleEntrypoint] = CacheBuilder
+    .newBuilder()
+    .maximumSize(codeCacheSize)
+    .removalListener { removalNotification: RemovalNotification[CodeCacheKey, TruffleEntrypoint] =>
+      {
+        logger.debug(s"Removing entrypoint from code cache: ${removalNotification.getKey}")
+        removalNotification.getValue.context.close()
+      }
+    }
+    .build()
+
+  // Does not support legacy code caching. Instead, it implements the new (simpler) cache.
   override def supportsCaching: Boolean = false
+
+  override def execute(source: String, maybeDecl: Option[String])(
+      implicit programContext: base.ProgramContext
+  ): Either[List[ErrorMessage], ProgramOutputWriter] = {
+    if (codeCacheSize > 0) {
+      // Check if present on code cache.
+      val entrypoint =
+        codeCache.getIfPresent(CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment))
+      if (entrypoint != null) {
+        // Present in code cache, so reuse emitted entrypoint.
+        entrypoint.context.initialize(RawLanguage.ID)
+        entrypoint.context.enter()
+        Right(execute(entrypoint))
+      } else {
+        // Not present, so parse and compile.
+        for (
+          program <- parseAndValidate(source, maybeDecl);
+          entrypoint <- compile(program)
+        ) yield {
+          // Store in code cache and execute.
+          codeCache.put(
+            CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment),
+            entrypoint.asInstanceOf[TruffleEntrypoint]
+          )
+          execute(entrypoint)
+        }
+      }
+    } else {
+      // Code cache disabled
+      super.execute(source, maybeDecl)
+    }
+  }
 
   override protected def doEval(
       tree: BaseTree[SourceNode, SourceProgram, Exp]

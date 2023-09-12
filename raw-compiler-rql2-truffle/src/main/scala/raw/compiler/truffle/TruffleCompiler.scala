@@ -57,7 +57,7 @@ class TruffleProgramOutputWriter(entrypoint: TruffleEntrypoint)(
       // We explicitly created and then entered the context during code emission.
       // Now we explicitly leave and close the context.
       entrypoint.context.leave()
-      entrypoint.context.close()
+     // entrypoint.context.close()
     }
   }
 }
