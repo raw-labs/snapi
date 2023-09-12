@@ -21,7 +21,6 @@ import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler
-import raw.sources.CacheStrategy
 
 class TruffleMySQLQueryEntry extends MySQLQueryEntry with TruffleEntryExtension {
 
@@ -44,8 +43,7 @@ class TruffleMySQLQueryEntry extends MySQLQueryEntry with TruffleEntryExtension 
       new PlusNode(new StringNode("mysql:"), db),
       keys.toArray,
       values.toArray,
-      types.toArray,
-      CacheStrategy.NoCache
+      types.toArray
     )
     TruffleJdbc.query(location, args(1).e, t, new MySQLExceptionHandler())
   }

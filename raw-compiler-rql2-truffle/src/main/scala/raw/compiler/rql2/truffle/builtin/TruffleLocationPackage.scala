@@ -24,7 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.{
   LocationLsNodeGen
 }
 import raw.runtime.truffle.ast.expressions.literals.IntNode
-import raw.sources.CacheStrategy
 
 class TruffleLocationBuildEntry extends LocationBuildEntry with TruffleEntryExtension {
 
@@ -36,8 +35,7 @@ class TruffleLocationBuildEntry extends LocationBuildEntry with TruffleEntryExte
       args(0).e,
       keys.toArray,
       values.toArray,
-      types.toArray,
-      CacheStrategy.NoCache
+      types.toArray
     )
   }
 

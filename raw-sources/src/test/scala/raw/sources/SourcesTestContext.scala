@@ -15,13 +15,7 @@ package raw.sources
 import org.scalatest.BeforeAndAfterAll
 import raw.{RawTestSuite, SettingsTestContext}
 
-import java.time.Duration
-
 trait SourcesTestContext extends SettingsTestContext with BeforeAndAfterAll {
   this: RawTestSuite =>
-
-  def defaultCacheStrategy: CacheStrategy = ExpiryAfter(Duration.ofMillis(0))
-
-  def defaultRetryStrategy: RetryStrategy = NoRetry()
 
 }

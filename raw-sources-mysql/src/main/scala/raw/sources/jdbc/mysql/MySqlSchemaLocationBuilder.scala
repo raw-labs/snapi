@@ -25,7 +25,7 @@ class MySqlSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
     location.url match {
       case schemaRegex(dbName) =>
         val db = MySqlClients.get(dbName, location)
-        new MySqlSchema(db, dbName, location.cacheStrategy, location.retryStrategy)
+        new MySqlSchema(db, dbName)
       case _ => throw new LocationException("not a mysql schema location")
     }
   }

@@ -24,7 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.http_package.{
 }
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
-import raw.sources.CacheStrategy
 
 class TruffleHttpReadEntry extends HttpReadEntry with TruffleShortEntryExtension {
   override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = HttpReadNodeGen.create(args.head, args(1))
@@ -64,8 +63,7 @@ abstract class TruffleHttpCallEntry(method: String) extends HttpCallEntry(method
       url,
       keys.toArray,
       values.toArray,
-      types.toArray,
-      CacheStrategy.NoCache
+      types.toArray
     )
   }
 

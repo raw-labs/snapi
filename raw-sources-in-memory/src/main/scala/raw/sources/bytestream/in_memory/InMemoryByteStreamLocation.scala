@@ -52,10 +52,6 @@ class InMemoryByteStreamLocation(
 
   override def getLocalPath(): Path = throw new AssertionError("Calling path on in memory location")
 
-  override def cacheStrategy: CacheStrategy = locationDescription.cacheStrategy
-
-  override def retryStrategy: RetryStrategy = locationDescription.retryStrategy
-
   override def rawUri: String = InMemoryByteStreamLocation.schemaWithColon
 
   override def testAccess(): Unit = {}

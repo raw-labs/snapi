@@ -39,9 +39,9 @@ class MockFileSystemLocationBuilder extends FileSystemLocationBuilder with Stric
           val parser = ConfigFactory.parseString(propertiesString)
           val delay = parser.getDuration("delay").toMillis
           val delegate: FileSystemLocation = FileSystemLocationProvider.build(
-            LocationDescription(delegateUri, location.settings, location.cacheStrategy)
+            LocationDescription(delegateUri, location.settings)
           )
-          new MockPath(delay, delegate, location.cacheStrategy, location.retryStrategy)
+          new MockPath(delay, delegate)
         } catch {
           case ex: ConfigException => throw new LocationException(s"not a mock location: $url", ex)
         }

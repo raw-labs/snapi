@@ -25,7 +25,7 @@ class SqlServerLocationBuilder extends JdbcLocationBuilder {
     location.url match {
       case sqlServerTableRegex(dbName) =>
         val db = SqlServerClients.get(dbName, location)
-        new SqlServerLocation(db, dbName, location.cacheStrategy, location.retryStrategy)
+        new SqlServerLocation(db, dbName)
       case _ => throw new LocationException("not a sqlserver database location")
     }
   }

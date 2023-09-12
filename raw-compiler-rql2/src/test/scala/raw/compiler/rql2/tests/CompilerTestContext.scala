@@ -27,7 +27,6 @@ import raw.creds._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.SimpleInferrerTestContext
 import raw.runtime.{ParamValue, ProgramEnvironment}
-import raw.sources.bytestream.ByteStreamCacheTestContext
 import raw.utils._
 
 import java.io.{ByteArrayOutputStream, FileWriter}
@@ -46,10 +45,7 @@ trait CompilerTestContext
     with MockCredentialsTestContext
 
     // Simple inferrer
-    with SimpleInferrerTestContext
-
-    // Byte stream cache
-    with ByteStreamCacheTestContext {
+    with SimpleInferrerTestContext {
 
   def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
 

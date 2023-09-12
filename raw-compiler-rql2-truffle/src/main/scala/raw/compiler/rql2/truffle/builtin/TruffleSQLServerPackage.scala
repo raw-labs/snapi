@@ -21,7 +21,6 @@ import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.SqlServerExceptionHandler
-import raw.sources.CacheStrategy
 
 class TruffleSQLServerQueryEntry extends SQLServerQueryEntry with TruffleEntryExtension {
 
@@ -44,8 +43,7 @@ class TruffleSQLServerQueryEntry extends SQLServerQueryEntry with TruffleEntryEx
       new PlusNode(new StringNode("sqlserver:"), db),
       keys.toArray,
       values.toArray,
-      types.toArray,
-      CacheStrategy.NoCache
+      types.toArray
     )
     TruffleJdbc.query(location, args(1).e, t, new SqlServerExceptionHandler())
   }

@@ -245,10 +245,7 @@ class HttpByteStreamLocationBuilder extends ByteStreamLocationBuilder with Stric
           new HttpByteStreamLocation(
             cli,
             location.url,
-            location.cacheStrategy,
-            location.retryStrategy,
-            location,
-            sourceContext.byteStreamCache
+            location
           )
         } catch {
           case ex: MalformedURLException => throw new LocationException(s"invalid HTTP URL: ${ex.getMessage}", ex)

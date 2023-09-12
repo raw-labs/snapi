@@ -27,16 +27,12 @@ trait ByteStreamLocation extends Location {
   // This call uses the retry mechanism.
   @throws[RawException]
   final def getInputStream: InputStream = {
-    withRetryStrategy {
-      doGetInputStream()
-    }
+    doGetInputStream()
   }
 
   // This call uses the retry mechanism.
   final def getSeekableInputStream: SeekableInputStream = {
-    withRetryStrategy {
-      doGetSeekableInputStream()
-    }
+    doGetSeekableInputStream()
   }
 
   protected def doGetInputStream(): InputStream

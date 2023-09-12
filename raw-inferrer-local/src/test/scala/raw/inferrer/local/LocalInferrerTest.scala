@@ -16,20 +16,14 @@ import com.typesafe.scalalogging.StrictLogging
 import raw._
 import raw.inferrer._
 import raw.sources._
-import raw.sources.bytestream.ByteStreamCacheTestContext
 import raw.sources.filesystem.local.LocalPath
 import raw.utils._
 
 import java.io._
-import java.time.Duration
 import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}
 import scala.util.Random
 
-class LocalInferrerTest
-    extends RawTestSuite
-    with SettingsTestContext
-    with ByteStreamCacheTestContext
-    with StrictLogging {
+class LocalInferrerTest extends RawTestSuite with SettingsTestContext with StrictLogging {
 
   test("test encodings") { _ =>
     val encodings = Seq(UTF_8(), UTF_16BE(), UTF_16LE(), ISO_8859_1())
@@ -47,8 +41,8 @@ class LocalInferrerTest
         """.stripMargin
       out.write(s)
       out.close()
-      val l1 = new LocalPath(f.toPath, ExpiryAfter(Duration.ofMillis(0)), NoRetry())
-      implicit val sourceContext = new SourceContext(null, null, byteStreamCache, settings)
+      val l1 = new LocalPath(f.toPath)
+      implicit val sourceContext = new SourceContext(null, null, settings)
       val inferrer = new LocalInferrerService
       try {
         val TextInputStreamFormatDescriptor(detectedEncoding, _, LinesInputFormatDescriptor(_, _, _)) =
@@ -63,28 +57,16 @@ class LocalInferrerTest
 
   test("Can call inferrer in parallel") { _ =>
     val files = Array(
-      new LocalPath(
-        getResource("data/publications/authors.json"),
-        ExpiryAfter(Duration.ofMillis(0)),
-        NoRetry()
-      ),
-      new LocalPath(
-        getResource("data/publications/publications.json"),
-        ExpiryAfter(Duration.ofMillis(0)),
-        NoRetry()
-      ),
-      new LocalPath(
-        getResource("data/publications/publications.hjson"),
-        ExpiryAfter(Duration.ofMillis(0)),
-        NoRetry()
-      )
+      new LocalPath(getResource("data/publications/authors.json")),
+      new LocalPath(getResource("data/publications/publications.json")),
+      new LocalPath(getResource("data/publications/publications.hjson"))
     )
 
     val ex = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS, new SynchronousQueue[Runnable]())
 
     ex.setRejectedExecutionHandler(new ThreadPoolExecutor.CallerRunsPolicy)
 
-    implicit val sourceContext = new SourceContext(null, null, byteStreamCache, settings)
+    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     try {
       for (i <- 0 to 100) {
@@ -177,7 +159,7 @@ class LocalInferrerTest
       ),
       false
     )
-    implicit val sourceContext = new SourceContext(null, null, byteStreamCache, settings)
+    implicit val sourceContext = new SourceContext(null, null, settings)
     val inferrer = new LocalInferrerService
     try {
       val result = inferrer.prettyPrint(tipe)

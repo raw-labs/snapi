@@ -51,10 +51,7 @@ class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictL
         new S3Path(
           cli,
           nonNullKey,
-          location.cacheStrategy,
-          location.retryStrategy,
-          location,
-          sourceContext.byteStreamCache
+          location
         )
       case _ => throw new LocationException(s"not an S3 location")
     }
