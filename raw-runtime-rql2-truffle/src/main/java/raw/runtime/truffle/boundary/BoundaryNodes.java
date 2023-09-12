@@ -19,57 +19,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 
 public class BoundaryNodes {
-  @NodeInfo(shortName = "Boundary.CopyArray")
-  @GenerateUncached
-  public abstract static class CopyArrayNode extends Node {
-
-    public abstract void execute(Object source, int srcPos, Object dest, int destPos, int size);
-
-    @Specialization
-    void copyArray(boolean[] source, int srcPos, boolean[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(byte[] source, int srcPos, byte[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(short[] source, int srcPos, short[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(int[] source, int srcPos, int[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(long[] source, int srcPos, long[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(float[] source, int srcPos, float[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(double[] source, int srcPos, double[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(String[] source, int srcPos, String[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-
-    @Specialization
-    void copyArray(Object[] source, int srcPos, Object[] dest, int destPos, int size) {
-      System.arraycopy(source, srcPos, dest, destPos, size);
-    }
-  }
 
   @NodeInfo(shortName = "Boundary.ParseInt")
   @GenerateUncached
