@@ -25,15 +25,11 @@ abstract class JdbcLocation(val jdbcClient: JdbcClient, val vendor: String, val 
   def listSchemas(): Iterator[String] with Closeable
 
   final def getJdbcConnection(): Connection = {
-    withRetryStrategy {
-      jdbcClient.getConnection
-    }
+    jdbcClient.getConnection
   }
 
   final override def testAccess(): Unit = {
-    withRetryStrategy {
-      jdbcClient.testAccess()
-    }
+    jdbcClient.testAccess()
   }
 
 }

@@ -38,7 +38,7 @@ class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder with Str
               val url = s"https://github.com/$username/$repo/tree/$branch"
               try {
                 val httpLocation =
-                  httpBuilder.build(LocationDescription(url, location.settings, location.cacheStrategy))
+                  httpBuilder.build(LocationDescription(url, location.settings))
                 httpLocation.testAccess()
                 true
               } catch {
@@ -60,8 +60,8 @@ class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder with Str
             (maybeNullFileWithoutBranch, branch)
           }
         val url = s"https://raw.githubusercontent.com/$username/$repo/$branch/$file"
-        val httpLocation = httpBuilder.build(LocationDescription(url, location.settings, location.cacheStrategy))
-        new GithubByteStreamLocation(httpLocation, location.url, location.cacheStrategy, location.retryStrategy)
+        val httpLocation = httpBuilder.build(LocationDescription(url, location.settings))
+        new GithubByteStreamLocation(httpLocation, location.url)
       case _ => throw new LocationException("not an Github location")
     }
   }

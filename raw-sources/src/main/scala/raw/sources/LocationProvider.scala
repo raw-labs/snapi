@@ -43,17 +43,8 @@ final case class LocationIntArraySetting(value: Array[Int]) extends LocationSett
 
 final case class LocationDescription(
     url: String,
-    settings: Map[LocationSettingKey, LocationSettingValue] = Map.empty,
-    cacheStrategy: CacheStrategy = CacheStrategy.NoCache
+    settings: Map[LocationSettingKey, LocationSettingValue] = Map.empty
 ) {
-
-  def retryStrategy: RetryStrategy = {
-    val retries = getIntSetting("retries").getOrElse(0)
-    if (retries > 0) {
-      val retryInterval = getDurationSettings("retry-interval")
-      RetryWithInterval(retries, retryInterval)
-    } else NoRetry()
-  }
 
   def getIntSetting(key: String): Option[Int] = {
     settings.get(LocationSettingKey(key)) match {

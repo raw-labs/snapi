@@ -13,7 +13,6 @@
 package raw.sources.filesystem.mock
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.sources.{CacheStrategy, RetryStrategy}
 import raw.sources.bytestream.SeekableInputStream
 import raw.sources.filesystem._
 
@@ -23,9 +22,7 @@ import java.nio.file.Path
 
 class MockPath(
     delayMillis: Long,
-    delegate: FileSystemLocation,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    delegate: FileSystemLocation
 ) extends FileSystemLocation
     with StrictLogging {
 

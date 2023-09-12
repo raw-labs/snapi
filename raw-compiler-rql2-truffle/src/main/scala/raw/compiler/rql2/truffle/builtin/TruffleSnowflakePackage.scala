@@ -21,7 +21,6 @@ import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.SnowflakeExceptionHandler
-import raw.sources.CacheStrategy
 
 class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry with TruffleEntryExtension {
 
@@ -46,8 +45,7 @@ class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry with TruffleEntryEx
       new PlusNode(new StringNode("snowflake:"), db),
       keys.toArray,
       values.toArray,
-      types.toArray,
-      CacheStrategy.NoCache
+      types.toArray
     )
     TruffleJdbc.query(location, args(1).e, t, new SnowflakeExceptionHandler())
   }

@@ -12,15 +12,12 @@
 
 package raw.sources.jdbc.mysql
 
-import raw.sources.{CacheStrategy, RetryStrategy}
 import raw.sources.jdbc.JdbcTableLocation
 
 class MySqlTable(
     cli: MySqlClient,
     dbName: String,
-    table: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    table: String
 ) extends JdbcTableLocation(cli, "mysql", dbName, table, None) {
 
   override def rawUri: String = s"mysql:$dbName/$table"

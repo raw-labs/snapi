@@ -20,9 +20,7 @@ trait FileSystemLocation extends ByteStreamLocation {
 
   // This call uses the retry mechanism.
   final def ls(): Iterator[FileSystemLocation] = {
-    withRetryStrategy {
-      doLs()
-    }
+    doLs()
   }
 
   protected def doLs(): Iterator[FileSystemLocation]
@@ -32,9 +30,7 @@ trait FileSystemLocation extends ByteStreamLocation {
   //        part of the listFiles call.
   // This call uses the retry mechanism.
   final def lsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    withRetryStrategy {
-      doLsWithMetadata()
-    }
+    doLsWithMetadata()
   }
 
   protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)]

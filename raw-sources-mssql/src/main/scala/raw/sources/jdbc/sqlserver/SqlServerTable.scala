@@ -12,16 +12,13 @@
 
 package raw.sources.jdbc.sqlserver
 
-import raw.sources.{CacheStrategy, RetryStrategy}
 import raw.sources.jdbc.JdbcTableLocation
 
 class SqlServerTable(
     cli: SqlServerClient,
     dbName: String,
     schema: String,
-    table: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    table: String
 ) extends JdbcTableLocation(cli, "sqlserver", dbName, table, Some(schema)) {
 
   override def rawUri: String = s"sqlserver:$dbName/$schema/$table"

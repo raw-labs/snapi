@@ -14,16 +14,15 @@ package raw.sources.filesystem.local
 
 import java.io.InputStream
 import java.nio.file.{Path, Paths}
-import raw.sources.{CacheStrategy, RetryStrategy}
 import raw.sources.bytestream.SeekableInputStream
 import raw.sources.filesystem._
 
 // TODO (msb): Remove dependency on LocalFileSystem in the few places where it's still needed.
-class LocalPath(pathName: String, override val cacheStrategy: CacheStrategy, override val retryStrategy: RetryStrategy)
+class LocalPath(pathName: String)
     extends FileSystemLocation {
 
-  def this(path: Path, cacheStrategy: CacheStrategy, retryStrategy: RetryStrategy) =
-    this(path.toAbsolutePath.toString, cacheStrategy, retryStrategy)
+  def this(path: Path) =
+    this(path.toAbsolutePath.toString)
 
   override def rawUri: String = s"file:$pathName"
 
@@ -50,12 +49,12 @@ class LocalPath(pathName: String, override val cacheStrategy: CacheStrategy, ove
   }
 
   override protected def doLs(): Iterator[FileSystemLocation] = {
-    LocalFileSystem.listContents(pathName).map(npath => new LocalPath(npath, cacheStrategy, retryStrategy))
+    LocalFileSystem.listContents(pathName).map(npath => new LocalPath(npath))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
     LocalFileSystem.listContentsWithMetadata(pathName).map {
-      case (npath, meta) => (new LocalPath(npath, cacheStrategy, retryStrategy), meta)
+      case (npath, meta) => (new LocalPath(npath), meta)
     }
   }
 

@@ -12,8 +12,8 @@
 
 package raw.sources.bytestream.http
 
-import raw.sources.bytestream.{ByteStreamCache, ByteStreamException, ByteStreamLocation, SeekableInputStream}
-import raw.sources.{CacheStrategy, LocationDescription, RetryStrategy}
+import raw.sources.bytestream.{ByteStreamException, ByteStreamLocation, SeekableInputStream}
+import raw.sources.LocationDescription
 
 import java.io.InputStream
 import java.net.URI
@@ -24,10 +24,7 @@ final case class HttpResult(status: Int, is: InputStream, headers: Seq[(String, 
 class HttpByteStreamLocation(
     cli: RuntimeHttpClient,
     url: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy,
-    locationDescription: LocationDescription,
-    cacheManager: ByteStreamCache
+    locationDescription: LocationDescription
 ) extends ByteStreamLocation {
 
   override val rawUri: String = {
@@ -50,9 +47,7 @@ class HttpByteStreamLocation(
   }
 
   override protected def doGetInputStream(): InputStream = {
-    cacheManager.getInputStream(rawUri, locationDescription) {
-      cli.getInputStream(rawUri)
-    }
+    cli.getInputStream(rawUri)
   }
 
   override protected def doGetSeekableInputStream(): SeekableInputStream = {

@@ -98,7 +98,7 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
       case (_, None) =>
     }
 
-    LocationDescription(url, locationSettings.toMap, CacheStrategy.NoCache)
+    LocationDescription(url, locationSettings.toMap)
   }
 
   private def vendorToUrl(vendor: SqlVendor): String = {

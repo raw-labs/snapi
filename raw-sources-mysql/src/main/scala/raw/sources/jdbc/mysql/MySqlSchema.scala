@@ -12,16 +12,12 @@
 
 package raw.sources.jdbc.mysql
 
-import raw.sources.{CacheStrategy, RetryStrategy}
-
 import java.io.Closeable
 import raw.sources.jdbc.JdbcSchemaLocation
 
 class MySqlSchema(
     cli: MySqlClient,
-    dbName: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    dbName: String
 ) extends JdbcSchemaLocation(cli, None) {
 
   override def rawUri: String = s"mysql:$dbName/"
