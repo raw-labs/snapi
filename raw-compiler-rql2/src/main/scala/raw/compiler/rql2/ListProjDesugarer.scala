@@ -33,12 +33,12 @@ class ListProjDesugarer(protected val parent: Phase[SourceProgram], protected va
     lazy val analyzer = tree.analyzer
 
     // Using congruence here because of https://raw-labs.atlassian.net/browse/RD-5722
-    lazy val s: Strategy = attempt(sometd(rulefs[Exp] {
+    lazy val s: Strategy = attempt(sometd(rulefs[Any] {
       case Proj(collection, i)
           if analyzer
             .tipe(collection)
             .isInstanceOf[Rql2IterableType] || analyzer.tipe(collection).isInstanceOf[Rql2ListType] =>
-        congruence(s, id) <* rule[Exp] {
+        congruence(s, id) <* rule[Any] {
           case Proj(nCollection, _) =>
             val arg = IdnDef()
             val projectFun = FunAbs(

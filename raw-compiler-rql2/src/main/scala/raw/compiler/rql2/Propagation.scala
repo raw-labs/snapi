@@ -78,8 +78,8 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
       }
     }
 
-    lazy val s: Strategy = attempt(sometd(rulefs[Exp] {
-      case binExp @ BinaryExp(op, e1, e2) => congruence(id, s, s) <* rule[Exp] {
+    lazy val s: Strategy = attempt(sometd(rulefs[Any] {
+      case binExp @ BinaryExp(op, e1, e2) => congruence(id, s, s) <* rule[Any] {
           case BinaryExp(_, ne1, ne2) =>
             val expType = analyzer.tipe(binExp)
             op match {
@@ -115,15 +115,15 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
                 )
             }
         }
-      case unaryExp @ UnaryExp(op, e) => congruence(id, s) <* rule[Exp] {
+      case unaryExp @ UnaryExp(op, e) => congruence(id, s) <* rule[Any] {
           case UnaryExp(_, ne) => trivialFix(unaryExp, Vector((e, ne)), idns => UnaryExp(op, idns(0)), Set.empty)
         }
       case proj @ Proj(record, fieldName) if analyzer.tipe(record).isInstanceOf[Rql2RecordType] =>
-        congruence(s, id) <* rule[Exp] {
+        congruence(s, id) <* rule[Any] {
           case Proj(nRecord, _) =>
             trivialFix(proj, Vector((record, nRecord)), idns => Proj(idns(0), fieldName), Set.empty)
         }
-      case ifThenElse @ IfThenElse(e1, e2, e3) => congruence(s, s, s) <* rule[Exp] {
+      case ifThenElse @ IfThenElse(e1, e2, e3) => congruence(s, s, s) <* rule[Any] {
           case IfThenElse(ne1, ne2, ne3) =>
             val expType = analyzer.tipe(ifThenElse)
             val e2e3Props = getProps(analyzer.tipe(e2)) ++ getProps(analyzer.tipe(e3))
@@ -133,7 +133,7 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
             val extraProps = getProps(analyzer.tipe(e1)) &~ e2e3Props
             customFix(plainType, Vector((e1, ne1)), idns => IfThenElse(idns(0), ne2, ne3), extraProps)
         }
-      case fa @ FunApp(f, args) => congruence(s, s) <* rule[Exp] {
+      case fa @ FunApp(f, args) => congruence(s, s) <* rule[Any] {
           case nfa @ FunApp(nf, nArgs) => analyzer.tipe(f) match {
               case fType: FunType =>
                 // FunType means we're processing a user or library function. Its parameters are fully flagged
