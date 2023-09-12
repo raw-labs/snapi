@@ -37,8 +37,7 @@ class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder with Str
             def testBranch(branch: String) = {
               val url = s"https://github.com/$username/$repo/tree/$branch"
               try {
-                val httpLocation =
-                  httpBuilder.build(LocationDescription(url, location.settings))
+                val httpLocation = httpBuilder.build(LocationDescription(url, location.settings))
                 httpLocation.testAccess()
                 true
               } catch {

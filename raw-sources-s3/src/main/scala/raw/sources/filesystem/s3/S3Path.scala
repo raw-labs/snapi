@@ -59,13 +59,11 @@ class S3Path(
   override protected def doLs(): Iterator[FileSystemLocation] = {
     cli
       .listContents(path)
-      .map(npath => new S3Path(cli, npath,  locationDescription))
+      .map(npath => new S3Path(cli, npath, locationDescription))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    cli.listContentsWithMetadata(path).map {
-      case (npath, meta) => (new S3Path(cli, npath, locationDescription), meta)
-    }
+    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new S3Path(cli, npath, locationDescription), meta) }
   }
 
 }

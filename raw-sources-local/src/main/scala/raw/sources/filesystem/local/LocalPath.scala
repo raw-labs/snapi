@@ -18,11 +18,9 @@ import raw.sources.bytestream.SeekableInputStream
 import raw.sources.filesystem._
 
 // TODO (msb): Remove dependency on LocalFileSystem in the few places where it's still needed.
-class LocalPath(pathName: String)
-    extends FileSystemLocation {
+class LocalPath(pathName: String) extends FileSystemLocation {
 
-  def this(path: Path) =
-    this(path.toAbsolutePath.toString)
+  def this(path: Path) = this(path.toAbsolutePath.toString)
 
   override def rawUri: String = s"file:$pathName"
 
@@ -53,9 +51,7 @@ class LocalPath(pathName: String)
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    LocalFileSystem.listContentsWithMetadata(pathName).map {
-      case (npath, meta) => (new LocalPath(npath), meta)
-    }
+    LocalFileSystem.listContentsWithMetadata(pathName).map { case (npath, meta) => (new LocalPath(npath), meta) }
   }
 
 }
