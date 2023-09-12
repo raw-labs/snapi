@@ -36,8 +36,6 @@ object Dependencies {
     "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.1"
   )
 
-  val ehCache = "org.ehcache" % "ehcache" % "3.10.8"
-
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
   val commonsText = "org.apache.commons" % "commons-text" % "1.10.0"
