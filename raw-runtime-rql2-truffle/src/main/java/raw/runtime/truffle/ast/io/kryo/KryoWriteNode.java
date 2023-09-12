@@ -21,7 +21,7 @@ import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 
 public class KryoWriteNode extends ExpressionNode {
-  private final ExpressionNode valueNode;
+  @Child private ExpressionNode valueNode;
   private final KryoWriterLibrary writers = KryoWriterLibrary.getUncached();
   private final Rql2TypeWithProperties t;
 

@@ -22,7 +22,8 @@ public final class MethodRefNode extends ExpressionNode {
 
   @CompilationFinal private final Function function;
   private Closure closure = null;
-  private final ExpressionNode[] defaultArgumentExps;
+
+  @Children private ExpressionNode[] defaultArgumentExps;
 
   public MethodRefNode(Function f, ExpressionNode[] defaultArgumentExps) {
     this.function = f;

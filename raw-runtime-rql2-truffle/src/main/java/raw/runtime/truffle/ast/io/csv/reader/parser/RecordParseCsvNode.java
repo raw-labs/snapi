@@ -14,6 +14,7 @@ package raw.runtime.truffle.ast.io.csv.reader.parser;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
@@ -37,6 +38,7 @@ public class RecordParseCsvNode extends ExpressionNode {
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];

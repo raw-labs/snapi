@@ -22,7 +22,7 @@ import raw.runtime.truffle.runtime.kryo.KryoReader;
 import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
 
 public class KryoFromNode extends ExpressionNode {
-  private final ExpressionNode valueNode;
+  @Child private ExpressionNode valueNode;
   private final Rql2TypeWithProperties t;
   private final KryoReaderLibrary readers = KryoReaderLibrary.getUncached();
 
