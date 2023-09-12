@@ -47,10 +47,7 @@ public class LocationBuildNode extends ExpressionNode {
   private final Rql2TypeWithProperties[] types;
 
   public LocationBuildNode(
-      ExpressionNode url,
-      String[] keys,
-      ExpressionNode[] values,
-      Rql2TypeWithProperties[] types) {
+      ExpressionNode url, String[] keys, ExpressionNode[] values, Rql2TypeWithProperties[] types) {
     assert values.length == keys.length;
     assert values.length == types.length;
     this.url = url;

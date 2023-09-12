@@ -24,8 +24,7 @@ public class LocationObject {
 
   @CompilerDirectives.TruffleBoundary
   public LocationObject(String url) {
-    this.locationDescription =
-        new LocationDescription(url, new HashMap<>());
+    this.locationDescription = new LocationDescription(url, new HashMap<>());
   }
 
   @CompilerDirectives.TruffleBoundary
