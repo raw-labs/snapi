@@ -82,7 +82,12 @@ object Rql2TruffleCompiler {
   private val CODE_CACHE_EXPIRY_AFTER_ACCESS = "raw.compiler.truffle.code-cache.expire-after-access"
 }
 
-private case class CodeCacheKey(source: String, maybeDecl: Option[String], environment: ProgramEnvironment)
+private case class CodeCacheKey(
+    source: String,
+    maybeDecl: Option[String],
+    environment: ProgramEnvironment,
+    arguments: Array[String]
+)
 
 private class ErrorException(val errors: List[ErrorMessage]) extends Exception
 
@@ -121,12 +126,14 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override def execute(source: String, maybeDecl: Option[String])(
       implicit programContext: base.ProgramContext
   ): Either[List[ErrorMessage], ProgramOutputWriter] = {
+    // The set of arguments used in the program.
+    val arguments = programContext.runtimeContext.maybeArguments.getOrElse(Array.empty).map(_._1)
     try {
       // Try to obtain previously generated code from the code cache.
       // In case the key is missing and the code is invalid, it throws an exception.
       // This is captured and turned into the required Left response.
       val entrypoint = codeCache.get(
-        CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment),
+        CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment, arguments),
         new Callable[TruffleEntrypoint] {
           override def call(): TruffleEntrypoint = {
             parseAndValidate(source, maybeDecl) match {
