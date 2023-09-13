@@ -73,7 +73,9 @@ import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
+import java.util.concurrent.Callable
 import scala.collection.mutable
+import scala.concurrent.ExecutionException
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
@@ -81,6 +83,8 @@ object Rql2TruffleCompiler {
 }
 
 private case class CodeCacheKey(source: String, maybeDecl: Option[String], environment: ProgramEnvironment)
+
+private class ErrorException(val errors: List[ErrorMessage]) extends Exception
 
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
@@ -96,8 +100,17 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     .removalListener { removalNotification: RemovalNotification[CodeCacheKey, TruffleEntrypoint] =>
       {
         logger.debug(s"Removing entrypoint from code cache: ${removalNotification.getKey}")
-        // Close the Truffle Context since the entrypoint is no longer available.
-        removalNotification.getValue.context.close()
+        // Close the Truffle context since the entrypoint is no longer available.
+        // Note that we set "cancel if executing" to false so that the context is not closed if the entrypoint is
+        // currently executing. This means we may leak out some contexts, but this seems harmless enough at this point
+        // in time.
+        try {
+          removalNotification.getValue.context.close(false)
+        } catch {
+          case _: IllegalStateException =>
+            // Context was actually executing therefore it was not closed.
+            logger.warn(s"Cannot close context for entrypoint ${removalNotification.getKey} because it is executing.")
+        }
       }
     }
     .build()
@@ -108,25 +121,34 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override def execute(source: String, maybeDecl: Option[String])(
       implicit programContext: base.ProgramContext
   ): Either[List[ErrorMessage], ProgramOutputWriter] = {
-    // Check if present on code cache.
-    val entrypoint = codeCache.getIfPresent(CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment))
-    if (entrypoint != null) {
-      // Present in code cache, so reuse emitted entrypoint.
+    try {
+      // Try to obtain previously generated code from the code cache.
+      // In case the key is missing and the code is invalid, it throws an exception.
+      // This is captured and turned into the required Left response.
+      val entrypoint = codeCache.get(
+        CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment),
+        new Callable[TruffleEntrypoint] {
+          override def call(): TruffleEntrypoint = {
+            parseAndValidate(source, maybeDecl) match {
+              case Right(program) => compile(program) match {
+                  case Right(entrypoint) => entrypoint.asInstanceOf[TruffleEntrypoint]
+                  case Left(errs) => throw new ErrorException(errs)
+                }
+              case Left(errs) => throw new ErrorException(errs)
+            }
+          }
+        }
+      )
+      // We need to explicitly enter the context.
+      // Note that perhaps we have already entered the context: if the code was not in cache and was just computed, then
+      // we already entered the context just before as part of code emission. But if the code was in the cache, we
+      // need to enter the context to recompute it. So we enter it always, as the docs say it's safe to enter the
+      // context multiple times.
       entrypoint.context.enter()
       Right(execute(entrypoint))
-    } else {
-      // Not present, so parse and compile.
-      for (
-        program <- parseAndValidate(source, maybeDecl);
-        entrypoint <- compile(program)
-      ) yield {
-        // Store in code cache and execute.
-        codeCache.put(
-          CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment),
-          entrypoint.asInstanceOf[TruffleEntrypoint]
-        )
-        execute(entrypoint)
-      }
+    } catch {
+      case ex: ExecutionException if ex.getCause.isInstanceOf[ErrorException] =>
+        Left(ex.getCause.asInstanceOf[ErrorException].errors)
     }
   }
 
