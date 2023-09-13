@@ -99,6 +99,18 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
   private val codeCacheExpiryAfterAccess = compilerContext.settings.getDuration(CODE_CACHE_EXPIRY_AFTER_ACCESS)
 
+  // (msb) The code cache is a cache of Truffle entrypoints, which then allows us to re-use the emitter code.
+  // However, there are multiple caveats to this particular implementation.
+  // The first is closing the context. The context is created during code emission, and it is closed when we are "done"
+  // with the query. That said, we don't know when we are done with the query - it can take a while to execute.
+  // The cache tries to handle that by expiring entries after access: if we only remove queries that have not been
+  // used recently, then this means we should not be removing queries that are still executing. It's a compromise
+  // solution Also, that's why we don't have a max size for the cache - this could more easily trigger the removal of an
+  // entrypoint from the cache while it is still executing.
+  // We are also using CacheBuilder.get(..., orElse) pattern, which isn't as safe as the builder pattern. That said,
+  // we cannot use the builder pattern because the ProgramContext would not be available in the constructor.
+  // So all in all, this cache is not ideal but it should work in most common scenarios. This can be re-visited in the
+  // future, when we move to using the Context correctly.
   private val codeCache: Cache[CodeCacheKey, TruffleEntrypoint] = CacheBuilder
     .newBuilder()
     .expireAfterAccess(codeCacheExpiryAfterAccess)
