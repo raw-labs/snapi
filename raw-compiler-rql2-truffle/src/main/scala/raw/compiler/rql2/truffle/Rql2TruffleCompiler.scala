@@ -77,7 +77,7 @@ import scala.collection.mutable
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
-  private val CODE_CACHE_SIZE = "raw.compiler.code-cache.size"
+  private val CODE_CACHE_EXPIRY_AFTER_ACCESS = "raw.compiler.truffle.code-cache.expire-after-access"
 }
 
 private case class CodeCacheKey(source: String, maybeDecl: Option[String], environment: ProgramEnvironment)
@@ -88,14 +88,15 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
   import Rql2TruffleCompiler._
 
-  private val codeCacheSize = compilerContext.settings.getInt(CODE_CACHE_SIZE)
+  private val codeCacheExpiryAfterAccess = compilerContext.settings.getDuration(CODE_CACHE_EXPIRY_AFTER_ACCESS)
 
   private val codeCache: Cache[CodeCacheKey, TruffleEntrypoint] = CacheBuilder
     .newBuilder()
-    .maximumSize(codeCacheSize)
+    .expireAfterAccess(codeCacheExpiryAfterAccess)
     .removalListener { removalNotification: RemovalNotification[CodeCacheKey, TruffleEntrypoint] =>
       {
         logger.debug(s"Removing entrypoint from code cache: ${removalNotification.getKey}")
+        // Close the Truffle Context since the entrypoint is no longer available.
         removalNotification.getValue.context.close()
       }
     }
@@ -107,32 +108,25 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override def execute(source: String, maybeDecl: Option[String])(
       implicit programContext: base.ProgramContext
   ): Either[List[ErrorMessage], ProgramOutputWriter] = {
-    if (codeCacheSize > 0) {
-      // Check if present on code cache.
-      val entrypoint =
-        codeCache.getIfPresent(CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment))
-      if (entrypoint != null) {
-        // Present in code cache, so reuse emitted entrypoint.
-        entrypoint.context.initialize(RawLanguage.ID)
-        entrypoint.context.enter()
-        Right(execute(entrypoint))
-      } else {
-        // Not present, so parse and compile.
-        for (
-          program <- parseAndValidate(source, maybeDecl);
-          entrypoint <- compile(program)
-        ) yield {
-          // Store in code cache and execute.
-          codeCache.put(
-            CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment),
-            entrypoint.asInstanceOf[TruffleEntrypoint]
-          )
-          execute(entrypoint)
-        }
-      }
+    // Check if present on code cache.
+    val entrypoint = codeCache.getIfPresent(CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment))
+    if (entrypoint != null) {
+      // Present in code cache, so reuse emitted entrypoint.
+      entrypoint.context.enter()
+      Right(execute(entrypoint))
     } else {
-      // Code cache disabled
-      super.execute(source, maybeDecl)
+      // Not present, so parse and compile.
+      for (
+        program <- parseAndValidate(source, maybeDecl);
+        entrypoint <- compile(program)
+      ) yield {
+        // Store in code cache and execute.
+        codeCache.put(
+          CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment),
+          entrypoint.asInstanceOf[TruffleEntrypoint]
+        )
+        execute(entrypoint)
+      }
     }
   }
 
@@ -147,9 +141,10 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       convertAnyToValue(res, tree.rootType.get)
     } finally {
       // We explicitly created and then entered the context during code emission.
-      // Now we explicitly leave and close the context.
+      // Now we explicitly leave the context.
       context.leave()
-      context.close()
+      // The context is NOT closed because the entrypoint is in the code cache;
+      // it will be removed when the entrypoint is removed from the cache.
     }
   }
 
