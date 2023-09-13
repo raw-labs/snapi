@@ -29,8 +29,8 @@ trait Cloner {
     def deepclone[T <: Product](t : T) : T = {
 
         val deepcloner =
-            everywherebu(rule[T] {
-                case n if isLeaf(n) =>
+            everywherebu(rule[Any] {
+                case n: Product if isLeaf(n) =>
                     copy(n)
             })
 
@@ -55,8 +55,8 @@ trait Cloner {
         val seen = makeIdMemoiser[Product, Boolean]()
 
         val lazycloner =
-            bu(rule[T] {
-                case n if isLeaf(n) =>
+            bu(rule[Any] {
+                case n: Product if isLeaf(n) =>
                     if (seen.getOrDefault(n, false))
                         copy(n)
                     else {
