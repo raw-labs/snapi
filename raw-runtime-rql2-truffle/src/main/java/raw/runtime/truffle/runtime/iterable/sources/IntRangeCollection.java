@@ -16,27 +16,19 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.IntRangeComputeNext;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.LongRangeComputeNext;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.TimestampRangeComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
 @ExportLibrary(IterableLibrary.class)
-public class RangeCollection {
+public class IntRangeCollection {
 
-  final Object computeNext;
+  private final int start;
+  private final int end;
+  private final int step;
 
-  public RangeCollection(int start, int end, int step) {
-    computeNext = new IntRangeComputeNext(start, end, step);
-  }
-
-  public RangeCollection(long start, long end, long step) {
-    computeNext = new LongRangeComputeNext(start, end, step);
-  }
-
-  public RangeCollection(TimestampObject start, TimestampObject end, IntervalObject step) {
-    computeNext = new TimestampRangeComputeNext(start, end, step);
+  public IntRangeCollection(int start, int end, int step) {
+    this.start = start;
+    this.end = end;
+    this.step = step;
   }
 
   @ExportMessage
@@ -46,6 +38,7 @@ public class RangeCollection {
 
   @ExportMessage
   Object getGenerator() {
+    IntRangeComputeNext computeNext = new IntRangeComputeNext(start, end, step);
     return new CollectionAbstractGenerator(computeNext);
   }
 }
