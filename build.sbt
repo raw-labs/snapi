@@ -62,6 +62,8 @@ val truffleExports = Seq(
 )
 
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
+// We keep Kiama's source code in the repo, and do not override their copyright notice.
+val kiamaSrc: sbt.FileFilter = (pathname: File) => pathname.getPath.contains("inkytonik")
 
 lazy val buildSettings = Seq(
   homepage := Some(url("https://www.raw-labs.com/")),
@@ -75,6 +77,7 @@ lazy val buildSettings = Seq(
   ),
   startYear := Some(2023),
   headerLicense := Some(HeaderLicense.Custom(licenseHeader)),
+  headerSources / excludeFilter := HiddenFileFilter || kiamaSrc,
   scalaVersion := Dependencies.scalacVersion,
   // avoid including scala version in artifact name
   javacOptions ++= Seq(
