@@ -127,6 +127,7 @@ public class JoinComputeNext {
   }
 
   @ExportMessage
+  @CompilerDirectives.TruffleBoundary
   Object computeNext(@CachedLibrary(limit = "3") GeneratorLibrary generators) {
     Object row = null;
 
@@ -170,6 +171,8 @@ public class JoinComputeNext {
       throw new RawTruffleRuntimeException(e.getMessage());
     }
   }
+
+
 
   private Object check(Object leftRow, Object rightRow) {
     Boolean pass;

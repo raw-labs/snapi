@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -38,11 +39,11 @@ public final class ExpressionCollection {
 
   final ExpressionNode[] exps;
 
-  final VirtualFrame frame;
+  final MaterializedFrame frame;
 
   public ExpressionCollection(ExpressionNode[] exps, VirtualFrame frame) {
     this.exps = exps;
-    this.frame = frame;
+    this.frame = frame.materialize();
   }
 
   @ExportMessage

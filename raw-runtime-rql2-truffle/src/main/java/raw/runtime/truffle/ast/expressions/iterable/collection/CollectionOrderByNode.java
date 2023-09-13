@@ -27,8 +27,8 @@ import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
 @NodeInfo(shortName = "Collection.OrderBy")
 public class CollectionOrderByNode extends ExpressionNode {
   @Child private ExpressionNode input;
-  @Children private ExpressionNode[] keyFuns;
-  @Children private ExpressionNode[] orderings;
+  @Children private final ExpressionNode[] keyFuns;
+  @Children private final ExpressionNode[] orderings;
   private final Rql2TypeWithProperties[] keyTypes;
   private final Rql2TypeWithProperties valueType;
 

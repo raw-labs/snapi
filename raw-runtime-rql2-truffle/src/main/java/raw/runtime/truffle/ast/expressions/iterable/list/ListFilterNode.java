@@ -12,11 +12,11 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
@@ -47,6 +47,7 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isByteKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected ByteList doByte(
       Object list,
       Closure function,
@@ -76,8 +77,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isShortKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected ShortList doShort(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,
@@ -106,8 +107,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isIntKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected IntList doInt(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,
@@ -131,8 +132,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isLongKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected LongList doLong(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,
@@ -156,8 +157,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isFloatKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected FloatList doFloat(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,
@@ -186,8 +187,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isDoubleKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected DoubleList doDouble(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,
@@ -211,8 +212,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isBooleanKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected BooleanList doBoolean(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,
@@ -241,8 +242,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization(
       guards = {"isStringKind(getResultType())"},
       limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected StringList doString(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,
@@ -269,8 +270,8 @@ public abstract class ListFilterNode extends ExpressionNode {
   }
 
   @Specialization(limit = "3")
+  @CompilerDirectives.TruffleBoundary
   protected ObjectList doObject(
-      VirtualFrame frame,
       Object list,
       Closure function,
       @CachedLibrary("list") ListLibrary lists,

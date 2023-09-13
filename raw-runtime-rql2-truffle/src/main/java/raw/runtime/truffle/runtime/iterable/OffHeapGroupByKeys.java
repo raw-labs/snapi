@@ -17,6 +17,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.io.*;
@@ -184,6 +185,7 @@ public class OffHeapGroupByKeys {
     }
 
     @ExportMessage
+    @CompilerDirectives.TruffleBoundary
     public Object next() {
       Object n;
       if (values == null) {

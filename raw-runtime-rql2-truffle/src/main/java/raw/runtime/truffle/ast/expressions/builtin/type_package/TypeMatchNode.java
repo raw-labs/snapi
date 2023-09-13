@@ -21,7 +21,7 @@ import raw.runtime.truffle.runtime.or.OrObject;
 public class TypeMatchNode extends ExpressionNode {
   @Node.Child private ExpressionNode typeExp;
 
-  @Node.Children private ExpressionNode[] closureExps;
+  @Node.Children private final ExpressionNode[] closureExps;
 
   public TypeMatchNode(ExpressionNode child, ExpressionNode[] children) {
     this.typeExp = child;

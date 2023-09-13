@@ -43,7 +43,7 @@ public class LocationBuildNode extends ExpressionNode {
   private final String[] keys;
   @Child private ExpressionNode url;
 
-  @Children private ExpressionNode[] values;
+  @Children private final ExpressionNode[] values;
 
   private final Rql2TypeWithProperties[] types;
 

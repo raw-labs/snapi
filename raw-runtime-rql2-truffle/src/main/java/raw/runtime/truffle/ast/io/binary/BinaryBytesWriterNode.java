@@ -24,9 +24,16 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 public class BinaryBytesWriterNode extends StatementNode {
 
   @CompilerDirectives.TruffleBoundary
-  private void doWrite(OutputStream os, byte[] binaryData) {
+  private void doWrite(Object[] args) {
+    byte[] binaryData;
+    if (args[0] instanceof byte[]) {
+      binaryData = (byte[]) args[0];
+    } else {
+      binaryData = ((String) args[0]).getBytes();
+    }
+    OutputStream output = (OutputStream) args[1];
     try {
-      os.write(binaryData);
+      output.write(binaryData);
     } catch (IOException e) {
       throw new RawTruffleRuntimeException(e.getMessage());
     }
@@ -35,13 +42,6 @@ public class BinaryBytesWriterNode extends StatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    byte[] binaryData;
-    if (args[0] instanceof byte[]) {
-      binaryData = (byte[]) args[0];
-    } else {
-      binaryData = ((String) args[0]).getBytes();
-    }
-    OutputStream output = (OutputStream) args[1];
-    doWrite(output, binaryData);
+    doWrite(args);
   }
 }
