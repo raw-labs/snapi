@@ -1829,11 +1829,14 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       if (i.nonEmpty) {
         actualType(e) match {
           case PackageType(name) =>
+            for (p <- PackageExtensionProvider.packages; if p.p.name == name; e <- p.p.entries; if e == i) {
+              return ExpectedType(ExpectedProjType(i))
+            }
             val actualName = s"$name.$i"
-            val names = PackageExtensionProvider.packages.flatMap {
-              case p => p.p.entries.collect {
-                  case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
-                }
+            val names = PackageExtensionProvider.packages.flatMap { p =>
+              p.p.entries.collect {
+                case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
+              }
             }
             if (names.isEmpty) {
               // No found based on levenshtein distance. Try to see if there is any entry name in another package that
@@ -1850,24 +1853,35 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               else ExpectedType(ExpectedProjType(i))
             } else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
           case Rql2RecordType(atts, _) =>
-            val names = atts.collect {
-              case att if levenshteinDistance(att.idn, i) < 3 => att.idn
+            if (atts.exists(_.idn == i)) {
+              ExpectedProjType(i)
+            } else {
+              val names = atts.collect {
+                case att if levenshteinDistance(att.idn, i) < 3 => att.idn
+              }
+              if (names.isEmpty) ExpectedProjType(i)
+              else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
             }
-            if (names.isEmpty) ExpectedProjType(i)
-            else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
           case Rql2ListType(Rql2RecordType(atts, _), _) =>
-            val names = atts.collect {
-              case att if levenshteinDistance(att.idn, i) < 3 => att.idn
+            if (atts.exists(_.idn == i)) {
+              ExpectedProjType(i)
+            } else {
+              val names = atts.collect {
+                case att if levenshteinDistance(att.idn, i) < 3 => att.idn
+              }
+              if (names.isEmpty) ExpectedProjType(i)
+              else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
             }
-            if (names.isEmpty) ExpectedProjType(i)
-            else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
-
           case Rql2IterableType(Rql2RecordType(atts, _), _) =>
-            val names = atts.collect {
-              case att if levenshteinDistance(att.idn, i) < 3 => att.idn
+            if (atts.exists(_.idn == i)) {
+              ExpectedProjType(i)
+            } else {
+              val names = atts.collect {
+                case att if levenshteinDistance(att.idn, i) < 3 => att.idn
+              }
+              if (names.isEmpty) ExpectedProjType(i)
+              else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
             }
-            if (names.isEmpty) ExpectedProjType(i)
-            else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
           case _ => ExpectedProjType(i)
         }
       } else {
