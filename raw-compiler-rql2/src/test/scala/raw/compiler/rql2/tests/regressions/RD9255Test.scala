@@ -72,9 +72,7 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
     callDecl(declarations, f, Vector(("x", x)))
   }
 
-  private def evalTo(q: String) = be(tryExecuteQuery(q).right.value._1) compose { e: Either[String, Any] =>
-    e.right.value
-  }
+  private def evalTo(q: String) = be(tryExecuteQuery(q).value._1) compose { e: Either[String, Any] => e.value }
 
   test("null param")(_ => exec("string_func", null) should evalTo("String.Length(null)"))
   test("byte param")(_ => exec("byte_func", 10.toByte) should evalTo("Byte.From(11)"))
