@@ -89,7 +89,7 @@ private case class CodeCacheKey(
     arguments: Array[String]
 )
 
-private class ErrorException(val errors: List[ErrorMessage]) extends Exception
+private case class ErrorException(val errors: List[ErrorMessage]) extends Exception
 
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
@@ -101,11 +101,11 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
   // (msb) The code cache is a cache of Truffle entrypoints, which then allows us to re-use the emitter code.
   // However, there are multiple caveats to this particular implementation.
-  // The first is closing the context. The context is created during code emission, and it is closed when we are "done"
+  // The first is handling the context. The context is created during code emission, and it is closed when we are "done"
   // with the query. That said, we don't know when we are done with the query - it can take a while to execute.
   // The cache tries to handle that by expiring entries after access: if we only remove queries that have not been
   // used recently, then this means we should not be removing queries that are still executing. It's a compromise
-  // solution Also, that's why we don't have a max size for the cache - this could more easily trigger the removal of an
+  // solution. Also, that's why we don't have a max size for the cache - this could more easily trigger the removal of an
   // entrypoint from the cache while it is still executing.
   // We are also using CacheBuilder.get(..., orElse) pattern, which isn't as safe as the builder pattern. That said,
   // we cannot use the builder pattern because the ProgramContext would not be available in the constructor.
@@ -151,7 +151,10 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             parseAndValidate(source, maybeDecl) match {
               case Right(program) => compile(program) match {
                   case Right(entrypoint) => entrypoint.asInstanceOf[TruffleEntrypoint]
-                  case Left(errs) => throw new ErrorException(errs)
+                  case Left(errs) =>
+                    // Because we are in the middle of a Callable, we implement the 'return' Left case with an exception.
+                    // This is captured below as we handle the ExecutionException that wraps it.
+                    throw ErrorException(errs)
                 }
               case Left(errs) => throw new ErrorException(errs)
             }
@@ -166,8 +169,12 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       entrypoint.context.enter()
       Right(execute(entrypoint))
     } catch {
-      case ex: ExecutionException if ex.getCause.isInstanceOf[ErrorException] =>
-        Left(ex.getCause.asInstanceOf[ErrorException].errors)
+      case ex: java.util.concurrent.ExecutionException => ex.getCause match {
+          case ErrorException(errs) =>
+            // Convert back the temporary exception we created to return the Left case.
+            Left(errs)
+          case ex => throw ex
+        }
     }
   }
 
