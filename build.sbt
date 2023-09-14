@@ -123,6 +123,8 @@ lazy val buildSettings = Seq(
     truffleExports ++ Seq(
       // Increasing stack size for Kiama chain/rewrites and codegen.
       "-Xss64m",
+      // Enable assertions.
+      "-ea",
       // Limit overall memory and force crashing hard and early.
       // Useful for debugging memleaks.
       "-Xmx4G",
