@@ -45,7 +45,7 @@ trait RD5484Test extends CompilerTestContext {
   )
 
   // This is the original query. Disabled because Truffle doesn't support methods yet.
-  ignore("original JIRA query") { _ =>
+  test("original JIRA query") { _ =>
     TestData(s"""
       |main(start: timestamp, end: timestamp) =
       |    let lines = String.ReadLines("s3://raw-tutorial/ipython-demos/predictive-maintenance/machine_logs.log"),
