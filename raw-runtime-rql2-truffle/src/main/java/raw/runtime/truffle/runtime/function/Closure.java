@@ -13,14 +13,10 @@
 package raw.runtime.truffle.runtime.function;
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
-import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import java.util.Objects;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 public class Closure {
   private final Function function;
@@ -47,11 +43,7 @@ public class Closure {
     Object[] args = new Object[function.argNames.length + 1];
     args[0] = frame;
     System.arraycopy(arguments, 0, args, 1, arguments.length);
-    try {
-      return interop.execute(function, args);
-    } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-      throw new RawTruffleInternalErrorException(e, node);
-    }
+    return function.execute(args);
   }
 
   // for top-level functions. The internal 'frame' is null because it's never used to fetch values
@@ -83,10 +75,6 @@ public class Closure {
         args[idx + 1] = arguments[i];
       }
     }
-    try {
-      return interop.execute(function, args);
-    } catch (UnsupportedTypeException | ArityException | UnsupportedMessageException e) {
-      throw new RawTruffleInternalErrorException(e, node);
-    }
+    return function.execute(args);
   }
 }
