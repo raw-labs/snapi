@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.ExpressionNode;
@@ -24,10 +24,10 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 public final class ExpressionComputeNext {
 
   private final ExpressionNode[] exps;
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
   private int position;
 
-  public ExpressionComputeNext(ExpressionNode[] exps, VirtualFrame frame) {
+  public ExpressionComputeNext(ExpressionNode[] exps, MaterializedFrame frame) {
     this.frame = frame;
     this.exps = exps;
     this.position = 0;

@@ -28,6 +28,6 @@ public class CollectionUnionNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    return new UnionCollection(inputs, virtualFrame);
+    return new UnionCollection(inputs, virtualFrame.materialize());
   }
 }
