@@ -172,8 +172,6 @@ public class JoinComputeNext {
     }
   }
 
-
-
   private Object check(Object leftRow, Object rightRow) {
     Boolean pass;
     Object row = null;
