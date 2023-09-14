@@ -146,7 +146,7 @@ class PostgreSQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelp
   override def entryName: String = "Read"
 
   override def docs: EntryDoc = EntryDoc(
-    "Reads a PostgreSQL table with schema detection (inference).",
+    "Reads a PostgreSQL table.",
     params = List(
       ParamDoc(
         "database",

@@ -147,7 +147,7 @@ class SQLServerReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
   override def entryName: String = "Read"
 
   override def docs: EntryDoc = EntryDoc(
-    "Reads a SQLServer table with schema detection (inference).",
+    "Reads a SQLServer table.",
     params = List(
       ParamDoc(
         "database",
