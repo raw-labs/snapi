@@ -13,14 +13,14 @@
 package raw.runtime.truffle.runtime.operators;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.math.BigDecimal;
 import java.util.Objects;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 
 @ExportLibrary(OperatorLibrary.class)
 public class AddOperator {
@@ -95,11 +95,10 @@ public class AddOperator {
         AddOperator operator,
         Object left,
         Object right,
-        @CachedLibrary(limit = "3") OperatorLibrary aggregators,
-        @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-      RuntimeNullableTryableHandler nullableTryableHandler = new RuntimeNullableTryableHandler();
-      Object unboxedLeft = nullableTryables.unboxUnsafe(nullableTryableHandler, left);
-      Object unboxedRight = nullableTryables.unboxUnsafe(nullableTryableHandler, right);
+        @Cached("create()") TryableNullableNodes.UnboxUnsafeNode unboxUnsafe,
+        @CachedLibrary(limit = "3") OperatorLibrary aggregators) {
+      Object unboxedLeft = unboxUnsafe.execute(left);
+      Object unboxedRight = unboxUnsafe.execute(right);
       return aggregators.doOperation(operator, unboxedLeft, unboxedRight);
     }
   }

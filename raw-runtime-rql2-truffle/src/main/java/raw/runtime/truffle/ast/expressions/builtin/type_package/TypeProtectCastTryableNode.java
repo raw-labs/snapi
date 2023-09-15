@@ -14,18 +14,18 @@ package raw.runtime.truffle.ast.expressions.builtin.type_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.tryable.*;
 
 public final class TypeProtectCastTryableNode extends ExpressionNode {
 
   @Child private ExpressionNode child;
 
-  private final RuntimeNullableTryableHandler handler = new RuntimeNullableTryableHandler();
-  private final NullableTryableLibrary nullableTryables =
-      NullableTryableLibrary.getFactory().create(handler);
+  @Child
+  private TryableNullableNodes.BoxTryableNode boxTryable =
+      TryableNullableNodesFactory.BoxTryableNodeGen.create();
 
   public TypeProtectCastTryableNode(ExpressionNode child) {
     this.child = child;
@@ -33,7 +33,7 @@ public final class TypeProtectCastTryableNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame virtualFrame) {
     try {
-      return nullableTryables.boxTryable(handler, child.executeGeneric(virtualFrame));
+      return boxTryable.execute(child.executeGeneric(virtualFrame));
     } catch (RawTruffleRuntimeException e) {
       return ObjectTryable.BuildFailure(e.getMessage());
     }
