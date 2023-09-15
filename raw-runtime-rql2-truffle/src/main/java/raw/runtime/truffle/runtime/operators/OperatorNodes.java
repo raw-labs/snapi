@@ -280,7 +280,7 @@ public class OperatorNodes {
   @GenerateUncached
   public abstract static class AddNode extends Node {
 
-    public abstract int execute(Object obj1, Object obj2);
+    public abstract Object execute(Object obj1, Object obj2);
 
     @Specialization
     static Object doByte(byte left, byte right) {
