@@ -15,6 +15,7 @@ package raw.runtime.truffle.ast.io.json.writer.internal;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
@@ -33,10 +34,16 @@ public class OrWriteJsonNode extends StatementNode {
     }
   }
 
+  @ExplodeLoop
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     OrObject or = (OrObject) args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
-    this.childDirectCalls[or.getIndex()].call(or.getValue(), gen);
+    for (int i = 0; i < this.childDirectCalls.length; i++) {
+      if (or.getIndex() == i) {
+        this.childDirectCalls[i].call(or.getValue(), gen);
+        return;
+      }
+    }
   }
 }

@@ -20,7 +20,7 @@ import raw.runtime.truffle.runtime.iterable.sources.ExpressionCollection;
 @NodeInfo(shortName = "Collection.Build")
 public class CollectionBuildNode extends ExpressionNode {
 
-  private final ExpressionNode[] exps;
+  @Children private final ExpressionNode[] exps;
 
   public CollectionBuildNode(ExpressionNode[] exps) {
     this.exps = exps;

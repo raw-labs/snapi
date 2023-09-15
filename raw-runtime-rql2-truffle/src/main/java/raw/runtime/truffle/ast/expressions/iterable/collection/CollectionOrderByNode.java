@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -25,9 +26,9 @@ import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
 
 @NodeInfo(shortName = "Collection.OrderBy")
 public class CollectionOrderByNode extends ExpressionNode {
-  private final ExpressionNode input;
-  private final ExpressionNode[] keyFuns;
-  private final ExpressionNode[] orderings;
+  @Child private ExpressionNode input;
+  @Children private final ExpressionNode[] keyFuns;
+  @Children private final ExpressionNode[] orderings;
   private final Rql2TypeWithProperties[] keyTypes;
   private final Rql2TypeWithProperties valueType;
 
@@ -45,6 +46,7 @@ public class CollectionOrderByNode extends ExpressionNode {
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object iterable = input.executeGeneric(frame);
     int[] orders = new int[orderings.length];

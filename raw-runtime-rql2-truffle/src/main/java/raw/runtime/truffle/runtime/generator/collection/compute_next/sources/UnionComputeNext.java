@@ -13,7 +13,7 @@
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -27,11 +27,11 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 public final class UnionComputeNext {
 
   private final ExpressionNode[] inputs;
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
   private int index;
   private Object currentGenerator = null;
 
-  public UnionComputeNext(ExpressionNode[] inputs, VirtualFrame frame) {
+  public UnionComputeNext(ExpressionNode[] inputs, MaterializedFrame frame) {
     this.frame = frame;
     this.inputs = inputs;
     this.index = 0;

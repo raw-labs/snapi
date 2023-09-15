@@ -14,6 +14,7 @@ package raw.runtime.truffle.ast.expressions.function;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
@@ -22,7 +23,7 @@ public final class ClosureNode extends ExpressionNode {
 
   @CompilationFinal private final Function function;
 
-  private final ExpressionNode[] defaultArgumentExps;
+  @Children private final ExpressionNode[] defaultArgumentExps;
 
   public ClosureNode(Function f, ExpressionNode[] defaultArgumentExps) {
     this.function = f;
@@ -30,6 +31,7 @@ public final class ClosureNode extends ExpressionNode {
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame virtualFrame) {
     int nArgs = defaultArgumentExps.length;
     Object[] defaultArguments = new Object[nArgs];

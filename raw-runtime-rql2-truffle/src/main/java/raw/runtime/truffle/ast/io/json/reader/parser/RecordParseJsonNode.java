@@ -102,18 +102,8 @@ public class RecordParseJsonNode extends ExpressionNode {
     nextTokenNode.execute(parser);
 
     RecordObject record = RawLanguage.get(this).createRecord();
-    while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
-      String fieldName = currentFieldNode.execute(parser);
-      Integer index = mapGet(fieldNamesMap, fieldName);
-      nextTokenNode.execute(parser); // skip the field name
-      if (index != null) {
-        bitSetSet.execute(currentBitSet, index);
-        record.writeIdx(index, fieldName, childDirectCalls[index].call(parser));
-      } else {
-        // skip the field value
-        skipNode.execute(parser);
-      }
-    }
+
+    executeWhile(parser, currentBitSet, record);
 
     nextTokenNode.execute(parser); // skip the END_OBJECT token
 
@@ -142,7 +132,18 @@ public class RecordParseJsonNode extends ExpressionNode {
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Integer mapGet(LinkedHashMap<String, Integer> map, String key) {
-    return map.get(key);
+  private void executeWhile(JsonParser parser, BitSet currentBitSet, RecordObject record) {
+    while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
+      String fieldName = currentFieldNode.execute(parser);
+      Integer index = fieldNamesMap.get(fieldName);
+      nextTokenNode.execute(parser); // skip the field name
+      if (index != null) {
+        bitSetSet.execute(currentBitSet, index);
+        record.writeIdx(index, fieldName, childDirectCalls[index].call(parser));
+      } else {
+        // skip the field value
+        skipNode.execute(parser);
+      }
+    }
   }
 }

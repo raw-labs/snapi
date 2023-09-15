@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.ExpressionNode;
@@ -25,9 +25,9 @@ public final class UnionCollection {
 
   final ExpressionNode[] inputs;
 
-  final VirtualFrame frame;
+  final MaterializedFrame frame;
 
-  public UnionCollection(ExpressionNode[] inputs, VirtualFrame frame) {
+  public UnionCollection(ExpressionNode[] inputs, MaterializedFrame frame) {
     this.inputs = inputs;
     this.frame = frame;
   }

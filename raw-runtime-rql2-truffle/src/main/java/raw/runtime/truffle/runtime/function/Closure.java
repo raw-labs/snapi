@@ -68,9 +68,12 @@ public class Closure {
         // an arg name, ignore the current index 'i' and instead walk the arg names to find
         // the
         // real, and fill it in.
+
         int idx = 0;
-        while (!Objects.equals(argNames[i], function.argNames[idx])) {
-          idx++;
+        for (; idx < argNames.length; idx++) {
+          if (Objects.equals(argNames[i], function.argNames[idx])) {
+            break;
+          }
         }
         args[idx + 1] = arguments[i];
       }

@@ -14,6 +14,7 @@ package raw.runtime.truffle.ast.io.xml.parser;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.runtime.truffle.ExpressionNode;
@@ -34,6 +35,7 @@ public class OrTypeParseXml extends ExpressionNode {
     }
   }
 
+  @ExplodeLoop
   public OrObject executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];

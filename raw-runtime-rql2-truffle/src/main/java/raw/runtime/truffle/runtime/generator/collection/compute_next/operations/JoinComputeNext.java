@@ -127,6 +127,7 @@ public class JoinComputeNext {
   }
 
   @ExportMessage
+  @CompilerDirectives.TruffleBoundary
   Object computeNext(@CachedLibrary(limit = "3") GeneratorLibrary generators) {
     Object row = null;
 

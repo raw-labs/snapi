@@ -18,6 +18,7 @@ import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
@@ -49,6 +50,7 @@ public class RecordReadJdbcQuery extends ExpressionNode {
   }
 
   @Override
+  @ExplodeLoop
   public final RecordObject executeRecord(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];

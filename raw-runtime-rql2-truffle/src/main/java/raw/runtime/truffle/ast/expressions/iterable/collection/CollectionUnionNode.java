@@ -20,7 +20,7 @@ import raw.runtime.truffle.runtime.iterable.sources.UnionCollection;
 @NodeInfo(shortName = "Collection.Union")
 public class CollectionUnionNode extends ExpressionNode {
 
-  private final ExpressionNode[] inputs;
+  @Children ExpressionNode[] inputs;
 
   public CollectionUnionNode(ExpressionNode[] inputs) {
     this.inputs = inputs;
@@ -28,6 +28,6 @@ public class CollectionUnionNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    return new UnionCollection(inputs, virtualFrame);
+    return new UnionCollection(inputs, virtualFrame.materialize());
   }
 }
