@@ -12,6 +12,8 @@
 
 package raw.compiler.rql2.truffle
 
+import com.google.common.base.Stopwatch
+import com.google.common.cache.{Cache, CacheBuilder, CacheLoader, LoadingCache, RemovalListener, RemovalNotification}
 import com.oracle.truffle.api.Truffle
 import com.oracle.truffle.api.frame.{FrameDescriptor, FrameSlotKind}
 import com.oracle.truffle.api.interop.InteropLibrary
@@ -26,10 +28,10 @@ import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, EnvironmentPackageBuilder, JsonPackage, StringPackage}
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{base, CompilerException, ErrorMessage, ProgramOutputWriter}
+import raw.inferrer.{InferrerException, InferrerProperties, InputFormatDescriptor}
 import raw.runtime.{
   Entrypoint,
   ParamBool,
@@ -45,7 +47,8 @@ import raw.runtime.{
   ParamShort,
   ParamString,
   ParamTime,
-  ParamTimestamp
+  ParamTimestamp,
+  ProgramEnvironment
 }
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
@@ -70,17 +73,110 @@ import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
+import java.util.concurrent.Callable
 import scala.collection.mutable
+import scala.concurrent.ExecutionException
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
+  private val CODE_CACHE_EXPIRY_AFTER_ACCESS = "raw.compiler.truffle.code-cache.expire-after-access"
 }
+
+private case class CodeCacheKey(
+    source: String,
+    maybeDecl: Option[String],
+    environment: ProgramEnvironment,
+    arguments: Array[String]
+)
+
+private case class ErrorException(val errors: List[ErrorMessage]) extends Exception
 
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
     with TruffleCompiler[SourceNode, SourceProgram, Exp] {
 
+  import Rql2TruffleCompiler._
+
+  private val codeCacheExpiryAfterAccess = compilerContext.settings.getDuration(CODE_CACHE_EXPIRY_AFTER_ACCESS)
+
+  // (msb) The code cache is a cache of Truffle entrypoints, which then allows us to re-use the emitter code.
+  // However, there are multiple caveats to this particular implementation.
+  // The first is handling the context. The context is created during code emission, and it is closed when we are "done"
+  // with the query. That said, we don't know when we are done with the query - it can take a while to execute.
+  // The cache tries to handle that by expiring entries after access: if we only remove queries that have not been
+  // used recently, then this means we should not be removing queries that are still executing. It's a compromise
+  // solution. Also, that's why we don't have a max size for the cache - this could more easily trigger the removal of an
+  // entrypoint from the cache while it is still executing.
+  // We are also using CacheBuilder.get(..., orElse) pattern, which isn't as safe as the builder pattern. That said,
+  // we cannot use the builder pattern because the ProgramContext would not be available in the constructor.
+  // So all in all, this cache is not ideal but it should work in most common scenarios. This can be re-visited in the
+  // future, when we move to using the Context correctly.
+  private val codeCache: Cache[CodeCacheKey, TruffleEntrypoint] = CacheBuilder
+    .newBuilder()
+    .expireAfterAccess(codeCacheExpiryAfterAccess)
+    .removalListener { removalNotification: RemovalNotification[CodeCacheKey, TruffleEntrypoint] =>
+      {
+        logger.debug(s"Removing entrypoint from code cache: ${removalNotification.getKey}")
+        // Close the Truffle context since the entrypoint is no longer available.
+        // Note that we set "cancel if executing" to false so that the context is not closed if the entrypoint is
+        // currently executing. This means we may leak out some contexts, but this seems harmless enough at this point
+        // in time.
+        try {
+          removalNotification.getValue.context.close(false)
+        } catch {
+          case _: IllegalStateException =>
+            // Context was actually executing therefore it was not closed.
+            logger.warn(s"Cannot close context for entrypoint ${removalNotification.getKey} because it is executing.")
+        }
+      }
+    }
+    .build()
+
+  // Does not support legacy code caching. Instead, it implements the new (simpler) cache.
   override def supportsCaching: Boolean = false
+
+  override def execute(source: String, maybeDecl: Option[String])(
+      implicit programContext: base.ProgramContext
+  ): Either[List[ErrorMessage], ProgramOutputWriter] = {
+    // The set of arguments used in the program.
+    val arguments = programContext.runtimeContext.maybeArguments.getOrElse(Array.empty).map(_._1)
+    try {
+      // Try to obtain previously generated code from the code cache.
+      // In case the key is missing and the code is invalid, it throws an exception.
+      // This is captured and turned into the required Left response.
+      val entrypoint = codeCache.get(
+        CodeCacheKey(source, maybeDecl, programContext.runtimeContext.environment, arguments),
+        new Callable[TruffleEntrypoint] {
+          override def call(): TruffleEntrypoint = {
+            parseAndValidate(source, maybeDecl) match {
+              case Right(program) => compile(program) match {
+                  case Right(entrypoint) => entrypoint.asInstanceOf[TruffleEntrypoint]
+                  case Left(errs) =>
+                    // Because we are in the middle of a Callable, we implement the 'return' Left case with an exception.
+                    // This is captured below as we handle the ExecutionException that wraps it.
+                    throw ErrorException(errs)
+                }
+              case Left(errs) => throw new ErrorException(errs)
+            }
+          }
+        }
+      )
+      // We need to explicitly enter the context.
+      // Note that perhaps we have already entered the context: if the code was not in cache and was just computed, then
+      // we already entered the context just before as part of code emission. But if the code was in the cache, we
+      // need to enter the context to recompute it. So we enter it always, as the docs say it's safe to enter the
+      // context multiple times.
+      entrypoint.context.enter()
+      Right(execute(entrypoint))
+    } catch {
+      case ex: java.util.concurrent.ExecutionException => ex.getCause match {
+          case ErrorException(errs) =>
+            // Convert back the temporary exception we created to return the Left case.
+            Left(errs)
+          case ex => throw ex
+        }
+    }
+  }
 
   override protected def doEval(
       tree: BaseTree[SourceNode, SourceProgram, Exp]
@@ -93,9 +189,10 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       convertAnyToValue(res, tree.rootType.get)
     } finally {
       // We explicitly created and then entered the context during code emission.
-      // Now we explicitly leave and close the context.
+      // Now we explicitly leave the context.
       context.leave()
-      context.close()
+      // The context is NOT closed because the entrypoint is in the code cache;
+      // it will be removed when the entrypoint is removed from the cache.
     }
   }
 
