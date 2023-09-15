@@ -46,7 +46,7 @@ public final class MethodRefNode extends ExpressionNode {
           defaultArguments[i] = null;
         }
       }
-      closure = new Closure(this.function, defaultArguments, this);
+      closure = new Closure(this.function, defaultArguments);
     }
     return closure;
   }

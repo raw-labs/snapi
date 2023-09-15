@@ -17,11 +17,10 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
 
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.DateObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
@@ -344,10 +343,9 @@ public class OperatorNodes {
         Object left,
         Object right,
         @Cached("create()") AddNode add,
-        @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
-      RuntimeNullableTryableHandler nullableTryableHandler = new RuntimeNullableTryableHandler();
-      Object unboxedLeft = nullableTryables.unboxUnsafe(nullableTryableHandler, left);
-      Object unboxedRight = nullableTryables.unboxUnsafe(nullableTryableHandler, right);
+        @Cached TryableNullableNodes.UnboxUnsafeNode unbox) {
+      Object unboxedLeft = unbox.execute(left);
+      Object unboxedRight = unbox.execute(right);
       return add.execute(unboxedLeft, unboxedRight);
     }
   }
