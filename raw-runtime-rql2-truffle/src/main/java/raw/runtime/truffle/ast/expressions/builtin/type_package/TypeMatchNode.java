@@ -33,15 +33,10 @@ public class TypeMatchNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     OrObject orType = (OrObject) this.typeExp.executeGeneric(frame);
     int index = orType.getIndex();
+    Closure[] closures = new Closure[closureExps.length];
     for (int i = 0; i < closureExps.length; i++) {
-      if (i == index) {
-        Closure closure = (Closure) closureExps[orType.getIndex()].executeGeneric(frame);
-        return closure.call(orType.getValue());
-      }
+      closures[i] = (Closure) closureExps[i].executeGeneric(frame);
     }
-
-    // Should never get here
-    assert false;
-    return null;
+    return closures[index].call(orType.getValue());
   }
 }
