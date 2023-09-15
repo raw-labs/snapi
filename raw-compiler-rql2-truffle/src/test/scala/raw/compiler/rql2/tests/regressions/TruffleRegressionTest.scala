@@ -17,14 +17,11 @@ import raw.testing.tags.TruffleTests
 
 @TruffleTests class RD9445TruffleTest extends TruffleCompilerTestContext with RD9445Test
 
-@TruffleTests class RD5631TruffleTest extends TruffleCompilerTestContext with RD5631Test
-
 @TruffleTests class RD5797TruffleTest extends TruffleCompilerTestContext with RD5797Test
 @TruffleTests class RD5779TruffleTest extends TruffleCompilerTestContext with RD5779Test
 @TruffleTests class RD5393TruffleTest extends TruffleCompilerTestContext with RD5393Test
 
 @TruffleTests class RD5884TruffleTest extends TruffleCompilerTestContext with RD5884Test
-@TruffleTests class RD8266TruffleTest extends TruffleCompilerTestContext with RD8266Test
 @TruffleTests class RD5448TruffleTest extends TruffleCompilerTestContext with RD5448Test
 @TruffleTests class RD5238TruffleTest extends TruffleCompilerTestContext with RD5238Test
 @TruffleTests class RD3742TruffleTest extends TruffleCompilerTestContext with RD3742Test
@@ -47,11 +44,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD8993TruffleTest extends TruffleCompilerTestContext with RD8993Test
 @TruffleTests class RD4529TruffleTest extends TruffleCompilerTestContext with RD4529Test
 
-@TruffleTests class RD5502TruffleTest extends TruffleCompilerTestContext with RD5502Test
-
 @TruffleTests class RD5893TruffleTest extends TruffleCompilerTestContext with RD5893Test
-
-@TruffleTests class RD5746TruffleTest extends TruffleCompilerTestContext with RD5746Test
 
 @TruffleTests class RD3084TruffleTest extends TruffleCompilerTestContext with RD3084Test
 
@@ -77,9 +70,7 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD5488TruffleTest extends TruffleCompilerTestContext with RD5488Test
 @TruffleTests class RD5786TruffleTest extends TruffleCompilerTestContext with RD5786Test
 
-@TruffleTests class RD8015TruffleTest extends TruffleCompilerTestContext with RD8015Test
 @TruffleTests class RD5722TruffleTest extends TruffleCompilerTestContext with RD5722Test
-@TruffleTests class RD4741TruffleTest extends TruffleCompilerTestContext with RD4741Test
 @TruffleTests class RD5925TruffleTest extends TruffleCompilerTestContext with RD5925Test
 
 @TruffleTests class RD5921TruffleTest extends TruffleCompilerTestContext with RD5921Test
@@ -98,5 +89,6 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class RD9359TruffleTest extends TruffleCompilerTestContext with RD9359Test
 @TruffleTests class RD9255TruffleTest extends TruffleCompilerTestContext with RD9255Test
 @TruffleTests class RD9229TruffleTest extends TruffleCompilerTestContext with RD9229Test
+@TruffleTests class RD9409TruffleTest extends TruffleCompilerTestContext with RD9409Test
 @TruffleTests class RD9479TruffleTest extends TruffleCompilerTestContext with RD9479Test
-@TruffleTests class RD9528TruffleTest extends TruffleCompilerTestContext with RD9528Test
+@TruffleTests class RD9554TruffleTest extends TruffleCompilerTestContext with RD9554Test

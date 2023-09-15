@@ -25,7 +25,7 @@ class SqliteLocationBuilder extends JdbcLocationBuilder {
     location.url match {
       case sqliteRegex(locationUrl) =>
         val db = SqliteClients.get(locationUrl)
-        new SqliteLocation(db, locationUrl, location.cacheStrategy, location.retryStrategy)
+        new SqliteLocation(db, locationUrl)
       case _ => throw new LocationException("not a sqlite database location")
     }
   }

@@ -15,15 +15,12 @@ package raw.sources.bytestream.github
 import java.io.InputStream
 import java.nio.file.Path
 import com.typesafe.scalalogging.StrictLogging
-import raw.sources.{CacheStrategy, RetryStrategy}
 import raw.sources.bytestream.http.HttpByteStreamLocation
 import raw.sources.bytestream.{ByteStreamLocation, SeekableInputStream}
 
 class GithubByteStreamLocation(
     http: HttpByteStreamLocation,
-    url: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    url: String
 ) extends ByteStreamLocation
     with StrictLogging {
 

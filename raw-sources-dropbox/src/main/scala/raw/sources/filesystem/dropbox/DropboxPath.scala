@@ -13,7 +13,7 @@
 package raw.sources.filesystem.dropbox
 
 import raw.sources._
-import raw.sources.bytestream.{ByteStreamCache, ByteStreamException, SeekableInputStream}
+import raw.sources.bytestream.{ByteStreamException, SeekableInputStream}
 import raw.sources.filesystem._
 
 import java.io.InputStream
@@ -22,10 +22,7 @@ import java.nio.file.Path
 class DropboxPath(
     cli: DropboxFileSystem,
     path: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy,
-    locationDescription: LocationDescription,
-    cacheManager: ByteStreamCache
+    locationDescription: LocationDescription
 ) extends FileSystemLocation {
 
   override def rawUri: String = s"dropbox://${cli.name}$path"
@@ -35,9 +32,7 @@ class DropboxPath(
   }
 
   override protected def doGetInputStream(): InputStream = {
-    cacheManager.getInputStream(path, locationDescription) {
-      cli.getInputStream(path)
-    }
+    cli.getInputStream(path)
   }
 
   override protected def doGetSeekableInputStream(): SeekableInputStream = {
@@ -55,13 +50,12 @@ class DropboxPath(
   override protected def doLs(): Iterator[FileSystemLocation] = {
     cli
       .listContents(path)
-      .map(npath => new DropboxPath(cli, npath, cacheStrategy, retryStrategy, locationDescription, cacheManager))
+      .map(npath => new DropboxPath(cli, npath, locationDescription))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
     cli.listContentsWithMetadata(path).map {
-      case (npath, meta) =>
-        (new DropboxPath(cli, npath, cacheStrategy, retryStrategy, locationDescription, cacheManager), meta)
+      case (npath, meta) => (new DropboxPath(cli, npath, locationDescription), meta)
     }
   }
 

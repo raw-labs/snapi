@@ -25,7 +25,7 @@ class SnowflakeTableLocationBuilder extends JdbcTableLocationBuilder {
     location.url match {
       case snowflakeTableRegex(dbName, schema, table) =>
         val db = SnowflakeClients.get(dbName, location)
-        new SnowflakeTable(db, dbName, schema, table, location.cacheStrategy, location.retryStrategy)
+        new SnowflakeTable(db, dbName, schema, table)
       case _ => throw new LocationException("not an snowflake table location")
     }
   }

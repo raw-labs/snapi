@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.iterable.sources.RangeCollection;
+import raw.runtime.truffle.runtime.iterable.sources.IntRangeCollection;
 
 @NodeInfo(shortName = "Int.Range")
 @NodeChild(value = "start")
@@ -29,6 +29,6 @@ public abstract class IntRangeNode extends ExpressionNode {
   protected Object doRange(int start, int end, int step) {
     if (step <= 0)
       throw new RawTruffleRuntimeException("range step has to be strictly positive", this);
-    return new RangeCollection(start, end, step);
+    return new IntRangeCollection(start, end, step);
   }
 }

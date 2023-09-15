@@ -21,7 +21,6 @@ import raw.creds.CredentialsServiceProvider
 import raw.inferrer.InferrerServiceProvider
 import raw.runtime._
 import raw.sources.SourceContext
-import raw.sources.bytestream.ByteStreamCache
 import raw.utils.RawConcurrentHashMap
 
 import scala.util.control.NonFatal
@@ -29,7 +28,6 @@ import scala.util.control.NonFatal
 class CompilerService(implicit settings: RawSettings) extends RawService {
 
   private val credentials = CredentialsServiceProvider()
-  private val byteStreamCache = ByteStreamCache(settings)
 
   private val mutableClassLoader = new RawMutableURLClassLoader(getClass.getClassLoader)
   private val rawClassLoader = new RawDelegatingURLClassLoader(mutableClassLoader)
@@ -46,7 +44,7 @@ class CompilerService(implicit settings: RawSettings) extends RawService {
 
   private def createCompiler(user: AuthenticatedUser, language: String): Compiler = {
     // Initialize source context
-    implicit val sourceContext = new SourceContext(user, credentials, byteStreamCache, settings)
+    implicit val sourceContext = new SourceContext(user, credentials, settings)
 
     // Initialize inferrer
     val inferrer = InferrerServiceProvider()
@@ -92,7 +90,6 @@ class CompilerService(implicit settings: RawSettings) extends RawService {
   override def doStop(): Unit = {
     compilerCaches.values.foreach(compiler => compiler.compilerContext.inferrer.stop())
     credentials.stop()
-    byteStreamCache.stop()
   }
 
 }

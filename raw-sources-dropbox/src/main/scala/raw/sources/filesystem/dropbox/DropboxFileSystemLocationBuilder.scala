@@ -38,10 +38,7 @@ class DropboxFileSystemLocationBuilder extends FileSystemLocationBuilder with St
               new DropboxPath(
                 cli,
                 path,
-                location.cacheStrategy,
-                location.retryStrategy,
-                location,
-                sourceContext.byteStreamCache
+                location
               )
             case _ => throw new FileSystemException("no credential found for Dropbox")
           }
@@ -53,10 +50,7 @@ class DropboxFileSystemLocationBuilder extends FileSystemLocationBuilder with St
               new DropboxPath(
                 cli,
                 path,
-                location.cacheStrategy,
-                location.retryStrategy,
-                location,
-                sourceContext.byteStreamCache
+                location
               )
             case Some(crds @ _) =>
               throw new FileSystemException(s"invalid credential type for Dropbox: ${crds.getClass}")

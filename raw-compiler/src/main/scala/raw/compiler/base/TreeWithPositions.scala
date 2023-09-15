@@ -149,34 +149,36 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
           val lineno = _lineno + 1
           output += line + "\n"
 
-          var startCol = -1
-          var endCol = -1
+          for (start <- positions.getStart(e); finish <- positions.getFinish(e)) yield {
+            var startCol = -1
+            var endCol = -1
 
-          if (positions.getStart(e).get.line == lineno && positions.getFinish(e).get.line == lineno) {
-            startCol = positions.getStart(e).get.column
-            endCol = positions.getFinish(e).get.column
-          } else if (positions.getStart(e).get.line == lineno) {
-            startCol = positions.getStart(e).get.column
-            endCol = line.length
-          } else if (positions.getFinish(e).get.line == lineno) {
-            startCol = 0
-            endCol = positions.getFinish(e).get.column
-          } else if (lineno > positions.getStart(e).get.line && lineno < positions.getFinish(e).get.line) {
-            startCol = 0
-            endCol = line.length
-          }
-
-          if (startCol != -1) {
-            assert(endCol != -1)
-            for (i <- 0 until line.length) {
-              output +=
-                (if (i >= (startCol - 1) && i <= (endCol - 1)) {
-                   "^"
-                 } else {
-                   " "
-                 })
+            if (start.line == lineno && finish.line == lineno) {
+              startCol = start.column
+              endCol = finish.column
+            } else if (start.line == lineno) {
+              startCol = start.column
+              endCol = line.length
+            } else if (finish.line == lineno) {
+              startCol = 0
+              endCol = finish.column
+            } else if (lineno > start.line && lineno < finish.line) {
+              startCol = 0
+              endCol = line.length
             }
-            output += "\n"
+
+            if (startCol != -1) {
+              assert(endCol != -1)
+              for (i <- 0 until line.length) {
+                output +=
+                  (if (i >= (startCol - 1) && i <= (endCol - 1)) {
+                     "^"
+                   } else {
+                     " "
+                   })
+              }
+              output += "\n"
+            }
           }
         }
         output

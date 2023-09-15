@@ -15,11 +15,9 @@ package raw.sources
 import raw.api.AuthenticatedUser
 import raw.config.RawSettings
 import raw.creds.CredentialsService
-import raw.sources.bytestream.ByteStreamCache
 
 class SourceContext(
     val user: AuthenticatedUser,
     val credentialsService: CredentialsService,
-    val byteStreamCache: ByteStreamCache,
     val settings: RawSettings
 )

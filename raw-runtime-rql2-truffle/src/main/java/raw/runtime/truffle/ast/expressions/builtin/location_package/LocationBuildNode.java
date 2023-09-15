@@ -47,21 +47,14 @@ public class LocationBuildNode extends ExpressionNode {
 
   private final Rql2TypeWithProperties[] types;
 
-  private final CacheStrategy cacheStrategy;
-
   public LocationBuildNode(
-      ExpressionNode url,
-      String[] keys,
-      ExpressionNode[] values,
-      Rql2TypeWithProperties[] types,
-      CacheStrategy cacheStrategy) {
+      ExpressionNode url, String[] keys, ExpressionNode[] values, Rql2TypeWithProperties[] types) {
     assert values.length == keys.length;
     assert values.length == types.length;
     this.url = url;
     this.keys = keys;
     this.values = values;
     this.types = types;
-    this.cacheStrategy = cacheStrategy;
   }
 
   @Override
@@ -73,7 +66,7 @@ public class LocationBuildNode extends ExpressionNode {
       Object value = this.values[i].executeGeneric(frame);
       map = addToMap(map, this.keys[i], value, i);
     }
-    return new LocationObject(url, map, this.cacheStrategy);
+    return new LocationObject(url, map);
   }
 
   @CompilerDirectives.TruffleBoundary

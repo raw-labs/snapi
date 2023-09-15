@@ -14,9 +14,9 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.S3Bucket
-import raw.sources.bytestream.{ByteStreamCache, ByteStreamException, SeekableInputStream}
+import raw.sources.bytestream.{ByteStreamException, SeekableInputStream}
 import raw.sources.filesystem._
-import raw.sources.{CacheStrategy, LocationDescription, RetryStrategy}
+import raw.sources.LocationDescription
 
 import java.io.InputStream
 import java.nio.file.Path
@@ -24,10 +24,7 @@ import java.nio.file.Path
 class S3Path(
     cli: S3FileSystem,
     protected val path: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy,
-    locationDescription: LocationDescription,
-    cacheManager: ByteStreamCache
+    locationDescription: LocationDescription
 ) extends FileSystemLocation
     with StrictLogging {
 
@@ -44,9 +41,7 @@ class S3Path(
   }
 
   override protected def doGetInputStream(): InputStream = {
-    cacheManager.getInputStream(path, locationDescription) {
-      cli.getInputStream(path)
-    }
+    cli.getInputStream(path)
   }
 
   override protected def doGetSeekableInputStream(): SeekableInputStream = {
@@ -64,14 +59,11 @@ class S3Path(
   override protected def doLs(): Iterator[FileSystemLocation] = {
     cli
       .listContents(path)
-      .map(npath => new S3Path(cli, npath, cacheStrategy, retryStrategy, locationDescription, cacheManager))
+      .map(npath => new S3Path(cli, npath, locationDescription))
   }
 
   override protected def doLsWithMetadata(): Iterator[(FileSystemLocation, FileSystemMetadata)] = {
-    cli.listContentsWithMetadata(path).map {
-      case (npath, meta) =>
-        (new S3Path(cli, npath, cacheStrategy, retryStrategy, locationDescription, cacheManager), meta)
-    }
+    cli.listContentsWithMetadata(path).map { case (npath, meta) => (new S3Path(cli, npath, locationDescription), meta) }
   }
 
 }

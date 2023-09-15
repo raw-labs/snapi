@@ -12,17 +12,13 @@
 
 package raw.sources.jdbc.pgsql
 
-import raw.sources.{CacheStrategy, RetryStrategy}
-
 import java.io.Closeable
 import raw.sources.jdbc.JdbcSchemaLocation
 
 class PostgresqlSchema(
     cli: PostgresqlClient,
     dbName: String,
-    schema: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    schema: String
 ) extends JdbcSchemaLocation(cli, Some(schema)) {
 
   override def rawUri: String = s"pgsql:$dbName/$schema"
