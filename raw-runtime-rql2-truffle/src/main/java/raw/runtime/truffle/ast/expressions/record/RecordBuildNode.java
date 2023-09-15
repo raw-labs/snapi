@@ -26,7 +26,7 @@ public class RecordBuildNode extends ExpressionNode {
 
   @Child InteropLibrary libraries;
 
-  @Children private ExpressionNode[] elementNodes;
+  @Children private final ExpressionNode[] elementNodes;
 
   public RecordBuildNode(ExpressionNode[] elementsNodes) {
     CompilerAsserts.compilationConstant(elementsNodes.length);

@@ -12,10 +12,8 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.UnionComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -23,13 +21,10 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(IterableLibrary.class)
 public final class UnionCollection {
 
-  final ExpressionNode[] inputs;
+  private final Object[] inputs;
 
-  final VirtualFrame frame;
-
-  public UnionCollection(ExpressionNode[] inputs, VirtualFrame frame) {
+  public UnionCollection(Object[] inputs) {
     this.inputs = inputs;
-    this.frame = frame;
   }
 
   @ExportMessage
@@ -39,6 +34,6 @@ public final class UnionCollection {
 
   @ExportMessage
   Object getGenerator() {
-    return new CollectionAbstractGenerator(new UnionComputeNext(inputs, frame));
+    return new CollectionAbstractGenerator(new UnionComputeNext(inputs));
   }
 }

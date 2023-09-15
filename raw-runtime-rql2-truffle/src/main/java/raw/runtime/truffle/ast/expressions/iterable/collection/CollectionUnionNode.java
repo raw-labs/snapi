@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.iterable.sources.UnionCollection;
@@ -20,14 +21,19 @@ import raw.runtime.truffle.runtime.iterable.sources.UnionCollection;
 @NodeInfo(shortName = "Collection.Union")
 public class CollectionUnionNode extends ExpressionNode {
 
-  private final ExpressionNode[] inputs;
+  @Children private final ExpressionNode[] inputExps;
 
-  public CollectionUnionNode(ExpressionNode[] inputs) {
-    this.inputs = inputs;
+  public CollectionUnionNode(ExpressionNode[] inputExps) {
+    this.inputExps = inputExps;
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    return new UnionCollection(inputs, virtualFrame);
+    Object[] inputs = new Object[this.inputExps.length];
+    for (int i = 0; i < this.inputExps.length; i++) {
+      inputs[i] = this.inputExps[i].executeGeneric(virtualFrame);
+    }
+    return new UnionCollection(inputs);
   }
 }

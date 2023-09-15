@@ -13,11 +13,9 @@
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
@@ -26,13 +24,11 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(ComputeNextLibrary.class)
 public final class UnionComputeNext {
 
-  private final ExpressionNode[] inputs;
-  private final VirtualFrame frame;
+  private final Object[] inputs;
   private int index;
   private Object currentGenerator = null;
 
-  public UnionComputeNext(ExpressionNode[] inputs, VirtualFrame frame) {
-    this.frame = frame;
+  public UnionComputeNext(Object[] inputs) {
     this.inputs = inputs;
     this.index = 0;
   }
@@ -61,7 +57,7 @@ public final class UnionComputeNext {
       if (index >= inputs.length) {
         throw new BreakException();
       }
-      Object iterable = inputs[index].executeGeneric(frame);
+      Object iterable = inputs[index];
       currentGenerator = iterables.getGenerator(iterable);
       generators.init(currentGenerator);
       if (!generators.hasNext(currentGenerator)) {

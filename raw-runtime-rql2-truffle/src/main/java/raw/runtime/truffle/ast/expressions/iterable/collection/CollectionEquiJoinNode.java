@@ -23,14 +23,15 @@ import raw.runtime.truffle.runtime.iterable.operations.EquiJoinCollection;
 
 @NodeInfo(shortName = "Collection.EquiJoin")
 public class CollectionEquiJoinNode extends ExpressionNode {
-  private final ExpressionNode left;
-  private final ExpressionNode right;
-  private final ExpressionNode leftKeyFun;
-  private final ExpressionNode rightKeyFun;
+  @Child private ExpressionNode left;
+  @Child private ExpressionNode right;
+  @Child private ExpressionNode leftKeyFun;
+  @Child private ExpressionNode rightKeyFun;
+  @Child private ExpressionNode remapFun;
+
   private final Rql2TypeWithProperties leftValueType;
   private final Rql2TypeWithProperties rightValueType;
   private final Rql2TypeWithProperties keyType;
-  private final ExpressionNode remapFun;
 
   public CollectionEquiJoinNode(
       ExpressionNode left,

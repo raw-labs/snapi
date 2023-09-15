@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.builtin.type_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
@@ -21,17 +22,21 @@ import raw.runtime.truffle.runtime.or.OrObject;
 public class TypeMatchNode extends ExpressionNode {
   @Node.Child private ExpressionNode typeExp;
 
-  @Node.Children private ExpressionNode[] closureExps;
+  @Node.Children private final ExpressionNode[] closureExps;
 
   public TypeMatchNode(ExpressionNode child, ExpressionNode[] children) {
     this.typeExp = child;
     this.closureExps = children;
   }
 
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     OrObject orType = (OrObject) this.typeExp.executeGeneric(frame);
-
-    Closure closure = (Closure) closureExps[orType.getIndex()].executeGeneric(frame);
-    return closure.call(orType.getValue());
+    int index = orType.getIndex();
+    Closure[] closures = new Closure[closureExps.length];
+    for (int i = 0; i < closureExps.length; i++) {
+      closures[i] = (Closure) closureExps[i].executeGeneric(frame);
+    }
+    return closures[index].call(orType.getValue());
   }
 }
