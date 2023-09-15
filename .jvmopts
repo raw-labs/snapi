@@ -1,0 +1,20 @@
+-Xss64m
+-Xmx4G
+-XX:+CrashOnOutOfMemoryError
+--add-opens java.base/java.lang=ALL-UNNAMED
+--add-opens java.base/java.util=ALL-UNNAMED
+--add-opens java.base/java.nio=ALL-UNNAMED
+--add-opens java.base/java.lang.invoke=ALL-UNNAMED
+--add-opens java.base/sun.nio.ch=ALL-UNNAMED
+--add-opens java.base/sun.util.calendar=ALL-UNNAMED
+-Dpolyglot.engine.CompileImmediately=true
+-Dpolyglot.engine.AllowExperimentalOptions=true
+-Dgraal.Dump=Truffle:2
+-Dgraal.DumpPath=/tmp/graal_dumps
+-Dgraal.PrintGraph=Network
+-Dgraal.CompilationFailureAction=Diagnose
+-Dgraalvm.locatorDisabled=true
+-Dpolyglot.engine.BackgroundCompilation=false
+-Dpolyglot.engine.TraceCompilation=true
+-Dpolyglot.engine.TraceCompilationDetails=true
+-Dpolyglot.engine.TraceInlining=true
