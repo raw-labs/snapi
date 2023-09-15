@@ -22,8 +22,8 @@ import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapCollectionGroupByKey;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
 @ExportLibrary(IterableLibrary.class)
 public final class GroupByCollection {
@@ -57,20 +57,14 @@ public final class GroupByCollection {
     return true;
   }
 
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
+  private final OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.create();
 
   @ExportMessage
   Object getGenerator(
       @CachedLibrary("this.iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "5") GeneratorLibrary generators) {
     OffHeapCollectionGroupByKey map =
-        new OffHeapCollectionGroupByKey(
-            (o1, o2) -> (int) operators.doOperation(compare, o1, o2),
-            keyType,
-            rowType,
-            language,
-            context);
+        new OffHeapCollectionGroupByKey(compare::execute, keyType, rowType, language, context);
     Object inputGenerator = iterables.getGenerator(iterable);
     try {
       generators.init(inputGenerator);

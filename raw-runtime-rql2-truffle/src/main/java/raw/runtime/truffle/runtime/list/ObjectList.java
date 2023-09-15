@@ -12,19 +12,16 @@
 
 package raw.runtime.truffle.runtime.list;
 
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 @ExportLibrary(ListLibrary.class)
 public class ObjectList {
   private final Object[] list;
-
-  public final CompareOperator compareOperator = new CompareOperator();
 
   public ObjectList(Object[] list) {
     this.list = list;
@@ -65,9 +62,9 @@ public class ObjectList {
   }
 
   @ExportMessage
-  public Object sort(@CachedLibrary("this.compareOperator") OperatorLibrary operators) {
+  public Object sort(@Cached("create()") OperatorNodes.CompareNode compare) {
     Object[] result = this.list.clone();
-    Arrays.sort(result, (o1, o2) -> (int) operators.doOperation(this.compareOperator, o1, o2));
+    Arrays.sort(result, compare::execute);
     return new ObjectList(result);
   }
 }

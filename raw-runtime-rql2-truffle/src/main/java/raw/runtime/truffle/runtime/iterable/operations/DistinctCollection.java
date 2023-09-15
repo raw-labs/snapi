@@ -21,8 +21,8 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapDistinct;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
 @ExportLibrary(IterableLibrary.class)
 public final class DistinctCollection {
@@ -47,11 +47,10 @@ public final class DistinctCollection {
     return true;
   }
 
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
+  private final OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.create();
 
   private int compareKey(Object key1, Object key2) {
-    return (int) operators.doOperation(compare, key1, key2);
+    return compare.execute(key1, key2);
   }
 
   @ExportMessage

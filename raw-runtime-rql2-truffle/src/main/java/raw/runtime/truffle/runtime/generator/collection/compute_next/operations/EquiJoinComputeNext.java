@@ -25,8 +25,8 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapEquiJoinGroupByKey;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
 /* The EquiJoinComputeNext class is a ComputeNextLibrary that implements the equi-join operation.
  * Both sides are first turned into OffHeapGroupByKey objects, so that their Generator are grouped and
@@ -34,10 +34,7 @@ import raw.runtime.truffle.runtime.operators.OperatorLibrary;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class EquiJoinComputeNext {
-
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
-
+  private final OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.create();
   protected final Object leftIterable, rightIterable;
   private final Closure leftKeyF, rightKeyF, mkJoinedRecord;
   private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
@@ -52,7 +49,7 @@ public class EquiJoinComputeNext {
   private Object[] leftRows = null, rightRows = null;
 
   private int compareKey(Object key1, Object key2) {
-    return (int) operators.doOperation(compare, key1, key2);
+    return compare.execute(key1, key2);
   }
 
   public EquiJoinComputeNext(
