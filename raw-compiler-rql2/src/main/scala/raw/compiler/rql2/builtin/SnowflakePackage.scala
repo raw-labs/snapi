@@ -173,7 +173,7 @@ class SnowflakeReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
   override def entryName: String = "Read"
 
   override def docs: EntryDoc = EntryDoc(
-    "Reads a Snowflake table with schema detection (inference).",
+    "Reads a Snowflake table.",
     params = List(
       ParamDoc(
         "database",

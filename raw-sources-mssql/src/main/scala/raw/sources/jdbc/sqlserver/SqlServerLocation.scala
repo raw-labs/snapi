@@ -12,16 +12,12 @@
 
 package raw.sources.jdbc.sqlserver
 
-import raw.sources.{CacheStrategy, RetryStrategy}
-
 import java.io.Closeable
 import raw.sources.jdbc._
 
 class SqlServerLocation(
     cli: SqlServerClient,
-    dbName: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    dbName: String
 ) extends JdbcLocation(cli, "sqlserver", dbName) {
 
   override def rawUri: String = s"sqlserver:$dbName"

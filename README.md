@@ -241,14 +241,6 @@ A few more settings are required (for Truffle):
 - Set "Enable Annotation Processing" to true (as Truffle uses annotations to generate code).
 - Edit the `Scalatest` Run/Debug configuration to add the following VM options:
 ```
--Dpolyglot.engine.Inlining=false \
--Dpolyglot.engine.CompileImmediately=true \
--Dpolyglot.engine.AllowExperimentalOptions=true \
--Dgraal.Dump=Truffle:2 \
--Dgraal.PrintGraph=Network \
--Dpolyglot.engine.BackgroundCompilation=false \
--Dpolyglot.engine.TraceCompilation=true \
--Dpolyglot.engine.TraceCompilationDetails=true \
 -Dgraalvm.locatorDisabled=true \
 --add-exports org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED \
 --add-exports org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED \

@@ -15,7 +15,6 @@ package raw.compiler.rql2.tests.spec
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait PropagationTest extends CompilerTestContext {
-
   // lists
   test("""let l = List.Build(1,2,3,2,1)
     |in TestPackage.StrictArgs(l)""".stripMargin)(_ should (typeAs("float") and evaluateTo("5.0f")))
@@ -419,4 +418,7 @@ trait PropagationTest extends CompilerTestContext {
   test("""TestPackage.VarValueNullableStringArgs("a", Error.Build("argh!"), "c")""")(_ should runErrorAs("argh!"))
   test("""TestPackage.VarValueNullableStringArgs(Error.Build("argh!"), "b", "c")""")(_ should runErrorAs("argh!"))
 
+  test("""let n: string = null in List.First(["a", "b", n])""")(_ should evaluateTo("\"a\""))
+  test("""let n: string = null in TestPackage.VarValueNullableStringArgs("a", "b", n)""")(_ should evaluateTo("\"ab\""))
+  test("""let n: string = null in TestPackage.VarExpNullableStringArgs("a", "b", n)""")(_ should evaluateTo("\"a\""))
 }

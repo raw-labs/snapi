@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -30,6 +31,7 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 public abstract class IntervalBuildNode extends ExpressionNode {
 
   @Specialization
+  @CompilerDirectives.TruffleBoundary
   public Object buildInterval(int y, int m, int w, int d, int h, int mi, int s, int ms) {
     return new IntervalObject(y, m, w, d, h, mi, s, ms);
   }

@@ -25,7 +25,7 @@ class SqlServerSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
     location.url match {
       case schemaRegex(dbName, schema) =>
         val db = SqlServerClients.get(dbName, location)
-        new SqlServerSchema(db, dbName, schema, location.cacheStrategy, location.retryStrategy)
+        new SqlServerSchema(db, dbName, schema)
       case _ => throw new LocationException("not a sqlserver schema location")
     }
   }

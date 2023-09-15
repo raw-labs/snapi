@@ -21,7 +21,6 @@ import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.PostgreSQLExceptionHandler
-import raw.sources.CacheStrategy
 
 class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry with TruffleEntryExtension {
 
@@ -45,8 +44,7 @@ class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry with TruffleEntry
       new PlusNode(new StringNode("pgsql:"), db),
       keys.toArray,
       values.toArray,
-      types.toArray,
-      CacheStrategy.NoCache
+      types.toArray
     )
     TruffleJdbc.query(location, query, t, new PostgreSQLExceptionHandler())
   }

@@ -20,6 +20,7 @@ import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import raw.runtime.truffle.StatementNode;
@@ -44,6 +45,7 @@ public class RecordWriteCsvNode extends StatementNode {
     }
   }
 
+  @ExplodeLoop
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RecordObject record = (RecordObject) args[0];

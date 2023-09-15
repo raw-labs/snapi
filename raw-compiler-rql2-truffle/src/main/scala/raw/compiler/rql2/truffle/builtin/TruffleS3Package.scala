@@ -18,7 +18,6 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
-import raw.sources.CacheStrategy
 
 class TruffleS3BuildEntry extends S3BuildEntry with TruffleEntryExtension {
 
@@ -39,8 +38,7 @@ class TruffleS3BuildEntry extends S3BuildEntry with TruffleEntryExtension {
       url,
       keys.toArray,
       values.toArray,
-      types.toArray,
-      CacheStrategy.NoCache
+      types.toArray
     )
   }
 

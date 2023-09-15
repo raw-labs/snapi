@@ -12,16 +12,12 @@
 
 package raw.sources.jdbc.snowflake
 
-import raw.sources.{CacheStrategy, RetryStrategy}
-
 import java.io.Closeable
 import raw.sources.jdbc._
 
 class SnowflakeLocation(
     cli: SnowflakeClient,
-    dbName: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    dbName: String
 ) extends JdbcLocation(cli, "snowflake", dbName) {
 
   override def rawUri: String = s"snowflake:$dbName"

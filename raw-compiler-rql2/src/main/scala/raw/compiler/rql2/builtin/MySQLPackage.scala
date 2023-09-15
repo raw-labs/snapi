@@ -164,7 +164,7 @@ class MySQLReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
   override def entryName: String = "Read"
 
   override def docs: EntryDoc = EntryDoc(
-    "Reads a MySQL table with schema detection (inference).",
+    "Reads a MySQL table.",
     params = List(
       ParamDoc(
         "database",

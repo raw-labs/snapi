@@ -46,9 +46,9 @@ class SugarExtensionDesugarer(protected val parent: Phase[SourceProgram], protec
     val tree = new Tree(program)
     lazy val analyzer = tree.analyzer
 
-    lazy val s: Strategy = attempt(sometd(rulefs[Exp] {
+    lazy val s: Strategy = attempt(sometd(rulefs[Any] {
       case f @ FunApp(p @ Proj(e, i), _) if getSugarEntryExtension(analyzer.tipe(p)).isDefined =>
-        congruence(s, s) <* rule[Exp] {
+        congruence(s, s) <* rule[Any] {
           case FunApp(np, nargs) =>
             val PackageType(pkgName) = analyzer.tipe(e)
             val ent = getSugarEntryExtension(analyzer.tipe(p)).get

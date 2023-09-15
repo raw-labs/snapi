@@ -94,7 +94,7 @@ trait RD5921Test extends CompilerTestContext {
 
   test("""let
     |  htmlString =
-    |  String.Read("s3://rawlabs-public-test-data/thanasis-xml-rd-5921.xml"),
+    |  String.Read("s3://rawlabs-public-test-data/rd-5921.xml"),
     |  sanitizedHtml = Regex.Replace(Regex.Replace(htmlString, "(\r\n|\n|\r|\t)", ""), "&euro;", "EU"),
     |  groups = Regex.Groups(sanitizedHtml, "(.*)(<table class=\"info\">)(.*)(<\\/table>)(.*)"),
     |  data = List.Get(groups, 2),
@@ -105,7 +105,7 @@ trait RD5921Test extends CompilerTestContext {
 
   test("""let
     |  htmlString =
-    |  String.Read("s3://rawlabs-public-test-data/thanasis-xml-rd-5921.xml"),
+    |  String.Read("s3://rawlabs-public-test-data/rd-5921.xml"),
     |  sanitizedHtml = Regex.Replace(Regex.Replace(htmlString, "(\r\n|\n|\r|\t)", ""), "&euro;", "EU"),
     |  groups = Regex.Groups(sanitizedHtml, "(.*)(<table class=\"info\">)(.*)(<\\/table>)(.*)"),
     |  data = List.Get(groups, 2),

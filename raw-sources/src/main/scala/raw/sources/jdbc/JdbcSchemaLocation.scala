@@ -21,11 +21,9 @@ abstract class JdbcSchemaLocation(val jdbcClient: JdbcClient, val maybeSchema: O
   def listTables(): Iterator[String] with Closeable
 
   final override def testAccess(): Unit = {
-    withRetryStrategy {
-      maybeSchema match {
-        case Some(s) => jdbcClient.testAccess(s)
-        case None => jdbcClient.testAccess()
-      }
+    maybeSchema match {
+      case Some(s) => jdbcClient.testAccess(s)
+      case None => jdbcClient.testAccess()
     }
   }
 

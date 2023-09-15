@@ -23,7 +23,7 @@ class LocalFileSystemLocationBuilder extends FileSystemLocationBuilder {
     val url = location.url
     if (url.startsWith("file:")) {
       val f = url.stripPrefix("file:")
-      if (f.nonEmpty) new LocalPath(url.stripPrefix("file:"), location.cacheStrategy, location.retryStrategy)
+      if (f.nonEmpty) new LocalPath(url.stripPrefix("file:"))
       else throw new LocationException("not a local location")
     } else throw new LocationException("not a local location")
   }

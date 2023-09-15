@@ -232,7 +232,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
     }
 
     // FunProto factorized logic
-    def handleProto(proto: FunProto, returnType: Type) = build(proto) <* congruence(s, id, s) <* rule[FunProto] {
+    def handleProto(proto: FunProto, returnType: Type) = build(proto) <* congruence(s, id, s) <* rule[Any] {
       case FunProto(rps, _, rb) =>
         // if expected/return type of body is different than the actual body type.
         val retypedBody = for (b <- cast(rb.e, analyzer.tipe(proto.b.e), returnType)) yield FunBody(b)
@@ -333,7 +333,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
 
     lazy val s: Strategy = attempt(sometd(rulefs[Any] {
       // LetBind
-      case LetBind(e, idnDef, Some(_)) => congruence(s, id, id) <* rule[LetBind] {
+      case LetBind(e, idnDef, Some(_)) => congruence(s, id, id) <* rule[Any] {
           case LetBind(e2, _, mt) => analyzer.idnType(idnDef) match {
               case _: ExpType => LetBind(e2, idnDef, mt)
               case t =>
@@ -342,7 +342,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
             }
         }
       // FunApp
-      case fa: FunApp => congruence(s, s) <* rulefs[FunApp] {
+      case fa: FunApp => congruence(s, s) <* rulefs[Any] {
           case FunApp(nf, nArgs) =>
             val castArgs =
               nArgs.zipWithIndex.map { case (arg, argIdx) => argNeedsCast(fa, argIdx, arg.e).getOrElse(arg) }
@@ -355,24 +355,24 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
         }
       case f @ FunAbs(p) =>
         val FunType(_, _, rType, _) = analyzer.tipe(f)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => FunAbs(nProto) }
+        handleProto(p, rType) <* rule[Any] { case nProto: FunProto => FunAbs(nProto) }
       case LetFun(p, idn) =>
         val FunType(_, _, rType, _) = analyzer.idnType(idn)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => LetFun(nProto, idn) }
+        handleProto(p, rType) <* rule[Any] { case nProto: FunProto => LetFun(nProto, idn) }
       case LetFunRec(idn, p) =>
         val FunType(_, _, rType, _) = analyzer.idnType(idn)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => LetFunRec(idn, nProto) }
+        handleProto(p, rType) <* rule[Any] { case nProto: FunProto => LetFunRec(idn, nProto) }
       case Rql2Method(p, idn) =>
         val FunType(_, _, rType, _) = analyzer.idnType(idn)
-        handleProto(p, rType) <* rule[Rql2Node] { case nProto: FunProto => Rql2Method(nProto, idn) }
-      case unaryExp @ UnaryExp(op, e) => congruence(id, s) <* rule[Exp] {
+        handleProto(p, rType) <* rule[Any] { case nProto: FunProto => Rql2Method(nProto, idn) }
+      case unaryExp @ UnaryExp(op, e) => congruence(id, s) <* rule[Any] {
           case UnaryExp(_, re) =>
             val t = analyzer.tipe(unaryExp)
             val ne = cast(re, analyzer.tipe(e), t).getOrElse(re)
             UnaryExp(op, ne)
         }
       // BinaryExp
-      case BinaryExp(op: BooleanOp, e1, e2) => congruence(id, s, s) <* rule[BinaryExp] {
+      case BinaryExp(op: BooleanOp, e1, e2) => congruence(id, s, s) <* rule[Any] {
           case BinaryExp(_, re1, re2) =>
             val te1 = analyzer.tipe(e1)
             val te2 = analyzer.tipe(e2)
@@ -383,7 +383,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
         }
       case b @ BinaryExp(op, e1, e2) if analyzer.tipe(e1) != analyzer.tipe(e2) =>
         op match {
-          case _: Plus | _: Sub | _: Mult | _: Div | _: Mod => congruence(id, s, s) <* rule[BinaryExp] {
+          case _: Plus | _: Sub | _: Mult | _: Div | _: Mod => congruence(id, s, s) <* rule[Any] {
               case BinaryExp(_, re1, re2) =>
                 val t1 = analyzer.tipe(e1)
                 val t2 = analyzer.tipe(e2)
@@ -392,7 +392,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                 val ne2 = cast(re2, t2, t).getOrElse(re2)
                 BinaryExp(op, ne1, ne2)
             }
-          case _: Ge | _: Gt | _: Le | _: Lt | _: Eq | _: Neq => congruence(id, s, s) <* rule[BinaryExp] {
+          case _: Ge | _: Gt | _: Le | _: Lt | _: Eq | _: Neq => congruence(id, s, s) <* rule[Any] {
               case BinaryExp(_, re1, re2) =>
                 val te1 = analyzer.tipe(e1)
                 val te2 = analyzer.tipe(e2)
@@ -407,7 +407,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
         val te1 = analyzer.tipe(e1)
         val te2 = analyzer.tipe(e2)
         val te3 = analyzer.tipe(e3)
-        congruence(s, s, s) <* rule[IfThenElse] {
+        congruence(s, s, s) <* rule[Any] {
           case r @ IfThenElse(re1, re2, re3) => analyzer.mergeType(te2, te3) match {
               case Some(tm) =>
                 val ne1 = cast(re1, te1, Rql2BoolType()).getOrElse(re1)

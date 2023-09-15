@@ -25,7 +25,7 @@ class MySqlLocationBuilder extends JdbcLocationBuilder {
     location.url match {
       case mysqlTableRegex(dbName) =>
         val db = MySqlClients.get(dbName, location)
-        new MySqlLocation(db, dbName, location.cacheStrategy, location.retryStrategy)
+        new MySqlLocation(db, dbName)
       case _ => throw new LocationException("not a mysql database location")
     }
   }

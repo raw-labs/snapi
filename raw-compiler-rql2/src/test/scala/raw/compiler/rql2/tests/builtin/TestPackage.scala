@@ -156,6 +156,31 @@ class VarNullableStringValueTestEntry extends EntryExtension {
 
 }
 
+class VarNullableStringExpTestEntry extends EntryExtension {
+
+  override def packageName: String = "TestPackage"
+
+  override def entryName: String = "VarExpNullableStringArgs"
+
+  override def docs: EntryDoc = ???
+
+  override def nrMandatoryParams: Int = 0
+
+  override def hasVarArgs: Boolean = true
+
+  override def getVarParam(prevMandatoryArgs: Seq[Arg], prevVarArgs: Seq[Arg], idx: Int): Either[String, Param] =
+    Right(ExpParam(Rql2StringType(Set(Rql2IsNullableTypeProperty()))))
+
+  override def returnType(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Either[String, Type] = {
+    Right(Rql2StringType(Set(Rql2IsNullableTypeProperty())))
+  }
+
+}
+
 class StrictArgsTestEntry extends EntryExtension {
 
   override def packageName: String = "TestPackage"

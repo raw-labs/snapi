@@ -18,6 +18,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.Duration;
 import raw.compiler.rql2.source.Rql2IntType;
@@ -42,28 +43,22 @@ public class LocationBuildNode extends ExpressionNode {
   private final String[] keys;
   @Child private ExpressionNode url;
 
-  @Children private ExpressionNode[] values;
+  @Children private final ExpressionNode[] values;
 
   private final Rql2TypeWithProperties[] types;
 
-  private final CacheStrategy cacheStrategy;
-
   public LocationBuildNode(
-      ExpressionNode url,
-      String[] keys,
-      ExpressionNode[] values,
-      Rql2TypeWithProperties[] types,
-      CacheStrategy cacheStrategy) {
+      ExpressionNode url, String[] keys, ExpressionNode[] values, Rql2TypeWithProperties[] types) {
     assert values.length == keys.length;
     assert values.length == types.length;
     this.url = url;
     this.keys = keys;
     this.values = values;
     this.types = types;
-    this.cacheStrategy = cacheStrategy;
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Map<LocationSettingKey, LocationSettingValue> map = new HashMap<>();
     String url = (String) this.url.executeGeneric(frame);
@@ -71,7 +66,7 @@ public class LocationBuildNode extends ExpressionNode {
       Object value = this.values[i].executeGeneric(frame);
       map = addToMap(map, this.keys[i], value, i);
     }
-    return new LocationObject(url, map, this.cacheStrategy);
+    return new LocationObject(url, map);
   }
 
   @CompilerDirectives.TruffleBoundary

@@ -139,7 +139,7 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
 
   override def getInputStream(file: String): InputStream = {
     try {
-      getS3Object(sanitizePath(file)).getObjectContent
+      new RawS3InputStream(getS3Object(sanitizePath(file)).getObjectContent)
     } catch {
       case ex: PathNotFoundException =>
         // If there are contents, then try as "directory", which may throw exception

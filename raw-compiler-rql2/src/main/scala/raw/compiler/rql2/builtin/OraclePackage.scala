@@ -170,7 +170,7 @@ class OracleReadEntry extends SugarEntryExtension with SqlTableExtensionHelper {
   override def entryName: String = "Read"
 
   override def docs: EntryDoc = EntryDoc(
-    "Reads a Oracle table with schema detection (inference).",
+    "Reads a Oracle table.",
     params = List(
       ParamDoc(
         "database",

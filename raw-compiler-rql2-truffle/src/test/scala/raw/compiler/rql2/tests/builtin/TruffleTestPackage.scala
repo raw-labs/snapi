@@ -75,6 +75,14 @@ class TruffleVarNullableStringValueTestEntry extends VarNullableStringValueTestE
   }
 
 }
+
+class TruffleVarNullableStringExpTestEntry extends VarNullableStringExpTestEntry with TruffleEntryExtension {
+  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+    args(0).e
+  }
+
+}
+
 class TruffleStrictArgsTestEntry extends StrictArgsTestEntry with TruffleEntryExtension {
   override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
     val listArg = args(0).e

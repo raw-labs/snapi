@@ -19,7 +19,6 @@ import raw.creds.CredentialsTestContext
 import raw.inferrer._
 import raw.inferrer.local.json.JsonInferrer
 import raw.sources.SourceContext
-import raw.sources.bytestream.ByteStreamCacheTestContext
 import raw.{RawTestSuite, SettingsTestContext, TestData, Uid}
 
 import java.io.StringReader
@@ -28,8 +27,7 @@ class OrTypeTest
     extends RawTestSuite
     with SettingsTestContext
     with SimpleInferrerTestContext
-    with CredentialsTestContext
-    with ByteStreamCacheTestContext {
+    with CredentialsTestContext {
 
   implicit private var sourceContext: SourceContext = _
 
@@ -40,7 +38,6 @@ class OrTypeTest
     sourceContext = new SourceContext(
       InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com"),
       credentials,
-      byteStreamCache,
       settings
     )
     inferrer = new JsonInferrer()

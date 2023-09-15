@@ -12,15 +12,12 @@
 
 package raw.sources.jdbc.sqlite
 
-import raw.sources.{CacheStrategy, RetryStrategy}
 import raw.sources.jdbc._
 
 class SqliteTable(
     cli: SqliteClient,
     dbName: String,
-    table: String,
-    override val cacheStrategy: CacheStrategy,
-    override val retryStrategy: RetryStrategy
+    table: String
 ) extends JdbcTableLocation(cli, "sqlite", dbName, table, None) {
 
   private val path = cli.sqlitePath.toString

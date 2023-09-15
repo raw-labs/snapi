@@ -12,10 +12,8 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
@@ -23,13 +21,11 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 @ExportLibrary(ComputeNextLibrary.class)
 public final class ExpressionComputeNext {
 
-  private final ExpressionNode[] exps;
-  private final VirtualFrame frame;
+  private final Object[] values;
   private int position;
 
-  public ExpressionComputeNext(ExpressionNode[] exps, VirtualFrame frame) {
-    this.frame = frame;
-    this.exps = exps;
+  public ExpressionComputeNext(Object[] values) {
+    this.values = values;
     this.position = 0;
   }
 
@@ -46,11 +42,11 @@ public final class ExpressionComputeNext {
 
   @ExportMessage
   Object computeNext() {
-    if (position >= exps.length) {
+    if (position >= values.length) {
       throw new BreakException();
     }
     try {
-      return exps[position].executeGeneric(frame);
+      return values[position];
     } catch (RawTruffleRuntimeException e) {
       return new RawTruffleRuntimeException(e.getMessage());
     } finally {

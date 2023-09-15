@@ -18,6 +18,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
@@ -52,16 +53,17 @@ public class RecordWriteJsonNode extends StatementNode {
   }
 
   @Override
+  @ExplodeLoop
   public void executeVoid(VirtualFrame frame) {
     try {
       Object[] args = frame.getArguments();
       RecordObject record = (RecordObject) args[0];
       JsonGenerator gen = (JsonGenerator) args[1];
       Object keys = interops.getMembers(record);
-      long length = interops.getArraySize(keys);
       Object item;
+
       writeStartObjectNode.execute(gen);
-      for (int i = 0; i < length; i++) {
+      for (int i = 0; i < childDirectCalls.length; i++) {
         String member = (String) interops.readArrayElement(keys, i);
         item = record.readIdx(i);
         writeFieldNameNode.execute(member, gen);
