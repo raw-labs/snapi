@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.iterable.sources.ExpressionCollection;
@@ -27,7 +28,12 @@ public class CollectionBuildNode extends ExpressionNode {
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
-    return new ExpressionCollection(exps, frame);
+    Object[] values = new Object[exps.length];
+    for (int i = 0; i < exps.length; i++) {
+      values[i] = exps[i].executeGeneric(frame);
+    }
+    return new ExpressionCollection(values);
   }
 }

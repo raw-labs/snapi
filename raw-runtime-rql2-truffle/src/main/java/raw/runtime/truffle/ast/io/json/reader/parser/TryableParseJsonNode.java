@@ -20,22 +20,20 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 import raw.runtime.truffle.runtime.tryable.ErrorTryable;
 
 @NodeInfo(shortName = "TryableParseJson")
 public class TryableParseJsonNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
-  private final RuntimeNullableTryableHandler nullableTryableHandler =
-      new RuntimeNullableTryableHandler();
 
   @Child
-  private NullableTryableLibrary nullableTryable =
-      NullableTryableLibrary.getFactory().create(nullableTryableHandler);
+  private TryableNullableNodes.BoxTryableNode boxTryable =
+      TryableNullableNodesFactory.BoxTryableNodeGen.create();
 
   @Child
   private JsonParserNodes.SkipNextJsonParserNode skipNext =
@@ -50,7 +48,7 @@ public class TryableParseJsonNode extends ExpressionNode {
     JsonParser parser = (JsonParser) args[0];
     try {
       Object result = childDirectCall.call(parser);
-      return nullableTryable.boxTryable(nullableTryableHandler, result);
+      return boxTryable.execute(result);
     } catch (JsonParserRawTruffleException ex) {
       try {
         skipNext.execute(parser);

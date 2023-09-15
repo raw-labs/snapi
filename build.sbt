@@ -538,6 +538,7 @@ lazy val rawCli = (project in file("raw-cli"))
       case PathList("mozilla", "public-suffix-list.txt", xs @ _*) => MergeStrategy.first
       case "module-info.class" => MergeStrategy.first
       case "mime.types" => MergeStrategy.first
+      case PathList("org", "bitbucket", "inkytonik", "kiama", _*) => MergeStrategy.preferProject
       case x =>
         val oldStrategy = (assembly / assemblyMergeStrategy).value
         oldStrategy(x)

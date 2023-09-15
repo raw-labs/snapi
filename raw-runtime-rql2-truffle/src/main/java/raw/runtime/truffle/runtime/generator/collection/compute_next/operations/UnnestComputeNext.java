@@ -12,17 +12,17 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.operations.EmptyCollection;
-import raw.runtime.truffle.runtime.nullable_tryable.NullableTryableLibrary;
-import raw.runtime.truffle.runtime.nullable_tryable.RuntimeNullableTryableHandler;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class UnnestComputeNext {
@@ -54,17 +54,15 @@ public class UnnestComputeNext {
     return true;
   }
 
-  protected Object nullableTryable = new RuntimeNullableTryableHandler();
-
   private final Object empty =
       new EmptyCollection(); // the empty collection to return when the function result is
   // null/error
 
   @ExportMessage
   Object computeNext(
+      @Cached("create()") TryableNullableNodes.GetOrElseNode getOrElse,
       @CachedLibrary(limit = "3") GeneratorLibrary generators,
-      @CachedLibrary(limit = "5") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") NullableTryableLibrary nullableTryables) {
+      @CachedLibrary(limit = "5") IterableLibrary iterables) {
     Object next = null;
 
     while (next == null) {
@@ -75,7 +73,7 @@ public class UnnestComputeNext {
         Object functionResult = transform.call(generators.next(parent));
         // the function result could be tryable/nullable. If error/null,
         // we replace it by an empty collection.
-        Object iterable = nullableTryables.getOrElse(nullableTryable, functionResult, empty);
+        Object iterable = getOrElse.execute(functionResult, empty);
         currentGenerator = iterables.getGenerator(iterable);
         generators.init(currentGenerator);
       }
