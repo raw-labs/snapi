@@ -107,6 +107,7 @@ lazy val buildSettings = Seq(
   // Fast compilation (in SBT process)
   fork := false,
   turbo := true,
+  parallelExecution := false,
   // Add dependency resolvers
   resolvers += Resolver.mavenLocal,
   resolvers += Resolver.sonatypeRepo("releases"),
