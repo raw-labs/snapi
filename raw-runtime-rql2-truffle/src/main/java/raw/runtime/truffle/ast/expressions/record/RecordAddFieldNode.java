@@ -12,13 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.AddField")
@@ -28,7 +29,12 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 public abstract class RecordAddFieldNode extends ExpressionNode {
 
   @Specialization
-  protected Object doAddField(Object rec, String newKey, Object newValue) {
+  protected Object doAddField(
+      Object rec,
+      String newKey,
+      Object newValue,
+      @Cached("create()") RecordNodes.WriteIndexNode writeIndexNode,
+      @Cached("create()") RecordNodes.ReadIndexNode readIndexNode) {
     RecordObject record = (RecordObject) rec;
     RecordObject newRecord = RawLanguage.get(this).createRecord();
     String[] keys = record.keys();
@@ -36,13 +42,9 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
     String member;
     for (int i = 0; i < length; i++) {
       member = keys[i];
-      try {
-        newRecord.writeIdx(i, member, record.readIdx(i));
-      } catch (InvalidArrayIndexException e) {
-        throw new RawTruffleInternalErrorException(e, this);
-      }
+      writeIndexNode.execute(newRecord, i, member, readIndexNode.execute(record, i));
     }
-    newRecord.writeIdx(length, newKey, newValue);
+    writeIndexNode.execute(newRecord, length, newKey, newValue);
     return newRecord;
   }
 }

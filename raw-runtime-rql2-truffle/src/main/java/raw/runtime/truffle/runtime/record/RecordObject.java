@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.record;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -30,16 +31,14 @@ import raw.runtime.truffle.RawLanguage;
 @ExportLibrary(InteropLibrary.class)
 public final class RecordObject implements TruffleObject {
 
-  private final Vector<String> keys = new Vector<>();
-  private Vector<String> distinctKeys = null;
-  private final DynamicObject values;
-  private final DynamicObjectLibrary valuesLibrary;
+  public final Vector<String> keys = new Vector<>();
+  public Vector<String> distinctKeys = null;
+  public final DynamicObject values;
   private static final Shape rootShape =
       Shape.newBuilder().layout(RecordStorageObject.class).build();
 
   public RecordObject() {
     this.values = new RecordStorageObject(rootShape);
-    this.valuesLibrary = DynamicObjectLibrary.getFactory().create(values);
   }
 
   @TruffleBoundary
@@ -152,7 +151,8 @@ public final class RecordObject implements TruffleObject {
   }
 
   @ExportMessage
-  Object readMember(String name) throws UnknownIdentifierException {
+  Object readMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary)
+      throws UnknownIdentifierException {
     // Interop API, we assume the searched key should be found in the distinct keys.
     int idx = getDistinctKeys().indexOf(name);
     Object result = valuesLibrary.getOrDefault(values, idx, null);
@@ -163,56 +163,57 @@ public final class RecordObject implements TruffleObject {
     return result;
   }
 
-  public Object readIdx(int idx) throws InvalidArrayIndexException {
-    // Pick a value by its index. Just go fetch the key in the dynamic object.
-    if (idx < 0 || idx >= keys.size()) {
-      return InvalidArrayIndexException.create(idx);
-    }
-    return valuesLibrary.getOrDefault(values, idx, null);
-  }
+  //  public Object readIdx(int idx) throws InvalidArrayIndexException {
+  //    // Pick a value by its index. Just go fetch the key in the dynamic object.
+  //    if (idx < 0 || idx >= keys.size()) {
+  //      return InvalidArrayIndexException.create(idx);
+  //    }
+  //    return valuesLibrary.getOrDefault(values, idx, null);
+  //  }
 
-  public Object readByKey(String key) throws UnknownIdentifierException {
-    // Non-interop API, key is searched in the possibly duplicate keys.
-    // To be used with care: searching a duplicate key would be a bug.
-    try {
-      return readIdx(keys.indexOf(key));
-    } catch (InvalidArrayIndexException e) {
-      throw UnknownIdentifierException.create(key);
-    }
-  }
+  //  public Object readByKey(String key) throws UnknownIdentifierException {
+  //    // Non-interop API, key is searched in the possibly duplicate keys.
+  //    // To be used with care: searching a duplicate key would be a bug.
+  //    try {
+  //      return readIdx(keys.indexOf(key));
+  //    } catch (InvalidArrayIndexException e) {
+  //      throw UnknownIdentifierException.create(key);
+  //    }
+  //  }
 
   // Write a field by index. The String key should be provided
   // since all fields have names (possibly duplicated).
   // It's an internal API, a key/idx isn't supposed to be overwritten.
-  @TruffleBoundary
-  public void writeIdx(int idx, String key, Object value) {
-    if (idx >= keys.size()) {
-      keys.setSize(idx + 1);
-      distinctKeys = null;
-    }
-    keys.set(idx, key);
-    valuesLibrary.put(values, idx, value);
-  }
+  //  @TruffleBoundary
+  //  public void writeIdx(int idx, String key, Object value) {
+  //    if (idx >= keys.size()) {
+  //      keys.setSize(idx + 1);
+  //      distinctKeys = null;
+  //    }
+  //    keys.set(idx, key);
+  //    valuesLibrary.put(values, idx, value);
+  //  }
 
   // adds a value by key only (auto-increment the index)
   // TODO replace all internal calls to writeMember by calls to addByKey
-  public void addByKey(String key, Object value) {
-    valuesLibrary.put(
-        values, keys.size(), value); // "key" to use in the dynamic object is the current index.
-    keys.add(key); // the original key is added (possible duplicate)
-  }
+  //  public void addByKey(String key, Object value) {
+  //    valuesLibrary.put(
+  //        values, keys.size(), value); // "key" to use in the dynamic object is the current index.
+  //    keys.add(key); // the original key is added (possible duplicate)
+  //  }
 
   @ExportMessage
   // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey,
   // etc.)
   // and
   //  writeMember should expose a semantic matching the interop API.
-  public void writeMember(String name, Object value) {
-    addByKey(name, value);
+  public void writeMember(
+      String name, Object value, @Cached("create()") RecordNodes.AddByKeyNode addByKey) {
+    addByKey.execute(this, name, value);
   }
 
   @ExportMessage
-  void removeMember(String name) {
+  void removeMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary) {
     valuesLibrary.removeKey(values, name);
   }
 }
