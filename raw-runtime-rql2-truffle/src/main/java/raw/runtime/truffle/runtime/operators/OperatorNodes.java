@@ -136,7 +136,7 @@ public class OperatorNodes {
     static int doRecord(
         RecordObject left,
         RecordObject right,
-        @Cached("create()") CompareNode compare,
+        @Cached CompareNode compare,
         @CachedLibrary("left") InteropLibrary lefts,
         @CachedLibrary(limit = "3") InteropLibrary arrays,
         @CachedLibrary("right") InteropLibrary rights) {
@@ -183,7 +183,7 @@ public class OperatorNodes {
     static int doIterable(
         Object left,
         Object right,
-        @Cached("create()") CompareNode compare,
+        @Cached CompareNode compare,
         @CachedLibrary("left") IterableLibrary lefts,
         @CachedLibrary("right") IterableLibrary rights,
         @CachedLibrary(limit = "2") GeneratorLibrary generators) {
@@ -221,7 +221,7 @@ public class OperatorNodes {
     static int doTryable(
         Object left,
         Object right,
-        @Cached("create()") CompareNode compare,
+        @Cached CompareNode compare,
         @CachedLibrary(limit = "3") TryableLibrary tryables) {
       // both are tryables (maybe not nullable but that's handled recursively)
       assert (tryables.isTryable(right));
@@ -250,7 +250,7 @@ public class OperatorNodes {
     static int doNullable(
         Object left,
         Object right,
-        @Cached("create()") CompareNode compare,
+        @Cached CompareNode compare,
         @CachedLibrary(limit = "3") OptionLibrary options) {
       // both are options
       assert (options.isOption(right));
@@ -342,7 +342,7 @@ public class OperatorNodes {
     static Object doNullableTryable(
         Object left,
         Object right,
-        @Cached("create()") AddNode add,
+        @Cached AddNode add,
         @Cached TryableNullableNodes.UnboxUnsafeNode unbox) {
       Object unboxedLeft = unbox.execute(left);
       Object unboxedRight = unbox.execute(right);

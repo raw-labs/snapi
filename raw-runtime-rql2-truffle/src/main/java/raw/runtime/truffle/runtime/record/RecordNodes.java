@@ -48,7 +48,6 @@ public class RecordNodes {
 
     public abstract void execute(RecordObject record, int idx, String key, Object value);
 
-    @CompilerDirectives.TruffleBoundary
     @Specialization(limit = "3")
     void exec(
         RecordObject record,

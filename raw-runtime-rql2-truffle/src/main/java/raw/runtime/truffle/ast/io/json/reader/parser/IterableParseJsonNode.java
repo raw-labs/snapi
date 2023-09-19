@@ -25,7 +25,7 @@ public class IterableParseJsonNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
 
-  private final ListLibrary lists = ListLibrary.getFactory().createDispatched(1);
+  @Child private ListLibrary lists = ListLibrary.getFactory().createDispatched(1);
 
   public IterableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());

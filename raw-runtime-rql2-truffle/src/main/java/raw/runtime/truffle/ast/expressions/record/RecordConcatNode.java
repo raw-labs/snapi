@@ -12,14 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.*;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Concat")
@@ -27,12 +27,17 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeChild("record2")
 public abstract class RecordConcatNode extends ExpressionNode {
 
+  @Child
+  RecordNodes.WriteIndexNode writeIndexNode =
+      insert(RecordNodesFactory.WriteIndexNodeGen.create());
+
+  @Child
+  RecordNodes.ReadIndexNode readIndexNode =
+      insert(RecordNodesFactory.ReadIndexNodeGen.create());
+
   @Specialization
-  protected Object doConcat(
-      Object rec1,
-      Object rec2,
-      @Cached("create()") RecordNodes.WriteIndexNode writeIndexNode,
-      @Cached("create()") RecordNodes.ReadIndexNode readIndexNode) {
+  @ExplodeLoop
+  protected Object doConcat(Object rec1, Object rec2) {
     RecordObject newRecord = RawLanguage.get(this).createRecord();
     RecordObject record1 = (RecordObject) rec1;
     RecordObject record2 = (RecordObject) rec2;

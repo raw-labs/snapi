@@ -147,7 +147,7 @@ public final class RecordObject implements TruffleObject {
 
   @ExportMessage
   boolean isMemberRemovable(String member, @CachedLibrary("this") InteropLibrary receivers) {
-    return receivers.isMemberRemovable(this, member);
+    return receivers.isMemberModifiable(this, member);
   }
 
   @ExportMessage
