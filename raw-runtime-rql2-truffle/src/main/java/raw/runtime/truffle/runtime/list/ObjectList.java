@@ -62,7 +62,7 @@ public class ObjectList {
   }
 
   @ExportMessage
-  public Object sort(@Cached("create()") OperatorNodes.CompareNode compare) {
+  public Object sort(@Cached OperatorNodes.CompareNode compare) {
     Object[] result = this.list.clone();
     Arrays.sort(result, compare::execute);
     return new ObjectList(result);

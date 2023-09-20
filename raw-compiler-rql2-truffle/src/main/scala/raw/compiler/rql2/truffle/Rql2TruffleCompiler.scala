@@ -144,14 +144,14 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
   private def convertAnyToValue(v: Any, t: Type): Value = t match {
     case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
-      val triables = TryableLibrary.getFactory.create(v)
+      val triables = TryableLibrary.getFactory.getUncached(v)
       if (triables.isSuccess(v)) {
         TryValue(Right(convertAnyToValue(triables.success(v), removeProp(t, Rql2IsTryableTypeProperty()))))
       } else {
         TryValue(Left(triables.failure(v)))
       }
     case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) =>
-      val options = OptionLibrary.getFactory.create(v)
+      val options = OptionLibrary.getFactory.getUncached(v)
       if (options.isDefined(v)) {
         OptionValue(Some(convertAnyToValue(options.get(v), removeProp(t, Rql2IsNullableTypeProperty()))))
       } else {
@@ -202,13 +202,13 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
           )
       })
     case Rql2ListType(t1, _) =>
-      val lists = ListLibrary.getFactory.create(v)
+      val lists = ListLibrary.getFactory.getUncached(v)
       val values = for (i <- 0 until lists.size(v).asInstanceOf[Int]) yield lists.get(v, i)
       ListValue(values.map(v1 => convertAnyToValue(v1, t1)))
     case Rql2IterableType(t1, _) =>
-      val iterables = IterableLibrary.getFactory.create(v)
+      val iterables = IterableLibrary.getFactory.getUncached(v)
       val generator = iterables.getGenerator(v)
-      val generators = GeneratorLibrary.getFactory.create(generator)
+      val generators = GeneratorLibrary.getFactory.getUncached(generator)
       generators.init(generator)
       val vs = mutable.ArrayBuffer[Any]()
       while (generators.hasNext(generator)) {

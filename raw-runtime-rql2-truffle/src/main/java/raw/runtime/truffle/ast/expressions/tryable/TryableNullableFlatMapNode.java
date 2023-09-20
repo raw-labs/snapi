@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -32,6 +33,7 @@ public abstract class TryableNullableFlatMapNode extends ExpressionNode {
   private final ObjectTryable successNone = ObjectTryable.BuildSuccess(new EmptyOption());
 
   @Specialization(limit = "1")
+  @CompilerDirectives.TruffleBoundary
   protected Object doTryable(
       Object tryable,
       Closure closure,

@@ -34,7 +34,7 @@ public class MinAggregator {
   public Object merge(
       Object current,
       Object next,
-      @Cached("create()") OperatorNodes.CompareNode compare,
+      @Cached OperatorNodes.CompareNode compare,
       @CachedLibrary(limit = "3") OptionLibrary options) {
     if (options.isDefined(current)) {
       if (options.isDefined(next)) {

@@ -29,13 +29,13 @@ public abstract class RecordProjNode extends ExpressionNode {
   protected Object readMember(
       RecordObject record,
       String key,
-      @Cached("create()") RecordNodes.ReadByKeyNode readByKeyNode) {
+      @Cached RecordNodes.ReadByKeyNode readByKeyNode) {
     return readByKeyNode.execute(record, key);
   }
 
   @Specialization
   protected Object readMember(
-      RecordObject record, int index, @Cached("create()") RecordNodes.ReadIndexNode readIndexNode) {
+      RecordObject record, int index, @Cached RecordNodes.ReadIndexNode readIndexNode) {
     return readIndexNode.execute(record, index - 1);
   }
 }
