@@ -47,7 +47,8 @@ public final class DistinctCollection {
     return true;
   }
 
-  private final OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.create();
+  private final OperatorNodes.CompareNode compare =
+      OperatorNodesFactory.CompareNodeGen.getUncached();
 
   private int compareKey(Object key1, Object key2) {
     return compare.execute(key1, key2);

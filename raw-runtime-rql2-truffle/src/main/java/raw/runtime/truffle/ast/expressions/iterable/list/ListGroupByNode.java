@@ -40,7 +40,7 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
 public abstract class ListGroupByNode extends ExpressionNode {
 
-  @Child OperatorNodes.CompareNode compare = insert(OperatorNodesFactory.CompareNodeGen.create());
+  @Child OperatorNodes.CompareNode compare = insert(OperatorNodesFactory.CompareNodeGen.getUncached());
 
   protected abstract Rql2TypeWithProperties getKeyType();
 

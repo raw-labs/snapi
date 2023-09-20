@@ -24,7 +24,7 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(AggregationLibrary.class)
 public class SingleAggregation {
 
-  final Object aggregator;
+  Object aggregator;
 
   public SingleAggregation(Object aggregator) {
     this.aggregator = aggregator;
@@ -60,7 +60,4 @@ public class SingleAggregation {
       generators.close(generator);
     }
   }
-
-
-
 }

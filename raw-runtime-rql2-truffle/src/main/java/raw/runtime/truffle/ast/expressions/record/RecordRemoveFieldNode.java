@@ -45,7 +45,6 @@ public abstract class RecordRemoveFieldNode extends ExpressionNode {
         }
         libraries.writeMember(newRecord, member, records.readMember(record, member));
       }
-      newRecord.distinctKeys = null;
       return newRecord;
     } catch (UnsupportedMessageException
         | UnknownIdentifierException

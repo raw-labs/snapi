@@ -32,41 +32,44 @@ import raw.runtime.truffle.RawLanguage;
 public final class RecordObject implements TruffleObject {
 
   public final Vector<String> keys = new Vector<>();
-  public Vector<String> distinctKeys = null;
+  private final Vector<String> distinctKeys;
   public final DynamicObject values;
   private static final Shape rootShape =
       Shape.newBuilder().layout(RecordStorageObject.class).build();
 
   public RecordObject() {
     this.values = new RecordStorageObject(rootShape);
+    this.distinctKeys = new Vector<>();
   }
 
   @TruffleBoundary
   private Vector<String> getDistinctKeys() {
-    if (distinctKeys == null) {
-      distinctKeys = new Vector<>(keys.size());
-      // populate with all official keys (duplicates will appear once)
-      Map<String, Boolean> keySet = new HashMap<>();
-      keys.forEach(k -> keySet.put(k, false));
-      // add all keys in the order they appear in the keys vector
-      for (String key : keys) {
-        String newKey = key;
-        if (keySet.get(newKey)) {
-          // the key was seen already, find a new key by enumerating other keys.
-          int n = 1;
-          do {
-            newKey = key + '_' + n++;
-          } while (keySet.containsKey(newKey));
-          keySet.put(newKey, true);
-        } else {
-          // else, keep the original name
-          // but keep track of the fact that we saw it
-          keySet.put(newKey, true);
-        }
-        distinctKeys.add(newKey);
-      }
-    }
     return distinctKeys;
+  }
+
+  @TruffleBoundary
+  public void refreshDistinctKeys() {
+    distinctKeys.clear();
+    // populate with all official keys (duplicates will appear once)
+    Map<String, Boolean> keySet = new HashMap<>();
+    keys.forEach(k -> keySet.put(k, false));
+    // add all keys in the order they appear in the keys vector
+    for (String key : keys) {
+      String newKey = key;
+      if (keySet.get(newKey)) {
+        // the key was seen already, find a new key by enumerating other keys.
+        int n = 1;
+        do {
+          newKey = key + '_' + n++;
+        } while (keySet.containsKey(newKey));
+        keySet.put(newKey, true);
+      } else {
+        // else, keep the original name
+        // but keep track of the fact that we saw it
+        keySet.put(newKey, true);
+      }
+      distinctKeys.add(newKey);
+    }
   }
 
   @ExportMessage
@@ -210,10 +213,12 @@ public final class RecordObject implements TruffleObject {
   public void writeMember(
       String name, Object value, @Cached("create()") RecordNodes.AddByKeyNode addByKey) {
     addByKey.execute(this, name, value);
+    refreshDistinctKeys();
   }
 
   @ExportMessage
   void removeMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary) {
     valuesLibrary.removeKey(values, name);
+    refreshDistinctKeys();
   }
 }

@@ -34,7 +34,8 @@ import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class EquiJoinComputeNext {
-  private final OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.create();
+  private final OperatorNodes.CompareNode compare =
+      OperatorNodesFactory.CompareNodeGen.getUncached();
   protected final Object leftIterable, rightIterable;
   private final Closure leftKeyF, rightKeyF, mkJoinedRecord;
   private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;

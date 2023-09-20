@@ -41,6 +41,10 @@ import scala.collection.immutable.VectorBuilder;
 public class LocationBuildNode extends ExpressionNode {
 
   private final String[] keys;
+
+  @Child ListLibrary listLibs = ListLibrary.getFactory().createDispatched(3);
+  @Child InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
+  @Child OptionLibrary options = OptionLibrary.getFactory().createDispatched(3);
   @Child private ExpressionNode url;
 
   @Children private final ExpressionNode[] values;
@@ -50,7 +54,7 @@ public class LocationBuildNode extends ExpressionNode {
   public LocationBuildNode(
       ExpressionNode url, String[] keys, ExpressionNode[] values, Rql2TypeWithProperties[] types) {
     assert values.length == keys.length;
-    assert values.length == types.length;
+//    assert values.length == types.length; // Doesn't hold for DB packages
     this.url = url;
     this.keys = keys;
     this.values = values;
@@ -101,9 +105,6 @@ public class LocationBuildNode extends ExpressionNode {
         int[] ints = (int[]) lists.getInnerList(value);
         return new raw.sources.LocationIntArraySetting(ints);
       } else if (TypeGuards.isListKind(type)) {
-        ListLibrary listLibs = ListLibrary.getFactory().createDispatched(2);
-        InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
-        OptionLibrary options = OptionLibrary.getFactory().createDispatched(2);
         VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
         int size = (int) listLibs.size(value);
         for (int i = 0; i < size; i++) {

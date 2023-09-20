@@ -12,13 +12,14 @@
 
 package raw.runtime.truffle.runtime.list;
 
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
 @ExportLibrary(ListLibrary.class)
-public class FloatList {
+public class FloatList implements TruffleObject {
 
   private final float[] list;
 

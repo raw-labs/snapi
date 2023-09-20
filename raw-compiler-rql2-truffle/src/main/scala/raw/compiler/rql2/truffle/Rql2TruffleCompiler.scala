@@ -192,9 +192,9 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     //      case _: Rql2RegexType => RegexValue(v.asInstanceOf[scala.util.matching.Regex]) // a.z I think we don't have it in RQL2, yes?
     case _: Rql2UndefinedType => NothingValue()
     case Rql2RecordType(atts, _) =>
-      val records = InteropLibrary.getFactory.create(v)
+      val records = InteropLibrary.getFactory.getUncached(v)
       val keys = records.getMembers(v)
-      val keysLib = InteropLibrary.getFactory.create(keys)
+      val keysLib = InteropLibrary.getFactory.getUncached(keys)
       RecordValue(atts.zipWithIndex.map {
         case (att, idx) => convertAnyToValue(
             records.readMember(v, keysLib.readArrayElement(keys, idx).asInstanceOf[String]),

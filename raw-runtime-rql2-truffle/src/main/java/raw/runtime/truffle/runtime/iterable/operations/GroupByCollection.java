@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -23,7 +24,6 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapCollectionGroupByKey;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
 @ExportLibrary(IterableLibrary.class)
 public final class GroupByCollection {
@@ -57,10 +57,9 @@ public final class GroupByCollection {
     return true;
   }
 
-  private final OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.create();
-
   @ExportMessage
   Object getGenerator(
+      @Cached OperatorNodes.CompareNode compare,
       @CachedLibrary("this.iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "5") GeneratorLibrary generators) {
     OffHeapCollectionGroupByKey map =

@@ -13,6 +13,7 @@
 package raw.runtime.truffle.runtime.list;
 
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
@@ -20,7 +21,7 @@ import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 @ExportLibrary(ListLibrary.class)
-public class ObjectList {
+public class ObjectList implements TruffleObject {
   private final Object[] list;
 
   public ObjectList(Object[] list) {

@@ -57,9 +57,9 @@ public class RecordNodes {
         @CachedLibrary("record.values") DynamicObjectLibrary valuesLibrary) {
       if (idx >= record.keys.size()) {
         record.keys.setSize(idx + 1);
-        record.distinctKeys = null;
       }
       record.keys.set(idx, key);
+      record.refreshDistinctKeys();
       valuesLibrary.put(record.values, idx, value);
     }
   }
@@ -82,6 +82,7 @@ public class RecordNodes {
           record.keys.size(),
           value); // "key" to use in the dynamic object is the current index.
       record.keys.add(key); // the original key is added (possible duplicate)
+      record.refreshDistinctKeys();
     }
   }
 }
