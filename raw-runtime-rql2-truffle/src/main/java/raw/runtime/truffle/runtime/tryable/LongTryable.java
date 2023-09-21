@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.tryable;
 
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -20,7 +21,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 // and misses the cast phase
 
 @ExportLibrary(TryableLibrary.class)
-public final class LongTryable {
+public final class LongTryable implements TruffleObject {
 
   private final long successValue;
   private final String failureValue;

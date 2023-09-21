@@ -22,8 +22,8 @@ import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapGroupByKeys;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
 @ExportLibrary(IterableLibrary.class)
 public final class OrderByCollection {
@@ -54,8 +54,8 @@ public final class OrderByCollection {
     this.context = context;
   }
 
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
+  private final OperatorNodes.CompareNode compare =
+      OperatorNodesFactory.CompareNodeGen.getUncached();
 
   private int compareKeys(Object[] keys1, Object[] keys2) {
     // Keys are compared in order, until a difference is found.
@@ -63,7 +63,7 @@ public final class OrderByCollection {
     // If keys are different, the comparison result is multiplied by the 'order' of the key to
     // reflect the "ASC/DESC".
     for (int i = 0; i < keys1.length; i++) {
-      int cmp = (int) operators.doOperation(compare, keys1[i], keys2[i]);
+      int cmp = compare.execute(keys1[i], keys2[i]);
       if (cmp != 0) {
         return keyOrderings[i] * cmp;
       }

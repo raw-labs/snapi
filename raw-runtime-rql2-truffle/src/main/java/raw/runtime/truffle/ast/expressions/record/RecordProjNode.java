@@ -12,13 +12,12 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Project")
@@ -26,21 +25,15 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeChild("indexNode")
 public abstract class RecordProjNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
-  protected Object readMember(RecordObject record, String key) {
-    try {
-      return record.readByKey(key);
-    } catch (UnknownIdentifierException e) {
-      throw new RawTruffleInternalErrorException(e, this);
-    }
+  @Specialization
+  protected Object readMember(
+      RecordObject record, String key, @Cached RecordNodes.ReadByKeyNode readByKeyNode) {
+    return readByKeyNode.execute(record, key);
   }
 
   @Specialization
-  protected Object readMember(RecordObject record, int index) {
-    try {
-      return record.readIdx(index - 1);
-    } catch (InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
-    }
+  protected Object readMember(
+      RecordObject record, int index, @Cached RecordNodes.ReadIndexNode readIndexNode) {
+    return readIndexNode.execute(record, index - 1);
   }
 }

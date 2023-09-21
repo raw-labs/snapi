@@ -63,10 +63,10 @@ class CsvColumnParser(
     timestampFormat: ExpressionNode
 ) {
 
-  private val lang = RawLanguage.getCurrentContext.getLanguage
-  private val frameDescriptor = new FrameDescriptor()
-
   def stringParser(str: ExpressionNode, t: Rql2TypeWithProperties): ExpressionNode = {
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
+
     val Rql2IterableType(Rql2RecordType(columns, rProps), iProps) = t
     assert(iProps.isEmpty)
     assert(rProps.isEmpty)
@@ -94,6 +94,9 @@ class CsvColumnParser(
       url: ExpressionNode,
       t: Rql2TypeWithProperties
   ): ExpressionNode = {
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
+
     val Rql2IterableType(Rql2RecordType(columns, rProps), iProps) = t
     assert(iProps.isEmpty)
     assert(rProps.isEmpty)
@@ -161,6 +164,9 @@ class CsvColumnParser(
   }
 
   private def program(e: ExpressionNode): ProgramExpressionNode = {
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
+
     new ProgramExpressionNode(lang, frameDescriptor, e)
   }
 }
@@ -189,10 +195,9 @@ object CsvColumnParser {
 
 object CsvWriter {
 
-  private val lang = RawLanguage.getCurrentContext.getLanguage
-  private val frameDescriptor = new FrameDescriptor()
-
   def apply(args: Seq[Type]): ProgramStatementNode = {
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
     val columnWriters = args.map(columnWriter).map(writer => new ProgramStatementNode(lang, frameDescriptor, writer))
     val recordWriter = new RecordWriteCsvNode(columnWriters.toArray)
     new ProgramStatementNode(lang, frameDescriptor, recordWriter)
@@ -229,6 +234,8 @@ object CsvWriter {
   }
 
   private def program(e: StatementNode): ProgramStatementNode = {
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
     new ProgramStatementNode(lang, frameDescriptor, e)
   }
 }

@@ -49,7 +49,7 @@ class CollectionGroupByRecordShaper extends GroupByRecordShaper {
   public Object makeRow(Object key, Object[] values) {
     RecordObject record = language.createRecord();
     if (records == null) {
-      records = InteropLibrary.getFactory().create(record);
+      records = InteropLibrary.getFactory().getUncached();
     }
     try {
       records.writeMember(record, "key", key);

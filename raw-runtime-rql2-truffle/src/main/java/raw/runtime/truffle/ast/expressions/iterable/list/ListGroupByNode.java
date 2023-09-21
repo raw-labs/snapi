@@ -29,8 +29,8 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapListGroupByKey;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "List.GroupBy")
@@ -40,15 +40,15 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
 public abstract class ListGroupByNode extends ExpressionNode {
 
+  @Child
+  OperatorNodes.CompareNode compare = insert(OperatorNodesFactory.CompareNodeGen.getUncached());
+
   protected abstract Rql2TypeWithProperties getKeyType();
 
   protected abstract Rql2TypeWithProperties getRowType();
 
-  private final CompareOperator compare = new CompareOperator();
-  private final OperatorLibrary operators = OperatorLibrary.getFactory().create(compare);
-
   private int compareKey(Object key1, Object key2) {
-    return (int) operators.doOperation(compare, key1, key2);
+    return compare.execute(key1, key2);
   }
 
   static final int LIB_LIMIT = 2;

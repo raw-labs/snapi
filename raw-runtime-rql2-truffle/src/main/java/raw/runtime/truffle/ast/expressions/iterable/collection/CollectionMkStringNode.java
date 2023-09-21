@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -20,8 +21,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.operators.AddOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.tryable.StringTryable;
 
 @NodeInfo(shortName = "Collection.MkString")
@@ -36,22 +36,21 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
       String start,
       String sep,
       String end,
+      @Cached("create()") OperatorNodes.AddNode add,
       @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators,
-      @CachedLibrary(limit = "1") OperatorLibrary operators) {
+      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
     try {
       Object generator = iterables.getGenerator(iterable);
-      AddOperator addOperator = new AddOperator();
       String currentString = start;
       if (!generators.hasNext(generator)) {
         return StringTryable.BuildSuccess(start + end);
       } else {
         Object next = generators.next(generator);
-        currentString = (String) operators.doOperation(addOperator, currentString, next);
+        currentString = (String) add.execute(currentString, next);
       }
       while (generators.hasNext(generator)) {
         Object next = generators.next(generator);
-        currentString = (String) operators.doOperation(addOperator, currentString + sep, next);
+        currentString = (String) add.execute(currentString + sep, next);
       }
       return StringTryable.BuildSuccess(currentString + end);
     } catch (RawTruffleRuntimeException ex) {

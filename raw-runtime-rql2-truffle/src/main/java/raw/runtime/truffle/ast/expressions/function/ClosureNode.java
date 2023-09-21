@@ -42,6 +42,6 @@ public final class ClosureNode extends ExpressionNode {
         defaultArguments[i] = null;
       }
     }
-    return new Closure(this.function, defaultArguments, virtualFrame.materialize(), this);
+    return new Closure(this.function, defaultArguments, virtualFrame.materialize());
   }
 }

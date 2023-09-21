@@ -21,32 +21,15 @@ import org.bitbucket.inkytonik.kiama.util.Entity
 import org.graalvm.polyglot.Context
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.{BaseTree, CompilerContext}
-import raw.compiler.common.source.{Exp, IdnExp, IdnUse, SourceNode, SourceProgram}
+import raw.compiler.common.source.{SourcePrettyPrinter, _}
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
-import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, EnvironmentPackageBuilder, JsonPackage, StringPackage}
+import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.{TruffleCompiler, TruffleEntrypoint}
 import raw.compiler.{base, CompilerException, ErrorMessage}
-import raw.runtime.{
-  Entrypoint,
-  ParamBool,
-  ParamByte,
-  ParamDate,
-  ParamDecimal,
-  ParamDouble,
-  ParamFloat,
-  ParamInt,
-  ParamInterval,
-  ParamLong,
-  ParamNull,
-  ParamShort,
-  ParamString,
-  ParamTime,
-  ParamTimestamp
-}
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
 import raw.runtime.truffle.ast._
@@ -59,7 +42,7 @@ import raw.runtime.truffle.ast.expressions.record.RecordProjNodeGen
 import raw.runtime.truffle.ast.expressions.unary._
 import raw.runtime.truffle.ast.io.binary.BinaryWriterNode
 import raw.runtime.truffle.ast.io.csv.writer.{CsvIterableWriterNode, CsvListWriterNode}
-import raw.runtime.truffle.ast.io.json.writer.{JsonWriterNode, JsonWriterNodeGen}
+import raw.runtime.truffle.ast.io.json.writer.JsonWriterNodeGen
 import raw.runtime.truffle.ast.local._
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary
 import raw.runtime.truffle.runtime.iterable.IterableLibrary
@@ -68,6 +51,7 @@ import raw.runtime.truffle.runtime.option.OptionLibrary
 import raw.runtime.truffle.runtime.or.OrObject
 import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
+import raw.runtime._
 
 import java.util.UUID
 import scala.collection.mutable
@@ -160,14 +144,14 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
   private def convertAnyToValue(v: Any, t: Type): Value = t match {
     case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
-      val triables = TryableLibrary.getFactory.create(v)
+      val triables = TryableLibrary.getFactory.getUncached(v)
       if (triables.isSuccess(v)) {
         TryValue(Right(convertAnyToValue(triables.success(v), removeProp(t, Rql2IsTryableTypeProperty()))))
       } else {
         TryValue(Left(triables.failure(v)))
       }
     case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) =>
-      val options = OptionLibrary.getFactory.create(v)
+      val options = OptionLibrary.getFactory.getUncached(v)
       if (options.isDefined(v)) {
         OptionValue(Some(convertAnyToValue(options.get(v), removeProp(t, Rql2IsNullableTypeProperty()))))
       } else {
@@ -208,9 +192,9 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     //      case _: Rql2RegexType => RegexValue(v.asInstanceOf[scala.util.matching.Regex]) // a.z I think we don't have it in RQL2, yes?
     case _: Rql2UndefinedType => NothingValue()
     case Rql2RecordType(atts, _) =>
-      val records = InteropLibrary.getFactory.create(v)
+      val records = InteropLibrary.getFactory.getUncached(v)
       val keys = records.getMembers(v)
-      val keysLib = InteropLibrary.getFactory.create(keys)
+      val keysLib = InteropLibrary.getFactory.getUncached(keys)
       RecordValue(atts.zipWithIndex.map {
         case (att, idx) => convertAnyToValue(
             records.readMember(v, keysLib.readArrayElement(keys, idx).asInstanceOf[String]),
@@ -218,13 +202,13 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
           )
       })
     case Rql2ListType(t1, _) =>
-      val lists = ListLibrary.getFactory.create(v)
+      val lists = ListLibrary.getFactory.getUncached(v)
       val values = for (i <- 0 until lists.size(v).asInstanceOf[Int]) yield lists.get(v, i)
       ListValue(values.map(v1 => convertAnyToValue(v1, t1)))
     case Rql2IterableType(t1, _) =>
-      val iterables = IterableLibrary.getFactory.create(v)
+      val iterables = IterableLibrary.getFactory.getUncached(v)
       val generator = iterables.getGenerator(v)
-      val generators = GeneratorLibrary.getFactory.create(generator)
+      val generators = GeneratorLibrary.getFactory.getUncached(generator)
       generators.init(generator)
       val vs = mutable.ArrayBuffer[Any]()
       while (generators.hasNext(generator)) {

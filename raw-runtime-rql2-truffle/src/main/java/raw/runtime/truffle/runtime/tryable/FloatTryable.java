@@ -12,12 +12,13 @@
 
 package raw.runtime.truffle.runtime.tryable;
 
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ExportLibrary(TryableLibrary.class)
-public final class FloatTryable {
+public final class FloatTryable implements TruffleObject {
 
   private final float successValue;
   private final String failureValue;

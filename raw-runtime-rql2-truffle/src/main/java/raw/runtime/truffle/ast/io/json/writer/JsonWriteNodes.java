@@ -444,7 +444,7 @@ public final class JsonWriteNodes {
       endArray.execute(gen);
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     protected void doWriteRecord(
         RecordObject record,
         JsonGenerator gen,
