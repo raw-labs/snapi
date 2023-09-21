@@ -71,7 +71,7 @@ public abstract class DivNode extends BinaryNode {
     // TODO: Check if this the rounding mode we want.
     return b.getBigDecimal().doubleValue() != 0
         ? ObjectTryable.BuildSuccess(
-            a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128))
+            new DecimalObject(a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128)))
         : ObjectTryable.BuildFailure("/ by zero");
   }
 }
