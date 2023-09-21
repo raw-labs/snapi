@@ -26,11 +26,16 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.EmptyOption;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
+
+  @Child
+  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
 
   @Children private DirectCallNode[] childDirectCalls;
 
@@ -138,9 +143,9 @@ public class RecordParseXmlNode extends ExpressionNode {
       Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        record.writeIdx(index, fieldName, list.toIterable());
+        writeIndexNode.execute(record, index, fieldName, list.toIterable());
       } else {
-        record.writeIdx(index, fieldName, list);
+        writeIndexNode.execute(record, index, fieldName, list);
       }
     }
     // process nullable fields (null when not found)
@@ -158,7 +163,7 @@ public class RecordParseXmlNode extends ExpressionNode {
                 fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())
                     ? ObjectTryable.BuildSuccess(new EmptyOption())
                     : new EmptyOption();
-            record.writeIdx(i, fieldName, nullValue);
+            writeIndexNode.execute(record, i, fieldName, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
           }
@@ -192,7 +197,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       // record.
       collectionField.add(value);
     } else {
-      record.writeIdx(index, fieldName, value);
+      writeIndexNode.execute(record, index, fieldName, value);
       bitSet.set(index);
     }
   }

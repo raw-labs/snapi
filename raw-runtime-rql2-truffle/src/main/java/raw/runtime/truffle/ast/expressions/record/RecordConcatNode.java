@@ -12,13 +12,15 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.*;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Concat")
@@ -26,28 +28,32 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeChild("record2")
 public abstract class RecordConcatNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Child
+  RecordNodes.WriteIndexNode writeIndexNode = insert(RecordNodesFactory.WriteIndexNodeGen.create());
+
+  @Child
+  RecordNodes.ReadIndexNode readIndexNode = insert(RecordNodesFactory.ReadIndexNodeGen.create());
+
+  @Specialization
+  @ExplodeLoop
+  @CompilerDirectives.TruffleBoundary
   protected Object doConcat(Object rec1, Object rec2) {
     RecordObject newRecord = RawLanguage.get(this).createRecord();
     RecordObject record1 = (RecordObject) rec1;
     RecordObject record2 = (RecordObject) rec2;
-    try {
-      String[] keys1 = record1.keys();
-      String[] keys2 = record2.keys();
-      int length1 = keys1.length;
-      int length2 = keys2.length;
-      String member;
-      for (int i = 0; i < length1; i++) {
-        member = keys1[i];
-        newRecord.writeIdx(i, member, record1.readIdx(i));
-      }
-      for (int i = 0; i < length2; i++) {
-        member = keys2[i];
-        newRecord.writeIdx(i + length1, member, record2.readIdx(i));
-      }
-      return newRecord;
-    } catch (InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+    String[] keys1 = record1.keys();
+    String[] keys2 = record2.keys();
+    int length1 = keys1.length;
+    int length2 = keys2.length;
+    String member;
+    for (int i = 0; i < length1; i++) {
+      member = keys1[i];
+      writeIndexNode.execute(newRecord, i, member, readIndexNode.execute(record1, i));
     }
+    for (int i = 0; i < length2; i++) {
+      member = keys2[i];
+      writeIndexNode.execute(newRecord, i + length1, member, readIndexNode.execute(record2, i));
+    }
+    return newRecord;
   }
 }

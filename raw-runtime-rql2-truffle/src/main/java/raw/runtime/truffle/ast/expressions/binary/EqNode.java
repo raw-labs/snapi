@@ -16,30 +16,25 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.BinaryNode;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
 @NodeInfo(shortName = "==")
 public class EqNode extends BinaryNode {
 
-  CompareOperator comparator;
-  OperatorLibrary comparatorLibrary;
-
   @Child ExpressionNode left;
-
   @Child ExpressionNode right;
+  @Child OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.create();
 
   public EqNode(ExpressionNode left, ExpressionNode right) {
     this.left = left;
     this.right = right;
-    comparator = new CompareOperator();
-    comparatorLibrary = OperatorLibrary.getFactory().create(comparator);
   }
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
     Object leftValue = left.executeGeneric(virtualFrame);
     Object rightValue = right.executeGeneric(virtualFrame);
-    return (int) (comparatorLibrary.doOperation(comparator, leftValue, rightValue)) == 0;
+    return compare.execute(leftValue, rightValue) == 0;
   }
 }

@@ -12,20 +12,16 @@
 
 package raw.runtime.truffle.runtime.aggregation.aggregator;
 
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.operators.AddOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 
 @ExportLibrary(AggregatorLibrary.class)
 public class SumAggregator {
-  AddOperator addOperator;
 
-  public SumAggregator() {
-    this.addOperator = new AddOperator();
-  }
+  public SumAggregator() {}
 
   @ExportMessage
   public boolean isAggregator() {
@@ -33,9 +29,8 @@ public class SumAggregator {
   }
 
   @ExportMessage(limit = "3")
-  public Object merge(
-      Object current, Object next, @CachedLibrary("this.addOperator") OperatorLibrary operators) {
-    return operators.doOperation(this.addOperator, current, next);
+  public Object merge(Object current, Object next, @Cached("create()") OperatorNodes.AddNode add) {
+    return add.execute(current, next);
   }
 
   @ExportMessage(limit = "3")

@@ -12,13 +12,14 @@
 
 package raw.runtime.truffle.runtime.iterable.list;
 
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.generator.list.ListGenerator;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
-public class ListIterable {
+public class ListIterable implements TruffleObject {
 
   private final Object list;
 

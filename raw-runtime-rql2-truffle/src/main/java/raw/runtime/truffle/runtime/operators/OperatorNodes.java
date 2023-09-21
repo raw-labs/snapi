@@ -13,18 +13,22 @@
 package raw.runtime.truffle.runtime.operators;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
+import java.util.Objects;
+import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -36,69 +40,64 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
-// A.Z For now is used only in EQ node, after confirmation that this will work,
-// do all the comparison node by using this library.
-@ExportLibrary(OperatorLibrary.class)
-public class CompareOperator {
+public class OperatorNodes {
 
-  @ExportMessage
-  public boolean isAggregator() {
-    return true;
-  }
+  @NodeInfo(shortName = "Operator.Compare")
+  @GenerateUncached
+  public abstract static class CompareNode extends Node {
 
-  @ExportMessage
-  static class DoOperation {
+    public abstract int execute(Object obj1, Object obj2);
 
     @Specialization
-    static int doBoolean(CompareOperator comparator, boolean left, boolean right) {
+    static int doBoolean(boolean left, boolean right) {
       return Boolean.compare(left, right);
     }
 
     @Specialization
-    static int doByte(CompareOperator comparator, byte left, byte right) {
+    static int doByte(byte left, byte right) {
       return Byte.compare(left, right);
     }
 
     @Specialization
-    static int doShort(CompareOperator comparator, short left, short right) {
+    static int doShort(short left, short right) {
       return Short.compare(left, right);
     }
 
     @Specialization
-    static int doInt(CompareOperator comparator, int left, int right) {
+    static int doInt(int left, int right) {
       return Integer.compare(left, right);
     }
 
     @Specialization
-    static int doLong(CompareOperator comparator, long left, long right) {
+    static int doLong(long left, long right) {
       return Long.compare(left, right);
     }
 
     @Specialization
-    static int doFloat(CompareOperator comparator, float left, float right) {
+    static int doFloat(float left, float right) {
       return Float.compare(left, right);
     }
 
     @Specialization
-    static int doDouble(CompareOperator comparator, double left, double right) {
+    static int doDouble(double left, double right) {
       return Double.compare(left, right);
     }
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static int doDecimal(CompareOperator comparator, BigDecimal left, BigDecimal right) {
+    static int doDecimal(BigDecimal left, BigDecimal right) {
       return left.compareTo(right);
     }
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static int doString(CompareOperator comparator, String left, String right) {
+    static int doString(String left, String right) {
       return left.compareTo(right);
     }
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static int doDate(CompareOperator comparator, DateObject left, DateObject right) {
+    static int doDate(DateObject left, DateObject right) {
       LocalDate leftDate = left.getDate();
       LocalDate rightDate = right.getDate();
       if (leftDate.isBefore(rightDate)) {
@@ -112,8 +111,7 @@ public class CompareOperator {
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static int doTimestamp(
-        CompareOperator comparator, TimestampObject left, TimestampObject right) {
+    static int doTimestamp(TimestampObject left, TimestampObject right) {
       LocalDateTime leftDate = left.getTimestamp();
       LocalDateTime rightDate = right.getTimestamp();
       if (leftDate.isBefore(rightDate)) {
@@ -127,7 +125,7 @@ public class CompareOperator {
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static int doTime(CompareOperator comparator, TimeObject left, TimeObject right) {
+    static int doTime(TimeObject left, TimeObject right) {
       LocalTime leftTime = left.getTime();
       LocalTime rightTime = right.getTime();
       if (leftTime.isBefore(rightTime)) {
@@ -141,16 +139,15 @@ public class CompareOperator {
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static int doInterval(CompareOperator comparator, IntervalObject left, IntervalObject right) {
+    static int doInterval(IntervalObject left, IntervalObject right) {
       return left.compareTo(right);
     }
 
     @Specialization(limit = "3")
     static int doRecord(
-        CompareOperator comparator,
         RecordObject left,
         RecordObject right,
-        @CachedLibrary(limit = "3") OperatorLibrary aggregators,
+        @Cached CompareNode compare,
         @CachedLibrary("left") InteropLibrary lefts,
         @CachedLibrary(limit = "3") InteropLibrary arrays,
         @CachedLibrary("right") InteropLibrary rights) {
@@ -167,13 +164,13 @@ public class CompareOperator {
         for (int i = 0; i < leftSize; i++) {
           String leftKey = (String) arrays.readArrayElement(leftKeys, i);
           String rightKey = (String) arrays.readArrayElement(rightKeys, i);
-          int result = (int) aggregators.doOperation(comparator, leftKey, rightKey);
+          int result = compare.execute(leftKey, rightKey);
           if (result != 0) {
             return result;
           }
           Object leftValue = lefts.readMember(left, leftKey);
           Object rightValue = rights.readMember(right, rightKey);
-          result = (int) aggregators.doOperation(comparator, leftValue, rightValue);
+          result = compare.execute(leftValue, rightValue);
           if (result != 0) {
             return result;
           }
@@ -195,10 +192,9 @@ public class CompareOperator {
           "rights.isIterable(right)"
         })
     static int doIterable(
-        CompareOperator comparator,
         Object left,
         Object right,
-        @CachedLibrary("comparator") OperatorLibrary comparators,
+        @Cached CompareNode compare,
         @CachedLibrary("left") IterableLibrary lefts,
         @CachedLibrary("right") IterableLibrary rights,
         @CachedLibrary(limit = "2") GeneratorLibrary generators) {
@@ -207,7 +203,7 @@ public class CompareOperator {
       while (generators.hasNext(leftGenerator) && generators.hasNext(rightGenerator)) {
         Object leftElement = generators.next(leftGenerator);
         Object rightElement = generators.next(rightGenerator);
-        int result = (int) comparators.doOperation(comparator, leftElement, rightElement);
+        int result = compare.execute(leftElement, rightElement);
         if (result != 0) {
           return result;
         }
@@ -221,12 +217,8 @@ public class CompareOperator {
       }
     }
 
-    // A.Z Here a paradox is created because for max null could be considered the least value
-    // but
-    // then what happens to max. The goal is to ignore null and keep the value. That's why this
-    // method is the only one that returns -2 or 2. The other methods return -1 or 1.
     @Specialization(guards = "left == null || right == null")
-    static int doNull(CompareOperator comparator, Object left, Object right) {
+    static int doNull(Object left, Object right) {
       if (left == null && right == null) {
         return 0;
       } else if (left == null) {
@@ -238,10 +230,9 @@ public class CompareOperator {
 
     @Specialization(guards = {"tryables.isTryable(left)"})
     static int doTryable(
-        CompareOperator comparator,
         Object left,
         Object right,
-        @CachedLibrary(limit = "3") OperatorLibrary comparators,
+        @Cached CompareNode compare,
         @CachedLibrary(limit = "3") TryableLibrary tryables) {
       // both are tryables (maybe not nullable but that's handled recursively)
       assert (tryables.isTryable(right));
@@ -251,7 +242,7 @@ public class CompareOperator {
         if (rightIsSuccess) {
           Object leftValue = tryables.success(left);
           Object rightValue = tryables.success(right);
-          return (int) comparators.doOperation(comparator, leftValue, rightValue);
+          return compare.execute(leftValue, rightValue);
         } else {
           return 1;
         }
@@ -261,17 +252,16 @@ public class CompareOperator {
         } else {
           String leftFailure = tryables.failure(left);
           String rightFailure = tryables.failure(right);
-          return (int) comparators.doOperation(comparator, leftFailure, rightFailure);
+          return compare.execute(leftFailure, rightFailure);
         }
       }
     }
 
     @Specialization(guards = {"options.isOption(left)"})
     static int doNullable(
-        CompareOperator comparator,
         Object left,
         Object right,
-        @CachedLibrary(limit = "3") OperatorLibrary comparators,
+        @Cached CompareNode compare,
         @CachedLibrary(limit = "3") OptionLibrary options) {
       // both are options
       assert (options.isOption(right));
@@ -282,7 +272,7 @@ public class CompareOperator {
         if (rightIsDefined) {
           Object leftValue = options.get(left);
           Object rightValue = options.get(right);
-          return (int) comparators.doOperation(comparator, leftValue, rightValue);
+          return compare.execute(leftValue, rightValue);
         } else {
           return 1;
         }
@@ -296,19 +286,71 @@ public class CompareOperator {
     }
   }
 
-  // The alternative
-  //    @ExportMessage
-  //    int compareInt(int left, int right) {
-  //        return Integer.compare(left, right);
-  //    }
-  //
-  //    @ExportMessage(limit = "3")
-  //    int compareRecord(Object left,
-  //                              Object right,
-  //                              @CachedLibrary("left") InteropLibrary lefts,
-  //                              @CachedLibrary("right") InteropLibrary rights,
-  //                              @CachedLibrary("this") ComparatorLibrary comparators) {
-  //        comparators.compareInt(this, 1, 2);
-  //        return 0;
-  //    }
+  @NodeInfo(shortName = "Operator.Add")
+  @GenerateUncached
+  public abstract static class AddNode extends Node {
+
+    public abstract Object execute(Object obj1, Object obj2);
+
+    @Specialization
+    static Object doByte(byte left, byte right) {
+      return (byte) (left + right);
+    }
+
+    @Specialization
+    static Object doShort(short left, short right) {
+      return (short) (left + right);
+    }
+
+    @Specialization
+    static Object doInt(int left, int right) {
+      return left + right;
+    }
+
+    @Specialization
+    static Object doLong(long left, long right) {
+      return left + right;
+    }
+
+    @Specialization
+    static Object doFloat(float left, float right) {
+      return left + right;
+    }
+
+    @Specialization
+    static Object doDouble(double left, double right) {
+      return left + right;
+    }
+
+    @Specialization
+    @CompilerDirectives.TruffleBoundary
+    static Object doDecimal(BigDecimal left, BigDecimal right) {
+      return left.add(right);
+    }
+
+    @Specialization
+    @CompilerDirectives.TruffleBoundary
+    static Object doString(String left, String right) {
+      return left.concat(right);
+    }
+
+    @Specialization(guards = "left == null || right == null")
+    @CompilerDirectives.TruffleBoundary
+    static Object doNull(Object left, Object right) {
+      if (left == null && right == null) {
+        return 0;
+      } else return Objects.requireNonNullElse(left, right);
+    }
+
+    @Specialization(guards = {"left != null", "right != null"})
+    static Object doNullableTryable(
+        Object left,
+        Object right,
+        @Cached AddNode add,
+        @Cached TryableNullableNodes.UnboxUnsafeNode unbox) {
+      Object unboxedLeft = unbox.execute(left);
+      Object unboxedRight = unbox.execute(right);
+      return add.execute(unboxedLeft, unboxedRight);
+    }
+  }
 }

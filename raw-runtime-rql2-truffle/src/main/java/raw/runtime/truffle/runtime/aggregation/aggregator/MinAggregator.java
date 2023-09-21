@@ -12,21 +12,18 @@
 
 package raw.runtime.truffle.runtime.aggregation.aggregator;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
-import raw.runtime.truffle.runtime.operators.OperatorLibrary;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 
 @ExportLibrary(AggregatorLibrary.class)
 public class MinAggregator {
-  CompareOperator compareOperator;
 
-  public MinAggregator() {
-    this.compareOperator = new CompareOperator();
-  }
+  public MinAggregator() {}
 
   @ExportMessage
   public boolean isAggregator() {
@@ -37,12 +34,12 @@ public class MinAggregator {
   public Object merge(
       Object current,
       Object next,
-      @CachedLibrary("this.compareOperator") OperatorLibrary operators,
+      @Cached OperatorNodes.CompareNode compare,
       @CachedLibrary(limit = "3") OptionLibrary options) {
     if (options.isDefined(current)) {
       if (options.isDefined(next)) {
         // if both are defined, pick the smallest
-        if ((int) operators.doOperation(this.compareOperator, current, next) < 0) {
+        if (compare.execute(current, next) < 0) {
           return current;
         } else {
           return next;

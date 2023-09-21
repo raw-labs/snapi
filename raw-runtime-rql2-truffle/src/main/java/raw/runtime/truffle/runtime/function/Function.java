@@ -45,7 +45,7 @@ public final class Function implements TruffleObject {
 
   @ExportMessage
   Object execute(Object... arguments) {
-    assert (arguments.length == argNames.length);
+    assert (arguments.length == argNames.length + 1);
     return callNode.call(arguments);
   }
 }

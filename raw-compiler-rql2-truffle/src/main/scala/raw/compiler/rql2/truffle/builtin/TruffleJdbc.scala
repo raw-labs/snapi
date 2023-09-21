@@ -21,8 +21,7 @@ import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 
 object TruffleJdbc {
-  private val lang = RawLanguage.getCurrentContext.getLanguage
-  private val frameDescriptor = new FrameDescriptor()
+
   private val tryable = Rql2IsTryableTypeProperty()
   private val nullable = Rql2IsNullableTypeProperty()
 
@@ -35,6 +34,9 @@ object TruffleJdbc {
     val Rql2IterableType(Rql2RecordType(columns, rProps), iProps) = t
     assert(iProps.isEmpty)
     assert(rProps.isEmpty)
+
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
 
     def columnReader(colName: String, t: Type): ProgramExpressionNode = {
       val node = t match {

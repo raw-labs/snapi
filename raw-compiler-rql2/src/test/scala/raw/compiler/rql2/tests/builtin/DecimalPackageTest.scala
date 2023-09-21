@@ -31,6 +31,9 @@ trait DecimalPackageTest extends CompilerTestContext {
 
   test("""Decimal.From(123)""")(it => it should evaluateTo("""123q"""))
 
+  // Make sure that the decimal can be written to record
+  test("""{a:Decimal.From(123), b:1}""")(it => it should evaluateTo("""{a:123q, b:1}"""))
+
   // Errors don't propagate through
   test(""" [Decimal.From("abc") + 12]""")(it =>
     it should evaluateTo("""[Error.Build("cannot cast 'abc' to decimal")]""")

@@ -14,16 +14,11 @@ package raw.runtime.truffle.runtime.aggregation.aggregator;
 
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.operators.CompareOperator;
 
 @ExportLibrary(AggregatorLibrary.class)
 public class CountAggregator {
 
-  CompareOperator compareOperator;
-
-  public CountAggregator() {
-    this.compareOperator = new CompareOperator();
-  }
+  public CountAggregator() {}
 
   @ExportMessage
   public boolean isAggregator() {

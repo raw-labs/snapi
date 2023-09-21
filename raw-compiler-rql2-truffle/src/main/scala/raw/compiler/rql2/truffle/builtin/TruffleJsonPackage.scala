@@ -105,15 +105,15 @@ class TrufflePrintJsonEntry extends PrintJsonEntry with TruffleEntryExtension {
 
 object JsonIO {
 
-  val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
-  val frameDescriptor = new FrameDescriptor()
-
   def recurseJsonParser(
       tipe: Rql2TypeWithProperties,
       dateFormat: ExpressionNode,
       timeFormat: ExpressionNode,
       timestampFormat: ExpressionNode
   ): ProgramExpressionNode = {
+
+    val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
 
     def recurse(
         tipe: Rql2TypeWithProperties,

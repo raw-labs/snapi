@@ -32,7 +32,7 @@ public abstract class CollectionMinNode extends ExpressionNode {
   @Specialization
   protected ObjectTryable doCollection(
       Object iterable,
-      @Cached("create()") TryableNullableNodes.BoxOptionNode boxOption,
+      @Cached TryableNullableNodes.BoxOptionNode boxOption,
       @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
     try {
       Object aggregation = new SingleAggregation(new MinAggregator());

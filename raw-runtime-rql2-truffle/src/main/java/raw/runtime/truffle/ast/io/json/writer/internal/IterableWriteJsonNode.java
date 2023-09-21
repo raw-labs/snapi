@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -54,12 +55,18 @@ public class IterableWriteJsonNode extends StatementNode {
       generators.init(generator);
       writeStartArrayNode.execute(gen);
 
-      while (generators.hasNext(generator)) {
-        childDirectCall.call(generators.next(generator), gen);
-      }
+      executeWhile(generator, gen);
+
       writeEndArrayNode.execute(gen);
     } finally {
       generators.close(generator);
+    }
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void executeWhile(Object generator, JsonGenerator gen) {
+    while (generators.hasNext(generator)) {
+      childDirectCall.call(generators.next(generator), gen);
     }
   }
 }

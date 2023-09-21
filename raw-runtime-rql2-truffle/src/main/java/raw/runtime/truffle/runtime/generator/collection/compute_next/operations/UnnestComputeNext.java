@@ -12,10 +12,12 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.function.Closure;
@@ -42,7 +44,7 @@ public class UnnestComputeNext {
   }
 
   @ExportMessage
-  void close(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+  void close(@CachedLibrary(limit = "2") GeneratorLibrary generators) {
     generators.close(parent);
     if (currentGenerator != null) {
       generators.close(currentGenerator);
@@ -56,11 +58,14 @@ public class UnnestComputeNext {
 
   private final Object empty =
       new EmptyCollection(); // the empty collection to return when the function result is
+
   // null/error
 
   @ExportMessage
+  @ExplodeLoop
+  @CompilerDirectives.TruffleBoundary
   Object computeNext(
-      @Cached("create()") TryableNullableNodes.GetOrElseNode getOrElse,
+      @Cached TryableNullableNodes.GetOrElseNode getOrElse,
       @CachedLibrary(limit = "3") GeneratorLibrary generators,
       @CachedLibrary(limit = "5") IterableLibrary iterables) {
     Object next = null;

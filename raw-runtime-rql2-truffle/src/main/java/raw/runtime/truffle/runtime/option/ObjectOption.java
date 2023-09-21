@@ -12,11 +12,12 @@
 
 package raw.runtime.truffle.runtime.option;
 
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 @ExportLibrary(OptionLibrary.class)
-public final class ObjectOption {
+public final class ObjectOption implements TruffleObject {
 
   private Object value;
 

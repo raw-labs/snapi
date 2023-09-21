@@ -50,8 +50,7 @@ public class FilterComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached("create()")
-          TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTryablePredicate,
+      @Cached TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTryablePredicate,
       @CachedLibrary("this.parent") GeneratorLibrary generators) {
     Object[] argumentValues = new Object[1];
 

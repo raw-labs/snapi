@@ -126,6 +126,8 @@ lazy val buildSettings = Seq(
     truffleExports ++ Seq(
       // Increasing stack size for Kiama chain/rewrites and codegen.
       "-Xss64m",
+      // Enable assertions.
+//      "-ea",
       // Limit overall memory and force crashing hard and early.
       // Useful for debugging memleaks.
       "-Xmx4G",
@@ -150,10 +152,10 @@ lazy val buildSettings = Seq(
       "-Dgraal.Dump=Truffle:2",
       "-Dgraal.DumpPath=/tmp/graal_dumps",
       "-Dgraal.PrintGraph=Network",
-      "-Dpolyglot.engine.CompilationFailureAction=Throw",
+//      "-Dpolyglot.engine.CompilationFailureAction=Throw",
 //      "-Dpolyglot.engine.TreatPerformanceWarningsAsErrors=false",
       "-Dpolyglot.engine.CompilationExceptionsAreFatal=true",
-//      "-Dgraalvm.locatorDisabled=true",
+      "-Dgraalvm.locatorDisabled=true",
       "-Dpolyglot.engine.BackgroundCompilation=false",
       "-Dpolyglot.engine.TraceCompilation=true",
       "-Dpolyglot.engine.TraceCompilationDetails=true",

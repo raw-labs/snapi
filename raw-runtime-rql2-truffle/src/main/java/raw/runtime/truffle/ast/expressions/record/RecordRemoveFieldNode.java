@@ -29,7 +29,7 @@ public abstract class RecordRemoveFieldNode extends ExpressionNode {
 
   @Specialization(limit = "3")
   protected Object doRemoveField(
-      Object record,
+      RecordObject record,
       String dropKey,
       @CachedLibrary("record") InteropLibrary records,
       @CachedLibrary(limit = "2") InteropLibrary libraries) {

@@ -24,6 +24,8 @@ import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 public class RecordWriteJsonNode extends StatementNode {
@@ -43,6 +45,9 @@ public class RecordWriteJsonNode extends StatementNode {
   @Child
   private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode =
       JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.getUncached();
+
+  @Child
+  private RecordNodes.ReadIndexNode readIndexNode = RecordNodesFactory.ReadIndexNodeGen.create();
 
   public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
     this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
@@ -65,7 +70,7 @@ public class RecordWriteJsonNode extends StatementNode {
       writeStartObjectNode.execute(gen);
       for (int i = 0; i < childDirectCalls.length; i++) {
         String member = (String) interops.readArrayElement(keys, i);
-        item = record.readIdx(i);
+        item = readIndexNode.execute(record, i);
         writeFieldNameNode.execute(member, gen);
         childDirectCalls[i].call(item, gen);
       }

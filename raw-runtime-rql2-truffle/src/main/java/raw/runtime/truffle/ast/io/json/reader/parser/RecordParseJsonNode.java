@@ -34,6 +34,8 @@ import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.option.EmptyOption;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
@@ -69,6 +71,9 @@ public class RecordParseJsonNode extends ExpressionNode {
   @Child
   private BoundaryNodes.BitSetGetNode bitSetGet =
       BoundaryNodesFactory.BitSetGetNodeGen.getUncached();
+
+  @Child
+  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
@@ -121,7 +126,7 @@ public class RecordParseJsonNode extends ExpressionNode {
                 fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())
                     ? ObjectTryable.BuildSuccess(new EmptyOption())
                     : new EmptyOption();
-            record.writeIdx(i, fields[i].toString(), nullValue);
+            writeIndexNode.execute(record, i, fields[i].toString(), nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
           }
@@ -139,7 +144,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       nextTokenNode.execute(parser); // skip the field name
       if (index != null) {
         bitSetSet.execute(currentBitSet, index);
-        record.writeIdx(index, fieldName, childDirectCalls[index].call(parser));
+        writeIndexNode.execute(record, index, fieldName, childDirectCalls[index].call(parser));
       } else {
         // skip the field value
         skipNode.execute(parser);

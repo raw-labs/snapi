@@ -43,10 +43,10 @@ class TruffleBinaryBase64Entry extends BinaryBase64Entry with TruffleShortEntryE
 
 object TruffleBinaryWriter {
 
-  private val lang = RawLanguage.getCurrentContext.getLanguage
-  private val frameDescriptor = new FrameDescriptor()
-
   def apply(t: Rql2BinaryType): ProgramStatementNode = {
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
+
     // The generated writer program depends on the type properties.
     if (t.props.isEmpty) {
       // No properties, just write the bytes.
@@ -66,6 +66,8 @@ object TruffleBinaryWriter {
   }
 
   def apply(t: Rql2StringType): ProgramStatementNode = {
+    val lang = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
     // The generated writer program depends on the type properties.
     if (t.props.isEmpty) {
       // No properties, just write the bytes.

@@ -158,11 +158,11 @@ class TruffleParseXmlEntry extends ParseXmlEntry with TruffleEntryExtension {
 
 object XmlRecurse {
 
-  val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
-  val frameDescriptor = new FrameDescriptor()
-
   // TODO each node should become XML
   def recurseXmlParser(tipe: Rql2TypeWithProperties): ProgramExpressionNode = {
+
+    val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
+    val frameDescriptor = new FrameDescriptor()
 
     // a primitive parser node is a node that parses a primitive type _from a string_. It is applied once the string
     // has been extracted, from the element, attribute or text content.
@@ -198,16 +198,16 @@ object XmlRecurse {
         case nullable if nullable.props.contains(Rql2IsNullableTypeProperty()) =>
           val innerType = removeProp(nullable, Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
           innerType match {
-            case (_: Rql2PrimitiveType | _: Rql2UndefinedType) =>
+            case _: Rql2PrimitiveType | _: Rql2UndefinedType =>
               // nullable primitive. We goes the "nullable parser" which checks if the element is empty, and if not applies
               // the primitive parser. The case of 'undefined' is handled as a primitive parser because the nullable checks
               // the empty string, and calls the undefined parser (which throws) if not.
               val primitiveParser = new ProgramExpressionNode(lang, frameDescriptor, primitiveParserNode(innerType))
               val textContentParser =
                 new ProgramExpressionNode(lang, frameDescriptor, new OptionParseXmlTextNode(primitiveParser))
-              if (isAttribute) new AttributeParsePrimitiveXmlNode(textContentParser);
-              else if (isText) new TextParseXmlPrimitiveNode(textContentParser);
-              else new ElementParseXmlPrimitiveNode(textContentParser);
+              if (isAttribute) new AttributeParsePrimitiveXmlNode(textContentParser)
+              else if (isText) new TextParseXmlPrimitiveNode(textContentParser)
+              else new ElementParseXmlPrimitiveNode(textContentParser)
             case _ =>
               // other nullables (e.g. records, lists) cannot be null if something is found. When empty (e.g. <person/>)
               // we get a start tag and and end tag, and it's their fields that are not found and made null.
@@ -240,12 +240,12 @@ object XmlRecurse {
             atts.map(_.idn).toArray,
             atts.map(_.tipe.asInstanceOf[Rql2TypeWithProperties]).toArray
           )
-        case (_: Rql2PrimitiveType | _: Rql2UndefinedType) =>
+        case _: Rql2PrimitiveType | _: Rql2UndefinedType =>
           // primitive (not nullable). The 'text' parser is applied to the element/attribute/text.
           val source = primitiveParserNode(tipe)
           val child = new ProgramExpressionNode(lang, frameDescriptor, source)
-          if (isAttribute) new AttributeParsePrimitiveXmlNode(child);
-          else if (isText) new TextParseXmlPrimitiveNode(child);
+          if (isAttribute) new AttributeParsePrimitiveXmlNode(child)
+          else if (isText) new TextParseXmlPrimitiveNode(child)
           else new ElementParseXmlPrimitiveNode(child);
       }
       parserNode
