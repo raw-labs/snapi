@@ -14,8 +14,9 @@ package raw.compiler.common
 
 import raw.api.{AuthenticatedUser, RawService}
 import raw.compiler.base.ProgramContext
-import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
-import raw.compiler.scala2.{Scala2CompilerContext, Scala2JvmCompiler}
+//import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
+//import raw.compiler.scala2.{Scala2CompilerContext, Scala2JvmCompiler}
+import raw.compiler.scala2.Scala2CompilerContext
 import raw.config.RawSettings
 import raw.creds.CredentialsServiceProvider
 import raw.inferrer.InferrerServiceProvider
@@ -29,10 +30,10 @@ class CompilerService(implicit settings: RawSettings) extends RawService {
 
   private val credentials = CredentialsServiceProvider()
 
-  private val mutableClassLoader = new RawMutableURLClassLoader(getClass.getClassLoader)
-  private val rawClassLoader = new RawDelegatingURLClassLoader(mutableClassLoader)
-
-  private val scala2JvmCompiler = new Scala2JvmCompiler(mutableClassLoader, rawClassLoader)
+//  private val mutableClassLoader = new RawMutableURLClassLoader(getClass.getClassLoader)
+//  private val rawClassLoader = new RawDelegatingURLClassLoader(mutableClassLoader)
+//
+//  private val scala2JvmCompiler = new Scala2JvmCompiler(mutableClassLoader, rawClassLoader)
 
   // Map of users to compilers.
   private val compilerCaches = new RawConcurrentHashMap[(AuthenticatedUser, String), Compiler]
@@ -50,7 +51,7 @@ class CompilerService(implicit settings: RawSettings) extends RawService {
     val inferrer = InferrerServiceProvider()
 
     // Initialize compiler context
-    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer, scala2JvmCompiler)
+    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer, null)
     try {
       // Initialize compiler. Default language, if not specified is 'rql2'.
       CommonCompilerProvider(language)(compilerContext)

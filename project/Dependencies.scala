@@ -3,7 +3,7 @@ import sbt._
 
 object Dependencies {
   val scalacVersion =
-    "2.12.15" // In a common place to be used when importing scalac and setting the project Scala version.
+    "2.12.18" // In a common place to be used when importing scalac and setting the project Scala version.
 
   val scalaCompiler = Seq(
     "org.scala-lang" % "scala-compiler" % scalacVersion,
@@ -86,9 +86,10 @@ object Dependencies {
   )
 
   val truffleDeps = Seq(
-    "org.graalvm.truffle" % "truffle-api" % "22.3.1",
-    "org.graalvm.truffle" % "truffle-dsl-processor" % "22.3.1" % Provided,
-    "org.graalvm.tools" % "profiler" % "22.3.3"
+//    "org.graalvm.polyglot" % "polyglot" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided,
+//    "org.graalvm.tools" % "profiler" % "23.1.0"
   )
 
   val jwtApi = "io.jsonwebtoken" % "jjwt-api" % "0.11.5"

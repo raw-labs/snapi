@@ -35,30 +35,30 @@ val scalacOptSettings = Seq(
 )
 
 val truffleExports = Seq(
-  "--add-exports",
-  "java.base/jdk.internal.module=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.exception=ALL-UNNAMED",
-  "--add-exports",
-  "org.graalvm.truffle/com.oracle.truffle.api.interop=ALL-UNNAMED"
+//  "--add-exports",
+//  "java.base/jdk.internal.module=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.exception=ALL-UNNAMED",
+//  "--add-exports",
+//  "org.graalvm.truffle/com.oracle.truffle.api.interop=ALL-UNNAMED"
 )
 
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
@@ -79,7 +79,6 @@ lazy val buildSettings = Seq(
   headerLicense := Some(HeaderLicense.Custom(licenseHeader)),
   headerSources / excludeFilter := HiddenFileFilter || kiamaSrc,
   scalaVersion := Dependencies.scalacVersion,
-  // avoid including scala version in artifact name
   javacOptions ++= Seq(
     "-source",
     "11",
@@ -100,10 +99,14 @@ lazy val buildSettings = Seq(
     "-Ypatmat-exhaust-depth",
     "160"
   ),
+//  Compile / javacOptions ++= Seq(
+//    "--module-path",
+//    (Compile / dependencyClasspath).value.files.absString
+//  ),
   // Use cached resolution of dependencies
   updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
-  // Ensure Java annotations get compiled first, so that they are accessible from Scala.
-  compileOrder := CompileOrder.JavaThenScala,
+//  // Ensure Java annotations get compiled first, so that they are accessible from Scala.
+//  compileOrder := CompileOrder.JavaThenScala,
   // The tests are run in a forked JVM.
   // System properties given to sbt are not automatically passed to the forked VM
   // Here we copy any "raw." system properties to the java options passed to the forked JVMs.
@@ -130,18 +133,18 @@ lazy val buildSettings = Seq(
       "-Xmx4G",
       "-XX:+CrashOnOutOfMemoryError",
       // Required for running with Java 17
-      "--add-opens",
-      "java.base/java.lang=ALL-UNNAMED",
-      "--add-opens",
-      "java.base/java.util=ALL-UNNAMED",
-      "--add-opens",
-      "java.base/java.nio=ALL-UNNAMED",
-      "--add-opens",
-      "java.base/java.lang.invoke=ALL-UNNAMED",
-      "--add-opens",
-      "java.base/sun.nio.ch=ALL-UNNAMED",
-      "--add-opens",
-      "java.base/sun.util.calendar=ALL-UNNAMED",
+//      "--add-opens",
+//      "java.base/java.lang=ALL-UNNAMED",
+//      "--add-opens",
+//      "java.base/java.util=ALL-UNNAMED",
+//      "--add-opens",
+//      "java.base/java.nio=ALL-UNNAMED",
+//      "--add-opens",
+//      "java.base/java.lang.invoke=ALL-UNNAMED",
+//      "--add-opens",
+//      "java.base/sun.nio.ch=ALL-UNNAMED",
+//      "--add-opens",
+//      "java.base/sun.util.calendar=ALL-UNNAMED",
       // Truffle test settings.
 //      "-Dpolyglot.engine.Inlining=false",
       "-Dpolyglot.engine.CompileImmediately=true",
@@ -151,8 +154,8 @@ lazy val buildSettings = Seq(
       "-Dgraal.PrintGraph=Network",
 //      "-Dpolyglot.engine.CompilationFailureAction=Throw",
 //      "-Dpolyglot.engine.TreatPerformanceWarningsAsErrors=false",
-//      "-Dpolyglot.engine.CompilationExceptionsAreFatal=true",
-      "-Dgraalvm.locatorDisabled=true",
+      "-Dpolyglot.engine.CompilationExceptionsAreFatal=true",
+//      "-Dgraalvm.locatorDisabled=true",
       "-Dpolyglot.engine.BackgroundCompilation=false",
       "-Dpolyglot.engine.TraceCompilation=true",
       "-Dpolyglot.engine.TraceCompilationDetails=true",
@@ -270,6 +273,7 @@ lazy val temporaryDirectory: String = {
 lazy val rawUtils = (project in file("raw-utils"))
   .settings(
     strictBuildSettings,
+    Compile / doc / sources := Seq.empty,
     libraryDependencies ++= Seq(
       scalaLogging,
       logbackClassic,
@@ -308,6 +312,10 @@ lazy val rawInferrerLocal = (project in file("raw-inferrer-local"))
 
 lazy val rawCredsApi = (project in file("raw-creds-api"))
   .dependsOn(rawUtils % "compile->compile;test->test")
+  .settings(strictBuildSettings)
+
+lazy val rawCredsLocal = (project in file("raw-creds-local"))
+  .dependsOn(rawCredsApi % "compile->compile;test->test")
   .settings(strictBuildSettings)
 
 lazy val rawSourcesApi = (project in file("raw-sources"))
@@ -449,7 +457,8 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
     buildSettings, // TODO (msb): Promote this to strictBuildSettings and add bail-out annotations as needed,
     // Do not generate scala docs for this project.
     Compile / doc / sources := Seq.empty,
-    libraryDependencies ++= truffleDeps ++ Seq(kryo, woodstox, commonsText) ++ poiDeps
+    libraryDependencies ++= truffleDeps ++ Seq(kryo, woodstox, commonsText) ++ poiDeps,
+    compileOrder := CompileOrder.ScalaThenJava // Make sure TruffleEntrypoint is available
   )
   .settings(
     name := "raw-runtime-rql2-truffle",
@@ -502,7 +511,19 @@ lazy val rawCompilerRql2Truffle = (project in file("raw-compiler-rql2-truffle"))
     Test / javaOptions ++= Seq(
       s"-Xlog:gc*,thread*:file=$temporaryDirectory/raw-compiler-rql2-truffle-tests-%t-%p.log", // GC logging.
       s"-Djava.io.tmpdir=$temporaryDirectory"
-    )
+    ),
+    Compile / packageBin / packageOptions +=
+      Package.ManifestAttributes(
+        "Bundle-Name" -> "RQL",
+        "Bundle-Symbolic-Name" -> "raw.runtime.truffle",
+        "Bundle-Version" -> "23.1.0",
+        "Bundle-RequireCapability" -> """org.graalvm; filter:="(&(graalvm_version=23.1.0)(os_arch=amd64))"""
+//        "Created-By" -> "17.0.7 (Oracle Corporation)",
+//        "Truffle-Language-Id" -> "rql",
+//        "Truffle-Language-Name" -> "RQL",
+//        "Truffle-Language-Implementation-Name" -> "raw.runtime.truffle.RawLanguage",
+//        "Truffle-Language-Version" -> "0.10"
+      )
   )
 
 lazy val rawCli = (project in file("raw-cli"))
@@ -523,13 +544,11 @@ lazy val rawCli = (project in file("raw-cli"))
   )
   .settings(
     buildSettings,
-    publish / skip := true,
     libraryDependencies ++= jline,
+    publish / skip := true,
     assembly / mainClass := Some("raw.cli.RawCli"),
     assembly / assemblyMergeStrategy := {
-      //case "module-info.class" => MergeStrategy.discard
       case PathList("jakarta", "activation", xs @ _*) => MergeStrategy.first
-      //case PathList("META-INF", _*) => MergeStrategy.discard
       case PathList("META-INF", "io.netty.versions.properties", xs @ _*) => MergeStrategy.first
       case PathList("META-INF", "versions", "9", "module-info.class", xs @ _*) => MergeStrategy.first
       case PathList("META-INF", "versions", "11", "module-info.class", xs @ _*) => MergeStrategy.first
