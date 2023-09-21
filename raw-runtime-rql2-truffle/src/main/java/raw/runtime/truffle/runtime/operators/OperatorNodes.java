@@ -320,8 +320,8 @@ public class OperatorNodes {
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static Object doDecimal(DecimalObject left, DecimalObject right) {
-      return left.getBigDecimal().add(right.getBigDecimal());
+    static DecimalObject doDecimal(DecimalObject left, DecimalObject right) {
+      return new DecimalObject(left.getBigDecimal().add(right.getBigDecimal()));
     }
 
     @Specialization
