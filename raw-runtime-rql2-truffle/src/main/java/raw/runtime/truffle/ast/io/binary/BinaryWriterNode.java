@@ -22,7 +22,6 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "Binary.Write")
 public class BinaryWriterNode extends StatementNode {
@@ -38,7 +37,7 @@ public class BinaryWriterNode extends StatementNode {
 
   @Override
   public void executeVoid(VirtualFrame frame) {
-    BinaryObject binaryObject = (BinaryObject) binaryNode.executeGeneric(frame);
+    Object binaryObject = binaryNode.executeGeneric(frame);
     try (OutputStream os = RawContext.get(this).getOutput()) {
       innerWriter.call(binaryObject, os);
     } catch (IOException e) {
