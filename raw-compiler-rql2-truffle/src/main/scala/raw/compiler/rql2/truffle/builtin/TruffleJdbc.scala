@@ -29,13 +29,13 @@ object TruffleJdbc {
       location: ExpressionNode,
       query: ExpressionNode,
       t: Type,
-      exceptionHandler: JdbcExceptionHandler
+      exceptionHandler: JdbcExceptionHandler,
+      lang: RawLanguage
   ): JdbcQueryNode = {
     val Rql2IterableType(Rql2RecordType(columns, rProps), iProps) = t
     assert(iProps.isEmpty)
     assert(rProps.isEmpty)
 
-    val lang = RawLanguage.getCurrentContext.getLanguage
     val frameDescriptor = new FrameDescriptor()
 
     def columnReader(colName: String, t: Type): ProgramExpressionNode = {

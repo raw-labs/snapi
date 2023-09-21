@@ -16,27 +16,28 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 
 public final class MethodRefNode extends ExpressionNode {
 
-  @CompilationFinal private final Function function;
+  @CompilationFinal private final String funcName;
   private Closure closure = null;
 
   @Children private final ExpressionNode[] defaultArgumentExps;
 
-  public MethodRefNode(Function f, ExpressionNode[] defaultArgumentExps) {
-    this.function = f;
+  public MethodRefNode(String funcName, ExpressionNode[] defaultArgumentExps) {
+    this.funcName = funcName;
     this.defaultArgumentExps = defaultArgumentExps;
   }
 
   @Override
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame virtualFrame) {
+    // Compute the closure and its default arguments when called the first time.
+    // TODO (msb): I don't think this is the correct way to do it.
     if (closure == null) {
-      // compute the closure and its default arguments
-      // when called the first time
       int nArgs = defaultArgumentExps.length;
       Object[] defaultArguments = new Object[nArgs];
       for (int i = 0; i < nArgs; i++) {
@@ -46,7 +47,8 @@ public final class MethodRefNode extends ExpressionNode {
           defaultArguments[i] = null;
         }
       }
-      closure = new Closure(this.function, defaultArguments);
+      Function function = RawContext.get(this).getFunctionRegistry().getFunction(funcName);
+      closure = new Closure(function, defaultArguments);
     }
     return closure;
   }

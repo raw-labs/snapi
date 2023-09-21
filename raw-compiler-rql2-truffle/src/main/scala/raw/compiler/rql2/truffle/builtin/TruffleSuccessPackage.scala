@@ -15,12 +15,12 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.SuccessBuildEntry
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.tryable.TryableSuccessNodeGen
 
 class TruffleSuccessBuildEntry extends SuccessBuildEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableSuccessNodeGen.create(args(0).e)
   }
 

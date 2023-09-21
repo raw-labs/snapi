@@ -47,7 +47,7 @@ public final class RawContext {
     return output;
   }
 
-  // TODO : probably not correct, we need to provide the OutputStream at context creation time
+  // FIXME (msb): Remove!
   public void setOutput(OutputStream output) {
     this.output = output;
   }
@@ -56,6 +56,7 @@ public final class RawContext {
     return runtimeContext;
   }
 
+  // FIXME (msb): Remove!
   public void setRuntimeContext(RuntimeContext runtimeContext) {
     this.runtimeContext = runtimeContext;
   }

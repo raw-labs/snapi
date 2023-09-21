@@ -15,20 +15,20 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{IntFromEntry, IntRangeEntry}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.numeric.int_package.{IntFromNodeGen, IntRangeNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.IntNode
 
 class TruffleIntFromEntry extends IntFromEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     IntFromNodeGen.create(args(0).e);
   }
 
 }
 
 class TruffleIntRangeEntry extends IntRangeEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val start = args(0).e
     val end = args(1).e
     val step = args.collectFirst { case arg if arg.idn.contains("step") => arg.e }.getOrElse(new IntNode("1"))

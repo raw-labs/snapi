@@ -16,13 +16,13 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.ast.expressions.record._
 
 class TruffleRecordBuildEntry extends RecordBuildEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val Rql2RecordType(atts, _) = t
     new RecordBuildNode(atts.zip(args).flatMap { case (att, arg) => Seq(new StringNode(att.idn), arg.e) }.toArray)
   }
@@ -31,7 +31,7 @@ class TruffleRecordBuildEntry extends RecordBuildEntry with TruffleEntryExtensio
 
 class TruffleRecordConcatEntry extends RecordConcatEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     RecordConcatNodeGen.create(args(0).e, args(1).e)
   }
 
@@ -39,7 +39,7 @@ class TruffleRecordConcatEntry extends RecordConcatEntry with TruffleEntryExtens
 
 class TruffleRecordFieldsEntry extends RecordFieldsEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     RecordFieldsNodeGen.create(args(0).e)
   }
 
@@ -47,7 +47,7 @@ class TruffleRecordFieldsEntry extends RecordFieldsEntry with TruffleEntryExtens
 
 class TruffleRecordAddFieldEntry extends RecordAddFieldEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val f = {
       // infer from the type
       val Rql2RecordType(atts, _) = t
@@ -61,7 +61,7 @@ class TruffleRecordAddFieldEntry extends RecordAddFieldEntry with TruffleEntryEx
 
 class TruffleRecordRemoveFieldEntry extends RecordRemoveFieldEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val f = {
       // infer from the type
       val Rql2RecordType(whenRemoved, _) = t
@@ -77,7 +77,7 @@ class TruffleRecordRemoveFieldEntry extends RecordRemoveFieldEntry with TruffleE
 
 class TruffleRecordGetFieldByIndexEntry extends RecordGetFieldByIndexEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     RecordProjNodeGen.create(args(0).e, args(1).e)
   }
 

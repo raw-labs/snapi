@@ -15,19 +15,13 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
-import raw.runtime.truffle.ast.expressions.option.{
-  OptionIsDefinedNodeGen,
-  OptionMapNodeGen,
-  OptionNoneNode,
-  OptionSomeNodeGen,
-  OptionUnsafeGetNodeGen
-}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
+import raw.runtime.truffle.ast.expressions.option.{OptionIsDefinedNodeGen, OptionMapNodeGen, OptionNoneNode, OptionSomeNodeGen, OptionUnsafeGetNodeGen}
 import raw.runtime.truffle.ast.expressions.unary.NotNodeGen
 
 class TruffleNullableEmptyEntry extends NullableEmptyEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     new OptionNoneNode(t)
   }
 
@@ -35,7 +29,7 @@ class TruffleNullableEmptyEntry extends NullableEmptyEntry with TruffleEntryExte
 
 class TruffleNullableBuildEntry extends NullableBuildEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     OptionSomeNodeGen.create(args(0).e)
   }
 
@@ -43,7 +37,7 @@ class TruffleNullableBuildEntry extends NullableBuildEntry with TruffleEntryExte
 
 class TruffleNullableIsNullEntry extends NullableIsNullEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     NotNodeGen.create(OptionIsDefinedNodeGen.create(args(0).e))
   }
 
@@ -51,7 +45,7 @@ class TruffleNullableIsNullEntry extends NullableIsNullEntry with TruffleEntryEx
 
 class TruffleNullableUnsafeGetEntry extends NullableUnsafeGetEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     OptionUnsafeGetNodeGen.create(args(0).e)
   }
 
@@ -59,7 +53,7 @@ class TruffleNullableUnsafeGetEntry extends NullableUnsafeGetEntry with TruffleE
 
 class TruffleNullableTransformEntry extends NullableTransformEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     OptionMapNodeGen.create(args(0).e, args(1).e)
   }
 

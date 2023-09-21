@@ -16,18 +16,13 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
-import raw.runtime.truffle.ast.expressions.builtin.location_package.{
-  LocationBuildNode,
-  LocationDescribeNodeGen,
-  LocationLlNodeGen,
-  LocationLsNodeGen
-}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
+import raw.runtime.truffle.ast.expressions.builtin.location_package.{LocationBuildNode, LocationDescribeNodeGen, LocationLlNodeGen, LocationLsNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.IntNode
 
 class TruffleLocationBuildEntry extends LocationBuildEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val keys = args.collect { case TruffleArg(_, _, Some(idn)) => idn.replace("_", "-") }
     val values = args.collect { case TruffleArg(e, _, Some(_)) => e }
     val types = args.collect { case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties] }
@@ -42,7 +37,7 @@ class TruffleLocationBuildEntry extends LocationBuildEntry with TruffleEntryExte
 }
 
 class TruffleLocationDescribeEntry extends LocationDescribeEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val sampleSize = args
       .collectFirst { case arg if arg.idn.contains("sampleSize") => arg.e }
       .getOrElse(new IntNode(Integer.MIN_VALUE.toString))
@@ -51,13 +46,13 @@ class TruffleLocationDescribeEntry extends LocationDescribeEntry with TruffleEnt
 }
 
 class TruffleLocationLsEntry extends LocationLsEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     LocationLsNodeGen.create(args(0).e)
   }
 }
 
 class TruffleLocationLlEntry extends LocationLlEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     LocationLlNodeGen.create(args(0).e)
   }
 }

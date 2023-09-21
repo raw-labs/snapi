@@ -16,7 +16,7 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.AwsV4SignedRequest
 import raw.compiler.rql2.source.{Rql2ListType, Rql2RecordType}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.aws_package.AwsV4SignedRequestNodeGen
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode
@@ -24,7 +24,7 @@ import raw.runtime.truffle.ast.expressions.literals.StringNode
 
 class AwsV4SignedRequestEntry extends AwsV4SignedRequest with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
 
     val key = args.head.e
     val secretKey = args(1).e

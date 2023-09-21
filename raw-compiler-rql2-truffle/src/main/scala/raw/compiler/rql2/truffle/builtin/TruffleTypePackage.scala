@@ -17,17 +17,13 @@ import raw.compiler.rql2.TypesMerger
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
-import raw.runtime.truffle.ast.expressions.builtin.type_package.{
-  TypeMatchNode,
-  TypeProtectCastOptionNode,
-  TypeProtectCastTryableNode
-}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
+import raw.runtime.truffle.ast.expressions.builtin.type_package.{TypeMatchNode, TypeProtectCastOptionNode, TypeProtectCastTryableNode}
 import raw.runtime.truffle.ast.expressions.literals.ZeroedConstNode
 
 class TruffleTypeCastEntry extends TypeCastEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     args(1).e
   }
 
@@ -57,7 +53,7 @@ class TruffleTypeProtectCastEntry extends TypeProtectCastEntry with TruffleEntry
     recurse(target, source)
   }
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val ExpType(sourceType) = args.head.t
     val ExpType(targetType) = args(1).t
 
@@ -73,7 +69,7 @@ class TruffleTypeProtectCastEntry extends TypeProtectCastEntry with TruffleEntry
 
 class TruffleTypeEmptyEntry extends TypeEmptyEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     new ZeroedConstNode(args.head.t.asInstanceOf[Rql2Type])
   }
 
@@ -81,7 +77,7 @@ class TruffleTypeEmptyEntry extends TypeEmptyEntry with TruffleEntryExtension {
 
 class TruffleTypeMatchEntry extends TypeMatchEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val Rql2OrType(options, _) = args.head.t.asInstanceOf[Rql2OrType]
     val typesMerger = new TypesMerger
     val handlers = args.tail // or-type pattern matching functions

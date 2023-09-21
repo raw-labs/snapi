@@ -16,29 +16,9 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalBuildNodeGen
-import raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package.{
-  TimestampAddIntervalNodeGen,
-  TimestampBuildNodeGen,
-  TimestampDayNodeGen,
-  TimestampFromDateNodeGen,
-  TimestampFromUnixTimestampNodeGen,
-  TimestampHourNodeGen,
-  TimestampMillisNodeGen,
-  TimestampMinuteNodeGen,
-  TimestampMonthNodeGen,
-  TimestampNowNodeGen,
-  TimestampParseNodeGen,
-  TimestampRangeNodeGen,
-  TimestampSecondNodeGen,
-  TimestampSubtractIntervalNodeGen,
-  TimestampSubtractNodeGen,
-  TimestampTimeBucketIntervalNodeGen,
-  TimestampTimeBucketStringNodeGen,
-  TimestampToUnixTimestampNodeGen,
-  TimestampYearNodeGen
-}
+import raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package.{TimestampAddIntervalNodeGen, TimestampBuildNodeGen, TimestampDayNodeGen, TimestampFromDateNodeGen, TimestampFromUnixTimestampNodeGen, TimestampHourNodeGen, TimestampMillisNodeGen, TimestampMinuteNodeGen, TimestampMonthNodeGen, TimestampNowNodeGen, TimestampParseNodeGen, TimestampRangeNodeGen, TimestampSecondNodeGen, TimestampSubtractIntervalNodeGen, TimestampSubtractNodeGen, TimestampTimeBucketIntervalNodeGen, TimestampTimeBucketStringNodeGen, TimestampToUnixTimestampNodeGen, TimestampYearNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.IntNode
 
 class TruffleTimestampBuildEntry extends TimestampBuildEntry with TruffleShortEntryExtension {
@@ -68,7 +48,7 @@ class TruffleTimestampNowEntry extends TimestampNowEntry with TruffleShortEntryE
 }
 
 class TruffleTimestampRangeEntry extends TimestampRangeEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val start = args(0).e
     val end = args(1).e
     val step = args
@@ -127,7 +107,7 @@ class TruffleTimestampToUnixTimestampEntry extends TimestampToUnixTimestampEntry
 }
 
 class TruffleTimestampTimeBucketEntry extends TimestampTimeBucketEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     args(0).t match {
       case Rql2StringType(_) => TimestampTimeBucketStringNodeGen.create(args(0).e, args(1).e)
       case Rql2IntervalType(_) => TimestampTimeBucketIntervalNodeGen.create(args(0).e, args(1).e)

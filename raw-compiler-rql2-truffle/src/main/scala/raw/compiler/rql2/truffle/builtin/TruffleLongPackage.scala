@@ -15,13 +15,13 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{LongFromEntry, LongRangeEntry}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.numeric.long_package.{LongFromNodeGen, LongRangeNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.LongNode
 
 class TruffleLongFromEntry extends LongFromEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     LongFromNodeGen.create(args(0).e);
   }
 
@@ -29,7 +29,7 @@ class TruffleLongFromEntry extends LongFromEntry with TruffleEntryExtension {
 
 class TruffleLongRangeEntry extends LongRangeEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val start = args(0).e
     val end = args(1).e
     val step = args.collectFirst { case arg if arg.idn.contains("step") => arg.e }.getOrElse(new LongNode("1"))
