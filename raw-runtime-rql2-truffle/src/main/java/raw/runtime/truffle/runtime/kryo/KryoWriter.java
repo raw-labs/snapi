@@ -40,8 +40,6 @@ import scala.collection.immutable.Vector;
 @ExportLibrary(KryoWriterLibrary.class)
 public final class KryoWriter {
 
-  Rql2TypeWithProperties type;
-
   @ImportStatic(value = TypeGuards.class)
   @ExportMessage
   static class Write {
@@ -243,7 +241,7 @@ public final class KryoWriter {
     @Specialization
     static void doDecimal(
         KryoWriter receiver, Output output, Rql2TypeWithProperties type, DecimalObject o) {
-      output.writeString(o.toString());
+      output.writeString(o.getBigDecimal().toString());
     }
 
     @Specialization
