@@ -94,8 +94,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     } finally {
       // We explicitly created and then entered the context during code emission.
       // Now we explicitly leave and close the context.
-      context.leave()
-      context.close()
+//      context.leave()
+//      context.close()
     }
   }
 
@@ -247,11 +247,12 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   ): Entrypoint = {
     logger.debug(s"Output final program is:\n${prettyPrintOutput(program)}")
 
-    // We explicitly create and then enter the context during code emission.
-    // This context will be left on close in the TruffleProgramOutputWriter.
-    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
-    ctx.initialize(RawLanguage.ID)
-    ctx.enter()
+//    // We explicitly create and then enter the context during code emission.
+//    // This context will be left on close in the TruffleProgramOutputWriter.
+//    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
+//    ctx.initialize(RawLanguage.ID)
+//    ctx.enter()
+    val ctx = null
 
     val tree = new Tree(program)(programContext.asInstanceOf[ProgramContext])
     val emitter = new TruffleEmitterImpl(tree)(programContext.asInstanceOf[ProgramContext])
