@@ -16,12 +16,12 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.S3BuildEntry
 import raw.compiler.rql2.source.Rql2TypeWithProperties
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 
 class TruffleS3BuildEntry extends S3BuildEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
 
     def replaceKey(idn: String) = idn match {
       case "region" => "s3-region"

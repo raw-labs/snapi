@@ -15,26 +15,13 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
-import raw.runtime.truffle.ExpressionNode
-import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.{
-  IntervalBuildNodeGen,
-  IntervalDaysNodeGen,
-  IntervalFromMillisNodeGen,
-  IntervalHoursNodeGen,
-  IntervalMillisNodeGen,
-  IntervalMinutesNodeGen,
-  IntervalMonthsNodeGen,
-  IntervalParseNodeGen,
-  IntervalSecondsNodeGen,
-  IntervalToMillisNodeGen,
-  IntervalWeeksNodeGen,
-  IntervalYearsNodeGen
-}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.{IntervalBuildNodeGen, IntervalDaysNodeGen, IntervalFromMillisNodeGen, IntervalHoursNodeGen, IntervalMillisNodeGen, IntervalMinutesNodeGen, IntervalMonthsNodeGen, IntervalParseNodeGen, IntervalSecondsNodeGen, IntervalToMillisNodeGen, IntervalWeeksNodeGen, IntervalYearsNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.IntNode
 
 class TruffleBuildIntervalEntry extends BuildIntervalEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val y = args.collectFirst { case TruffleArg(e, _, Some("years")) => e }.getOrElse(new IntNode("0"))
     val m = args.collectFirst { case TruffleArg(e, _, Some("months")) => e }.getOrElse(new IntNode("0"))
     val w = args.collectFirst { case TruffleArg(e, _, Some("weeks")) => e }.getOrElse(new IntNode("0"))

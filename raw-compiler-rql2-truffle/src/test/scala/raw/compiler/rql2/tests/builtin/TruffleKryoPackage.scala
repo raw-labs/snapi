@@ -16,12 +16,12 @@ import raw.compiler.rql2.source.ExpType
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.source.Rql2TypeWithProperties
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.io.kryo.{KryoFromNode, KryoWriteNode}
 
 class TruffleKryoEncodeEntry extends KryoEncodeEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     new KryoWriteNode(args.head.e, args.head.t.asInstanceOf[Rql2TypeWithProperties])
   }
 
@@ -29,7 +29,7 @@ class TruffleKryoEncodeEntry extends KryoEncodeEntry with TruffleEntryExtension 
 
 class TruffleKryoDecodeEntry extends KryoDecodeEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val ExpType(sourceType) = args(1).t
     new KryoFromNode(args.head.e, sourceType.asInstanceOf[Rql2TypeWithProperties])
   }

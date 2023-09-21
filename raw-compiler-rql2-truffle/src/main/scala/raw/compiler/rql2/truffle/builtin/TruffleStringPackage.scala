@@ -15,13 +15,13 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.string_package._
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 
 class TruffleStringFromEntry extends StringFromEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     StringFromNodeGen.create(args.head.e)
   }
 
@@ -29,7 +29,7 @@ class TruffleStringFromEntry extends StringFromEntry with TruffleEntryExtension 
 
 class TruffleStringReadEntry extends StringReadEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val encoding =
       args.collectFirst { case arg if arg.idn.contains("encoding") => arg.e }.getOrElse(new StringNode("utf-8"))
     StringReadNodeGen.create(args.head.e, encoding)
@@ -54,7 +54,7 @@ class TruffleStringRTrimEntry extends StringRTrimEntry with TruffleShortEntryExt
 
 class TruffleStringReplaceEntry extends StringReplaceEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     StringReplaceNodeGen.create(args.head.e, args(1).e, args(2).e)
   }
 
@@ -120,7 +120,7 @@ class TruffleStringLevenshteinDistanceEntry extends StringLevenshteinDistanceEnt
 }
 
 class TruffleStringReadLinesEntry extends StringReadLinesEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val encoding =
       args.collectFirst { case arg if arg.idn.contains("encoding") => arg.e }.getOrElse(new StringNode("utf-8"))
     StringReadLinesNodeGen.create(args.head.e, encoding)

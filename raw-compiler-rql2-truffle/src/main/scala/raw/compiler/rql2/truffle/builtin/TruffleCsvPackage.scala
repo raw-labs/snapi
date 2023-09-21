@@ -27,24 +27,26 @@ import raw.runtime.truffle.{ExpressionNode, RawLanguage, StatementNode}
 
 class TruffleCsvReadEntry extends CsvReadEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val makeParser = CsvColumnParser(args)
     val url = args.find(_.idn.isEmpty).get.e
     val parseNode = makeParser.fileParser(
       url,
-      t.asInstanceOf[Rql2TypeWithProperties]
+      t.asInstanceOf[Rql2TypeWithProperties],
+      rawLanguage
     )
     parseNode
   }
 }
 
 class TruffleCsvParseEntry extends CsvParseEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val makeParser = CsvColumnParser(args)
     val str = args.find(_.idn.isEmpty).get.e
     val parseNode = makeParser.stringParser(
       str,
-      t.asInstanceOf[Rql2TypeWithProperties]
+      t.asInstanceOf[Rql2TypeWithProperties],
+      rawLanguage
     )
     parseNode
   }
@@ -63,15 +65,14 @@ class CsvColumnParser(
     timestampFormat: ExpressionNode
 ) {
 
-  def stringParser(str: ExpressionNode, t: Rql2TypeWithProperties): ExpressionNode = {
-    val lang = RawLanguage.getCurrentContext.getLanguage
+  def stringParser(str: ExpressionNode, t: Rql2TypeWithProperties, lang: RawLanguage): ExpressionNode = {
     val frameDescriptor = new FrameDescriptor()
 
     val Rql2IterableType(Rql2RecordType(columns, rProps), iProps) = t
     assert(iProps.isEmpty)
     assert(rProps.isEmpty)
     val columnParsers = columns
-      .map(col => columnParser(col.tipe))
+      .map(col => columnParser(col.tipe, lang))
       .map(parser => new ProgramExpressionNode(lang, frameDescriptor, parser))
     val recordParser = new RecordParseCsvNode(columnParsers.toArray, columns.toArray)
     val iterableParser = new IterableParseCsvString(
@@ -92,16 +93,16 @@ class CsvColumnParser(
 
   def fileParser(
       url: ExpressionNode,
-      t: Rql2TypeWithProperties
+      t: Rql2TypeWithProperties,
+      lang: RawLanguage
   ): ExpressionNode = {
-    val lang = RawLanguage.getCurrentContext.getLanguage
     val frameDescriptor = new FrameDescriptor()
 
     val Rql2IterableType(Rql2RecordType(columns, rProps), iProps) = t
     assert(iProps.isEmpty)
     assert(rProps.isEmpty)
     val columnParsers = columns
-      .map(col => columnParser(col.tipe))
+      .map(col => columnParser(col.tipe, lang))
       .map(parser => new ProgramExpressionNode(lang, frameDescriptor, parser))
     val recordParser = new RecordParseCsvNode(columnParsers.toArray, columns.toArray)
     val iterableParser = new IterableParseCsvFile(
@@ -124,11 +125,11 @@ class CsvColumnParser(
   private val tryable = Rql2IsTryableTypeProperty()
   private val nullable = Rql2IsNullableTypeProperty()
 
-  private def columnParser(t: Type): ExpressionNode = {
+  private def columnParser(t: Type, lang: RawLanguage): ExpressionNode = {
     t match {
       case r: Rql2TypeWithProperties if r.props.contains(tryable) =>
-        val inner = columnParser(r.cloneAndRemoveProp(tryable))
-        new TryableParseCsvNode(program(inner))
+        val inner = columnParser(r.cloneAndRemoveProp(tryable), lang)
+        new TryableParseCsvNode(program(inner, lang))
       case r: Rql2TypeWithProperties if r.props.contains(nullable) =>
         r match {
           case _: Rql2ByteType => new OptionByteParseCsvNode()
@@ -163,8 +164,7 @@ class CsvColumnParser(
     }
   }
 
-  private def program(e: ExpressionNode): ProgramExpressionNode = {
-    val lang = RawLanguage.getCurrentContext.getLanguage
+  private def program(e: ExpressionNode, lang: RawLanguage): ProgramExpressionNode = {
     val frameDescriptor = new FrameDescriptor()
 
     new ProgramExpressionNode(lang, frameDescriptor, e)
@@ -195,24 +195,24 @@ object CsvColumnParser {
 
 object CsvWriter {
 
-  def apply(args: Seq[Type]): ProgramStatementNode = {
-    val lang = RawLanguage.getCurrentContext.getLanguage
+  def apply(args: Seq[Type], lang: RawLanguage): ProgramStatementNode = {
     val frameDescriptor = new FrameDescriptor()
-    val columnWriters = args.map(columnWriter).map(writer => new ProgramStatementNode(lang, frameDescriptor, writer))
+    val columnWriters =
+      args.map(arg => columnWriter(arg, lang)).map(writer => new ProgramStatementNode(lang, frameDescriptor, writer))
     val recordWriter = new RecordWriteCsvNode(columnWriters.toArray)
     new ProgramStatementNode(lang, frameDescriptor, recordWriter)
   }
 
-  private def columnWriter(t: Type): StatementNode = {
+  private def columnWriter(t: Type, lang: RawLanguage): StatementNode = {
     t match {
       case r: Rql2TypeWithProperties if r.props.contains(Rql2IsTryableTypeProperty()) =>
         val innerType = r.cloneAndRemoveProp(Rql2IsTryableTypeProperty())
-        val innerWriter = columnWriter(innerType)
-        new TryableWriteCsvNode(program(innerWriter))
+        val innerWriter = columnWriter(innerType, lang)
+        new TryableWriteCsvNode(program(innerWriter, lang))
       case r: Rql2TypeWithProperties if r.props.contains(Rql2IsNullableTypeProperty()) =>
         val innerType = r.cloneAndRemoveProp(Rql2IsNullableTypeProperty())
-        val innerWriter = columnWriter(innerType)
-        new NullableWriteCsvNode(program(innerWriter))
+        val innerWriter = columnWriter(innerType, lang)
+        new NullableWriteCsvNode(program(innerWriter, lang))
       case r: Rql2TypeWithProperties =>
         assert(r.props.isEmpty)
         r match {
@@ -233,8 +233,7 @@ object CsvWriter {
     }
   }
 
-  private def program(e: StatementNode): ProgramStatementNode = {
-    val lang = RawLanguage.getCurrentContext.getLanguage
+  private def program(e: StatementNode, lang: RawLanguage): ProgramStatementNode = {
     val frameDescriptor = new FrameDescriptor()
     new ProgramStatementNode(lang, frameDescriptor, e)
   }

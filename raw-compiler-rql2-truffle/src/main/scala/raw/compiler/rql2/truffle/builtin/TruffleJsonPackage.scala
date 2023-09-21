@@ -29,7 +29,7 @@ import java.util
 
 class TruffleReadJsonEntry extends ReadJsonEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
 
     val (unnamedArgs, namedArgs) = args.partition(_.idn.isEmpty)
     val encoding =
@@ -49,14 +49,26 @@ class TruffleReadJsonEntry extends ReadJsonEntry with TruffleEntryExtension {
           unnamedArgs.head.e,
           encoding,
           JsonIO
-            .recurseJsonParser(innerType.asInstanceOf[Rql2TypeWithProperties], dateFormat, timeFormat, timestampFormat)
+            .recurseJsonParser(
+              innerType.asInstanceOf[Rql2TypeWithProperties],
+              dateFormat,
+              timeFormat,
+              timestampFormat,
+              rawLanguage
+            )
         )
       case _ =>
         val parseNode = new JsonReadValueNode(
           unnamedArgs.head.e,
           encoding,
           JsonIO
-            .recurseJsonParser(t.asInstanceOf[Rql2TypeWithProperties], dateFormat, timeFormat, timestampFormat)
+            .recurseJsonParser(
+              t.asInstanceOf[Rql2TypeWithProperties],
+              dateFormat,
+              timeFormat,
+              timestampFormat,
+              rawLanguage
+            )
         )
         if (t.asInstanceOf[Rql2TypeWithProperties].props.contains(Rql2IsTryableTypeProperty())) {
           new TryableTopLevelWrapper(parseNode)
@@ -68,7 +80,7 @@ class TruffleReadJsonEntry extends ReadJsonEntry with TruffleEntryExtension {
 }
 
 class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val (unnamedArgs, namedArgs) = args.partition(_.idn.isEmpty)
     val timeFormat = namedArgs
       .collectFirst { case arg if arg.idn.contains("timeFormat") => arg.e }
@@ -86,7 +98,8 @@ class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
         t.asInstanceOf[Rql2TypeWithProperties],
         dateFormat,
         timeFormat,
-        timestampFormat
+        timestampFormat,
+        rawLanguage
       )
     )
 
@@ -99,8 +112,8 @@ class TruffleParseJsonEntry extends ParseJsonEntry with TruffleEntryExtension {
 }
 
 class TrufflePrintJsonEntry extends PrintJsonEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode =
-    JsonPrintNodeGen.create(args.head.e, JsonIO.recurseJsonWriter(args.head.t.asInstanceOf[Rql2TypeWithProperties]))
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = JsonPrintNodeGen
+    .create(args.head.e, JsonIO.recurseJsonWriter(args.head.t.asInstanceOf[Rql2TypeWithProperties], rawLanguage))
 }
 
 object JsonIO {
@@ -109,10 +122,9 @@ object JsonIO {
       tipe: Rql2TypeWithProperties,
       dateFormat: ExpressionNode,
       timeFormat: ExpressionNode,
-      timestampFormat: ExpressionNode
+      timestampFormat: ExpressionNode,
+      lang: RawLanguage
   ): ProgramExpressionNode = {
-
-    val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
     val frameDescriptor = new FrameDescriptor()
 
     def recurse(
@@ -204,10 +216,10 @@ object JsonIO {
   }
 
   def recurseJsonWriter(
-      tipe: Rql2TypeWithProperties
+      tipe: Rql2TypeWithProperties,
+      lang: RawLanguage
   ): ProgramStatementNode = {
 
-    val lang = RawLanguage.getCurrentContext.getLanguage
     val frameDescriptor = new FrameDescriptor()
 
     def recurse(tipe: Rql2TypeWithProperties, isSafe: Boolean = false): StatementNode = tipe match {

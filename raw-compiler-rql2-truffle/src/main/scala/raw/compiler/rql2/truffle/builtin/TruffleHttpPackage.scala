@@ -16,12 +16,8 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{HttpCallEntry, HttpReadEntry, HttpUrlDecode, HttpUrlEncode}
 import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
-import raw.runtime.truffle.ExpressionNode
-import raw.runtime.truffle.ast.expressions.builtin.http_package.{
-  HttpReadNodeGen,
-  HttpUrlDecodeNodeGen,
-  HttpUrlEncodeNodeGen
-}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
+import raw.runtime.truffle.ast.expressions.builtin.http_package.{HttpReadNodeGen, HttpUrlDecodeNodeGen, HttpUrlEncodeNodeGen}
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 
@@ -30,7 +26,7 @@ class TruffleHttpReadEntry extends HttpReadEntry with TruffleShortEntryExtension
 }
 
 abstract class TruffleHttpCallEntry(method: String) extends HttpCallEntry(method) with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
 
     def replaceKey(idn: String) = {
       idn match {

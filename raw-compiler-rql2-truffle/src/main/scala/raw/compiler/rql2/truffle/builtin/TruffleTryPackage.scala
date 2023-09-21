@@ -15,18 +15,12 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
-import raw.runtime.truffle.ast.expressions.tryable.{
-  TryableFlatMapNodeGen,
-  TryableIsFailureNodeGen,
-  TryableIsSuccessNodeGen,
-  TryableMapNodeGen,
-  TryableUnsafeGetNodeGen
-}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
+import raw.runtime.truffle.ast.expressions.tryable.{TryableFlatMapNodeGen, TryableIsFailureNodeGen, TryableIsSuccessNodeGen, TryableMapNodeGen, TryableUnsafeGetNodeGen}
 
 class TruffleTryTransformEntry extends TryTransformEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableMapNodeGen.create(args(0).e, args(1).e)
   }
 
@@ -34,7 +28,7 @@ class TruffleTryTransformEntry extends TryTransformEntry with TruffleEntryExtens
 
 class TruffleTryIsErrorEntry extends TryIsErrorEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableIsFailureNodeGen.create(args(0).e)
   }
 
@@ -42,7 +36,7 @@ class TruffleTryIsErrorEntry extends TryIsErrorEntry with TruffleEntryExtension 
 
 class TruffleTryIsSuccessEntry extends TryIsSuccessEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableIsSuccessNodeGen.create(args(0).e)
   }
 
@@ -50,7 +44,7 @@ class TruffleTryIsSuccessEntry extends TryIsSuccessEntry with TruffleEntryExtens
 
 class TruffleTryFlatMapEntry extends TryFlatMapEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableFlatMapNodeGen.create(args(0).e, args(1).e)
   }
 
@@ -58,7 +52,7 @@ class TruffleTryFlatMapEntry extends TryFlatMapEntry with TruffleEntryExtension 
 
 class TruffleTryUnsafeGetEntry extends TryUnsafeGetEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableUnsafeGetNodeGen.create(args(0).e)
   }
 }

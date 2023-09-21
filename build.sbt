@@ -458,9 +458,11 @@ lazy val rawRuntimeRql2Truffle = (project in file("raw-runtime-rql2-truffle"))
     // Do not generate scala docs for this project.
     Compile / doc / sources := Seq.empty,
     libraryDependencies ++= truffleDeps ++ Seq(kryo, woodstox, commonsText) ++ poiDeps,
-    compileOrder := CompileOrder.ScalaThenJava // Make sure TruffleEntrypoint is available
-  )
-  .settings(
+    compileOrder := CompileOrder.ScalaThenJava, // Make sure TruffleEntrypoint is available,
+    Compile / javacOptions ++= Seq(
+      "--module-path",
+      (Compile / dependencyClasspath).value.map(_.data.getAbsolutePath).mkString(":")
+    ),
     name := "raw-runtime-rql2-truffle",
     dummyJavadocJarTask := {
       val artifactName = "raw-runtime-rql2-truffle"

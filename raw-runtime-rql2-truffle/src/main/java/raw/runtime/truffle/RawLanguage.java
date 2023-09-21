@@ -89,10 +89,11 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     raw.compiler.common.Compiler compiler = compilerService.getCompiler(user, new Some("rql2-truffle"));
     ProgramEnvironment programEnvironment = new ProgramEnvironment(new Some("rql2-truffle"), (Set<String>) Set$.MODULE$.empty(), updatedMap,Option.empty());
     ProgramContext programContext =  compilerService.getProgramContext(compiler, source, Option.empty(), programEnvironment);
-    TruffleEntrypoint truffleEntrypoint = (TruffleEntrypoint) compiler.compile(source, programContext).right().get();
+    TruffleEntrypoint truffleEntrypoint = (TruffleEntrypoint) compiler.compile(source, this, programContext).right().get();
     RawLanguage.getCurrentContext().setRuntimeContext(programContext.runtimeContext());
 //    return Truffle.getRuntime().createCallTarget(truffleEntrypoint.node());
 //  return Truffle.getRuntime().createDirectCallNode(truffleEntrypoint.node().getCallTarget());
     return truffleEntrypoint.node().getCallTarget();
   }
 }
+

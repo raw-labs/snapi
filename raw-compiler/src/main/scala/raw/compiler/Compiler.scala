@@ -121,9 +121,10 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
   }
 
   final def compile(
-      source: String
+      source: String,
+       rawLanguageAsAny: Any = null
   )(implicit programContext: ProgramContext): Either[List[ErrorMessage], Entrypoint] = {
-    buildInputTree(source).right.map(compile)
+    buildInputTree(source).right.map(t => compile(t, rawLanguageAsAny))
   }
 
   def getTreeFromSource(source: String)(implicit programContext: ProgramContext): TreeWithPositions[N, P, E]
@@ -133,7 +134,8 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
   final def compile(program: P)(implicit programContext: ProgramContext): Either[List[ErrorMessage], Entrypoint] = {
     val tree = getTree(program)
     if (tree.valid) {
-      Right(compile(tree))
+      // FIXME (msb): Passing rawLanguageAsAny as null
+      Right(compile(tree, null))
     } else {
       Left(tree.errors)
     }
@@ -141,13 +143,13 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
 
   protected def supportsCaching: Boolean = true
 
-  private def compile(tree: BaseTree[N, P, E]): Entrypoint = {
-    doCompile(tree)
+  private def compile(tree: BaseTree[N, P, E], rawLanguageAsAny: Any): Entrypoint = {
+    doCompile(tree, rawLanguageAsAny)
   }
 
   protected def template(program: P)(implicit programContext: ProgramContext): (String, P)
 
-  protected def doCompile(tree: BaseTree[N, P, E]): Entrypoint = {
+  protected def doCompile(tree: BaseTree[N, P, E], rawLanguageAsAny: Any): Entrypoint = {
     val inputProgram = tree.root
     implicit val programContext = tree.programContext
     val outputProgram = transpile(inputProgram)
@@ -162,10 +164,10 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     // the 'template' method.
     if (supportsCaching) {
       val (signature, templatedProgram) = template(outputProgram)
-      emit(signature, templatedProgram)
+      emit(signature, templatedProgram, rawLanguageAsAny)
     } else {
       val signature = UUID.randomUUID().toString.replace("-", "").replace("_", "")
-      emit(signature, outputProgram)
+      emit(signature, outputProgram, rawLanguageAsAny)
     }
   }
 
@@ -202,13 +204,13 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     getTree(program).normalize
   }
 
-  private def emit(signature: String, program: P)(implicit programContext: ProgramContext): Entrypoint = {
+  private def emit(signature: String, program: P, rawLanguageAsAny: Any)(implicit programContext: ProgramContext): Entrypoint = {
     withCompilerTiming("emit") {
-      doEmit(signature, program)
+      doEmit(signature, program, rawLanguageAsAny)
     }
   }
 
-  protected def doEmit(signature: String, program: P)(implicit programContext: ProgramContext): Entrypoint
+  protected def doEmit(signature: String, program: P, rawLanguageAsAny: Any)(implicit programContext: ProgramContext): Entrypoint
 
   private def withCompilerTiming[T](name: String)(f: => T): T = {
     val start = Stopwatch.createStarted()

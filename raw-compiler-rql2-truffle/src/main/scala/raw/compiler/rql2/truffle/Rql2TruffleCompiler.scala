@@ -18,7 +18,7 @@ import com.oracle.truffle.api.interop.InteropLibrary
 import com.oracle.truffle.api.nodes.RootNode
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.util.Entity
-import org.graalvm.polyglot.Context
+//import org.graalvm.polyglot.Context
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.{BaseTree, CompilerContext}
 import raw.compiler.common.source.{SourcePrettyPrinter, _}
@@ -52,6 +52,7 @@ import raw.runtime.truffle.runtime.or.OrObject
 import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 import raw.runtime._
+import raw.runtime.truffle.runtime.function.Function
 
 import java.util.UUID
 import scala.collection.mutable
@@ -69,7 +70,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override protected def doEval(
       tree: BaseTree[SourceNode, SourceProgram, Exp]
   )(implicit programContext: raw.compiler.base.ProgramContext): Value = {
-    val TruffleEntrypoint(context, node, _) = doCompile(tree).asInstanceOf[TruffleEntrypoint]
+    // FIXME (msb): Passing rawLanguageAsNull as null
+    val TruffleEntrypoint(context, node, _) = doCompile(tree, null).asInstanceOf[TruffleEntrypoint]
     RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
     val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
     try {
@@ -226,9 +228,12 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     SourcePrettyPrinter.format(node)
   }
 
-  override def doEmit(signature: String, program: SourceProgram)(
+  override def doEmit(signature: String, program: SourceProgram, rawLanguageAsAny: Any)(
       implicit programContext: raw.compiler.base.ProgramContext
   ): Entrypoint = {
+
+    val rawLanguage = rawLanguageAsAny.asInstanceOf[RawLanguage]
+
     logger.debug(s"Output final program is:\n${prettyPrintOutput(program)}")
 
 //    // We explicitly create and then enter the context during code emission.
@@ -239,7 +244,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     val ctx = null
 
     val tree = new Tree(program)(programContext.asInstanceOf[ProgramContext])
-    val emitter = new TruffleEmitterImpl(tree)(programContext.asInstanceOf[ProgramContext])
+    val emitter = new TruffleEmitterImpl(tree, rawLanguage)(programContext.asInstanceOf[ProgramContext])
     val Rql2Program(methods, me) = tree.root
     val dataType = tree.analyzer.tipe(me.get)
     val outputFormat = programContext.runtimeContext.environment.options.getOrElse("output-format", defaultOutputFormat)
@@ -275,11 +280,11 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             assert(rProps.isEmpty)
             assert(iProps.isEmpty)
             new ProgramStatementNode(
-              RawLanguage.getCurrentContext.getLanguage,
+              rawLanguage,
               frameDescriptor,
               new CsvIterableWriterNode(
                 bodyExpNode,
-                CsvWriter(atts.map(_.tipe)),
+                CsvWriter(atts.map(_.tipe), rawLanguage),
                 atts.map(_.idn).toArray,
                 lineSeparator
               )
@@ -288,40 +293,40 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             assert(rProps.isEmpty)
             assert(iProps.isEmpty)
             new ProgramStatementNode(
-              RawLanguage.getCurrentContext.getLanguage,
+              rawLanguage,
               frameDescriptor,
               new CsvListWriterNode(
                 bodyExpNode,
-                CsvWriter(atts.map(_.tipe)),
+                CsvWriter(atts.map(_.tipe), rawLanguage),
                 atts.map(_.idn).toArray,
                 lineSeparator
               )
             )
         }
       case "json" => new ProgramStatementNode(
-          RawLanguage.getCurrentContext.getLanguage,
+          rawLanguage,
           frameDescriptor,
           JsonWriterNodeGen.create(
             bodyExpNode,
-            JsonIO.recurseJsonWriter(dataType.asInstanceOf[Rql2TypeWithProperties])
+            JsonIO.recurseJsonWriter(dataType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
           )
         )
       case "binary" =>
-        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2BinaryType])
+        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2BinaryType], rawLanguage)
         new ProgramStatementNode(
-          RawLanguage.getCurrentContext.getLanguage,
+          rawLanguage,
           frameDescriptor,
           new BinaryWriterNode(bodyExpNode, writer)
         )
       case "text" =>
-        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2StringType])
+        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2StringType], rawLanguage)
         new ProgramStatementNode(
-          RawLanguage.getCurrentContext.getLanguage,
+          rawLanguage,
           frameDescriptor,
           new BinaryWriterNode(bodyExpNode, writer)
         )
       case null | "" => new ProgramExpressionNode(
-          RawLanguage.getCurrentContext.getLanguage,
+          rawLanguage,
           frameDescriptor,
           bodyExpNode
         )
@@ -335,7 +340,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 
 final case class SlotLocation(depth: Int, slot: Int)
 
-class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
+class TruffleEmitterImpl(tree: Tree, val rawLanguage: RawLanguage)(implicit programContext: ProgramContext)
     extends TruffleEmitter
     with StrictLogging {
 
@@ -389,8 +394,23 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
   }
 
   def emitMethod(m: Rql2Method): Unit = {
-    val funcName = getFuncIdn(analyzer.entity(m.i))
-    recurseFunProto(funcName, m.p)
+//    val funcName = getFuncIdn(analyzer.entity(m.i))
+//    val FunProto(ps, _, FunBody(e)) = m.p
+//    addScope()
+//
+//    ps.foreach(p => setEntityDepth(analyzer.entity(p.i)))
+//
+//    val functionBody = recurseExp(e)
+//    val funcFrameDescriptor = dropScope()
+//
+//    val functionRootBody =
+//      new ProgramExpressionNode(rawLanguage, funcFrameDescriptor, functionBody)
+//    val rootCallTarget = functionRootBody.getCallTarget
+//    val argNames = m.p.ps.map(_.i.idn).toArray
+    ???
+    // This is wrong. Must write ref somewhere. See also references to this in MethodRefNode.
+//    RawLanguage.getCurrentContext.getFunctionRegistry
+//      .register(funcName, argNames, rootCallTarget)
   }
 
   private def findSlot(entity: Entity): SlotLocation = {
@@ -488,12 +508,10 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     val functionBody = recurseExp(e)
     val funcFrameDescriptor = dropScope()
 
-    val functionRootBody =
-      new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
+    val functionRootBody = new ProgramExpressionNode(rawLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
     val argNames = fp.ps.map(_.i.idn).toArray
-    RawLanguage.getCurrentContext.getFunctionRegistry
-      .register(name, argNames, rootCallTarget)
+    new Function(rootCallTarget, argNames)
   }
 
   override def recurseLambda(buildBody: () => ExpressionNode): ClosureNode = {
@@ -507,11 +525,9 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     val funcFrameDescriptor = dropScope()
     //    val funcFrameDescriptor = funcFrameDescriptorBuilder.build()
 
-    val functionRootBody =
-      new ProgramExpressionNode(RawLanguage.getCurrentContext.getLanguage, funcFrameDescriptor, functionBody)
+    val functionRootBody = new ProgramExpressionNode(rawLanguage, funcFrameDescriptor, functionBody)
     val rootCallTarget = functionRootBody.getCallTarget
-    val f = RawLanguage.getCurrentContext.getFunctionRegistry
-      .register(name, Array("x"), rootCallTarget)
+    val f = new Function(rootCallTarget, Array("x"))
     new ClosureNode(f, Array.empty) // no default values for these lambdas
   }
 
@@ -549,10 +565,8 @@ class TruffleEmitterImpl(tree: Tree)(implicit programContext: ProgramContext)
     case IdnExp(idn) => analyzer.entity(idn) match {
         case b: MethodEntity =>
           val funcName = getFuncIdn(b)
-          val registry = RawLanguage.getCurrentContext.getFunctionRegistry
-          val function = registry.getFunction(funcName)
           val defaultArgs = for (p <- b.d.p.ps) yield p.e.map(recurseExp).orNull
-          new MethodRefNode(function, defaultArgs.toArray)
+          new MethodRefNode(funcName, defaultArgs.toArray)
         case b: LetBindEntity =>
           val SlotLocation(depth, slot) = findSlot(b)
           if (depth == 0) {
