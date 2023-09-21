@@ -22,7 +22,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -34,10 +33,7 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 import scala.collection.immutable.Vector;
 
@@ -246,7 +242,7 @@ public final class KryoWriter {
 
     @Specialization
     static void doDecimal(
-        KryoWriter receiver, Output output, Rql2TypeWithProperties type, BigDecimal o) {
+        KryoWriter receiver, Output output, Rql2TypeWithProperties type, DecimalObject o) {
       output.writeString(o.toString());
     }
 

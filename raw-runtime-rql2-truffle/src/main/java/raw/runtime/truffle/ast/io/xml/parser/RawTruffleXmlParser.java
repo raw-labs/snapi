@@ -30,6 +30,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.DateObject;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.utils.RawTruffleCharStream;
@@ -336,9 +337,9 @@ public class RawTruffleXmlParser {
   }
 
   @TruffleBoundary
-  public BigDecimal decimalFrom(String content) {
+  public DecimalObject decimalFrom(String content) {
     try {
-      return new BigDecimal(content.strip());
+      return new DecimalObject(new BigDecimal(content.strip()));
     } catch (NumberFormatException e) {
       throw new XmlParserRawTruffleException(
           "cannot cast '" + content + "' to decimal", this, e, null);

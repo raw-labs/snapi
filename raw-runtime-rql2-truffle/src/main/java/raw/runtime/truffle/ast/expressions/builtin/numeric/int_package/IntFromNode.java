@@ -17,9 +17,9 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.boundary.BoundaryNodes;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Int.From")
@@ -57,8 +57,8 @@ public abstract class IntFromNode extends ExpressionNode {
   }
 
   @Specialization
-  protected int fromDecimal(BigDecimal argument) {
-    return argument.intValue();
+  protected int fromDecimal(DecimalObject argument) {
+    return argument.getBigDecimal().intValue();
   }
 
   @Specialization

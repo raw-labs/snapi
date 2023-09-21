@@ -32,6 +32,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
@@ -86,7 +87,7 @@ public abstract class HttpReadNode extends ExpressionNode {
       records.writeMember(record, "status", result.status());
 
       try (InputStream is = result.is()) {
-        records.writeMember(record, "data", is.readAllBytes());
+        records.writeMember(record, "data", new BinaryObject(is.readAllBytes()));
       }
 
       IndexedSeq<Tuple2<String, String>> headerTuples = result.headers().toIndexedSeq();

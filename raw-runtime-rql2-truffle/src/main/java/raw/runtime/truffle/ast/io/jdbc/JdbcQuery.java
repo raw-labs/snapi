@@ -14,7 +14,6 @@ package raw.runtime.truffle.ast.io.jdbc;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
-import java.math.BigDecimal;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,6 +23,7 @@ import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.DateObject;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.sources.LocationDescription;
@@ -137,9 +137,9 @@ public class JdbcQuery {
   }
 
   @CompilerDirectives.TruffleBoundary
-  BigDecimal getDecimal(String colName, Node node) {
+  DecimalObject getDecimal(String colName, Node node) {
     try {
-      return rs.getBigDecimal(colName);
+      return new DecimalObject(rs.getBigDecimal(colName));
     } catch (SQLException e) {
       throw exceptionHandler.columnParseError(e, colName, node);
     }

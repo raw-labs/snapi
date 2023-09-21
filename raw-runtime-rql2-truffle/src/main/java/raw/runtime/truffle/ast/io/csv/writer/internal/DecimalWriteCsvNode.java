@@ -17,9 +17,9 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
-import java.math.BigDecimal;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 
 @NodeInfo(shortName = "DecimalWriteCsv")
 public class DecimalWriteCsvNode extends StatementNode {
@@ -27,15 +27,15 @@ public class DecimalWriteCsvNode extends StatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    BigDecimal value = (BigDecimal) args[0];
+    DecimalObject value = (DecimalObject) args[0];
     CsvGenerator generator = (CsvGenerator) args[1];
     doWrite(value, generator);
   }
 
   @CompilerDirectives.TruffleBoundary
-  private void doWrite(BigDecimal value, CsvGenerator gen) {
+  private void doWrite(DecimalObject value, CsvGenerator gen) {
     try {
-      gen.writeNumber(value);
+      gen.writeNumber(value.getBigDecimal());
     } catch (IOException e) {
       throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
     }

@@ -18,6 +18,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.nio.charset.Charset;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.Encoding;
 
@@ -28,10 +29,10 @@ public abstract class StringDecodeNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable stringDecode(byte[] bytes, String encodingName) {
+  protected ObjectTryable stringDecode(BinaryObject bytes, String encodingName) {
     if (Encoding.fromEncodingString(encodingName).isRight()) {
       Charset charset = Encoding.fromEncodingString(encodingName).right().get().charset();
-      return ObjectTryable.BuildSuccess(new String(bytes, charset));
+      return ObjectTryable.BuildSuccess(new String(bytes.getBytes(), charset));
     } else {
       return ObjectTryable.BuildFailure(Encoding.fromEncodingString(encodingName).left().get());
     }

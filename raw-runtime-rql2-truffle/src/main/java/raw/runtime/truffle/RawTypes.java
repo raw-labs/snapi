@@ -13,7 +13,6 @@
 package raw.runtime.truffle;
 
 import com.oracle.truffle.api.dsl.TypeSystem;
-import java.math.BigDecimal;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
@@ -25,14 +24,14 @@ import raw.runtime.truffle.runtime.record.RecordObject;
   long.class,
   float.class,
   double.class,
-  byte[].class,
-  BigDecimal.class,
+  String.class,
+  BinaryObject.class,
+  DecimalObject.class,
   DateObject.class,
   TimeObject.class,
   IntervalObject.class,
   TimestampObject.class,
   LocationObject.class,
-  String.class,
   RecordObject.class
 })
 public abstract class RawTypes {}

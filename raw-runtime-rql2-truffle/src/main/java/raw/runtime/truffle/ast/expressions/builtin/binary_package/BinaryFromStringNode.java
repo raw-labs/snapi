@@ -17,13 +17,14 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "Binary.FromString")
 @NodeChild(value = "binary")
 public abstract class BinaryFromStringNode extends ExpressionNode {
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected byte[] doFromString(String str) {
-    return str.getBytes();
+  protected BinaryObject doFromString(String str) {
+    return new BinaryObject(str.getBytes());
   }
 }

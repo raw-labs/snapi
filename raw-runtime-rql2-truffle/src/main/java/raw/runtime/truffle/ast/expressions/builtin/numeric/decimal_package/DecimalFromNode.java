@@ -18,6 +18,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Decimal.From")
@@ -26,42 +27,42 @@ public abstract class DecimalFromNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromByte(byte argument) {
-    return new BigDecimal(argument);
+  protected DecimalObject fromByte(byte argument) {
+    return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromShort(short argument) {
-    return new BigDecimal(argument);
+  protected DecimalObject fromShort(short argument) {
+    return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromInt(int argument) {
-    return new BigDecimal(argument);
+  protected DecimalObject fromInt(int argument) {
+    return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromLong(long argument) {
-    return new BigDecimal(argument);
+  protected DecimalObject fromLong(long argument) {
+    return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromFloat(float argument) {
-    return new BigDecimal(argument);
+  protected DecimalObject fromFloat(float argument) {
+    return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromDouble(double argument) {
-    return new BigDecimal(argument);
+  protected DecimalObject fromDouble(double argument) {
+    return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
-  protected BigDecimal fromDecimal(BigDecimal argument) {
+  protected DecimalObject fromDecimal(DecimalObject argument) {
     return argument;
   }
 
@@ -69,7 +70,7 @@ public abstract class DecimalFromNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected ObjectTryable fromString(String argument) {
     try {
-      return ObjectTryable.BuildSuccess(new BigDecimal(argument));
+      return ObjectTryable.BuildSuccess(new DecimalObject(new BigDecimal(argument)));
     } catch (RuntimeException ex) {
       return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to decimal");
     }

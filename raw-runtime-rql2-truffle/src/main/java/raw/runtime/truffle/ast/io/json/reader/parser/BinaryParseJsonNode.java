@@ -19,12 +19,13 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "BinaryParseJson")
 public abstract class BinaryParseJsonNode extends ExpressionNode {
 
   @Specialization
-  protected byte[] doParse(
+  protected BinaryObject doParse(
       VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseBinaryJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];

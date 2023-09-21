@@ -19,6 +19,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "Binary.BytesWrite")
 public class BinaryBytesWriterNode extends StatementNode {
@@ -26,8 +27,8 @@ public class BinaryBytesWriterNode extends StatementNode {
   @CompilerDirectives.TruffleBoundary
   private void doWrite(Object[] args) {
     byte[] binaryData;
-    if (args[0] instanceof byte[]) {
-      binaryData = (byte[]) args[0];
+    if (args[0] instanceof BinaryObject) {
+      binaryData = ((BinaryObject) args[0]).getBytes();
     } else {
       binaryData = ((String) args[0]).getBytes();
     }

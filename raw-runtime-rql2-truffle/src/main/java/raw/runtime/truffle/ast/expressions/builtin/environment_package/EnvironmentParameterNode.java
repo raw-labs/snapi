@@ -18,17 +18,13 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import java.time.Duration;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.primitives.*;
 
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "Environment.Parameter")
@@ -81,10 +77,10 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   }
 
   @Specialization(guards = {"isDecimalKind(getParamType())"})
-  protected BigDecimal getDecimal(String key) {
+  protected DecimalObject getDecimal(String key) {
     RuntimeContext context = RawContext.get(this).getRuntimeContext();
     ParamDecimal p = (ParamDecimal) context.params(key).get();
-    return p.v();
+    return new DecimalObject(p.v());
   }
 
   @Specialization(guards = {"isBooleanKind(getParamType())"})

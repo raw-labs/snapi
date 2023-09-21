@@ -19,6 +19,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 
 @NodeInfo(shortName = "Decimal.Round")
 @NodeChild(value = "argument", type = ExpressionNode.class)
@@ -27,13 +28,13 @@ public abstract class DecimalRoundNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromInt(int argument, int precession) {
-    return (new BigDecimal(argument)).round(new MathContext(precession + 1));
+  protected DecimalObject fromInt(int argument, int precession) {
+    return new DecimalObject((new BigDecimal(argument)).round(new MathContext(precession + 1)));
   }
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal fromBigDecimal(BigDecimal argument, int precession) {
-    return argument.round(new MathContext(precession + 1));
+  protected DecimalObject fromBigDecimal(BigDecimal argument, int precession) {
+    return new DecimalObject(argument.round(new MathContext(precession + 1)));
   }
 }

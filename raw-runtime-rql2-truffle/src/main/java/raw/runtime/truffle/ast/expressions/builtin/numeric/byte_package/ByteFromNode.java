@@ -16,8 +16,8 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Byte.From")
@@ -55,8 +55,8 @@ public abstract class ByteFromNode extends ExpressionNode {
   }
 
   @Specialization
-  protected byte fromDecimal(BigDecimal argument) {
-    return argument.byteValue();
+  protected byte fromDecimal(DecimalObject argument) {
+    return argument.getBigDecimal().byteValue();
   }
 
   @Specialization
