@@ -54,7 +54,8 @@ public final class OrderByCollection {
     this.context = context;
   }
 
-  private final OperatorNodes.CompareNode compare = OperatorNodesFactory.CompareNodeGen.getUncached();
+  private final OperatorNodes.CompareNode compare =
+      OperatorNodesFactory.CompareNodeGen.getUncached();
 
   private int compareKeys(Object[] keys1, Object[] keys2) {
     // Keys are compared in order, until a difference is found.

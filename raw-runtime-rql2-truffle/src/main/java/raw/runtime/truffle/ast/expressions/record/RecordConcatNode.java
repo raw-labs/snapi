@@ -29,12 +29,10 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 public abstract class RecordConcatNode extends ExpressionNode {
 
   @Child
-  RecordNodes.WriteIndexNode writeIndexNode =
-      insert(RecordNodesFactory.WriteIndexNodeGen.create());
+  RecordNodes.WriteIndexNode writeIndexNode = insert(RecordNodesFactory.WriteIndexNodeGen.create());
 
   @Child
-  RecordNodes.ReadIndexNode readIndexNode =
-      insert(RecordNodesFactory.ReadIndexNodeGen.create());
+  RecordNodes.ReadIndexNode readIndexNode = insert(RecordNodesFactory.ReadIndexNodeGen.create());
 
   @Specialization
   @ExplodeLoop

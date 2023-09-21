@@ -27,9 +27,7 @@ public abstract class RecordProjNode extends ExpressionNode {
 
   @Specialization
   protected Object readMember(
-      RecordObject record,
-      String key,
-      @Cached RecordNodes.ReadByKeyNode readByKeyNode) {
+      RecordObject record, String key, @Cached RecordNodes.ReadByKeyNode readByKeyNode) {
     return readByKeyNode.execute(record, key);
   }
 
