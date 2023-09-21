@@ -334,9 +334,6 @@ public class OperatorNodes {
       return left.concat(right);
     }
 
-    // Here a paradox is created because for max null could be considered the least value but
-    // then what happens to max. The goal is to ignore null and keep the value. That's why this
-    // method is the only one that returns -2 or 2. The other methods return -1 or 1.
     @Specialization(guards = "left == null || right == null")
     @CompilerDirectives.TruffleBoundary
     static Object doNull(Object left, Object right) {
@@ -345,10 +342,6 @@ public class OperatorNodes {
       } else return Objects.requireNonNullElse(left, right);
     }
 
-    // It is interesting that @CachedLibrary("comparator") does not go to int case for Object
-    // calls
-    // instead it was going here again, and it was needed to make it
-    // @CachedLibrary(limit = "1") to make it work.
     @Specialization(guards = {"left != null", "right != null"})
     static Object doNullableTryable(
         Object left,
