@@ -21,7 +21,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLogger;
 import java.io.IOException;
 import java.io.Reader;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
