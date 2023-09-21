@@ -15,7 +15,7 @@ package raw.compiler.rql2.tests.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.Rql2Arg
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEmitter, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.binary.{MultNodeGen, PlusNode}
 import raw.runtime.truffle.ast.expressions.builtin.numeric.float_package.FloatFromNodeGen
 import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionTransformNodeGen
@@ -26,7 +26,7 @@ import raw.runtime.truffle.ast.expressions.record.{RecordBuildNode, RecordProjNo
 import raw.runtime.truffle.ast.local.ReadParamNode
 
 trait TruffleMandatoryArgs { this: TruffleEntryExtension =>
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     new PlusNode(args(0).e, args(1).e)
   }
 }
@@ -38,7 +38,7 @@ class TruffleMandatoryValueArgsEntry
     with TruffleMandatoryArgs
 
 trait TruffleOptionalArgs { this: TruffleEntryExtension =>
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val mandatory = args.collect { case arg if arg.idn.isEmpty => arg.e }.head
     val x = args.collectFirst { case a if a.idn.contains("x") => a.e }.getOrElse(new IntNode("10"))
     val y = args.collectFirst { case a if a.idn.contains("y") => a.e }.getOrElse(new IntNode("10"))
@@ -55,7 +55,7 @@ class TruffleOptionalValueArgsTestEntry
     with TruffleOptionalArgs
 
 trait TruffleVarArgs { this: TruffleEntryExtension =>
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val sum = args.map(_.e).foldLeft(new IntNode("0"): ExpressionNode) { case (sum, v) => new PlusNode(sum, v) }
     sum
   }
@@ -67,7 +67,7 @@ class TruffleVarExpArgsTestEntry extends VarExpArgsTestEntry with TruffleEntryEx
 class TruffleVarValueArgsTestEntry extends VarValueArgsTestEntry with TruffleEntryExtension with TruffleVarArgs
 
 class TruffleVarNullableStringValueTestEntry extends VarNullableStringValueTestEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val sum = args.map(_.e).foldLeft(new StringNode(""): ExpressionNode) {
       case (sum, v) => new PlusNode(sum, OptionGetOrElseNodeGen.create(v, new StringNode("")))
     }
@@ -77,14 +77,14 @@ class TruffleVarNullableStringValueTestEntry extends VarNullableStringValueTestE
 }
 
 class TruffleVarNullableStringExpTestEntry extends VarNullableStringExpTestEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     args(0).e
   }
 
 }
 
 class TruffleStrictArgsTestEntry extends StrictArgsTestEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val listArg = args(0).e
     val optionalArgs = args.flatMap(a => a.idn.map(i => (i, a.e))).toMap
     val recordArg = optionalArgs.getOrElse(
@@ -112,7 +112,7 @@ class TruffleStrictArgsColPassThroughTestEntry extends StrictArgsColPassThroughT
 
 }
 trait TruffleValueArg { this: TruffleEntryExtension =>
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val arg = args.head.e
     new RecordBuildNode(Array(new StringNode("arg"), arg))
   }

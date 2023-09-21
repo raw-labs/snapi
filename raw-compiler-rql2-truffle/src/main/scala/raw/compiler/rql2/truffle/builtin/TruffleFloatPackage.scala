@@ -15,11 +15,11 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.FloatFromEntry
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.numeric.float_package.FloatFromNodeGen
 
 class TruffleFloatFromEntry extends FloatFromEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     FloatFromNodeGen.create(args(0).e)
   }
 

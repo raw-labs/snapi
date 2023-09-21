@@ -27,7 +27,7 @@ import raw.runtime.truffle.ast.expressions.iterable.list.{ListFromNodeGen, ListF
 import raw.runtime.truffle.ast.expressions.option.OptionSomeNodeGen
 
 class TruffleReadXmlEntry extends ReadXmlEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
 
     val (unnamedArgs, namedArgs) = args.partition(_.idn.isEmpty)
     val encoding =
@@ -51,7 +51,7 @@ class TruffleReadXmlEntry extends ReadXmlEntry with TruffleEntryExtension {
           timeFormatExp,
           timestampFormatExp,
           XmlRecurse
-            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties])
+            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
         )
         if (props.contains(Rql2IsTryableTypeProperty())) {
           // Probably will need to be either reused in json and xml or create a copy
@@ -67,7 +67,7 @@ class TruffleReadXmlEntry extends ReadXmlEntry with TruffleEntryExtension {
           timeFormatExp,
           timestampFormatExp,
           XmlRecurse
-            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties])
+            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
         )
         if (props.contains(Rql2IsTryableTypeProperty())) {
           ListFromNodeGen.create(innerParser, innerType)
@@ -82,7 +82,7 @@ class TruffleReadXmlEntry extends ReadXmlEntry with TruffleEntryExtension {
           timeFormatExp,
           timestampFormatExp,
           XmlRecurse
-            .recurseXmlParser(t.asInstanceOf[Rql2TypeWithProperties])
+            .recurseXmlParser(t.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
         )
         if (t.asInstanceOf[Rql2TypeWithProperties].props.contains(Rql2IsTryableTypeProperty())) {
           // Probably will need to be either reused in json and xml or create a copy
@@ -95,7 +95,7 @@ class TruffleReadXmlEntry extends ReadXmlEntry with TruffleEntryExtension {
 }
 
 class TruffleParseXmlEntry extends ParseXmlEntry with TruffleEntryExtension {
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val (unnamedArgs, namedArgs) = args.partition(_.idn.isEmpty)
     val timeFormatExp = namedArgs
       .collectFirst { case arg if arg.idn.contains("timeFormat") => arg.e }
@@ -115,7 +115,7 @@ class TruffleParseXmlEntry extends ParseXmlEntry with TruffleEntryExtension {
           timeFormatExp,
           timestampFormatExp,
           XmlRecurse
-            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties])
+            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
         )
         if (props.contains(Rql2IsTryableTypeProperty())) {
           // Probably will need to be either reused in json and xml or create a copy
@@ -130,7 +130,7 @@ class TruffleParseXmlEntry extends ParseXmlEntry with TruffleEntryExtension {
           timeFormatExp,
           timestampFormatExp,
           XmlRecurse
-            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties])
+            .recurseXmlParser(innerType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
         )
         if (props.contains(Rql2IsTryableTypeProperty())) {
           ListFromNodeGen.create(innerParser, innerType)
@@ -144,7 +144,7 @@ class TruffleParseXmlEntry extends ParseXmlEntry with TruffleEntryExtension {
           timeFormatExp,
           timestampFormatExp,
           XmlRecurse
-            .recurseXmlParser(t.asInstanceOf[Rql2TypeWithProperties])
+            .recurseXmlParser(t.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
         )
         if (t.asInstanceOf[Rql2TypeWithProperties].props.contains(Rql2IsTryableTypeProperty())) {
           // Probably will need to be either reused in json and xml or create a copy
@@ -159,9 +159,8 @@ class TruffleParseXmlEntry extends ParseXmlEntry with TruffleEntryExtension {
 object XmlRecurse {
 
   // TODO each node should become XML
-  def recurseXmlParser(tipe: Rql2TypeWithProperties): ProgramExpressionNode = {
+  def recurseXmlParser(tipe: Rql2TypeWithProperties, lang: RawLanguage): ProgramExpressionNode = {
 
-    val lang: RawLanguage = RawLanguage.getCurrentContext.getLanguage
     val frameDescriptor = new FrameDescriptor()
 
     // a primitive parser node is a node that parses a primitive type _from a string_. It is applied once the string

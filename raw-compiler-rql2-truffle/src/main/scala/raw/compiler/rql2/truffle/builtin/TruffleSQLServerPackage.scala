@@ -16,7 +16,7 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.SQLServerQueryEntry
 import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
@@ -24,7 +24,7 @@ import raw.runtime.truffle.runtime.exceptions.rdbms.SqlServerExceptionHandler
 
 class TruffleSQLServerQueryEntry extends SQLServerQueryEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val db = args.head.e
     val optionalArgs = args.collect {
       case TruffleArg(e, _, Some(idn)) => idn match {
@@ -45,7 +45,7 @@ class TruffleSQLServerQueryEntry extends SQLServerQueryEntry with TruffleEntryEx
       values.toArray,
       types.toArray
     )
-    TruffleJdbc.query(location, args(1).e, t, new SqlServerExceptionHandler())
+    TruffleJdbc.query(location, args(1).e, t, new SqlServerExceptionHandler(), rawLanguage)
   }
 
 }

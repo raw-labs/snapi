@@ -15,16 +15,12 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
-import raw.runtime.truffle.ast.expressions.tryable.{
-  TryableFailureNodeGen,
-  TryableFailureWithTypeNodeGen,
-  TryableGetFailureNodeGen
-}
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
+import raw.runtime.truffle.ast.expressions.tryable.{TryableFailureNodeGen, TryableFailureWithTypeNodeGen, TryableGetFailureNodeGen}
 
 class TruffleErrorBuildEntry extends ErrorBuildEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableFailureNodeGen.create(args(0).e)
   }
 
@@ -32,7 +28,7 @@ class TruffleErrorBuildEntry extends ErrorBuildEntry with TruffleEntryExtension 
 
 class TruffleErrorBuildWithTypeEntry extends ErrorBuildWithTypeEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableFailureWithTypeNodeGen.create(args(0).e, args(1).e)
   }
 
@@ -40,7 +36,7 @@ class TruffleErrorBuildWithTypeEntry extends ErrorBuildWithTypeEntry with Truffl
 
 class TruffleErrorGetEntry extends ErrorGetEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     TryableGetFailureNodeGen.create(args(0).e)
   }
 

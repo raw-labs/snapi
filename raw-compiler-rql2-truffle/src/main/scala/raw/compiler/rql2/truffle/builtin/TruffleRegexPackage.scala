@@ -15,12 +15,12 @@ package raw.compiler.rql2.truffle.builtin
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.{RegexFirstMatchInEntry, RegexGroupsEntry, RegexMatchesEntry, RegexReplaceEntry}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.ExpressionNode
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.regex_package._
 
 class TruffleRegexReplaceEntry extends RegexReplaceEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     RegexReplaceNodeGen.create(args(0).e, args(1).e, args(2).e)
   }
 
@@ -28,14 +28,14 @@ class TruffleRegexReplaceEntry extends RegexReplaceEntry with TruffleEntryExtens
 
 class TruffleRegexMatchesEntry extends RegexMatchesEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     RegexMatchesNodeGen.create(args(0).e, args(1).e)
   }
 }
 
 class TruffleRegexFirstMatchInEntry extends RegexFirstMatchInEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     RegexFirstMatchInNodeGen.create(args(0).e, args(1).e)
 
   }
@@ -44,7 +44,7 @@ class TruffleRegexFirstMatchInEntry extends RegexFirstMatchInEntry with TruffleE
 
 class TruffleRegexGroupsEntry extends RegexGroupsEntry with TruffleEntryExtension {
 
-  override def toTruffle(t: Type, args: Seq[TruffleArg]): ExpressionNode = {
+  override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     RegexGroupsNodeGen.create(args(0).e, args(1).e)
   }
 }
