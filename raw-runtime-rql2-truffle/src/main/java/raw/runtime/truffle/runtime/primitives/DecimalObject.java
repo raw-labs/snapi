@@ -13,7 +13,6 @@
 package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.interop.TruffleObject;
-
 import java.math.BigDecimal;
 
 public class DecimalObject implements TruffleObject {
