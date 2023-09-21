@@ -34,7 +34,7 @@ public abstract class DecimalRoundNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected DecimalObject fromBigDecimal(BigDecimal argument, int precession) {
-    return new DecimalObject(argument.round(new MathContext(precession + 1)));
+  protected DecimalObject fromBigDecimal(DecimalObject argument, int precession) {
+    return new DecimalObject(argument.getBigDecimal().round(new MathContext(precession + 1)));
   }
 }
