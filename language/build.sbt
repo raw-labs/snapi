@@ -1,6 +1,4 @@
 import java.nio.file.{Files, Path, Paths, StandardOpenOption}
-import java.nio.file.attribute.PosixFilePermission
-import collection.JavaConverters._
 
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 
@@ -9,12 +7,9 @@ import sbt.Tests.{Group, SubProcess}
 import sbt._
 
 import java.io._
-import java.util.jar._
 import java.time.Year
 
 import Dependencies._
-
-//publish / skip := true // don't publish the root project
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -32,37 +27,6 @@ the Business Source License, use of this software will be governed
 by the Apache License, Version 2.0, included in the file
 licenses/APL.txt."""
 
-val scalacOptSettings = Seq(
-  // See scalac -opt:help for possible values.
-)
-
-val truffleExports = Seq(
-//  "--add-exports",
-//  "java.base/jdk.internal.module=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.exception=ALL-UNNAMED",
-//  "--add-exports",
-//  "org.graalvm.truffle/com.oracle.truffle.api.interop=ALL-UNNAMED"
-)
-
 // Read version to use
 import java.util.Properties
 import java.io.FileInputStream
@@ -78,29 +42,41 @@ version := {
 }
 
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
-// We keep Kiama's source code in the repo, and do not override their copyright notice.
-val kiamaSrc: sbt.FileFilter = (pathname: File) => pathname.getPath.contains("inkytonik")
 
 homepage := Some(url("https://www.raw-labs.com/"))
+
 organization := "com.raw-labs"
+
 organizationName := "RAW Labs SA"
+
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
+
 name := "raw-language"
+
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
+
 licenses := List(
-  "Business Source License 1.1" -> new URL("https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt")
+  "Business Source License 1.1" -> new URI(
+    "https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt"
+  ).toURL
 )
+
 startYear := Some(2023)
+
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
-headerSources / excludeFilter := HiddenFileFilter || kiamaSrc
+
+headerSources / excludeFilter := HiddenFileFilter
+
 scalaVersion := Dependencies.scalacVersion
+
 javacOptions ++= Seq(
   "-source",
   "11",
   "-target",
   "11"
 )
-scalacOptions ++= scalacOptSettings ++ Seq(
+
+scalacOptions ++= Seq(
   "-feature",
   "-unchecked",
   // When compiling in encrypted drives in Linux, the max size of a name is reduced to around 140.
@@ -114,22 +90,26 @@ scalacOptions ++= scalacOptSettings ++ Seq(
   "-Ypatmat-exhaust-depth",
   "160"
 )
+
 // Use cached resolution of dependencies
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
+
 // Needed for JPMS to work.
 compileOrder := CompileOrder.ScalaThenJava
-Compile / doc / sources := Seq.empty // doc generation tries to parse module-info.java and fails
+Compile / doc / sources := Seq.empty // Doc generation tries to parse module-info.java and fails.
+// Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
   "--module-path",
-  //(Compile / dependencyClasspath).value.filter(f => f.data.toString.contains("raw")).files.absString
   (Compile / dependencyClasspath).value.files.absString
-//    (Compile / dependencyClasspath).value.filterNot(f => f.data.toString.contains("kiama")).files.absString
 )
+
 // The tests are run in a forked JVM.
 // System properties given to sbt are not automatically passed to the forked VM
 // Here we copy any "raw." system properties to the java options passed to the forked JVMs.
 Test / fork := true
+
 Test / parallelExecution := true
+
 Test / javaOptions ++= {
   import scala.collection.JavaConverters._
   val props = System.getProperties
@@ -140,45 +120,33 @@ Test / javaOptions ++= {
     .map(key => s"-D$key=${props.getProperty(key)}")
     .to
 }
-Test / javaOptions ++=
-  truffleExports ++ Seq(
-    // Increasing stack size for Kiama chain/rewrites and codegen.
-    "-Xss64m",
-    // Enable assertions.
-//      "-ea",
-    // Limit overall memory and force crashing hard and early.
-    // Useful for debugging memleaks.
-    "-Xmx4G",
-    "-XX:+CrashOnOutOfMemoryError",
-    // Required for running with Java 17
-//      "--add-opens",
-//      "java.base/java.lang=ALL-UNNAMED",
-//      "--add-opens",
-//      "java.base/java.util=ALL-UNNAMED",
-//      "--add-opens",
-//      "java.base/java.nio=ALL-UNNAMED",
-//      "--add-opens",
-//      "java.base/java.lang.invoke=ALL-UNNAMED",
-//      "--add-opens",
-//      "java.base/sun.nio.ch=ALL-UNNAMED",
-//      "--add-opens",
-//      "java.base/sun.util.calendar=ALL-UNNAMED",
-    // Truffle test settings.
-//      "-Dpolyglot.engine.Inlining=false",
-    "-Dpolyglot.engine.CompileImmediately=true",
-    "-Dpolyglot.engine.AllowExperimentalOptions=true",
-    "-Dgraal.Dump=Truffle:2",
-    "-Dgraal.DumpPath=/tmp/graal_dumps",
-    "-Dgraal.PrintGraph=Network",
-//      "-Dpolyglot.engine.CompilationFailureAction=Throw",
-//      "-Dpolyglot.engine.TreatPerformanceWarningsAsErrors=false",
-    "-Dpolyglot.engine.CompilationExceptionsAreFatal=true",
-    "-Dgraalvm.locatorDisabled=true",
-    "-Dpolyglot.engine.BackgroundCompilation=false",
-    "-Dpolyglot.engine.TraceCompilation=true",
-    "-Dpolyglot.engine.TraceCompilationDetails=true",
-    "-Dpolyglot.engine.TraceInlining=true"
-  )
+
+Test / javaOptions ++= Seq(
+  // Increasing stack size for Kiama chain/rewrites and codegen.
+  "-Xss64m",
+  // Enable assertions.
+//  "-ea",
+  // Limit overall memory and force crashing hard and early.
+  // Useful for debugging memleaks.
+  "-Xmx4G",
+  "-XX:+CrashOnOutOfMemoryError",
+  // Truffle test settings.
+//  "-Dpolyglot.engine.Inlining=false",
+  "-Dpolyglot.engine.CompileImmediately=true",
+  "-Dpolyglot.engine.AllowExperimentalOptions=true",
+  "-Dgraal.Dump=Truffle:2",
+  "-Dgraal.DumpPath=/tmp/graal_dumps",
+  "-Dgraal.PrintGraph=Network",
+//  "-Dpolyglot.engine.CompilationFailureAction=Throw",
+//  "-Dpolyglot.engine.TreatPerformanceWarningsAsErrors=false",
+  "-Dpolyglot.engine.CompilationExceptionsAreFatal=true",
+  "-Dgraalvm.locatorDisabled=true",
+  "-Dpolyglot.engine.BackgroundCompilation=false",
+  "-Dpolyglot.engine.TraceCompilation=true",
+  "-Dpolyglot.engine.TraceCompilationDetails=true",
+  "-Dpolyglot.engine.TraceInlining=true"
+)
+
 // Group tests by the scala package of the test
 Test / testGrouping := {
   // This is called for each sbt project
@@ -235,6 +203,7 @@ Test / testGrouping := {
     }
     .toSeq
 }
+
 // Enable running multiple test VMs in parallel.
 concurrentRestrictions in Global := Seq(
   Tags.limit(
@@ -258,35 +227,18 @@ concurrentRestrictions in Global := Seq(
   ),
   Tags.limit(Tags.Publish, 1)
 )
+
 // Add dependency resolvers
 resolvers += Resolver.mavenLocal
 resolvers += Resolver.sonatypeRepo("releases")
+
 // Publish settings
 publish / skip := false
 Test / publishArtifact := true
+// When doing publishLocal, also publish to the local maven repository.
+publishLocal := (publishLocal dependsOn publishM2).value
 
-//lazy val strictBuildSettings = buildSettings ++ Seq(
-//  scalacOptions ++= Seq(
-//    "-Xfatal-warnings"
-//  )
-//)
-//
-//lazy val strictBuildExceptDeprecationsSettings = buildSettings ++ Seq(
-//  scalacOptions ++= Seq(
-//    "-Wconf:cat=deprecation:ws,any:e"
-//  )
-//)
-//
-//lazy val temporaryDirectory: String = {
-//  // Create temp files on dast directories by default.
-//  val fastTmp = Paths.get("/mnt/jenkins/tmp")
-//  if (Files.isDirectory(fastTmp) && Files.isWritable(fastTmp)) {
-//    fastTmp.toAbsolutePath.toString
-//  } else {
-//    System.getProperty("java.io.tmpdir")
-//  }
-//}
-
+// Dependencies
 libraryDependencies ++= Seq(
   scalaLogging,
   logbackClassic,
@@ -298,30 +250,25 @@ libraryDependencies ++= Seq(
   commonsLang,
   commonsText,
   apacheHttpClient,
+  icuDeps,
+  woodstox,
+  kiama,
+  dropboxSDK,
+  aws,
+  jwtApi,
+  jwtImpl,
+  jwtCore,
+  postgresqlDeps,
+  mysqlDeps,
+  mssqlDeps,
+  snowflakeDeps,
+  commonsCodec,
+  springCore,
+  kryo,
   scalatest % Test
 ) ++
   slf4j ++
   jacksonDeps ++
-  Seq(icuDeps, woodstox) ++ poiDeps ++ kiama ++ Seq(dropboxSDK, aws) ++ Seq(jwtApi, jwtImpl, jwtCore) ++ Seq(
-    postgresqlDeps
-  ) ++ Seq(mysqlDeps) ++ Seq(mssqlDeps) ++ Seq(snowflakeDeps) ++ scalaCompiler ++ Seq(commonsCodec) ++ Seq(
-    springCore
-  ) ++ truffleDeps ++ Seq(kryo)
-
-//lazy val rawSourcesApi = (project in file("raw-sources"))
-//  .dependsOn(
-//    rawUtils % "compile->compile;test->test",
-//    rawCredsApi % "compile->compile;test->test"
-//  )
-//  .settings(
-//    strictBuildSettings,
-//    Compile / javacOptions ++= Seq(
-//      "--module-path",
-//      (Compile / dependencyClasspath).value
-//        .filter(f => f.data.toString.contains("raw") || f.data.toString.contains("lang3"))
-//        .files
-//        .absString
-//    )
-//  )
-
-publishLocal := (publishLocal dependsOn publishM2).value
+  poiDeps ++
+  scalaCompiler ++
+  truffleDeps
