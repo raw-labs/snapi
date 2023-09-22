@@ -1,4 +1,3 @@
-import sbt.Keys.excludeDependencies
 import sbt._
 
 object Dependencies {
@@ -11,8 +10,6 @@ object Dependencies {
   )
 
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
-
-//  val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
 
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
 
@@ -31,10 +28,7 @@ object Dependencies {
 
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.2"
 
-  val kiama = Seq(
-    "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.2-SNAPSHOT",
-//    "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.2-SNAPSHOT"
-  )
+  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.2-SNAPSHOT"
 
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
@@ -85,13 +79,6 @@ object Dependencies {
     "org.apache.poi" % "poi-ooxml" % "5.2.3",
     "org.apache.poi" % "poi-ooxml-lite" % "5.2.3"
   )
-
-//  val truffleDeps = Seq(
-////    "org.graalvm.polyglot" % "polyglot" % "23.1.0",
-//    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
-//    "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided,
-////    "org.graalvm.tools" % "profiler" % "23.1.0"
-//  )
 
   val jwtApi = "io.jsonwebtoken" % "jjwt-api" % "0.11.5"
 
