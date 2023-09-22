@@ -76,7 +76,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override protected def doEval(
       tree: BaseTree[SourceNode, SourceProgram, Exp]
   )(implicit programContext: raw.compiler.base.ProgramContext): Value = {
-    // FIXME (msb): Passing rawLanguageAsNull as null
+    // FIXME (msb): Passing rawLanguageAsNull as null. This is BROKEN!
     val TruffleEntrypoint(context, node, _) = doCompile(tree, null).asInstanceOf[TruffleEntrypoint]
     RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
     val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
