@@ -1,3 +1,3 @@
-module raw.compiler.extensions {
-
+module raw.language.extensions {
+    requires raw.language;
 }
