@@ -12,8 +12,34 @@
 
 package raw.compiler.rql2.tests
 
+import com.oracle.truffle.api.Truffle
+import org.graalvm.polyglot.Context
 import raw.compiler.rql2.Rql2OutputTestContext
+import raw.runtime.ParamValue
+import raw.runtime.truffle.RawLanguage
+
+import java.nio.file.Path
 
 class TruffleCompilerTestContext extends CompilerTestContext with Rql2OutputTestContext {
   override def language: String = "rql2-truffle"
+
+  override def doExecute(
+      query: String,
+      maybeDecl: Option[String],
+      maybeArgs: Option[Seq[(String, ParamValue)]],
+      savePath: Option[Path],
+      options: Map[String, String],
+      scopes: Set[String]
+  ): Either[String, Path] = {
+    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
+    ctx.initialize(RawLanguage.ID)
+    ctx.enter()
+    try {
+      super.doExecute(query, maybeDecl, maybeArgs, savePath, options, scopes)
+    } finally {
+      ctx.leave()
+      ctx.close()
+    }
+  }
+
 }
