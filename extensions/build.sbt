@@ -67,11 +67,25 @@ headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 // We keep Kiama's source code in the repo, and do not override their copyright notice.
 val kiamaSrc: sbt.FileFilter = (pathname: File) => pathname.getPath.contains("inkytonik")
 
+// Read version to use
+import java.util.Properties
+import java.io.FileInputStream
+version := {
+  val properties = new Properties()
+  val fs = new FileInputStream("../version.properties")
+  try {
+    properties.load(fs)
+    properties.getProperty("extensions.version")
+  } finally {
+    fs.close()
+  }
+}
+
 homepage := Some(url("https://www.raw-labs.com/"))
 organization := "com.raw-labs"
 organizationName := "RAW Labs SA"
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
-name := "raw-compiler-extensions"
+name := "raw-language-extensions"
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
 licenses := List(
   "Business Source License 1.1" -> new URL("https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt")
@@ -79,7 +93,7 @@ licenses := List(
 startYear := Some(2023)
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 headerSources / excludeFilter := HiddenFileFilter || kiamaSrc
-scalaVersion := Dependencies.scalacVersion
+scalaVersion := "2.12.18"
 javacOptions ++= Seq(
   "-source",
   "11",
@@ -278,7 +292,7 @@ Test / javaOptions ++= Seq(
   s"-Djava.io.tmpdir=$temporaryDirectory"
 )
 
-libraryDependencies ++= Seq(rawCompiler % "compile->compile;test->test")
+libraryDependencies ++= Seq(rawLanguage % "compile->compile;test->test")
 
 //libraryDependencies ++= Seq(
 //  scalaLogging,
@@ -316,9 +330,5 @@ libraryDependencies ++= Seq(rawCompiler % "compile->compile;test->test")
 //        .absString
 //    )
 //  )
-
-Compile / packageBin / packageOptions += Package.ManifestAttributes(
-  "Automatic-Module-Name" -> "raw.compiler.extensions"
-)
 
 publishLocal := (publishLocal dependsOn publishM2).value
