@@ -96,7 +96,8 @@ updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
 // Needed for JPMS to work.
 compileOrder := CompileOrder.ScalaThenJava
-Compile / doc / sources := Seq.empty // Doc generation tries to parse module-info.java and fails.
+// FIXME (msb): Doc generation tries to parse module-info.java and fails.
+Compile / doc / sources := Seq.empty
 // Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
   "--module-path",
@@ -131,20 +132,20 @@ Test / javaOptions ++= Seq(
   "-Xmx4G",
   "-XX:+CrashOnOutOfMemoryError",
   // Truffle test settings.
-//  "-Dpolyglot.engine.Inlining=false",
-  "-Dpolyglot.engine.CompileImmediately=true",
-  "-Dpolyglot.engine.AllowExperimentalOptions=true",
+//  "-Dpolyglotimpl.Inlining=false",
+  "-Dpolyglotimpl.CompileImmediately=true",
+  "-Dpolyglotimpl.AllowExperimentalOptions=true",
   "-Dgraal.Dump=Truffle:2",
   "-Dgraal.DumpPath=/tmp/graal_dumps",
   "-Dgraal.PrintGraph=Network",
-//  "-Dpolyglot.engine.CompilationFailureAction=Throw",
-//  "-Dpolyglot.engine.TreatPerformanceWarningsAsErrors=false",
-  "-Dpolyglot.engine.CompilationExceptionsAreFatal=true",
-  "-Dgraalvm.locatorDisabled=true",
-  "-Dpolyglot.engine.BackgroundCompilation=false",
-  "-Dpolyglot.engine.TraceCompilation=true",
-  "-Dpolyglot.engine.TraceCompilationDetails=true",
-  "-Dpolyglot.engine.TraceInlining=true"
+//  "-Dpolyglotimpl.CompilationFailureAction=Throw",
+//  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
+//  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
+  "-Dpolyglotimpl.DisableClassPathIsolation=true",
+  "-Dpolyglotimpl.BackgroundCompilation=false",
+  "-Dpolyglotimpl.TraceCompilation=true",
+  "-Dpolyglotimpl.TraceCompilationDetails=true",
+  "-Dpolyglotimpl.TraceInlining=true"
 )
 
 // Group tests by the scala package of the test
