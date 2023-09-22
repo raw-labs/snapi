@@ -12,7 +12,7 @@ object Dependencies {
 
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
 
-  val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
+//  val scalaParserCombinators = "org.scala-lang.modules" %% "scala-parser-combinators" % "2.2.0"
 
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
 
@@ -25,15 +25,15 @@ object Dependencies {
     "org.slf4j" % "jul-to-slf4j" % "2.0.5"
   )
 
-  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
+  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5+32-f50caed5+20230922-0911-SNAPSHOT"
 
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.11"
 
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.2"
 
   val kiama = Seq(
-    "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.1",
-    "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.1"
+    "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.2-SNAPSHOT",
+//    "org.bitbucket.inkytonik.kiama" %% "kiama-extras" % "2.5.2-SNAPSHOT"
   )
 
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
@@ -65,6 +65,7 @@ object Dependencies {
 
   val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5"
 
+  // Required while we are on Scala 2.12. It's built into Scala 2.13.
   val scalaJava8Compat = "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2"
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
@@ -103,4 +104,12 @@ object Dependencies {
     "org.jline" % "jline-terminal-jna" % "3.23.0",
     "org.jline" % "jline-reader" % "3.23.0"
   )
+
+  val springCore = "org.springframework" % "spring-core" % "5.3.13"
+
+  val truffleDeps = Seq(
+    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided
+  )
+
 }
