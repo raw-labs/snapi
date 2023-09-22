@@ -96,8 +96,10 @@ updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
 // Needed for JPMS to work.
 compileOrder := CompileOrder.ScalaThenJava
-// FIXME (msb): Doc generation tries to parse module-info.java and fails.
-Compile / doc / sources := Seq.empty
+// Doc generation breaks with Java files
+Compile / doc / sources := {
+  (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
+}
 // Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
   "--module-path",
@@ -249,7 +251,6 @@ resolvers += Resolver.mavenLocal
 resolvers += Resolver.sonatypeRepo("releases")
 
 // Publish settings
-publish / skip := false
 Test / publishArtifact := true
 // When doing publishLocal, also publish to the local maven repository.
 publishLocal := (publishLocal dependsOn publishM2).value
