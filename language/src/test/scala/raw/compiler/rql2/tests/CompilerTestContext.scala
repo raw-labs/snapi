@@ -611,6 +611,7 @@ trait CompilerTestContext
     implicit val programContext = getProgramContextFromSource(compiler, request.code)
     compiler.lsp(request)
   }
+
   def executeQuery(
       queryString: String,
       ordered: Boolean = false,
@@ -625,21 +626,21 @@ trait CompilerTestContext
     }
   }
 
-  // executes a parameterized query, running 'decl' with the given parameters.
+  // Executes a parameterized query, running 'decl' with the given parameters.
   def callDecl(code: String, decl: String, args: Seq[(String, ParamValue)] = Seq.empty): Either[String, Any] = {
     val compiler = getCompiler()
     val programContext =
       getProgramContextFromSource(compiler, code, Some(args.toArray)).asInstanceOf[raw.compiler.rql2.ProgramContext]
-    // type the code that was passed as a parameter
+    // Type the code that was passed as a parameter.
     val tree = compiler.buildInputTree(code)(programContext).right.get
     val Rql2Program(methods, _) = tree.root
-    // find the method that we want to run
+    // Find the method that we want to run.
     methods.find(_.i.idn == decl) match {
       case None => fail(s"method '$decl' not found")
       case Some(method) =>
         val entity = tree.analyzer.entity(method.i)
         val raw.compiler.rql2.source.FunType(_, _, outputType, _) = tree.analyzer.entityType(entity)
-        // execute 'code' and parse the output
+        // Executes code and parses the output.
         doExecute(code, maybeDecl = Some(decl), maybeArgs = Some(args)).right.map(path =>
           outputParser(path, compiler.prettyPrint(outputType))
         )
