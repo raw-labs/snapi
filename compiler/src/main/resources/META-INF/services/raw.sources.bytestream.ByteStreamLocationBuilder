@@ -1,0 +1,7 @@
+raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder
+raw.sources.bytestream.github.GithubByteStreamLocationBuilder
+raw.sources.bytestream.http.HttpByteStreamLocationBuilder
+raw.sources.bytestream.in_memory.InMemoryByteStreamLocationBuilder
+raw.sources.filesystem.local.LocalFileSystemLocationBuilder
+raw.sources.filesystem.mock.MockFileSystemLocationBuilder
+raw.sources.filesystem.s3.S3FileSystemLocationBuilder

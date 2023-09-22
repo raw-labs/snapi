@@ -1,0 +1,5 @@
+raw.sources.jdbc.sqlite.SqliteSchemaLocationBuilder
+raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder
+raw.sources.jdbc.pgsql.PostgresqlSchemaLocationBuilder
+raw.sources.jdbc.mysql.MySqlSchemaLocationBuilder
+raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder
