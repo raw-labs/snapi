@@ -38,9 +38,7 @@ class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry with TruffleEntryEx
     }
     val keys = optionalArgs.map(_._1)
     val values = optionalArgs.map(_._2)
-    val types = args.tail.collect {
-      case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties]
-    } :+ Rql2StringType().asInstanceOf[Rql2TypeWithProperties]
+    val types = args.tail.collect { case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties] }
     val location = new LocationBuildNode(
       new PlusNode(new StringNode("snowflake:"), db),
       keys.toArray,
