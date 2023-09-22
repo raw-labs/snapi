@@ -138,8 +138,12 @@ public class RawTruffleXmlParser {
 
   @TruffleBoundary
   public boolean onEndTag() {
-    assert (currentTokenValid);
-    return currentToken == XMLStreamReader.END_ELEMENT;
+    try {
+      assert (currentTokenValid || !xmlStreamReader.hasNext());
+      return currentToken == XMLStreamReader.END_ELEMENT;
+    } catch (IllegalStateException | XMLStreamException ex) {
+      throw new XmlReaderRawTruffleException(ex, stream, null);
+    }
   }
 
   @TruffleBoundary

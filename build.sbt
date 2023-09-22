@@ -124,7 +124,7 @@ lazy val buildSettings = Seq(
       // Increasing stack size for Kiama chain/rewrites and codegen.
       "-Xss64m",
       // Enable assertions.
-//      "-ea",
+      "-ea",
       // Limit overall memory and force crashing hard and early.
       // Useful for debugging memleaks.
       "-Xmx4G",
