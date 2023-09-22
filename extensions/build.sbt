@@ -164,20 +164,20 @@ Test / javaOptions ++=
 //      "--add-opens",
 //      "java.base/sun.util.calendar=ALL-UNNAMED",
     // Truffle test settings.
-//      "-Dpolyglot.engine.Inlining=false",
-    "-Dpolyglot.engine.CompileImmediately=true",
-    "-Dpolyglot.engine.AllowExperimentalOptions=true",
+//        "-Dpolyglotimpl.Inlining=false",
+    "-Dpolyglotimpl.CompileImmediately=true",
+    "-Dpolyglotimpl.AllowExperimentalOptions=true",
     "-Dgraal.Dump=Truffle:2",
     "-Dgraal.DumpPath=/tmp/graal_dumps",
     "-Dgraal.PrintGraph=Network",
-//      "-Dpolyglot.engine.CompilationFailureAction=Throw",
-//      "-Dpolyglot.engine.TreatPerformanceWarningsAsErrors=false",
-    "-Dpolyglot.engine.CompilationExceptionsAreFatal=true",
-    "-Dgraalvm.locatorDisabled=true",
-    "-Dpolyglot.engine.BackgroundCompilation=false",
-    "-Dpolyglot.engine.TraceCompilation=true",
-    "-Dpolyglot.engine.TraceCompilationDetails=true",
-    "-Dpolyglot.engine.TraceInlining=true"
+//      "-Dpolyglotimpl.CompilationFailureAction=Throw",
+//      "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
+//    "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
+    "-Dpolyglotimpl.DisableClassPathIsolation=true",
+    "-Dpolyglotimpl.BackgroundCompilation=false",
+    "-Dpolyglotimpl.TraceCompilation=true",
+    "-Dpolyglotimpl.TraceCompilationDetails=true",
+    "-Dpolyglotimpl.TraceInlining=true"
   )
 // Group tests by the scala package of the test
 Test / testGrouping := {
@@ -291,6 +291,11 @@ Test / javaOptions ++= Seq(
   s"-Xlog:gc*,thread*:file=$temporaryDirectory/raw-compiler-rql2-truffle-tests-%t-%p.log", // GC logging.
   s"-Djava.io.tmpdir=$temporaryDirectory"
 )
+
+//libraryDependencies ++= Seq(
+//  "org.graalvm.polyglot" % "polyglot" % "23.1.0",
+//  //"org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided
+//)
 
 libraryDependencies ++= Seq(rawLanguage % "compile->compile;test->test")
 
