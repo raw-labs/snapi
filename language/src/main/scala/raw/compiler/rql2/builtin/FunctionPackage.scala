@@ -15,6 +15,7 @@ package raw.compiler.rql2.builtin
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.rql2.source.FunType
 import raw.compiler.rql2._
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, TypeDoc}
 
 class FunctionPackage extends PackageExtension {

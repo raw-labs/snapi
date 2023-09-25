@@ -14,6 +14,7 @@ package raw.compiler.rql2
 
 import org.bitbucket.inkytonik.kiama.util.Entity
 import raw.compiler.common
+import raw.compiler.rql2.api.PackageExtension
 import raw.compiler.rql2.source._
 
 trait SymbolTable extends common.SymbolTable

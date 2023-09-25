@@ -15,6 +15,7 @@ package raw.compiler.rql2.builtin
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, TypeDoc}
 import raw.compiler.base.source.Type
 import raw.compiler.rql2._
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param, TypeArg, TypeParam}
 import raw.compiler.rql2.source._
 
 class ErrorPackage extends PackageExtension {

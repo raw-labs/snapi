@@ -14,8 +14,8 @@ package raw.compiler.rql2.builtin
 
 import raw.compiler.base.errors.UnsupportedType
 import raw.compiler.base.source.Type
+import raw.compiler.rql2.api.{Arg, EntryExtensionHelper, ValueArg}
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.{Arg, EntryExtensionHelper, ValueArg}
 import raw.inferrer.api.{SqlQueryInferrerProperties, SqlTableInferrerProperties}
 import raw.runtime.interpreter.StringValue
 import raw.sources.api._

@@ -14,7 +14,7 @@ package raw.compiler.rql2.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
-import raw.compiler.rql2._
+import raw.compiler.rql2.api.{PackageExtension, ShortEntryExtension}
 import raw.compiler.rql2.source._
 
 class BinaryPackage extends PackageExtension {
