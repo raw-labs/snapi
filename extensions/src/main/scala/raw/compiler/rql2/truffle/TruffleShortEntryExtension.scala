@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle
 
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.{Rql2Arg, ShortEntryExtension}
+import raw.compiler.rql2.api.{Rql2Arg, ShortEntryExtension}
 import raw.runtime.truffle.ExpressionNode
 
 import scala.collection.mutable
