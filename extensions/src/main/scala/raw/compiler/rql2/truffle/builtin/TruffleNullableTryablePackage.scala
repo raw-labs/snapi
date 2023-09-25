@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.rql2._
+import raw.compiler.rql2.api._
 import raw.compiler.rql2.builtin.FlatMapNullableTryableEntry
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleEmitter, TruffleEntryExtension}

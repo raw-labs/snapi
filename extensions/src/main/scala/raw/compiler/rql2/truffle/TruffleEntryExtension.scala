@@ -15,7 +15,7 @@ package raw.compiler.rql2.truffle
 import com.oracle.truffle.api.frame.FrameDescriptor
 import raw.compiler.base.source.Type
 import raw.compiler.common.source.Exp
-import raw.compiler.rql2.{EntryExtension, Rql2Arg}
+import raw.compiler.rql2.api.{EntryExtension, Rql2Arg}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 
 final case class TruffleArg(e: ExpressionNode, t: Type, idn: Option[String])
