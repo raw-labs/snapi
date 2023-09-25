@@ -14,7 +14,6 @@ package raw.compiler.common
 
 import raw.compiler.base.ProgramContext
 import raw.compiler.scala2.Scala2CompilerContext
-import raw.config.RawSettings
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._

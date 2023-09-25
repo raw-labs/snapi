@@ -16,10 +16,9 @@ import raw.runtime.RuntimeContext
 
 import java.io.OutputStream
 import java.lang.invoke.{MethodHandles, MethodType}
-import raw.utils.AuthenticatedUser
+import raw.utils.{AuthenticatedUser, RawSettings}
 import raw.compiler.base.CompilerContext
 import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
-import raw.config.RawSettings
 import raw.inferrer.api.InferrerService
 import raw.sources.api.SourceContext
 

@@ -12,8 +12,7 @@
 
 package raw.creds.mock
 
-import raw.utils.AuthenticatedUser
-import raw.config.RawSettings
+import raw.utils.{AuthenticatedUser, RawSettings}
 import raw.creds.api._
 import raw.sources.bytestream.http.oauth2clients.{
   Auth0OAuth2Client,

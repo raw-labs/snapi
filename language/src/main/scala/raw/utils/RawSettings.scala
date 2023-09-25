@@ -10,11 +10,10 @@
  * licenses/APL.txt.
  */
 
-package raw.config
+package raw.utils
 
 import com.typesafe.config._
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.RawException
 
 import java.time.Duration
 import java.util.concurrent.TimeUnit

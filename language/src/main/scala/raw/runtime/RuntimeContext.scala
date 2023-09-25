@@ -12,8 +12,8 @@
 
 package raw.runtime
 
-import raw.config.RawSettings
 import raw.sources.api.SourceContext
+import raw.utils.RawSettings
 
 import java.time.{LocalDateTime, ZoneId}
 import scala.collection.mutable

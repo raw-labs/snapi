@@ -14,9 +14,9 @@ package raw.sources.jdbc.snowflake
 
 import net.snowflake.client.jdbc.SnowflakeSQLException
 import net.snowflake.client.jdbc.internal.snowflake.common.core.SqlState
-import raw.config._
 import raw.creds.api.SnowflakeCredential
 import raw.sources.jdbc.api._
+import raw.utils.RawSettings
 
 import java.sql.{Connection, DriverManager}
 import java.util.concurrent.{Executors, TimeUnit}

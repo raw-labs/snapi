@@ -13,8 +13,8 @@
 package raw.sources.jdbc.sqlite
 
 import java.nio.file.{InvalidPathException, Path}
-import raw.config._
 import raw.sources.jdbc.api.{AuthenticationFailedException, JdbcClient, JdbcLocationException}
+import raw.utils.RawSettings
 
 import java.sql.SQLException
 import scala.util.control.NonFatal
