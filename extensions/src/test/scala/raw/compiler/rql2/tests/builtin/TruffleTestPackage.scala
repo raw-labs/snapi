@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.rql2.Rql2Arg
+import raw.compiler.rql2.api.Rql2Arg
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEmitter, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.binary.{MultNodeGen, PlusNode}
