@@ -14,7 +14,7 @@ package raw.inferrer.local.auto
 
 import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer._
+import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.inferrer.local.csv.CsvInferrer
 import raw.inferrer.local.excel.ExcelInferrer
@@ -22,9 +22,9 @@ import raw.inferrer.local.hjson.HjsonInferrer
 import raw.inferrer.local.json.JsonInferrer
 import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.XmlInferrer
-import raw.sources._
-import raw.sources.bytestream.ByteStreamLocation
-import raw.sources.filesystem.{DirectoryMetadata, FileSystemLocation}
+import raw.sources.api._
+import raw.sources.bytestream.api.ByteStreamLocation
+import raw.sources.filesystem.api.{DirectoryMetadata, FileSystemLocation}
 
 object AutoInferrer {
   private val USE_BUFFERED_SEEKABLE_IS = "raw.inferrer.local.use-buffered-seekable-is"

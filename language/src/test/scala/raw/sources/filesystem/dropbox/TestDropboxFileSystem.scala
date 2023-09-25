@@ -12,9 +12,9 @@
 
 package raw.sources.filesystem.dropbox
 
-import raw.RawTestSuite
+import raw.utils.RawTestSuite
 import raw.creds.dropbox.DropboxTestCreds
-import raw.sources.filesystem.{FileSystem, TestFileSystems}
+import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
 
 import java.io.ByteArrayInputStream
 import scala.util.Try

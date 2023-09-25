@@ -15,9 +15,8 @@ package raw.inferrer.local.jdbc
 import java.sql.ResultSetMetaData
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer
-import raw.inferrer.{SourceAttrType, SourceCollectionType, SourceRecordType, SourceType}
-import raw.sources.jdbc.{JdbcLocation, JdbcTableLocation}
+import raw.inferrer.api.{SourceAttrType, SourceCollectionType, SourceRecordType, SourceType}
+import raw.sources.jdbc.api.{JdbcLocation, JdbcTableLocation}
 
 import scala.collection.mutable
 
@@ -54,7 +53,7 @@ class JdbcInferrer extends JdbcTypeToSourceType with StrictLogging {
       val columnType = res.getColumnType(n)
       val nullability = res.isNullable(n)
       jdbcColumnToSourceType(columnType, nullability) match {
-        case Some(t) => columns += inferrer.SourceAttrType(columnName, t)
+        case Some(t) => columns += SourceAttrType(columnName, t)
         case None => incompatible(columnName) = res.getColumnTypeName(n)
       }
     }

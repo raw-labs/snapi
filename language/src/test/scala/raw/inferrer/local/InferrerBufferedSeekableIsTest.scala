@@ -14,7 +14,7 @@ package raw.inferrer.local
 
 import org.scalatest.funsuite.AnyFunSuite
 import raw.inferrer.local.auto.InferrerBufferedSeekableIS
-import raw.sources.bytestream.SeekableInputStream
+import raw.sources.bytestream.api.SeekableInputStream
 
 import java.nio.ByteBuffer
 

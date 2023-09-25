@@ -16,8 +16,6 @@ import org.scalatest.Tag
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
-import raw._
-import raw.api.{AuthenticatedUser, InteractiveUser, RawException}
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.common.{Compiler, CompilerService}
@@ -25,7 +23,7 @@ import raw.compiler.rql2.source.Rql2Program
 import raw.compiler.{CompilerException, LSPRequest, ProgramOutputWriter}
 import raw.creds.api._
 import raw.creds.mock.MockCredentialsTestContext
-import raw.inferrer.local.SimpleInferrerTestContext
+import raw.inferrer.local.LocalInferrerTestContext
 import raw.runtime.{ParamValue, ProgramEnvironment}
 import raw.utils._
 
@@ -45,7 +43,7 @@ trait CompilerTestContext
     with MockCredentialsTestContext
 
     // Simple inferrer
-    with SimpleInferrerTestContext {
+    with LocalInferrerTestContext {
 
   def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
 

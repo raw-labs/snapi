@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.snowflake
 
-import raw.sources.{LocationDescription, LocationException, SourceContext}
-import raw.sources.jdbc.{JdbcTableLocation, JdbcTableLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
+import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
 
 class SnowflakeTableLocationBuilder extends JdbcTableLocationBuilder {
 

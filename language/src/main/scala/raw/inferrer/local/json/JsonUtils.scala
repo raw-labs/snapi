@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.JsonParser.Feature
 import com.fasterxml.jackson.core.json.JsonReadFeature
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.local._
-import raw.inferrer._
+import raw.inferrer.api._
 
 import scala.collection.JavaConverters._
 import scala.collection.immutable

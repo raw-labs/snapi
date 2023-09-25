@@ -13,11 +13,10 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw._
-import raw.inferrer._
-import raw.sources._
-import raw.sources.filesystem.local.LocalPath
 import raw.utils._
+import raw.inferrer.api._
+import raw.sources.api._
+import raw.sources.filesystem.local.LocalPath
 
 import java.io._
 import java.util.concurrent.{SynchronousQueue, ThreadPoolExecutor, TimeUnit}

@@ -14,8 +14,8 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
-import raw.api.RawException
-import raw.inferrer._
+import raw.utils.RawException
+import raw.inferrer.api._
 import raw.inferrer.local.auto.{AutoInferrer, InferrerBufferedSeekableIS}
 import raw.inferrer.local.csv.{CsvInferrer, CsvMergeTypes}
 import raw.inferrer.local.excel.ExcelInferrer
@@ -24,10 +24,10 @@ import raw.inferrer.local.jdbc.JdbcInferrer
 import raw.inferrer.local.json.JsonInferrer
 import raw.inferrer.local.text.TextInferrer
 import raw.inferrer.local.xml.{XmlInferrer, XmlMergeTypes}
-import raw.sources._
-import raw.sources.bytestream.{ByteStreamLocation, ByteStreamLocationProvider}
-import raw.sources.filesystem.FileSystemLocationProvider
-import raw.sources.jdbc.{JdbcLocationProvider, JdbcTableLocationProvider}
+import raw.sources.api._
+import raw.sources.bytestream.api.{ByteStreamLocation, ByteStreamLocationProvider}
+import raw.sources.filesystem.api.FileSystemLocationProvider
+import raw.sources.jdbc.api.{JdbcLocationProvider, JdbcTableLocationProvider}
 
 import scala.util.control.NonFatal
 

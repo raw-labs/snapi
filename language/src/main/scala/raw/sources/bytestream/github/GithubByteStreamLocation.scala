@@ -16,7 +16,7 @@ import java.io.InputStream
 import java.nio.file.Path
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.bytestream.http.HttpByteStreamLocation
-import raw.sources.bytestream.{ByteStreamLocation, SeekableInputStream}
+import raw.sources.bytestream.api.{ByteStreamLocation, SeekableInputStream}
 
 class GithubByteStreamLocation(
     http: HttpByteStreamLocation,

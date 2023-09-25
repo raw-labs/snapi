@@ -14,7 +14,7 @@ package raw.config
 
 import com.typesafe.config._
 import com.typesafe.scalalogging.StrictLogging
-import raw.api.RawException
+import raw.utils.RawException
 
 import java.time.Duration
 import java.util.concurrent.TimeUnit

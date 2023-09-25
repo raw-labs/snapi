@@ -13,7 +13,7 @@
 package raw.inferrer.local.xml
 
 import org.scalatest.funsuite.AnyFunSuite
-import raw.inferrer._
+import raw.inferrer.api._
 
 class XmlTypeReaderTest extends AnyFunSuite {
 

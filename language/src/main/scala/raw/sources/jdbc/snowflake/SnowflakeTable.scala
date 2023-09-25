@@ -12,7 +12,7 @@
 
 package raw.sources.jdbc.snowflake
 
-import raw.sources.jdbc.JdbcTableLocation
+import raw.sources.jdbc.api.JdbcTableLocation
 
 class SnowflakeTable(
     cli: SnowflakeClient,

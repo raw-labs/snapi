@@ -14,8 +14,8 @@ package raw.sources.filesystem.local
 
 import java.io.InputStream
 import java.nio.file.{Path, Paths}
-import raw.sources.bytestream.SeekableInputStream
-import raw.sources.filesystem._
+import raw.sources.bytestream.api.SeekableInputStream
+import raw.sources.filesystem.api._
 
 // TODO (msb): Remove dependency on LocalFileSystem in the few places where it's still needed.
 class LocalPath(pathName: String) extends FileSystemLocation {

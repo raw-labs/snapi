@@ -17,7 +17,7 @@ import com.ctc.wstx.stax.WstxInputFactory
 import com.typesafe.scalalogging.StrictLogging
 import org.codehaus.stax2.XMLInputFactory2
 import raw.inferrer.local.{LocalInferrerException, TextTypeInferrer}
-import raw.inferrer._
+import raw.inferrer.api._
 
 import java.io.{Reader, StringReader}
 import javax.xml.stream.{XMLInputFactory, XMLStreamConstants}

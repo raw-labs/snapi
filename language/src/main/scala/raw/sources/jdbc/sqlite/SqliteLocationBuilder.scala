@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.sqlite
 
-import raw.sources.{LocationDescription, LocationException, SourceContext}
-import raw.sources.jdbc.{JdbcLocation, JdbcLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
+import raw.sources.jdbc.api.{JdbcLocation, JdbcLocationBuilder}
 
 class SqliteLocationBuilder extends JdbcLocationBuilder {
 

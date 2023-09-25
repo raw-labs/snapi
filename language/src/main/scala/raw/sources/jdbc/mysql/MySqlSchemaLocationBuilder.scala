@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.mysql
 
-import raw.sources.{LocationDescription, LocationException, SourceContext}
-import raw.sources.jdbc.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
+import raw.sources.jdbc.api.{JdbcSchemaLocation, JdbcSchemaLocationBuilder}
 
 class MySqlSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
 

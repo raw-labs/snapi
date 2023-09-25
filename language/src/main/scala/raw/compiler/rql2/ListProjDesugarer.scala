@@ -16,7 +16,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Cloner.attempt
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import raw.compiler.base.Phase
-import raw.compiler.common.source.{Exp, IdnDef, IdnExp, SourceProgram}
+import raw.compiler.common.source.{IdnDef, IdnExp, SourceProgram}
 import raw.compiler.rql2.builtin.{CollectionPackageBuilder, ListPackageBuilder}
 import raw.compiler.rql2.source.{FunAbs, FunBody, FunParam, FunProto, Proj, Rql2IterableType, Rql2ListType}
 

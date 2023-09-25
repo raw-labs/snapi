@@ -15,10 +15,10 @@ package raw.inferrer.local.json
 import java.io.Reader
 import com.fasterxml.jackson.core._
 import com.fasterxml.jackson.core.exc.InputCoercionException
-import raw.inferrer._
+import raw.inferrer.api._
 import raw.inferrer.local._
-import raw.sources._
-import raw.sources.bytestream.SeekableInputStream
+import raw.sources.api._
+import raw.sources.bytestream.api.SeekableInputStream
 
 import scala.collection.mutable.ArrayBuffer
 

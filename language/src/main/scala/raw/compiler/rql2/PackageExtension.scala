@@ -19,7 +19,7 @@ import raw.compiler.rql2.builtin.{ListPackageBuilder, LocationPackageBuilder, Re
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, PackageDoc}
 import raw.runtime.interpreter._
-import raw.sources.{
+import raw.sources.api.{
   Encoding,
   LocationBinarySetting,
   LocationBooleanSetting,

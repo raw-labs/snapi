@@ -22,9 +22,9 @@ import org.apache.hc.core5.http.HttpHeaders
 import org.apache.hc.core5.net.URIBuilder
 import raw.config.RawSettings
 import raw.creds.api._
-import raw.sources.bytestream.ByteStreamLocationBuilder
+import raw.sources.bytestream.api.ByteStreamLocationBuilder
 import raw.sources.bytestream.http.oauth2clients.Auth0OAuth2Client
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 import java.io.IOException
 import java.net.{HttpURLConnection, MalformedURLException, URISyntaxException}

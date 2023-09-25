@@ -12,8 +12,8 @@
 
 package raw.sources.bytestream.http
 
-import raw.sources.bytestream.{ByteStreamException, ByteStreamLocation, SeekableInputStream}
-import raw.sources.LocationDescription
+import raw.sources.bytestream.api.{ByteStreamException, ByteStreamLocation, SeekableInputStream}
+import raw.sources.api.LocationDescription
 
 import java.io.InputStream
 import java.net.URI

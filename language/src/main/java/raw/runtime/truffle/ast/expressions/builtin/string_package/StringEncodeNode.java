@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.nio.charset.Charset;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.sources.Encoding;
+import raw.sources.api.Encoding;
 
 @NodeInfo(shortName = "String.Encode")
 @NodeChild(value = "string")

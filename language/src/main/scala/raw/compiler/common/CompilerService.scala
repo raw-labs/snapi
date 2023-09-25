@@ -12,15 +12,14 @@
 
 package raw.compiler.common
 
-import raw.api.{AuthenticatedUser, RawService}
 import raw.compiler.base.ProgramContext
 import raw.compiler.scala2.Scala2CompilerContext
 import raw.config.RawSettings
 import raw.creds.api.CredentialsServiceProvider
-import raw.inferrer.InferrerServiceProvider
+import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
-import raw.sources.SourceContext
-import raw.utils.RawConcurrentHashMap
+import raw.sources.api.SourceContext
+import raw.utils._
 
 import scala.util.control.NonFatal
 

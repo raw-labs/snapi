@@ -12,7 +12,7 @@
 
 package raw.inferrer.local.jdbc
 
-import raw.inferrer.{
+import raw.inferrer.api.{
   InferrerException,
   SourceAttrType,
   SourceBinaryType,
@@ -33,7 +33,7 @@ import raw.inferrer.{
   SourceTimestampType,
   SourceType
 }
-import raw.sources.jdbc.{JdbcColumnType, NativeIntervalType, TableColumn, TableMetadata, UnsupportedColumnType}
+import raw.sources.jdbc.api.{JdbcColumnType, NativeIntervalType, TableColumn, TableMetadata, UnsupportedColumnType}
 
 import java.sql.ResultSetMetaData
 import java.sql.Types._

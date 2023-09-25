@@ -13,7 +13,7 @@
 package raw.sources.jdbc.sqlserver
 
 import java.io.Closeable
-import raw.sources.jdbc.JdbcSchemaLocation
+import raw.sources.jdbc.api.JdbcSchemaLocation
 
 class SqlServerSchema(
     cli: SqlServerClient,

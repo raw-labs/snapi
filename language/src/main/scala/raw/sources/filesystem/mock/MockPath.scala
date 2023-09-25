@@ -13,8 +13,8 @@
 package raw.sources.filesystem.mock
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.sources.bytestream.SeekableInputStream
-import raw.sources.filesystem._
+import raw.sources.bytestream.api.SeekableInputStream
+import raw.sources.filesystem.api._
 
 import java.io.InputStream
 import java.lang.StackWalker.StackFrame

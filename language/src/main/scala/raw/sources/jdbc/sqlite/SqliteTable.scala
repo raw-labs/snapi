@@ -12,7 +12,7 @@
 
 package raw.sources.jdbc.sqlite
 
-import raw.sources.jdbc._
+import raw.sources.jdbc.api._
 
 class SqliteTable(
     cli: SqliteClient,

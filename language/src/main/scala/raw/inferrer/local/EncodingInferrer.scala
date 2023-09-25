@@ -17,8 +17,8 @@ import com.ibm.icu.text.CharsetDetector
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
-import raw.sources._
-import raw.sources.bytestream.SeekableInputStream
+import raw.sources.api._
+import raw.sources.bytestream.api.SeekableInputStream
 
 private[inferrer] case class TextBuffer(reader: Reader, encoding: Encoding, confidence: Int)
 
