@@ -17,7 +17,7 @@ import com.mysql.cj.exceptions.CJCommunicationsException
 import java.util.concurrent.TimeUnit
 import raw.config.RawSettings
 import raw.creds.api.MySqlCredential
-import raw.sources.jdbc._
+import raw.sources.jdbc.api._
 
 import java.net.{SocketTimeoutException, UnknownHostException}
 import java.sql.SQLException

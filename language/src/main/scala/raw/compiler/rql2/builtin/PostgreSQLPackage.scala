@@ -18,7 +18,7 @@ import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
-import raw.inferrer.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
 import raw.runtime.interpreter.StringValue
 
 class PostgreSQLPackage extends PackageExtension {

@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.TestData
+import raw.utils.TestData
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait BinaryExpGtTest extends CompilerTestContext with CombinationSpecTestHelper {

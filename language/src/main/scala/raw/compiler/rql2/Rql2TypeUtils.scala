@@ -16,7 +16,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.source._
-import raw.inferrer._
+import raw.inferrer.api._
 
 trait Rql2TypeUtils {
 

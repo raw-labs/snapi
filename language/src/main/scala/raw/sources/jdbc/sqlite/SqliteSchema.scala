@@ -13,7 +13,7 @@
 package raw.sources.jdbc.sqlite
 
 import java.io.Closeable
-import raw.sources.jdbc.JdbcSchemaLocation
+import raw.sources.jdbc.api.JdbcSchemaLocation
 
 class SqliteSchema(
     cli: SqliteClient

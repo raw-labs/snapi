@@ -18,7 +18,7 @@ import raw.compiler.CompilerException
 import raw.compiler.base.Phase
 import raw.compiler.base.errors.BaseError
 import raw.compiler.base.source.Type
-import raw.compiler.common.source.{Exp, SourceProgram}
+import raw.compiler.common.source.SourceProgram
 import raw.compiler.rql2.source._
 
 class SugarExtensionDesugarer(protected val parent: Phase[SourceProgram], protected val phaseName: String)(

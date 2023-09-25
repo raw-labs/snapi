@@ -16,9 +16,9 @@ import raw.compiler.base.errors.UnsupportedType
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.{Arg, EntryExtensionHelper, ValueArg}
-import raw.inferrer.{SqlQueryInferrerProperties, SqlTableInferrerProperties}
+import raw.inferrer.api.{SqlQueryInferrerProperties, SqlTableInferrerProperties}
 import raw.runtime.interpreter.StringValue
-import raw.sources._
+import raw.sources.api._
 
 import scala.collection.mutable
 

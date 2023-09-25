@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.pgsql
 
-import raw.sources.jdbc.{JdbcTableLocation, JdbcTableLocationBuilder}
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.jdbc.api.{JdbcTableLocation, JdbcTableLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 class PostgresqlTableLocationBuilder extends JdbcTableLocationBuilder {
 

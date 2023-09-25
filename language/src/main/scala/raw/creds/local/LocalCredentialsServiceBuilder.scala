@@ -12,9 +12,7 @@
 
 package raw.creds.local
 
-//import com.typesafe.scalalogging.StrictLogging
 import raw.config.RawSettings
-//import raw.creds.api.CredentialsServiceBuilder
 
 class LocalCredentialsServiceBuilder extends raw.creds.api.CredentialsServiceBuilder {
 

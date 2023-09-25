@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.TestData
+import raw.utils.TestData
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RD5488Test extends CompilerTestContext {

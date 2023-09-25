@@ -12,6 +12,6 @@
 
 package raw.inferrer.local
 
-import raw.inferrer.InferrerException
+import raw.inferrer.api.InferrerException
 
 class LocalInferrerException(message: String, cause: Throwable = null) extends InferrerException(message, cause)

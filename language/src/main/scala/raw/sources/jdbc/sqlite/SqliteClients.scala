@@ -12,8 +12,8 @@
 
 package raw.sources.jdbc.sqlite
 
-import raw.sources.bytestream.ByteStreamLocationProvider
-import raw.sources.{LocationDescription, SourceContext}
+import raw.sources.bytestream.api.ByteStreamLocationProvider
+import raw.sources.api.{LocationDescription, SourceContext}
 
 object SqliteClients {
 

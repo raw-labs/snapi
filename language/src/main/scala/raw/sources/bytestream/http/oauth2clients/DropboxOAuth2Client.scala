@@ -11,6 +11,7 @@
  */
 
 package raw.sources.bytestream.http.oauth2clients
+
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.typesafe.scalalogging.StrictLogging

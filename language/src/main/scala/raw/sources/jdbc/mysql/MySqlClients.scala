@@ -13,7 +13,7 @@
 package raw.sources.jdbc.mysql
 
 import raw.creds.api.MySqlCredential
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 object MySqlClients {
 

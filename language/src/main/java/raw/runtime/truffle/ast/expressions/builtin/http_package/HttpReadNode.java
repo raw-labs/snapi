@@ -35,7 +35,7 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.sources.LocationException;
+import raw.sources.api.LocationException;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
 import raw.sources.bytestream.http.HttpByteStreamLocationBuilder;
 import raw.sources.bytestream.http.HttpResult;

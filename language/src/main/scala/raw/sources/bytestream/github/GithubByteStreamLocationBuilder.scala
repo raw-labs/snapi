@@ -14,8 +14,8 @@ package raw.sources.bytestream.github
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.bytestream.http.{HttpByteStreamLocationBuilder, HttpClientException}
-import raw.sources.bytestream.{ByteStreamLocation, ByteStreamLocationBuilder}
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.bytestream.api.{ByteStreamLocation, ByteStreamLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 class GithubByteStreamLocationBuilder extends ByteStreamLocationBuilder with StrictLogging {
 

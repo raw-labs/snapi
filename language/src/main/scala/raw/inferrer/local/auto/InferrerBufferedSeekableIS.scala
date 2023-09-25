@@ -12,7 +12,7 @@
 
 package raw.inferrer.local.auto
 
-import raw.sources.bytestream.SeekableInputStream
+import raw.sources.bytestream.api.SeekableInputStream
 
 import java.nio.ByteBuffer
 

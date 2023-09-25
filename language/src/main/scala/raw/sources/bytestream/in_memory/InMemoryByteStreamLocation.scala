@@ -12,8 +12,8 @@
 
 package raw.sources.bytestream.in_memory
 
-import raw.sources._
-import raw.sources.bytestream.{
+import raw.sources.api._
+import raw.sources.bytestream.api.{
   ByteStreamLocation,
   DelegatingSeekableInputStream,
   GenericSkippableInputStream,

@@ -14,10 +14,10 @@ package raw.inferrer.local.text
 
 import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer._
+import raw.inferrer.api._
 import raw.inferrer.local._
-import raw.sources._
-import raw.sources.bytestream.SeekableInputStream
+import raw.sources.api._
+import raw.sources.bytestream.api.SeekableInputStream
 
 import scala.util.matching.Regex
 

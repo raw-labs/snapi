@@ -13,7 +13,7 @@
 package raw.sources.jdbc.mysql
 
 import java.io.Closeable
-import raw.sources.jdbc._
+import raw.sources.jdbc.api._
 
 class MySqlLocation(
     cli: MySqlClient,

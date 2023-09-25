@@ -13,7 +13,7 @@
 package raw.sources.jdbc.sqlserver
 
 import raw.creds.api.SqlServerCredential
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 object SqlServerClients {
 

@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.regressions
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import org.scalatest.matchers.{MatchResult, Matcher}
-import raw.TestData
+import raw.utils.TestData
 import raw.compiler.rql2.FrontendSyntaxAnalyzer
 import raw.compiler.rql2.source.SourcePrettyPrinter
 import raw.compiler.rql2.tests.CompilerTestContext

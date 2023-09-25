@@ -12,7 +12,7 @@
 
 package raw.sources.jdbc.pgsql
 
-import raw.sources.jdbc.JdbcTableLocation
+import raw.sources.jdbc.api.JdbcTableLocation
 
 class PostgresqlTable(
     cli: PostgresqlClient,

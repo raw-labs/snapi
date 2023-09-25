@@ -19,7 +19,7 @@ import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
-import raw.inferrer._
+import raw.inferrer.api._
 
 class JsonPackage extends PackageExtension {
 

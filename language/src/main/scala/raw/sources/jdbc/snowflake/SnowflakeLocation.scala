@@ -13,7 +13,7 @@
 package raw.sources.jdbc.snowflake
 
 import java.io.Closeable
-import raw.sources.jdbc._
+import raw.sources.jdbc.api._
 
 class SnowflakeLocation(
     cli: SnowflakeClient,

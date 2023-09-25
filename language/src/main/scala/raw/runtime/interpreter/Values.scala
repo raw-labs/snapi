@@ -12,7 +12,7 @@
 
 package raw.runtime.interpreter
 
-import raw.sources.LocationDescription
+import raw.sources.api.LocationDescription
 
 sealed trait Value
 final case class StringValue(v: String) extends Value
