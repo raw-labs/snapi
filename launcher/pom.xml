@@ -26,6 +26,7 @@
             <version>23.1.0</version>
             <type>pom</type>
         </dependency>
+        <!-- Raw Language Dependencies -->
         <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-language_2.12</artifactId>
@@ -35,6 +36,22 @@
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-language-extensions_2.12</artifactId>
             <version>0.0.3</version>
+        </dependency>
+        <!-- JLine Dependency -->
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>3.23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal-jna</artifactId>
+            <version>3.23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>3.23.0</version>
         </dependency>
     </dependencies>
 
