@@ -19,7 +19,7 @@ import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.typesafe.config.ConfigFactory;
-import raw.api.AuthenticatedUser;
+import raw.utils.AuthenticatedUser;
 import raw.compiler.common.CompilerService;
 import raw.compiler.base.ProgramContext;
 import raw.config.RawSettings;

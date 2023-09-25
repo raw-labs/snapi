@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.spec
 
 import org.scalatest.prop.TableDrivenPropertyChecks
-import raw.TestData
+import raw.utils.TestData
 import raw.compiler.rql2.source.{Rql2BoolType, Rql2IntType, Rql2StringType}
 import raw.compiler.rql2.tests.CompilerTestContext
 

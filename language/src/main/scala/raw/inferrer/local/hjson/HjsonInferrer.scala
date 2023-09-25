@@ -14,12 +14,12 @@ package raw.inferrer.local.hjson
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.ObjectMapper
-import raw.inferrer._
+import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.inferrer.local.json.JsonUtils
 import raw.inferrer.local.text.TextLineIterator
-import raw.sources._
-import raw.sources.bytestream.SeekableInputStream
+import raw.sources.api._
+import raw.sources.bytestream.api.SeekableInputStream
 
 import java.io.Reader
 

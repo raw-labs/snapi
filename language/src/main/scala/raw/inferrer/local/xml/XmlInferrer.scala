@@ -13,10 +13,10 @@
 package raw.inferrer.local.xml
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer._
+import raw.inferrer.api._
 import raw.inferrer.local._
-import raw.sources._
-import raw.sources.bytestream.SeekableInputStream
+import raw.sources.api._
+import raw.sources.bytestream.api.SeekableInputStream
 
 import java.io.Reader
 

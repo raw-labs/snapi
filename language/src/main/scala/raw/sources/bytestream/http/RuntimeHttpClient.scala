@@ -11,7 +11,8 @@
  */
 
 package raw.sources.bytestream.http
-import raw.sources.bytestream.SeekableInputStream
+
+import raw.sources.bytestream.api.SeekableInputStream
 
 import java.io.InputStream
 import java.nio.charset.StandardCharsets

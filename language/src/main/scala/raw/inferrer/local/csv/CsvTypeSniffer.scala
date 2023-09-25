@@ -13,7 +13,7 @@
 package raw.inferrer.local.csv
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer.{
+import raw.inferrer.api.{
   SourceAttrType,
   SourceCollectionType,
   SourceDoubleType,

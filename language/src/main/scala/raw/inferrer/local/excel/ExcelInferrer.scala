@@ -15,7 +15,7 @@ package raw.inferrer.local.excel
 import java.io.{BufferedInputStream, InputStream}
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.poi.ss.usermodel._
-import raw.inferrer.{
+import raw.inferrer.api.{
   ExcelInputFormatDescriptor,
   SourceAttrType,
   SourceBoolType,

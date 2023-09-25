@@ -12,8 +12,8 @@
 
 package raw.sources.bytestream.in_memory
 
-import raw.sources.bytestream.{ByteStreamLocation, ByteStreamLocationBuilder}
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.bytestream.api.{ByteStreamLocation, ByteStreamLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 class InMemoryByteStreamLocationBuilder extends ByteStreamLocationBuilder {
 

@@ -17,7 +17,7 @@ import com.microsoft.sqlserver.jdbc.SQLServerException
 import java.util.concurrent.TimeUnit
 import raw.config._
 import raw.creds.api.SqlServerCredential
-import raw.sources.jdbc._
+import raw.sources.jdbc.api._
 
 import java.net.{SocketTimeoutException, UnknownHostException}
 import scala.util.control.NonFatal

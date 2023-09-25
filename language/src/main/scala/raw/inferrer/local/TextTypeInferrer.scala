@@ -13,7 +13,7 @@
 package raw.inferrer.local
 
 import org.apache.commons.lang3.math.NumberUtils
-import raw.inferrer._
+import raw.inferrer.api._
 
 import scala.collection.mutable
 

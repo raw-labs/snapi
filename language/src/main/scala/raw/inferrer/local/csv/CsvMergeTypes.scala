@@ -12,7 +12,7 @@
 
 package raw.inferrer.local.csv
 
-import raw.inferrer.{SourceAnyType, SourceAttrType, SourceNullableType, SourceRecordType, SourceType}
+import raw.inferrer.api.{SourceAnyType, SourceAttrType, SourceNullableType, SourceRecordType, SourceType}
 import raw.inferrer.local.MergeTypes
 
 trait CsvMergeTypes extends MergeTypes {

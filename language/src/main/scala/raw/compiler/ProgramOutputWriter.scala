@@ -12,7 +12,7 @@
 
 package raw.compiler
 
-import raw.api.RawException
+import raw.utils.RawException
 
 import java.io.OutputStream
 

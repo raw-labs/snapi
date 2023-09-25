@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.TestData
+import raw.utils.TestData
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.sources.bytestream.HttpLocationsTestContext
+import raw.sources.bytestream.api.HttpLocationsTestContext
 
 trait FunctionPackageTest extends CompilerTestContext with HttpLocationsTestContext {
 

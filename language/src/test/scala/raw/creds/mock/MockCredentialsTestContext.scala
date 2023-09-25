@@ -12,7 +12,7 @@
 
 package raw.creds.mock
 
-import raw.{RawTestSuite, SettingsTestContext}
+import raw.utils.{RawTestSuite, SettingsTestContext}
 import raw.creds.api.CredentialsTestContext
 import raw.utils._
 

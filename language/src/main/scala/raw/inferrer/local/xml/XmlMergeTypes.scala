@@ -12,7 +12,7 @@
 
 package raw.inferrer.local.xml
 
-import raw.inferrer.{SourceNullableType, _}
+import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.inferrer.local.xml.InferrerXmlTypeReader.TEXT_FIELD_NAME
 

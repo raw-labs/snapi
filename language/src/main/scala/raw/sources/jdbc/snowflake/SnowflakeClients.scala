@@ -13,7 +13,7 @@
 package raw.sources.jdbc.snowflake
 
 import raw.creds.api.SnowflakeCredential
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 object SnowflakeClients {
 

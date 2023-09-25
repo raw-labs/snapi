@@ -12,7 +12,7 @@
 
 package raw.compiler
 
-import raw.api.RawException
+import raw.utils.RawException
 
 /**
  * Used for errors that are found during semantic analysis.
