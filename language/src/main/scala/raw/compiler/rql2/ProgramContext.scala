@@ -15,6 +15,7 @@ package raw.compiler.rql2
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler.base.CompilerContext
 import raw.compiler.base.errors.BaseError
+import raw.compiler.rql2.api.{PackageExtension, PackageExtensionProvider}
 import raw.compiler.rql2.source.Rql2Program
 import raw.inferrer.api.{InferrerProperties, InputFormatDescriptor}
 import raw.runtime.RuntimeContext

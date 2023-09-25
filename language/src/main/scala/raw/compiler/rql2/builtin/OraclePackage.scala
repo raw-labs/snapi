@@ -15,6 +15,7 @@ package raw.compiler.rql2.builtin
 import raw.compiler.base.errors.BaseError
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source.Exp
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, PackageExtension, Param, SugarEntryExtension, TypeArg, TypeParam, ValueArg, ValueParam}
 import raw.compiler.rql2.source.{
   BinaryExp,
   FunApp,
@@ -27,20 +28,7 @@ import raw.compiler.rql2.source.{
   StringConst,
   TypeExp
 }
-import raw.compiler.rql2.{
-  Arg,
-  EntryExtension,
-  ExpArg,
-  ExpParam,
-  PackageExtension,
-  Param,
-  ProgramContext,
-  SugarEntryExtension,
-  TypeArg,
-  TypeParam,
-  ValueArg,
-  ValueParam
-}
+import raw.compiler.rql2.ProgramContext
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
 import raw.runtime.interpreter.StringValue
