@@ -24,6 +24,7 @@ public class Closure {
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
   // and used later.
   public Closure(Function function, Object[] defaultArguments, MaterializedFrame frame) {
+    assert function != null;
     this.function = function;
     this.frame = frame;
     this.defaultArguments = defaultArguments;
