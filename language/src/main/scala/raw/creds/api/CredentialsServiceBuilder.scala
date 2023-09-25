@@ -12,7 +12,7 @@
 
 package raw.creds.api
 
-import raw.config.RawSettings
+import raw.utils.RawSettings
 
 trait CredentialsServiceBuilder {
 

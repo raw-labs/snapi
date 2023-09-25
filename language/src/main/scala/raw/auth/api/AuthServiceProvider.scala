@@ -12,8 +12,8 @@
 
 package raw.auth.api
 
+import raw.utils.RawSettings
 import java.util.ServiceLoader
-import raw.config.RawSettings
 
 import scala.collection.JavaConverters._
 

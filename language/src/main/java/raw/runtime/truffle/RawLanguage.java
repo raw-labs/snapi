@@ -22,7 +22,7 @@ import com.typesafe.config.ConfigFactory;
 import raw.utils.AuthenticatedUser;
 import raw.compiler.common.CompilerService;
 import raw.compiler.base.ProgramContext;
-import raw.config.RawSettings;
+import raw.utils.RawSettings;
 import raw.runtime.Entrypoint;
 import raw.runtime.ProgramEnvironment;
 import raw.runtime.truffle.runtime.record.RecordObject;

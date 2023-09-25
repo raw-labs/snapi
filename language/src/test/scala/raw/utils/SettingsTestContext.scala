@@ -13,7 +13,6 @@
 package raw.utils
 
 import com.typesafe.config.ConfigFactory
-import raw.config.RawSettings
 
 import scala.collection.JavaConverters._
 import scala.collection.mutable

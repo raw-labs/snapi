@@ -13,7 +13,6 @@
 package raw.compiler.jvm
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.config.RawSettings
 import raw.utils._
 
 import java.util.concurrent._
