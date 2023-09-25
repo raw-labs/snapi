@@ -15,6 +15,7 @@ package raw.compiler.rql2.builtin
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.rql2._
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param}
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, PackageDoc}
 

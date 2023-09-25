@@ -17,6 +17,7 @@ import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2._
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param, ShortEntryExtension}
 
 import scala.collection.immutable.ListMap
 
