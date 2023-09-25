@@ -6,6 +6,9 @@ on:
       - build.sbt
       - project/**
       - .github/workflows/ci.yaml
+    branches:
+      - '!graal-21-modularize-v2'
+
   workflow_dispatch:
 
 env:
