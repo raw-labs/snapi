@@ -17,8 +17,8 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.StringUtils
 import org.apache.hc.core5.http.HttpHeaders
-import raw.config.RawSettings
 import raw.creds.api.CredentialsException
+import raw.utils.RawSettings
 
 import java.net.URI
 import java.net.http.HttpRequest.BodyPublishers

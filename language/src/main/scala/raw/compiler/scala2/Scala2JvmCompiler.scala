@@ -13,10 +13,9 @@
 package raw.compiler.scala2
 
 import org.apache.commons.io.FileUtils
-import raw.utils.RawException
+import raw.utils.{RawException, RawSettings}
 import raw.compiler.CompilerException
 import raw.compiler.jvm.{JvmCode, JvmCompiler, RawMutableURLClassLoader}
-import raw.config.RawSettings
 import raw.runtime.JvmEntrypoint
 
 import java.io.FileOutputStream

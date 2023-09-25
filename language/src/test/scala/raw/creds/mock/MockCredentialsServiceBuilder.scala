@@ -12,8 +12,8 @@
 
 package raw.creds.mock
 
-import raw.config.RawSettings
 import raw.creds.api.CredentialsServiceBuilder
+import raw.utils.RawSettings
 
 class MockCredentialsServiceBuilder extends CredentialsServiceBuilder {
 

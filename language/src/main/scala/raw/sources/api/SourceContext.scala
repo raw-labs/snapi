@@ -12,8 +12,7 @@
 
 package raw.sources.api
 
-import raw.utils.AuthenticatedUser
-import raw.config.RawSettings
+import raw.utils.{AuthenticatedUser, RawSettings}
 import raw.creds.api.CredentialsService
 
 class SourceContext(
