@@ -19,7 +19,6 @@ import com.oracle.truffle.api.nodes.RootNode
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.util.Entity
 import org.graalvm.polyglot.Context
-//import org.graalvm.polyglot.Context
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.{BaseTree, CompilerContext}
 import raw.compiler.common.source._
@@ -31,7 +30,8 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{CompilerException, ErrorMessage, base}
+import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
 import raw.runtime.truffle.ast._
@@ -46,6 +46,7 @@ import raw.runtime.truffle.ast.io.binary.BinaryWriterNode
 import raw.runtime.truffle.ast.io.csv.writer.{CsvIterableWriterNode, CsvListWriterNode}
 import raw.runtime.truffle.ast.io.json.writer.JsonWriterNodeGen
 import raw.runtime.truffle.ast.local._
+import raw.runtime.truffle.runtime.function.Function
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary
 import raw.runtime.truffle.runtime.iterable.IterableLibrary
 import raw.runtime.truffle.runtime.list.ListLibrary
@@ -53,8 +54,6 @@ import raw.runtime.truffle.runtime.option.OptionLibrary
 import raw.runtime.truffle.runtime.or.OrObject
 import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
-import raw.runtime._
-import raw.runtime.truffle.runtime.function.Function
 
 import java.util.UUID
 import scala.collection.mutable
@@ -264,12 +263,17 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       case _ => throw new CompilerException("unknown output format")
     }
 
-    methods.foreach(emitter.emitMethod)
     assert(me.isDefined)
     val bodyExp = me.get
 
-    emitter.addScope()
-    val bodyExpNode = emitter.recurseExp(bodyExp)
+    emitter.addScope() // we need a scope for potential function declarations
+    val functionDeclarations = methods.map(emitter.emitMethod).toArray
+    val body = emitter.recurseExp(bodyExp)
+    val bodyExpNode = if (functionDeclarations.nonEmpty) {
+      new ExpBlockNode(functionDeclarations, body)
+    } else {
+      body
+    }
     val frameDescriptor = emitter.dropScope()
 
     // Wrap output node
@@ -400,24 +404,16 @@ class TruffleEmitterImpl(tree: Tree, val rawLanguage: RawLanguage)(implicit prog
     slotMapScope.head.put(entity, slot)
   }
 
-  def emitMethod(m: Rql2Method): Unit = {
-//    val funcName = getFuncIdn(analyzer.entity(m.i))
-//    val FunProto(ps, _, FunBody(e)) = m.p
-//    addScope()
-//
-//    ps.foreach(p => setEntityDepth(analyzer.entity(p.i)))
-//
-//    val functionBody = recurseExp(e)
-//    val funcFrameDescriptor = dropScope()
-//
-//    val functionRootBody =
-//      new ProgramExpressionNode(rawLanguage, funcFrameDescriptor, functionBody)
-//    val rootCallTarget = functionRootBody.getCallTarget
-//    val argNames = m.p.ps.map(_.i.idn).toArray
-    ???
-    // This is wrong. Must write ref somewhere. See also references to this in MethodRefNode.
-//    RawLanguage.getCurrentContext.getFunctionRegistry
-//      .register(funcName, argNames, rootCallTarget)
+  def emitMethod(m: Rql2Method): StatementNode = {
+    // methods are inserted in the top frame as local variables
+    val entity = analyzer.entity(m.i)
+    val fp = m.p
+    val f = recurseFunProto(null, fp)
+    val defaultArgs = for (p <- fp.ps) yield p.e.map(recurseExp).orNull
+    val functionLiteralNode = new ClosureNode(f, defaultArgs.toArray)
+    val slot = getFrameDescriptorBuilder.addSlot(FrameSlotKind.Object, getIdnName(entity), null)
+    addSlot(entity, slot)
+    WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null)
   }
 
   private def findSlot(entity: Entity): SlotLocation = {
@@ -571,9 +567,9 @@ class TruffleEmitterImpl(tree: Tree, val rawLanguage: RawLanguage)(implicit prog
     case UnaryExp(Not(), e) => NotNodeGen.create(recurseExp(e))
     case IdnExp(idn) => analyzer.entity(idn) match {
         case b: MethodEntity =>
-          val funcName = getFuncIdn(b)
-          val defaultArgs = for (p <- b.d.p.ps) yield p.e.map(recurseExp).orNull
-          new MethodRefNode(funcName, defaultArgs.toArray)
+          // methods are inserted in the top frame as local variables
+          val SlotLocation(_, slot) = findSlot(b)
+          ReadLocalVariableNodeGen.create(slot, null)
         case b: LetBindEntity =>
           val SlotLocation(depth, slot) = findSlot(b)
           if (depth == 0) {
