@@ -14,9 +14,9 @@ package raw.compiler.base
 
 import raw.compiler.base.errors.{BaseError, ExternalError}
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.config.RawSettings
 
 import raw.runtime.RuntimeContext
+import raw.utils.RawSettings
 
 import scala.collection.mutable
 

@@ -14,7 +14,6 @@ package raw.compiler.base
 
 import com.google.common.base.Stopwatch
 import com.typesafe.scalalogging.StrictLogging
-import raw.config.RawSettings
 import raw.sources.api.SourceContext
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.inferrer.api.{InferrerException, InferrerProperties, InferrerService, InputFormatDescriptor}

@@ -25,7 +25,6 @@ import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity
 import org.apache.hc.core5.net.URIBuilder
 import org.apache.hc.core5.util.{TimeValue, Timeout}
-import raw.config._
 import raw.sources.api.LocationException
 import raw.sources.bytestream.api._
 import raw.utils._
