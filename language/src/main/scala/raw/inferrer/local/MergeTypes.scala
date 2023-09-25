@@ -13,7 +13,7 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer._
+import raw.inferrer.api._
 import scala.collection.mutable
 
 private[inferrer] trait MergeTypes extends StrictLogging {

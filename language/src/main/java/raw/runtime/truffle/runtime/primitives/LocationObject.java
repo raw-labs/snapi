@@ -13,9 +13,9 @@
 package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import raw.sources.LocationDescription;
-import raw.sources.LocationSettingKey;
-import raw.sources.LocationSettingValue;
+import raw.sources.api.LocationDescription;
+import raw.sources.api.LocationSettingKey;
+import raw.sources.api.LocationSettingValue;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
 

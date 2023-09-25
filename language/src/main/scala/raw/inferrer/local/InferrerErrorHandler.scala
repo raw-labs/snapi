@@ -13,7 +13,7 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.api.RawException
+import raw.utils.RawException
 
 import scala.util.control.NonFatal
 

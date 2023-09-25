@@ -14,8 +14,8 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.api.{AWSCredentials, S3Bucket}
-import raw.sources.filesystem.{FileSystemLocation, FileSystemLocationBuilder}
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictLogging {
 

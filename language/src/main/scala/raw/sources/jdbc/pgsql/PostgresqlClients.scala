@@ -13,7 +13,7 @@
 package raw.sources.jdbc.pgsql
 
 import raw.creds.api.PostgresqlCredential
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 object PostgresqlClients {
 

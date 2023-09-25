@@ -12,8 +12,8 @@
 
 package raw.inferrer.local
 
-import raw.inferrer.{InferrerService, InferrerServiceBuilder}
-import raw.sources.SourceContext
+import raw.inferrer.api.{InferrerService, InferrerServiceBuilder}
+import raw.sources.api.SourceContext
 
 class LocalInferrerServiceBuilder extends InferrerServiceBuilder {
 

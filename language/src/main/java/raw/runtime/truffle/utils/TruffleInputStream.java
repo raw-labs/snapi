@@ -15,13 +15,13 @@ package raw.runtime.truffle.utils;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.io.InputStream;
 import java.io.Reader;
-import raw.api.RawException;
+import raw.utils.RawException;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.Encoding;
-import raw.sources.bytestream.ByteStreamLocation;
-import raw.sources.bytestream.ByteStreamLocationProvider;
+import raw.sources.api.Encoding;
+import raw.sources.bytestream.api.ByteStreamLocation;
+import raw.sources.bytestream.api.ByteStreamLocationProvider;
 import scala.util.Either;
 
 public class TruffleInputStream {

@@ -12,9 +12,9 @@
 
 package raw.sources.filesystem.dropbox
 
-import raw.sources._
-import raw.sources.bytestream.{ByteStreamException, SeekableInputStream}
-import raw.sources.filesystem._
+import raw.sources.api._
+import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
+import raw.sources.filesystem.api._
 
 import java.io.InputStream
 import java.nio.file.Path

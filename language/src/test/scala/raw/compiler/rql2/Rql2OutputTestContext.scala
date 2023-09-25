@@ -20,7 +20,7 @@ import com.google.common.collect.HashMultiset
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.source._
-import raw.{RawTestSuite, SettingsTestContext}
+import raw.utils.{RawTestSuite, SettingsTestContext}
 
 import java.nio.file.Path
 import scala.math.BigDecimal.RoundingMode

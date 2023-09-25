@@ -14,8 +14,8 @@ package raw.sources.filesystem.mock
 
 import com.typesafe.config.{ConfigException, ConfigFactory}
 import com.typesafe.scalalogging.StrictLogging
-import raw.sources.filesystem.{FileSystemLocation, FileSystemLocationBuilder, FileSystemLocationProvider}
-import raw.sources.{LocationDescription, LocationException, SourceContext}
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder, FileSystemLocationProvider}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
 
 class MockFileSystemLocationBuilder extends FileSystemLocationBuilder with StrictLogging {
 

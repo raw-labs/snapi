@@ -42,7 +42,7 @@ import raw.compiler.rql2.{
   ValueParam
 }
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
-import raw.inferrer.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
+import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
 import raw.runtime.interpreter.StringValue
 
 class OraclePackage extends PackageExtension {

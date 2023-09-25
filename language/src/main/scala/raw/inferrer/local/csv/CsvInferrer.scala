@@ -17,9 +17,9 @@ import java.io.Reader
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.local._
 import raw.inferrer.local.text.TextLineIterator
-import raw.inferrer._
-import raw.sources.bytestream.SeekableInputStream
-import raw.sources.{Encoding, SourceContext}
+import raw.inferrer.api._
+import raw.sources.bytestream.api.SeekableInputStream
+import raw.sources.api.{Encoding, SourceContext}
 
 object CsvInferrer {
   private val CSV_SAMPLE_SIZE = "raw.inferrer.local.csv.sample-size"

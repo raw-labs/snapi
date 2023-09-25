@@ -12,8 +12,8 @@
 
 package raw.sources.bytestream.in_memory
 
-import raw.RawTestSuite
-import raw.sources._
+import raw.utils.RawTestSuite
+import raw.sources.api._
 
 class TestInMemoryLocation extends RawTestSuite {
 

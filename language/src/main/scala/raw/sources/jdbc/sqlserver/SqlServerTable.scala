@@ -12,7 +12,7 @@
 
 package raw.sources.jdbc.sqlserver
 
-import raw.sources.jdbc.JdbcTableLocation
+import raw.sources.jdbc.api.JdbcTableLocation
 
 class SqlServerTable(
     cli: SqlServerClient,

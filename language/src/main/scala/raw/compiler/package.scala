@@ -12,7 +12,7 @@
 
 package raw
 
-import raw.sources.Location
+import raw.sources.api.Location
 
 import java.nio.file.Path
 

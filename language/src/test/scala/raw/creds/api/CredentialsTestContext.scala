@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import org.scalatest.BeforeAndAfterAll
-import raw.{RawTestSuite, SettingsTestContext}
+import raw.utils.{RawTestSuite, SettingsTestContext}
 
 import java.time.temporal.ChronoUnit
 

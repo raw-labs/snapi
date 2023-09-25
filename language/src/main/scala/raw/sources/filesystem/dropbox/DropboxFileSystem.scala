@@ -19,8 +19,8 @@ import com.dropbox.core.v2.files.{DownloadErrorException, FolderMetadata, Metada
 import org.springframework.util.AntPathMatcher
 import raw.config.RawSettings
 import raw.creds.api.{BasicAuth, BearerToken, NewHttpAuth}
-import raw.sources.bytestream.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
-import raw.sources.filesystem._
+import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
+import raw.sources.filesystem.api._
 
 import java.io.InputStream
 import scala.collection.JavaConverters._

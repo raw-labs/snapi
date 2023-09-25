@@ -26,7 +26,7 @@ module raw.language {
     requires com.google.common;
     //requires jul.to.slf4j;
 
-    uses raw.auth.AuthServiceBuilder;
+    uses raw.auth.api.AuthServiceBuilder;
     uses raw.compiler.base.CompilerBuilder;
     uses raw.compiler.common.CommonCompilerBuilder;
 
@@ -34,18 +34,47 @@ module raw.language {
     provides raw.creds.api.CredentialsServiceBuilder with raw.creds.local.LocalCredentialsServiceBuilder;
 //    provides raw.creds.api.CredentialsServiceBuilder with raw.creds.mock.MockCredentialsServiceBuilder;
 
-    uses raw.inferrer.InferrerServiceBuilder;
-    provides raw.inferrer.InferrerServiceBuilder with raw.inferrer.local.LocalInferrerServiceBuilder;
+    uses raw.inferrer.api.InferrerServiceBuilder;
+    provides raw.inferrer.api.InferrerServiceBuilder with raw.inferrer.local.LocalInferrerServiceBuilder;
 
-    uses raw.sources.LocationBuilder;
+    uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
+    provides raw.sources.bytestream.api.ByteStreamLocationBuilder with raw.sources.bytestream.http.HttpByteStreamLocationBuilder,
+        raw.sources.bytestream.github.GithubByteStreamLocationBuilder,
+        raw.sources.bytestream.in_memory.InMemoryByteStreamLocationBuilder,
+        raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
+        raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
+        raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
+        raw.sources.filesystem.mock.MockFileSystemLocationBuilder;
 
-    uses raw.sources.bytestream.ByteStreamLocationBuilder;
-    uses raw.sources.filesystem.FileSystemLocationBuilder;
-    uses raw.sources.jdbc.JdbcLocationBuilder;
-    uses raw.sources.jdbc.JdbcSchemaLocationBuilder;
-    uses raw.sources.jdbc.JdbcTableLocationBuilder;
+    uses raw.sources.filesystem.api.FileSystemLocationBuilder;
+    provides raw.sources.filesystem.api.FileSystemLocationBuilder with raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
+        raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
+        raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
+        raw.sources.filesystem.mock.MockFileSystemLocationBuilder;
+
+    uses raw.sources.jdbc.api.JdbcLocationBuilder;
+    provides raw.sources.jdbc.api.JdbcLocationBuilder with raw.sources.jdbc.mysql.MySqlLocationBuilder,
+        raw.sources.jdbc.pgsql.PostgresqlLocationBuilder,
+        raw.sources.jdbc.snowflake.SnowflakeLocationBuilder,
+        raw.sources.jdbc.sqlite.SqliteLocationBuilder,
+        raw.sources.jdbc.sqlserver.SqlServerLocationBuilder;
+
+    uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
+    provides raw.sources.jdbc.api.JdbcSchemaLocationBuilder with raw.sources.jdbc.mysql.MySqlSchemaLocationBuilder,
+        raw.sources.jdbc.pgsql.PostgresqlSchemaLocationBuilder,
+        raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder,
+        raw.sources.jdbc.sqlite.SqliteSchemaLocationBuilder,
+        raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder;
+
+    uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
+    provides raw.sources.jdbc.api.JdbcTableLocationBuilder with raw.sources.jdbc.mysql.MySqlTableLocationBuilder,
+            raw.sources.jdbc.pgsql.PostgresqlTableLocationBuilder,
+            raw.sources.jdbc.snowflake.SnowflakeTableLocationBuilder,
+            raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
+            raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder;
 
     uses raw.compiler.rql2.PackageExtension;
+    provides raw.compiler.rql2.PackageExtension with raw.compiler.rql2.builtin.StringPackage;
 
     provides com.oracle.truffle.api.provider.TruffleLanguageProvider with raw.runtime.truffle.RawLanguageProvider;
 

@@ -22,8 +22,8 @@ import com.google.common.collect.AbstractIterator
 import org.springframework.util.AntPathMatcher
 import raw.config._
 import raw.creds.api.{AWSCredentials, S3Bucket}
-import raw.sources.bytestream.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
-import raw.sources.filesystem._
+import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
+import raw.sources.filesystem.api._
 import raw.utils._
 
 import java.io.InputStream

@@ -16,12 +16,12 @@ import raw.runtime.RuntimeContext
 
 import java.io.OutputStream
 import java.lang.invoke.{MethodHandles, MethodType}
-import raw.api.AuthenticatedUser
+import raw.utils.AuthenticatedUser
 import raw.compiler.base.CompilerContext
 import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
 import raw.config.RawSettings
-import raw.inferrer.InferrerService
-import raw.sources.SourceContext
+import raw.inferrer.api.InferrerService
+import raw.sources.api.SourceContext
 
 class Scala2CompilerContext(
     language: String,

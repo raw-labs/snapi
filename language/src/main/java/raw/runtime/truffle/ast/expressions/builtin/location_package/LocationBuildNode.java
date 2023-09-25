@@ -31,7 +31,7 @@ import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.*;
+import raw.sources.api.*;
 import scala.Tuple2;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
@@ -94,7 +94,7 @@ public class LocationBuildNode extends ExpressionNode {
         for (byte aByte : bytes) {
           vec = vec.$plus$eq(aByte);
         }
-        return new raw.sources.LocationBinarySetting(vec.result());
+        return new LocationBinarySetting(vec.result());
       } else if (TypeGuards.isBooleanKind(type)) {
         return new LocationBooleanSetting((Boolean) value);
       } else if (TypeGuards.isIntervalKind(type)) {
@@ -103,7 +103,7 @@ public class LocationBuildNode extends ExpressionNode {
           && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
         ListLibrary lists = ListLibrary.getFactory().create(value);
         int[] ints = (int[]) lists.getInnerList(value);
-        return new raw.sources.LocationIntArraySetting(ints);
+        return new LocationIntArraySetting(ints);
       } else if (TypeGuards.isListKind(type)) {
         VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
         int size = (int) listLibs.size(value);
@@ -114,13 +114,13 @@ public class LocationBuildNode extends ExpressionNode {
           Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
           vec = vec.$plus$eq(Tuple2.apply((String) options.get(key), (String) options.get(val)));
         }
-        return new raw.sources.LocationKVSetting(vec.result());
+        return new LocationKVSetting(vec.result());
       } else if (TypeGuards.isBinaryKind(type)) {
         VectorBuilder<Object> vec = new VectorBuilder<>();
         for (byte aByte : (byte[]) value) {
           vec = vec.$plus$eq(aByte);
         }
-        return new raw.sources.LocationBinarySetting(vec.result());
+        return new LocationBinarySetting(vec.result());
       } else {
         throw new RawTruffleInternalErrorException();
       }

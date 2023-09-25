@@ -12,8 +12,8 @@
 
 package raw.sources.filesystem.local
 
-import raw.sources.{LocationDescription, LocationException, SourceContext}
-import raw.sources.filesystem.{FileSystemLocation, FileSystemLocationBuilder}
+import raw.sources.api.{LocationDescription, LocationException, SourceContext}
+import raw.sources.filesystem.api.{FileSystemLocation, FileSystemLocationBuilder}
 
 class LocalFileSystemLocationBuilder extends FileSystemLocationBuilder {
 

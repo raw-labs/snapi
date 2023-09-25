@@ -14,9 +14,9 @@ package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.api.S3Bucket
-import raw.sources.bytestream.{ByteStreamException, SeekableInputStream}
-import raw.sources.filesystem._
-import raw.sources.LocationDescription
+import raw.sources.bytestream.api.{ByteStreamException, SeekableInputStream}
+import raw.sources.filesystem.api._
+import raw.sources.api.LocationDescription
 
 import java.io.InputStream
 import java.nio.file.Path

@@ -12,7 +12,7 @@
 
 package raw.sources.jdbc.mysql
 
-import raw.sources.jdbc.JdbcTableLocation
+import raw.sources.jdbc.api.JdbcTableLocation
 
 class MySqlTable(
     cli: MySqlClient,

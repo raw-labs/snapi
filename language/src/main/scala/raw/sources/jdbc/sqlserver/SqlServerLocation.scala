@@ -13,7 +13,7 @@
 package raw.sources.jdbc.sqlserver
 
 import java.io.Closeable
-import raw.sources.jdbc._
+import raw.sources.jdbc.api._
 
 class SqlServerLocation(
     cli: SqlServerClient,
