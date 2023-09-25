@@ -16,6 +16,7 @@ import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, Type
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, PackageExtension, Param, ValueParam}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.source.{Rql2RecordType, _}
 

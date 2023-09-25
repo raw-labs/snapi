@@ -1,3 +1,5 @@
+import raw.compiler.rql2.api.PackageExtension;
+
 module raw.language {
     requires java.base;
     requires java.logging;
@@ -73,8 +75,45 @@ module raw.language {
             raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
             raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder;
 
-    uses raw.compiler.rql2.PackageExtension;
-    provides raw.compiler.rql2.PackageExtension with raw.compiler.rql2.builtin.StringPackage;
+    uses PackageExtension;
+    provides PackageExtension with raw.compiler.rql2.builtin.AwsPackage,
+            raw.compiler.rql2.builtin.BinaryPackage,
+            raw.compiler.rql2.builtin.BytePackage,
+            raw.compiler.rql2.builtin.CollectionPackage,
+            raw.compiler.rql2.builtin.CsvPackage,
+            raw.compiler.rql2.builtin.DatePackage,
+            raw.compiler.rql2.builtin.DecimalPackage,
+            raw.compiler.rql2.builtin.DoublePackage,
+            raw.compiler.rql2.builtin.EnvironmentPackage,
+            raw.compiler.rql2.builtin.ErrorPackage,
+            raw.compiler.rql2.builtin.FloatPackage,
+            raw.compiler.rql2.builtin.FunctionPackage,
+            raw.compiler.rql2.builtin.HttpPackage,
+            raw.compiler.rql2.builtin.IntPackage,
+            raw.compiler.rql2.builtin.IntervalPackage,
+            raw.compiler.rql2.builtin.JsonPackage,
+            raw.compiler.rql2.builtin.ListPackage,
+            raw.compiler.rql2.builtin.LocationPackage,
+            raw.compiler.rql2.builtin.LongPackage,
+            raw.compiler.rql2.builtin.MathPackage,
+            raw.compiler.rql2.builtin.MySQLPackage,
+            raw.compiler.rql2.builtin.NullablePackage,
+            raw.compiler.rql2.builtin.NullableTryablePackage,
+            raw.compiler.rql2.builtin.OraclePackage,
+            raw.compiler.rql2.builtin.PostgreSQLPackage,
+            raw.compiler.rql2.builtin.RecordPackage,
+            raw.compiler.rql2.builtin.RegexPackage,
+            raw.compiler.rql2.builtin.S3Package,
+            raw.compiler.rql2.builtin.SQLServerPackage,
+            raw.compiler.rql2.builtin.ShortPackage,
+            raw.compiler.rql2.builtin.SnowflakePackage,
+            raw.compiler.rql2.builtin.StringPackage,
+            raw.compiler.rql2.builtin.SuccessPackage,
+            raw.compiler.rql2.builtin.TimePackage,
+            raw.compiler.rql2.builtin.TimestampPackage,
+            raw.compiler.rql2.builtin.TryPackage,
+            raw.compiler.rql2.builtin.TypePackage,
+            raw.compiler.rql2.builtin.XmlPackage;
 
     provides com.oracle.truffle.api.provider.TruffleLanguageProvider with raw.runtime.truffle.RawLanguageProvider;
 

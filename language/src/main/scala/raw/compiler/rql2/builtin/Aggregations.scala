@@ -15,7 +15,7 @@ package raw.compiler.rql2.builtin
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.common.source.OneOfType
 import raw.compiler.rql2.errors.ItemsNotComparable
-import raw.compiler.rql2.{EntryExtension, EntryExtensionHelper}
+import raw.compiler.rql2.api.{EntryExtension, EntryExtensionHelper}
 import raw.compiler.rql2.source.{
   HasTypeProperties,
   IsNullable,

@@ -10,26 +10,17 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2
+package raw.compiler.rql2.api
 
 import raw.compiler.base.errors.{BaseError, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source.{Exp, OneOfType}
 import raw.compiler.rql2.builtin.{ListPackageBuilder, LocationPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.source._
+import raw.compiler.rql2.{PackageEntity, ProgramContext, Rql2TypeUtils}
 import raw.compiler.{EntryDoc, PackageDoc}
 import raw.runtime.interpreter._
-import raw.sources.api.{
-  Encoding,
-  LocationBinarySetting,
-  LocationBooleanSetting,
-  LocationDescription,
-  LocationDurationSetting,
-  LocationIntArraySetting,
-  LocationIntSetting,
-  LocationKVSetting,
-  LocationStringSetting
-}
+import raw.sources.api._
 
 import java.util.ServiceLoader
 import scala.annotation.nowarn
