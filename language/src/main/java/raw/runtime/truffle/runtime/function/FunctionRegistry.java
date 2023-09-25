@@ -20,16 +20,15 @@ public final class FunctionRegistry {
 
   public Function register(String name, String[] argNames, RootCallTarget callTarget) {
     Function result = functionObject.functions.get(name);
-    if (result == null) {
-      result = new Function(callTarget, argNames);
-      functionObject.functions.put(name, result);
-    } else {
-      throw new RuntimeException("Function already defined");
-    }
+    assert result == null : "Function " + name + " already defined";
+    result = new Function(callTarget, argNames);
+    functionObject.functions.put(name, result);
     return result;
   }
 
   public Function getFunction(String name) {
-    return functionObject.functions.get(name);
+    Function f = functionObject.functions.get(name);
+    assert f != null : "Function " + name + " not found";
+    return f;
   }
 }
