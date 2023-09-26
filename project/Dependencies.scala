@@ -29,7 +29,7 @@ object Dependencies {
 
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.11"
 
-  val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.1"
+  val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.2"
 
   val kiama = Seq(
     "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.1",
