@@ -10,4 +10,4 @@ sdk use java 17.0.5-amzn
 
 cd "$SCRIPT_HOME"
 sbt publishLocal
-[ "$CI" == "true" ] && { PATH=$INITAL_PATH; unset JAVA_HOME; }
+[ "$CI" == "true" ] && { PATH=$INITAL_PATH; unset JAVA_HOME; } || exit 0
