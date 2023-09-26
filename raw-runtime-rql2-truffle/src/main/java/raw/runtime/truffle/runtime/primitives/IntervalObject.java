@@ -137,11 +137,12 @@ public final class IntervalObject implements TruffleObject {
 
     double totalDays = yearsInDays + monthsInDays + 7 * weeks + days;
 
-    return 24 * 3600000 * (long) totalDays
-        + 3600000 * (long) hours
-        + 60000 * (long) minutes
-        + 1000 * (long) seconds
-        + millis;
+    return (long)
+        (24 * 3600000 * totalDays
+            + 3600000 * (long) hours
+            + 60000 * (long) minutes
+            + 1000 * (long) seconds
+            + millis);
   }
 
   public int compareTo(IntervalObject other) {
