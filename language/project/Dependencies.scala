@@ -9,6 +9,8 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % scalacVersion
   )
 
+  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
+
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
 
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
@@ -22,7 +24,7 @@ object Dependencies {
     "org.slf4j" % "jul-to-slf4j" % "2.0.5"
   )
 
-  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5+32-f50caed5+20230922-0911-SNAPSHOT"
+  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5-rawlabs"
 
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.11"
 
