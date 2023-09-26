@@ -47,6 +47,7 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
       val props = new Properties()
       username.foreach(user => props.setProperty("user", user))
       password.foreach(passwd => props.setProperty("password", passwd))
+      props.setProperty("JDBC_QUERY_RESULT_FORMAT", "JSON")
 
       for ((key, value) <- parameters) props.setProperty(key, value)
 
