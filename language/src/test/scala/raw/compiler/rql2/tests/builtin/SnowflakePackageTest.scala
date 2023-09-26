@@ -129,9 +129,9 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
   ) { it =>
     it should orderEvaluateTo(
       """[
-        |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x1."), y: "y1"},
-        |  {a: 2, b: 2, c: 2.2, d: 2.2, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x2."), y: "y2"},
-        |  {a: 3, b: null, c: 3.3, d: null, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x3."), y: null}
+        |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:12 to type:int, value=x1."), y: "y1"},
+        |  {a: 2, b: 2, c: 2.2, d: 2.2, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:12 to type:int, value=x2."), y: "y2"},
+        |  {a: 3, b: null, c: 3.3, d: null, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:12 to type:int, value=x3."), y: null}
         |]""".stripMargin
     )
   }
@@ -241,9 +241,9 @@ trait SnowflakePackageTest extends CompilerTestContext with RDBMSTestCreds {
   ) { it =>
     it should orderEvaluateTo(
       """[
-        |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x1."), y: "y1"},
-        |  {a: 2, b: 2, c: 2.2, d: 2.2, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x2."), y: "y2"},
-        |  {a: 3, b: null, c: 3.3, d: null, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:TEXT to type:int, value=x3."), y: null}
+        |  {a: 1, b: 1, c: 1.5, d: 1.5, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:12 to type:int, value=x1."), y: "y1"},
+        |  {a: 2, b: 2, c: 2.2, d: 2.2, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:12 to type:int, value=x2."), y: "y2"},
+        |  {a: 3, b: null, c: 3.3, d: null, x: Error.Build("failed to read value: column 'x': Cannot convert value in the driver from type:12 to type:int, value=x3."), y: null}
         |]""".stripMargin
     )
   }
