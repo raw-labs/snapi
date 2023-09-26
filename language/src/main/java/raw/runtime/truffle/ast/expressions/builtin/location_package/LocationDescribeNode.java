@@ -171,14 +171,13 @@ public abstract class LocationDescribeNode extends ExpressionNode {
         isCollection = true;
       }
 
-//      String formattedType = SourcePrettyPrinter$.MODULE$.format(rql2Type);
+      String formattedType = SourcePrettyPrinter$.MODULE$.format(rql2Type);
 
       RecordObject record = RawLanguage.get(this).createRecord();
 
       records.writeMember(record, "format", format);
       records.writeMember(record, "comment", comment);
-//      records.writeMember(record, "type", formattedType);
-      records.writeMember(record, "type", rql2Type);
+      records.writeMember(record, "type", formattedType);
 
       Object[] propRecords = new RecordObject[properties.size()];
       // properties
