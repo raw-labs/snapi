@@ -1,6 +1,6 @@
 #!/bin/bash
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
-
+[ "$CI" == "true" ] && { export HOME=/home/sbtuser; }
 . ~/.sdkman/bin/sdkman-init.sh
 # reset shell env for later stages
 [ "$JAVA_OPTS" == "-XX:+UseG1GC" ] && { unset JAVA_OPTS; }
