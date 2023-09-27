@@ -25,6 +25,7 @@ trait ErrorsPrettyPrinter extends common.errors.ErrorsPrettyPrinter with rql2.so
     case _: CannotDetermineTypeOfParameter => CannotDetermineTypeOfParameter.message
     case _: OutputTypeRequiredForRecursiveFunction => OutputTypeRequiredForRecursiveFunction.message
     case InvalidOrderSpec(_, spec) => InvalidOrderSpec.message <> colon <+> spec
+    case _: OrderSpecMustFollowOrderingFunction => OrderSpecMustFollowOrderingFunction.message
     case _: PackageNotFound => PackageNotFound.message
     case _: NamedParameterAfterOptionalParameter => NamedParameterAfterOptionalParameter.message
     case _: InvalidType => InvalidType.message

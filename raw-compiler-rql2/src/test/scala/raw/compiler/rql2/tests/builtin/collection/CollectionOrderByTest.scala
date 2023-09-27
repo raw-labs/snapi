@@ -13,7 +13,12 @@
 package raw.compiler.rql2.tests.builtin.collection
 
 import raw.compiler.SnapiInterpolator
-import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable}
+import raw.compiler.rql2.errors.{
+  InvalidOrderSpec,
+  ItemsNotComparable,
+  KeyNotComparable,
+  OrderSpecMustFollowOrderingFunction
+}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
@@ -313,6 +318,10 @@ trait CollectionOrderByTest extends CompilerTestContext with LocalLocationsTestC
 
   test("""Collection.OrderBy(Collection.Build(1,2,3), n -> n * 10, "BIM",  n -> n / 2, "BOUM")""")(
     _ should runErrorAs(InvalidOrderSpec.message)
+  )
+
+  test("""Collection.OrderBy(Collection.Build(1,2,3), n -> n * 10, "ASC",  n -> n / 2)""")(
+    _ should runErrorAs(OrderSpecMustFollowOrderingFunction.message)
   )
 
 }
