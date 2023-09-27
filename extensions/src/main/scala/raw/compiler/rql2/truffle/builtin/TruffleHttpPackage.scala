@@ -17,7 +17,11 @@ import raw.compiler.rql2.builtin.{HttpCallEntry, HttpReadEntry, HttpUrlDecode, H
 import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.builtin.http_package.{HttpReadNodeGen, HttpUrlDecodeNodeGen, HttpUrlEncodeNodeGen}
+import raw.runtime.truffle.ast.expressions.builtin.http_package.{
+  HttpReadNodeGen,
+  HttpUrlDecodeNodeGen,
+  HttpUrlEncodeNodeGen
+}
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 
