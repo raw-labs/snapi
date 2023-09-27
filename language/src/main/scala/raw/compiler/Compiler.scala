@@ -122,7 +122,7 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
 
   final def compile(
       source: String,
-       rawLanguageAsAny: Any = null
+      rawLanguageAsAny: Any = null
   )(implicit programContext: ProgramContext): Either[List[ErrorMessage], Entrypoint] = {
     buildInputTree(source).right.map(t => compile(t, rawLanguageAsAny))
   }
@@ -204,13 +204,17 @@ abstract class Compiler[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
     getTree(program).normalize
   }
 
-  private def emit(signature: String, program: P, rawLanguageAsAny: Any)(implicit programContext: ProgramContext): Entrypoint = {
+  private def emit(signature: String, program: P, rawLanguageAsAny: Any)(
+      implicit programContext: ProgramContext
+  ): Entrypoint = {
     withCompilerTiming("emit") {
       doEmit(signature, program, rawLanguageAsAny)
     }
   }
 
-  protected def doEmit(signature: String, program: P, rawLanguageAsAny: Any)(implicit programContext: ProgramContext): Entrypoint
+  protected def doEmit(signature: String, program: P, rawLanguageAsAny: Any)(
+      implicit programContext: ProgramContext
+  ): Entrypoint
 
   private def withCompilerTiming[T](name: String)(f: => T): T = {
     val start = Stopwatch.createStarted()
