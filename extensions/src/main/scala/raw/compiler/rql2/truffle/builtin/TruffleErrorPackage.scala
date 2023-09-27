@@ -16,7 +16,11 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.tryable.{TryableFailureNodeGen, TryableFailureWithTypeNodeGen, TryableGetFailureNodeGen}
+import raw.runtime.truffle.ast.expressions.tryable.{
+  TryableFailureNodeGen,
+  TryableFailureWithTypeNodeGen,
+  TryableGetFailureNodeGen
+}
 
 class TruffleErrorBuildEntry extends ErrorBuildEntry with TruffleEntryExtension {
 

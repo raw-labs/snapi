@@ -16,7 +16,13 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.tryable.{TryableFlatMapNodeGen, TryableIsFailureNodeGen, TryableIsSuccessNodeGen, TryableMapNodeGen, TryableUnsafeGetNodeGen}
+import raw.runtime.truffle.ast.expressions.tryable.{
+  TryableFlatMapNodeGen,
+  TryableIsFailureNodeGen,
+  TryableIsSuccessNodeGen,
+  TryableMapNodeGen,
+  TryableUnsafeGetNodeGen
+}
 
 class TruffleTryTransformEntry extends TryTransformEntry with TruffleEntryExtension {
 

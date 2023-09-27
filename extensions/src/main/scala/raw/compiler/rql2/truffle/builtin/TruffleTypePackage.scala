@@ -18,7 +18,11 @@ import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.builtin.type_package.{TypeMatchNode, TypeProtectCastOptionNode, TypeProtectCastTryableNode}
+import raw.runtime.truffle.ast.expressions.builtin.type_package.{
+  TypeMatchNode,
+  TypeProtectCastOptionNode,
+  TypeProtectCastTryableNode
+}
 import raw.runtime.truffle.ast.expressions.literals.ZeroedConstNode
 
 class TruffleTypeCastEntry extends TypeCastEntry with TruffleEntryExtension {
