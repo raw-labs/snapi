@@ -10,6 +10,7 @@ object Dependencies {
   )
 
   val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
+  val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
 
@@ -24,13 +25,13 @@ object Dependencies {
     "org.slf4j" % "jul-to-slf4j" % "2.0.5"
   )
 
-  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5-rawlabs"
+  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion
 
   val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.11"
 
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.1"
 
-  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % "2.5.2-SNAPSHOT"
+  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
 
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
