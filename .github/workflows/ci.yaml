@@ -44,7 +44,7 @@ jobs:
     runs-on: self-hosted
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
-      options: --user 1001
+      options: --user 1001 -e HOME=/home/sbtuser
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
@@ -71,7 +71,7 @@ jobs:
       COURSIER_PROGRESS : false
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
-      options: --user 1001 --cpus 6 --memory 32g
+      options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
