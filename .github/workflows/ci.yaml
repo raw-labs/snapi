@@ -22,9 +22,24 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
-      - run: sbt headerCheckAll
-      - run: sbt scalafmtCheckAll
-      - run: sbt javafmtCheckAll
+      - name: language headers
+        run: sbt headerCheckAll
+        working-directory: language
+      - name: extensions headers
+        run: sbt headerCheckAll
+        working-directory: extensions
+      - name: language scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: language
+      - name: extensions scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: extensions
+      - name: language java fmt
+        run: sbt javafmtCheckAll
+        working-directory: language
+      - name: extensions java fmt
+        run: sbt javafmtCheckAll
+        working-directory: extensions
   doc-gen-check:
     runs-on: self-hosted
     container:
@@ -35,7 +50,12 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
-      - run: sbt doc
+      - name: language doc
+        run: sbt doc
+        working-directory: language
+      - name: extensions doc
+        run: sbt doc
+        working-directory: extensions
   tests:
     needs: code-checks
     runs-on: self-hosted
