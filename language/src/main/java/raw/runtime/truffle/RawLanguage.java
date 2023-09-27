@@ -19,20 +19,20 @@ import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.typesafe.config.ConfigFactory;
-import raw.utils.AuthenticatedUser;
-import raw.compiler.common.CompilerService;
 import raw.compiler.base.ProgramContext;
-import raw.utils.RawSettings;
+import raw.compiler.common.CompilerService;
 import raw.runtime.Entrypoint;
 import raw.runtime.ProgramEnvironment;
 import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.utils.AuthenticatedUser;
+import raw.utils.RawSettings;
 import scala.Option;
 import scala.Some;
-import scala.collection.immutable.Set;
-import scala.collection.immutable.Set$;
+import scala.Tuple2;
 import scala.collection.immutable.Map;
 import scala.collection.immutable.Map$;
-import scala.Tuple2;
+import scala.collection.immutable.Set;
+import scala.collection.immutable.Set$;
 
 @TruffleLanguage.Registration(
     id = RawLanguage.ID,
@@ -83,19 +83,25 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
     String source = request.getSource().getCharacters().toString();
     RawSettings rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
-//    SourceContext sourceContext = new SourceContext(null, null, rawSettings);
-//    LocalInferrerService localInferrer = new LocalInferrerService(sourceContext);
+    //    SourceContext sourceContext = new SourceContext(null, null, rawSettings);
+    //    LocalInferrerService localInferrer = new LocalInferrerService(sourceContext);
     AuthenticatedUser user = null;
     CompilerService compilerService = new CompilerService(rawSettings);
-    raw.compiler.common.Compiler compiler = compilerService.getCompiler(user, new Some("rql2-truffle"));
-    ProgramEnvironment programEnvironment = new ProgramEnvironment(new Some("rql2-truffle"), (Set<String>) Set$.MODULE$.empty(), updatedMap,Option.empty());
-    ProgramContext programContext =  compilerService.getProgramContext(compiler, source, Option.empty(), programEnvironment);
-    Entrypoint entrypoint =  compiler.compile(source, this, programContext).right().get();
+    raw.compiler.common.Compiler compiler =
+        compilerService.getCompiler(user, new Some("rql2-truffle"));
+    ProgramEnvironment programEnvironment =
+        new ProgramEnvironment(
+            new Some("rql2-truffle"),
+            (Set<String>) Set$.MODULE$.empty(),
+            updatedMap,
+            Option.empty());
+    ProgramContext programContext =
+        compilerService.getProgramContext(compiler, source, Option.empty(), programEnvironment);
+    Entrypoint entrypoint = compiler.compile(source, this, programContext).right().get();
     RootNode rootNode = (RootNode) entrypoint.target();
     RawLanguage.getCurrentContext().setRuntimeContext(programContext.runtimeContext());
-//    return Truffle.getRuntime().createCallTarget(truffleEntrypoint.node());
-//  return Truffle.getRuntime().createDirectCallNode(truffleEntrypoint.node().getCallTarget());
+    //    return Truffle.getRuntime().createCallTarget(truffleEntrypoint.node());
+    //  return Truffle.getRuntime().createDirectCallNode(truffleEntrypoint.node().getCallTarget());
     return rootNode.getCallTarget();
   }
 }
-
