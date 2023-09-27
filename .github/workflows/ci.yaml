@@ -50,6 +50,12 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
+      - name: build kiama
+        run: ./build.sh
+        working-directory: deps/kiama
+      - name: build scala-logging
+        run: ./build.sh
+        working-directory: deps/scala-logging
       - name: language doc
         run: sbt doc
         working-directory: language
@@ -73,7 +79,11 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - run: ./rebuild.sh
+      - run: |
+          whoami
+          cat /etc/passwd
+          ls -al /home
+          ./rebuild.sh
       - run: ./tests.sh
       - uses: mikepenz/action-junit-report@v3
         if: success() || failure()
