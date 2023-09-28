@@ -45,7 +45,7 @@ class TruffleOracleQueryEntry extends OracleQueryEntry with TruffleEntryExtensio
       values.toArray,
       types.toArray
     )
-    TruffleJdbc.query(location, args(1).e, t, new OracleExceptionHandler(),rawLanguage)
+    TruffleJdbc.query(location, args(1).e, t, new OracleExceptionHandler(), rawLanguage)
   }
 
 }

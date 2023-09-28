@@ -16,7 +16,28 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.builtin.math_package.{MathAbsNodeGen, MathAcosNodeGen, MathAsinNodeGen, MathAtanNodeGen, MathAtn2NodeGen, MathCeilingNodeGen, MathCosNodeGen, MathCotNodeGen, MathDegreesNodeGen, MathExpNodeGen, MathFloorNodeGen, MathLog10NodeGen, MathLogNodeGen, MathPowerNodeGen, MathRadiansNodeGen, MathSignNodeGen, MathSinNodeGen, MathSqrtNodeGen, MathSquareNodeGen, MathTanNodeGen}
+import raw.runtime.truffle.ast.expressions.builtin.math_package.{
+  MathAbsNodeGen,
+  MathAcosNodeGen,
+  MathAsinNodeGen,
+  MathAtanNodeGen,
+  MathAtn2NodeGen,
+  MathCeilingNodeGen,
+  MathCosNodeGen,
+  MathCotNodeGen,
+  MathDegreesNodeGen,
+  MathExpNodeGen,
+  MathFloorNodeGen,
+  MathLog10NodeGen,
+  MathLogNodeGen,
+  MathPowerNodeGen,
+  MathRadiansNodeGen,
+  MathSignNodeGen,
+  MathSinNodeGen,
+  MathSqrtNodeGen,
+  MathSquareNodeGen,
+  MathTanNodeGen
+}
 import raw.runtime.truffle.ast.expressions.literals.DoubleNode
 
 class TruffleMathPiEntry extends MathPiEntry with TruffleShortEntryExtension {
