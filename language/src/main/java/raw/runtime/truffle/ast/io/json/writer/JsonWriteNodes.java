@@ -31,7 +31,6 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.OutputStream;
-import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
@@ -40,10 +39,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 public final class JsonWriteNodes {
@@ -156,13 +152,13 @@ public final class JsonWriteNodes {
   @GenerateUncached
   public abstract static class WriteBinaryJsonWriterNode extends Node {
 
-    public abstract void execute(byte[] value, JsonGenerator gen);
+    public abstract void execute(BinaryObject value, JsonGenerator gen);
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    void doWrite(byte[] value, JsonGenerator gen) {
+    void doWrite(BinaryObject value, JsonGenerator gen) {
       try {
-        String result = Base64.getEncoder().encodeToString(value);
+        String result = Base64.getEncoder().encodeToString(value.getBytes());
         gen.writeString(result);
       } catch (IOException e) {
         throw new JsonWriterRawTruffleException(e.getMessage(), this);
@@ -225,13 +221,13 @@ public final class JsonWriteNodes {
   @GenerateUncached
   public abstract static class WriteDecimalJsonWriterNode extends Node {
 
-    public abstract void execute(BigDecimal value, JsonGenerator gen);
+    public abstract void execute(DecimalObject value, JsonGenerator gen);
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    void doWrite(BigDecimal value, JsonGenerator gen) {
+    void doWrite(DecimalObject value, JsonGenerator gen) {
       try {
-        gen.writeNumber(value);
+        gen.writeNumber(value.getBigDecimal());
       } catch (IOException e) {
         throw new JsonWriterRawTruffleException(e.getMessage(), this);
       }
@@ -482,7 +478,9 @@ public final class JsonWriteNodes {
 
     @Specialization
     protected void doWrite(
-        byte[] binary, JsonGenerator gen, @Cached("create()") WriteBinaryJsonWriterNode write) {
+        BinaryObject binary,
+        JsonGenerator gen,
+        @Cached("create()") WriteBinaryJsonWriterNode write) {
       write.execute(binary, gen);
     }
 
@@ -524,7 +522,9 @@ public final class JsonWriteNodes {
 
     @Specialization
     protected void doWrite(
-        BigDecimal num, JsonGenerator gen, @Cached("create()") WriteDecimalJsonWriterNode write) {
+        DecimalObject num,
+        JsonGenerator gen,
+        @Cached("create()") WriteDecimalJsonWriterNode write) {
       write.execute(num, gen);
     }
 

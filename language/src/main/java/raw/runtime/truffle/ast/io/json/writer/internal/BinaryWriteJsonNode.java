@@ -18,6 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "BinaryWriteJson")
 public class BinaryWriteJsonNode extends StatementNode {
@@ -28,6 +29,6 @@ public class BinaryWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeBinary.execute((byte[]) args[0], (JsonGenerator) args[1]);
+    writeBinary.execute((BinaryObject) args[0], (JsonGenerator) args[1]);
   }
 }

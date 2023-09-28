@@ -34,10 +34,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.ObjectOption;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
@@ -210,8 +207,8 @@ public final class KryoReader {
     }
 
     @Specialization(guards = {"isDecimalKind(t)"})
-    static BigDecimal doDecimal(KryoReader receiver, Input input, Rql2TypeWithProperties t) {
-      return new BigDecimal(input.readString());
+    static DecimalObject doDecimal(KryoReader receiver, Input input, Rql2TypeWithProperties t) {
+      return new DecimalObject(new BigDecimal(input.readString()));
     }
 
     @Specialization(guards = {"isDoubleKind(t)"})

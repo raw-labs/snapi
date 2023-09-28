@@ -15,14 +15,14 @@ package raw.runtime.truffle.ast.io.xml.parser;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 
 @NodeInfo(shortName = "DecimalParseXml")
 public abstract class DecimalParseXmlNode extends ExpressionNode {
 
   @Specialization
-  public BigDecimal parse(VirtualFrame frame) {
+  public DecimalObject parse(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
     String value = (String) args[1];

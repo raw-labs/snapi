@@ -15,6 +15,7 @@ package raw.runtime.truffle.ast.io.jdbc;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "Jdbc.BinaryRead")
 public class BinaryReadJdbcQuery extends ExpressionNode {
@@ -30,9 +31,9 @@ public class BinaryReadJdbcQuery extends ExpressionNode {
   }
 
   @Override
-  public final byte[] executeBinary(VirtualFrame frame) {
+  public final BinaryObject executeBinary(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getBytes(idx, this);
+    return new BinaryObject(rs.getBytes(idx, this));
   }
 }

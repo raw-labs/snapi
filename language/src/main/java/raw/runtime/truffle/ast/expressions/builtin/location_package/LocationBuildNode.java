@@ -29,6 +29,7 @@ import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.*;
@@ -54,7 +55,7 @@ public class LocationBuildNode extends ExpressionNode {
   public LocationBuildNode(
       ExpressionNode url, String[] keys, ExpressionNode[] values, Rql2TypeWithProperties[] types) {
     assert values.length == keys.length;
-    //    assert values.length == types.length; // Doesn't hold for DB packages
+    assert values.length == types.length;
     this.url = url;
     this.keys = keys;
     this.values = values;
@@ -117,7 +118,7 @@ public class LocationBuildNode extends ExpressionNode {
         return new LocationKVSetting(vec.result());
       } else if (TypeGuards.isBinaryKind(type)) {
         VectorBuilder<Object> vec = new VectorBuilder<>();
-        for (byte aByte : (byte[]) value) {
+        for (byte aByte : ((BinaryObject) value).getBytes()) {
           vec = vec.$plus$eq(aByte);
         }
         return new LocationBinarySetting(vec.result());

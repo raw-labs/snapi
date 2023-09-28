@@ -14,13 +14,13 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.MySQLQueryEntry
-import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
+import raw.compiler.rql2.source.Rql2TypeWithProperties
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 
 class TruffleMySQLQueryEntry extends MySQLQueryEntry with TruffleEntryExtension {
 
@@ -36,9 +36,7 @@ class TruffleMySQLQueryEntry extends MySQLQueryEntry with TruffleEntryExtension 
     }
     val keys = optionalArgs.map(_._1)
     val values = optionalArgs.map(_._2)
-    val types = args.tail.collect {
-      case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties]
-    } :+ Rql2StringType().asInstanceOf[Rql2TypeWithProperties]
+    val types = args.tail.collect { case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties] }
     val location = new LocationBuildNode(
       new PlusNode(new StringNode("mysql:"), db),
       keys.toArray,

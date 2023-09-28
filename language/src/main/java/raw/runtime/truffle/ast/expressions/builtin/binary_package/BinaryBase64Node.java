@@ -18,13 +18,14 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.Base64;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "Binary.Base64")
 @NodeChild(value = "binary")
 public abstract class BinaryBase64Node extends ExpressionNode {
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected String doBase64(byte[] binary) {
-    return Base64.getEncoder().encodeToString(binary);
+  protected String doBase64(BinaryObject binary) {
+    return Base64.getEncoder().encodeToString(binary.getBytes());
   }
 }
