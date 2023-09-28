@@ -272,6 +272,9 @@ lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
 
 outputVersion := {
   val versionFile = baseDirectory.value / "version"
+  if (!versionFile.exists()) {
+    IO.touch(versionFile)
+  }
   IO.write(versionFile, version.value)
 }
 
