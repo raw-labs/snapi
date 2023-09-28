@@ -33,7 +33,7 @@ jobs:
     - name: build deps
       run: |
         deps/kiama/build.sh
-        deps/scala-loggings/build.sh
+        deps/scala-logging/build.sh
     - if: github.event_name == 'repository_dispatch'
       name: evaluate produced version
       shell: bash
