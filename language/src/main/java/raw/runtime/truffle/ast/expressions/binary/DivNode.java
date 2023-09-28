@@ -15,9 +15,9 @@ package raw.runtime.truffle.ast.expressions.binary;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import java.math.MathContext;
 import raw.runtime.truffle.ast.BinaryNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.tryable.*;
 
 // TODO: further optimization could be done by creating permutations of types?
@@ -62,15 +62,16 @@ public abstract class DivNode extends BinaryNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable divDecimal(BigDecimal a, BigDecimal b) {
+  protected ObjectTryable divDecimal(DecimalObject a, DecimalObject b) {
     // Without the MathContext.DECIMAL128, we would get a:
     // java.lang.ArithmeticException: Non-terminating decimal expansion; no exact representable
     // decimal result.
     // MathContext DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
     // This means 34 digits before rounding
     // TODO: Check if this the rounding mode we want.
-    return b.doubleValue() != 0
-        ? ObjectTryable.BuildSuccess(a.divide(b, MathContext.DECIMAL128))
+    return b.getBigDecimal().doubleValue() != 0
+        ? ObjectTryable.BuildSuccess(
+            new DecimalObject(a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128)))
         : ObjectTryable.BuildFailure("/ by zero");
   }
 }

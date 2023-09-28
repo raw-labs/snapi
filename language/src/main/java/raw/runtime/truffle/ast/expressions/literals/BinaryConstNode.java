@@ -14,17 +14,18 @@ package raw.runtime.truffle.ast.expressions.literals;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 public class BinaryConstNode extends ExpressionNode {
 
-  private final byte[] value;
+  private final BinaryObject value;
 
   public BinaryConstNode(byte[] value) {
-    this.value = value;
+    this.value = new BinaryObject(value);
   }
 
   @Override
-  public final byte[] executeBinary(VirtualFrame virtualFrame) {
+  public final BinaryObject executeBinary(VirtualFrame virtualFrame) {
     return value;
   }
 

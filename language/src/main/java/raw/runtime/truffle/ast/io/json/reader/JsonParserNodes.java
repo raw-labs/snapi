@@ -48,10 +48,7 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 
@@ -197,15 +194,15 @@ public final class JsonParserNodes {
   @GenerateUncached
   public abstract static class ParseBinaryJsonParserNode extends Node {
 
-    public abstract byte[] execute(JsonParser parser);
+    public abstract BinaryObject execute(JsonParser parser);
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    byte[] doParse(JsonParser parser) {
+    BinaryObject doParse(JsonParser parser) {
       try {
         String binary = parser.getText();
         parser.nextToken();
-        return Base64.getDecoder().decode(binary);
+        return new BinaryObject(Base64.getDecoder().decode(binary));
       } catch (IOException | IllegalArgumentException e) {
         throw new JsonParserRawTruffleException(e.getMessage(), this);
       }
@@ -274,15 +271,15 @@ public final class JsonParserNodes {
   @GenerateUncached
   public abstract static class ParseDecimalJsonParserNode extends Node {
 
-    public abstract BigDecimal execute(JsonParser parser);
+    public abstract DecimalObject execute(JsonParser parser);
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    BigDecimal doParse(JsonParser parser) {
+    DecimalObject doParse(JsonParser parser) {
       try {
         BigDecimal v = parser.getDecimalValue();
         parser.nextToken();
-        return v;
+        return new DecimalObject(v);
       } catch (IOException e) {
         throw new JsonParserRawTruffleException(e.getMessage(), this);
       }
@@ -624,7 +621,7 @@ public final class JsonParserNodes {
     }
 
     @Specialization(guards = {"isBinary(parser)"})
-    protected byte[] doParse(
+    protected BinaryObject doParse(
         JsonParser parser, @Cached JsonParserNodes.ParseBinaryJsonParserNode parse) {
       return parse.execute(parser);
     }
@@ -667,7 +664,7 @@ public final class JsonParserNodes {
     }
 
     @Specialization(guards = {"isDecimal(parser)"})
-    protected BigDecimal doParse(
+    protected DecimalObject doParse(
         JsonParser parser, @Cached JsonParserNodes.ParseDecimalJsonParserNode parse) {
       return parse.execute(parser);
     }

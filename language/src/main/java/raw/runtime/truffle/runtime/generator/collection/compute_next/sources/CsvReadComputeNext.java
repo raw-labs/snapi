@@ -56,7 +56,7 @@ public class CsvReadComputeNext {
 
   @ExportMessage
   void init(
-      @Cached("create()") CsvParserNodes.InitCsvParserNode initParser,
+      @Cached CsvParserNodes.InitCsvParserNode initParser,
       @Cached.Shared("closeParser") @Cached("create()")
           CsvParserNodes.CloseCsvParserNode closeParser) {
     try {

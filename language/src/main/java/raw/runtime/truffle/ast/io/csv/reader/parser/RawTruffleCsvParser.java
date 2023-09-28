@@ -21,7 +21,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLogger;
 import java.io.IOException;
 import java.io.Reader;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -37,6 +36,7 @@ import raw.runtime.truffle.runtime.exceptions.csv.CsvReaderRawTruffleException;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.ObjectOption;
 import raw.runtime.truffle.runtime.primitives.DateObject;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.utils.RawTruffleCharStream;
@@ -389,11 +389,11 @@ public class RawTruffleCsvParser {
   }
 
   @CompilerDirectives.TruffleBoundary
-  BigDecimal getDecimal(ExpressionNode location) {
+  DecimalObject getDecimal(ExpressionNode location) {
     try {
 
       try {
-        return jacksonParser.getDecimalValue();
+        return new DecimalObject(jacksonParser.getDecimalValue());
       } catch (JsonProcessingException | NumberFormatException ex) {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
@@ -415,7 +415,7 @@ public class RawTruffleCsvParser {
             return new EmptyOption();
           }
         }
-        return new ObjectOption(jacksonParser.getDecimalValue());
+        return new ObjectOption(new DecimalObject(jacksonParser.getDecimalValue()));
       } catch (JsonProcessingException | NumberFormatException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a decimal", jacksonParser.getText()),

@@ -20,6 +20,7 @@ import java.io.IOException;
 import java.util.Base64;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
+import raw.runtime.truffle.runtime.primitives.BinaryObject;
 
 @NodeInfo(shortName = "BinaryWriteCsv")
 public class BinaryWriteCsvNode extends StatementNode {
@@ -27,9 +28,9 @@ public class BinaryWriteCsvNode extends StatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    byte[] value = (byte[]) args[0];
+    BinaryObject value = (BinaryObject) args[0];
     CsvGenerator generator = (CsvGenerator) args[1];
-    doWrite(value, generator);
+    doWrite(value.getBytes(), generator);
   }
 
   @CompilerDirectives.TruffleBoundary

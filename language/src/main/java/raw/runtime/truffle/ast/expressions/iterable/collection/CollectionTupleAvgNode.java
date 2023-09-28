@@ -30,6 +30,7 @@ import raw.runtime.truffle.runtime.aggregation.aggregator.CountAggregator;
 import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.option.ObjectOption;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
@@ -52,7 +53,10 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
       if ((long) results[1] == (long) aggregatorLibs.zero(countAggregator)) {
         records.writeMember(record, "sum", aggregatorLibs.zero(sumAggregator));
       } else {
-        records.writeMember(record, "sum", new ObjectOption(new BigDecimal(results[0].toString())));
+        records.writeMember(
+            record,
+            "sum",
+            new ObjectOption(new DecimalObject(new BigDecimal(results[0].toString()))));
       }
       records.writeMember(record, "count", results[1]);
       return ObjectTryable.BuildSuccess(record);

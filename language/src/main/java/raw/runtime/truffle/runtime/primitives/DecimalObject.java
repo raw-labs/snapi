@@ -13,16 +13,16 @@
 package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.interop.TruffleObject;
+import java.math.BigDecimal;
 
-public class BinaryObject implements TruffleObject {
+public class DecimalObject implements TruffleObject {
+  private final BigDecimal bigDecimal;
 
-  private final byte[] byteArray;
-
-  public BinaryObject(byte[] byteArray) {
-    this.byteArray = byteArray;
+  public DecimalObject(BigDecimal byteArray) {
+    this.bigDecimal = byteArray;
   }
 
-  public byte[] getBytes() {
-    return byteArray;
+  public BigDecimal getBigDecimal() {
+    return bigDecimal;
   }
 }
