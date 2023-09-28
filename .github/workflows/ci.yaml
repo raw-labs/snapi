@@ -2,9 +2,9 @@ name: CI
 on:
   pull_request:
     paths:
-      - raw-*/**
-      - build.sbt
-      - project/**
+      - deps/**
+      - language/**
+      - extensions/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
@@ -15,27 +15,32 @@ jobs:
   code-checks:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
       options: --user 1001
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
-      - run: sbt headerCheckAll
-      - run: sbt scalafmtCheckAll
-      - run: sbt javafmtCheckAll
-  doc-gen-check:
-    runs-on: self-hosted
-    container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
-      options: --user 1001
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.READ_PACKAGES }}
-    steps:
-      - uses: actions/checkout@v3
-      - run: sbt doc
+      - name: language headers
+        run: sbt headerCheckAll
+        working-directory: language
+      - name: extensions headers
+        run: sbt headerCheckAll
+        working-directory: extensions
+      - name: language scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: language
+      - name: extensions scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: extensions
+      - name: language java fmt
+        run: sbt javafmtCheckAll
+        working-directory: language
+      - name: extensions java fmt
+        run: sbt javafmtCheckAll
+        working-directory: extensions
+
   tests:
     needs: code-checks
     runs-on: self-hosted
@@ -43,8 +48,8 @@ jobs:
       SBT_FORK_OUTPUT_DIR : test-results
       COURSIER_PROGRESS : false
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
-      options: --user 1001 --cpus 6 --memory 32g
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
+      options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
@@ -54,6 +59,12 @@ jobs:
         with:
           secrets: ${{ toJSON(secrets) }}
       - run: ./rebuild.sh
+      - name: language doc
+        run: sbt doc
+        working-directory: language
+      - name: extensions doc
+        run: sbt doc
+        working-directory: extensions
       - run: ./tests.sh
       - uses: mikepenz/action-junit-report@v3
         if: success() || failure()
