@@ -18,8 +18,8 @@ import java.math.BigDecimal;
 public class DecimalObject implements TruffleObject {
   private final BigDecimal bigDecimal;
 
-  public DecimalObject(BigDecimal byteArray) {
-    this.bigDecimal = byteArray;
+  public DecimalObject(BigDecimal bigDecimal) {
+    this.bigDecimal = bigDecimal;
   }
 
   public BigDecimal getBigDecimal() {
