@@ -3,6 +3,16 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
 export COURSIER_PROGRESS=false
 
-cd "${SCRIPT_HOME}"
 find . -type d -name "target" -exec rm -r {} \; || true
-sbt clean Test/clean cleanFiles compile Test/compile
+
+cd "${SCRIPT_HOME}/deps/kiama"
+./build.sh
+
+cd "${SCRIPT_HOME}/deps/scala-logging"
+./build.sh
+
+cd "${SCRIPT_HOME}/language"
+./build.sh
+
+cd "${SCRIPT_HOME}/extensions"
+./build.sh

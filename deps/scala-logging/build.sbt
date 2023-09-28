@@ -1,5 +1,7 @@
 // basics
 
+ThisBuild/version := IO.read(new File("version")).trim
+
 name := "scala-logging"
 crossScalaVersions := Seq("2.12.18")
 scalaVersion := crossScalaVersions.value.head

@@ -16,7 +16,20 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.{IntervalBuildNodeGen, IntervalDaysNodeGen, IntervalFromMillisNodeGen, IntervalHoursNodeGen, IntervalMillisNodeGen, IntervalMinutesNodeGen, IntervalMonthsNodeGen, IntervalParseNodeGen, IntervalSecondsNodeGen, IntervalToMillisNodeGen, IntervalWeeksNodeGen, IntervalYearsNodeGen}
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.{
+  IntervalBuildNodeGen,
+  IntervalDaysNodeGen,
+  IntervalFromMillisNodeGen,
+  IntervalHoursNodeGen,
+  IntervalMillisNodeGen,
+  IntervalMinutesNodeGen,
+  IntervalMonthsNodeGen,
+  IntervalParseNodeGen,
+  IntervalSecondsNodeGen,
+  IntervalToMillisNodeGen,
+  IntervalWeeksNodeGen,
+  IntervalYearsNodeGen
+}
 import raw.runtime.truffle.ast.expressions.literals.IntNode
 
 class TruffleBuildIntervalEntry extends BuildIntervalEntry with TruffleEntryExtension {

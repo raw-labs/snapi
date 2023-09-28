@@ -22,9 +22,35 @@ import raw.compiler.base.source._
 import raw.compiler.common
 import raw.compiler.common.ProgramParamEntity
 import raw.compiler.common.source._
-import raw.compiler.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, PackageExtensionProvider, TypeArg, TypeParam, ValueArg, ValueParam}
+import raw.compiler.rql2.api.{
+  Arg,
+  EntryExtension,
+  ExpArg,
+  ExpParam,
+  PackageExtensionProvider,
+  TypeArg,
+  TypeParam,
+  ValueArg,
+  ValueParam
+}
 import raw.compiler.rql2.builtin.TypePackageBuilder
-import raw.compiler.rql2.errors.{CannotDetermineTypeOfParameter, ExpectedTypeButGotExpression, FailedToEvaluate, FunctionOrMethodExpected, InvalidType, MandatoryArgumentAfterOptionalArgument, MandatoryArgumentsMissing, NamedParameterAfterOptionalParameter, NoOptionalArgumentsExpected, OutputTypeRequiredForRecursiveFunction, PackageNotFound, RepeatedFieldNames, RepeatedOptionalArguments, UnexpectedArguments, UnexpectedOptionalArgument}
+import raw.compiler.rql2.errors.{
+  CannotDetermineTypeOfParameter,
+  ExpectedTypeButGotExpression,
+  FailedToEvaluate,
+  FunctionOrMethodExpected,
+  InvalidType,
+  MandatoryArgumentAfterOptionalArgument,
+  MandatoryArgumentsMissing,
+  NamedParameterAfterOptionalParameter,
+  NoOptionalArgumentsExpected,
+  OutputTypeRequiredForRecursiveFunction,
+  PackageNotFound,
+  RepeatedFieldNames,
+  RepeatedOptionalArguments,
+  UnexpectedArguments,
+  UnexpectedOptionalArgument
+}
 import raw.compiler.rql2.source._
 import raw.runtime.ProgramEnvironment
 import raw.runtime.interpreter._
