@@ -13,20 +13,9 @@
 package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.Truffle
-import org.graalvm.polyglot.Context
+import org.graalvm.polyglot.{Context, EnvironmentAccess}
 import raw.compiler.{CompilerExecutionException, ErrorMessage, Pos, ProgramDescription}
-import raw.compiler.api.{
-  AutoCompleteResponse,
-  CompilationResponse,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  ExecutionValidationFailure,
-  GoToDefinitionResponse,
-  HoverResponse,
-  RenameResponse,
-  ValidateResponse
-}
+import raw.compiler.api.{AutoCompleteResponse, CompilationResponse, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GoToDefinitionResponse, HoverResponse, RenameResponse, ValidateResponse}
 import raw.compiler.base.source.Type
 import raw.compiler.common.CommonCompilerService
 import raw.runtime.{ParamValue, ProgramEnvironment}
@@ -54,14 +43,14 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
     withTruffleContext(_ => super.getProgramDescription(source, maybeArguments, environment))
   }
 
-  override def compile(
-      source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
-      environment: ProgramEnvironment,
-      ref: Any
-  ): CompilationResponse = {
-    withTruffleContext(_ => super.compile(source, maybeArguments, environment, ref))
-  }
+//  override def compile(
+//      source: String,
+//      maybeArguments: Option[Array[(String, ParamValue)]],
+//      environment: ProgramEnvironment,
+//      ref: Any
+//  ): CompilationResponse = {
+//    withTruffleContext(_ => super.compile(source, maybeArguments, environment, ref))
+//  }
 
   override def execute(
       source: String,
@@ -77,12 +66,42 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
         .parseAndValidate(source, maybeDecl)(programContext)
         .right
         .flatMap { program =>
+//          val ctx: Context = Context
+//            .newBuilder(RawLanguage.ID)
+//            .out(outputStream)
+//            .environment("RAW_USER", environment.user.uid.toString)
+//            .build()
+//          ctx.initialize(RawLanguage.ID)
+//          ctx.enter()
+//          try {
+//            ctx.eval(RawLanguage.ID, source)
+//            Right(ExecutionSuccess)
+//          } catch {
+//            case ex: RawTruffleRuntimeException =>
+//              // Instead of passing the cause, we pass null, because otherwise when running Scala2 tests it tries to
+//              // the AbstractTruffleException which is not exported in JVM (not GraalVM), so it fails.
+//              throw new CompilerExecutionException(
+//                ex.getMessage,
+//                null
+//              )
+//          } finally {
+//            ctx.leave()
+//            ctx.close()
+//          }
+
           compiler.compile(program)(programContext).right.map { entrypoint =>
-            val ctx: Context = Context.newBuilder(RawLanguage.ID)
+
+            val ctx: Context = Context
+              .newBuilder(RawLanguage.ID)
+              // FIXME (msb): SET THIS!!!
+//              .allowEnvironmentAccess(EnvironmentAccess.INHERIT)
+              .environment("RAW_USER", environment.user.uid.toString)
+              .environment("RAW_SCOPES", environment.scopes.mkString(","))
+
 //              .arguments()
 //              .environment()
-
-              .out(outputStream).build()
+              .out(outputStream)
+              .build()
             ctx.initialize(RawLanguage.ID)
             ctx.enter()
             try {
@@ -155,6 +174,9 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
   }
 
   private def withTruffleContext[T](f: Context => T): T = {
+    // FIXME (msb): SET THIS PROPERLY!! SHARE BUILDER WITH METHOD ABOVE
+    //              EXPLAIN WHY compile SHOULD NOT BE OVERRIDDEN. OR IMPROVE THAT SOMEHOW TO
+    //              DO EVERYTHING HERE NOT IN RawLanguage SOMEHOW?
     val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
     ctx.initialize(RawLanguage.ID)
     ctx.enter()

@@ -11,7 +11,7 @@ public class RawCli {
     public static void main(String[] args) {
         Source sourceSnapi = null;
         try {
-            sourceSnapi = Source.newBuilder("rql", "", "<stdin>").build();
+            sourceSnapi = Source.newBuilder("rql", "{a: 1+1}", "<stdin>").build();
         } catch (Exception e) {
             e.printStackTrace();
             return;
@@ -28,33 +28,31 @@ public class RawCli {
 
 
 
-        Map<String, String> options = new HashMap<>();
         Context context = Context.newBuilder("python", "rql")
                 .in(System.in)
                 .out(System.out)
                 .allowExperimentalOptions(true)
-                .options(options)
-                .option("output-format", "json")
+                .option("rql.output-format", "json")
                 .build();
-        context.getPolyglotBindings().putMember("a", 1);
+//        context.getPolyglotBindings().putMember("a", 1);
 
         // let x = type int
 
         //
 
-        Value v;
-
-        v.asHostObject()
+//        Value v;
+//
+//        v.asHostObject()
 
 //        context.eval(sourceSnapi).
 
         try {
-            int a = (int) context.eval(sourceSnapi).asInt();
-            System.out.println(a);
-            int b = (int) context.eval(sourcePython).asInt();
-            System.out.println(b);
-            int c = a + b;
-            System.out.println(c);
+            context.eval(sourceSnapi);
+//            System.out.println(a);
+//            int b = (int) context.eval(sourcePython).asInt();
+//            System.out.println(b);
+//            int c = a + b;
+//            System.out.println(c);
         } finally {
             context.close();
         }

@@ -18,19 +18,14 @@ import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.typesafe.config.ConfigFactory;
-import raw.compiler.ErrorMessage;
+import org.graalvm.options.OptionDescriptors;
 import raw.compiler.api.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
 import raw.runtime.Entrypoint;
 import raw.runtime.ProgramEnvironment;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import scala.Function1;
 import scala.Option;
-import scala.collection.immutable.*;
-import scala.Tuple2;
 
 @TruffleLanguage.Registration(
     id = RawLanguage.ID,
@@ -59,10 +54,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return new RawContext(this, env);
   }
 
-//  public static RawContext getCurrentContext() {
-//    return getCurrentContext(RawLanguage.class);
-//  }
-
   private static final LanguageReference<RawLanguage> REFERENCE =
       LanguageReference.create(RawLanguage.class);
 
@@ -76,38 +67,24 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   }
 
   @Override
+  protected OptionDescriptors getOptionDescriptors() {
+    return RawOptions.OPTION_DESCRIPTORS;
+  }
+
+    @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
-
-
+    RawContext context = RawContext.get(null);
+    RawSettings rawSettings = context.getRawSettings();
+    ProgramEnvironment programEnvironment = context.getProgramEnvironment();
 
     String source = request.getSource().getCharacters().toString();
 
-    RawSettings rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
-    AuthenticatedUser authenticatedUser = null;
     CompilerService compilerService = CompilerServiceProvider.apply(rawSettings);
 
-      
-    request.getArgumentNames()
-
-
-
-    getEnvironment()
-
-    this.
-
-    Map<String, String> emptyMap = Map$.MODULE$.empty();
-    fix this
-          this vs RawContext
-            it is damn confusing
-            it is confusing that this ALREADY needs the arguments
-            but it does, right?
-
-    Map<String, String> updatedMap = emptyMap.$plus(new Tuple2<>("output-format", ""));
-    ProgramEnvironment programEnvironment = new ProgramEnvironment(authenticatedUser,  (Set<String>) Set$.MODULE$.empty(), updatedMap, Option.empty());
-
+    // FIXME (msb): maybeArguments should ALSO be read from the context!
     CompilationResponse compilationResponse = compilerService.compile(source, Option.empty(), programEnvironment,  this);
     if (compilationResponse instanceof CompilationFailure) {
-      // TODO (msb): Return all errors, not just head.
+      // FIXME (msb): Return all errors, not just head.
       String result = ((CompilationFailure) compilationResponse).errors().head().toString();
       throw new RawTruffleRuntimeException(result);
     }
