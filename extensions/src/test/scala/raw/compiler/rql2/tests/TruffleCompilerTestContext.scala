@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests
 
-import raw.compiler.rql2.{Rql2OutputTestContext, Rql2TruffleCompilerServiceTestContext}
+import raw.compiler.rql2.Rql2OutputTestContext
 
 class TruffleCompilerTestContext
     extends CompilerTestContext

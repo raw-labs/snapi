@@ -521,8 +521,6 @@ trait CompilerTestContext
   // Helper Functions
   /////////////////////////////////////////////////////////////////////////
 
-//  private def getCompiler(): Compiler = compilerService.getCompiler(authorizedUser, getQueryEnvironment().language)
-
   private def getQueryEnvironment(
       scopes: Set[String] = Set.empty,
       options: Map[String, String] = Map.empty
@@ -532,21 +530,6 @@ trait CompilerTestContext
     this.options ++ options ++ programOptions,
     maybeTraceId
   )
-
-//  private def getProgramContextFromSource(
-//      compiler: Compiler,
-//      code: String,
-//      maybeArguments: Option[Array[(String, ParamValue)]] = None,
-//      scopes: Set[String] = Set.empty,
-//      options: Map[String, String] = Map.empty
-//  ): ProgramContext = {
-//    compilerService.getProgramContext(
-//      compiler,
-//      code,
-//      maybeArguments,
-//      getQueryEnvironment(scopes, options)
-//    )
-//  }
 
   def parseQuery(code: String): BaseProgram = tryToParse(code) match {
     case Right(p) => p

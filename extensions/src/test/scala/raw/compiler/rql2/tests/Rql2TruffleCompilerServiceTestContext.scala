@@ -1,8 +1,8 @@
-package raw.compiler.rql2
+package raw.compiler.rql2.tests
 
 import raw.compiler.rql2.api.CompilerServiceTestContext
 import raw.compiler.rql2.truffle.Rql2TruffleCompilerService
-import raw.utils.{withSuppressNonFatalException, RawTestSuite, SettingsTestContext}
+import raw.utils.{RawTestSuite, SettingsTestContext, withSuppressNonFatalException}
 
 trait Rql2TruffleCompilerServiceTestContext extends CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>
