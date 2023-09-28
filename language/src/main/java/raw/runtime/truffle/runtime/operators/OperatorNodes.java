@@ -23,7 +23,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,10 +32,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 
@@ -85,8 +81,8 @@ public class OperatorNodes {
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static int doDecimal(BigDecimal left, BigDecimal right) {
-      return left.compareTo(right);
+    static int doDecimal(DecimalObject left, DecimalObject right) {
+      return left.getBigDecimal().compareTo(right.getBigDecimal());
     }
 
     @Specialization
@@ -324,8 +320,8 @@ public class OperatorNodes {
 
     @Specialization
     @CompilerDirectives.TruffleBoundary
-    static Object doDecimal(BigDecimal left, BigDecimal right) {
-      return left.add(right);
+    static DecimalObject doDecimal(DecimalObject left, DecimalObject right) {
+      return new DecimalObject(left.getBigDecimal().add(right.getBigDecimal()));
     }
 
     @Specialization

@@ -16,9 +16,9 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 
 @NodeInfo(shortName = "Math.Floor")
 @NodeChild(value = "argument", type = ExpressionNode.class)
@@ -26,7 +26,7 @@ public abstract class MathFloorNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected long decimalCeiling(BigDecimal argument) {
-    return argument.setScale(0, RoundingMode.FLOOR).longValue();
+  protected long decimalCeiling(DecimalObject argument) {
+    return argument.getBigDecimal().setScale(0, RoundingMode.FLOOR).longValue();
   }
 }

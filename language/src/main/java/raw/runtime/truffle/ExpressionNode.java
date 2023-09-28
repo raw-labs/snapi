@@ -19,7 +19,6 @@ import com.oracle.truffle.api.instrumentation.ProbeNode;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import java.math.BigDecimal;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
@@ -63,12 +62,12 @@ public abstract class ExpressionNode extends StatementNode {
     return RawTypesGen.expectDouble(executeGeneric(virtualFrame));
   }
 
-  public byte[] executeBinary(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return RawTypesGen.expectByteArray(executeGeneric(virtualFrame));
+  public BinaryObject executeBinary(VirtualFrame virtualFrame) throws UnexpectedResultException {
+    return RawTypesGen.expectBinaryObject(executeGeneric(virtualFrame));
   }
 
-  public BigDecimal executeBigDecimal(VirtualFrame virtualFrame) throws UnexpectedResultException {
-    return RawTypesGen.expectBigDecimal(executeGeneric(virtualFrame));
+  public DecimalObject executeDecimal(VirtualFrame virtualFrame) throws UnexpectedResultException {
+    return RawTypesGen.expectDecimalObject(executeGeneric(virtualFrame));
   }
 
   public DateObject executeDate(VirtualFrame virtualFrame) throws UnexpectedResultException {

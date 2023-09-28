@@ -13,18 +13,16 @@
 package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.interop.TruffleObject;
+import java.math.BigDecimal;
 
-// A Wrapper object that is needed in order to store a byte array in a Record.
+public class DecimalObject implements TruffleObject {
+  private final BigDecimal bigDecimal;
 
-public class ByteArrayObject implements TruffleObject {
-
-  private final byte[] byteArray;
-
-  public ByteArrayObject(byte[] byteArray) {
-    this.byteArray = byteArray;
+  public DecimalObject(BigDecimal byteArray) {
+    this.bigDecimal = byteArray;
   }
 
-  public byte[] getByteArray() {
-    return byteArray;
+  public BigDecimal getBigDecimal() {
+    return bigDecimal;
   }
 }

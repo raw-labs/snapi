@@ -15,8 +15,8 @@ package raw.runtime.truffle.ast.expressions.binary;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ast.BinaryNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 
 @NodeInfo(shortName = "-")
 public abstract class SubNode extends BinaryNode {
@@ -53,7 +53,7 @@ public abstract class SubNode extends BinaryNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected BigDecimal sub(BigDecimal left, BigDecimal right) {
-    return left.subtract(right);
+  protected DecimalObject sub(DecimalObject left, DecimalObject right) {
+    return new DecimalObject(left.getBigDecimal().subtract(right.getBigDecimal()));
   }
 }

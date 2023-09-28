@@ -18,7 +18,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.*;
 
@@ -64,8 +63,8 @@ public abstract class StringFromNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected String fromDecimal(BigDecimal value) {
-    return value.toString();
+  protected String fromDecimal(DecimalObject value) {
+    return value.getBigDecimal().toString();
   }
 
   @Specialization

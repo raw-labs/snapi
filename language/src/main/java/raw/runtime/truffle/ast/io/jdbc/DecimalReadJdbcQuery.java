@@ -14,8 +14,8 @@ package raw.runtime.truffle.ast.io.jdbc;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 
 @NodeInfo(shortName = "Jdbc.DecimalRead")
 public class DecimalReadJdbcQuery extends ExpressionNode {
@@ -27,11 +27,11 @@ public class DecimalReadJdbcQuery extends ExpressionNode {
   }
 
   public Object executeGeneric(VirtualFrame frame) {
-    return this.executeBigDecimal(frame);
+    return this.executeDecimal(frame);
   }
 
   @Override
-  public final BigDecimal executeBigDecimal(VirtualFrame frame) {
+  public final DecimalObject executeDecimal(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
     return rs.getDecimal(idx, this);

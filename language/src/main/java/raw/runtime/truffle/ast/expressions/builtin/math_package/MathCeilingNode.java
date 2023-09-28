@@ -16,16 +16,16 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.math.BigDecimal;
 import java.math.RoundingMode;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.DecimalObject;
 
 @NodeInfo(shortName = "Math.Ceiling")
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathCeilingNode extends ExpressionNode {
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected long decimalCeiling(BigDecimal argument) {
-    return argument.setScale(0, RoundingMode.CEILING).longValue();
+  protected long decimalCeiling(DecimalObject argument) {
+    return argument.getBigDecimal().setScale(0, RoundingMode.CEILING).longValue();
   }
 }
