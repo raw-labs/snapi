@@ -30,16 +30,6 @@ licenses/APL.txt."""
 // Read version to use
 import java.util.Properties
 import java.io.FileInputStream
-version := {
-  val properties = new Properties()
-  val fs = new FileInputStream("../version.properties")
-  try {
-    properties.load(fs)
-    properties.getProperty("language.version")
-  } finally {
-    fs.close()
-  }
-}
 
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 
