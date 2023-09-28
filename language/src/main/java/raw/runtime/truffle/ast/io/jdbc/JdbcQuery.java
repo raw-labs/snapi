@@ -18,6 +18,9 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
+import raw.sources.api.SourceContext;
+import raw.utils.RawException;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcReaderRawTruffleException;
@@ -40,13 +43,13 @@ public class JdbcQuery {
   public JdbcQuery(
       LocationDescription locationDescription,
       String query,
-      RuntimeContext context,
+      SourceContext context,
       JdbcExceptionHandler exceptionHandler) {
     this.exceptionHandler = exceptionHandler;
     this.url = locationDescription.url();
     try {
       connection =
-          JdbcLocationProvider.build(locationDescription, context.sourceContext())
+          JdbcLocationProvider.build(locationDescription, context)
               .getJdbcConnection();
       PreparedStatement stmt;
       try {

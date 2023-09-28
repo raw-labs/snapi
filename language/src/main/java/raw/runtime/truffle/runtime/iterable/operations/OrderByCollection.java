@@ -24,6 +24,7 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapGroupByKeys;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public final class OrderByCollection {
@@ -35,7 +36,7 @@ public final class OrderByCollection {
   final Rql2TypeWithProperties[] keyTypes;
   final Rql2TypeWithProperties rowType;
   private final RawLanguage language;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   public OrderByCollection(
       Object iterable,
@@ -44,7 +45,7 @@ public final class OrderByCollection {
       Rql2TypeWithProperties[] keyTypes,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     this.parentIterable = iterable;
     this.keyFunctions = keyFunctions;
     this.keyOrderings = keyOrderings;

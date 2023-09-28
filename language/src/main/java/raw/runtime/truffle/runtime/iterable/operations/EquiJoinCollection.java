@@ -21,6 +21,7 @@ import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.EquiJoinComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public final class EquiJoinCollection {
@@ -31,7 +32,7 @@ public final class EquiJoinCollection {
   final Rql2TypeWithProperties keyType;
   final Closure reshapeFun;
   private final RawLanguage language;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   public EquiJoinCollection(
       Object leftIterable,
@@ -43,7 +44,7 @@ public final class EquiJoinCollection {
       Rql2TypeWithProperties keyType,
       Closure reshapeFun,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;

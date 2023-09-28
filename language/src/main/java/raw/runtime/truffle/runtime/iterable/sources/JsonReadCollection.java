@@ -20,6 +20,7 @@ import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenera
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.JsonReadComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public class JsonReadCollection {
@@ -27,14 +28,14 @@ public class JsonReadCollection {
   private final LocationObject locationObject;
   private final DirectCallNode parseNextRootNode;
 
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   private final String encoding;
 
   public JsonReadCollection(
       LocationObject locationObject,
       String encoding,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode parseNextRootNode) {
     this.locationObject = locationObject;
     this.parseNextRootNode = parseNextRootNode;

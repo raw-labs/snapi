@@ -23,6 +23,7 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapDistinct;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public final class DistinctCollection {
@@ -32,10 +33,10 @@ public final class DistinctCollection {
   final RawLanguage language;
 
   final Rql2TypeWithProperties rowType;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   public DistinctCollection(
-      Object iterable, Rql2TypeWithProperties vType, RawLanguage language, RuntimeContext context) {
+      Object iterable, Rql2TypeWithProperties vType, RawLanguage language, SourceContext context) {
     this.iterable = iterable;
     this.language = language;
     this.rowType = vType;

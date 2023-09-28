@@ -21,6 +21,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.iterable.sources.JsonReadCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Json.ReadArray")
 public class JsonReadCollectionNode extends ExpressionNode {
@@ -42,7 +43,7 @@ public class JsonReadCollectionNode extends ExpressionNode {
     LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String encoding = (String) encodingExp.executeGeneric(virtualFrame);
 
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    SourceContext context = RawContext.get(this).getSourceContext();
     return new JsonReadCollection(locationObject, encoding, context, childDirectCall);
   }
 }

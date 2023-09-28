@@ -25,11 +25,9 @@ import raw.compiler.{
   WordAutoCompleteLSPRequest
 }
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
+import raw.compiler.api._
 
 trait LspWordAutoCompleteTest extends CompilerTestContext {
-
-  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   private def wordAutoCompleteTest(
       code: String,
@@ -38,23 +36,19 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
       prefix: String,
       expected: Seq[(String, Option[String])]
   ): Unit = {
-    val response = doLsp(WordAutoCompleteLSPRequest(code, environment, prefix, Pos(line, col)))
-    response match {
-      case AutoCompleteLSPResponse(entries, _) =>
-        val actual = entries.map {
-          case FieldLSPAutoCompleteResponse(n, t) => (n, Some(t))
-          case LetBindLSPAutoCompleteResponse(n, t) => (n, Some(t))
-          case LetFunLSPAutoCompleteResponse(n, t) => (n, Some(t))
-          case LetFunRecAutoCompleteResponse(n, t) => (n, Some(t))
-          case FunParamLSPAutoCompleteResponse(n, t) => (n, Some(t))
-          case PackageLSPAutoCompleteResponse(n, d) => (n, Some(d.description))
-          case PackageEntryLSPAutoCompleteResponse(n, d) => (n, Some(d.description))
-        }
-        // Check that all expected are in actual.
-        // actual can have more though - e.g. built-in packages.
-        expected.foreach(e => assert(actual.contains(e)))
-      case r => throw new AssertionError(s"Unexpected response: $r")
+    val AutoCompleteResponse(entries, _) = wordAutoComplete(code, prefix, Pos(line, col))
+    val actual = entries.map {
+      case FieldCompletion(n, t) => (n, Some(t))
+      case LetBindCompletion(n, t) => (n, Some(t))
+      case LetFunCompletion(n, t) => (n, Some(t))
+      case LetFunRecCompletion(n, t) => (n, Some(t))
+      case FunParamCompletion(n, t) => (n, Some(t))
+      case PackageCompletion(n, d) => (n, Some(d.description))
+      case PackageEntryCompletion(n, d) => (n, Some(d.description))
     }
+    // Check that all expected are in actual.
+    // actual can have more though - e.g. built-in packages.
+    expected.foreach(e => assert(actual.contains(e)))
   }
 
   test("simple word auto-complete test") { _ =>

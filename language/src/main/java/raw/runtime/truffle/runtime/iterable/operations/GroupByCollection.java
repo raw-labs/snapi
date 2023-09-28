@@ -24,6 +24,7 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapCollectionGroupByKey;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public final class GroupByCollection {
@@ -35,7 +36,7 @@ public final class GroupByCollection {
 
   final Rql2TypeWithProperties keyType;
   final Rql2TypeWithProperties rowType;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   public GroupByCollection(
       Object iterable,
@@ -43,7 +44,7 @@ public final class GroupByCollection {
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     this.iterable = iterable;
     this.keyFun = keyFun;
     this.language = language;

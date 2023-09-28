@@ -32,6 +32,7 @@ import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
+import raw.sources.api.SourceContext;
 
 /** A map that spills to disk when it reaches a certain size. */
 public class OffHeapDistinct {
@@ -57,13 +58,13 @@ public class OffHeapDistinct {
   private final int kryoOutputBufferSize,
       kryoInputBufferSize; // size of the kryo buffers used to write and read the data.
 
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   public OffHeapDistinct(
       Comparator<Object> itemCmp,
       Rql2TypeWithProperties vType,
       RawLanguage rl,
-      RuntimeContext context) {
+      SourceContext context) {
     this.keyCompare = itemCmp;
     this.reader = new KryoReader(rl);
     this.index = new TreeSet<>(itemCmp);

@@ -29,6 +29,7 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.kryo.*;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
+import raw.sources.api.SourceContext;
 
 /** A map that spills to disk when it reaches a certain size. */
 class OffHeapGroupByKey {
@@ -48,7 +49,7 @@ class OffHeapGroupByKey {
   private final KryoWriterLibrary writers = KryoWriterLibrary.getUncached();
   private final KryoReader reader; // Kryo reader used to read the spilled data.
   private final KryoReaderLibrary readers = KryoReaderLibrary.getUncached();
-  private final RuntimeContext context;
+  private final SourceContext context;
   private final Rql2TypeWithProperties keyType, rowType; // grouping key and row types.
   private final int kryoOutputBufferSize,
       kryoInputBufferSize; // size of the kryo buffers used to write and read the data.
@@ -61,7 +62,7 @@ class OffHeapGroupByKey {
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      RuntimeContext context,
+      SourceContext context,
       GroupByRecordShaper reshape) {
     this.keyCompare = keyCompare;
     this.reader = new KryoReader(language);

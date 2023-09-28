@@ -19,14 +19,15 @@ import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenera
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ReadLinesComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public class ReadLinesCollection {
 
   TruffleCharInputStream stream;
-  RuntimeContext context;
+  SourceContext context;
 
-  public ReadLinesCollection(TruffleCharInputStream stream, RuntimeContext context) {
+  public ReadLinesCollection(TruffleCharInputStream stream, SourceContext context) {
     this.stream = stream;
     this.context = context;
   }

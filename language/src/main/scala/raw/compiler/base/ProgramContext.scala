@@ -52,7 +52,7 @@ class ProgramContext(
       "Arguments" -> runtimeContext.maybeArguments
         .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
         .getOrElse("<undefined>"),
-      "Language" -> runtimeContext.environment.language.getOrElse("<default>"),
+      "User" -> runtimeContext.environment.user.toString,
       "Scopes" -> runtimeContext.environment.scopes.mkString(","),
       "Options" -> runtimeContext.environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
       //"Settings" -> runtimeContext.settings.toString

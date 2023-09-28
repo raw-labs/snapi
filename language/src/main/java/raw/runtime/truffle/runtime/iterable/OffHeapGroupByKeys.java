@@ -33,6 +33,7 @@ import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
+import raw.sources.api.SourceContext;
 
 /**
  * An ordered map with multiple keys, that spills to disk when it reaches a certain size. Similar to
@@ -64,7 +65,7 @@ public class OffHeapGroupByKeys {
   private final int kryoOutputBufferSize,
       kryoInputBufferSize; // size of the kryo buffers used to write and read the data.
 
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   // estimate the size of the keys in memory.
   private static int keysFootPrint(Rql2TypeWithProperties[] keyType) {
@@ -80,7 +81,7 @@ public class OffHeapGroupByKeys {
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     this.keyCompare = keyCompare;
     this.memMap = new TreeMap<>(keyCompare);
     this.keyTypes = kTypes;

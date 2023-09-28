@@ -11,5 +11,13 @@
  */
 
 module raw.language.extensions {
+  requires scala.library;
+  requires org.slf4j;
+  requires org.graalvm.polyglot;
+  requires org.graalvm.truffle;
+
   requires raw.language;
+
+  provides raw.compiler.api.CompilerServiceBuilder with raw.compiler.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
+  provides raw.compiler.common.CommonCompilerBuilder with raw.compiler.rql2.truffle.Rql2TruffleCompilerBuilder;
 }

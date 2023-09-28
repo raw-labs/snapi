@@ -31,6 +31,7 @@ public class RawCli {
                 .allowExperimentalOptions(true)
                 .options(options)
                 .build();
+        context.getPolyglotBindings().putMember("a", 1);
 
         try {
             int a = (int) context.eval(sourceSnapi).asInt();

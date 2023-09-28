@@ -32,6 +32,7 @@ import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "List.GroupBy")
 @NodeChild("input")
@@ -61,7 +62,7 @@ public abstract class ListGroupByNode extends ExpressionNode {
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
       @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
     Object iterable = lists.toIterable(input);
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    SourceContext context = RawContext.get(this).getSourceContext();
     OffHeapListGroupByKey map =
         new OffHeapListGroupByKey(
             this::compareKey, getKeyType(), getRowType(), RawLanguage.get(this), context);

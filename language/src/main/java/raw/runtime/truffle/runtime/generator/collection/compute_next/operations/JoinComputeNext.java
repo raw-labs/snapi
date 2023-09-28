@@ -35,6 +35,7 @@ import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
 import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
 import raw.runtime.truffle.utils.IOUtils;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class JoinComputeNext {
@@ -69,7 +70,7 @@ public class JoinComputeNext {
       Closure predicate,
       Boolean reshapeBeforePredicate,
       Rql2TypeWithProperties rightRowType,
-      RuntimeContext context,
+      SourceContext context,
       RawLanguage language) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;

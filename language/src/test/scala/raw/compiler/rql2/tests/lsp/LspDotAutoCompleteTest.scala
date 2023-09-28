@@ -12,27 +12,15 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{
-  AutoCompleteLSPResponse,
-  DotAutoCompleteLSPRequest,
-  FieldLSPAutoCompleteResponse,
-  PackageEntryLSPAutoCompleteResponse,
-  Pos
-}
+import raw.compiler.api._
+import raw.compiler.{FieldLSPAutoCompleteResponse, Pos}
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
 
 trait LspDotAutoCompleteTest extends CompilerTestContext {
 
-  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
-
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
-    val response = doLsp(DotAutoCompleteLSPRequest(code, environment, Pos(line, col)))
-    response match {
-      case AutoCompleteLSPResponse(entries, _) =>
-        assert(entries.toSeq == expectedFields.map(ef => FieldLSPAutoCompleteResponse(ef._1, ef._2)))
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(line, col))
+    assert(entries.toSeq == expectedFields.map(ef => FieldLSPAutoCompleteResponse(ef._1, ef._2)))
   }
 
   test("simple auto-complete record test") { _ =>
@@ -55,35 +43,28 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
 
   test("package autocomplete for string package test") { _ =>
     val code = """String""".stripMargin
-    val response = doLsp(DotAutoCompleteLSPRequest(code, environment, Pos(1, 6)))
-    response match {
-      case AutoCompleteLSPResponse(entries, _) =>
-        assert(
-          entries.forall {
-            case PackageEntryLSPAutoCompleteResponse(_, _) => true
-            case _ => false
-          }
-        )
-        assert(entries.length > 0)
-        assert(
-          entries.exists {
-            case PackageEntryLSPAutoCompleteResponse(name, docs) if name == "Lower" =>
-              assert(docs.summary.contains("Convert a string to lowercase."))
-              true
-            case _ => false
-          }
-        )
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(1, 6))
+    assert(
+      entries.forall {
+        case PackageEntryCompletion(_, _) => true
+        case _ => false
+      }
+    )
+    assert(entries.length > 0)
+    assert(
+      entries.exists {
+        case PackageEntryCompletion(name, docs) if name == "Lower" =>
+          assert(docs.summary.contains("Convert a string to lowercase."))
+          true
+        case _ => false
+      }
+    )
   }
 
   test("package autocomplete for non existing package test") { _ =>
     val code = """Stringz""".stripMargin
-    val response = doLsp(DotAutoCompleteLSPRequest(code, environment, Pos(1, 7)))
-    response match {
-      case AutoCompleteLSPResponse(entries, _) => assert(entries.length == 0)
-      case r => throw new AssertionError(s"Should have returned empty response")
-    }
+    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(1, 7))
+    assert(entries.length == 0)
   }
 
 }

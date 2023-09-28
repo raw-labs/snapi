@@ -27,6 +27,7 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class JsonReadComputeNext {
@@ -34,7 +35,7 @@ public class JsonReadComputeNext {
   private final LocationObject locationObject;
   private JsonParser parser;
   private final DirectCallNode parseNextCallNode;
-  private final RuntimeContext context;
+  private final SourceContext context;
   private final String encoding;
 
   private TruffleCharInputStream stream;
@@ -42,7 +43,7 @@ public class JsonReadComputeNext {
   public JsonReadComputeNext(
       LocationObject locationObject,
       String encoding,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode parseNextCallNode) {
     this.encoding = encoding;
     this.context = context;

@@ -39,9 +39,6 @@ class TruffleProgramOutputWriter(entrypoint: TruffleEntrypoint)(
 
   override def writeTo(outputStream: OutputStream): Unit = {
     try {
-      RawLanguage.getCurrentContext.setOutput(outputStream)
-      RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
-
       try {
         val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
         target.call()

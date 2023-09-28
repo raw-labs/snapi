@@ -10,14 +10,15 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests
+package raw.compiler.rql2.truffle
 
-import raw.compiler.rql2.{Rql2OutputTestContext, Rql2TruffleCompilerServiceTestContext}
+import raw.compiler.api.{CompilerService, CompilerServiceBuilder}
+import raw.utils.RawSettings
 
-class TruffleCompilerTestContext
-    extends CompilerTestContext
-    with Rql2OutputTestContext
-    with Rql2TruffleCompilerServiceTestContext {
-  override def language: String = "rql2-truffle"
+class Rql2TruffleCompilerServiceBuilder extends CompilerServiceBuilder {
+  override def name: String = "rql2-truffle"
 
+  override def build(implicit settings: RawSettings): CompilerService = {
+    new Rql2TruffleCompilerService
+  }
 }

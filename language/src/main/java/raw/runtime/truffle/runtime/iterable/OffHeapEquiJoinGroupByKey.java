@@ -17,6 +17,7 @@ import java.util.Comparator;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.sources.api.SourceContext;
 
 // OffHeap GroupBy where the set of nested values is returned as an iterable
 public class OffHeapEquiJoinGroupByKey extends OffHeapGroupByKey {
@@ -26,7 +27,7 @@ public class OffHeapEquiJoinGroupByKey extends OffHeapGroupByKey {
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     super(keyCompare, kType, rowType, language, context, new EquiJoinGroupByRecordShaper(language));
   }
 }

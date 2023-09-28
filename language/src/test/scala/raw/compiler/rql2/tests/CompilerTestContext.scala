@@ -16,11 +16,13 @@ import org.scalatest.Tag
 import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
+import raw.compiler.api._
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.common.{Compiler, CompilerService}
+import raw.compiler.common.Compiler
+import raw.compiler.rql2.api.CompilerServiceTestContext
 import raw.compiler.rql2.source.Rql2Program
-import raw.compiler.{CompilerException, LSPRequest, ProgramOutputWriter}
+import raw.compiler.{CompilerException, LSPRequest, Pos, ProgramOutputWriter}
 import raw.creds.api._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.LocalInferrerTestContext
@@ -38,6 +40,7 @@ trait CompilerTestContext
     with Matchers
     with SettingsTestContext
     with TrainingWheelsContext
+    with CompilerServiceTestContext
 
     // Mock credentials
     with MockCredentialsTestContext
@@ -55,8 +58,6 @@ trait CompilerTestContext
 
   def maybeTraceId: Option[String] = None
 
-  private var compilerService: CompilerService = _
-
   protected val programOptions = new mutable.HashMap[String, String]()
 
   def option(key: String, value: String): Unit = {
@@ -65,7 +66,6 @@ trait CompilerTestContext
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    compilerService = new CompilerService
 
     dataFiles.foreach { case ViewFileContent(content, charset, path) => Files.write(path, content.getBytes(charset)) }
 
@@ -93,10 +93,6 @@ trait CompilerTestContext
     }
     for (f <- dataFiles) {
       deleteTestPath(f.path)
-    }
-    if (compilerService != null) {
-      withSuppressNonFatalException(compilerService.stop())
-      compilerService = null
     }
     super.afterAll()
   }
@@ -208,11 +204,11 @@ trait CompilerTestContext
       tryToType(data.q).fold(
         errors => MatchResult(false, s"didn't type: ${errors.mkString("\n")}", "???"),
         tipe => {
-          val tipeStr = getCompiler().prettyPrint(tipe)
+          val tipeStr = compilerService.prettyPrint(tipe, authorizedUser)
           checkSaveTestToFile("astTypeAs", data.q, Some(tipeStr), None)
           MatchResult(
             tipe == expectedType,
-            s"typed as $tipeStr instead of ${getCompiler().prettyPrint(expectedType)}",
+            s"typed as $tipeStr instead of ${compilerService.prettyPrint(expectedType, authorizedUser)}",
             s"typed as $tipeStr"
           )
         }
@@ -255,7 +251,7 @@ trait CompilerTestContext
         s => MatchResult(false, s"did not parse: $s", "???"),
         s => {
           checkSaveTestToFile("parse", data.q, None, None)
-          MatchResult(true, "???", s"parsed as ${getCompiler().prettyPrint(s)}")
+          MatchResult(true, "???", s"parsed as ${compilerService.prettyPrint(s, authorizedUser)}")
         }
       )
     }
@@ -317,7 +313,7 @@ trait CompilerTestContext
         error => MatchResult(false, s"did not parse: $error", "???"),
         actualAst => {
           checkSaveTestToFile("parseAs", data.q, None, None)
-          val actual = getCompiler().prettyPrint(actualAst)
+          val actual = compilerService.prettyPrint(actualAst, authorizedUser)
           val expectedExp = parseQuery(expected)
           MatchResult(
             actualAst == expectedExp,
@@ -389,8 +385,8 @@ trait CompilerTestContext
       tryToType(data.q).fold(
         errors => MatchResult(false, s"didn't type: ${errors.mkString("\n")}", "???"),
         tipe => {
-          val tipeStr = getCompiler().prettyPrint(tipe)
-          val expectedType = getCompiler().prettyPrint(parseType(expected))
+          val tipeStr = compilerService.prettyPrint(tipe, authorizedUser)
+          val expectedType = compilerService.prettyPrint(parseType(expected), authorizedUser)
           checkSaveTestToFile("typeAs", data.q, Some(tipeStr), None)
           MatchResult(
             tipeStr == expectedType,
@@ -413,7 +409,7 @@ trait CompilerTestContext
       val attempt = tryToType(data.q)
       val output = attempt.fold(
         error => error,
-        t1 => getCompiler().prettyPrint(t1)
+        t1 => compilerService.prettyPrint(t1, authorizedUser)
       )
       checkSaveTestToFile("typeError", data.q, None, None)
       MatchResult(attempt.isLeft, s"typed as $output", s"didn't type: $output")
@@ -441,7 +437,8 @@ trait CompilerTestContext
         t =>
           MatchResult(
             false,
-            s"typed as ${getCompiler().prettyPrint(t)} instead of failing to type with ${expectedErrors.mkString(",")}",
+            s"typed as ${compilerService
+              .prettyPrint(t, authorizedUser)} instead of failing to type with ${expectedErrors.mkString(",")}",
             "???"
           )
       )
@@ -480,7 +477,7 @@ trait CompilerTestContext
       val attempt = tryToType(data.q)
       val output = attempt.fold(
         errors => errors.mkString("\n"),
-        t1 => getCompiler().prettyPrint(t1)
+        t1 => compilerService.prettyPrint(t1, authorizedUser)
       )
       MatchResult(attempt.isRight, s"didn't type: $output", s"typed as $output")
     }
@@ -524,32 +521,32 @@ trait CompilerTestContext
   // Helper Functions
   /////////////////////////////////////////////////////////////////////////
 
-  private def getCompiler(): Compiler = compilerService.getCompiler(authorizedUser, getQueryEnvironment().language)
+//  private def getCompiler(): Compiler = compilerService.getCompiler(authorizedUser, getQueryEnvironment().language)
 
   private def getQueryEnvironment(
       scopes: Set[String] = Set.empty,
       options: Map[String, String] = Map.empty
   ): ProgramEnvironment = ProgramEnvironment(
-    Some(language),
+    authorizedUser,
     this.runnerScopes ++ scopes,
     this.options ++ options ++ programOptions,
     maybeTraceId
   )
 
-  private def getProgramContextFromSource(
-      compiler: Compiler,
-      code: String,
-      maybeArguments: Option[Array[(String, ParamValue)]] = None,
-      scopes: Set[String] = Set.empty,
-      options: Map[String, String] = Map.empty
-  ): ProgramContext = {
-    compilerService.getProgramContext(
-      compiler,
-      code,
-      maybeArguments,
-      getQueryEnvironment(scopes, options)
-    )
-  }
+//  private def getProgramContextFromSource(
+//      compiler: Compiler,
+//      code: String,
+//      maybeArguments: Option[Array[(String, ParamValue)]] = None,
+//      scopes: Set[String] = Set.empty,
+//      options: Map[String, String] = Map.empty
+//  ): ProgramContext = {
+//    compilerService.getProgramContext(
+//      compiler,
+//      code,
+//      maybeArguments,
+//      getQueryEnvironment(scopes, options)
+//    )
+//  }
 
   def parseQuery(code: String): BaseProgram = tryToParse(code) match {
     case Right(p) => p
@@ -557,16 +554,12 @@ trait CompilerTestContext
   }
 
   def parseType(tipe: String): Type = {
-    getCompiler()
-      .parseType(tipe)
-      .getOrElse(throw new TestFailedException(Some(s"unable to parse type description '$tipe'"), None, 4))
+    compilerService.parseType(tipe, authorizedUser)
   }
 
   private def tryToParse(q: String): Either[String, BaseProgram] = {
     try {
-      val compiler = getCompiler()
-      val programContext = getProgramContextFromSource(compiler, q)
-      val result = compiler.parse(q)(programContext)
+      val result = compilerService.parse(q, getQueryEnvironment())
       Right(result)
     } catch {
       case ex: RawException => Left(ex.getMessage)
@@ -575,10 +568,8 @@ trait CompilerTestContext
 
   def tryToType(s: String): Either[Seq[String], Type] = {
     try {
-      val compiler = getCompiler()
-      val programContext = getProgramContextFromSource(compiler, s)
-      getCompiler()
-        .getType(s)(programContext)
+      compilerService
+        .getType(s, None, getQueryEnvironment())
         .left
         .map { errors =>
           val messages = errors.map { err =>
@@ -604,10 +595,58 @@ trait CompilerTestContext
     }
   }
 
-  def doLsp(request: LSPRequest) = {
-    val compiler = getCompiler()
-    implicit val programContext = getProgramContextFromSource(compiler, request.code)
-    compiler.lsp(request)
+  def validate(s: String, environment: ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
+    compilerService.validate(s, environment)
+  }
+
+  def aiValidate(s: String, environment: ProgramEnvironment = getQueryEnvironment()): ValidateResponse = {
+    compilerService.aiValidate(s, environment)
+  }
+
+  def hover(s: String, position: Pos, environment: ProgramEnvironment = getQueryEnvironment()): HoverResponse = {
+    compilerService.hover(s, environment, position)
+  }
+
+  def formatCode(
+      s: String,
+      maybeIndent: Option[Int] = None,
+      maybeWidth: Option[Int] = None,
+      environment: ProgramEnvironment = getQueryEnvironment()
+  ): FormatCodeResponse = {
+    compilerService.formatCode(s, environment, maybeIndent, maybeWidth)
+  }
+
+  def dotAutoComplete(
+      s: String,
+      position: Pos,
+      environment: ProgramEnvironment = getQueryEnvironment()
+  ): AutoCompleteResponse = {
+    compilerService.dotAutoComplete(s, environment, position)
+  }
+
+  def wordAutoComplete(
+      s: String,
+      prefix: String,
+      position: Pos,
+      environment: ProgramEnvironment = getQueryEnvironment()
+  ): AutoCompleteResponse = {
+    compilerService.wordAutoComplete(s, environment, prefix, position)
+  }
+
+  def goToDefinition(
+      s: String,
+      position: Pos,
+      environment: ProgramEnvironment = getQueryEnvironment()
+  ): GoToDefinitionResponse = {
+    compilerService.goToDefinition(s, environment, position)
+  }
+
+  def rename(
+      s: String,
+      position: Pos,
+      environment: ProgramEnvironment = getQueryEnvironment()
+  ): RenameResponse = {
+    compilerService.rename(s, environment, position)
   }
 
   def executeQuery(
@@ -626,23 +665,24 @@ trait CompilerTestContext
 
   // Executes a parameterized query, running 'decl' with the given parameters.
   def callDecl(code: String, decl: String, args: Seq[(String, ParamValue)] = Seq.empty): Either[String, Any] = {
-    val compiler = getCompiler()
-    val programContext =
-      getProgramContextFromSource(compiler, code, Some(args.toArray)).asInstanceOf[raw.compiler.rql2.ProgramContext]
-    // Type the code that was passed as a parameter.
-    val tree = compiler.buildInputTree(code)(programContext).right.get
-    val Rql2Program(methods, _) = tree.root
-    // Find the method that we want to run.
-    methods.find(_.i.idn == decl) match {
-      case None => fail(s"method '$decl' not found")
-      case Some(method) =>
-        val entity = tree.analyzer.entity(method.i)
-        val raw.compiler.rql2.source.FunType(_, _, outputType, _) = tree.analyzer.entityType(entity)
-        // Executes code and parses the output.
-        doExecute(code, maybeDecl = Some(decl), maybeArgs = Some(args)).right.map(path =>
-          outputParser(path, compiler.prettyPrint(outputType))
-        )
-    }
+    ???
+//    val compiler = getCompiler()
+//    val programContext =
+//      getProgramContextFromSource(compiler, code, Some(args.toArray)).asInstanceOf[raw.compiler.rql2.ProgramContext]
+//    // Type the code that was passed as a parameter.
+//    val tree = compiler.buildInputTree(code)(programContext).right.get
+//    val Rql2Program(methods, _) = tree.root
+//    // Find the method that we want to run.
+//    methods.find(_.i.idn == decl) match {
+//      case None => fail(s"method '$decl' not found")
+//      case Some(method) =>
+//        val entity = tree.analyzer.entity(method.i)
+//        val raw.compiler.rql2.source.FunType(_, _, outputType, _) = tree.analyzer.entityType(entity)
+//        // Executes code and parses the output.
+//        doExecute(code, maybeDecl = Some(decl), maybeArgs = Some(args)).right.map(path =>
+//          outputParser(path, compiler.prettyPrint(outputType))
+//        )
+//    }
   }
 
   def tryExecuteQuery(
@@ -682,29 +722,16 @@ trait CompilerTestContext
   def fastExecute(
       query: String,
       maybeDecl: Option[String] = None,
-      savePath: Option[Path] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
   ): Either[String, Path] = {
-
     val outputStream = new ByteArrayOutputStream()
-
     try {
-      val compiler = getCompiler()
-      val programContext = getProgramContextFromSource(compiler, query, None, scopes, options)
-      val executeResult = compiler.execute(query, maybeDecl)(programContext)
-
-      executeResult.left.map(errs => errs.map(err => err.toString).mkString(",")).right.flatMap {
-        queryResult: ProgramOutputWriter =>
-          queryResult.writeTo(outputStream)
-
-          Right(Path.of(outputStream.toString))
+      compilerService.execute(query, None, getQueryEnvironment(scopes, options), maybeDecl, outputStream) match {
+        case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
+        case ExecutionRuntimeFailure(err) => Left(err)
+        case ExecutionSuccess => Right(Path.of(outputStream.toString))
       }
-
-    } catch {
-      case ex: CompilerException =>
-        logger.warn("ExecutionException during test.", ex)
-        Left(ex.getMessage)
     } finally {
       outputStream.close()
     }
@@ -716,14 +743,11 @@ trait CompilerTestContext
       scopes: Set[String] = Set.empty
   ): Either[String, Option[String]] = {
     try {
-      val compiler = getCompiler()
-      val programContext = getProgramContextFromSource(compiler, query, None, scopes, options)
-      compiler
-        .buildInputTree(query)(programContext)
-        .left
-        .map(errs => errs.map(err => err.toString).mkString(","))
-        .right
-        .map(p => p.rootType.map(t => compiler.prettyPrint(t)))
+      compilerService.getType(query, None, getQueryEnvironment(scopes, options)) match {
+        case Left(errs) => Left(errs.map(err => err.toString).mkString(","))
+        case Right(None) => Right(None)
+        case Right(Some(t)) => Right(Some(compilerService.prettyPrint(t, authorizedUser)))
+      }
     } catch {
       case ex: RawException => fail(ex)
     }
@@ -736,7 +760,7 @@ trait CompilerTestContext
   def doExecute(
       query: String,
       maybeDecl: Option[String] = None,
-      maybeArgs: Option[Seq[(String, ParamValue)]] = None,
+      maybeArgs: Option[Array[(String, ParamValue)]] = None,
       savePath: Option[Path] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
@@ -749,31 +773,22 @@ trait CompilerTestContext
         (Files.newOutputStream(path, StandardOpenOption.WRITE), path)
     }
 
+    logger.debug(s"Test infrastructure now writing output result to temporary location: $path")
     try {
-      val compiler = getCompiler()
-      val programContext = getProgramContextFromSource(compiler, query, maybeArgs.map(_.toArray), scopes, options)
-      val executeResult = compiler.execute(query, maybeDecl)(programContext)
-
-      executeResult.left.map(errs => errs.map(err => err.toString).mkString(",")).right.flatMap {
-        queryResult: ProgramOutputWriter =>
-          logger.debug(s"Test infrastructure now writing output result to temporary location: $path")
-          queryResult.writeTo(outputStream)
-          logger.debug("... done.")
-
+      compilerService.execute(query, maybeArgs, getQueryEnvironment(scopes, options), maybeDecl, outputStream) match {
+        case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
+        case ExecutionRuntimeFailure(err) => Left(err)
+        case ExecutionSuccess =>
           // Oftentimes used for debugging but only works for text outputs...
           //            import scala.collection.JavaConverters._
           //            logger.debug(
           //              s"Output text data:\n====BEGIN====\n${Files.readAllLines(path).asScala.mkString("\n")}\n=====END====="
           //            )
-
           Right(path)
       }
-    } catch {
-      case ex: CompilerException =>
-        logger.warn("ExecutionException during test.", ex)
-        Left(ex.getMessage)
     } finally {
       outputStream.close()
+      logger.debug("... done.")
     }
   }
 

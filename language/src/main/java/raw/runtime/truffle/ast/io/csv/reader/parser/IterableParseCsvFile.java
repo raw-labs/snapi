@@ -25,6 +25,7 @@ import raw.runtime.truffle.runtime.iterable.sources.CsvCollection;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "IterableParseCsvFile")
 public class IterableParseCsvFile extends ExpressionNode {
@@ -73,7 +74,7 @@ public class IterableParseCsvFile extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame frame) {
     LocationObject locationValue = (LocationObject) location.executeGeneric(frame);
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    SourceContext context = RawContext.get(this).getSourceContext();
     try {
       String encodingValue = encodingExp.executeString(frame);
       int skipValue = skipExp.executeInt(frame);

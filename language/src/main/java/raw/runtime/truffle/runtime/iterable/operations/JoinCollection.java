@@ -21,6 +21,7 @@ import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.JoinComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public final class JoinCollection {
@@ -30,7 +31,7 @@ public final class JoinCollection {
   final Closure predicate;
   final Closure remap;
   final Rql2TypeWithProperties rightType;
-  final RuntimeContext context;
+  final SourceContext context;
   final RawLanguage language;
   private final Boolean reshapeBeforePredicate;
 
@@ -41,7 +42,7 @@ public final class JoinCollection {
       Closure predicate,
       Rql2TypeWithProperties rightType,
       Boolean reshapeBeforePredicate,
-      RuntimeContext context,
+      SourceContext context,
       RawLanguage language) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;

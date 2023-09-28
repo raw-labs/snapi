@@ -24,6 +24,7 @@ import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "XmlReadValue")
 public class XmlReadValueNode extends ExpressionNode {
@@ -58,7 +59,7 @@ public class XmlReadValueNode extends ExpressionNode {
     try {
       LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
       String encoding = (String) encodingExp.executeGeneric(virtualFrame);
-      RuntimeContext context = RawContext.get(this).getRuntimeContext();
+      SourceContext context = RawContext.get(this).getSourceContext();
 
       TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);

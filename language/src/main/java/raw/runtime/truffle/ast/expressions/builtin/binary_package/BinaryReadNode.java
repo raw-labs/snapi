@@ -28,6 +28,7 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.runtime.truffle.runtime.tryable.StringTryable;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Binary.Read")
 @NodeChild(value = "binary")
@@ -36,7 +37,7 @@ public abstract class BinaryReadNode extends ExpressionNode {
   @Specialization
   @CompilerDirectives.TruffleBoundary
   protected Object doExecute(LocationObject locationObject) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    SourceContext context = RawContext.get(this).getSourceContext();
     InputStream stream = null;
     try {
       stream = (new TruffleInputStream(locationObject, context)).getInputStream();

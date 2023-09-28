@@ -21,6 +21,7 @@ import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenera
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.CsvReadComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public class CsvCollection {
@@ -28,14 +29,14 @@ public class CsvCollection {
   private final LocationObject location;
   private final DirectCallNode rowParser;
 
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   private final String encoding;
   private final RawTruffleCsvParserSettings settings;
 
   public CsvCollection(
       LocationObject location,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode rowParser,
       String encoding,
       RawTruffleCsvParserSettings settings) {

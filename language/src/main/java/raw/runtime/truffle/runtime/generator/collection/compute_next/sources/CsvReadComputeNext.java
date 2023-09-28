@@ -28,6 +28,7 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class CsvReadComputeNext {
@@ -35,7 +36,7 @@ public class CsvReadComputeNext {
   private final LocationObject location;
   private RawTruffleCsvParser parser;
   private final DirectCallNode rowParser;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   private TruffleCharInputStream stream;
   private final String encoding;
@@ -43,7 +44,7 @@ public class CsvReadComputeNext {
 
   public CsvReadComputeNext(
       LocationObject location,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode rowParser,
       String encoding,
       RawTruffleCsvParserSettings settings) {

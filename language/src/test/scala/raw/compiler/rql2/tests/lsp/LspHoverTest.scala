@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.tests.lsp
 
+import raw.compiler.api._
 import raw.compiler.{
   EntryDoc,
   ErrorLSPResponse,
@@ -24,17 +25,8 @@ import raw.compiler.{
   TypeHoverResponse
 }
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
 
 trait LspHoverTest extends CompilerTestContext {
-
-  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
-
-  private def getVarInfoAt(code: String, line: Int, col: Int): TypeHoverResponse =
-    doLsp(HoverLSPRequest(code, environment, Pos(line, col))) match {
-      case HoverLSPResponse(response: TypeHoverResponse, _) => response
-      case r => throw new java.lang.Exception(s"Unexpected response: $r")
-    }
 
   test("hover identifier at definition test") { _ =>
     val code = """let
@@ -42,50 +34,29 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(2, 1)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("a")(name)
-            assertResult("int")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 1))
+    assertResult("a")(name)
+    assertResult("int")(tipe)
   }
 
   test("hover package doc type output test") { _ =>
     val code = """String""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(1, 2)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case PackageLSPHoverResponse(name: String, doc: PackageDoc) =>
-            assertResult("String")(name)
-            assertResult("Library of functions for the string type.")(doc.description)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(PackageCompletion(name, doc)), errors) = hover(code, Pos(1, 2))
+    assertResult("String")(name)
+    assertResult("Library of functions for the string type.")(doc.description)
   }
 
   test("hover entry doc type output test") { _ =>
     val code = """String.Lower("HI")""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(1, 9)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case PackageEntryLSPHoverResponse(name: String, doc: EntryDoc) =>
-            assertResult("Lower")(name)
-            assertResult("Convert a string to lowercase.")(doc.summary)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(PackageEntryCompletion(name, doc)), errors) = hover(code, Pos(1, 9))
+    assertResult("Lower")(name)
+    assertResult("Convert a string to lowercase.")(doc.summary)
   }
 
   test("hover non existing entry test") { _ =>
     val code = """String.NonExistingFunction("HI")""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(1, 9)))
-    response shouldBe a[ErrorLSPResponse]
+    val HoverResponse(_, errors) = hover(code, Pos(1, 9))
+    assert(errors.nonEmpty)
   }
 
   test("hover correct type output test") { _ =>
@@ -94,16 +65,9 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(2, 1)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("a")(name)
-            assertResult("float")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 1))
+    assertResult("a")(name)
+    assertResult("float")(tipe)
   }
 
   test("hover identifier at usage test") { _ =>
@@ -112,16 +76,9 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |aaaaaaa
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(4, 3)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("aaaaaaa")(name)
-            assertResult("record(a: int, b: string)")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 3))
+    assertResult("aaaaaaa")(name)
+    assertResult("record(a: int, b: string)")(tipe)
   }
 
   test("hover function identifier at definition test") { _ =>
@@ -133,16 +90,9 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(2, 3)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("buildCollection")(name)
-            assertResult("buildCollection(lastElement: int)")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 3))
+    assertResult("buildCollection")(name)
+    assertResult("buildCollection(lastElement: int)")(tipe)
   }
 
   test("hover function identifier recursive function at usage test") { _ =>
@@ -151,16 +101,9 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(5, 1)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("b")(name)
-            assertResult("(int) -> int")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(5, 1))
+    assertResult("b")(name)
+    assertResult("(int) -> int")(tipe)
   }
 
   test("hover let function identifier recursive function at usage test") { _ =>
@@ -168,16 +111,9 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(4, 1)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("b")(name)
-            assertResult("(int) -> int")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 1))
+    assertResult("b")(name)
+    assertResult("(int) -> int")(tipe)
   }
 
   test("hover let function entity recursive function at definition test") { _ =>
@@ -185,16 +121,9 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(2, 7)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("b")(name)
-            assertResult("recursive function: b(v: int) => int")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 7))
+    assertResult("b")(name)
+    assertResult("recursive function: b(v: int) => int")(tipe)
   }
 
   test("hover let function entity function at definition test") { _ =>
@@ -202,16 +131,9 @@ trait LspHoverTest extends CompilerTestContext {
       |  b(v: int): int = v
       |in
       |b(2)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(2, 3)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("b")(name)
-            assertResult("b(v: int) => int")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 3))
+    assertResult("b")(name)
+    assertResult("b(v: int) => int")(tipe)
   }
 
   test("hover function identifier at usage test") { _ =>
@@ -223,16 +145,9 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(8, 16)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("buildCollection")(name)
-            assertResult("(int) -> collection(collection(int))")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(8, 16))
+    assertResult("buildCollection")(name)
+    assertResult("(int) -> collection(collection(int))")(tipe)
   }
 
   test("hover function parameter test") { _ =>
@@ -244,16 +159,9 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(2, 19)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("lastElement")(name)
-            assertResult("int")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 19))
+    assertResult("lastElement")(name)
+    assertResult("int")(tipe)
   }
 
   test("hover function parameter usage test") { _ =>
@@ -265,16 +173,9 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(3, 30)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("lastElement")(name)
-            assertResult("int")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(3, 30))
+    assertResult("lastElement")(name)
+    assertResult("int")(tipe)
   }
 
   test("hover let should return empty response") { _ =>
@@ -286,8 +187,8 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(1, 1)))
-    response shouldBe a[ErrorLSPResponse]
+    val HoverResponse(_, errors) = hover(code, Pos(1, 1))
+    assert(errors.nonEmpty)
   }
 
   test("hover field of a collection") { _ =>
@@ -295,16 +196,9 @@ trait LspHoverTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(4, 33)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("aaaaaaaaaaaa")(name)
-            assertResult("record(cccccccccccc: string, d: int)")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 33))
+    assertResult("aaaaaaaaaaaa")(name)
+    assertResult("record(cccccccccccc: string, d: int)")(tipe)
   }
 
   test("hover field of a collection nested") { _ =>
@@ -312,23 +206,16 @@ trait LspHoverTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, environment, Pos(4, 48)))
-    response match {
-      case HoverLSPResponse(hoverResponse, _) => hoverResponse match {
-          case TypeHoverResponse(name: String, tipe: String) =>
-            assertResult("cccccccccccc")(name)
-            assertResult("string")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 48))
+    assertResult("cccccccccccc")(name)
+    assertResult("string")(tipe)
   }
 
   knownBug("RD-8323", "hover variable in the end of the code (RD-8323)") { _ =>
     val code = """let c = 2
       |in c""".stripMargin
-    val typeInfo = getVarInfoAt(code, 2, 5)
-    typeInfo.name shouldBe "c"
-    typeInfo.tipe shouldBe "int"
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 5))
+    name shouldBe "c"
+    tipe shouldBe "int"
   }
 }

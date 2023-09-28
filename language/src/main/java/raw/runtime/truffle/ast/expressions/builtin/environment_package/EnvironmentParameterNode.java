@@ -36,93 +36,80 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
 
   @Specialization(guards = {"isByteKind(getParamType())"})
   protected byte getByte(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamByte p = (ParamByte) context.params(key).get();
+    ParamByte p = (ParamByte) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isShortKind(getParamType())"})
   protected short getShort(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamShort p = (ParamShort) context.params(key).get();
+    ParamShort p = (ParamShort) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isIntKind(getParamType())"})
   protected int getInt(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamInt p = (ParamInt) context.params(key).get();
+    ParamInt p = (ParamInt) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isLongKind(getParamType())"})
   protected long getLong(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamLong p = (ParamLong) context.params(key).get();
+    ParamLong p = (ParamLong) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isFloatKind(getParamType())"})
   protected float getFloat(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamFloat p = (ParamFloat) context.params(key).get();
+    ParamFloat p = (ParamFloat) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isDoubleKind(getParamType())"})
   protected Double getDouble(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamDouble p = (ParamDouble) context.params(key).get();
+    ParamDouble p = (ParamDouble) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isDecimalKind(getParamType())"})
   protected DecimalObject getDecimal(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamDecimal p = (ParamDecimal) context.params(key).get();
+    ParamDecimal p = (ParamDecimal) RawContext.get(this).getParam(key);
     return new DecimalObject(p.v());
   }
 
   @Specialization(guards = {"isBooleanKind(getParamType())"})
   protected boolean getBool(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamBool p = (ParamBool) context.params(key).get();
+    ParamBool p = (ParamBool) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isStringKind(getParamType())"})
   protected String getString(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamString p = (ParamString) context.params(key).get();
+    ParamString p = (ParamString) RawContext.get(this).getParam(key);
     return p.v();
   }
 
   @Specialization(guards = {"isDateKind(getParamType())"})
   protected DateObject getDate(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamDate p = (ParamDate) context.params(key).get();
+    ParamDate p = (ParamDate) RawContext.get(this).getParam(key);
     return new DateObject(p.v());
   }
 
   @Specialization(guards = {"isTimeKind(getParamType())"})
   protected TimeObject getTime(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamTime p = (ParamTime) context.params(key).get();
+    ParamTime p = (ParamTime) RawContext.get(this).getParam(key);
     return new TimeObject(p.v());
   }
 
   @Specialization(guards = {"isTimestampKind(getParamType())"})
   protected TimestampObject getTimestamp(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamTimestamp p = (ParamTimestamp) context.params(key).get();
+    ParamTimestamp p = (ParamTimestamp) RawContext.get(this).getParam(key);
     return new TimestampObject(p.v());
   }
 
   @Specialization(guards = {"isIntervalKind(getParamType())"})
   @CompilerDirectives.TruffleBoundary
   protected IntervalObject getInterval(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamInterval p = (ParamInterval) context.params(key).get();
+    ParamInterval p = (ParamInterval) RawContext.get(this).getParam(key);
     Duration duration = p.v();
     long millis = duration.getNano() / 1000000 + duration.getSeconds() * 1000;
     return new IntervalObject(0, millis);
