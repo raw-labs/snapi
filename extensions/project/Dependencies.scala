@@ -5,16 +5,14 @@ import java.util.Properties
 
 object Dependencies {
 
-  val rawLanguageVersion = {
-    val properties = new Properties()
-    val fs = new FileInputStream("../version.properties")
-    try {
-      properties.load(fs)
-      properties.getProperty("language.version")
-    } finally {
-      fs.close()
+  val versionFile = new File("../language/version")
+  
+  val rawLanguageVersion: String = 
+    if (versionFile.exists()) {
+      IO.read(versionFile).trim
+    } else {
+      "0.0.0" // Default version number if the file doesn't exist.
     }
-  }
 
   val rawLanguage = "com.raw-labs" %% "raw-language" % rawLanguageVersion
 
