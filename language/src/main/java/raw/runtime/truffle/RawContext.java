@@ -46,6 +46,7 @@ public final class RawContext {
   private SourceContext sourceContext;
   private AuthenticatedUser user;
   private String traceId;
+  private String[] scopes;
   private RawSettings rawSettings;
   private ProgramEnvironment programEnvironment;
 
@@ -63,12 +64,16 @@ public final class RawContext {
     String traceId = Objects.toString(env.getEnvironment().get("RAW_TRACE_ID"), "");
     this.traceId = traceId;
 
+    // Set scopes from environment variable.
+    String scopesStr = env.getEnvironment().get("RAW_SCOPES");
+    this.scopes = scopesStr == null ? new String[0] : scopesStr.split(",");
+
     // Create source context.
     CredentialsService credentialsService = CredentialsServiceProvider.apply(rawSettings);
     this.sourceContext = new SourceContext(user, credentialsService, rawSettings);
 
     // Create program environment.
-    Set<String> scalaScopes = JavaConverters.asScalaSetConverter(java.util.Set.of(getScopes())).asScala().toSet();
+    Set<String> scalaScopes = JavaConverters.asScalaSetConverter(java.util.Set.of(scopes)).asScala().toSet();
 
     java.util.Map<String, String> javaOptions = new java.util.HashMap<>();
     javaOptions.put("output-format", env.getOptions().get(RawOptions.OUTPUT_FORMAT_KEY));
@@ -116,11 +121,7 @@ public final class RawContext {
   }
 
   public String[] getScopes() {
-    String scopes = env.getEnvironment().get("RAW_SCOPES");
-    if (scopes == null) {
-      return new String[0];
-    }
-    return scopes.split(",");
+    return scopes;
   }
 
   public ParamValue getParam(String key) {

@@ -13,9 +13,20 @@
 package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.Truffle
-import org.graalvm.polyglot.{Context, EnvironmentAccess}
+import org.graalvm.polyglot.Context
 import raw.compiler.{CompilerExecutionException, ErrorMessage, Pos, ProgramDescription}
-import raw.compiler.api.{AutoCompleteResponse, CompilationResponse, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GoToDefinitionResponse, HoverResponse, RenameResponse, ValidateResponse}
+import raw.compiler.api.{
+  AutoCompleteResponse,
+  CompilationResponse,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  GoToDefinitionResponse,
+  HoverResponse,
+  RenameResponse,
+  ValidateResponse
+}
 import raw.compiler.base.source.Type
 import raw.compiler.common.CommonCompilerService
 import raw.runtime.{ParamValue, ProgramEnvironment}
@@ -32,7 +43,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): Either[List[ErrorMessage], Option[Type]] = {
-    withTruffleContext(_ => super.getType(source, maybeArguments, environment))
+    withTruffleContext(environment, _ => super.getType(source, maybeArguments, environment))
   }
 
   override def getProgramDescription(
@@ -40,18 +51,22 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): Either[List[ErrorMessage], ProgramDescription] = {
-    withTruffleContext(_ => super.getProgramDescription(source, maybeArguments, environment))
+    withTruffleContext(environment, _ => super.getProgramDescription(source, maybeArguments, environment))
   }
 
-//  override def compile(
-//      source: String,
-//      maybeArguments: Option[Array[(String, ParamValue)]],
-//      environment: ProgramEnvironment,
-//      ref: Any
-//  ): CompilationResponse = {
-//    withTruffleContext(_ => super.compile(source, maybeArguments, environment, ref))
-//  }
+  override def compile(
+      source: String,
+      maybeArguments: Option[Array[(String, ParamValue)]],
+      environment: ProgramEnvironment,
+      ref: Any
+  ): CompilationResponse = {
+    // This override is redundant but done for clarity: note that unlike all other overrides,
+    // we do NOT create a TruffleContext here, because this method is only used from the
+    // RawLanguage, where there is already a TruffleContext created.
+    super.compile(source, maybeArguments, environment, ref)
+  }
 
+  // This method is used by the test framework.
   override def execute(
       source: String,
       maybeArguments: Option[Array[(String, ParamValue)]],
@@ -66,42 +81,8 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
         .parseAndValidate(source, maybeDecl)(programContext)
         .right
         .flatMap { program =>
-//          val ctx: Context = Context
-//            .newBuilder(RawLanguage.ID)
-//            .out(outputStream)
-//            .environment("RAW_USER", environment.user.uid.toString)
-//            .build()
-//          ctx.initialize(RawLanguage.ID)
-//          ctx.enter()
-//          try {
-//            ctx.eval(RawLanguage.ID, source)
-//            Right(ExecutionSuccess)
-//          } catch {
-//            case ex: RawTruffleRuntimeException =>
-//              // Instead of passing the cause, we pass null, because otherwise when running Scala2 tests it tries to
-//              // the AbstractTruffleException which is not exported in JVM (not GraalVM), so it fails.
-//              throw new CompilerExecutionException(
-//                ex.getMessage,
-//                null
-//              )
-//          } finally {
-//            ctx.leave()
-//            ctx.close()
-//          }
-
           compiler.compile(program)(programContext).right.map { entrypoint =>
-
-            val ctx: Context = Context
-              .newBuilder(RawLanguage.ID)
-              // FIXME (msb): SET THIS!!!
-//              .allowEnvironmentAccess(EnvironmentAccess.INHERIT)
-              .environment("RAW_USER", environment.user.uid.toString)
-              .environment("RAW_SCOPES", environment.scopes.mkString(","))
-
-//              .arguments()
-//              .environment()
-              .out(outputStream)
-              .build()
+            val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
             ctx.initialize(RawLanguage.ID)
             ctx.enter()
             try {
@@ -137,7 +118,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       environment: ProgramEnvironment,
       position: Pos
   ): AutoCompleteResponse = {
-    withTruffleContext(_ => super.dotAutoComplete(source, environment, position))
+    withTruffleContext(environment, _ => super.dotAutoComplete(source, environment, position))
   }
 
   override def wordAutoComplete(
@@ -146,15 +127,15 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
-    withTruffleContext(_ => super.wordAutoComplete(source, environment, prefix, position))
+    withTruffleContext(environment, _ => super.wordAutoComplete(source, environment, prefix, position))
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
-    withTruffleContext(_ => super.hover(source, environment, position))
+    withTruffleContext(environment, _ => super.hover(source, environment, position))
   }
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
-    withTruffleContext(_ => super.rename(source, environment, position))
+    withTruffleContext(environment, _ => super.rename(source, environment, position))
   }
 
   override def goToDefinition(
@@ -162,22 +143,36 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       environment: ProgramEnvironment,
       position: Pos
   ): GoToDefinitionResponse = {
-    withTruffleContext(_ => super.goToDefinition(source, environment, position))
+    withTruffleContext(environment, _ => super.goToDefinition(source, environment, position))
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    withTruffleContext(_ => super.validate(source, environment))
+    withTruffleContext(environment, _ => super.validate(source, environment))
   }
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    withTruffleContext(_ => super.aiValidate(source, environment))
+    withTruffleContext(environment, _ => super.aiValidate(source, environment))
   }
 
-  private def withTruffleContext[T](f: Context => T): T = {
-    // FIXME (msb): SET THIS PROPERLY!! SHARE BUILDER WITH METHOD ABOVE
-    //              EXPLAIN WHY compile SHOULD NOT BE OVERRIDDEN. OR IMPROVE THAT SOMEHOW TO
-    //              DO EVERYTHING HERE NOT IN RawLanguage SOMEHOW?
-    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
+  private def buildTruffleContext(
+      environment: ProgramEnvironment,
+      maybeOutputStream: Option[OutputStream] = None
+  ): Context = {
+    val ctxBuilder = Context
+      .newBuilder(RawLanguage.ID)
+      .environment("RAW_USER", environment.user.uid.toString)
+      .environment("RAW_TRACE_ID", environment.user.uid.toString)
+      .environment("RAW_SCOPES", environment.scopes.mkString(","))
+      .allowExperimentalOptions(true)
+    environment.options
+      .get("output-format")
+      .foreach(f => ctxBuilder.option(RawLanguage.ID + ".output-format", f))
+    maybeOutputStream.foreach(os => ctxBuilder.out(os))
+    ctxBuilder.build()
+  }
+
+  private def withTruffleContext[T](environment: ProgramEnvironment, f: Context => T): T = {
+    val ctx = buildTruffleContext(environment)
     ctx.initialize(RawLanguage.ID)
     ctx.enter()
     try {
