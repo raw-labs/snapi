@@ -266,3 +266,13 @@ libraryDependencies ++= Seq(
   poiDeps ++
   scalaCompiler ++
   truffleDeps
+
+// auto output version to a file on compile
+lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
+
+outputVersion := {
+  val versionFile = baseDirectory.value / "version"
+  IO.write(versionFile, version.value)
+}
+
+(compile in Compile) := ((compile in Compile) dependsOn outputVersion).value

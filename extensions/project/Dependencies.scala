@@ -5,16 +5,7 @@ import java.util.Properties
 
 object Dependencies {
 
-  val rawLanguageVersion = {
-    val properties = new Properties()
-    val fs = new FileInputStream("../version.properties")
-    try {
-      properties.load(fs)
-      properties.getProperty("language.version")
-    } finally {
-      fs.close()
-    }
-  }
+  val rawLanguageVersion = IO.read(new File("../language/version")).trim
 
   val rawLanguage = "com.raw-labs" %% "raw-language" % rawLanguageVersion
 

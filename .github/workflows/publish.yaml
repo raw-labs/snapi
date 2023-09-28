@@ -34,22 +34,6 @@ jobs:
       run: |
         deps/kiama/build.sh
         deps/scala-logging/build.sh
-    - if: github.event_name == 'repository_dispatch'
-      name: evaluate produced version
-      shell: bash
-      working-directory: language
-      run: |
-        sbt -Dsbt.log.noformat=true version > version_output.txt 2>&1
-        echo "DYNVER=$(awk {print $2}' version_output.txt | tail -n 1 | awk '{$1=$1;print}')" >> $GITHUB_ENV
-    - if: github.event_name == 'repository_dispatch'
-      uses: peter-evans/create-or-update-comment@v2
-      with:
-        token: ${{ secrets.RAW_CI_PAT }}
-        repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-        comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
-        body: |
-          > will publish version: ${{ env.DYNVER }}
-        reactions: rocket
     - run: sbt ci-release
       working-directory: language
       env:
@@ -60,6 +44,19 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
+    - name: evaluate produced version
+      shell: bash
+      working-directory: language
+      run: echo "DYNVER=$(cat version)" >> $GITHUB_ENV
+    - if: github.event_name == 'repository_dispatch'
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        token: ${{ secrets.RAW_CI_PAT }}
+        repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+        comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+        body: |
+          > will publish version: ${{ env.DYNVER }}
+        reactions: rocket
     - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       uses: peter-evans/repository-dispatch@v2
       with:
