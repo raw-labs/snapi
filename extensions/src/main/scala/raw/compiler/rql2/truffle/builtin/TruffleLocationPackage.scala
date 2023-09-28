@@ -17,12 +17,7 @@ import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.builtin.location_package.{
-  LocationBuildNode,
-  LocationDescribeNodeGen,
-  LocationLlNodeGen,
-  LocationLsNodeGen
-}
+import raw.runtime.truffle.ast.expressions.builtin.location_package.{LocationBuildNode, LocationDescribeNodeGen, LocationLlNodeGen, LocationLsNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.IntNode
 
 class TruffleLocationBuildEntry extends LocationBuildEntry with TruffleEntryExtension {

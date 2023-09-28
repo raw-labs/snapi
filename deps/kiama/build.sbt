@@ -4,7 +4,7 @@ import scalariform.formatter.preferences._
 
 // Settings for entire build
 
-ThisBuild/version := IO.read(new File("version")).trim
+ThisBuild/version := "2.5.2-SNAPSHOT"
 
 ThisBuild/organization := "org.bitbucket.inkytonik.kiama"
 

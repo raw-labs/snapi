@@ -36,14 +36,16 @@ class TruffleOracleQueryEntry extends OracleQueryEntry with TruffleEntryExtensio
     }
     val keys = optionalArgs.map(_._1)
     val values = optionalArgs.map(_._2)
-    val types = args.tail.collect { case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties] }
+    val types = args.tail.collect {
+      case TruffleArg(_, t, Some(_)) => t.asInstanceOf[Rql2TypeWithProperties]
+    } :+ Rql2StringType().asInstanceOf[Rql2TypeWithProperties]
     val location = new LocationBuildNode(
       new PlusNode(new StringNode("oracle:"), db),
       keys.toArray,
       values.toArray,
       types.toArray
     )
-    TruffleJdbc.query(location, args(1).e, t, new OracleExceptionHandler(), rawLanguage)
+    TruffleJdbc.query(location, args(1).e, t, new OracleExceptionHandler(),rawLanguage)
   }
 
 }

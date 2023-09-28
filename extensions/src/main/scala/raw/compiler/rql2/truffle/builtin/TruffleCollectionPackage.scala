@@ -17,30 +17,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.iterable.collection.{
-  CollectionBuildNode,
-  CollectionCountNodeGen,
-  CollectionDistinctNodeGen,
-  CollectionEquiJoinNode,
-  CollectionExistsNodeGen,
-  CollectionFilterNodeGen,
-  CollectionFirstNodeGen,
-  CollectionFromNodeGen,
-  CollectionGroupByNodeGen,
-  CollectionJoinNodeGen,
-  CollectionLastNodeGen,
-  CollectionMaxNodeGen,
-  CollectionMinNodeGen,
-  CollectionMkStringNodeGen,
-  CollectionOrderByNode,
-  CollectionSumNodeGen,
-  CollectionTakeNodeGen,
-  CollectionTransformNodeGen,
-  CollectionTupleAvgNodeGen,
-  CollectionUnionNode,
-  CollectionUnnestNodeGen,
-  CollectionZipNodeGen
-}
+import raw.runtime.truffle.ast.expressions.iterable.collection.{CollectionBuildNode, CollectionCountNodeGen, CollectionDistinctNodeGen, CollectionEquiJoinNode, CollectionExistsNodeGen, CollectionFilterNodeGen, CollectionFirstNodeGen, CollectionFromNodeGen, CollectionGroupByNodeGen, CollectionJoinNodeGen, CollectionLastNodeGen, CollectionMaxNodeGen, CollectionMinNodeGen, CollectionMkStringNodeGen, CollectionOrderByNode, CollectionSumNodeGen, CollectionTakeNodeGen, CollectionTransformNodeGen, CollectionTupleAvgNodeGen, CollectionUnionNode, CollectionUnnestNodeGen, CollectionZipNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 
 class TruffleEmptyCollectionEntry extends EmptyCollectionEntry with TruffleEntryExtension {

@@ -30,7 +30,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{CompilerException, ErrorMessage, base}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
@@ -168,9 +168,9 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     case _: Rql2BoolType => BoolValue(v.asInstanceOf[java.lang.Boolean])
     case _: Rql2StringType => StringValue(v.asInstanceOf[java.lang.String])
     case _: Rql2BinaryType =>
-      val v1 = v.asInstanceOf[BinaryObject]
+      val v1 = v.asInstanceOf[java.lang.reflect.Array]
       val vs = mutable.ArrayBuffer[Byte]()
-      for (i <- 0 until java.lang.reflect.Array.getLength(v1.getBytes)) {
+      for (i <- 0 until java.lang.reflect.Array.getLength(v1)) {
         vs.append(java.lang.reflect.Array.getByte(v1, i))
       }
       BinaryValue(vs.toArray)
@@ -180,7 +180,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     case _: Rql2LongType => LongValue(v.asInstanceOf[java.lang.Long])
     case _: Rql2FloatType => FloatValue(v.asInstanceOf[java.lang.Float])
     case _: Rql2DoubleType => DoubleValue(v.asInstanceOf[java.lang.Double])
-    case _: Rql2DecimalType => DecimalValue(v.asInstanceOf[DecimalObject].getBigDecimal)
+    case _: Rql2DecimalType => DecimalValue(v.asInstanceOf[java.math.BigDecimal])
     case _: Rql2LocationType => LocationValue(v.asInstanceOf[LocationObject].getLocationDescription)
     case _: Rql2DateType => DateValue(v.asInstanceOf[DateObject].getDate)
     case _: Rql2TimeType => TimeValue(v.asInstanceOf[TimeObject].getTime)
@@ -269,12 +269,11 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     emitter.addScope() // we need a scope for potential function declarations
     val functionDeclarations = methods.map(emitter.emitMethod).toArray
     val body = emitter.recurseExp(bodyExp)
-    val bodyExpNode =
-      if (functionDeclarations.nonEmpty) {
-        new ExpBlockNode(functionDeclarations, body)
-      } else {
-        body
-      }
+    val bodyExpNode = if (functionDeclarations.nonEmpty) {
+      new ExpBlockNode(functionDeclarations, body)
+    } else {
+      body
+    }
     val frameDescriptor = emitter.dropScope()
 
     // Wrap output node

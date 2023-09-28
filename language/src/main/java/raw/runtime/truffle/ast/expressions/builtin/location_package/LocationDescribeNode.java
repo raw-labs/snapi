@@ -26,6 +26,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
+import raw.utils.RawException;
 import raw.compiler.rql2.Rql2TypeUtils$;
 import raw.compiler.rql2.source.*;
 import raw.inferrer.api.*;
@@ -40,7 +41,6 @@ import raw.runtime.truffle.runtime.option.StringOption;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.utils.RawException;
 import scala.Some;
 
 // A.Z Similar implementation to Scala

@@ -10,6 +10,10 @@
  * licenses/APL.txt.
  */
 
+<<<<<<<< HEAD:extensions/src/main/java/module-info.java
+module raw.language.extensions {
+  requires raw.language;
+========
 package raw.creds.api
 
 import raw.utils.RawSettings
@@ -20,4 +24,5 @@ trait CredentialsServiceBuilder {
 
   def build(implicit settings: RawSettings): CredentialsService
 
+>>>>>>>> origin/graal-21-modularize-v2-rebased-to-0.24.27:language/src/main/scala/raw/creds/api/CredentialsServiceBuilder.scala
 }

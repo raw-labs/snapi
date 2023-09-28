@@ -16,13 +16,7 @@ import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-import raw.runtime.truffle.ast.expressions.option.{
-  OptionIsDefinedNodeGen,
-  OptionMapNodeGen,
-  OptionNoneNode,
-  OptionSomeNodeGen,
-  OptionUnsafeGetNodeGen
-}
+import raw.runtime.truffle.ast.expressions.option.{OptionIsDefinedNodeGen, OptionMapNodeGen, OptionNoneNode, OptionSomeNodeGen, OptionUnsafeGetNodeGen}
 import raw.runtime.truffle.ast.expressions.unary.NotNodeGen
 
 class TruffleNullableEmptyEntry extends NullableEmptyEntry with TruffleEntryExtension {

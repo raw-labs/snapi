@@ -16,6 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.utils.RawException;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -25,7 +26,6 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.api.Location;
 import raw.sources.filesystem.api.FileSystemLocation;
 import raw.sources.filesystem.api.FileSystemLocationProvider;
-import raw.utils.RawException;
 import scala.collection.IndexedSeq;
 
 @NodeInfo(shortName = "String.Read")

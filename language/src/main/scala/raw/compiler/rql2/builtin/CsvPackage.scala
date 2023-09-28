@@ -16,17 +16,7 @@ import raw.compiler.base.errors.{BaseError, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
-import raw.compiler.rql2.api.{
-  Arg,
-  EntryExtension,
-  EntryExtensionHelper,
-  ExpParam,
-  PackageExtension,
-  Param,
-  SugarEntryExtension,
-  TypeParam,
-  ValueParam
-}
+import raw.compiler.rql2.api.{Arg, EntryExtension, EntryExtensionHelper, ExpParam, PackageExtension, Param, SugarEntryExtension, TypeParam, ValueParam}
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, ExampleDoc, PackageDoc, ParamDoc, ReturnDoc, TypeDoc}
 import raw.inferrer.api._

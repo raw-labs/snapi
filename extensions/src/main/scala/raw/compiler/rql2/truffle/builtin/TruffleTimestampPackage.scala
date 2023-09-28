@@ -18,27 +18,7 @@ import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension, TruffleShortEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalBuildNodeGen
-import raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package.{
-  TimestampAddIntervalNodeGen,
-  TimestampBuildNodeGen,
-  TimestampDayNodeGen,
-  TimestampFromDateNodeGen,
-  TimestampFromUnixTimestampNodeGen,
-  TimestampHourNodeGen,
-  TimestampMillisNodeGen,
-  TimestampMinuteNodeGen,
-  TimestampMonthNodeGen,
-  TimestampNowNodeGen,
-  TimestampParseNodeGen,
-  TimestampRangeNodeGen,
-  TimestampSecondNodeGen,
-  TimestampSubtractIntervalNodeGen,
-  TimestampSubtractNodeGen,
-  TimestampTimeBucketIntervalNodeGen,
-  TimestampTimeBucketStringNodeGen,
-  TimestampToUnixTimestampNodeGen,
-  TimestampYearNodeGen
-}
+import raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package.{TimestampAddIntervalNodeGen, TimestampBuildNodeGen, TimestampDayNodeGen, TimestampFromDateNodeGen, TimestampFromUnixTimestampNodeGen, TimestampHourNodeGen, TimestampMillisNodeGen, TimestampMinuteNodeGen, TimestampMonthNodeGen, TimestampNowNodeGen, TimestampParseNodeGen, TimestampRangeNodeGen, TimestampSecondNodeGen, TimestampSubtractIntervalNodeGen, TimestampSubtractNodeGen, TimestampTimeBucketIntervalNodeGen, TimestampTimeBucketStringNodeGen, TimestampToUnixTimestampNodeGen, TimestampYearNodeGen}
 import raw.runtime.truffle.ast.expressions.literals.IntNode
 
 class TruffleTimestampBuildEntry extends TimestampBuildEntry with TruffleShortEntryExtension {
