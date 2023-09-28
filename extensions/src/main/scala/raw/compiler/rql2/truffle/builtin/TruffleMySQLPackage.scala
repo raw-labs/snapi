@@ -14,13 +14,13 @@ package raw.compiler.rql2.truffle.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.builtin.MySQLQueryEntry
-import raw.compiler.rql2.source.{Rql2StringType, Rql2TypeWithProperties}
+import raw.compiler.rql2.source.Rql2TypeWithProperties
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
-import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.expressions.binary.PlusNode
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode
 import raw.runtime.truffle.ast.expressions.literals.StringNode
 import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler
+import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 
 class TruffleMySQLQueryEntry extends MySQLQueryEntry with TruffleEntryExtension {
 
