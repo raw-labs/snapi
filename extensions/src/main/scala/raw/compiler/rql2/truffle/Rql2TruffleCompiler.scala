@@ -78,6 +78,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   )(implicit programContext: raw.compiler.base.ProgramContext): Value = {
     // FIXME (msb): Passing rawLanguageAsNull as null. This is BROKEN!
     val TruffleEntrypoint(context, node, _) = doCompile(tree, null).asInstanceOf[TruffleEntrypoint]
+
+    Context.option().create()
 //    RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
     val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
     try {

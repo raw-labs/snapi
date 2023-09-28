@@ -79,8 +79,8 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
         .flatMap { program =>
           compiler.compile(program)(programContext).right.map { entrypoint =>
             val ctx: Context = Context.newBuilder(RawLanguage.ID)
-              .arguments()
-              .environment()
+//              .arguments()
+//              .environment()
 
               .out(outputStream).build()
             ctx.initialize(RawLanguage.ID)

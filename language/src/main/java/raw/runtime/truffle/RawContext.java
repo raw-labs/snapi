@@ -34,10 +34,7 @@ import raw.utils.RawSettings;
 import scala.Option;
 import scala.Tuple2;
 import scala.collection.Iterator;
-import scala.collection.immutable.Map;
-import scala.collection.immutable.Map$;
-import scala.collection.immutable.Set;
-import scala.collection.immutable.Set$;
+import scala.collection.immutable.*;
 
 public final class RawContext {
 
@@ -47,6 +44,7 @@ public final class RawContext {
   private OutputStream output;
   private SourceContext sourceContext;
   private RuntimeContext runtimeContext;
+  private AuthenticatedUser user;
 
   public RawContext(RawLanguage language, Env env) {
     this.language = language;
@@ -60,11 +58,75 @@ public final class RawContext {
 
     this.sourceContext = new SourceContext(authenticatedUser, credentialsService, rawSettings);
 
+    env.getConfig();
+    env.getEnvironment();
+
+    // Set user from environment variable.
+    String uid = env.getEnvironment().get("RAW_USER");
+    this.user = new InteractiveUser(uid, uid, uid, (Seq<String>) Seq$.MODULE$.empty());
+
+
     Map<String, String> emptyMap = Map$.MODULE$.empty();
     Map<String, String> updatedMap = emptyMap.$plus(new Tuple2<>("output-format", ""));
     ProgramEnvironment programEnvironment = new ProgramEnvironment(authenticatedUser,  (Set<String>) Set$.MODULE$.empty(), updatedMap, Option.empty());
 
     /*
+
+# json
+
+
+
+--
+for the test suite
+        generate and run user program as-is, without changing the source code in anyway (not to mess up positions!)
+        then test suite separately generates the writer program and passses the value in
+        needs to return functions so that we eval the function and pass the original value + outputstream in there
+
+// Eval the user code
+val result = context.eval(new SnapiSource(userCode))
+  // result is now a true interop object with the data
+
+// Another separate eval to print the JSON to the output stream
+context.executeVoid(new SnapiWriterSource("Json.Write"), typeStr, result, outputStream)
+  // assumes there's a new Json.Write function that takes 2 arguments: the value and the output stream to write it to
+
+Challenges:
+1) Need to make all our data types interop
+2) Need to create a new language for writer programs
+--
+main(os):
+  print_json(os, 1)
+
+Value f = context.eval("<src>")
+f.executeVoid(outpustream)
+
+---
+1)
+main() = 1
+
+2)
+main() = 1
+
+$main() = print_json(main())
+---
+1)
+main() = 1
+main()
+
+2)
+main() = 1
+main()
+# json
+
+
+
+
+--
+
+    Rql2PRogram(
+
+print_json(
+)
 
     problems:
     - outputformat ===> put in AST
@@ -73,6 +135,7 @@ public final class RawContext {
     - user: AuthenticatedUser, ===> use ENV variable ===> Helper in RawContext
     - scopes: Set[String], ===> use ENV variable ===> Helper in RawContext
     - maybeTraceId: Option[String] = None ===> use getConfig ===> Add helper to RawContext
+
 
     but the issue is that it's not just RawContext.
     It's also RawLanguage!!!
@@ -144,41 +207,25 @@ public final class RawContext {
     return output;
   }
 
-  // FIXME (msb): Remove!
-//  public void setOutput(OutputStream output) {
-//    this.output = output;
-//  }
-
   public SourceContext getSourceContext() {
     return sourceContext;
   }
 
   public Secret getSecret(String key) {
-    return this.sourceContext
-            .credentialsService()
-            .getSecret(this.sourceContext.user(), key)
-            .get();
+    return this.sourceContext.credentialsService().getSecret(user, key).get();
   }
 
   public String[] getScopes() {
-    String[] bl = new String[this.runtimeContext.scopes().size()];
-    Iterator<String> it = this.runtimeContext.scopes().iterator();
-    int i = 0;
-    while (it.hasNext()) {
-      bl[i] = it.next();
-      i++;
+    String scopes =env.getEnvironment().get("RAW_SCOPES");
+    if (scopes == null) {
+      return new String[0];
     }
-    return bl;
+    return scopes.split(",");
   }
 
   public ParamValue getParam(String key) {
     return this.runtimeContext.params(key).get();
   }
-
-//  // FIXME (msb): Remove!
-//  public void setRuntimeContext(RuntimeContext runtimeContext) {
-//    this.runtimeContext = runtimeContext;
-//  }
 
   public FunctionRegistry getFunctionRegistry() {
     return functionRegistry;
