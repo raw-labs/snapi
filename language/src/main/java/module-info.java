@@ -44,6 +44,7 @@ module raw.language {
   uses raw.compiler.base.CompilerBuilder;
   uses raw.compiler.common.CommonCompilerBuilder;
   uses raw.creds.api.CredentialsServiceBuilder;
+  uses raw.compiler.rql2.api.EntryExtension;
 
   provides raw.creds.api.CredentialsServiceBuilder with
       raw.creds.local.LocalCredentialsServiceBuilder;
@@ -240,4 +241,5 @@ module raw.language {
   exports raw.runtime.truffle.ast.expressions.builtin.binary_package;
   exports raw.runtime.truffle.ast.controlflow;
   exports raw.runtime.truffle.handlers;
+  exports raw.compiler.rql2.api;
 }
