@@ -6,11 +6,13 @@
 
     <groupId>org.example</groupId>
     <artifactId>raw-cli</artifactId>
-    <version>1.0-SNAPSHOT</version>
+    <version>0.24.29+0-cc94ce1f+20230929-1623-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
+        <language.version>0.24.29+0-cc94ce1f+20230929-1623-SNAPSHOT</language.version>
+        <extensions.version>0.24.29+0-cc94ce1f+20230929-1626-SNAPSHOT</extensions.version>
     </properties>
 
     <dependencies>
@@ -30,12 +32,12 @@
         <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-language_2.12</artifactId>
-            <version>0.24.28+13-2445f608+20231002-1505-SNAPSHOT</version>
+            <version>${language.version}</version>
         </dependency>
         <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-language-extensions_2.12</artifactId>
-            <version>0.0.3</version>
+            <version>${extensions.version}</version>
         </dependency>
         <!-- JLine Dependency -->
         <dependency>
@@ -57,25 +59,6 @@
 
     <build>
         <plugins>
-            <!-- Required to read the properties file -->
-            <plugin>
-                <groupId>org.codehaus.mojo</groupId>
-                <artifactId>properties-maven-plugin</artifactId>
-                <version>1.2.0</version>
-                <executions>
-                    <execution>
-                        <phase>initialize</phase>
-                        <goals>
-                            <goal>read-project-properties</goal>
-                        </goals>
-                        <configuration>
-                            <files>
-                                <file>../version.properties</file>
-                            </files>
-                        </configuration>
-                    </execution>
-                </executions>
-            </plugin>
             <!-- Required to compile Java code -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

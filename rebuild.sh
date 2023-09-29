@@ -16,3 +16,6 @@ cd "${SCRIPT_HOME}/language"
 
 cd "${SCRIPT_HOME}/extensions"
 ./build.sh
+
+cd "${SCRIPT_HOME}/launcher"
+./build.sh
