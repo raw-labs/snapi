@@ -233,8 +233,10 @@ package object utils extends StrictLogging {
         if (resource.startsWith("data/")) {
           val classpath = System.getProperty("java.class.path")
           val classpathEntries = classpath.split(System.getProperty("path.separator"))
+          logger.info("classPathEntries: " + classpathEntries.mkString("\n"))
           val jarFiles = classpathEntries.filter(p => p.contains("raw-language_2.12-tests.jar"))
           if (jarFiles.isEmpty) {
+            logger.warn("raw-language-2_12-tests.jar not found")
             // We are not running in JAR mode, so just return the resource directly.
             Paths.get(Resources.getResource(resource).toURI)
           } else {
@@ -252,6 +254,7 @@ package object utils extends StrictLogging {
                         val in = jar.getInputStream(entry)
                         try {
                           Files.copy(in, outputPath, StandardCopyOption.REPLACE_EXISTING)
+                          logger.info("copied dataset to " + outputPath)
                         } finally {
                           in.close()
                         }
