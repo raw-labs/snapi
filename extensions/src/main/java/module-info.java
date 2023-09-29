@@ -12,4 +12,6 @@
 
 module raw.language.extensions {
   requires raw.language;
+  requires scala.library;
+  requires org.graalvm.truffle;
 }
