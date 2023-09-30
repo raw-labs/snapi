@@ -12,18 +12,6 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{
-  AutoCompleteLSPResponse,
-  FieldLSPAutoCompleteResponse,
-  FunParamLSPAutoCompleteResponse,
-  LetBindLSPAutoCompleteResponse,
-  LetFunLSPAutoCompleteResponse,
-  LetFunRecAutoCompleteResponse,
-  PackageEntryLSPAutoCompleteResponse,
-  PackageLSPAutoCompleteResponse,
-  Pos,
-  WordAutoCompleteLSPRequest
-}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.compiler.api._
 

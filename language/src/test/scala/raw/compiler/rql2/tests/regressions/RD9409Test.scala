@@ -13,7 +13,6 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.{HoverLSPRequest, HoverLSPResponse, Pos, TypeHoverResponse}
 import raw.compiler.api._
 
 trait RD9409Test extends CompilerTestContext {

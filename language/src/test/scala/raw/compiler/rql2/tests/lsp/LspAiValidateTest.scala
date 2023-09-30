@@ -14,9 +14,7 @@ package raw.compiler.rql2.tests.lsp
 
 import raw.compiler.api.ValidateResponse
 import raw.compiler.rql2.errors.OutputTypeRequiredForRecursiveFunction
-import raw.compiler.{AiValidateLSPRequest, ErrorLSPResponse, ErrorMessage, ValidateLSPRequest}
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
 
 trait LspAiValidateTest extends CompilerTestContext {
 

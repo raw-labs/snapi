@@ -39,7 +39,7 @@ class MockCredentialsService(implicit settings: RawSettings) extends Credentials
   }
 
   override def listS3Buckets(user: AuthenticatedUser): List[String] = {
-    s3Buckets.keys.filter(_._1 == user).map(_._2).toList
+    s3Buckets.keys.filter(_._1 == user.uid).map(_._2).toList
   }
 
   override def unregisterS3Bucket(user: AuthenticatedUser, name: String): Boolean = {
@@ -176,7 +176,7 @@ class MockCredentialsService(implicit settings: RawSettings) extends Credentials
   }
 
   override def listRDBMSServers(user: AuthenticatedUser): List[String] = {
-    rdbmsServers.keys.filter(_._1 == user).map(_._2).toList
+    rdbmsServers.keys.filter(_._1 == user.uid).map(_._2).toList
   }
 
   override def unregisterRDBMSServer(user: AuthenticatedUser, name: String): Boolean = {
@@ -194,7 +194,7 @@ class MockCredentialsService(implicit settings: RawSettings) extends Credentials
   }
 
   override def listHTTPCreds(user: AuthenticatedUser): List[String] = {
-    httpCreds.keys.filter(_._1 == user).map(_._2).toList
+    httpCreds.keys.filter(_._1 == user.uid).map(_._2).toList
   }
 
   override def unregisterHTTPCred(user: AuthenticatedUser, url: String): Boolean = {
@@ -212,7 +212,7 @@ class MockCredentialsService(implicit settings: RawSettings) extends Credentials
   }
 
   override def listSecrets(user: AuthenticatedUser): List[String] = {
-    secrets.keys.filter(_._1 == user).map(_._2).toList
+    secrets.keys.filter(_._1 == user.uid).map(_._2).toList
   }
 
   override def unregisterSecret(user: AuthenticatedUser, name: String): Boolean = {

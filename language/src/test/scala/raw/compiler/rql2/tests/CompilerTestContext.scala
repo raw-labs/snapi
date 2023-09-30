@@ -17,12 +17,8 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.compiler.api._
-import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.common.Compiler
 import raw.compiler.rql2.api.CompilerServiceTestContext
-import raw.compiler.rql2.source.Rql2Program
-import raw.compiler.{CompilerException, LSPRequest, Pos, ProgramOutputWriter}
 import raw.creds.api._
 import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.LocalInferrerTestContext
@@ -537,13 +533,18 @@ trait CompilerTestContext
   }
 
   def parseType(tipe: String): Type = {
-    compilerService.parseType(tipe, authorizedUser)
+    compilerService.parseType(tipe, authorizedUser) match {
+      case ParseTypeSuccess(t) => t
+      case ParseTypeFailure(error) => throw new TestFailedException(Some(s"$tipe didn't parse: " + error), None, 4)
+    }
   }
 
   private def tryToParse(q: String): Either[String, BaseProgram] = {
     try {
-      val result = compilerService.parse(q, getQueryEnvironment())
-      Right(result)
+      compilerService.parse(q, getQueryEnvironment()) match {
+        case ParseSuccess(p) => Right(p)
+        case ParseFailure(error, _) => Left(error)
+      }
     } catch {
       case ex: RawException => Left(ex.getMessage)
     }
@@ -551,10 +552,9 @@ trait CompilerTestContext
 
   def tryToType(s: String): Either[Seq[String], Type] = {
     try {
-      compilerService
-        .getType(s, None, getQueryEnvironment())
-        .left
-        .map { errors =>
+      compilerService.getType(s, None, getQueryEnvironment()) match {
+        case GetTypeSuccess(t) => Right(t.get)
+        case GetTypeFailure(errors) =>
           val messages = errors.map { err =>
             val message = err.message.replaceAll("""\n\s*""", "")
             val positions = err.positions
@@ -569,10 +569,8 @@ trait CompilerTestContext
               "Error message contained 'error' which means an ErrorType() is being leaked out to the user"
             )
           )
-          messages
-        }
-        .right
-        .map(_.get)
+          Left(messages)
+      }
     } catch {
       case ex: RawException => Left(Seq(ex.getMessage))
     }
@@ -727,9 +725,9 @@ trait CompilerTestContext
   ): Either[String, Option[String]] = {
     try {
       compilerService.getType(query, None, getQueryEnvironment(scopes, options)) match {
-        case Left(errs) => Left(errs.map(err => err.toString).mkString(","))
-        case Right(None) => Right(None)
-        case Right(Some(t)) => Right(Some(compilerService.prettyPrint(t, authorizedUser)))
+        case GetTypeSuccess(Some(t)) => Right(Some(compilerService.prettyPrint(t, authorizedUser)))
+        case GetTypeSuccess(None) => Right(None)
+        case GetTypeFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
       }
     } catch {
       case ex: RawException => fail(ex)

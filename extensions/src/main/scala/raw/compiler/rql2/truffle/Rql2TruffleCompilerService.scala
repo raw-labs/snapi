@@ -14,20 +14,22 @@ package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.Truffle
 import org.graalvm.polyglot.Context
-import raw.compiler.{CompilerExecutionException, ErrorMessage, Pos, ProgramDescription}
+import raw.compiler.Pos
 import raw.compiler.api.{
   AutoCompleteResponse,
   CompilationResponse,
+  CompilerServiceException,
   ExecutionResponse,
   ExecutionRuntimeFailure,
   ExecutionSuccess,
   ExecutionValidationFailure,
+  GetProgramDescriptionResponse,
+  GetTypeResponse,
   GoToDefinitionResponse,
   HoverResponse,
   RenameResponse,
   ValidateResponse
 }
-import raw.compiler.base.source.Type
 import raw.compiler.common.CommonCompilerService
 import raw.runtime.{ParamValue, ProgramEnvironment}
 import raw.runtime.truffle.RawLanguage
@@ -35,6 +37,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 import raw.utils.{RawException, RawSettings}
 
 import java.io.OutputStream
+import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonCompilerService("rql2-truffle") {
 
@@ -42,7 +45,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       source: String,
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
-  ): Either[List[ErrorMessage], Option[Type]] = {
+  ): GetTypeResponse = {
     withTruffleContext(environment, _ => super.getType(source, maybeArguments, environment))
   }
 
@@ -50,7 +53,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       source: String,
       maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
-  ): Either[List[ErrorMessage], ProgramDescription] = {
+  ): GetProgramDescriptionResponse = {
     withTruffleContext(environment, _ => super.getProgramDescription(source, maybeArguments, environment))
   }
 
@@ -90,14 +93,6 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
                 Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
               target.call()
               ExecutionSuccess
-            } catch {
-              case ex: RawTruffleRuntimeException =>
-                // Instead of passing the cause, we pass null, because otherwise when running Scala2 tests it tries to
-                // the AbstractTruffleException which is not exported in JVM (not GraalVM), so it fails.
-                throw new CompilerExecutionException(
-                  ex.getMessage,
-                  null
-                )
             } finally {
               ctx.leave()
               ctx.close()
@@ -109,7 +104,9 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
           res => res
         )
     } catch {
+      case ex: RawTruffleRuntimeException => ExecutionRuntimeFailure(ex.getMessage)
       case ex: RawException => ExecutionRuntimeFailure(ex.getMessage)
+      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
     }
   }
 

@@ -44,12 +44,12 @@ object CompilerServiceProvider {
 
   private def build()(implicit settings: RawSettings): CompilerService = {
     if (services.isEmpty) {
-      throw new CompilerException("no authentication service available")
+      throw new CompilerException("no compiler service available")
     } else if (services.size > 1) {
       val implClassName = settings.getString(COMPILER_IMPL)
       services.find(p => p.name == implClassName) match {
         case Some(builder) => builder.build
-        case None => throw new CompilerException(s"cannot find authentication service: $implClassName")
+        case None => throw new CompilerException(s"cannot find compiler service: $implClassName")
       }
     } else {
       services.head.build

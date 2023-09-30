@@ -13,7 +13,6 @@
 package raw.compiler.rql2.api
 
 import org.scalatest.BeforeAndAfterAll
-import raw.auth.api.AuthServiceProvider
 import raw.compiler.api.{CompilerService, CompilerServiceProvider}
 import raw.utils.RawTestSuite
 

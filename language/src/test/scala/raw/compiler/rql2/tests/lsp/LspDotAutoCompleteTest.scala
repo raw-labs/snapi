@@ -13,14 +13,13 @@
 package raw.compiler.rql2.tests.lsp
 
 import raw.compiler.api._
-import raw.compiler.{FieldLSPAutoCompleteResponse, Pos}
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait LspDotAutoCompleteTest extends CompilerTestContext {
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
     val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(line, col))
-    assert(entries.toSeq == expectedFields.map(ef => FieldLSPAutoCompleteResponse(ef._1, ef._2)))
+    assert(entries.toSeq == expectedFields.map(ef => FieldCompletion(ef._1, ef._2)))
   }
 
   test("simple auto-complete record test") { _ =>

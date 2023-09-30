@@ -12,7 +12,6 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.Pos
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.compiler.api._
 

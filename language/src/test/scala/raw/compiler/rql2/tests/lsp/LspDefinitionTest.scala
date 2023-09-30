@@ -12,7 +12,6 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.Pos
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.compiler.api._
 
@@ -24,7 +23,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(4, 1))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(4, 1))
     assertResult(2)(line)
     assertResult(1)(column)
   }
@@ -35,7 +34,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(2, 1))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(2, 1))
     assertResult(2)(line)
     assertResult(1)(column)
   }
@@ -46,7 +45,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(5, 1))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(5, 1))
     assertResult(3)(line)
     assertResult(7)(column)
   }
@@ -56,7 +55,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(4, 1))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(4, 1))
     assertResult(2)(line)
     assertResult(7)(column)
   }
@@ -66,7 +65,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(2, 7))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(2, 7))
     assertResult(2)(line)
     assertResult(7)(column)
   }
@@ -80,7 +79,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(2, 3))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(2, 3))
     assertResult(2)(line)
     assertResult(1)(column)
   }
@@ -90,7 +89,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |  b(v: int): int = v
       |in
       |b(2)""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(2, 3))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(2, 3))
     assertResult(2)(line)
     assertResult(3)(column)
   }
@@ -104,7 +103,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(8, 15))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(8, 15))
     assertResult(2)(line)
     assertResult(1)(column)
   }
@@ -118,7 +117,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(2, 20))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(2, 20))
     assertResult(2)(line)
     assertResult(19)(column)
   }
@@ -132,7 +131,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(3, 29))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(3, 29))
     assertResult(2)(line)
     assertResult(19)(column)
   }
@@ -155,7 +154,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(4, 32))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(4, 32))
     assertResult(2)(line)
     assertResult(42)(column)
   }
@@ -165,7 +164,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val GoToDefinitionResponse(Pos(line, column), _) = goToDefinition(code, Pos(4, 45))
+    val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(4, 45))
     assertResult(2)(line)
     assertResult(70)(column)
   }

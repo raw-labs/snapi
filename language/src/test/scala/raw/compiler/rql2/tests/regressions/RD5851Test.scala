@@ -13,7 +13,6 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.api.{AutoCompleteResponse, Completion}
-import raw.compiler.Pos
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.compiler.api._
 
