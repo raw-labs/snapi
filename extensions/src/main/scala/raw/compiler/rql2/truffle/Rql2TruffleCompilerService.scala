@@ -14,7 +14,22 @@ package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.Truffle
 import org.graalvm.polyglot.Context
-import raw.compiler.api.{AutoCompleteResponse, CompilationResponse, CompilerServiceException, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GetProgramDescriptionResponse, GetTypeResponse, GoToDefinitionResponse, HoverResponse, Pos, RenameResponse, ValidateResponse}
+import raw.compiler.api.{
+  AutoCompleteResponse,
+  CompilationResponse,
+  CompilerServiceException,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  GetProgramDescriptionResponse,
+  GetTypeResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  RenameResponse,
+  ValidateResponse
+}
 import raw.compiler.common.CommonCompilerService
 import raw.runtime.{ParamValue, ProgramEnvironment}
 import raw.runtime.truffle.RawLanguage
