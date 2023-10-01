@@ -19,7 +19,6 @@ import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.BaseNode
 import raw.compiler.rql2.truffle.TruffleEntrypoint
 import raw.runtime.Entrypoint
-import raw.runtime.truffle.RawLanguage
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 
 import java.io.OutputStream
