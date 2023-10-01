@@ -15,7 +15,6 @@ package raw.runtime.truffle.runtime.iterable;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import java.util.Comparator;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.sources.api.SourceContext;
 

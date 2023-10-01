@@ -15,10 +15,9 @@ package raw.runtime.truffle;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.nodes.Node;
+import com.typesafe.config.ConfigFactory;
 import java.io.OutputStream;
 import java.util.Objects;
-
-import com.typesafe.config.ConfigFactory;
 import raw.creds.api.CredentialsService;
 import raw.creds.api.CredentialsServiceProvider;
 import raw.creds.api.Secret;
@@ -36,7 +35,6 @@ import scala.collection.immutable.Map;
 import scala.collection.immutable.Seq;
 import scala.collection.immutable.Seq$;
 import scala.collection.immutable.Set;
-
 
 public final class RawContext {
 
@@ -73,12 +71,16 @@ public final class RawContext {
     this.sourceContext = new SourceContext(user, credentialsService, rawSettings);
 
     // Create program environment.
-    Set<String> scalaScopes = JavaConverters.asScalaSetConverter(java.util.Set.of(scopes)).asScala().toSet();
+    Set<String> scalaScopes =
+        JavaConverters.asScalaSetConverter(java.util.Set.of(scopes)).asScala().toSet();
 
     java.util.Map<String, String> javaOptions = new java.util.HashMap<>();
     javaOptions.put("output-format", env.getOptions().get(RawOptions.OUTPUT_FORMAT_KEY));
 
-    Map<String, String> scalaOptions = JavaConverters.mapAsScalaMapConverter(javaOptions).asScala().toMap(scala.Predef.<scala.Tuple2<String, String>>conforms());
+    Map<String, String> scalaOptions =
+        JavaConverters.mapAsScalaMapConverter(javaOptions)
+            .asScala()
+            .toMap(scala.Predef.<scala.Tuple2<String, String>>conforms());
 
     Option<String> maybeTraceId = traceId != null ? Some.apply(traceId) : Option.empty();
 
@@ -89,9 +91,9 @@ public final class RawContext {
     return language;
   }
 
-//  public Env getEnv() {
-//    return env;
-//  }
+  //  public Env getEnv() {
+  //    return env;
+  //  }
 
   public RawSettings getRawSettings() {
     return rawSettings;
@@ -136,11 +138,11 @@ public final class RawContext {
     return REFERENCE.get(node);
   }
 
-//  /**
-//   * Returns an object that contains bindings that were exported across all used languages. To
-//   * read or write from this object the {@link TruffleObject interop} API can be used.
-//   */
-//  public TruffleObject getPolyglotBindings() {
-//    return (TruffleObject) env.getPolyglotBindings();
-//  }
+  //  /**
+  //   * Returns an object that contains bindings that were exported across all used languages. To
+  //   * read or write from this object the {@link TruffleObject interop} API can be used.
+  //   */
+  //  public TruffleObject getPolyglotBindings() {
+  //    return (TruffleObject) env.getPolyglotBindings();
+  //  }
 }

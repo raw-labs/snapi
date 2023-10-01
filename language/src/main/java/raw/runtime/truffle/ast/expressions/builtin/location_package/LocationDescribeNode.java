@@ -26,13 +26,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
-
-import raw.sources.api.SourceContext;
-import raw.utils.RawException;
 import raw.compiler.rql2.Rql2TypeUtils$;
 import raw.compiler.rql2.source.*;
 import raw.inferrer.api.*;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
@@ -43,6 +39,7 @@ import raw.runtime.truffle.runtime.option.StringOption;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.sources.api.SourceContext;
 import raw.utils.RawException;
 import scala.Some;
 

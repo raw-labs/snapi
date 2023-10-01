@@ -20,11 +20,11 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import org.graalvm.options.OptionDescriptors;
 import raw.compiler.api.*;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.utils.RawSettings;
 import raw.runtime.Entrypoint;
 import raw.runtime.ProgramEnvironment;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.utils.RawSettings;
 import scala.Option;
 
 @TruffleLanguage.Registration(
@@ -71,7 +71,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return RawOptions.OPTION_DESCRIPTORS;
   }
 
-    @Override
+  @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
     RawContext context = RawContext.get(null);
     RawSettings rawSettings = context.getRawSettings();
@@ -82,7 +82,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     CompilerService compilerService = CompilerServiceProvider.apply(rawSettings);
 
     // FIXME (msb): maybeArguments should ALSO be read from the context!
-    CompilationResponse compilationResponse = compilerService.compile(source, Option.empty(), programEnvironment,  this);
+    CompilationResponse compilationResponse =
+        compilerService.compile(source, Option.empty(), programEnvironment, this);
     if (compilationResponse instanceof CompilationFailure) {
       // FIXME (msb): Return all errors, not just head.
       String result = ((CompilationFailure) compilationResponse).errors().head().toString();

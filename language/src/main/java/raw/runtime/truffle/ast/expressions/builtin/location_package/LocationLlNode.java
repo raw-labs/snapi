@@ -23,10 +23,6 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-
-import raw.sources.api.SourceContext;
-import raw.utils.RawException;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
@@ -39,6 +35,7 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.*;
 import raw.utils.RawException;
 import scala.Tuple2;
@@ -54,8 +51,7 @@ public abstract class LocationLlNode extends ExpressionNode {
     try {
       SourceContext context = RawContext.get(this).getSourceContext();
       FileSystemLocation fs =
-          FileSystemLocationProvider.build(
-              locationObject.getLocationDescription(), context);
+          FileSystemLocationProvider.build(locationObject.getLocationDescription(), context);
       IndexedSeq<Tuple2<FileSystemLocation, FileSystemMetadata>> values =
           fs.lsWithMetadata().toIndexedSeq();
       int size = values.size();

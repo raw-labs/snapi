@@ -15,13 +15,10 @@ package raw.runtime.truffle.utils;
 import com.oracle.truffle.api.CompilerDirectives;
 import java.io.InputStream;
 import java.io.Reader;
-
-import raw.sources.api.SourceContext;
-import raw.utils.RawException;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.Encoding;
+import raw.sources.api.SourceContext;
 import raw.sources.bytestream.api.ByteStreamLocation;
 import raw.sources.bytestream.api.ByteStreamLocationProvider;
 import raw.utils.RawException;
@@ -45,8 +42,7 @@ public class TruffleInputStream {
   @CompilerDirectives.TruffleBoundary
   public ByteStreamLocation getLocation() {
     try {
-      return ByteStreamLocationProvider.build(
-          locationObject.getLocationDescription(), context);
+      return ByteStreamLocationProvider.build(locationObject.getLocationDescription(), context);
     } catch (RawException ex) {
       throw new RawTruffleRuntimeException(ex.getMessage());
     }

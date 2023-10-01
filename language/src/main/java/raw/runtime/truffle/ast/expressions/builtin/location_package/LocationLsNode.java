@@ -16,15 +16,13 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.sources.api.SourceContext;
-import raw.utils.RawException;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.api.Location;
+import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.FileSystemLocation;
 import raw.sources.filesystem.api.FileSystemLocationProvider;
 import raw.utils.RawException;
@@ -39,8 +37,7 @@ public abstract class LocationLsNode extends ExpressionNode {
     try {
       SourceContext context = RawContext.get(this).getSourceContext();
       FileSystemLocation fs =
-          FileSystemLocationProvider.build(
-              locationObject.getLocationDescription(), context);
+          FileSystemLocationProvider.build(locationObject.getLocationDescription(), context);
       IndexedSeq<String> values = fs.ls().map(Location::rawUri).toIndexedSeq();
       int size = values.size();
       String[] result = new String[size];
