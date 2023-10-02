@@ -16,4 +16,9 @@ module raw.language.extensions {
   requires org.graalvm.polyglot;
   requires org.graalvm.truffle;
   requires raw.language;
+
+  provides raw.compiler.rql2.api.EntryExtension with
+      raw.compiler.snapi.truffle.builtin.binary.TruffleFromStringBinaryEntry,
+      raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryBase64Entry,
+      raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryReadEntry;
 }
