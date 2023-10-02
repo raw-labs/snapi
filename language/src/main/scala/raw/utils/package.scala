@@ -233,7 +233,7 @@ package object utils extends StrictLogging {
         if (resource.startsWith("data/")) {
           val classpath = System.getProperty("java.class.path")
           val classpathEntries = classpath.split(System.getProperty("path.separator"))
-          val jarFiles = classpathEntries.filter(p => p.contains("raw-language_2.12-tests.jar"))
+          val jarFiles = classpathEntries.filter(p => p.contains("raw-language") && p.endsWith("-tests.jar"))
           if (jarFiles.isEmpty) {
             // We are not running in JAR mode, so just return the resource directly.
             Paths.get(Resources.getResource(resource).toURI)
