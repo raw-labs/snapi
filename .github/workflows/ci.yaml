@@ -60,7 +60,7 @@ jobs:
           secrets: ${{ toJSON(secrets) }}
       - name: build deps
         run: |
-          deps/kiam/build.sh
+          deps/kiama/build.sh
           deps/scala-logging/build.sh
       - name: build language
         working-directory: language
