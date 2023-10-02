@@ -2,6 +2,7 @@ name: release
 on:
   repository_dispatch:
     types: [release]
+  workflow_dispatch:
 jobs:
   create-gh-release:
     runs-on: self-hosted
@@ -16,8 +17,10 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.ref }}
           fetch-depth: 0
+      - uses: stCarolas/setup-maven@v4.5
+        with:
+          maven-version: 3.8.2
       - run: ./rebuild.sh
-      - run: sbt buildSnapi
       - uses: softprops/action-gh-release@v1
         with:
           token: "${{ secrets.RAW_CI_PAT }}"
@@ -28,8 +31,9 @@ jobs:
           tag_name: ${{ github.event.client_payload.tag }}
           files: |
             ./licenses/BSL.txt
-            ./raw-cli/target/scala-2.12/raw-cli-assembly*.jar
+            ./launcher/target/raw-cli-*.jar
   notify-main-repo:
+    if: github.event == 'repository_dispatch'
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3

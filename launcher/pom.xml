@@ -6,13 +6,13 @@
 
     <groupId>org.example</groupId>
     <artifactId>raw-cli</artifactId>
-    <version>0.24.29+0-cc94ce1f+20230929-1623-SNAPSHOT</version>
+    <version>0.24.29+5-4b4243df-SNAPSHOT</version>
 
     <properties>
         <maven.compiler.source>11</maven.compiler.source>
         <maven.compiler.target>11</maven.compiler.target>
-        <language.version>0.24.29+0-cc94ce1f+20230929-1623-SNAPSHOT</language.version>
-        <extensions.version>0.24.29+0-cc94ce1f+20230929-1626-SNAPSHOT</extensions.version>
+        <language.version>0.24.29+5-4b4243df-SNAPSHOT</language.version>
+        <extensions.version>0.24.29+5-4b4243df-SNAPSHOT</extensions.version>
     </properties>
 
     <dependencies>
