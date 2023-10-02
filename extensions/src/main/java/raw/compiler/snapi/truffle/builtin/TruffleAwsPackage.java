@@ -6,8 +6,8 @@ import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.AwsV4SignedRequest;
 import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2RecordType;
-import raw.compiler.rql2.truffle.TruffleArg;
-import raw.compiler.rql2.truffle.TruffleEntryExtension;
+import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.binary.PlusNode;
@@ -18,37 +18,40 @@ import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Vector;
 
 public class TruffleAwsPackage extends AwsV4SignedRequest implements TruffleEntryExtension {
-
   @Override
-  public ExpressionNode toTruffle(Type t, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode key = args.get(0).e();
-    ExpressionNode secretKey = args.get(1).e();
-    ExpressionNode service = args.get(2).e();
+  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+    ExpressionNode key = args.get(0).getExpNode();
+    ExpressionNode secretKey = args.get(1).getExpNode();
+    ExpressionNode service = args.get(2).getExpNode();
 
     Optional<ExpressionNode> maybeRegion =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("region"))
-            .map(TruffleArg::e)
+            .filter(
+                (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("region"))
+            .map(TruffleArg::getExpNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeSessionToken =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("sessionToken"))
-            .map(TruffleArg::e)
+            .filter(
+                (TruffleArg a) ->
+                    a.getIdentifier() != null && a.getIdentifier().equals("sessionToken"))
+            .map(TruffleArg::getExpNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeMethod =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("method"))
-            .map(TruffleArg::e)
+            .filter(
+                (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("method"))
+            .map(TruffleArg::getExpNode)
             .findFirst();
 
     ExpressionNode method = maybeMethod.orElseGet(() -> new StringNode("GET"));
 
     Optional<ExpressionNode> maybeHost =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("host"))
-            .map(TruffleArg::e)
+            .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("host"))
+            .map(TruffleArg::getExpNode)
             .findFirst();
 
     ExpressionNode host =
@@ -65,22 +68,24 @@ public class TruffleAwsPackage extends AwsV4SignedRequest implements TruffleEntr
 
     ExpressionNode path =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("path"))
-            .map(TruffleArg::e)
+            .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("path"))
+            .map(TruffleArg::getExpNode)
             .findFirst()
             .orElseGet(() -> new StringNode("/"));
 
     ExpressionNode body =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("bodyString"))
-            .map(TruffleArg::e)
+            .filter(
+                (TruffleArg a) ->
+                    a.getIdentifier() != null && a.getIdentifier().equals("bodyString"))
+            .map(TruffleArg::getExpNode)
             .findFirst()
             .orElseGet(() -> new StringNode(""));
 
     ExpressionNode urlParams =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("args"))
-            .map(TruffleArg::e)
+            .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("args"))
+            .map(TruffleArg::getExpNode)
             .findFirst()
             .orElseGet(
                 () ->
@@ -91,8 +96,9 @@ public class TruffleAwsPackage extends AwsV4SignedRequest implements TruffleEntr
 
     ExpressionNode headers =
         args.stream()
-            .filter((TruffleArg a) -> a.idn().isDefined() && a.idn().get().equals("headers"))
-            .map(TruffleArg::e)
+            .filter(
+                (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("headers"))
+            .map(TruffleArg::getExpNode)
             .findFirst()
             .orElseGet(
                 () ->

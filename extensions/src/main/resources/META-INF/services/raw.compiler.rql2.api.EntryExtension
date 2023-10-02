@@ -207,3 +207,5 @@ raw.compiler.rql2.truffle.builtin.TruffleTypeEmptyEntry
 raw.compiler.rql2.truffle.builtin.TruffleTypeMatchEntry
 raw.compiler.rql2.truffle.builtin.TruffleReadXmlEntry
 raw.compiler.rql2.truffle.builtin.TruffleParseXmlEntry
+
+raw.compiler.snapi.truffle.builtin.binary.TruffleFromStringBinaryEntry
