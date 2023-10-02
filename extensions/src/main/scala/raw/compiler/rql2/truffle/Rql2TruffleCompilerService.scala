@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.Truffle
-import org.graalvm.polyglot.Context
+import org.graalvm.polyglot.{Context, PolyglotAccess}
 import raw.compiler.api.{
   AutoCompleteResponse,
   CompilationResponse,
@@ -31,9 +31,27 @@ import raw.compiler.api.{
   ValidateResponse
 }
 import raw.compiler.common.CommonCompilerService
-import raw.runtime.{ParamValue, ProgramEnvironment}
+import raw.runtime.{
+  ParamBool,
+  ParamByte,
+  ParamDate,
+  ParamDecimal,
+  ParamDouble,
+  ParamFloat,
+  ParamInt,
+  ParamInterval,
+  ParamLong,
+  ParamNull,
+  ParamShort,
+  ParamString,
+  ParamTime,
+  ParamTimestamp,
+  ParamValue,
+  ProgramEnvironment
+}
 import raw.runtime.truffle.RawLanguage
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
+import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.utils.{RawException, RawSettings}
 
 import java.io.OutputStream
@@ -86,6 +104,14 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
         .flatMap { program =>
           compiler.compile(program)(programContext).right.map { entrypoint =>
             val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
+            maybeArguments.foreach { args =>
+              args.foreach(arg =>
+                ctx.getPolyglotBindings.putMember(
+                  arg._1,
+                  javaValueOf(arg._2)
+                )
+              )
+            }
             ctx.initialize(RawLanguage.ID)
             ctx.enter()
             try {
@@ -108,6 +134,25 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       case ex: RawTruffleRuntimeException => ExecutionRuntimeFailure(ex.getMessage)
       case ex: RawException => ExecutionRuntimeFailure(ex.getMessage)
       case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+    }
+  }
+
+  private def javaValueOf(value: ParamValue) = {
+    value match {
+      case ParamNull() => null
+      case ParamByte(v) => v
+      case ParamShort(v) => v
+      case ParamInt(v) => v
+      case ParamLong(v) => v
+      case ParamFloat(v) => v
+      case ParamDouble(v) => v
+      case ParamBool(v) => v
+      case ParamString(v) => v
+      case ParamDecimal(v) => new DecimalObject(v)
+      case ParamDate(v) => new DateObject(v)
+      case ParamTime(v) => new TimeObject(v)
+      case ParamTimestamp(v) => new TimestampObject(v)
+      case ParamInterval(v) => IntervalObject.fromDuration(v)
     }
   }
 
@@ -162,6 +207,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
       .environment("RAW_TRACE_ID", environment.user.uid.toString)
       .environment("RAW_SCOPES", environment.scopes.mkString(","))
       .allowExperimentalOptions(true)
+      .allowPolyglotAccess(PolyglotAccess.ALL)
     environment.options
       .get("output-format")
       .foreach(f => ctxBuilder.option(RawLanguage.ID + ".output-format", f))

@@ -14,6 +14,7 @@ package raw.runtime.truffle;
 
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import com.typesafe.config.ConfigFactory;
 import java.io.OutputStream;
@@ -21,7 +22,6 @@ import java.util.Objects;
 import raw.creds.api.CredentialsService;
 import raw.creds.api.CredentialsServiceProvider;
 import raw.creds.api.Secret;
-import raw.runtime.ParamValue;
 import raw.runtime.ProgramEnvironment;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.sources.api.SourceContext;
@@ -126,11 +126,6 @@ public final class RawContext {
     return scopes;
   }
 
-  public ParamValue getParam(String key) {
-    // FIXME (msb): Use getPolyglotBindings?
-    throw new IllegalArgumentException("Not implemented yet");
-  }
-
   private static final TruffleLanguage.ContextReference<RawContext> REFERENCE =
       TruffleLanguage.ContextReference.create(RawLanguage.class);
 
@@ -138,11 +133,11 @@ public final class RawContext {
     return REFERENCE.get(node);
   }
 
-  //  /**
-  //   * Returns an object that contains bindings that were exported across all used languages. To
-  //   * read or write from this object the {@link TruffleObject interop} API can be used.
-  //   */
-  //  public TruffleObject getPolyglotBindings() {
-  //    return (TruffleObject) env.getPolyglotBindings();
-  //  }
+  /**
+   * Returns an object that contains bindings that were exported across all used languages. To read
+   * or write from this object the {@link TruffleObject interop} API can be used.
+   */
+  public TruffleObject getPolyglotBindings() {
+    return (TruffleObject) env.getPolyglotBindings();
+  }
 }

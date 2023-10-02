@@ -644,28 +644,6 @@ trait CompilerTestContext
     }
   }
 
-  // Executes a parameterized query, running 'decl' with the given parameters.
-  def callDecl(code: String, decl: String, args: Seq[(String, ParamValue)] = Seq.empty): Either[String, Any] = {
-    ???
-//    val compiler = getCompiler()
-//    val programContext =
-//      getProgramContextFromSource(compiler, code, Some(args.toArray)).asInstanceOf[raw.compiler.rql2.ProgramContext]
-//    // Type the code that was passed as a parameter.
-//    val tree = compiler.buildInputTree(code)(programContext).right.get
-//    val Rql2Program(methods, _) = tree.root
-//    // Find the method that we want to run.
-//    methods.find(_.i.idn == decl) match {
-//      case None => fail(s"method '$decl' not found")
-//      case Some(method) =>
-//        val entity = tree.analyzer.entity(method.i)
-//        val raw.compiler.rql2.source.FunType(_, _, outputType, _) = tree.analyzer.entityType(entity)
-//        // Executes code and parses the output.
-//        doExecute(code, maybeDecl = Some(decl), maybeArgs = Some(args)).right.map(path =>
-//          outputParser(path, compiler.prettyPrint(outputType))
-//        )
-//    }
-  }
-
   def tryExecuteQuery(
       queryString: String,
       ordered: Boolean = false,
