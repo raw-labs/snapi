@@ -38,6 +38,6 @@ class TruffleEnvironmentScopesEntry extends EnvironmentScopesEntry with TruffleS
 class TruffleEnvironmentParameterEntry extends EnvironmentParameterEntry with TruffleEntryExtension {
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val paramIndex = args(1).e
-    EnvironmentParameterNodeGen.create(paramIndex, t.asInstanceOf[Rql2Type])
+    EnvironmentParameterNodeGen.create(paramIndex, resetProps(t, Set.empty).asInstanceOf[Rql2Type])
   }
 }

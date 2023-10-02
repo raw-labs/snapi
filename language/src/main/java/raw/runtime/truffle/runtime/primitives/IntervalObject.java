@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.TruffleObject;
+import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -45,6 +46,10 @@ public final class IntervalObject implements TruffleObject {
     this.millis = millis;
   }
 
+  public static IntervalObject fromDuration(Duration duration) {
+    return new IntervalObject(0, duration.toMillis());
+  }
+
   public IntervalObject(long months, long millis) {
     long rest;
     this.years = (int) (months / 12);
@@ -63,6 +68,11 @@ public final class IntervalObject implements TruffleObject {
 
     this.millis = (int) (rest %= 1000);
   }
+
+  //  public IntervalObject(Duration duration) {
+  //    long millis = duration.getNano() / 1000000 + duration.getSeconds() * 1000;
+  //    new IntervalObject(0, millis);
+  //  }
 
   @CompilerDirectives.TruffleBoundary
   public IntervalObject(String interval) {
