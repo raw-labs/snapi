@@ -92,6 +92,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
               val target =
                 Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
               target.call()
+              outputStream.flush()
               ExecutionSuccess
             } finally {
               ctx.leave()

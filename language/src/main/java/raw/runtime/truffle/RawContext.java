@@ -63,8 +63,8 @@ public final class RawContext {
     this.traceId = traceId;
 
     // Set scopes from environment variable.
-    String scopesStr = env.getEnvironment().get("RAW_SCOPES");
-    this.scopes = scopesStr == null ? new String[0] : scopesStr.split(",");
+    String scopesStr = Objects.toString(env.getEnvironment().get("RAW_SCOPES"), "");
+    this.scopes = (scopesStr == null || scopesStr.isEmpty()) ? new String[0] : scopesStr.split(",");
 
     // Create source context.
     CredentialsService credentialsService = CredentialsServiceProvider.apply(rawSettings);
