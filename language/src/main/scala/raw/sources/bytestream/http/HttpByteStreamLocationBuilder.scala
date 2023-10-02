@@ -139,7 +139,7 @@ class HttpByteStreamLocationBuilder extends ByteStreamLocationBuilder with Stric
       val authName = location.getStringSetting("http-auth-cred-name").get
       val maybeCred = sourceContext.credentialsService.getNewHttpAuth(sourceContext.user, authName)
       if (maybeCred.isEmpty) {
-        throw new HttpClientException(s"Cannot find credential: $authName")
+        throw new HttpClientException(s"cannot find credential: $authName")
       }
       maybeCred
     } else if (location.getStringSetting("http-token").isDefined) {

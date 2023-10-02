@@ -177,7 +177,7 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
     val HoverResponse(_, errors) = hover(code, Pos(1, 1))
-    assert(errors.nonEmpty)
+    assert(errors.isEmpty)
   }
 
   test("hover field of a collection") { _ =>

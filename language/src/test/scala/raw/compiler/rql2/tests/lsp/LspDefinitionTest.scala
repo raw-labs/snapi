@@ -146,7 +146,7 @@ trait LspDefinitionTest extends CompilerTestContext {
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
     val GoToDefinitionResponse(_, errors) = goToDefinition(code, Pos(1, 1))
-    assert(errors.nonEmpty)
+    assert(errors.isEmpty)
   }
 
   test("go to definition field of a collection") { _ =>
@@ -172,7 +172,7 @@ trait LspDefinitionTest extends CompilerTestContext {
   test("go to definition of space should return empty result") { _ =>
     val code = """  let a = "hello" in a """.stripMargin
     val GoToDefinitionResponse(_, errors) = goToDefinition(code, Pos(1, 1))
-    assert(errors.nonEmpty)
+    assert(errors.isEmpty)
   }
 
 }

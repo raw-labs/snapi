@@ -80,7 +80,7 @@ class MockCredentialsService(implicit settings: RawSettings) extends Credentials
 
   override def listNewHttpCredentials(user: AuthenticatedUser): List[HttpCredentialId] = {
     newHttpCredentials.collect {
-      case ((userCred, name), cred) if userCred == user =>
+      case ((userCred, name), cred) if userCred == user.uid =>
         val credType = cred match {
           case _: BasicAuthCredential => HttpCredentialType.UserPass
           case _: TokenCredential => HttpCredentialType.Token
@@ -93,7 +93,7 @@ class MockCredentialsService(implicit settings: RawSettings) extends Credentials
   override def getNewHttpAuth(user: AuthenticatedUser, name: String): Option[NewHttpAuth] = {
     newHttpCredentials
       .collectFirst {
-        case ((userCred, name), cred) if userCred == user =>
+        case ((userCred, name), cred) if userCred == user.uid =>
           cred match {
             case cred: BasicAuthCredential => BasicAuth(cred.username, cred.password, cred.options)
             case cred: TokenCredential =>
