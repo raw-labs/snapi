@@ -11,7 +11,9 @@
  */
 
 module raw.language.extensions {
-  requires raw.language;
   requires scala.library;
+  requires org.slf4j;
+  requires org.graalvm.polyglot;
   requires org.graalvm.truffle;
+  requires raw.language;
 }

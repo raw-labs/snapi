@@ -1,8 +1,8 @@
 raw.compiler.rql2.truffle.builtin.TruffleByteFromEntry
 raw.compiler.rql2.truffle.builtin.AwsV4SignedRequestEntry
-raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension
-raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry
-raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry
+#raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension
+#raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry
+#raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry
 raw.compiler.rql2.truffle.builtin.TruffleEmptyCollectionEntry
 raw.compiler.rql2.truffle.builtin.TruffleBuildCollectionEntry
 raw.compiler.rql2.truffle.builtin.TruffleFilterCollectionEntry
@@ -209,3 +209,5 @@ raw.compiler.rql2.truffle.builtin.TruffleReadXmlEntry
 raw.compiler.rql2.truffle.builtin.TruffleParseXmlEntry
 
 raw.compiler.snapi.truffle.builtin.binary.TruffleFromStringBinaryEntry
+raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryReadEntry
+raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryBase64Entry
