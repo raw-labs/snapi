@@ -3,16 +3,12 @@ package raw.cli;
 import org.graalvm.polyglot.Context;
 import org.graalvm.polyglot.PolyglotAccess;
 import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
-
-import java.util.HashMap;
-import java.util.Map;
 
 public class RawCli {
   public static void main(String[] args) {
     Source sourceSnapi = null;
     try {
-      sourceSnapi = Source.newBuilder("rql", "Environment.Parameter(type int, \"a\")", "<stdin>").build();
+      sourceSnapi = Source.newBuilder("rql", "Environment.Parameter(type int, \"aValue\")", "<stdin>").build();
     } catch (Exception e) {
       e.printStackTrace();
       return;
@@ -28,12 +24,12 @@ public class RawCli {
     Context context = Context.newBuilder("python", "rql")
         .in(System.in)
         .out(System.out)
-//        .allowPolyglotAccess(PolyglotAccess.ALL)
+        .allowPolyglotAccess(PolyglotAccess.ALL)
         .allowExperimentalOptions(true)
 //                .option("rql.output-format", "json")
         .build();
 
-    context.getPolyglotBindings().putMember("a", 1);
+    context.getPolyglotBindings().putMember("aValue", 14);
 
     try {
       int a = (int) context.eval(sourceSnapi).asInt();
