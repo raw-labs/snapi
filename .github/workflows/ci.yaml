@@ -58,13 +58,22 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - run: ./rebuild.sh
-      - name: language doc
-        run: sbt doc
+      - name: build deps
+        run: |
+          deps/kiam/build.sh
+          deps/scala-logging/build.sh
+      - name: build language
         working-directory: language
-      - name: extensions doc
-        run: sbt doc
+        run: ./build.sh
+      - name: build extensions
         working-directory: extensions
+        run: ./build.sh
+      - name: language doc
+        working-directory: language
+        run: sbt doc
+      - name: extensions doc
+        working-directory: extensions
+        run: sbt doc
       - run: ./tests.sh
       - uses: mikepenz/action-junit-report@v3
         if: success() || failure()
