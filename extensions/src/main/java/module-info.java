@@ -17,6 +17,7 @@ module raw.language.extensions {
   requires org.graalvm.truffle;
   requires raw.language;
   exports raw.compiler.snapi.truffle;
+  exports raw.compiler.snapi.truffle.compiler;
 
   provides raw.compiler.api.CompilerServiceBuilder with
       raw.compiler.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
