@@ -10,13 +10,12 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler
+package raw.compiler.api
 
-import raw.runtime.{ParamValue, ProgramEnvironment}
+import raw.utils.RawSettings
 
-final case class ProgramDefinition(
-    code: String,
-    decl: Option[String],
-    parameters: Option[Array[(String, ParamValue)]],
-    environment: ProgramEnvironment
-)
+trait CompilerServiceBuilder {
+  def name: String
+
+  def build(implicit settings: RawSettings): CompilerService
+}

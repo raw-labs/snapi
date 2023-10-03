@@ -13,12 +13,9 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.{HoverLSPRequest, HoverLSPResponse, Pos, TypeHoverResponse}
-import raw.runtime.ProgramEnvironment
+import raw.compiler.api._
 
 trait RD9409Test extends CompilerTestContext {
-
-  private val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   test("""// note the extra comma after c = 3
     |let a = 1,
@@ -29,7 +26,7 @@ trait RD9409Test extends CompilerTestContext {
     // now make sure the flexible parser works
     val code = it.q // this is the query source code
     // hover on 'a'
-    val HoverLSPResponse(TypeHoverResponse(name, tipe), _) = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 5)))
+    val HoverResponse(Some(TypeCompletion(name, tipe)), _) = hover(code, Pos(2, 5))
     name should be("a")
     tipe should be("int")
   }
@@ -41,7 +38,7 @@ trait RD9409Test extends CompilerTestContext {
     // now make sure the flexible parser works
     val code = it.q // this is the query source code
     // hover on 'r'
-    val HoverLSPResponse(TypeHoverResponse(name, tipe), _) = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(3, 4)))
+    val HoverResponse(Some(TypeCompletion(name, tipe)), _) = hover(code, Pos(3, 4))
     name should be("r")
     tipe should be("record(a: int, b: int, c: int)")
   }

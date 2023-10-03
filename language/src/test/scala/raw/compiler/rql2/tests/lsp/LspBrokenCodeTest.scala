@@ -12,29 +12,20 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler._
+import raw.compiler.api._
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
 
 trait LspBrokenCodeTest extends CompilerTestContext {
-
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   test("broken code hover test") { _ =>
     val code = """let
       |a: float = 5
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(2, 1)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("a")(name)
-            assertResult("float")(tipe)
-            logger.debug(s"Errors: $errors")
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 1))
+    assertResult("a")(name)
+    assertResult("float")(tipe)
+    logger.debug(s"Errors: $errors")
+
   }
 
   test("very broken code hover test") { _ =>
@@ -44,17 +35,10 @@ trait LspBrokenCodeTest extends CompilerTestContext {
       |    z = if (true) ,
       |    w = y.a
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(5, 9)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("y")(name)
-            assertResult("record(a: int)")(tipe)
-            logger.debug(s"Errors: $errors")
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(5, 9))
+    assertResult("y")(name)
+    assertResult("record(a: int)")(tipe)
+    logger.debug(s"Errors: $errors")
   }
 
   test("very broken code hover test 2") { _ =>
@@ -65,17 +49,10 @@ trait LspBrokenCodeTest extends CompilerTestContext {
       |    z = if (true) ,
       |    w = y.a
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(6, 9)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("y")(name)
-            assertResult("record(a: int)")(tipe)
-            logger.debug(s"Errors: $errors")
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(6, 9))
+    assertResult("y")(name)
+    assertResult("record(a: int)")(tipe)
+    logger.debug(s"Errors: $errors")
   }
 
   test("very broken code hover test 3") { _ =>
@@ -86,17 +63,10 @@ trait LspBrokenCodeTest extends CompilerTestContext {
       |    z = if (true) ,
       |    w = y.
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(6, 9)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("y")(name)
-            assertResult("record(a: int)")(tipe)
-            logger.debug(s"Errors: $errors")
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(6, 9))
+    assertResult("y")(name)
+    assertResult("record(a: int)")(tipe)
+    logger.debug(s"Errors: $errors")
   }
 
   test("very broken code hover test 4") { _ =>
@@ -107,18 +77,11 @@ trait LspBrokenCodeTest extends CompilerTestContext {
       |    z = if (1) ,
       |    w = y.
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(6, 9)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("y")(name)
-            assertResult("record(a: int)")(tipe)
-            assert(errors.exists(err => err.message.contains("expected bool but got int")))
-            logger.debug(s"Errors: $errors")
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(6, 9))
+    assertResult("y")(name)
+    assertResult("record(a: int)")(tipe)
+    assert(errors.exists(err => err.message.contains("expected bool but got int")))
+    logger.debug(s"Errors: $errors")
   }
 
   test("broken code with methods 1") { _ =>
@@ -127,16 +90,9 @@ trait LspBrokenCodeTest extends CompilerTestContext {
       |  let y = Record.Build(a=1)
       |  in y.
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(4, 6)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("y")(name)
-            assertResult("record(a: int)")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 6))
+    assertResult("y")(name)
+    assertResult("record(a: int)")(tipe)
   }
 
   test("broken code with methods and expression 1") { _ =>
@@ -147,16 +103,9 @@ trait LspBrokenCodeTest extends CompilerTestContext {
       |
       |1 + 2
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(4, 6)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("y")(name)
-            assertResult("record(a: int)")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 6))
+    assertResult("y")(name)
+    assertResult("record(a: int)")(tipe)
   }
 
   test("broken code with methods and expression 2") { _ =>
@@ -167,15 +116,8 @@ trait LspBrokenCodeTest extends CompilerTestContext {
       |
       |x(v) +
       |""".stripMargin
-    val response = doLsp(HoverLSPRequest(code, queryEnvironment, Pos(6, 1)))
-    response match {
-      case HoverLSPResponse(hoverResponse: LSPHoverResponse, errors: List[ErrorMessage]) => hoverResponse match {
-          case TypeHoverResponse(name, tipe) =>
-            assertResult("x")(name)
-            assertResult("(int) -> record(a: int)")(tipe)
-          case r => throw new AssertionError(s"Unexpected response: $r")
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(6, 1))
+    assertResult("x")(name)
+    assertResult("(int) -> record(a: int)")(tipe)
   }
 }

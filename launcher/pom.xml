@@ -30,7 +30,7 @@
         <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-language_2.12</artifactId>
-            <version>0.0.4</version>
+            <version>0.24.28+13-2445f608+20231002-1505-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>com.raw-labs</groupId>

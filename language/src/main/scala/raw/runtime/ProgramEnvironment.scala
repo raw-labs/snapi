@@ -12,8 +12,10 @@
 
 package raw.runtime
 
+import raw.utils.AuthenticatedUser
+
 final case class ProgramEnvironment(
-    language: Option[String],
+    user: AuthenticatedUser,
     scopes: Set[String],
     options: Map[String, String],
     maybeTraceId: Option[String] = None

@@ -17,7 +17,6 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.function.Closure;
@@ -27,6 +26,7 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapEquiJoinGroupByKey;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
+import raw.sources.api.SourceContext;
 
 /* The EquiJoinComputeNext class is a ComputeNextLibrary that implements the equi-join operation.
  * Both sides are first turned into OffHeapGroupByKey objects, so that their Generator are grouped and
@@ -40,7 +40,7 @@ public class EquiJoinComputeNext {
   private final Closure leftKeyF, rightKeyF, mkJoinedRecord;
   private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
   private final RawLanguage language;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   private Object leftMapGenerator = null,
       rightMapGenerator = null; // generators from group-by key maps
@@ -63,7 +63,7 @@ public class EquiJoinComputeNext {
       Rql2TypeWithProperties keyType,
       Closure mkJoinedRecord,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;

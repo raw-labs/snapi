@@ -229,6 +229,7 @@ resolvers += Resolver.sonatypeRepo("releases")
 
 // Publish settings
 Test / publishArtifact := true
+Compile / packageSrc / publishArtifact := true
 // When doing publishLocal, also publish to the local maven repository.
 publishLocal := (publishLocal dependsOn publishM2).value
 

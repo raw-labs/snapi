@@ -16,7 +16,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
@@ -28,6 +27,7 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class CsvReadComputeNext {
@@ -35,7 +35,7 @@ public class CsvReadComputeNext {
   private final LocationObject location;
   private RawTruffleCsvParser parser;
   private final DirectCallNode rowParser;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   private TruffleCharInputStream stream;
   private final String encoding;
@@ -43,7 +43,7 @@ public class CsvReadComputeNext {
 
   public CsvReadComputeNext(
       LocationObject location,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode rowParser,
       String encoding,
       RawTruffleCsvParserSettings settings) {

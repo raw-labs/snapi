@@ -24,7 +24,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
@@ -37,6 +36,7 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.api.LocationException;
+import raw.sources.api.SourceContext;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
 import raw.sources.bytestream.http.HttpByteStreamLocationBuilder;
 import raw.sources.bytestream.http.HttpResult;
@@ -57,10 +57,10 @@ public abstract class HttpReadNode extends ExpressionNode {
       @CachedLibrary(limit = "1") ListLibrary lists,
       @CachedLibrary(limit = "3") InteropLibrary records) {
     try {
-      RuntimeContext context = RawContext.get(this).getRuntimeContext();
+      SourceContext context = RawContext.get(this).getSourceContext();
       HttpByteStreamLocationBuilder builder = new HttpByteStreamLocationBuilder();
       HttpByteStreamLocation location =
-          builder.build(locationObject.getLocationDescription(), context.sourceContext());
+          builder.build(locationObject.getLocationDescription(), context);
       HttpResult result = location.getHttpResult();
       RecordObject record = RawLanguage.get(this).createRecord();
 

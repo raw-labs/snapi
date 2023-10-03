@@ -17,13 +17,13 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapCollectionGroupByKey;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public final class GroupByCollection {
@@ -35,7 +35,7 @@ public final class GroupByCollection {
 
   final Rql2TypeWithProperties keyType;
   final Rql2TypeWithProperties rowType;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   public GroupByCollection(
       Object iterable,
@@ -43,7 +43,7 @@ public final class GroupByCollection {
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     this.iterable = iterable;
     this.keyFun = keyFun;
     this.language = language;

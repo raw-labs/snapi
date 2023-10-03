@@ -15,12 +15,12 @@ package raw.runtime.truffle.runtime.iterable.operations;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.EquiJoinComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public final class EquiJoinCollection {
@@ -31,7 +31,7 @@ public final class EquiJoinCollection {
   final Rql2TypeWithProperties keyType;
   final Closure reshapeFun;
   private final RawLanguage language;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   public EquiJoinCollection(
       Object leftIterable,
@@ -43,7 +43,7 @@ public final class EquiJoinCollection {
       Rql2TypeWithProperties keyType,
       Closure reshapeFun,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;

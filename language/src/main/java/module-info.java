@@ -146,7 +146,10 @@ module raw.language {
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       raw.runtime.truffle.RawLanguageProvider;
 
+  uses raw.compiler.api.CompilerServiceBuilder;
+
   exports raw.compiler;
+  exports raw.compiler.api;
   exports raw.compiler.base;
   exports raw.compiler.base.source;
   exports raw.compiler.base.errors;

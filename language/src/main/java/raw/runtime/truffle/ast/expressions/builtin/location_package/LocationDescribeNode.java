@@ -29,7 +29,6 @@ import java.util.stream.Collectors;
 import raw.compiler.rql2.Rql2TypeUtils$;
 import raw.compiler.rql2.source.*;
 import raw.inferrer.api.*;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
@@ -40,6 +39,7 @@ import raw.runtime.truffle.runtime.option.StringOption;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.sources.api.SourceContext;
 import raw.utils.RawException;
 import scala.Some;
 
@@ -55,8 +55,8 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       LocationObject locationObject,
       int sampleSize,
       @CachedLibrary(limit = "5") InteropLibrary records) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    InferrerService inferrer = InferrerServiceProvider.apply(context.sourceContext());
+    SourceContext context = RawContext.get(this).getSourceContext();
+    InferrerService inferrer = InferrerServiceProvider.apply(context);
     try {
       // In scala implementation interpreter there is a sample size argument
       InputFormatDescriptor descriptor =
