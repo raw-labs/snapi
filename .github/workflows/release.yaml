@@ -3,11 +3,15 @@ on:
   repository_dispatch:
     types: [release]
   workflow_dispatch:
+
+env:
+  SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
+
 jobs:
   create-gh-release:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
       options: --user 1001
       credentials:
         username: ${{ github.actor }}
