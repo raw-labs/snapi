@@ -71,6 +71,6 @@ public class CollectionOrderByNode extends ExpressionNode {
         keyTypes,
         valueType,
         RawLanguage.get(this),
-        RawContext.get(this).getRuntimeContext());
+        RawContext.get(this).getSourceContext());
   }
 }

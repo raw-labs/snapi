@@ -18,11 +18,11 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import java.util.Comparator;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.sources.api.SourceContext;
 
 // OffHeap GroupBy where the set of nested values is returned as a list
 public class OffHeapListGroupByKey extends OffHeapGroupByKey {
@@ -32,7 +32,7 @@ public class OffHeapListGroupByKey extends OffHeapGroupByKey {
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      RuntimeContext context) {
+      SourceContext context) {
     super(keyCompare, kType, rowType, language, context, new ListGroupByRecordShaper(language));
   }
 }

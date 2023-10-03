@@ -12,12 +12,10 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{FormatCodeLSPRequest, FormatCodeLSPResponse}
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
+import raw.compiler.api._
 
 trait LspCommentsFormatTest extends CompilerTestContext {
-  val queryEnvironment: ProgramEnvironment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
 
   def assertFormattedCode(
       code: String,
@@ -25,14 +23,10 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       indentation: Option[Int] = None,
       width: Option[Int] = None
   ) = {
-    val response = doLsp(FormatCodeLSPRequest(code, queryEnvironment, indentation, width))
-    response match {
-      case FormatCodeLSPResponse(formattedCode, errors) =>
-        logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
-        assert(formattedCode.trim == expected.trim)
-        assert(errors.isEmpty)
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val FormatCodeResponse(Some(formattedCode), errors) = formatCode(code, indentation, width)
+    logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
+    assert(formattedCode.trim == expected.trim)
+    assert(errors.isEmpty)
   }
 
   test("comment after binary exp") { _ =>

@@ -32,6 +32,6 @@ public abstract class CollectionDistinctNode extends ExpressionNode {
   @Specialization
   protected Object doDistinct(Object iterable) {
     return new DistinctCollection(
-        iterable, getValueType(), RawLanguage.get(this), RawContext.get(this).getRuntimeContext());
+        iterable, getValueType(), RawLanguage.get(this), RawContext.get(this).getSourceContext());
   }
 }

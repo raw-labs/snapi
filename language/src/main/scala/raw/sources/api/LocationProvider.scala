@@ -12,8 +12,6 @@
 
 package raw.sources.api
 
-import java.util.ServiceLoader
-import scala.collection.JavaConverters._
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 

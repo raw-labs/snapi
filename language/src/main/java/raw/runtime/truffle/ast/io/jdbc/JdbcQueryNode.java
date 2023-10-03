@@ -15,13 +15,13 @@ package raw.runtime.truffle.ast.io.jdbc;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.iterable.sources.JdbcQueryCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Jdbc.Query")
 public class JdbcQueryNode extends ExpressionNode {
@@ -47,7 +47,7 @@ public class JdbcQueryNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     LocationObject dbLocation = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String query = (String) this.queryExp.executeGeneric(virtualFrame);
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    SourceContext context = RawContext.get(this).getSourceContext();
     return new JdbcQueryCollection(dbLocation, query, context, makeRow, exceptionHandler);
   }
 }

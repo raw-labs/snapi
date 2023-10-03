@@ -34,7 +34,7 @@ public abstract class TimestampFromUnixTimestampNode extends ExpressionNode {
     RawContext context = RawContext.get(this);
     try {
       String zone =
-          context.getRuntimeContext().settings().getStringOpt("raw.runtime.time-zone", true).get();
+          context.getSourceContext().settings().getStringOpt("raw.runtime.time-zone", true).get();
       zoneID = ZoneId.of(zone);
     } catch (NoSuchElementException ex) {
       zoneID = ZoneId.systemDefault();

@@ -17,10 +17,12 @@ import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.time.Duration;
 import raw.compiler.rql2.source.Rql2Type;
-import raw.runtime.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.TypeGuards;
@@ -34,97 +36,81 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
 
   protected abstract Rql2Type getParamType();
 
+  @Child private InteropLibrary bindings = insert(InteropLibrary.getFactory().createDispatched(1));
+
+  private Object getParam(String key) {
+    TruffleObject polyglotBindings = RawContext.get(this).getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
+  }
+
   @Specialization(guards = {"isByteKind(getParamType())"})
   protected byte getByte(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamByte p = (ParamByte) context.params(key).get();
-    return p.v();
+    return (byte) getParam(key);
   }
 
   @Specialization(guards = {"isShortKind(getParamType())"})
   protected short getShort(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamShort p = (ParamShort) context.params(key).get();
-    return p.v();
+    return (short) getParam(key);
   }
 
   @Specialization(guards = {"isIntKind(getParamType())"})
   protected int getInt(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamInt p = (ParamInt) context.params(key).get();
-    return p.v();
+    return (int) getParam(key);
   }
 
   @Specialization(guards = {"isLongKind(getParamType())"})
   protected long getLong(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamLong p = (ParamLong) context.params(key).get();
-    return p.v();
+    return (long) getParam(key);
   }
 
   @Specialization(guards = {"isFloatKind(getParamType())"})
   protected float getFloat(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamFloat p = (ParamFloat) context.params(key).get();
-    return p.v();
+    return (float) getParam(key);
   }
 
   @Specialization(guards = {"isDoubleKind(getParamType())"})
   protected Double getDouble(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamDouble p = (ParamDouble) context.params(key).get();
-    return p.v();
+    return (double) getParam(key);
   }
 
   @Specialization(guards = {"isDecimalKind(getParamType())"})
   protected DecimalObject getDecimal(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamDecimal p = (ParamDecimal) context.params(key).get();
-    return new DecimalObject(p.v());
+    return (DecimalObject) getParam(key);
   }
 
   @Specialization(guards = {"isBooleanKind(getParamType())"})
   protected boolean getBool(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamBool p = (ParamBool) context.params(key).get();
-    return p.v();
+    return (boolean) getParam(key);
   }
 
   @Specialization(guards = {"isStringKind(getParamType())"})
   protected String getString(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamString p = (ParamString) context.params(key).get();
-    return p.v();
+    return (String) getParam(key);
   }
 
   @Specialization(guards = {"isDateKind(getParamType())"})
   protected DateObject getDate(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamDate p = (ParamDate) context.params(key).get();
-    return new DateObject(p.v());
+    return (DateObject) getParam(key);
   }
 
   @Specialization(guards = {"isTimeKind(getParamType())"})
   protected TimeObject getTime(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamTime p = (ParamTime) context.params(key).get();
-    return new TimeObject(p.v());
+    return (TimeObject) getParam(key);
   }
 
   @Specialization(guards = {"isTimestampKind(getParamType())"})
   protected TimestampObject getTimestamp(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamTimestamp p = (ParamTimestamp) context.params(key).get();
-    return new TimestampObject(p.v());
+    return (TimestampObject) getParam(key);
   }
 
   @Specialization(guards = {"isIntervalKind(getParamType())"})
   @CompilerDirectives.TruffleBoundary
   protected IntervalObject getInterval(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
-    ParamInterval p = (ParamInterval) context.params(key).get();
-    Duration duration = p.v();
-    long millis = duration.getNano() / 1000000 + duration.getSeconds() * 1000;
-    return new IntervalObject(0, millis);
+    return (IntervalObject) getParam(key);
   }
 }

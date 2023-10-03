@@ -17,7 +17,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.NoSuchElementException;
 import raw.creds.api.Secret;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
@@ -28,14 +27,8 @@ public abstract class EnvironmentSecretNode extends ExpressionNode {
 
   @Specialization
   protected Object doSecret(String key) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
     try {
-      Secret v =
-          context
-              .sourceContext()
-              .credentialsService()
-              .getSecret(context.sourceContext().user(), key)
-              .get();
+      Secret v = RawContext.get(this).getSecret(key);
       return ObjectTryable.BuildSuccess(v.value());
     } catch (NoSuchElementException e) {
       return ObjectTryable.BuildFailure("could not find secret " + key);

@@ -76,18 +76,26 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
   override protected def doEval(
       tree: BaseTree[SourceNode, SourceProgram, Exp]
   )(implicit programContext: raw.compiler.base.ProgramContext): Value = {
-    // FIXME (msb): Passing rawLanguageAsNull as null. This is BROKEN!
-    val TruffleEntrypoint(context, node, _) = doCompile(tree, null).asInstanceOf[TruffleEntrypoint]
-    RawLanguage.getCurrentContext.setRuntimeContext(programContext.runtimeContext)
-    val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
+    // FIXME (msb): This should pretty print the tree, then call Context.eval.
+    //              We shouldn't have access to doCompile and hence not do be rawLanguageAsNull as null, which is broken!
+    val context = Context
+      .newBuilder(RawLanguage.ID)
+      .environment("RAW_USER", programContext.runtimeContext.environment.user.uid.toString)
+      .environment("RAW_TRACE_ID", programContext.runtimeContext.environment.user.uid.toString)
+      .environment("RAW_SCOPES", programContext.runtimeContext.environment.scopes.mkString(","))
+      .build()
+    context.initialize(RawLanguage.ID)
+    context.enter()
     try {
+      val TruffleEntrypoint(_, node, _) = doCompile(tree, null).asInstanceOf[TruffleEntrypoint]
+      val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
       val res = target.call()
       convertAnyToValue(res, tree.rootType.get)
     } finally {
       // We explicitly created and then entered the context during code emission.
       // Now we explicitly leave and close the context.
-//      context.leave()
-//      context.close()
+      context.leave()
+      context.close()
     }
   }
 

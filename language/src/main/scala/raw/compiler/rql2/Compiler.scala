@@ -15,6 +15,15 @@ package raw.compiler.rql2
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import raw.compiler._
+import raw.compiler.api.{
+  AutoCompleteResponse,
+  FormatCodeResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  RenameResponse,
+  ValidateResponse
+}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.CompilerContext
 import raw.compiler.common.PhaseDescriptor
@@ -101,109 +110,157 @@ abstract class Compiler(implicit compilerContext: CompilerContext) extends raw.c
     }.toList
   }
 
-  private def parseError(error: String, position: Position): ErrorLSPResponse = {
-    val range = ErrorRange(ErrorPosition(position.line, position.column), ErrorPosition(position.line, position.column))
-    ErrorLSPResponse(List(ErrorMessage(error, List(range))))
+  override def formatCode(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeIndent: Option[Int],
+      maybeWidth: Option[Int]
+  )(implicit programContext: base.ProgramContext): FormatCodeResponse = {
+    val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
+    pretty.prettyCode(source) match {
+      case Right(code) => FormatCodeResponse(Some(code), List.empty)
+      case Left((err, pos)) => FormatCodeResponse(None, parseError(err, pos))
+    }
   }
 
-  override def lsp(request: LSPRequest)(
+  override def aiValidate(source: String, environment: ProgramEnvironment)(
       implicit programContext: base.ProgramContext
-  ): LSPResponse = {
-    request match {
-      case FormatCodeLSPRequest(code, _, maybeIndent, maybeWidth) =>
-        val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
-        pretty.prettyCode(code) match {
-          case Left((error, position)) =>
-            val msg = "could not parse source: " + error
-            parseError(msg, position)
-          case Right(code) => FormatCodeLSPResponse(code, List.empty)
-        }
-      case AiValidateLSPRequest(code, _) =>
-        // Will analyze the code and return only unknown declarations errors.
-        val positions = new Positions()
-        val parser = new FrontendSyntaxAnalyzer(positions)
-        parser.parse(code) match {
-          case Right(program) =>
-            val sourceProgram = program.asInstanceOf[SourceProgram]
-            val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
-              sourceProgram
-            )
-            val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+  ): ValidateResponse = {
+    // Will analyze the code and return only unknown declarations errors.
+    val positions = new Positions()
+    val parser = new FrontendSyntaxAnalyzer(positions)
+    parser.parse(source) match {
+      case Right(program) =>
+        val sourceProgram = program.asInstanceOf[SourceProgram]
+        val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+          sourceProgram
+        )
+        val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
 
-            // Selecting only a subset of the errors
-            val selection = analyzer.errors.filter {
-              // For the case of a function that does not exist in a package
-              case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
-              case _: UnknownDecl => true
-              case _: OutputTypeRequiredForRecursiveFunction => true
-              case _: UnexpectedOptionalArgument => true
-              case _: NoOptionalArgumentsExpected => true
-              case _: KeyNotComparable => true
-              case _: ItemsNotComparable => true
-              case _: MandatoryArgumentAfterOptionalArgument => true
-              case _: RepeatedFieldNames => true
-              case _: UnexpectedArguments => true
-              case _: MandatoryArgumentsMissing => true
-              case _: RepeatedOptionalArguments => true
-              case _: PackageNotFound => true
-              case _: NamedParameterAfterOptionalParameter => true
-              case _: ExpectedTypeButGotExpression => true
-              case _ => false
-            }
-
-            ErrorLSPResponse(formatErrors(selection, positions))
-          case Left((err, pos)) => parseError(err, pos)
+        // Selecting only a subset of the errors
+        val selection = analyzer.errors.filter {
+          // For the case of a function that does not exist in a package
+          case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
+          case _: UnknownDecl => true
+          case _: OutputTypeRequiredForRecursiveFunction => true
+          case _: UnexpectedOptionalArgument => true
+          case _: NoOptionalArgumentsExpected => true
+          case _: KeyNotComparable => true
+          case _: ItemsNotComparable => true
+          case _: MandatoryArgumentAfterOptionalArgument => true
+          case _: RepeatedFieldNames => true
+          case _: UnexpectedArguments => true
+          case _: MandatoryArgumentsMissing => true
+          case _: RepeatedOptionalArguments => true
+          case _: PackageNotFound => true
+          case _: NamedParameterAfterOptionalParameter => true
+          case _: ExpectedTypeButGotExpression => true
+          case _ => false
         }
-      case _ =>
-        // Parse tree with dedicated parser, which is more lose and tries to obtain an AST even with broken code.
-        val positions = new Positions()
-        val parser = new LspSyntaxAnalyzer(positions)
-        parser.parse(request.code) match {
-          case Right(program) =>
-            // Manually instantiate an analyzer to create a "flexible tree" that copes with broken code.
-            val sourceProgram = program.asInstanceOf[SourceProgram]
-            val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
-              sourceProgram,
-              shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
-            )
-            // Do not perform any validation on errors as we fully expect the tree to be "broken" in most cases.
-            val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
-            // Handle the LSP request.
-            val lspService = new CompilerLspService(
-              analyzer,
-              positions,
-              prettyPrint
-            )(programContext.asInstanceOf[ProgramContext])
-            request match {
-              case dotAutoCompleteLSPRequest: DotAutoCompleteLSPRequest =>
-                lspService.dotAutoComplete(dotAutoCompleteLSPRequest)
-              case wordAutoCompleteLSPRequest: WordAutoCompleteLSPRequest =>
-                lspService.wordAutoComplete(wordAutoCompleteLSPRequest)
-              case hoverLSPRequest: HoverLSPRequest => lspService.hover(hoverLSPRequest)
-              case definitionLSPRequest: DefinitionLSPRequest => lspService.definition(definitionLSPRequest)
-              case renameLSPRequest: RenameLSPRequest => lspService.rename(renameLSPRequest)
-              case _: ValidateLSPRequest =>
-                val response = lspService.validate
-                if (response.errors.isEmpty) {
-                  // The "flexible" tree did not find any semantic errors.
-                  // So now we should parse with the "strict" parser/analyzer to get a proper tree and check for errors
-                  // in that one.
-                  buildInputTree(request.code) match {
-                    case Right(_) => ErrorLSPResponse(List.empty)
-                    case Left(errors) => ErrorLSPResponse(errors)
-                  }
-                } else {
-                  // The "flexible" tree found some semantic errors, so report only those.
-                  response
-                }
-            }
-          case Left((err, pos)) =>
-            // Could not produce an AST, therefore report parse error.
-            // TODO (msb): Do we want to log this, to see if we can produce an AST in the future???
-            //             Peak into 'err' and 'pos' to know more.
-            parseError(err, pos)
-        }
+        ValidateResponse(formatErrors(selection, positions))
+      case Left((err, pos)) => ValidateResponse(parseError(err, pos))
     }
+  }
+
+  private def withLspTree[T](source: String, f: CompilerLspService => T)(
+      implicit programContext: base.ProgramContext
+  ): Either[(String, Position), T] = {
+    // Parse tree with dedicated parser, which is more lose and tries to obtain an AST even with broken code.
+    val positions = new Positions()
+    val parser = new LspSyntaxAnalyzer(positions)
+    parser.parse(source).right.map { program =>
+      // Manually instantiate an analyzer to create a "flexible tree" that copes with broken code.
+      val sourceProgram = program.asInstanceOf[SourceProgram]
+      val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+        sourceProgram,
+        shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
+      )
+      // Do not perform any validation on errors as we fully expect the tree to be "broken" in most cases.
+      val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+      // Handle the LSP request.
+      val lspService = new CompilerLspService(
+        analyzer,
+        positions,
+        prettyPrint
+      )(programContext.asInstanceOf[ProgramContext])
+      f(lspService)
+    }
+  }
+
+  override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos)(
+      implicit programContext: base.ProgramContext
+  ): AutoCompleteResponse = {
+    withLspTree(source, lspService => lspService.dotAutoComplete(source, environment, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => AutoCompleteResponse(Array.empty, parseError(err, pos))
+    }
+  }
+
+  override def wordAutoComplete(source: String, environment: ProgramEnvironment, prefix: String, position: Pos)(
+      implicit programContext: base.ProgramContext
+  ): AutoCompleteResponse = {
+    withLspTree(source, lspService => lspService.wordAutoComplete(source, environment, prefix, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => AutoCompleteResponse(Array.empty, parseError(err, pos))
+    }
+  }
+
+  override def hover(source: String, environment: ProgramEnvironment, position: Pos)(
+      implicit programContext: base.ProgramContext
+  ): HoverResponse = {
+    withLspTree(source, lspService => lspService.hover(source, environment, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => HoverResponse(None, parseError(err, pos))
+    }
+  }
+
+  override def goToDefinition(source: String, environment: ProgramEnvironment, position: Pos)(
+      implicit programContext: base.ProgramContext
+  ): GoToDefinitionResponse = {
+    withLspTree(source, lspService => lspService.definition(source, environment, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => GoToDefinitionResponse(None, parseError(err, pos))
+    }
+  }
+
+  override def rename(source: String, environment: ProgramEnvironment, position: Pos)(
+      implicit programContext: base.ProgramContext
+  ): RenameResponse = {
+    withLspTree(source, lspService => lspService.rename(source, environment, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => RenameResponse(Array.empty, parseError(err, pos))
+    }
+  }
+
+  override def validate(source: String, environment: ProgramEnvironment)(
+      implicit programContext: base.ProgramContext
+  ): ValidateResponse = {
+    withLspTree(
+      source,
+      lspService => {
+        val response = lspService.validate
+        if (response.errors.isEmpty) {
+          // The "flexible" tree did not find any semantic errors.
+          // So now we should parse with the "strict" parser/analyzer to get a proper tree and check for errors
+          // in that one.
+          buildInputTree(source) match {
+            case Right(_) => ValidateResponse(List.empty)
+            case Left(errors) => ValidateResponse(errors)
+          }
+        } else {
+          // The "flexible" tree found some semantic errors, so report only those.
+          response
+        }
+      }
+    ) match {
+      case Right(value) => value
+      case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+    }
+  }
+
+  private def parseError(error: String, position: Position): List[ErrorMessage] = {
+    val range = ErrorRange(ErrorPosition(position.line, position.column), ErrorPosition(position.line, position.column))
+    List(ErrorMessage(error, List(range)))
   }
 
   override def supportsCaching: Boolean = false

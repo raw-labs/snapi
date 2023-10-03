@@ -19,13 +19,13 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.Reader;
 import org.apache.commons.io.IOUtils;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.tryable.StringTryable;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "String.Read")
 @NodeChild("location")
@@ -34,7 +34,7 @@ public abstract class StringReadNode extends ExpressionNode {
   @Specialization
   @CompilerDirectives.TruffleBoundary
   protected Object doExecute(LocationObject locationObject, String encoding) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    SourceContext context = RawContext.get(this).getSourceContext();
     TruffleInputStream stream = new TruffleInputStream(locationObject, context);
     try {
       Reader reader = stream.getReader(encoding);

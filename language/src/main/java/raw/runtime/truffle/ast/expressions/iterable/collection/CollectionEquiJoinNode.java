@@ -71,6 +71,6 @@ public class CollectionEquiJoinNode extends ExpressionNode {
         keyType,
         remapF,
         RawLanguage.get(this),
-        RawContext.get(this).getRuntimeContext());
+        RawContext.get(this).getSourceContext());
   }
 }

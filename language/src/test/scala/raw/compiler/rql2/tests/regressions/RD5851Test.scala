@@ -12,45 +12,27 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.{
-  AutoCompleteLSPResponse,
-  DotAutoCompleteLSPRequest,
-  FieldLSPAutoCompleteResponse,
-  FunParamLSPAutoCompleteResponse,
-  LSPResponse,
-  LetBindLSPAutoCompleteResponse,
-  LetFunLSPAutoCompleteResponse,
-  LetFunRecAutoCompleteResponse,
-  PackageEntryLSPAutoCompleteResponse,
-  PackageLSPAutoCompleteResponse,
-  Pos,
-  WordAutoCompleteLSPRequest
-}
+import raw.compiler.api.{AutoCompleteResponse, Completion}
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
+import raw.compiler.api._
 
 trait RD5851Test extends CompilerTestContext {
 
-  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
-
-  def autoCompleteNames(response: LSPResponse): Seq[String] = {
-    response match {
-      case AutoCompleteLSPResponse(entries, _) => entries.map {
-          case FieldLSPAutoCompleteResponse(n, _) => n
-          case LetBindLSPAutoCompleteResponse(n, _) => n
-          case LetFunLSPAutoCompleteResponse(n, _) => n
-          case LetFunRecAutoCompleteResponse(n, _) => n
-          case FunParamLSPAutoCompleteResponse(n, _) => n
-          case PackageLSPAutoCompleteResponse(n, _) => n
-          case PackageEntryLSPAutoCompleteResponse(n, _) => n
-        }
-      case r => throw new AssertionError(s"Unexpected response: $r")
+  def autoCompleteNames(entries: Array[Completion]): Seq[String] = {
+    entries.map {
+      case FieldCompletion(n, _) => n
+      case LetBindCompletion(n, _) => n
+      case LetFunCompletion(n, _) => n
+      case LetFunRecCompletion(n, _) => n
+      case FunParamCompletion(n, _) => n
+      case PackageCompletion(n, _) => n
+      case PackageEntryCompletion(n, _) => n
     }
   }
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[String]): Unit = {
-    val response = doLsp(DotAutoCompleteLSPRequest(code, environment, Pos(line, col)))
-    val actual = autoCompleteNames(response)
+    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(line, col))
+    val actual = autoCompleteNames(entries)
     assert(actual == expectedFields)
   }
 
@@ -61,8 +43,8 @@ trait RD5851Test extends CompilerTestContext {
       prefix: String,
       expected: Seq[String]
   ): Unit = {
-    val response = doLsp(WordAutoCompleteLSPRequest(code, environment, prefix, Pos(line, col)))
-    val actual = autoCompleteNames(response)
+    val AutoCompleteResponse(entries, _) = wordAutoComplete(code, prefix, Pos(line, col))
+    val actual = autoCompleteNames(entries)
     // Check that all expected are in actual.
     // actual can have more though - e.g. built-in packages.
     expected.foreach(e => assert(actual.contains(e)))

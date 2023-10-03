@@ -46,7 +46,7 @@ public abstract class CollectionJoinNode extends ExpressionNode {
         predicate,
         getRightType(),
         getReshapeBeforePredicate(),
-        RawContext.get(this).getRuntimeContext(),
+        RawContext.get(this).getSourceContext(),
         RawLanguage.get(this));
   }
 }

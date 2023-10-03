@@ -14,55 +14,116 @@ package raw.runtime.truffle;
 
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
+import com.typesafe.config.ConfigFactory;
 import java.io.OutputStream;
-import raw.runtime.RuntimeContext;
-import raw.runtime.truffle.runtime.function.FunctionRegistry;
+import java.util.Objects;
+import raw.creds.api.CredentialsService;
+import raw.creds.api.CredentialsServiceProvider;
+import raw.creds.api.Secret;
+import raw.runtime.ProgramEnvironment;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.sources.api.SourceContext;
+import raw.utils.AuthenticatedUser;
+import raw.utils.InteractiveUser;
+import raw.utils.RawSettings;
+import scala.Option;
+import scala.Some;
+import scala.collection.JavaConverters;
+import scala.collection.immutable.Map;
+import scala.collection.immutable.Seq;
+import scala.collection.immutable.Seq$;
+import scala.collection.immutable.Set;
 
 public final class RawContext {
 
   private final RawLanguage language;
   private final Env env;
-  private final FunctionRegistry functionRegistry;
-
   private OutputStream output;
-  private RuntimeContext runtimeContext;
+  private SourceContext sourceContext;
+  private AuthenticatedUser user;
+  private String traceId;
+  private String[] scopes;
+  private RawSettings rawSettings;
+  private ProgramEnvironment programEnvironment;
 
   public RawContext(RawLanguage language, Env env) {
     this.language = language;
     this.env = env;
     this.output = env.out();
-    this.functionRegistry = new FunctionRegistry();
+    this.rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
+
+    // Set user from environment variable.
+    String uid = Objects.toString(env.getEnvironment().get("RAW_USER"), "");
+    this.user = new InteractiveUser(uid, uid, uid, (Seq<String>) Seq$.MODULE$.empty());
+
+    // Set traceId from environment variable.
+    String traceId = Objects.toString(env.getEnvironment().get("RAW_TRACE_ID"), "");
+    this.traceId = traceId;
+
+    // Set scopes from environment variable.
+    String scopesStr = Objects.toString(env.getEnvironment().get("RAW_SCOPES"), "");
+    this.scopes = (scopesStr == null || scopesStr.isEmpty()) ? new String[0] : scopesStr.split(",");
+
+    // Create source context.
+    CredentialsService credentialsService = CredentialsServiceProvider.apply(rawSettings);
+    this.sourceContext = new SourceContext(user, credentialsService, rawSettings);
+
+    // Create program environment.
+    Set<String> scalaScopes =
+        JavaConverters.asScalaSetConverter(java.util.Set.of(scopes)).asScala().toSet();
+
+    java.util.Map<String, String> javaOptions = new java.util.HashMap<>();
+    javaOptions.put("output-format", env.getOptions().get(RawOptions.OUTPUT_FORMAT_KEY));
+
+    Map<String, String> scalaOptions =
+        JavaConverters.mapAsScalaMapConverter(javaOptions)
+            .asScala()
+            .toMap(scala.Predef.<scala.Tuple2<String, String>>conforms());
+
+    Option<String> maybeTraceId = traceId != null ? Some.apply(traceId) : Option.empty();
+
+    programEnvironment = new ProgramEnvironment(user, scalaScopes, scalaOptions, maybeTraceId);
   }
 
   public RawLanguage getLanguage() {
     return language;
   }
 
-  public Env getEnv() {
-    return env;
+  //  public Env getEnv() {
+  //    return env;
+  //  }
+
+  public RawSettings getRawSettings() {
+    return rawSettings;
+  }
+
+  public ProgramEnvironment getProgramEnvironment() {
+    return programEnvironment;
+  }
+
+  public String getTraceId() {
+    return traceId;
   }
 
   public OutputStream getOutput() {
     return output;
   }
 
-  // FIXME (msb): Remove!
-  public void setOutput(OutputStream output) {
-    this.output = output;
+  public SourceContext getSourceContext() {
+    return sourceContext;
   }
 
-  public RuntimeContext getRuntimeContext() {
-    return runtimeContext;
+  public Secret getSecret(String key) {
+    if (user == null) {
+      throw new RawTruffleRuntimeException("User not set");
+    }
+    return sourceContext.credentialsService().getSecret(user, key).get();
   }
 
-  // FIXME (msb): Remove!
-  public void setRuntimeContext(RuntimeContext runtimeContext) {
-    this.runtimeContext = runtimeContext;
-  }
-
-  public FunctionRegistry getFunctionRegistry() {
-    return functionRegistry;
+  public String[] getScopes() {
+    return scopes;
   }
 
   private static final TruffleLanguage.ContextReference<RawContext> REFERENCE =
@@ -70,5 +131,13 @@ public final class RawContext {
 
   public static RawContext get(Node node) {
     return REFERENCE.get(node);
+  }
+
+  /**
+   * Returns an object that contains bindings that were exported across all used languages. To read
+   * or write from this object the {@link TruffleObject interop} API can be used.
+   */
+  public TruffleObject getPolyglotBindings() {
+    return (TruffleObject) env.getPolyglotBindings();
   }
 }

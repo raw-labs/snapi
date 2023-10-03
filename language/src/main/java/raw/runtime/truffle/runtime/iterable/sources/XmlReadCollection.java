@@ -15,12 +15,12 @@ package raw.runtime.truffle.runtime.iterable.sources;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.XmlReadComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
 public class XmlReadCollection {
@@ -28,14 +28,14 @@ public class XmlReadCollection {
   private final LocationObject locationObject;
   private final DirectCallNode parseNextRootNode;
   private RawTruffleXmlParserSettings settings;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   private final String encoding;
 
   public XmlReadCollection(
       LocationObject locationObject,
       String encoding,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode parseNextRootNode,
       RawTruffleXmlParserSettings settings) {
     this.locationObject = locationObject;

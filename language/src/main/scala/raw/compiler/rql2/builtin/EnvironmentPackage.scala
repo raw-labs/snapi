@@ -77,7 +77,7 @@ class EnvironmentParameterEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
-    Right(mandatoryArgs(0).t)
+    Right(resetProps(mandatoryArgs(0).t, Set.empty))
   }
 
 }

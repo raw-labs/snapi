@@ -17,7 +17,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.CloseJsonParserNode;
@@ -26,6 +25,7 @@ import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.NextTokenJsonParse
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Json.ReadArray")
 public class JsonReadValueNode extends ExpressionNode {
@@ -63,7 +63,7 @@ public class JsonReadValueNode extends ExpressionNode {
       LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
       String encoding = (String) encodingExp.executeGeneric(virtualFrame);
 
-      RuntimeContext context = RawContext.get(this).getRuntimeContext();
+      SourceContext context = RawContext.get(this).getSourceContext();
       TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
 

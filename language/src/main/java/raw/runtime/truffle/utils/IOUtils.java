@@ -17,13 +17,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.sources.api.SourceContext;
 
 public class IOUtils {
 
   @CompilerDirectives.TruffleBoundary
-  public static Path getScratchPath(RuntimeContext context) {
+  public static Path getScratchPath(SourceContext context) {
     Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
     if (!Files.exists(p)) {
       try {
@@ -36,7 +36,7 @@ public class IOUtils {
   }
 
   @CompilerDirectives.TruffleBoundary
-  public static Path getScratchFile(String prefix, String suffix, RuntimeContext context) {
+  public static Path getScratchFile(String prefix, String suffix, SourceContext context) {
     try {
       return Files.createTempFile(getScratchPath(context), prefix, suffix);
     } catch (IOException ex) {

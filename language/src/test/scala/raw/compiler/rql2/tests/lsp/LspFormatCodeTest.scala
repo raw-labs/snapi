@@ -12,24 +12,17 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.{FormatCodeLSPRequest, FormatCodeLSPResponse}
+import raw.compiler.api.FormatCodeResponse
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.runtime.ProgramEnvironment
 
 trait LspFormatCodeTest extends CompilerTestContext {
 
-  val environment = ProgramEnvironment(Some("snapi"), Set.empty, Map.empty)
-
   def assertFormattedCode(code: String, expected: String) = {
-    val response = doLsp(FormatCodeLSPRequest(code, environment))
-    response match {
-      case FormatCodeLSPResponse(formattedCode, errors) =>
-        logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
-        // this is like a rtrim, kiama is putting extra spaces in the end
-        assert(formattedCode.replaceAll("\\s+$", "") == expected)
-        assert(errors.isEmpty)
-      case r => throw new AssertionError(s"Unexpected response: $r")
-    }
+    val FormatCodeResponse(Some(formattedCode), errors) = formatCode(code)
+    logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
+    // this is like a rtrim, kiama is putting extra spaces in the end
+    assert(formattedCode.replaceAll("\\s+$", "") == expected)
+    assert(errors.isEmpty)
   }
 
   test("simple code format test") { _ =>

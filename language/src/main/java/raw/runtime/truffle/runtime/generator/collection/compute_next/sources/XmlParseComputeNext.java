@@ -15,20 +15,20 @@ package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class XmlParseComputeNext {
 
   private final String text;
   private final DirectCallNode parseNextCallNode;
-  private final RuntimeContext context;
+  private final SourceContext context;
   private RawTruffleXmlParser parser;
   private final RawTruffleXmlParserSettings settings;
 
@@ -36,7 +36,7 @@ public class XmlParseComputeNext {
 
   public XmlParseComputeNext(
       String text,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode parseNextCallNode,
       RawTruffleXmlParserSettings settings) {
     this.context = context;

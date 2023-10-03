@@ -42,6 +42,6 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
         getKeyType(),
         getRowType(),
         RawLanguage.get(this),
-        RawContext.get(this).getRuntimeContext());
+        RawContext.get(this).getSourceContext());
   }
 }

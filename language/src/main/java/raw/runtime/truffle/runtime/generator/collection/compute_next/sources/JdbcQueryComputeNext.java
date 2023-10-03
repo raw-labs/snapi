@@ -15,12 +15,12 @@ package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class JdbcQueryComputeNext {
@@ -28,7 +28,7 @@ public class JdbcQueryComputeNext {
   private final LocationObject dbLocation;
   private final String query;
   private final DirectCallNode rowParser;
-  private final RuntimeContext context;
+  private final SourceContext context;
 
   private JdbcQuery rs = null;
   private final JdbcExceptionHandler exceptionHandler;
@@ -36,7 +36,7 @@ public class JdbcQueryComputeNext {
   public JdbcQueryComputeNext(
       LocationObject dbLocation,
       String query,
-      RuntimeContext context,
+      SourceContext context,
       DirectCallNode rowParser,
       JdbcExceptionHandler exceptionHandler) {
     this.context = context;

@@ -15,13 +15,13 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.iterable.sources.ReadLinesCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "String.ReadLines")
 @NodeChild("location")
@@ -29,7 +29,7 @@ import raw.runtime.truffle.utils.TruffleInputStream;
 public abstract class StringReadLinesNode extends ExpressionNode {
   @Specialization
   protected Object doExecute(LocationObject locationObject, String encoding) {
-    RuntimeContext context = RawContext.get(this).getRuntimeContext();
+    SourceContext context = RawContext.get(this).getSourceContext();
     TruffleInputStream stream = new TruffleInputStream(locationObject, context);
     TruffleCharInputStream charStream = new TruffleCharInputStream(stream, encoding);
     return new ReadLinesCollection(charStream, context);

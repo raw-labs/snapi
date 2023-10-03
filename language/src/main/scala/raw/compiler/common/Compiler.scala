@@ -13,14 +13,21 @@
 package raw.compiler.common
 
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
-import raw.compiler.CompilerException
 import raw.compiler.base.source._
 import raw.compiler.base._
 import raw.compiler.common.source._
 import raw.compiler._
-import raw.runtime.{Entrypoint, ParamValue, RuntimeContext}
+import raw.compiler.api.{
+  AutoCompleteResponse,
+  FormatCodeResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  RenameResponse,
+  ValidateResponse
+}
+import raw.runtime.{Entrypoint, ParamValue, ProgramEnvironment, RuntimeContext}
 
-import scala.annotation.nowarn
 import scala.collection.mutable
 
 abstract class Compiler(implicit compilerContext: CompilerContext)
@@ -150,10 +157,44 @@ abstract class Compiler(implicit compilerContext: CompilerContext)
     (sig, finalTemplatedProgram)
   }
 
-  def lsp(request: LSPRequest)(
-      implicit @nowarn programContext: ProgramContext
-  ): LSPResponse = {
-    throw new CompilerException("LSP not supported")
-  }
+  def formatCode(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeIndent: Option[Int] = None,
+      maybeWidth: Option[Int] = None
+  )(implicit programContext: ProgramContext): FormatCodeResponse
+
+  def dotAutoComplete(
+      source: String,
+      environment: ProgramEnvironment,
+      position: Pos
+  )(implicit programContext: ProgramContext): AutoCompleteResponse
+
+  def wordAutoComplete(
+      source: String,
+      environment: ProgramEnvironment,
+      prefix: String,
+      position: Pos
+  )(implicit programContext: ProgramContext): AutoCompleteResponse
+
+  def hover(source: String, environment: ProgramEnvironment, position: Pos)(
+      implicit programContext: ProgramContext
+  ): HoverResponse
+
+  def rename(source: String, environment: ProgramEnvironment, position: Pos)(
+      implicit programContext: ProgramContext
+  ): RenameResponse
+
+  def goToDefinition(source: String, environment: ProgramEnvironment, position: Pos)(
+      implicit programContext: ProgramContext
+  ): GoToDefinitionResponse
+
+  def validate(source: String, environment: ProgramEnvironment)(
+      implicit programContext: ProgramContext
+  ): ValidateResponse
+
+  def aiValidate(source: String, environment: ProgramEnvironment)(
+      implicit programContext: ProgramContext
+  ): ValidateResponse
 
 }
