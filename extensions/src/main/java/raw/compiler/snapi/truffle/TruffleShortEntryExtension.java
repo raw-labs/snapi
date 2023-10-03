@@ -14,17 +14,18 @@ import scala.collection.immutable.ListMap;
 
 public interface TruffleShortEntryExtension extends TruffleEntryExtension {
 
-  ListMap<String, Tuple2<Type, Exp>> optionalParamsMap = new ListMap<>();
+  ListMap<String, Tuple2<Type, Exp>> getOptionalParamsMap();
 
   ExpressionNode toTruffle(List<ExpressionNode> args);
 
   default ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
     List<ExpressionNode> orderedArgs =
-            args.stream()
-                    .filter(a -> a.idn().isEmpty())
-                    .map(a -> emitter.recurseExp(a.e())).collect(Collectors.toList());
+        args.stream()
+            .filter(a -> a.idn().isEmpty())
+            .map(a -> emitter.recurseExp(a.e()))
+            .collect(Collectors.toList());
 
-    optionalParamsMap
+    getOptionalParamsMap()
         .keys()
         .toList()
         .foreach(
@@ -34,7 +35,7 @@ public interface TruffleShortEntryExtension extends TruffleEntryExtension {
                       .filter(a -> a.idn().get().equals(k))
                       .map(a -> emitter.recurseExp(a.e()))
                       .findFirst()
-                      .orElse(emitter.recurseExp(optionalParamsMap.apply(k)._2()));
+                      .orElse(emitter.recurseExp(getOptionalParamsMap().apply(k)._2()));
               orderedArgs.add(e);
               return null;
             });
