@@ -16,6 +16,7 @@ module raw.language.extensions {
   requires org.graalvm.polyglot;
   requires org.graalvm.truffle;
   requires raw.language;
+  exports raw.compiler.snapi.truffle;
 
   provides raw.compiler.api.CompilerServiceBuilder with
       raw.compiler.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
@@ -127,9 +128,9 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleTypeMatchEntry,
       raw.compiler.rql2.truffle.builtin.TruffleReadXmlEntry,
       raw.compiler.rql2.truffle.builtin.TruffleParseXmlEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension,
-      raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry,
+      //      raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension,
+      //      raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry,
+      //      raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry,
       raw.compiler.rql2.truffle.builtin.TruffleDateBuildEntry,
       raw.compiler.rql2.truffle.builtin.TruffleDateFromEpochDayEntry,
       raw.compiler.rql2.truffle.builtin.TruffleDateFromTimestampEntry,
@@ -230,5 +231,8 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleHttpPatchEntry,
       raw.compiler.rql2.truffle.builtin.TruffleHttpOptionsEntry,
       raw.compiler.rql2.truffle.builtin.TruffleHttpUrlEncode,
-      raw.compiler.rql2.truffle.builtin.TruffleHttpUrlDecode;
+      raw.compiler.rql2.truffle.builtin.TruffleHttpUrlDecode,
+      raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryBase64EntryExtension,
+      raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryReadEntry,
+      raw.compiler.snapi.truffle.builtin.binary.TruffleFromStringBinaryEntry;
 }

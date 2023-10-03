@@ -2,10 +2,12 @@ package raw.compiler.snapi.truffle;
 
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.api.Rql2Arg;
+import raw.compiler.rql2.truffle.TruffleEmitter;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 public interface TruffleEntryExtension {
 
@@ -17,8 +19,13 @@ public interface TruffleEntryExtension {
     return toTruffle(
         type,
         args.stream()
-            .map(a -> new TruffleArg(emitter.recurseExp(a.e()), a.t(), a.idn().getOrElse(null)))
-            .toList(),
-        emitter.getLanguage());
+            .map(
+                a ->
+                    new TruffleArg(
+                        emitter.recurseExp(a.e()),
+                        a.t(),
+                        a.idn().isDefined() ? a.idn().get() : null))
+            .collect(Collectors.toList()),
+        emitter.rawLanguage());
   }
 }
