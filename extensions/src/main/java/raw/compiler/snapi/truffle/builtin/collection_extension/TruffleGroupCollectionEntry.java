@@ -1,5 +1,7 @@
 package raw.compiler.snapi.truffle.builtin.collection_extension;
 
+import java.util.Arrays;
+import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.GroupCollectionEntry;
 import raw.compiler.rql2.source.*;
@@ -10,10 +12,6 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionGroupByNodeGen;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashSet;
-
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
 
 public class TruffleGroupCollectionEntry extends GroupCollectionEntry
     implements TruffleEntryExtension {

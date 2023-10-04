@@ -33,6 +33,7 @@ public class TruffleArg {
   public Type getType() {
     return type;
   }
+
   public String getIdentifier() {
     return identifier;
   }

@@ -2,7 +2,6 @@ package raw.compiler.snapi.truffle.builtin.collection_extension;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.OrderByCollectionEntry;
 import raw.compiler.rql2.source.Rql2IterableType;

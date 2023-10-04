@@ -1,5 +1,6 @@
 package raw.compiler.snapi.truffle.builtin.collection_extension;
 
+import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.ExistsCollectionEntry;
 import raw.compiler.rql2.source.FunType;
@@ -9,8 +10,6 @@ import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionExistsNodeGen;
-
-import java.util.List;
 
 public class TruffleExistsCollectionEntry extends ExistsCollectionEntry
     implements TruffleEntryExtension {

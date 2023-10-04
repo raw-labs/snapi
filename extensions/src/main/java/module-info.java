@@ -237,7 +237,7 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleHttpOptionsEntry,
       raw.compiler.rql2.truffle.builtin.TruffleHttpUrlEncode,
       raw.compiler.rql2.truffle.builtin.TruffleHttpUrlDecode,
-          TruffleBinaryBase64Entry,
+      TruffleBinaryBase64Entry,
       raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryReadEntry,
       raw.compiler.snapi.truffle.builtin.binary_extension.TruffleFromStringBinaryEntry;
 }
