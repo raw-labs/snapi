@@ -11,6 +11,7 @@
  */
 
 import raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryBase64Entry;
+import raw.compiler.snapi.truffle.builtin.xml_extension.TruffleReadXmlEntry;
 
 module raw.language.extensions {
   requires scala.library;
@@ -131,8 +132,6 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleTypeProtectCastEntry,
       raw.compiler.rql2.truffle.builtin.TruffleTypeEmptyEntry,
       raw.compiler.rql2.truffle.builtin.TruffleTypeMatchEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleReadXmlEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleParseXmlEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension,
       //      raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry,
@@ -237,6 +236,8 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleHttpOptionsEntry,
       raw.compiler.rql2.truffle.builtin.TruffleHttpUrlEncode,
       raw.compiler.rql2.truffle.builtin.TruffleHttpUrlDecode,
+      raw.compiler.snapi.truffle.builtin.xml_extension.TruffleReadXmlEntry,
+      raw.compiler.snapi.truffle.builtin.xml_extension.TruffleParseXmlEntry,
       TruffleBinaryBase64Entry,
       raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryReadEntry,
       raw.compiler.snapi.truffle.builtin.binary_extension.TruffleFromStringBinaryEntry;

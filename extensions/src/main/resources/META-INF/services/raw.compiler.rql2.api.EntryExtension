@@ -205,9 +205,9 @@ raw.compiler.rql2.truffle.builtin.TruffleTypeCastEntry
 raw.compiler.rql2.truffle.builtin.TruffleTypeProtectCastEntry
 raw.compiler.rql2.truffle.builtin.TruffleTypeEmptyEntry
 raw.compiler.rql2.truffle.builtin.TruffleTypeMatchEntry
-raw.compiler.rql2.truffle.builtin.TruffleReadXmlEntry
-raw.compiler.rql2.truffle.builtin.TruffleParseXmlEntry
 
+raw.compiler.snapi.truffle.builtin.xml_extension.TruffleReadXmlEntry
+raw.compiler.snapi.truffle.builtin.xml_extension.TruffleParseXmlEntry
 raw.compiler.snapi.truffle.builtin.binary_extension.TruffleFromStringBinaryEntry
 raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryReadEntry
 raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryBase64Entry
