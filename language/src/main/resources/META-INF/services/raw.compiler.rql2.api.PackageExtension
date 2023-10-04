@@ -37,3 +37,5 @@ raw.compiler.rql2.builtin.SnowflakePackage
 raw.compiler.rql2.builtin.TypePackage
 raw.compiler.rql2.builtin.FunctionPackage
 raw.compiler.rql2.builtin.AwsPackage
+raw.compiler.rql2.builtin.KryoPackage
+raw.compiler.rql2.builtin.TestPackage

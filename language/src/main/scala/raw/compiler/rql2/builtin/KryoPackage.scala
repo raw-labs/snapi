@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.builtin
+package raw.compiler.rql2.builtin
 
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.rql2._

@@ -24,6 +24,7 @@ import raw.runtime.truffle.ast.expressions.literals.{FloatNode, IntNode, LongNod
 import raw.runtime.truffle.ast.expressions.option.OptionGetOrElseNodeGen
 import raw.runtime.truffle.ast.expressions.record.{RecordBuildNode, RecordProjNodeGen}
 import raw.runtime.truffle.ast.local.ReadParamNode
+import raw.compiler.rql2.builtin._
 
 trait TruffleMandatoryArgs { this: TruffleEntryExtension =>
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {

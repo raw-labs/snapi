@@ -18,6 +18,7 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties
 import raw.compiler.rql2.truffle.{TruffleArg, TruffleEntryExtension}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
 import raw.runtime.truffle.ast.io.kryo.{KryoFromNode, KryoWriteNode}
+import raw.compiler.rql2.builtin._
 
 class TruffleKryoEncodeEntry extends KryoEncodeEntry with TruffleEntryExtension {
 

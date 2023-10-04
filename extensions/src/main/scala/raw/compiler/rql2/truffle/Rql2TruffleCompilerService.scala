@@ -51,7 +51,22 @@ import raw.runtime.{
 }
 import raw.runtime.truffle.RawLanguage
 import org.graalvm.polyglot.{Context, Source, Value}
-import raw.compiler.api.{AutoCompleteResponse, CompilationResponse, CompilerServiceException, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GetProgramDescriptionResponse, GetTypeResponse, GoToDefinitionResponse, HoverResponse, Pos, RenameResponse, ValidateResponse}
+import raw.compiler.api.{
+  AutoCompleteResponse,
+  CompilationResponse,
+  CompilerServiceException,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  GetProgramDescriptionResponse,
+  GetTypeResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  RenameResponse,
+  ValidateResponse
+}
 import raw.compiler.common.CommonCompilerService
 import raw.runtime.{ParamValue, ProgramEnvironment}
 import raw.runtime.truffle.{RawLanguage, RawLanguageProvider}
@@ -93,7 +108,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     super.compile(source, maybeArguments, environment, ref)
   }
 
-  // This method is used by the test framework.
   override def execute(
       source: String,
       maybeArguments: Option[Array[(String, ParamValue)]],
@@ -103,8 +117,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   ): ExecutionResponse = {
     val compiler = getCompiler(environment.user)
     val programContext = getProgramContext(compiler, source, maybeArguments, environment)
-
-
 
     try {
 <<<<<<< HEAD
@@ -162,8 +174,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
 //              v.
 
               val src = Source.newBuilder("rql", source, "<stdin>").build
-              val v = ctx.eval(src)
-              v.execute()
+              ctx.eval(src)
 
 //              val target =
 //                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
