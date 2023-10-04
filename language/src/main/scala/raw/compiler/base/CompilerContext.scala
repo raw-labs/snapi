@@ -36,7 +36,8 @@ abstract class CompilerContext(
     val language: String,
     val user: AuthenticatedUser,
     val inferrer: InferrerService,
-    val sourceContext: SourceContext
+    val sourceContext: SourceContext,
+    val maybeClassLoader: Option[ClassLoader]
 )(
     implicit val settings: RawSettings
 ) extends StrictLogging {

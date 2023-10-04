@@ -26,9 +26,11 @@ import raw.utils._
 import java.io.OutputStream
 import scala.util.control.NonFatal
 
-abstract class CommonCompilerService(language: String)(implicit settings: RawSettings) extends CompilerService {
+abstract class CommonCompilerService(language: String, maybeClassLoader: Option[ClassLoader] = None)(
+    implicit settings: RawSettings
+) extends CompilerService {
 
-  private val credentials = CredentialsServiceProvider()
+  private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
   // Map of users to compilers.
   private val compilerCaches = new RawConcurrentHashMap[(AuthenticatedUser, String), Compiler]
@@ -42,13 +44,13 @@ abstract class CommonCompilerService(language: String)(implicit settings: RawSet
     implicit val sourceContext = new SourceContext(user, credentials, settings)
 
     // Initialize inferrer
-    val inferrer = InferrerServiceProvider()
+    val inferrer = InferrerServiceProvider(maybeClassLoader)
 
     // Initialize compiler context
-    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer)
+    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer, maybeClassLoader)
     try {
       // Initialize compiler. Default language, if not specified is 'rql2'.
-      CommonCompilerProvider(language)(compilerContext)
+      CommonCompilerProvider(language, maybeClassLoader)(compilerContext)
     } catch {
       case NonFatal(ex) =>
         // To not leave hanging inferrer services.

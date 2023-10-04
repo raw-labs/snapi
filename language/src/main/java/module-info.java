@@ -46,10 +46,10 @@ module raw.language {
   uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.compiler.rql2.api.EntryExtension;
 
+
   provides raw.creds.api.CredentialsServiceBuilder with
-      raw.creds.local.LocalCredentialsServiceBuilder;
-  //    provides raw.creds.api.CredentialsServiceBuilder with
-  // raw.creds.mock.MockCredentialsServiceBuilder;
+      raw.creds.local.LocalCredentialsServiceBuilder,
+      raw.creds.mock.MockCredentialsServiceBuilder;
 
   uses raw.inferrer.api.InferrerServiceBuilder;
 
@@ -148,6 +148,9 @@ module raw.language {
 
   uses raw.compiler.api.CompilerServiceBuilder;
 
+  exports raw.utils;
+  exports raw.sources.api;
+  exports raw.creds.api;
   exports raw.compiler;
   exports raw.compiler.api;
   exports raw.compiler.base;

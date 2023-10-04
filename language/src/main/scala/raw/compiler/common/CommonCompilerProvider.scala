@@ -14,28 +14,20 @@ package raw.compiler.common
 
 import raw.compiler.base.CompilerContext
 import raw.compiler.CompilerException
-import raw.utils.RawConcurrentHashMap
 
 import java.util.ServiceLoader
 import scala.collection.JavaConverters._
 
 object CommonCompilerProvider {
 
-  private val services = ServiceLoader.load(classOf[CommonCompilerBuilder]).asScala.toArray
-
-  private val serviceMap = new RawConcurrentHashMap[String, CommonCompilerBuilder]
-
-  private def findBuilder(language: String): CommonCompilerBuilder = {
-    serviceMap.getOrElseUpdate(
-      language,
-      services.find(p => p.names.contains(language)) match {
-        case Some(builder) => builder
-        case None => throw new CompilerException(s"cannot find support for language: $language")
-      }
-    )
-  }
-
-  def apply(language: String)(implicit compilerContext: CompilerContext): Compiler = {
-    findBuilder(language).getCompiler(compilerContext)
+  def apply(language: String, maybeClassLoader: Option[ClassLoader] = None)(implicit compilerContext: CompilerContext): Compiler = {
+    val services = maybeClassLoader match {
+      case Some(cl) => ServiceLoader.load(classOf[CommonCompilerBuilder], cl).asScala.toArray
+      case None => ServiceLoader.load(classOf[CommonCompilerBuilder]).asScala.toArray
+    }
+    services.find(p => p.names.contains(language)) match {
+      case Some(builder) => builder.getCompiler(compilerContext)
+      case None => throw new CompilerException(s"cannot find support for language: $language")
+    }
   }
 }

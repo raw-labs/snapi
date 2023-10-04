@@ -32,8 +32,7 @@ import scala.Option;
     name = "RQL",
     version = RawLanguage.VERSION,
     defaultMimeType = RawLanguage.MIME_TYPE,
-    characterMimeTypes = RawLanguage.MIME_TYPE,
-    contextPolicy = TruffleLanguage.ContextPolicy.SHARED)
+    characterMimeTypes = RawLanguage.MIME_TYPE)
 @ProvidedTags({
   StandardTags.CallTag.class,
   StandardTags.StatementTag.class,
@@ -73,13 +72,15 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
+    ClassLoader classLoader = RawLanguage.class.getClassLoader();
+
     RawContext context = RawContext.get(null);
     RawSettings rawSettings = context.getRawSettings();
     ProgramEnvironment programEnvironment = context.getProgramEnvironment();
 
     String source = request.getSource().getCharacters().toString();
 
-    CompilerService compilerService = CompilerServiceProvider.apply(rawSettings);
+    CompilerService compilerService = CompilerServiceProvider.apply(classLoader, rawSettings);
 
     // FIXME (msb): maybeArguments should ALSO be read from the context!
     CompilationResponse compilationResponse =

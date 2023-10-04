@@ -52,11 +52,20 @@ public final class RawContext {
     this.language = language;
     this.env = env;
     this.output = env.out();
-    this.rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
+
+    // Set settings from environment variable if available.
+    String rawSettingsString = Objects.toString(env.getEnvironment().get("RAW_SETTINGS"), "");
+    if (rawSettingsString.isEmpty()) {
+      this.rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
+    } else {
+      this.rawSettings = new RawSettings(rawSettingsString);
+    }
 
     // Set user from environment variable.
     String uid = Objects.toString(env.getEnvironment().get("RAW_USER"), "");
     this.user = new InteractiveUser(uid, uid, uid, (Seq<String>) Seq$.MODULE$.empty());
+
+    ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
     // Set traceId from environment variable.
     String traceId = Objects.toString(env.getEnvironment().get("RAW_TRACE_ID"), "");
@@ -67,7 +76,7 @@ public final class RawContext {
     this.scopes = (scopesStr == null || scopesStr.isEmpty()) ? new String[0] : scopesStr.split(",");
 
     // Create source context.
-    CredentialsService credentialsService = CredentialsServiceProvider.apply(rawSettings);
+    CredentialsService credentialsService = CredentialsServiceProvider.apply(classLoader, rawSettings);
     this.sourceContext = new SourceContext(user, credentialsService, rawSettings);
 
     // Create program environment.

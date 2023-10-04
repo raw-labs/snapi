@@ -5,12 +5,12 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>org.example</groupId>
-    <artifactId>raw-cli</artifactId>
+    <artifactId>raw-launcher</artifactId>
     <version>1.0-SNAPSHOT</version>
 
     <properties>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
     </properties>
 
     <dependencies>
@@ -24,6 +24,7 @@
             <groupId>org.graalvm.polyglot</groupId>
             <artifactId>python</artifactId>
             <version>23.1.0</version>
+            <scope>runtime</scope>
             <type>pom</type>
         </dependency>
         <!-- Raw Language Dependencies -->
@@ -31,11 +32,13 @@
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-language_2.12</artifactId>
             <version>0.24.28+13-2445f608+20231002-1505-SNAPSHOT</version>
+            <scope>runtime</scope>
         </dependency>
         <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-language-extensions_2.12</artifactId>
-            <version>0.0.3</version>
+            <version>0.0.5</version>
+            <scope>runtime</scope>
         </dependency>
         <!-- JLine Dependency -->
         <dependency>
@@ -53,9 +56,55 @@
             <artifactId>jline-reader</artifactId>
             <version>3.23.0</version>
         </dependency>
+        <!-- Logger -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>log4j-over-slf4j</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jcl-over-slf4j</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>jul-to-slf4j</artifactId>
+            <version>2.0.5</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-core</artifactId>
+            <version>1.4.11</version>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>1.4.11</version>
+        </dependency>
+        <!-- Test suite -->
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-api</artifactId>
+            <version>5.8.1</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.junit.jupiter</groupId>
+            <artifactId>junit-jupiter-engine</artifactId>
+            <version>5.8.1</version>
+            <scope>test</scope>
+        </dependency>
+
     </dependencies>
 
     <build>
+
         <plugins>
             <!-- Required to read the properties file -->
             <plugin>
@@ -82,20 +131,20 @@
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.8.1</version>
             </plugin>
-            <!-- Create a JAR of the compiled classes -->
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>3.2.0</version>
-                <configuration>
-                    <archive>
-                        <manifest>
-                            <mainClass>raw.cli.RawCli</mainClass>
-                        </manifest>
-                    </archive>
-                </configuration>
-            </plugin>
-            <!-- Required to run the application using module-path instead of classpath -->
+<!--            &lt;!&ndash; Create a JAR of the compiled classes &ndash;&gt;-->
+<!--            <plugin>-->
+<!--                <groupId>org.apache.maven.plugins</groupId>-->
+<!--                <artifactId>maven-jar-plugin</artifactId>-->
+<!--                <version>3.2.0</version>-->
+<!--                <configuration>-->
+<!--                    <archive>-->
+<!--                        <manifest>-->
+<!--                            <mainClass>raw.cli.RawCli</mainClass>-->
+<!--                        </manifest>-->
+<!--                    </archive>-->
+<!--                </configuration>-->
+<!--            </plugin>-->
+            <!-- Required to run the application -->
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
@@ -109,12 +158,6 @@
                 </executions>
                 <configuration>
                     <mainClass>raw.cli.RawCli</mainClass>
-                    <arguments>
-                        <argument>--module-path</argument>
-                        <argument>${project.build.directory}/dependencies</argument>
-                        <argument>-m</argument>
-                        <argument>raw.cli/raw.cli.RawCli</argument>
-                    </arguments>
                 </configuration>
             </plugin>
         </plugins>

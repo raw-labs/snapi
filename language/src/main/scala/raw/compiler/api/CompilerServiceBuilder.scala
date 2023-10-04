@@ -17,5 +17,5 @@ import raw.utils.RawSettings
 trait CompilerServiceBuilder {
   def name: String
 
-  def build(implicit settings: RawSettings): CompilerService
+  def build(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): CompilerService
 }

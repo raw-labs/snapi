@@ -24,7 +24,6 @@ trait Rql2TruffleCompilerServiceTestContext extends CompilerServiceTestContext {
   override def beforeAll(): Unit = {
     super.beforeAll()
     property("raw.compiler.impl", "rql2-truffle")
-
     rql2TruffleCompilerService = new Rql2TruffleCompilerService
     setCompilerService(rql2TruffleCompilerService)
   }

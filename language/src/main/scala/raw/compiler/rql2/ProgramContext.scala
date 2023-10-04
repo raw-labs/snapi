@@ -44,7 +44,7 @@ class ProgramContext(runtimeContext: RuntimeContext)(
   }
 
   def getPackage(name: String): Option[PackageExtension] = {
-    dynamicPackageCache.get(name).orElse(PackageExtensionProvider.getPackage(name))
+    dynamicPackageCache.get(name).orElse(PackageExtensionProvider.getPackage(name, compilerContext.maybeClassLoader))
   }
 
   def addPackage(pkg: PackageExtension): Unit = {

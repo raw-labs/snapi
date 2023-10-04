@@ -91,6 +91,9 @@ compileOrder := CompileOrder.ScalaThenJava
 Compile / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
+Test / doc / sources := {
+  (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
+}
 
 // Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
@@ -135,7 +138,7 @@ Test / javaOptions ++= Seq(
 //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
 //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
 //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
-  "-Dpolyglotimpl.DisableClassPathIsolation=true",
+//  "-Dpolyglotimpl.DisableClassPathIsolation=true",
   "-Dpolyglotimpl.BackgroundCompilation=false",
   "-Dpolyglotimpl.TraceCompilation=true",
   "-Dpolyglotimpl.TraceCompilationDetails=true",

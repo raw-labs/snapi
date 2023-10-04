@@ -21,8 +21,6 @@ object AuthServiceProvider {
 
   private val AUTH_IMPL = "raw.auth.impl"
 
-  private val services = ServiceLoader.load(classOf[AuthServiceBuilder]).asScala.toArray
-
   private var instance: AuthService = _
   private val instanceLock = new Object
 
@@ -42,6 +40,7 @@ object AuthServiceProvider {
   }
 
   private def build()(implicit settings: RawSettings): AuthService = {
+    val services = ServiceLoader.load(classOf[AuthServiceBuilder]).asScala.toArray
     if (services.isEmpty) {
       throw new GenericAuthException("no authentication service available")
     } else if (services.size > 1) {

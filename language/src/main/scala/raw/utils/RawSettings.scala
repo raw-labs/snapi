@@ -28,14 +28,6 @@ object RawSettings extends StrictLogging {
   private val trainingWheelsLogged = new AtomicBoolean(false)
   private val syntaxCheckingLogged = new AtomicBoolean(false)
 
-  def apply(dump: String): RawSettings = {
-    try {
-      new RawSettings(ConfigFactory.parseString(dump))
-    } catch {
-      case ex: ConfigException => throw new SettingsException("error loading settings", ex)
-    }
-  }
-
   private def logOneTime(key: String, value: Any, propertyType: String): Unit = {
     if (alreadyLogged.add((key, value))) {
       logger.info(s"Using $key: $value ($propertyType)")
@@ -60,7 +52,17 @@ class RawSettings(
 
   import RawSettings._
 
-  def dumpString: String = {
+  def this(renderAsString: String) = {
+    this(
+      try {
+        ConfigFactory.parseString(renderAsString)
+      } catch {
+        case ex: ConfigException => throw new SettingsException("error loading settings", ex)
+      }
+    )
+  }
+
+  def renderAsString: String = {
     try {
       config.root().render(ConfigRenderOptions.concise())
     } catch {

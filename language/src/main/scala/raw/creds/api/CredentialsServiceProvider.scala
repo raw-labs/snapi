@@ -24,10 +24,26 @@ object CredentialsServiceProvider {
   private var instance: CredentialsService = _
   private val instanceLock = new Object
 
+  def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): CredentialsService = {
+    maybeClassLoader match {
+      case Some(cl) => apply(cl)
+      case None => apply()
+    }
+  }
+
   def apply()(implicit settings: RawSettings): CredentialsService = {
     instanceLock.synchronized {
       if (instance == null) {
         instance = build()
+      }
+      return instance
+    }
+  }
+
+  def apply(classLoader: ClassLoader)(implicit settings: RawSettings): CredentialsService = {
+    instanceLock.synchronized {
+      if (instance == null) {
+        instance = build(Some(classLoader))
       }
       return instance
     }
@@ -46,8 +62,13 @@ object CredentialsServiceProvider {
     }
   }
 
-  private def build()(implicit settings: RawSettings): CredentialsService = {
-    val services = ServiceLoader.load(classOf[CredentialsServiceBuilder]).asScala.toArray
+  private def build(
+      maybeClassLoader: Option[ClassLoader] = None
+  )(implicit settings: RawSettings): CredentialsService = {
+    val services = maybeClassLoader match {
+      case Some(cl) => ServiceLoader.load(classOf[CredentialsServiceBuilder], cl).asScala.toArray
+      case None => ServiceLoader.load(classOf[CredentialsServiceBuilder]).asScala.toArray
+    }
     if (services.isEmpty) {
       throw new CredentialsException("no credentials service available")
     } else if (services.size > 1) {

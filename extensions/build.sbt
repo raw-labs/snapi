@@ -100,6 +100,9 @@ compileOrder := CompileOrder.ScalaThenJava
 Compile / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
+Test / doc / sources := {
+  (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
+}
 // Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
   "--module-path",
@@ -149,6 +152,8 @@ Test / javaOptions ++= Seq(
   "-Dpolyglotimpl.TraceCompilationDetails=true",
   "-Dpolyglotimpl.TraceInlining=true"
 )
+
+
 
 lazy val temporaryDirectory: String = {
   // Create temp files on dast directories by default.

@@ -50,6 +50,11 @@ import raw.runtime.{
   ProgramEnvironment
 }
 import raw.runtime.truffle.RawLanguage
+import org.graalvm.polyglot.{Context, Source, Value}
+import raw.compiler.api.{AutoCompleteResponse, CompilationResponse, CompilerServiceException, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GetProgramDescriptionResponse, GetTypeResponse, GoToDefinitionResponse, HoverResponse, Pos, RenameResponse, ValidateResponse}
+import raw.compiler.common.CommonCompilerService
+import raw.runtime.{ParamValue, ProgramEnvironment}
+import raw.runtime.truffle.{RawLanguage, RawLanguageProvider}
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.utils.{RawException, RawSettings}
@@ -57,7 +62,8 @@ import raw.utils.{RawException, RawSettings}
 import java.io.OutputStream
 import scala.util.control.NonFatal
 
-class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonCompilerService("rql2-truffle") {
+class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
+    extends CommonCompilerService("rql2-truffle", maybeClassLoader) {
 
   override def getType(
       source: String,
@@ -97,7 +103,11 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
   ): ExecutionResponse = {
     val compiler = getCompiler(environment.user)
     val programContext = getProgramContext(compiler, source, maybeArguments, environment)
+
+
+
     try {
+<<<<<<< HEAD
       compiler
         .parseAndValidate(source, maybeDecl)(programContext)
         .right
@@ -118,18 +128,59 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
               val target =
                 Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
               target.call()
+=======
+      val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
+      ctx.initialize(RawLanguage.ID)
+      ctx.enter()
+//
+//      try {
+//        ctx.parse(source)
+//      }
+//      this is ALSO wrong
+//
+//
+//      should be what?
+//
+//      ctx.
+//
+//        fix this!
+//
+//      should be ctx.parse
+//      get Value
+//        then execute Value
+//
+//      BTW, if this is WRONG, so it doEval!
+
+      try {
+        compiler
+          .parseAndValidate(source, maybeDecl)(programContext)
+          .right
+          .flatMap { program =>
+            compiler.compile(program)(programContext).right.map { entrypoint =>
+//ctx.p
+//              val v = entrypoint.asInstanceOf[TruffleEntrypoint].node;
+//              v.
+
+              val src = Source.newBuilder("rql", source, "<stdin>").build
+              val v = ctx.eval(src)
+              v.execute()
+
+//              val target =
+//                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
+//              target.call()
+>>>>>>> f29fdfc (WIP)
               outputStream.flush()
               ExecutionSuccess
-            } finally {
-              ctx.leave()
-              ctx.close()
             }
           }
-        }
-        .fold(
-          errs => ExecutionValidationFailure(errs),
-          res => res
-        )
+          .fold(
+            errs => ExecutionValidationFailure(errs),
+            res => res
+          )
+      } finally {
+        ctx.leave()
+        ctx.close()
+      }
     } catch {
       case ex: RawTruffleRuntimeException => ExecutionRuntimeFailure(ex.getMessage)
       case ex: RawException => ExecutionRuntimeFailure(ex.getMessage)
@@ -203,6 +254,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
   ): Context = {
     val ctxBuilder = Context
       .newBuilder(RawLanguage.ID)
+      .environment("RAW_SETTINGS", settings.renderAsString)
       .environment("RAW_USER", environment.user.uid.toString)
       .environment("RAW_TRACE_ID", environment.user.uid.toString)
       .environment("RAW_SCOPES", environment.scopes.mkString(","))

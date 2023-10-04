@@ -20,14 +20,29 @@ object InferrerServiceProvider {
 
   private val INFERRER_IMPL = "raw.inferrer.impl"
 
-  private val services = ServiceLoader.load(classOf[InferrerServiceBuilder]).asScala.toArray
+  def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit sourceContext: SourceContext): InferrerService = {
+    maybeClassLoader match {
+      case Some(cl) => apply(cl)
+      case None => apply()
+    }
+  }
 
   def apply()(implicit sourceContext: SourceContext): InferrerService = {
     build()
   }
 
+  def apply(classLoader: ClassLoader)(implicit sourceContext: SourceContext): InferrerService = {
+    build(Some(classLoader))
+  }
+
   @throws[InferrerException]
-  private def build()(implicit sourceContext: SourceContext): InferrerService = {
+  private def build(
+      maybeClassLoader: Option[ClassLoader] = None
+  )(implicit sourceContext: SourceContext): InferrerService = {
+    val services = maybeClassLoader match {
+      case Some(cl) => ServiceLoader.load(classOf[InferrerServiceBuilder], cl).asScala.toArray
+      case None => ServiceLoader.load(classOf[InferrerServiceBuilder]).asScala.toArray
+    }
     if (services.isEmpty) {
       throw new InferrerException("no inferrer service available")
     } else if (services.length > 1) {

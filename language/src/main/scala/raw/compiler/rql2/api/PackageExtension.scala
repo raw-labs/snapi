@@ -29,12 +29,14 @@ import scala.collection.immutable.ListMap
 
 abstract class PackageExtension {
 
-  protected lazy val entryExtensions: Array[EntryExtension] = {
-    ServiceLoader
-      .load(classOf[EntryExtension])
-      .asScala
-      .toArray
-      .filter(_.packageName == name)
+  protected var entryExtensions: Array[EntryExtension] = _
+
+  def init(maybeClassLoader: Option[ClassLoader]): Unit = {
+    val es = maybeClassLoader match {
+      case Some(cl) => ServiceLoader.load(classOf[EntryExtension], cl).asScala.toArray
+      case None => ServiceLoader.load(classOf[EntryExtension]).asScala.toArray
+    }
+    entryExtensions = es.filter(_.packageName == name)
   }
 
   /**
@@ -338,19 +340,41 @@ abstract class SugarEntryExtension extends EntryExtension {
 
 object PackageExtensionProvider {
 
-  private val services = ServiceLoader.load(classOf[PackageExtension]).asScala.toArray
+  private var packageExtensions: Array[PackageExtension] = _
+  private val packageExtensionsLock = new Object
 
-  val names = services.map(_.name)
-  if (names.toSet.size != names.length) {
-    throw new AssertionError("Duplicate package names found!")
+  private def build(maybeClassLoader: Option[ClassLoader]): Unit = {
+    packageExtensionsLock.synchronized {
+      if (packageExtensions == null) {
+        packageExtensions = maybeClassLoader match {
+          case Some(cl) => ServiceLoader.load(classOf[PackageExtension], cl).asScala.toArray
+          case None => ServiceLoader.load(classOf[PackageExtension]).asScala.toArray
+        }
+        packageExtensions.foreach(_.init(maybeClassLoader))
+        val names = packageExtensions.map(_.name)
+        assert(names.toSet.size == names.length, "Duplicate package names found!")
+      }
+    }
   }
 
-  val packages: Array[PackageEntity] = {
-    services.map(s => new PackageEntity(s))
+  def services(maybeClassLoader: Option[ClassLoader]): Array[PackageExtension] = {
+    build(maybeClassLoader)
+    packageExtensions
   }
 
-  def getPackage(name: String): Option[PackageExtension] = {
-    services.collectFirst { case p if p.name == name => p }
+  def names(maybeClassLoader: Option[ClassLoader]): Array[String] = {
+    build(maybeClassLoader)
+    packageExtensions.map(_.name)
+  }
+
+  def packages(maybeClassLoader: Option[ClassLoader]): Array[PackageEntity] = {
+    build(maybeClassLoader)
+    packageExtensions.map(s => new PackageEntity(s))
+  }
+
+  def getPackage(name: String, maybeClassLoader: Option[ClassLoader]): Option[PackageExtension] = {
+    build(maybeClassLoader)
+    packageExtensions.collectFirst { case p if p.name == name => p }
   }
 
 }

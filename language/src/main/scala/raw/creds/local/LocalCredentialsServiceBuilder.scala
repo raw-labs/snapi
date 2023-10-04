@@ -12,13 +12,14 @@
 
 package raw.creds.local
 
+import raw.creds.api.CredentialsService
 import raw.utils.RawSettings
 
 class LocalCredentialsServiceBuilder extends raw.creds.api.CredentialsServiceBuilder {
 
   override val name: String = "local"
 
-  override def build(implicit settings: RawSettings): LocalCredentialsService = {
+  override def build(implicit settings: RawSettings): CredentialsService = {
     new LocalCredentialsService
   }
 

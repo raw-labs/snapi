@@ -26,9 +26,10 @@ class Scala2CompilerContext(
     language: String,
     user: AuthenticatedUser,
     sourceContext: SourceContext,
-    inferrer: InferrerService
+    inferrer: InferrerService,
+    maybeClassLoader: Option[ClassLoader]
 )(implicit settings: RawSettings)
-    extends CompilerContext(language, user, inferrer, sourceContext) {
+    extends CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader) {
 
   val methodHandlesLookup = MethodHandles.lookup()
 
