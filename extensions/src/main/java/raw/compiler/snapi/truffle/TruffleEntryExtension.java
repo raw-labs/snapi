@@ -22,12 +22,9 @@ import raw.runtime.truffle.RawLanguage;
 
 public interface TruffleEntryExtension {
 
-  ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage);
-
-  // TO DO: remove if not needed
-  //  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-  //    throw new UnsupportedOperationException("Not implemented");
-  //  }
+  default ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+    throw new UnsupportedOperationException("Not implemented");
+  }
 
   default ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
     return toTruffle(
