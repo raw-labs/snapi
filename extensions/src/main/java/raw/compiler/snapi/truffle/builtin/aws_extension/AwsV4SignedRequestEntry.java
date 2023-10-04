@@ -1,4 +1,16 @@
-package raw.compiler.snapi.truffle.builtin;
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+package raw.compiler.snapi.truffle.builtin.aws_extension;
 
 import java.util.List;
 import java.util.Optional;
@@ -17,18 +29,18 @@ import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Vector;
 
-public class TruffleAwsPackage extends AwsV4SignedRequest implements TruffleEntryExtension {
+public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode key = args.get(0).getExpNode();
-    ExpressionNode secretKey = args.get(1).getExpNode();
-    ExpressionNode service = args.get(2).getExpNode();
+    ExpressionNode key = args.get(0).getExprNode();
+    ExpressionNode secretKey = args.get(1).getExprNode();
+    ExpressionNode service = args.get(2).getExprNode();
 
     Optional<ExpressionNode> maybeRegion =
         args.stream()
             .filter(
                 (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("region"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeSessionToken =
@@ -36,80 +48,77 @@ public class TruffleAwsPackage extends AwsV4SignedRequest implements TruffleEntr
             .filter(
                 (TruffleArg a) ->
                     a.getIdentifier() != null && a.getIdentifier().equals("sessionToken"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeMethod =
         args.stream()
             .filter(
                 (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("method"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst();
 
-    ExpressionNode method = maybeMethod.orElseGet(() -> new StringNode("GET"));
+    ExpressionNode method = maybeMethod.orElse(new StringNode("GET"));
 
     Optional<ExpressionNode> maybeHost =
         args.stream()
             .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("host"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst();
 
     ExpressionNode host =
-        maybeHost.orElseGet(
-            () ->
-                maybeRegion
-                    .map(
-                        expressionNode ->
+        maybeHost.orElse(
+            maybeRegion
+                .map(
+                    expressionNode ->
+                        new PlusNode(
                             new PlusNode(
-                                new PlusNode(
-                                    new PlusNode(service, new StringNode(".")), expressionNode),
-                                new StringNode(".amazonaws.com")))
-                    .orElseGet(() -> new PlusNode(service, new StringNode(".amazonaws.com"))));
+                                new PlusNode(service, new StringNode(".")), expressionNode),
+                            new StringNode(".amazonaws.com")))
+                .orElse(new PlusNode(service, new StringNode(".amazonaws.com"))));
 
     ExpressionNode path =
         args.stream()
             .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("path"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst()
-            .orElseGet(() -> new StringNode("/"));
+            .orElse(new StringNode("/"));
 
     ExpressionNode body =
         args.stream()
             .filter(
                 (TruffleArg a) ->
                     a.getIdentifier() != null && a.getIdentifier().equals("bodyString"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst()
-            .orElseGet(() -> new StringNode(""));
+            .orElse(new StringNode(""));
 
     ExpressionNode urlParams =
         args.stream()
             .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("args"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst()
-            .orElseGet(
-                () ->
-                    new ListBuildNode(
-                        Rql2ListType.apply(
-                            Rql2RecordType.apply(Vector.empty(), new HashSet<>()), new HashSet<>()),
-                        new ExpressionNode[] {}));
+            .orElse(
+                new ListBuildNode(
+                    Rql2ListType.apply(
+                        Rql2RecordType.apply(Vector.empty(), new HashSet<>()), new HashSet<>()),
+                    new ExpressionNode[] {}));
 
     ExpressionNode headers =
         args.stream()
             .filter(
                 (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("headers"))
-            .map(TruffleArg::getExpNode)
+            .map(TruffleArg::getExprNode)
             .findFirst()
-            .orElseGet(
-                () ->
-                    new ListBuildNode(
-                        Rql2ListType.apply(
-                            Rql2RecordType.apply(Vector.empty(), new HashSet<>()), new HashSet<>()),
-                        new ExpressionNode[] {}));
+            .orElse(
+                new ListBuildNode(
+                    Rql2ListType.apply(
+                        Rql2RecordType.apply(Vector.empty(), new HashSet<>()), new HashSet<>()),
+                    new ExpressionNode[] {}));
 
-    ExpressionNode sessionToken = maybeSessionToken.orElseGet(() -> new StringNode(""));
+    ExpressionNode sessionToken = maybeSessionToken.orElse(new StringNode(""));
 
-    ExpressionNode region = maybeRegion.orElseGet(() -> new StringNode("us-east-1"));
+    ExpressionNode region = maybeRegion.orElse(new StringNode("us-east-1"));
 
     return AwsV4SignedRequestNodeGen.create(
         key,

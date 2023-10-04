@@ -629,11 +629,12 @@ class TruffleEmitterImpl(tree: Tree, val rawLanguage: RawLanguage)(implicit prog
         .get
         .getEntries(entName)
         .collectFirst {
+          // (az) this is a patch for scala to truffle conversion
           case e: raw.compiler.snapi.truffle.TruffleEntryExtension => e.toTruffle(
-            t,
-            JavaConverters.seqAsJavaList(args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn))),
-            this
-          )
+              t,
+              JavaConverters.seqAsJavaList(args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn))),
+              this
+            )
           case e: TruffleEntryExtension =>
             e.toTruffle(t, args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn)), this)
         }

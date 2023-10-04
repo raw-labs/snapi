@@ -10,14 +10,18 @@
  * licenses/APL.txt.
  */
 
+import raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryBase64Entry;
+
 module raw.language.extensions {
   requires scala.library;
   requires org.slf4j;
   requires org.graalvm.polyglot;
   requires org.graalvm.truffle;
   requires raw.language;
+
   exports raw.compiler.snapi.truffle;
   exports raw.compiler.snapi.truffle.compiler;
+  exports raw.compiler.rql2.truffle;
 
   provides raw.compiler.api.CompilerServiceBuilder with
       raw.compiler.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
@@ -233,7 +237,7 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleHttpOptionsEntry,
       raw.compiler.rql2.truffle.builtin.TruffleHttpUrlEncode,
       raw.compiler.rql2.truffle.builtin.TruffleHttpUrlDecode,
-      raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryBase64EntryExtension,
-      raw.compiler.snapi.truffle.builtin.binary.TruffleBinaryReadEntry,
-      raw.compiler.snapi.truffle.builtin.binary.TruffleFromStringBinaryEntry;
+          TruffleBinaryBase64Entry,
+      raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryReadEntry,
+      raw.compiler.snapi.truffle.builtin.binary_extension.TruffleFromStringBinaryEntry;
 }
