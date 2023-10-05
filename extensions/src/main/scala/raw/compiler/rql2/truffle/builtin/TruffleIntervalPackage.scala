@@ -43,7 +43,7 @@ class TruffleBuildIntervalEntry extends BuildIntervalEntry with TruffleEntryExte
     val mi = args.collectFirst { case TruffleArg(e, _, Some("minutes")) => e }.getOrElse(new IntNode("0"))
     val s = args.collectFirst { case TruffleArg(e, _, Some("seconds")) => e }.getOrElse(new IntNode("0"))
     val ms = args.collectFirst { case TruffleArg(e, _, Some("millis")) => e }.getOrElse(new IntNode("0"))
-    IntervalBuildNodeGen.create(y, m, w, d, h, mi, s, ms);
+    IntervalBuildNodeGen.create(y, m, w, d, h, mi, s, ms)
   }
 
 }

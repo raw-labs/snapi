@@ -25,13 +25,13 @@ import raw.runtime.truffle.ast.expressions.builtin.environment_package.{
 
 class TruffleEnvironmentSecretEntry extends EnvironmentSecretEntry with TruffleShortEntryExtension {
   override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = {
-    EnvironmentSecretNodeGen.create(args(0));
+    EnvironmentSecretNodeGen.create(args(0))
   }
 }
 
 class TruffleEnvironmentScopesEntry extends EnvironmentScopesEntry with TruffleShortEntryExtension {
   override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = {
-    return EnvironmentScopesNodeGen.create();
+    EnvironmentScopesNodeGen.create()
   }
 }
 

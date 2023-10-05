@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.compiler.snapi.truffle.builtin.csv_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
@@ -17,6 +29,8 @@ import scala.collection.immutable.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
+
 public class CsvParser {
 
   private final List<TruffleArg> args;
@@ -30,9 +44,6 @@ public class CsvParser {
   private final ExpressionNode timeFormat;
   private final ExpressionNode dateFormat;
   private final ExpressionNode timestampFormat;
-
-  private final Rql2IsTryableTypeProperty tryable = Rql2IsTryableTypeProperty.apply();
-  private final Rql2IsNullableTypeProperty nullable = Rql2IsNullableTypeProperty.apply();
 
   private Optional<ExpressionNode> arg(String kw) {
     return args.stream()
@@ -70,7 +81,7 @@ public class CsvParser {
   }
 
   private RecordParseCsvNode getRecordParser(
-      Rql2TypeWithProperties t, RawLanguage lang, FrameDescriptor frameDescriptor) {
+      Rql2TypeWithProperties t, RawLanguage lang) {
     Rql2IterableType rql2IterableType = (Rql2IterableType) t;
     Rql2RecordType rql2RecordType = (Rql2RecordType) rql2IterableType.innerType();
     assert rql2RecordType.props().isEmpty();
@@ -79,7 +90,7 @@ public class CsvParser {
     ProgramExpressionNode[] columnParsers =
         JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream()
             .map(col -> columnParser(col.tipe(), lang))
-            .map(parser -> new ProgramExpressionNode(lang, frameDescriptor, parser))
+            .map(parser -> new ProgramExpressionNode(lang, new FrameDescriptor(), parser))
             .toArray(ProgramExpressionNode[]::new);
 
     return new RecordParseCsvNode(
@@ -89,14 +100,13 @@ public class CsvParser {
 
   public ExpressionNode stringParser(
       ExpressionNode str, Rql2TypeWithProperties t, RawLanguage lang) {
-    FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new IterableParseCsvString(
         str,
         skip,
         escape,
         delimiter,
         quote,
-        new ProgramExpressionNode(lang, frameDescriptor, getRecordParser(t, lang, frameDescriptor)),
+        new ProgramExpressionNode(lang, new FrameDescriptor(), getRecordParser(t, lang)),
         nulls,
         nans,
         dateFormat,
@@ -105,7 +115,6 @@ public class CsvParser {
   }
 
   public ExpressionNode fileParser(ExpressionNode url, Rql2TypeWithProperties t, RawLanguage lang) {
-    FrameDescriptor frameDescriptor = new FrameDescriptor();
     return new IterableParseCsvFile(
         url,
         encoding,
@@ -113,7 +122,7 @@ public class CsvParser {
         escape,
         delimiter,
         quote,
-        new ProgramExpressionNode(lang, frameDescriptor, getRecordParser(t, lang, frameDescriptor)),
+        new ProgramExpressionNode(lang, new FrameDescriptor(), getRecordParser(t, lang)),
         nulls,
         nans,
         dateFormat,
@@ -123,11 +132,11 @@ public class CsvParser {
 
   private ExpressionNode columnParser(Type t, RawLanguage lang) {
     return switch (t) {
-      case Rql2TypeWithProperties r && r.props().contains(tryable) -> {
+      case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
         ExpressionNode inner = columnParser(r.cloneAndRemoveProp(tryable), lang);
         yield  new TryableParseCsvNode(program(inner, lang));
       }
-      case Rql2TypeWithProperties r && r.props().contains(nullable) -> switch (r) {
+      case Rql2TypeWithProperties r when r.props().contains(nullable) -> switch (r) {
         case Rql2ByteType ignored -> new OptionByteParseCsvNode();
         case Rql2ShortType ignored -> new OptionShortParseCsvNode();
         case Rql2IntType ignored -> new OptionIntParseCsvNode();

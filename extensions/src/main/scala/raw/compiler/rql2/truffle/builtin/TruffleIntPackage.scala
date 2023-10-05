@@ -22,7 +22,7 @@ import raw.runtime.truffle.ast.expressions.literals.IntNode
 class TruffleIntFromEntry extends IntFromEntry with TruffleEntryExtension {
 
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
-    IntFromNodeGen.create(args(0).e);
+    IntFromNodeGen.create(args(0).e)
   }
 
 }

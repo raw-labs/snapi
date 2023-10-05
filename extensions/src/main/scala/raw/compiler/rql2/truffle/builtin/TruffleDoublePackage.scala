@@ -20,6 +20,6 @@ import raw.runtime.truffle.ast.expressions.builtin.numeric.double_package.Double
 
 class TruffleDoubleFromEntry extends DoubleFromEntry with TruffleEntryExtension {
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
-    DoubleFromNodeGen.create(args(0).e);
+    DoubleFromNodeGen.create(args(0).e)
   }
 }
