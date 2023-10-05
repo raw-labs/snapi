@@ -201,13 +201,15 @@ raw.compiler.rql2.truffle.builtin.TruffleTryIsErrorEntry
 raw.compiler.rql2.truffle.builtin.TruffleTryIsSuccessEntry
 raw.compiler.rql2.truffle.builtin.TruffleTryFlatMapEntry
 raw.compiler.rql2.truffle.builtin.TruffleTryUnsafeGetEntry
-raw.compiler.rql2.truffle.builtin.TruffleTypeCastEntry
-raw.compiler.rql2.truffle.builtin.TruffleTypeProtectCastEntry
-raw.compiler.rql2.truffle.builtin.TruffleTypeEmptyEntry
-raw.compiler.rql2.truffle.builtin.TruffleTypeMatchEntry
 
 raw.compiler.snapi.truffle.builtin.xml_extension.TruffleReadXmlEntry
 raw.compiler.snapi.truffle.builtin.xml_extension.TruffleParseXmlEntry
+
 raw.compiler.snapi.truffle.builtin.binary_extension.TruffleFromStringBinaryEntry
 raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryReadEntry
 raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryBase64Entry
+
+raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeCastEntry
+raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeEmptyEntry
+raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeMatchEntry
+raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeProtectCastEntry
