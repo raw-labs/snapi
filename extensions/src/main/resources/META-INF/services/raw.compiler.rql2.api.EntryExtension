@@ -196,11 +196,12 @@ raw.compiler.rql2.truffle.builtin.TruffleTimestampTimeBucketEntry
 raw.compiler.rql2.truffle.builtin.TruffleTimestampSubtractEntry
 raw.compiler.rql2.truffle.builtin.TruffleTimestampAddIntervalEntry
 raw.compiler.rql2.truffle.builtin.TruffleTimestampSubtractIntervalEntry
-raw.compiler.rql2.truffle.builtin.TruffleTryTransformEntry
-raw.compiler.rql2.truffle.builtin.TruffleTryIsErrorEntry
-raw.compiler.rql2.truffle.builtin.TruffleTryIsSuccessEntry
-raw.compiler.rql2.truffle.builtin.TruffleTryFlatMapEntry
-raw.compiler.rql2.truffle.builtin.TruffleTryUnsafeGetEntry
+
+raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryTransformEntry
+raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsErrorEntry
+raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsSuccessEntry
+raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryFlatMapEntry
+raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryUnsafeGetEntry
 
 raw.compiler.snapi.truffle.builtin.xml_extension.TruffleReadXmlEntry
 raw.compiler.snapi.truffle.builtin.xml_extension.TruffleParseXmlEntry
