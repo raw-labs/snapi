@@ -216,3 +216,5 @@ raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeMillisEntry
 raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractEntry
 raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeAddIntervalEntry
 raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractIntervalEntry
+
+raw.compiler.snapi.truffle.builtin.success_extension.TruffleSuccessBuildEntry

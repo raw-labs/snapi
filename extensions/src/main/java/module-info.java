@@ -119,7 +119,6 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleStringReadEntry,
       raw.compiler.rql2.truffle.builtin.TruffleStringReplaceEntry,
       raw.compiler.rql2.truffle.builtin.TruffleStringReadLinesEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleSuccessBuildEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension,
       //      raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry,
@@ -234,5 +233,6 @@ module raw.language.extensions {
       raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeMillisEntry,
       raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractEntry,
       raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeAddIntervalEntry,
-      raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractIntervalEntry;
+      raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractIntervalEntry,
+      raw.compiler.snapi.truffle.builtin.success_extension.TruffleSuccessBuildEntry;
 }
