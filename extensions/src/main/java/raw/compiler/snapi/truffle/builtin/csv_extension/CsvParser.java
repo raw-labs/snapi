@@ -65,8 +65,8 @@ public class CsvParser {
             .orElse(
                 new ListBuildNode(
                     Rql2ListType.apply(
-                            Rql2StringType.apply(HashSet.emptyInstance().toSet()),
-                            HashSet.emptyInstance().toSet()),
+                            Rql2StringType.apply(new HashSet<>()),
+                            new HashSet<>()),
                     new ExpressionNode[] {new StringNode("")}));
 
     this.nans =
@@ -74,8 +74,8 @@ public class CsvParser {
             .orElse(
                 new ListBuildNode(
                     Rql2ListType.apply(Rql2StringType.apply(
-                            HashSet.emptyInstance().toSet()),
-                            HashSet.emptyInstance().toSet()),
+                            new HashSet<>()),
+                            new HashSet<>()),
                     new ExpressionNode[] {}));
 
     this.timeFormat = arg("timeFormat").orElse(new StringNode("HH:mm[:ss[.SSS]]"));

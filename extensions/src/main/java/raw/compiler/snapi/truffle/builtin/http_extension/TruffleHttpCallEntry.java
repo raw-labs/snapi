@@ -83,7 +83,7 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
                     .filter(e -> e.getIdentifier() != null && e.getExprNode() != null)
                     .map(e -> (Rql2TypeWithProperties) e.getType()),
                 Stream.of(
-                    (Rql2TypeWithProperties) Rql2StringType.apply(HashSet.emptyInstance().toSet())))
+                    (Rql2TypeWithProperties) Rql2StringType.apply(new HashSet<>())))
             .toArray(Rql2TypeWithProperties[]::new);
 
     return new LocationBuildNode(url, keys, values, types);

@@ -50,7 +50,12 @@ public class TruffleMySQLQueryEntry extends MySQLQueryEntry
             .mapToObj(i -> allValues[i])
             .toArray(ExpressionNode[]::new);
 
-    Rql2TypeWithProperties[] types = optionalArgsTypes(args);
+    Rql2TypeWithProperties[] types =
+        args.stream()
+            .skip(1)
+            .filter(a -> a.getIdentifier() != null)
+            .map(a -> (Rql2TypeWithProperties) a.getType())
+            .toArray(Rql2TypeWithProperties[]::new);
 
     LocationBuildNode location =
         new LocationBuildNode(new PlusNode(new StringNode("mysql:"), db), keys, values, types);

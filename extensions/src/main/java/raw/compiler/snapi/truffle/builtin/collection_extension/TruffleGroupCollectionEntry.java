@@ -44,7 +44,7 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
                 .findFirst()
                 .orElse(
                     Rql2AttrType.apply(
-                        "key", new Rql2UndefinedType(HashSet.emptyInstance().toSet())))
+                        "key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
 
     Rql2IterableType iterableValueType =
@@ -54,7 +54,7 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
                 .findFirst()
                 .orElse(
                     Rql2AttrType.apply(
-                        "key", new Rql2UndefinedType(HashSet.emptyInstance().toSet())))
+                        "key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
 
     Rql2TypeWithProperties valueType = (Rql2TypeWithProperties) iterableValueType.innerType();
