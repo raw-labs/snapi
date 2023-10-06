@@ -42,7 +42,7 @@ public interface TruffleShortEntryExtension extends TruffleEntryExtension {
             (String k) -> {
               ExpressionNode e =
                   args.stream()
-                      .filter(a -> a.idn().get().equals(k))
+                      .filter(a -> a.idn().contains(k))
                       .map(a -> emitter.recurseExp(a.e()))
                       .findFirst()
                       .orElse(emitter.recurseExp(getOptionalParamsMap().apply(k)._2()));
