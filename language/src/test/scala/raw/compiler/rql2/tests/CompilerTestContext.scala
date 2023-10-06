@@ -518,10 +518,12 @@ trait CompilerTestContext
   /////////////////////////////////////////////////////////////////////////
 
   private def getQueryEnvironment(
+      maybeArguments: Option[Array[(String, ParamValue)]] = None,
       scopes: Set[String] = Set.empty,
       options: Map[String, String] = Map.empty
   ): ProgramEnvironment = ProgramEnvironment(
     authorizedUser,
+    maybeArguments,
     this.runnerScopes ++ scopes,
     this.options ++ options ++ programOptions,
     maybeTraceId
@@ -552,7 +554,7 @@ trait CompilerTestContext
 
   def tryToType(s: String): Either[Seq[String], Type] = {
     try {
-      compilerService.getType(s, None, getQueryEnvironment()) match {
+      compilerService.getType(s, getQueryEnvironment()) match {
         case GetTypeSuccess(t) => Right(t.get)
         case GetTypeFailure(errors) =>
           val messages = errors.map { err =>
@@ -677,12 +679,18 @@ trait CompilerTestContext
   def fastExecute(
       query: String,
       maybeDecl: Option[String] = None,
+      maybeArgs: Option[Array[(String, ParamValue)]] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
   ): Either[String, Path] = {
     val outputStream = new ByteArrayOutputStream()
     try {
-      compilerService.execute(query, None, getQueryEnvironment(scopes, options), maybeDecl, outputStream) match {
+      compilerService.execute(
+        query,
+        getQueryEnvironment(maybeArgs, scopes, options),
+        maybeDecl,
+        outputStream
+      ) match {
         case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
         case ExecutionRuntimeFailure(err) => Left(err)
         case ExecutionSuccess => Right(Path.of(outputStream.toString))
@@ -694,11 +702,12 @@ trait CompilerTestContext
 
   def doValidate(
       query: String,
+      maybeArgs: Option[Array[(String, ParamValue)]] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
   ): Either[String, Option[String]] = {
     try {
-      compilerService.getType(query, None, getQueryEnvironment(scopes, options)) match {
+      compilerService.getType(query, getQueryEnvironment(maybeArgs, scopes, options)) match {
         case GetTypeSuccess(Some(t)) => Right(Some(compilerService.prettyPrint(t, authorizedUser)))
         case GetTypeSuccess(None) => Right(None)
         case GetTypeFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
@@ -716,9 +725,9 @@ trait CompilerTestContext
       query: String,
       maybeDecl: Option[String] = None,
       maybeArgs: Option[Array[(String, ParamValue)]] = None,
-      savePath: Option[Path] = None,
       options: Map[String, String] = Map.empty,
-      scopes: Set[String] = Set.empty
+      scopes: Set[String] = Set.empty,
+      savePath: Option[Path] = None
   ): Either[String, Path] = {
     val (outputStream, path) = savePath match {
       case Some(path) =>
@@ -730,7 +739,7 @@ trait CompilerTestContext
 
     logger.debug(s"Test infrastructure now writing output result to temporary location: $path")
     try {
-      compilerService.execute(query, maybeArgs, getQueryEnvironment(scopes, options), maybeDecl, outputStream) match {
+      compilerService.execute(query, getQueryEnvironment(maybeArgs, scopes, options), maybeDecl, outputStream) match {
         case ExecutionValidationFailure(errs) => Left(errs.map(err => err.toString).mkString(","))
         case ExecutionRuntimeFailure(err) => Left(err)
         case ExecutionSuccess => Right(path)

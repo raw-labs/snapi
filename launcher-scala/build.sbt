@@ -37,7 +37,7 @@ version := {
   val fs = new FileInputStream("../version.properties")
   try {
     properties.load(fs)
-    properties.getProperty("extensions.version")
+    properties.getProperty("launcher.version")
   } finally {
     fs.close()
   }
@@ -51,7 +51,7 @@ organizationName := "RAW Labs SA"
 
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
 
-name := "raw-language-extensions"
+name := "raw-launcher"
 
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
 
@@ -71,9 +71,9 @@ scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
   "-source",
-  "17",
+  "11",
   "-target",
-  "17"
+  "11"
 )
 
 scalacOptions ++= Seq(
@@ -98,9 +98,6 @@ updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 compileOrder := CompileOrder.ScalaThenJava
 // Doc generation breaks with Java files
 Compile / doc / sources := {
-  (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
-}
-Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
 // Add all the classpath to the module path.
@@ -151,9 +148,83 @@ Test / javaOptions ++= Seq(
   "-Dpolyglotimpl.TraceCompilation=true",
   "-Dpolyglotimpl.TraceCompilationDetails=true",
   "-Dpolyglotimpl.TraceInlining=true"
+//  "--module-path=",
+//  (Test / javaOptions / dependencyClasspath).value.files.absString
 )
 
+run / fork := true
 
+run / javaOptions ++= Seq(
+  // Increasing stack size for Kiama chain/rewrites and codegen.
+  "-Xss64m",
+  // Enable assertions.
+  //  "-ea",
+  // Limit overall memory and force crashing hard and early.
+  // Useful for debugging memleaks.
+  "-Xmx4G",
+  "-XX:+CrashOnOutOfMemoryError",
+  // Truffle test settings.
+  //  "-Dpolyglotimpl.Inlining=false",
+  "-Dpolyglotimpl.CompileImmediately=true",
+  "-Dpolyglotimpl.AllowExperimentalOptions=true",
+  "-Dgraal.Dump=Truffle:2",
+  "-Dgraal.DumpPath=/tmp/graal_dumps",
+  "-Dgraal.PrintGraph=Network",
+  //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
+  //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
+  //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
+  //  "-Dpolyglotimpl.DisableClassPathIsolation=true",
+  "-Dpolyglotimpl.BackgroundCompilation=false",
+  "-Dpolyglotimpl.TraceCompilation=true",
+  "-Dpolyglotimpl.TraceCompilationDetails=true",
+  "-Dpolyglotimpl.TraceInlining=true",
+  "-Dpolyglot.log.file=/tmp/graal.log"
+  //  "--module-path=",
+  //  (Test / javaOptions / dependencyClasspath).value.files.absString
+)
+
+//Test / fullClasspath  := {
+//  (Test / fullClasspath ).value.filterNot(_.data.getAbsolutePath.contains("somePathPart"))
+//}
+
+// Function to filter relevant JARs
+def filterJarsByKeyword(classpath: Seq[Attributed[File]], keywords: Seq[String]): Seq[File] = {
+  classpath.collect {
+    case attributed if keywords.exists(keyword => attributed.data.getAbsolutePath.contains(keyword)) => attributed.data
+  }
+}
+
+val foo = Seq("raw-language", "graal", "truffle")
+
+Test / javaOptions ++= Seq(s"--module-path=${filterJarsByKeyword((Runtime / fullClasspath).value, foo).mkString(":")}")
+
+//
+////Compile / managedClasspath := (Compile / managedClasspath).value.filterNot(jar =>
+////  foo.exists(keyword => jar.data.getAbsolutePath.contains(keyword))
+////)
+//
+//Test / managedClasspath := (Test / managedClasspath).value.filterNot(jar =>
+//  foo.exists(keyword => jar.data.getAbsolutePath.contains(keyword))
+//)
+
+//Test / javaOptions += s"--module-path=${filterJarsByKeyword((Test / fullClasspath).value, foo).mkString(":")}"
+
+//Test / javaOptions += s"--module-path=${(Test / fullClasspath).value.mkString(":")}"
+//
+//// Adding everything to modulepath
+//Compile / javaOptions += s"--module-path=${filterJarsByKeyword((Compile / fullClasspath).value, foo).mkString(":")}"
+//
+//Compile / javacOptions += s"--module-path=${filterJarsByKeyword((Compile / dependencyClasspath).value, foo).mkString(":")}"
+////Compile / javacOptions ++= Seq(
+////  "--module-path",
+////  (Compile / dependencyClasspath).value.files.absString
+////)
+//
+//
+//run / fork := true
+//
+//
+////Test / javacOptions += s"--module-path=${filterJarsByKeyword((Test / dependencyClasspath).value, foo).mkString(":")}"
 
 lazy val temporaryDirectory: String = {
   // Create temp files on dast directories by default.
@@ -263,5 +334,42 @@ publishLocal := (publishLocal dependsOn publishM2).value
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawLanguage % "compile->compile;test->test"
+  rawLanguage % "compile->compile;test->test",
+  rawLanguageExtensions % "compile->compile;test->test",
+  "org.graalvm.polyglot" % "polyglot" % "23.1.0",
+  "org.graalvm.polyglot" % "python" % "23.1.0" // % "pom",
 )
+
+/*
+<dependency>
+
+        <!-- GraalVM Polyglot Dependency -->
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>polyglot</artifactId>
+            <version>23.1.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>python</artifactId>
+            <version>23.1.0</version>
+            <type>pom</type>
+        </dependency>
+
+        <!-- JLine Dependency -->
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal</artifactId>
+            <version>3.23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-terminal-jna</artifactId>
+            <version>3.23.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.jline</groupId>
+            <artifactId>jline-reader</artifactId>
+            <version>3.23.0</version>
+        </dependency>
+ */

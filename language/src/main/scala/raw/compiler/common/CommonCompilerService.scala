@@ -63,23 +63,20 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
   protected def getProgramContext(
       compiler: Compiler,
       code: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): ProgramContext = {
-    val runtimeContext = getRuntimeContext(compiler, maybeArguments, environment)
+    val runtimeContext = getRuntimeContext(compiler, environment)
     compiler.getProgramContext(runtimeContext)
   }
 
   private def getRuntimeContext(
       compiler: Compiler,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): RuntimeContext = {
     val sourceContext = compiler.compilerContext.sourceContext
     new RuntimeContext(
       sourceContext,
       settings,
-      maybeArguments,
       environment
     )
   }
@@ -99,7 +96,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       val r = compiler.parse(source)(programContext)
       ParseSuccess(r)
@@ -111,11 +108,10 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def getType(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): GetTypeResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, maybeArguments, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.getType(source)(programContext) match {
         case Left(errs) => GetTypeFailure(errs)
@@ -128,11 +124,10 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def getProgramDescription(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, maybeArguments, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.getProgramDescription(source)(programContext) match {
         case Left(errs) => GetProgramDescriptionFailure(errs)
@@ -145,12 +140,11 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def compile(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
       ref: Any
   ): CompilationResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, maybeArguments, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.compile(source, ref)(programContext) match {
         case Left(errs) => CompilationFailure(errs)
@@ -163,13 +157,12 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def execute(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
       outputStream: OutputStream
   ): ExecutionResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, maybeArguments, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.execute(source, maybeDecl)(programContext) match {
         case Left(errs) => ExecutionValidationFailure(errs)
@@ -190,7 +183,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
       maybeWidth: Option[Int]
   ): FormatCodeResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.formatCode(source, environment, maybeIndent, maybeWidth)(programContext)
     } catch {
@@ -204,7 +197,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
       position: Pos
   ): AutoCompleteResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.dotAutoComplete(source, environment, position)(programContext)
     } catch {
@@ -219,7 +212,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
       position: Pos
   ): AutoCompleteResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.wordAutoComplete(source, environment, prefix, position)(programContext)
     } catch {
@@ -229,7 +222,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.hover(source, environment, position)(programContext)
     } catch {
@@ -239,7 +232,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.rename(source, environment, position)(programContext)
     } catch {
@@ -253,7 +246,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
       position: Pos
   ): GoToDefinitionResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.goToDefinition(source, environment, position)(programContext)
     } catch {
@@ -263,7 +256,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.validate(source, environment)(programContext)
     } catch {
@@ -273,7 +266,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, None, environment)
+    val programContext = getProgramContext(compiler, source, environment)
     try {
       compiler.aiValidate(source, environment)(programContext)
     } catch {

@@ -1573,6 +1573,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         programContext.runtimeContext.cloneWith(newEnvironment =
           ProgramEnvironment(
             environment.user,
+            environment.maybeArguments,
             environment.scopes,
             environment.options + ("output-format" -> ""),
             environment.maybeTraceId

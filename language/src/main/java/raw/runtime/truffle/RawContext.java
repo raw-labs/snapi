@@ -12,8 +12,10 @@
 
 package raw.runtime.truffle;
 
+import com.oracle.truffle.api.library.LibraryFactory;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import com.typesafe.config.ConfigFactory;
@@ -22,6 +24,7 @@ import java.util.Objects;
 import raw.creds.api.CredentialsService;
 import raw.creds.api.CredentialsServiceProvider;
 import raw.creds.api.Secret;
+import raw.runtime.ParamValue;
 import raw.runtime.ProgramEnvironment;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.sources.api.SourceContext;
@@ -30,6 +33,7 @@ import raw.utils.InteractiveUser;
 import raw.utils.RawSettings;
 import scala.Option;
 import scala.Some;
+import scala.Tuple2;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.Map;
 import scala.collection.immutable.Seq;
@@ -93,7 +97,48 @@ public final class RawContext {
 
     Option<String> maybeTraceId = traceId != null ? Some.apply(traceId) : Option.empty();
 
-    programEnvironment = new ProgramEnvironment(user, scalaScopes, scalaOptions, maybeTraceId);
+    // Read back arguments
+//    TruffleObject polyglotBindings = (TruffleObject) env.getPolyglotBindings();
+//    InteropLibrary interop = LibraryFactory.resolve(InteropLibrary.class).getUncached();
+//    Object keys = interop.getMembers(polyglotBindings);
+//    long size = interop.getArraySize(keys);
+//
+//    for (long i = 0; i < size; i++) {
+//      Object key = interop.readArrayElement(keys, i);
+//      Object value = interop.readMember(polyglotBindings, key.toString());
+//      ParamValue v = paramValueOf(value);
+//
+//      System.out.println("Key: " + key + ", Value: " + value);
+//    }
+    Option<Tuple2<String, ParamValue>[]> maybeArguments = Option.empty();
+
+    programEnvironment = new ProgramEnvironment(user, maybeArguments, scalaScopes, scalaOptions, maybeTraceId);
+  }
+
+  ParamValue paramValueOf(Object o) {
+    throw new IllegalArgumentException("Not implemented");
+//    return switch (o) {
+//      case Integer i -> i.doubleValue();
+//      case Float f -> f.doubleValue();
+//      case String s -> Double.parseDouble(s);
+//      default -> 0d;
+//    };
+//    value match {
+//      case ParamNull() => null
+//      case ParamByte(v) => v
+//      case ParamShort(v) => v
+//      case ParamInt(v) => v
+//      case ParamLong(v) => v
+//      case ParamFloat(v) => v
+//      case ParamDouble(v) => v
+//      case ParamBool(v) => v
+//      case ParamString(v) => v
+//      case ParamDecimal(v) => new DecimalObject(v)
+//      case ParamDate(v) => new DateObject(v)
+//      case ParamTime(v) => new TimeObject(v)
+//      case ParamTimestamp(v) => new TimestampObject(v)
+//      case ParamInterval(v) => IntervalObject.fromDuration(v)
+//    }
   }
 
   public RawLanguage getLanguage() {

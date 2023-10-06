@@ -28,7 +28,6 @@ object RuntimeContext {
 class RuntimeContext(
     val sourceContext: SourceContext,
     val settings: RawSettings,
-    val maybeArguments: Option[Array[(String, ParamValue)]],
     val environment: ProgramEnvironment
 ) {
 
@@ -42,18 +41,18 @@ class RuntimeContext(
 
   final val programsFromTemplating: mutable.Map[String, Entrypoint] = mutable.HashMap[String, Entrypoint]()
 
+  final def maybeArguments: Option[Array[(String, ParamValue)]] = environment.maybeArguments
+
   final def scopes: Set[String] = environment.scopes
 
   final def cloneWith(
       newSourceContext: SourceContext = sourceContext,
       newSettings: RawSettings = settings,
-      newMaybeArguments: Option[Array[(String, ParamValue)]] = maybeArguments,
       newEnvironment: ProgramEnvironment = environment
   ): RuntimeContext = {
     new RuntimeContext(
       newSourceContext,
       newSettings,
-      newMaybeArguments,
       newEnvironment
     )
   }

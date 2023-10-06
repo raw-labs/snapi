@@ -154,6 +154,7 @@ module raw.language {
   exports raw.utils;
   exports raw.sources.api;
   exports raw.creds.api;
+  exports raw.inferrer.api;
   exports raw.compiler;
   exports raw.compiler.api;
   exports raw.compiler.base;

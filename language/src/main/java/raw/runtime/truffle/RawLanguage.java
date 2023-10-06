@@ -72,6 +72,22 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
+    /*
+
+  @Child private InteropLibrary bindings = insert(InteropLibrary.getFactory().createDispatched(1));
+
+  private Object getParam(String key) {
+    TruffleObject polyglotBindings = RawContext.get(this).getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
+  }
+  uncached version
+     */
+
     ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
     RawContext context = RawContext.get(null);
@@ -82,9 +98,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
     CompilerService compilerService = CompilerServiceProvider.apply(classLoader, rawSettings);
 
-    // FIXME (msb): maybeArguments should ALSO be read from the context!
     CompilationResponse compilationResponse =
-        compilerService.compile(source, Option.empty(), programEnvironment, this);
+        compilerService.compile(source,  programEnvironment, this);
     if (compilationResponse instanceof CompilationFailure) {
       // FIXME (msb): Return all errors, not just head.
       String result = ((CompilationFailure) compilationResponse).errors().head().toString();
@@ -94,4 +109,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     RootNode rootNode = (RootNode) entrypoint.target();
     return rootNode.getCallTarget();
   }
+
+
+
 }

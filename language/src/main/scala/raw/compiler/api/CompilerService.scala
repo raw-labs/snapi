@@ -15,7 +15,7 @@ package raw.compiler.api
 import raw.compiler.{EntryDoc, ErrorMessage, ErrorPosition, PackageDoc, ProgramDescription}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.SourceProgram
-import raw.runtime.{Entrypoint, ParamValue, ProgramEnvironment}
+import raw.runtime.{Entrypoint, ProgramEnvironment}
 import raw.utils.{AuthenticatedUser, RawException, RawService}
 
 import java.io.OutputStream
@@ -40,7 +40,6 @@ trait CompilerService extends RawService {
   @throws[CompilerServiceException]
   def getType(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): GetTypeResponse
 
@@ -48,7 +47,6 @@ trait CompilerService extends RawService {
   @throws[CompilerServiceException]
   def getProgramDescription(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse
 
@@ -56,7 +54,6 @@ trait CompilerService extends RawService {
   @throws[CompilerServiceException]
   def compile(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
       ref: Any
   ): CompilationResponse
@@ -65,7 +62,6 @@ trait CompilerService extends RawService {
   @throws[CompilerServiceException]
   def execute(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
       outputStream: OutputStream

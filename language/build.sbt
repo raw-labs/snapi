@@ -61,9 +61,9 @@ scalaVersion := Dependencies.scalacVersion
 
 javacOptions ++= Seq(
   "-source",
-  "11",
+  "17",
   "-target",
-  "11"
+  "17"
 )
 
 scalacOptions ++= Seq(

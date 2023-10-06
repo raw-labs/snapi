@@ -12,25 +12,38 @@
 
 package raw.compiler.rql2.truffle
 
-import com.oracle.truffle.api.Truffle
 import org.graalvm.polyglot.{Context, PolyglotAccess}
 import raw.compiler.api.{
   AutoCompleteResponse,
+  CompilationFailure,
   CompilationResponse,
+  CompilationSuccess,
+  CompilerService,
   CompilerServiceException,
   ExecutionResponse,
   ExecutionRuntimeFailure,
   ExecutionSuccess,
   ExecutionValidationFailure,
+  FormatCodeResponse,
+  GetProgramDescriptionFailure,
   GetProgramDescriptionResponse,
+  GetProgramDescriptionSuccess,
+  GetTypeFailure,
   GetTypeResponse,
+  GetTypeSuccess,
   GoToDefinitionResponse,
   HoverResponse,
+  ParseFailure,
+  ParseResponse,
+  ParseSuccess,
+  ParseTypeFailure,
+  ParseTypeResponse,
+  ParseTypeSuccess,
   Pos,
   RenameResponse,
   ValidateResponse
 }
-import raw.compiler.common.CommonCompilerService
+import raw.compiler.common.{CommonCompilerProvider, Compiler}
 import raw.runtime.{
   ParamBool,
   ParamByte,
@@ -47,121 +60,198 @@ import raw.runtime.{
   ParamTime,
   ParamTimestamp,
   ParamValue,
-  ProgramEnvironment
+  ProgramEnvironment,
+  RuntimeContext
 }
 import raw.runtime.truffle.RawLanguage
-import org.graalvm.polyglot.{Context, Source, Value}
-import raw.compiler.api.{
-  AutoCompleteResponse,
-  CompilationResponse,
-  CompilerServiceException,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  ExecutionValidationFailure,
-  GetProgramDescriptionResponse,
-  GetTypeResponse,
-  GoToDefinitionResponse,
-  HoverResponse,
-  Pos,
-  RenameResponse,
-  ValidateResponse
-}
-import raw.compiler.common.CommonCompilerService
-import raw.runtime.{ParamValue, ProgramEnvironment}
-import raw.runtime.truffle.{RawLanguage, RawLanguageProvider}
+import org.graalvm.polyglot.Source
+import raw.compiler.CompilerParserException
+import raw.compiler.base.ProgramContext
+import raw.compiler.base.source.BaseNode
+import raw.compiler.scala2.Scala2CompilerContext
+import raw.creds.api.CredentialsServiceProvider
+import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
-import raw.utils.{RawException, RawSettings}
+import raw.sources.api.SourceContext
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawException, RawSettings}
 
 import java.io.OutputStream
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
-    extends CommonCompilerService("rql2-truffle", maybeClassLoader) {
+    extends CompilerService {
+
+  private val credentials = CredentialsServiceProvider(maybeClassLoader)
+
+  // Map of users to compilers.
+  private val compilerCaches = new RawConcurrentHashMap[AuthenticatedUser, Compiler]
+
+  private def getCompiler(user: AuthenticatedUser): Compiler = {
+    compilerCaches.getOrElseUpdate(user, createCompiler(user, "rql2-truffle"))
+  }
+
+  private def createCompiler(user: AuthenticatedUser, language: String): Compiler = {
+    // Initialize source context
+    implicit val sourceContext = new SourceContext(user, credentials, settings)
+
+    // Initialize inferrer
+    val inferrer = InferrerServiceProvider(maybeClassLoader)
+
+    // Initialize compiler context
+    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer, maybeClassLoader)
+    try {
+      // Initialize compiler. Default language, if not specified is 'rql2'.
+      CommonCompilerProvider(language, maybeClassLoader)(compilerContext)
+    } catch {
+      case NonFatal(ex) =>
+        // To not leave hanging inferrer services.
+        // This would make tests fail in the afterAll when checking for running services
+        inferrer.stop()
+        throw ex
+    }
+  }
+
+  private def getProgramContext(
+      compiler: Compiler,
+      code: String,
+      environment: ProgramEnvironment
+  ): ProgramContext = {
+    val runtimeContext = getRuntimeContext(compiler, environment)
+    compiler.getProgramContext(runtimeContext)
+  }
+
+  private def getRuntimeContext(
+      compiler: Compiler,
+      environment: ProgramEnvironment
+  ): RuntimeContext = {
+    val sourceContext = compiler.compilerContext.sourceContext
+    new RuntimeContext(
+      sourceContext,
+      settings,
+      environment
+    )
+  }
+
+  override def prettyPrint(node: BaseNode, user: AuthenticatedUser): String = {
+    val compiler = getCompiler(user)
+    compiler.prettyPrint(node)
+  }
+
+  override def parseType(tipe: String, user: AuthenticatedUser): ParseTypeResponse = {
+    val compiler = getCompiler(user)
+    compiler.parseType(tipe) match {
+      case Some(t) => ParseTypeSuccess(t)
+      case None => ParseTypeFailure("could not parse type")
+    }
+  }
+
+  override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
+    val compiler = getCompiler(environment.user)
+    val programContext = getProgramContext(compiler, source, environment)
+    try {
+      val r = compiler.parse(source)(programContext)
+      ParseSuccess(r)
+    } catch {
+      case ex: CompilerParserException => ParseFailure(ex.getMessage, ex.position)
+      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+    }
+  }
 
   override def getType(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): GetTypeResponse = {
-    withTruffleContext(environment, _ => super.getType(source, maybeArguments, environment))
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.getType(source)(programContext) match {
+            case Left(errs) => GetTypeFailure(errs)
+            case Right(t) => GetTypeSuccess(t)
+          }
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
   }
 
   override def getProgramDescription(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse = {
-    withTruffleContext(environment, _ => super.getProgramDescription(source, maybeArguments, environment))
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.getProgramDescription(source)(programContext) match {
+            case Left(errs) => GetProgramDescriptionFailure(errs)
+            case Right(desc) => GetProgramDescriptionSuccess(desc)
+          }
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
   }
 
   override def compile(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
       ref: Any
   ): CompilationResponse = {
-    // This override is redundant but done for clarity: note that unlike all other overrides,
-    // we do NOT create a TruffleContext here, because this method is only used from the
-    // RawLanguage, where there is already a TruffleContext created.
-    super.compile(source, maybeArguments, environment, ref)
+    // We do NOT create a TruffleContext here, because this method is only used from the RawLanguage,
+    // where there is already a TruffleContext created.
+    val compiler = getCompiler(environment.user)
+    val programContext = getProgramContext(compiler, source, environment)
+    try {
+      compiler.compile(source, ref)(programContext) match {
+        case Left(errs) => CompilationFailure(errs)
+        case Right(program) => CompilationSuccess(program)
+      }
+    } catch {
+      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+    }
   }
 
   override def execute(
       source: String,
-      maybeArguments: Option[Array[(String, ParamValue)]],
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
       outputStream: OutputStream
   ): ExecutionResponse = {
+
     val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, maybeArguments, environment)
+    val programContext = getProgramContext(compiler, source, environment)
 
     try {
-<<<<<<< HEAD
-      compiler
-        .parseAndValidate(source, maybeDecl)(programContext)
-        .right
-        .flatMap { program =>
-          compiler.compile(program)(programContext).right.map { entrypoint =>
-            val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
-            maybeArguments.foreach { args =>
-              args.foreach(arg =>
-                ctx.getPolyglotBindings.putMember(
-                  arg._1,
-                  javaValueOf(arg._2)
-                )
-              )
-            }
-            ctx.initialize(RawLanguage.ID)
-            ctx.enter()
-            try {
-              val target =
-                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
-              target.call()
-=======
       val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
+
       ctx.initialize(RawLanguage.ID)
       ctx.enter()
-//
-//      try {
-//        ctx.parse(source)
-//      }
-//      this is ALSO wrong
-//
-//
-//      should be what?
-//
-//      ctx.
-//
-//        fix this!
-//
-//      should be ctx.parse
-//      get Value
-//        then execute Value
-//
-//      BTW, if this is WRONG, so it doEval!
+      //
+      //      try {
+      //        ctx.parse(source)
+      //      }
+      //      this is ALSO wrong
+      //
+      //
+      //      should be what?
+      //
+      //      ctx.
+      //
+      //        fix this!
+      //
+      //      should be ctx.parse
+      //      get Value
+      //        then execute Value
+      //
+      //      BTW, if this is WRONG, so it doEval!
 
       try {
         compiler
@@ -169,17 +259,16 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           .right
           .flatMap { program =>
             compiler.compile(program)(programContext).right.map { entrypoint =>
-//ctx.p
-//              val v = entrypoint.asInstanceOf[TruffleEntrypoint].node;
-//              v.
+              //ctx.p
+              //              val v = entrypoint.asInstanceOf[TruffleEntrypoint].node;
+              //              v.
 
               val src = Source.newBuilder("rql", source, "<stdin>").build
               ctx.eval(src)
 
-//              val target =
-//                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
-//              target.call()
->>>>>>> f29fdfc (WIP)
+              //              val target =
+              //                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
+              //              target.call()
               outputStream.flush()
               ExecutionSuccess
             }
@@ -197,6 +286,145 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       case ex: RawException => ExecutionRuntimeFailure(ex.getMessage)
       case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
     }
+  }
+
+  override def formatCode(
+      source: String,
+      environment: ProgramEnvironment,
+      maybeIndent: Option[Int],
+      maybeWidth: Option[Int]
+  ): FormatCodeResponse = {
+    val compiler = getCompiler(environment.user)
+    val programContext = getProgramContext(compiler, source, environment)
+    try {
+      compiler.formatCode(source, environment, maybeIndent, maybeWidth)(programContext)
+    } catch {
+      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+    }
+  }
+
+  override def dotAutoComplete(
+      source: String,
+      environment: ProgramEnvironment,
+      position: Pos
+  ): AutoCompleteResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.dotAutoComplete(source, environment, position)(programContext)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
+  }
+
+  override def wordAutoComplete(
+      source: String,
+      environment: ProgramEnvironment,
+      prefix: String,
+      position: Pos
+  ): AutoCompleteResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.wordAutoComplete(source, environment, prefix, position)(programContext)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
+  }
+
+  override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.hover(source, environment, position)(programContext)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
+  }
+
+  override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.rename(source, environment, position)(programContext)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
+  }
+
+  override def goToDefinition(
+      source: String,
+      environment: ProgramEnvironment,
+      position: Pos
+  ): GoToDefinitionResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.goToDefinition(source, environment, position)(programContext)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
+  }
+
+  override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.validate(source, environment)(programContext)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
+  }
+
+  override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+        val compiler = getCompiler(environment.user)
+        val programContext = getProgramContext(compiler, source, environment)
+        try {
+          compiler.aiValidate(source, environment)(programContext)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
+  }
+
+  override def doStop(): Unit = {
+    compilerCaches.values.foreach(compiler => compiler.compilerContext.inferrer.stop())
+    credentials.stop()
   }
 
   private def javaValueOf(value: ParamValue) = {
@@ -218,51 +446,11 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     }
   }
 
-  override def dotAutoComplete(
-      source: String,
-      environment: ProgramEnvironment,
-      position: Pos
-  ): AutoCompleteResponse = {
-    withTruffleContext(environment, _ => super.dotAutoComplete(source, environment, position))
-  }
-
-  override def wordAutoComplete(
-      source: String,
-      environment: ProgramEnvironment,
-      prefix: String,
-      position: Pos
-  ): AutoCompleteResponse = {
-    withTruffleContext(environment, _ => super.wordAutoComplete(source, environment, prefix, position))
-  }
-
-  override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
-    withTruffleContext(environment, _ => super.hover(source, environment, position))
-  }
-
-  override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
-    withTruffleContext(environment, _ => super.rename(source, environment, position))
-  }
-
-  override def goToDefinition(
-      source: String,
-      environment: ProgramEnvironment,
-      position: Pos
-  ): GoToDefinitionResponse = {
-    withTruffleContext(environment, _ => super.goToDefinition(source, environment, position))
-  }
-
-  override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    withTruffleContext(environment, _ => super.validate(source, environment))
-  }
-
-  override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    withTruffleContext(environment, _ => super.aiValidate(source, environment))
-  }
-
   private def buildTruffleContext(
       environment: ProgramEnvironment,
       maybeOutputStream: Option[OutputStream] = None
   ): Context = {
+    // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
       .newBuilder(RawLanguage.ID)
       .environment("RAW_SETTINGS", settings.renderAsString)
@@ -271,14 +459,28 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       .environment("RAW_SCOPES", environment.scopes.mkString(","))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
+    // Set output format as a config setting.
     environment.options
       .get("output-format")
       .foreach(f => ctxBuilder.option(RawLanguage.ID + ".output-format", f))
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
-    ctxBuilder.build()
+    // Add arguments as polyglot bindings.
+    val ctx = ctxBuilder.build()
+    environment.maybeArguments.foreach { args =>
+      args.foreach(arg =>
+        ctx.getPolyglotBindings.putMember(
+          arg._1,
+          javaValueOf(arg._2)
+        )
+      )
+    }
+    ctx
   }
 
-  private def withTruffleContext[T](environment: ProgramEnvironment, f: Context => T): T = {
+  private def withTruffleContext[T](
+      environment: ProgramEnvironment,
+      f: Context => T
+  ): T = {
     val ctx = buildTruffleContext(environment)
     ctx.initialize(RawLanguage.ID)
     ctx.enter()
