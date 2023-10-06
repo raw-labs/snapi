@@ -69,13 +69,14 @@ public class JsonParser {
             LinkedHashMap<String,Integer> hashMap = new LinkedHashMap<>();
             ProgramExpressionNode[] children = JavaConverters.asJavaCollection(r.atts())
                     .stream()
+                    .map(a -> (Rql2AttrType) a)
                     .map(att -> recurse((Rql2TypeWithProperties) att.tipe(),lang))
                     .toArray(ProgramExpressionNode[]::new);
-            JavaConverters.asJavaCollection(r.atts()).forEach(a -> hashMap.put(a.idn(),hashMap.size()));
+            JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).forEach(a -> hashMap.put(a.idn(),hashMap.size()));
             yield new RecordParseJsonNode(
                     children,
                     hashMap,
-                    JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new)
+                    JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new)
             );
           }
           case Rql2ByteType ignored -> ByteParseJsonNodeGen.create();

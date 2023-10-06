@@ -13,25 +13,12 @@
 package raw.compiler.snapi.truffle.builtin.json_extension;
 
 import java.util.List;
-import java.util.Optional;
 import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.builtin.WithArgs;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
 
-public interface WithJsonArgs {
-  default Optional<ExpressionNode> arg(List<TruffleArg> args, String kw) {
-    return args.stream()
-        .filter(a -> a.getIdentifier() != null && a.getIdentifier().contains(kw))
-        .map(TruffleArg::getExprNode)
-        .findFirst();
-  }
-
-  default ExpressionNode[] unnamedArgs(List<TruffleArg> args) {
-    return args.stream()
-        .filter(a -> a.getIdentifier() == null)
-        .map(TruffleArg::getExprNode)
-        .toArray(ExpressionNode[]::new);
-  }
+public interface WithJsonArgs extends WithArgs {
 
   default ExpressionNode encoding(List<TruffleArg> args) {
     return arg(args, "encoding").orElse(new StringNode("utf-8"));

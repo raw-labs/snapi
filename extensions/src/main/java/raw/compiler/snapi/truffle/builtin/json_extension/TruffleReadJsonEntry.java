@@ -36,7 +36,7 @@ public class TruffleReadJsonEntry extends ReadJsonEntry implements TruffleEntryE
     ExpressionNode timeFormat = timeFormat(args);
     ExpressionNode dateFormat = dateFormat(args);
     ExpressionNode timestampFormat = timestampFormat(args);
-    ExpressionNode[] unnamedArgs = unnamedArgs(args);
+    ExpressionNode[] unnamedArgs = mandatoryArgs(args);
     JsonParser parser = new JsonParser(dateFormat, timeFormat, timestampFormat);
     if (type instanceof Rql2IterableType iterableType) {
       return new JsonReadCollectionNode(

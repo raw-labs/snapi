@@ -52,8 +52,8 @@ public class JsonWriter {
       }
       case Rql2RecordType r ->{
         ProgramStatementNode[] children = JavaConverters.asJavaCollection(r.atts())
-                .stream()
-                .map(att -> recurse((Rql2TypeWithProperties) att.tipe(), true,lang))
+                .stream().map(a -> (Rql2AttrType) a)
+                .map(att -> recurse((Rql2TypeWithProperties) att.tipe(), true, lang))
                 .toArray(ProgramStatementNode[]::new);
         yield new RecordWriteJsonNode(children);
       }

@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.AwsV4SignedRequest;
+import raw.compiler.rql2.source.Rql2AttrType;
 import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2RecordType;
 import raw.compiler.snapi.truffle.TruffleArg;
@@ -101,7 +102,9 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
             .orElse(
                 new ListBuildNode(
                     Rql2ListType.apply(
-                        Rql2RecordType.apply(Vector.empty(), new HashSet<>()), new HashSet<>()),
+                        Rql2RecordType.apply(
+                            new Vector<Rql2AttrType>(0, 0, 0), HashSet.emptyInstance().toSet()),
+                        HashSet.emptyInstance().toSet()),
                     new ExpressionNode[] {}));
 
     ExpressionNode headers =
@@ -113,7 +116,9 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
             .orElse(
                 new ListBuildNode(
                     Rql2ListType.apply(
-                        Rql2RecordType.apply(Vector.empty(), new HashSet<>()), new HashSet<>()),
+                        Rql2RecordType.apply(
+                            new Vector<Rql2AttrType>(0, 0, 0), HashSet.emptyInstance().toSet()),
+                        HashSet.emptyInstance().toSet()),
                     new ExpressionNode[] {}));
 
     ExpressionNode sessionToken = maybeSessionToken.orElse(new StringNode(""));

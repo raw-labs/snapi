@@ -33,14 +33,18 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
     Rql2IterableType iterable = (Rql2IterableType) type;
     Rql2RecordType record = (Rql2RecordType) iterable.innerType();
     Rql2AttrType[] atts =
-        JavaConverters.asJavaCollection(record.atts()).toArray(Rql2AttrType[]::new);
+        JavaConverters.asJavaCollection(record.atts()).stream()
+            .map(a -> (Rql2AttrType) a)
+            .toArray(Rql2AttrType[]::new);
 
     Rql2TypeWithProperties keyType =
         (Rql2TypeWithProperties)
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("key"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(
+                    Rql2AttrType.apply(
+                        "key", new Rql2UndefinedType(HashSet.emptyInstance().toSet())))
                 .tipe();
 
     Rql2IterableType iterableValueType =
@@ -48,7 +52,9 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("group"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(
+                    Rql2AttrType.apply(
+                        "key", new Rql2UndefinedType(HashSet.emptyInstance().toSet())))
                 .tipe();
 
     Rql2TypeWithProperties valueType = (Rql2TypeWithProperties) iterableValueType.innerType();

@@ -64,14 +64,18 @@ public class CsvParser {
         arg("nulls")
             .orElse(
                 new ListBuildNode(
-                    Rql2ListType.apply(Rql2StringType.apply(new HashSet<>()), new HashSet<>()),
+                    Rql2ListType.apply(
+                            Rql2StringType.apply(HashSet.emptyInstance().toSet()),
+                            HashSet.emptyInstance().toSet()),
                     new ExpressionNode[] {new StringNode("")}));
 
     this.nans =
         arg("nans")
             .orElse(
                 new ListBuildNode(
-                    Rql2ListType.apply(Rql2StringType.apply(new HashSet<>()), new HashSet<>()),
+                    Rql2ListType.apply(Rql2StringType.apply(
+                            HashSet.emptyInstance().toSet()),
+                            HashSet.emptyInstance().toSet()),
                     new ExpressionNode[] {}));
 
     this.timeFormat = arg("timeFormat").orElse(new StringNode("HH:mm[:ss[.SSS]]"));
@@ -88,14 +92,14 @@ public class CsvParser {
     assert rql2IterableType.props().isEmpty();
 
     ProgramExpressionNode[] columnParsers =
-        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream()
+        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (Rql2AttrType) a)
             .map(col -> columnParser(col.tipe(), lang))
             .map(parser -> new ProgramExpressionNode(lang, new FrameDescriptor(), parser))
             .toArray(ProgramExpressionNode[]::new);
 
     return new RecordParseCsvNode(
         columnParsers,
-        JavaConverters.seqAsJavaList(rql2RecordType.atts()).toArray(Rql2AttrType[]::new));
+        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new));
   }
 
   public ExpressionNode stringParser(

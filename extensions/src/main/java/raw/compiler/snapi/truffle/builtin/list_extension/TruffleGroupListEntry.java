@@ -31,14 +31,18 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
     Rql2ListType listType = (Rql2ListType) type;
     Rql2RecordType record = (Rql2RecordType) listType.innerType();
     Rql2AttrType[] atts =
-        JavaConverters.asJavaCollection(record.atts()).toArray(Rql2AttrType[]::new);
+        JavaConverters.asJavaCollection(record.atts()).stream()
+            .map(a -> (Rql2AttrType) a)
+            .toArray(Rql2AttrType[]::new);
 
     Rql2TypeWithProperties keyType =
         (Rql2TypeWithProperties)
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("key"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(
+                    Rql2AttrType.apply(
+                        "key", new Rql2UndefinedType(HashSet.emptyInstance().toSet())))
                 .tipe();
 
     Rql2IterableType valueType =
@@ -46,7 +50,9 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("group"))
                 .findFirst()
-                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(
+                    Rql2AttrType.apply(
+                        "key", new Rql2UndefinedType(HashSet.emptyInstance().toSet())))
                 .tipe();
     return ListGroupByNodeGen.create(
         args.get(0).getExprNode(), args.get(1).getExprNode(), keyType, valueType);

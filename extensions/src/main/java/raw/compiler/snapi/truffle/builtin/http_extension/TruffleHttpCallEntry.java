@@ -12,8 +12,9 @@
 
 package raw.compiler.snapi.truffle.builtin.http_extension;
 
+import java.util.List;
+import java.util.stream.Stream;
 import raw.compiler.base.source.Type;
-import raw.compiler.common.source.Exp;
 import raw.compiler.rql2.builtin.HttpCallEntry;
 import raw.compiler.rql2.source.Rql2StringType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -25,9 +26,6 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuil
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.immutable.HashSet;
-
-import java.util.List;
-import java.util.stream.Stream;
 
 public abstract class TruffleHttpCallEntry extends HttpCallEntry implements TruffleEntryExtension {
 
@@ -84,7 +82,8 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
                     .skip(1)
                     .filter(e -> e.getIdentifier() != null && e.getExprNode() != null)
                     .map(e -> (Rql2TypeWithProperties) e.getType()),
-                Stream.of((Rql2TypeWithProperties) Rql2StringType.apply(new HashSet<>())))
+                Stream.of(
+                    (Rql2TypeWithProperties) Rql2StringType.apply(HashSet.emptyInstance().toSet())))
             .toArray(Rql2TypeWithProperties[]::new);
 
     return new LocationBuildNode(url, keys, values, types);

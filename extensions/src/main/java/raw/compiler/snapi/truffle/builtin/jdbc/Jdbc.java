@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.snapi.truffle.builtin;
+package raw.compiler.snapi.truffle.builtin.jdbc;
 
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
 
@@ -27,7 +27,6 @@ import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import scala.collection.JavaConverters;
 
 public class Jdbc {
-
   public JdbcQueryNode query(
       ExpressionNode location,
       ExpressionNode query,
@@ -42,13 +41,13 @@ public class Jdbc {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
 
     ProgramExpressionNode[] columnParsers =
-        JavaConverters.asJavaCollection(recordType.atts()).stream()
+        JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a)
             .map(att -> columnReader(att.idn(), att.tipe(), lang))
             .toArray(ProgramExpressionNode[]::new);
     RecordReadJdbcQuery recordParser =
         new RecordReadJdbcQuery(
             columnParsers,
-            JavaConverters.asJavaCollection(recordType.atts()).toArray(Rql2AttrType[]::new));
+            JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new));
     return new JdbcQueryNode(
         location,
         query,

@@ -33,7 +33,7 @@ public class TruffleParseJsonEntry extends ParseJsonEntry
     ExpressionNode timeFormat = timeFormat(args);
     ExpressionNode dateFormat = dateFormat(args);
     ExpressionNode timestampFormat = timestampFormat(args);
-    ExpressionNode[] unnamedArgs = unnamedArgs(args);
+    ExpressionNode[] unnamedArgs = mandatoryArgs(args);
 
     JsonParser parser = new JsonParser(dateFormat, timeFormat, timestampFormat);
 
