@@ -53,7 +53,7 @@ public class JsonParser {
         ProgramExpressionNode child = recurse(nextType, !(nt instanceof Rql2UndefinedType), lang);
         yield new NullableParseJsonNode(child);
       }
-      case Rql2TypeWithProperties v -> {
+      case Rql2TypeWithProperties v when v.props().isEmpty() -> {
         ExpressionNode result =  switch (v){
           case Rql2ListType r ->{
             ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);

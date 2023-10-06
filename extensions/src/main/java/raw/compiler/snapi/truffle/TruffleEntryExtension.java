@@ -14,6 +14,7 @@ package raw.compiler.snapi.truffle;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.truffle.TruffleEmitter;
@@ -21,10 +22,6 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 
 public interface TruffleEntryExtension {
-
-  //  ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage);
-
-  //   TO DO: remove if not needed
   default ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     throw new UnsupportedOperationException("Not implemented");
   }

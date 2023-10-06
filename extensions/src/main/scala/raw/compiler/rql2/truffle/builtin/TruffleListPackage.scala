@@ -62,7 +62,7 @@ class TruffleTransformListEntry extends TransformListEntry with TruffleEntryExte
 
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val FunType(_, _, rType, _) = args(1).t
-    ListTransformNodeGen.create(args(0).e, args(1).e, rType.asInstanceOf[Rql2Type]);
+    ListTransformNodeGen.create(args(0).e, args(1).e, rType.asInstanceOf[Rql2Type])
   }
 
 }
@@ -127,7 +127,7 @@ class TruffleFromListEntry extends FromListEntry with TruffleEntryExtension {
 
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val Rql2ListType(innerType, _) = t
-    ListFromNodeGen.create(args(0).e, innerType.asInstanceOf[Rql2Type]);
+    ListFromNodeGen.create(args(0).e, innerType.asInstanceOf[Rql2Type])
   }
 }
 
@@ -135,7 +135,7 @@ class TruffleUnsafeFromListEntry extends UnsafeFromListEntry with TruffleEntryEx
 
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
     val Rql2ListType(innerType, _) = t
-    ListFromUnsafeNodeGen.create(args(0).e, innerType.asInstanceOf[Rql2Type]);
+    ListFromUnsafeNodeGen.create(args(0).e, innerType.asInstanceOf[Rql2Type])
   }
 }
 
