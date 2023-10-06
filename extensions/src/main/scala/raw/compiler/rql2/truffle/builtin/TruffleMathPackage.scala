@@ -41,11 +41,11 @@ import raw.runtime.truffle.ast.expressions.builtin.math_package.{
 import raw.runtime.truffle.ast.expressions.literals.DoubleNode
 
 class TruffleMathPiEntry extends MathPiEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = new DoubleNode(Math.PI.toString())
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = new DoubleNode(Math.PI.toString)
 }
 
 class TruffleMathRandomEntry extends MathRandomEntry with TruffleShortEntryExtension {
-  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = new DoubleNode(Math.random().toString())
+  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = new DoubleNode(Math.random().toString)
 }
 
 class TruffleMathPowerEntry extends MathPowerEntry with TruffleShortEntryExtension {

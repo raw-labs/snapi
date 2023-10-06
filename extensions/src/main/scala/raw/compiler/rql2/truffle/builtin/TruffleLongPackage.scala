@@ -22,7 +22,7 @@ import raw.runtime.truffle.ast.expressions.literals.LongNode
 class TruffleLongFromEntry extends LongFromEntry with TruffleEntryExtension {
 
   override def toTruffle(t: Type, args: Seq[TruffleArg], rawLanguage: RawLanguage): ExpressionNode = {
-    LongFromNodeGen.create(args(0).e);
+    LongFromNodeGen.create(args(0).e)
   }
 
 }
@@ -33,7 +33,7 @@ class TruffleLongRangeEntry extends LongRangeEntry with TruffleEntryExtension {
     val start = args(0).e
     val end = args(1).e
     val step = args.collectFirst { case arg if arg.idn.contains("step") => arg.e }.getOrElse(new LongNode("1"))
-    LongRangeNodeGen.create(start, end, step);
+    LongRangeNodeGen.create(start, end, step)
   }
 
 }
