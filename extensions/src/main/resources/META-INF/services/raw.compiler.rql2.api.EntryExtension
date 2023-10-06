@@ -168,16 +168,6 @@ raw.compiler.rql2.truffle.builtin.TruffleStringDecodeEntry
 raw.compiler.rql2.truffle.builtin.TruffleStringLevenshteinDistanceEntry
 raw.compiler.rql2.truffle.builtin.TruffleStringReadLinesEntry
 raw.compiler.rql2.truffle.builtin.TruffleSuccessBuildEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeBuildEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeParseEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeNowEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeHourEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeMinuteEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeSecondEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeMillisEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeSubtractEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeAddIntervalEntry
-raw.compiler.rql2.truffle.builtin.TruffleTimeSubtractIntervalEntry
 
 raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryTransformEntry
 raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsErrorEntry
@@ -215,3 +205,14 @@ raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampTimeBucke
 raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampSubtractEntry
 raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampAddIntervalEntry
 raw.compiler.snapi.truffle.builtin.timestamp_extension.TruffleTimestampSubtractIntervalEntry
+
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeBuildEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeParseEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeNowEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeHourEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeMinuteEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSecondEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeMillisEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeAddIntervalEntry
+raw.compiler.snapi.truffle.builtin.time_extension.TruffleTimeSubtractIntervalEntry
