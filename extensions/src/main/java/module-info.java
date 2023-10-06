@@ -107,10 +107,6 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleRecordAddFieldEntry,
       raw.compiler.rql2.truffle.builtin.TruffleRecordRemoveFieldEntry,
       raw.compiler.rql2.truffle.builtin.TruffleRecordGetFieldByIndexEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleRegexReplaceEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleRegexMatchesEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleRegexFirstMatchInEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleRegexGroupsEntry,
       raw.compiler.rql2.truffle.builtin.TruffleS3BuildEntry,
       raw.compiler.rql2.truffle.builtin.TruffleSnowflakeQueryEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension,
@@ -234,5 +230,9 @@ module raw.language.extensions {
       raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReadLinesEntry,
       raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringCapitalizeEntry,
       raw.compiler.snapi.truffle.builtin.sqlserver_extension.TruffleSQLServerQueryEntry,
-      raw.compiler.snapi.truffle.builtin.short_extension.TruffleShortFromEntry;
+      raw.compiler.snapi.truffle.builtin.short_extension.TruffleShortFromEntry,
+      raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexReplaceEntry,
+      raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexMatchesEntry,
+      raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexFirstMatchInEntry,
+      raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexGroupsEntry;
 }
