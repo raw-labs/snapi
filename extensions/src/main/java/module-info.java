@@ -114,7 +114,6 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleS3BuildEntry,
       raw.compiler.rql2.truffle.builtin.TruffleShortFromEntry,
       raw.compiler.rql2.truffle.builtin.TruffleSnowflakeQueryEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleSQLServerQueryEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension,
       //      raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleBinaryBase64Entry,
@@ -234,5 +233,6 @@ module raw.language.extensions {
       raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringDecodeEntry,
       raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringLevenshteinDistanceEntry,
       raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReadLinesEntry,
-      raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringCapitalizeEntry;
+      raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringCapitalizeEntry,
+      raw.compiler.snapi.truffle.builtin.sqlserver_extension.TruffleSQLServerQueryEntry;
 }

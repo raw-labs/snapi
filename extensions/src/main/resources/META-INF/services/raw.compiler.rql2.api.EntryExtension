@@ -141,7 +141,6 @@ raw.compiler.rql2.truffle.builtin.TruffleRegexMatchesEntry
 raw.compiler.rql2.truffle.builtin.TruffleRegexFirstMatchInEntry
 raw.compiler.rql2.truffle.builtin.TruffleRegexGroupsEntry
 raw.compiler.rql2.truffle.builtin.TruffleS3BuildEntry
-raw.compiler.rql2.truffle.builtin.TruffleSQLServerQueryEntry
 raw.compiler.rql2.truffle.builtin.TruffleShortFromEntry
 raw.compiler.rql2.truffle.builtin.TruffleSnowflakeQueryEntry
 
@@ -218,3 +217,5 @@ raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringDecodeEntry
 raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringLevenshteinDistanceEntry
 raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringReadLinesEntry
 raw.compiler.snapi.truffle.builtin.string_extension.TruffleStringCapitalizeEntry
+
+raw.compiler.snapi.truffle.builtin.sqlserver_extension.TruffleSQLServerQueryEntry
