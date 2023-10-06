@@ -1,4 +1,16 @@
-///*
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+/// *
 // * Copyright 2023 RAW Labs S.A.
 // *
 // * Use of this software is governed by the Business Source License
@@ -10,38 +22,38 @@
 // * licenses/APL.txt.
 // */
 //
-//package raw.compiler.snapi.truffle.compiler;
+// package raw.compiler.snapi.truffle.compiler;
 //
-//import com.oracle.truffle.api.Truffle;
-//import com.oracle.truffle.api.nodes.DirectCallNode;
-//import java.util.Arrays;
-//import java.util.List;
-//import java.util.Set;
-//import java.util.stream.Collectors;
-//import org.graalvm.polyglot.Context;
-//import raw.compiler.CompilerException;
-//import raw.compiler.ErrorMessage;
-//import raw.compiler.ProgramOutputWriter;
-//import raw.compiler.base.*;
-//import raw.compiler.base.source.BaseNode;
-//import raw.compiler.base.source.Type;
-//import raw.compiler.common.source.*;
-//import raw.compiler.rql2.Compiler;
-//import raw.compiler.rql2.builtin.EnvironmentPackageBuilder;
-//import raw.compiler.rql2.source.*;
-//import raw.compiler.truffle.TruffleCompiler;
-//import raw.runtime.*;
-//import raw.runtime.interpreter.Value;
-//import raw.runtime.truffle.RawLanguage;
-//import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-//import scala.*;
-//import scala.collection.JavaConverters;
-//import scala.collection.immutable.HashSet;
-//import scala.collection.immutable.Vector;
-//import scala.util.Either;
-//import scala.util.Right;
+// import com.oracle.truffle.api.Truffle;
+// import com.oracle.truffle.api.nodes.DirectCallNode;
+// import java.util.Arrays;
+// import java.util.List;
+// import java.util.Set;
+// import java.util.stream.Collectors;
+// import org.graalvm.polyglot.Context;
+// import raw.compiler.CompilerException;
+// import raw.compiler.ErrorMessage;
+// import raw.compiler.ProgramOutputWriter;
+// import raw.compiler.base.*;
+// import raw.compiler.base.source.BaseNode;
+// import raw.compiler.base.source.Type;
+// import raw.compiler.common.source.*;
+// import raw.compiler.rql2.Compiler;
+// import raw.compiler.rql2.builtin.EnvironmentPackageBuilder;
+// import raw.compiler.rql2.source.*;
+// import raw.compiler.truffle.TruffleCompiler;
+// import raw.runtime.*;
+// import raw.runtime.interpreter.Value;
+// import raw.runtime.truffle.RawLanguage;
+// import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+// import scala.*;
+// import scala.collection.JavaConverters;
+// import scala.collection.immutable.HashSet;
+// import scala.collection.immutable.Vector;
+// import scala.util.Either;
+// import scala.util.Right;
 //
-//public class Rql2TruffleCompiler extends Compiler
+// public class Rql2TruffleCompiler extends Compiler
 //    implements TruffleCompiler<SourceNode, SourceProgram, Exp> {
 //  private static final String WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending";
 //
@@ -64,9 +76,11 @@
 //    try (Context context =
 //        Context.newBuilder(RawLanguage.ID)
 //            .environment("RAW_USER", programContext.runtimeContext().environment().user().uid())
-//            .environment("RAW_TRACE_ID", programContext.runtimeContext().environment().user().uid())
+//            .environment("RAW_TRACE_ID",
+// programContext.runtimeContext().environment().user().uid())
 //            .environment(
-//                "RAW_SCOPES", programContext.runtimeContext().environment().scopes().mkString(","))
+//                "RAW_SCOPES",
+// programContext.runtimeContext().environment().scopes().mkString(","))
 //            .build(); ) {
 //      context.initialize(RawLanguage.ID);
 //      context.enter();
@@ -136,11 +150,13 @@
 //                                Exp e =
 //                                    switch (x._2) {
 //                                      case ParamNull ignored -> NullConst.apply();
-//                                      case ParamByte ignored -> EnvironmentPackageBuilder.Parameter
+//                                      case ParamByte ignored ->
+// EnvironmentPackageBuilder.Parameter
 //                                          .apply(
 //                                              Rql2ByteType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
-//                                      case ParamShort ignored -> EnvironmentPackageBuilder.Parameter
+//                                      case ParamShort ignored ->
+// EnvironmentPackageBuilder.Parameter
 //                                          .apply(
 //                                              Rql2ShortType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
@@ -148,11 +164,13 @@
 //                                          .apply(
 //                                              Rql2IntType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
-//                                      case ParamLong ignored -> EnvironmentPackageBuilder.Parameter
+//                                      case ParamLong ignored ->
+// EnvironmentPackageBuilder.Parameter
 //                                          .apply(
 //                                              Rql2LongType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
-//                                      case ParamFloat ignored -> EnvironmentPackageBuilder.Parameter
+//                                      case ParamFloat ignored ->
+// EnvironmentPackageBuilder.Parameter
 //                                          .apply(
 //                                              Rql2FloatType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
@@ -164,7 +182,8 @@
 //                                          .Parameter.apply(
 //                                          Rql2DecimalType.apply(new HashSet<>()),
 //                                          StringConst.apply(x._1));
-//                                      case ParamBool ignored -> EnvironmentPackageBuilder.Parameter
+//                                      case ParamBool ignored ->
+// EnvironmentPackageBuilder.Parameter
 //                                          .apply(
 //                                              Rql2BoolType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
@@ -172,11 +191,13 @@
 //                                          .Parameter.apply(
 //                                          Rql2StringType.apply(new HashSet<>()),
 //                                          StringConst.apply(x._1));
-//                                      case ParamDate ignored -> EnvironmentPackageBuilder.Parameter
+//                                      case ParamDate ignored ->
+// EnvironmentPackageBuilder.Parameter
 //                                          .apply(
 //                                              Rql2DateType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
-//                                      case ParamTime ignored -> EnvironmentPackageBuilder.Parameter
+//                                      case ParamTime ignored ->
+// EnvironmentPackageBuilder.Parameter
 //                                          .apply(
 //                                              Rql2TimeType.apply(new HashSet<>()),
 //                                              StringConst.apply(x._1));
@@ -254,4 +275,4 @@
 //      ProgramContext programContext) {
 //    return null;
 //  }
-//}
+// }
