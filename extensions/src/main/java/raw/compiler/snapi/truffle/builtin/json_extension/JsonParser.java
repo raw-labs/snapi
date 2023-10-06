@@ -100,10 +100,12 @@ public class JsonParser {
             yield new OrParseJsonNode(children);
           }
           case Rql2UndefinedType ignored -> new UndefinedParseJsonNode();
+          default -> throw new RawTruffleInternalErrorException();
         };
         if (appendNullCheck) yield new CheckNonNullJsonNode(program(result,lang));
         else yield result;
       }
+      default -> throw new RawTruffleInternalErrorException();
     }, lang);
   }
 

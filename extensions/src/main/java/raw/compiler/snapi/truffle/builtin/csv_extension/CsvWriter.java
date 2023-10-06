@@ -62,6 +62,7 @@ public class CsvWriter {
           case Rql2TimeType ignored -> new TimeWriteCsvNode();
           case Rql2TimestampType ignored -> new TimestampWriteCsvNode();
           case Rql2BinaryType ignored -> new BinaryWriteCsvNode();
+          default -> throw new RawTruffleInternalErrorException();
         };
       }
       default -> throw new RawTruffleInternalErrorException();

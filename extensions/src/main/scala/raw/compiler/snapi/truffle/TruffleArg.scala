@@ -10,9 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.snapi.truffle.builtin.list_extension;
+package raw.compiler.snapi.truffle
 
-import raw.compiler.rql2.builtin.MaxListEntry;
-import raw.compiler.snapi.truffle.TruffleEntryExtension;
+import raw.compiler.base.source.Type
+import raw.runtime.truffle.ExpressionNode
 
-public class TruffleMaxListEntry extends MaxListEntry implements TruffleEntryExtension {}
+class TruffleArg(private val exprNode: ExpressionNode, private val `type`: Type, private val identifier: String) {
+  def getExprNode: ExpressionNode = exprNode
+  def getType: Type = `type`
+  def getIdentifier: String = identifier
+}
