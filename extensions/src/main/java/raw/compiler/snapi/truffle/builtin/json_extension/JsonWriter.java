@@ -14,16 +14,12 @@ package raw.compiler.snapi.truffle.builtin.json_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import raw.compiler.rql2.source.*;
-import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
-import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.ast.io.json.reader.parser.*;
 import raw.runtime.truffle.ast.io.json.writer.internal.*;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
-
-import java.util.LinkedHashMap;
 
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
 
@@ -83,6 +79,7 @@ public class JsonWriter {
         yield new OrWriteJsonNode(children);
       }
       case Rql2UndefinedType ignored -> new UndefinedWriteJsonNode();
+      default -> throw new RawTruffleInternalErrorException();
     }, lang);
   }
 

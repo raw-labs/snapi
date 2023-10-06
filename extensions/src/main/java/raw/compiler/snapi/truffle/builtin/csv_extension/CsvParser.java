@@ -149,6 +149,7 @@ public class CsvParser {
         case Rql2DateType ignored -> new OptionDateParseCsvNode();
         case Rql2TimeType ignored -> new OptionTimeParseCsvNode();
         case Rql2TimestampType ignored -> new OptionTimestampParseCsvNode();
+        default -> throw new RawTruffleInternalErrorException();
       };
       case Rql2TypeWithProperties r -> {
         assert r.props().isEmpty();
@@ -164,6 +165,7 @@ public class CsvParser {
           case Rql2DateType ignored -> new DateParseCsvNode();
           case Rql2TimeType ignored -> new TimeParseCsvNode();
           case Rql2TimestampType ignored -> new TimestampParseCsvNode();
+          default -> throw new RawTruffleInternalErrorException();
         };
       }
       default -> throw new RawTruffleInternalErrorException();
