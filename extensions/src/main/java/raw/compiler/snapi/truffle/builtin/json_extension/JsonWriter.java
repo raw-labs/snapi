@@ -21,6 +21,7 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.reader.parser.*;
 import raw.runtime.truffle.ast.io.json.writer.internal.*;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
 import java.util.LinkedHashMap;
@@ -83,6 +84,7 @@ public class JsonWriter {
         yield new OrWriteJsonNode(children);
       }
       case Rql2UndefinedType ignored -> new UndefinedWriteJsonNode();
+      default -> throw new RawTruffleInternalErrorException();
     }, lang);
   }
 
