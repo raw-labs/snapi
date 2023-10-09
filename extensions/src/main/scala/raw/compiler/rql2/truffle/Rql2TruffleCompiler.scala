@@ -55,7 +55,7 @@ import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
-import scala.collection.mutable
+import scala.collection.{mutable, JavaConverters}
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
@@ -645,6 +645,12 @@ class TruffleEmitterImpl(tree: Tree, val rawLanguage: RawLanguage)(implicit prog
         .get
         .getEntries(entName)
         .collectFirst {
+          // (az) this is a patch for scala to truffle conversion
+          case e: raw.compiler.snapi.truffle.TruffleEntryExtension => e.toTruffle(
+              t,
+              JavaConverters.seqAsJavaList(args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn))),
+              this
+            )
           case e: TruffleEntryExtension =>
             e.toTruffle(t, args.map(arg => Rql2Arg(arg.e, analyzer.tipe(arg.e), arg.idn)), this)
         }

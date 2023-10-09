@@ -29,20 +29,6 @@ licenses/APL.txt."""
 
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 
-// Read version to use
-import java.util.Properties
-import java.io.FileInputStream
-version := {
-  val properties = new Properties()
-  val fs = new FileInputStream("../version.properties")
-  try {
-    properties.load(fs)
-    properties.getProperty("extensions.version")
-  } finally {
-    fs.close()
-  }
-}
-
 homepage := Some(url("https://www.raw-labs.com/"))
 
 organization := "com.raw-labs"
@@ -70,10 +56,8 @@ headerSources / excludeFilter := HiddenFileFilter
 scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
-  "-source",
-  "17",
-  "-target",
-  "17"
+  "-source", "21",
+  "-target", "21"
 )
 
 scalacOptions ++= Seq(
@@ -266,3 +250,16 @@ libraryDependencies ++= Seq(
   rawLanguage % "compile->compile;test->test",
   "org.graalvm.polyglot" % "python" % "23.1.0" % "runtime",
 )
+
+// auto output version to a file on compile
+lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
+
+outputVersion := {
+  val versionFile = baseDirectory.value / "version"
+  if (!versionFile.exists()) {
+    IO.touch(versionFile)
+  }
+  IO.write(versionFile, version.value)
+}
+
+(compile in Compile) := ((compile in Compile) dependsOn outputVersion).value
