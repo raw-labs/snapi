@@ -21,7 +21,6 @@ import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.io.json.reader.JsonPrintNodeGen;
-
 public class TrufflePrintJsonEntry extends PrintJsonEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {

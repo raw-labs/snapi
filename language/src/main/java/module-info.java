@@ -46,6 +46,12 @@ module raw.language {
   uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.compiler.rql2.api.EntryExtension;
 
+  provides raw.compiler.rql2.truffle.builtin.TruffleBinaryWriter with
+      raw.compiler.rql2.truffle.builtin.TruffleBinaryWriter;
+  provides raw.compiler.rql2.truffle.builtin.JsonWriter with
+      raw.compiler.rql2.truffle.builtin.JsonWriter;
+  provides raw.compiler.rql2.truffle.builtin.CsvWriter with
+      raw.compiler.rql2.truffle.builtin.CsvWriter;
   provides raw.creds.api.CredentialsServiceBuilder with
       raw.creds.local.LocalCredentialsServiceBuilder;
   //    provides raw.creds.api.CredentialsServiceBuilder with
