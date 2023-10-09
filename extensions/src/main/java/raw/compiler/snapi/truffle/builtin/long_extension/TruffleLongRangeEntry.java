@@ -14,7 +14,6 @@ package raw.compiler.snapi.truffle.builtin.long_extension;
 
 import java.util.List;
 import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.LocationLlEntry;
 import raw.compiler.rql2.builtin.LongRangeEntry;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
