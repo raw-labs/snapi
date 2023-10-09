@@ -1,12 +1,20 @@
-package raw.compiler.snapi.truffle.builtin.sqlserver_extension;
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.stream.IntStream;
+package raw.compiler.snapi.truffle.builtin.snowflake_extension;
 
 import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.SQLServerQueryEntry;
+import raw.compiler.rql2.builtin.MySQLQueryEntry;
+import raw.compiler.rql2.builtin.SnowflakeQueryEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.rql2.truffle.builtin.TruffleJdbc;
 import raw.compiler.snapi.truffle.TruffleArg;
@@ -17,17 +25,19 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.binary.PlusNode;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode;
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
-import raw.runtime.truffle.runtime.exceptions.rdbms.SqlServerExceptionHandler;
+import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler;
 
-public class TruffleSQLServerQueryEntry extends SQLServerQueryEntry
+import java.util.List;
+import java.util.stream.IntStream;
+
+public class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry
     implements TruffleEntryExtension, WithJdbcArgs {
-
+  @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode db = args.get(0).getExprNode();
-
-    String[] allKeys = new String[] {"db-host", "db-port", "db-username", "db-password"};
+    String[] allKeys = new String[]{"db-host", "db-port", "db-username", "db-password", "db-account-id", "db-options"};
     ExpressionNode[] allValues =
-        new ExpressionNode[] {host(args), port(args), username(args), password(args)};
+        new ExpressionNode[]{host(args), port(args), username(args), password(args), accountID(args), options(args)};
 
     String[] keys =
         IntStream.range(0, allKeys.length)
@@ -48,9 +58,10 @@ public class TruffleSQLServerQueryEntry extends SQLServerQueryEntry
             .map(a -> (Rql2TypeWithProperties) a.getType())
             .toArray(Rql2TypeWithProperties[]::new);
 
-    ExpressionNode location =
-        new LocationBuildNode(new PlusNode(new StringNode("sqlserver:"), db), keys, values, types);
+    LocationBuildNode location =
+        new LocationBuildNode(new PlusNode(new StringNode("snowflake:"), db), keys, values, types);
+
     return TruffleJdbc.query(
-        location, args.get(1).getExprNode(), type, new SqlServerExceptionHandler(), rawLanguage);
+        location, args.get(1).getExprNode(), type, new MySQLExceptionHandler(), rawLanguage);
   }
 }

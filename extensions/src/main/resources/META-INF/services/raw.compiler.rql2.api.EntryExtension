@@ -118,22 +118,22 @@ raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathSqrtEntry
 raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathTanEntry
 raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathSquareEntry
 raw.compiler.snapi.truffle.builtin.math_extension.TruffleMathFloorEntry
-raw.compiler.rql2.truffle.builtin.TruffleMySQLQueryEntry
+raw.compiler.snapi.truffle.builtin.mysql_extension.TruffleMySQLQueryEntry
 raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableEmptyEntry
 raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableBuildEntry
 raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableIsNullEntry
 raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableUnsafeGetEntry
 raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableTransformEntry
 raw.compiler.snapi.truffle.builtin.nullable_tryable_extension.TruffleFlatMapNullableTryableEntry
-raw.compiler.rql2.truffle.builtin.TruffleOracleQueryEntry
-raw.compiler.rql2.truffle.builtin.TrufflePostgreSQLQueryEntry
+raw.compiler.snapi.truffle.builtin.oracle_extension.TruffleOracleQueryEntry
+raw.compiler.snapi.truffle.builtin.postgresql_extension.TrufflePostgreSQLQueryEntry
 raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordBuildEntry
 raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordConcatEntry
 raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordFieldsEntry
 raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordAddFieldEntry
 raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordRemoveFieldEntry
 raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordGetFieldByIndexEntry
-raw.compiler.rql2.truffle.builtin.TruffleSnowflakeQueryEntry
+raw.compiler.snapi.truffle.builtin.snowflake_extension.TruffleSnowflakeQueryEntry
 
 raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryTransformEntry
 raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsErrorEntry
