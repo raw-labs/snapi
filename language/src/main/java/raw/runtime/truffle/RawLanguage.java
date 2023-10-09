@@ -110,6 +110,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return rootNode.getCallTarget();
   }
 
-
+  @Override
+  protected Object getScope(RawContext context) {
+    return super.getScope(context);
+  }
 
 }

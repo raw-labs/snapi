@@ -12,7 +12,10 @@
 
 package raw.compiler.rql2.truffle
 
-import org.graalvm.polyglot.{Context, PolyglotAccess}
+import com.oracle.truffle.api.interop.TruffleObject
+import org.bitbucket.inkytonik.kiama.relation.EnsureTree
+import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
+import org.graalvm.polyglot.{Context, PolyglotAccess, Source, Value}
 import raw.compiler.api.{
   AutoCompleteResponse,
   CompilationFailure,
@@ -20,6 +23,9 @@ import raw.compiler.api.{
   CompilationSuccess,
   CompilerService,
   CompilerServiceException,
+  EvalResponse,
+  EvalRuntimeFailure,
+  EvalSuccess,
   ExecutionResponse,
   ExecutionRuntimeFailure,
   ExecutionSuccess,
@@ -43,6 +49,7 @@ import raw.compiler.api.{
   RenameResponse,
   ValidateResponse
 }
+import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.compiler.common.{CommonCompilerProvider, Compiler}
 import raw.runtime.{
   ParamBool,
@@ -64,17 +71,29 @@ import raw.runtime.{
   RuntimeContext
 }
 import raw.runtime.truffle.RawLanguage
-import org.graalvm.polyglot.Source
-import raw.compiler.CompilerParserException
-import raw.compiler.base.ProgramContext
+import raw.compiler.{
+  base,
+  CompilerParserException,
+  DeclDescription,
+  ErrorMessage,
+  ErrorPosition,
+  ErrorRange,
+  ParamDescription,
+  ProgramDescription
+}
+import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.base.source.BaseNode
+import raw.compiler.common.source.{SourceNode, SourceProgram}
+import raw.compiler.rql2.errors._
+import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
+import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, TreeWithPositions}
+import raw.compiler.rql2.source._
 import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawException, RawSettings}
+import raw.utils.{endsWithIgnoreCase, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.OutputStream
 import scala.util.control.NonFatal
@@ -84,14 +103,14 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
 
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
-  // Map of users to compilers.
-  private val compilerCaches = new RawConcurrentHashMap[AuthenticatedUser, Compiler]
+  // Map of users to compiler context.
+  private val compilerContextCaches = new RawConcurrentHashMap[AuthenticatedUser, CompilerContext]
 
-  private def getCompiler(user: AuthenticatedUser): Compiler = {
-    compilerCaches.getOrElseUpdate(user, createCompiler(user, "rql2-truffle"))
+  private def getCompilerContext(user: AuthenticatedUser): CompilerContext = {
+    compilerContextCaches.getOrElseUpdate(user, createCompilerContext(user, "rql2-truffle"))
   }
 
-  private def createCompiler(user: AuthenticatedUser, language: String): Compiler = {
+  private def createCompilerContext(user: AuthenticatedUser, language: String): CompilerContext = {
     // Initialize source context
     implicit val sourceContext = new SourceContext(user, credentials, settings)
 
@@ -99,59 +118,35 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     val inferrer = InferrerServiceProvider(maybeClassLoader)
 
     // Initialize compiler context
-    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer, maybeClassLoader)
-    try {
-      // Initialize compiler. Default language, if not specified is 'rql2'.
-      CommonCompilerProvider(language, maybeClassLoader)(compilerContext)
-    } catch {
-      case NonFatal(ex) =>
-        // To not leave hanging inferrer services.
-        // This would make tests fail in the afterAll when checking for running services
-        inferrer.stop()
-        throw ex
-    }
+    new Scala2CompilerContext(language, user, sourceContext, inferrer, maybeClassLoader)
   }
 
-  private def getProgramContext(
-      compiler: Compiler,
-      code: String,
-      environment: ProgramEnvironment
-  ): ProgramContext = {
-    val runtimeContext = getRuntimeContext(compiler, environment)
-    compiler.getProgramContext(runtimeContext)
-  }
-
-  private def getRuntimeContext(
-      compiler: Compiler,
-      environment: ProgramEnvironment
-  ): RuntimeContext = {
-    val sourceContext = compiler.compilerContext.sourceContext
-    new RuntimeContext(
-      sourceContext,
-      settings,
-      environment
-    )
+  private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {
+    val compilerContext = getCompilerContext(user)
+    val runtimeContext = new RuntimeContext(compilerContext.sourceContext, settings, environment)
+    new ProgramContext(runtimeContext)(compilerContext)
   }
 
   override def prettyPrint(node: BaseNode, user: AuthenticatedUser): String = {
-    val compiler = getCompiler(user)
-    compiler.prettyPrint(node)
+    SourcePrettyPrinter.format(node)
   }
 
+  // TODO (msb): Change signature to include position of the parsing error.
   override def parseType(tipe: String, user: AuthenticatedUser): ParseTypeResponse = {
-    val compiler = getCompiler(user)
-    compiler.parseType(tipe) match {
-      case Some(t) => ParseTypeSuccess(t)
-      case None => ParseTypeFailure("could not parse type")
+    val positions = new Positions()
+    val parser = new FrontendSyntaxAnalyzer(positions)
+    parser.parseType(tipe) match {
+      case Right(t) => ParseTypeSuccess(t)
+      case Left((err, pos)) => ParseTypeFailure(err)
     }
   }
 
   override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
-    val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, environment)
+    val programContext = getProgramContext(environment.user, environment)
     try {
-      val r = compiler.parse(source)(programContext)
-      ParseSuccess(r)
+      val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+      val root = tree.root
+      ParseSuccess(root)
     } catch {
       case ex: CompilerParserException => ParseFailure(ex.getMessage, ex.position)
       case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -165,14 +160,17 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.getType(source)(programContext) match {
-            case Left(errs) => GetTypeFailure(errs)
-            case Right(t) => GetTypeSuccess(t)
+          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+          if (tree.valid) {
+            GetTypeSuccess(tree.rootType)
+          } else {
+            GetTypeFailure(tree.errors)
           }
         } catch {
+          case ex: CompilerParserException =>
+            GetTypeFailure(List(ErrorMessage(ex.getMessage, List(raw.compiler.ErrorRange(ex.position, ex.position)))))
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
       }
@@ -186,29 +184,73 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.getProgramDescription(source)(programContext) match {
-            case Left(errs) => GetProgramDescriptionFailure(errs)
-            case Right(desc) => GetProgramDescriptionSuccess(desc)
+          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+          if (tree.valid) {
+            val TreeDescription(decls, maybeType, comment) = tree.description
+            val formattedDecls = decls.map {
+              case (idn, programDecls) =>
+                val formattedDecls = programDecls.map {
+                  case TreeDeclDescription(None, outType, comment) =>
+                    DeclDescription(None, SourcePrettyPrinter.format(outType), comment)
+                  case TreeDeclDescription(Some(params), outType, comment) =>
+                    val formattedParams = params.map {
+                      case TreeParamDescription(idn, tipe, required) =>
+                        ParamDescription(idn, SourcePrettyPrinter.format(tipe), required)
+                    }
+                    DeclDescription(Some(formattedParams), SourcePrettyPrinter.format(outType), comment)
+                }
+                (idn, formattedDecls)
+            }
+            val programDescription =
+              ProgramDescription(formattedDecls, maybeType.map(t => SourcePrettyPrinter.format(t)), comment)
+            GetProgramDescriptionSuccess(programDescription)
+          } else {
+            GetProgramDescriptionFailure(tree.errors)
           }
         } catch {
+          case ex: CompilerParserException => GetProgramDescriptionFailure(
+              List(ErrorMessage(ex.getMessage, List(raw.compiler.ErrorRange(ex.position, ex.position))))
+            )
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
       }
     )
   }
 
+  // TODO (msb): Remove this method once emission is in Java.
   override def compile(
       source: String,
       environment: ProgramEnvironment,
       ref: Any
   ): CompilationResponse = {
+//    val programContext = getProgramContext(environment.user, environment)
+//    try {
+//      val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+//      if (tree.valid) {
+//        val outputProgram = transpile(inputProgram)
+//        val signature = UUID.randomUUID().toString.replace("-", "").replace("_", "")
+//        emit(signature, outputProgram, rawLanguageAsAny)
+//      } else {
+//        CompilationFailure(tree.errors)
+//      }
+//    } catch {
+//      case ex: CompilerParserException =>
+//        CompilationFailure(List(ErrorMessage(ex.getMessage, List(raw.compiler.ErrorRange(ex.position, ex.position)))))
+//      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+//    }
     // We do NOT create a TruffleContext here, because this method is only used from the RawLanguage,
     // where there is already a TruffleContext created.
-    val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, environment)
+    implicit val compilerContext = getCompilerContext(environment.user)
+    val compiler = new Rql2TruffleCompiler
+    val sourceContext = compiler.compilerContext.sourceContext
+    val runtimeContext = new RuntimeContext(
+      sourceContext,
+      settings,
+      environment
+    )
+    val programContext = compiler.getProgramContext(runtimeContext)
     try {
       compiler.compile(source, ref)(programContext) match {
         case Left(errs) => CompilationFailure(errs)
@@ -219,72 +261,58 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     }
   }
 
+  override def eval(source: String, environment: ProgramEnvironment): EvalResponse = {
+    // TODO (msb): This is not handling Validation vs Runtime errors!
+    withTruffleContext(
+      environment,
+      ctx =>
+        try {
+          val polyglotValue = ctx.eval("rql", source)
+          val rawValue = convertPolyglotValueToRawValue(polyglotValue)
+          EvalSuccess(rawValue)
+        } catch {
+          case NonFatal(t) => EvalRuntimeFailure(t.getMessage)
+        }
+    )
+  }
+
+  private def convertPolyglotValueToRawValue(v: Value): raw.runtime.interpreter.Value = {
+    ???
+  }
+
   override def execute(
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],
       outputStream: OutputStream
   ): ExecutionResponse = {
-
-    val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, environment)
-
+    // TODO (msb): This is not handling Validation vs Runtime errors!
+    val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
+    ctx.initialize(RawLanguage.ID)
+    ctx.enter()
     try {
-      val ctx = buildTruffleContext(environment, maybeOutputStream = Some(outputStream))
-
-      ctx.initialize(RawLanguage.ID)
-      ctx.enter()
-      //
-      //      try {
-      //        ctx.parse(source)
-      //      }
-      //      this is ALSO wrong
-      //
-      //
-      //      should be what?
-      //
-      //      ctx.
-      //
-      //        fix this!
-      //
-      //      should be ctx.parse
-      //      get Value
-      //        then execute Value
-      //
-      //      BTW, if this is WRONG, so it doEval!
-
-      try {
-        compiler
-          .parseAndValidate(source, maybeDecl)(programContext)
-          .right
-          .flatMap { program =>
-            compiler.compile(program)(programContext).right.map { entrypoint =>
-              //ctx.p
-              //              val v = entrypoint.asInstanceOf[TruffleEntrypoint].node;
-              //              v.
-
-              val src = Source.newBuilder("rql", source, "<stdin>").build
-              ctx.eval(src)
-
-              //              val target =
-              //                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
-              //              target.call()
-              outputStream.flush()
-              ExecutionSuccess
-            }
-          }
-          .fold(
-            errs => ExecutionValidationFailure(errs),
-            res => res
-          )
-      } finally {
-        ctx.leave()
-        ctx.close()
+      val v = maybeDecl match {
+        case Some(decl) =>
+//          ctx.eval("rql", source)
+//          val f = ctx.getBindings("rql").getMember(maybeDecl.get)
+//          f.execute(maybeArguments)
+          ???
+        case None => ctx.eval("rql", source)
       }
-    } catch {
-      case ex: RawTruffleRuntimeException => ExecutionRuntimeFailure(ex.getMessage)
-      case ex: RawException => ExecutionRuntimeFailure(ex.getMessage)
-      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+      ctx.eval(
+        "python",
+        s"""import json
+          |import sys
+          |def f(data):
+          |  json.dump(data, sys.stdout, indent=4)""".stripMargin
+      )
+      val wf = ctx.getBindings("python").getMember("f")
+      wf.execute(v)
+      outputStream.flush()
+      ExecutionSuccess
+    } finally {
+      ctx.leave()
+      ctx.close()
     }
   }
 
@@ -294,10 +322,13 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       maybeIndent: Option[Int],
       maybeWidth: Option[Int]
   ): FormatCodeResponse = {
-    val compiler = getCompiler(environment.user)
-    val programContext = getProgramContext(compiler, source, environment)
+    val programContext = getProgramContext(environment.user, environment)
     try {
-      compiler.formatCode(source, environment, maybeIndent, maybeWidth)(programContext)
+      val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
+      pretty.prettyCode(source) match {
+        case Right(code) => FormatCodeResponse(Some(code), List.empty)
+        case Left((err, pos)) => FormatCodeResponse(None, parseError(err, pos))
+      }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
     }
@@ -311,10 +342,14 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.dotAutoComplete(source, environment, position)(programContext)
+          withLspTree(source, lspService => lspService.dotAutoComplete(source, environment, position))(
+            programContext
+          ) match {
+            case Right(value) => value
+            case Left((err, pos)) => AutoCompleteResponse(Array.empty, parseError(err, pos))
+          }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
@@ -331,10 +366,14 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.wordAutoComplete(source, environment, prefix, position)(programContext)
+          withLspTree(source, lspService => lspService.wordAutoComplete(source, environment, prefix, position))(
+            programContext
+          ) match {
+            case Right(value) => value
+            case Left((err, pos)) => AutoCompleteResponse(Array.empty, parseError(err, pos))
+          }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
@@ -343,31 +382,61 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
+    /*
+    withLspTree(source, lspService => lspService.hover(source, environment, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => HoverResponse(None, parseError(err, pos))
+    }
+     */
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.hover(source, environment, position)(programContext)
+          withLspTree(source, lspService => lspService.hover(source, environment, position))(programContext) match {
+            case Right(value) => value
+            case Left((err, pos)) => HoverResponse(None, parseError(err, pos))
+          }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
+//        val compiler = getCompiler(environment.user)
+//        val programContext = getProgramContext(compiler, source, environment)
+//        try {
+//          compiler.hover(source, environment, position)(programContext)
+//        } catch {
+//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+//        }
       }
     )
   }
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
+    /*
+    withLspTree(source, lspService => lspService.rename(source, environment, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => RenameResponse(Array.empty, parseError(err, pos))
+    }
+     */
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.rename(source, environment, position)(programContext)
+          withLspTree(source, lspService => lspService.rename(source, environment, position))(programContext) match {
+            case Right(value) => value
+            case Left((err, pos)) => RenameResponse(Array.empty, parseError(err, pos))
+          }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
+//        val compiler = getCompiler(environment.user)
+//        val programContext = getProgramContext(compiler, source, environment)
+//        try {
+//          compiler.rename(source, environment, position)(programContext)
+//        } catch {
+//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+//        }
       }
     )
   }
@@ -377,53 +446,239 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       environment: ProgramEnvironment,
       position: Pos
   ): GoToDefinitionResponse = {
+    /*
+    withLspTree(source, lspService => lspService.definition(source, environment, position)) match {
+      case Right(value) => value
+      case Left((err, pos)) => GoToDefinitionResponse(None, parseError(err, pos))
+    }
+     */
     withTruffleContext(
       environment,
       _ => {
-
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.goToDefinition(source, environment, position)(programContext)
+          withLspTree(source, lspService => lspService.definition(source, environment, position))(
+            programContext
+          ) match {
+            case Right(value) => value
+            case Left((err, pos)) => GoToDefinitionResponse(None, parseError(err, pos))
+          }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
+//        val compiler = getCompiler(environment.user)
+//        val programContext = getProgramContext(compiler, source, environment)
+//        try {
+//          compiler.goToDefinition(source, environment, position)(programContext)
+//        } catch {
+//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+//        }
       }
     )
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
+    /*
+    withLspTree(
+      source,
+      lspService => {
+        val response = lspService.validate
+        if (response.errors.isEmpty) {
+          // The "flexible" tree did not find any semantic errors.
+          // So now we should parse with the "strict" parser/analyzer to get a proper tree and check for errors
+          // in that one.
+          buildInputTree(source) match {
+            case Right(_) => ValidateResponse(List.empty)
+            case Left(errors) => ValidateResponse(errors)
+          }
+        } else {
+          // The "flexible" tree found some semantic errors, so report only those.
+          response
+        }
+      }
+    ) match {
+      case Right(value) => value
+      case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+    }
+     */
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.validate(source, environment)(programContext)
+          withLspTree(
+            source,
+            lspService => {
+              val response = lspService.validate
+              if (response.errors.isEmpty) {
+                // The "flexible" tree did not find any semantic errors.
+                // So now we should parse with the "strict" parser/analyzer to get a proper tree and check for errors
+                // in that one.
+                val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+                if (tree.valid) {
+                  ValidateResponse(List.empty)
+                } else {
+                  ValidateResponse(tree.errors)
+                }
+              } else {
+                // The "flexible" tree found some semantic errors, so report only those.
+                response
+              }
+            }
+          )(programContext) match {
+            case Right(value) => value
+            case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+          }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
+
+//        val compiler = getCompiler(environment.user)
+//        val programContext = getProgramContext(compiler, source, environment)
+//        try {
+//          compiler.validate(source, environment)(programContext)
+//        } catch {
+//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+//        }
       }
     )
   }
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
+    /*
+    // Will analyze the code and return only unknown declarations errors.
+    val positions = new Positions()
+    val parser = new FrontendSyntaxAnalyzer(positions)
+    parser.parse(source) match {
+      case Right(program) =>
+        val sourceProgram = program.asInstanceOf[SourceProgram]
+        val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+          sourceProgram
+        )
+        val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+
+        // Selecting only a subset of the errors
+        val selection = analyzer.errors.filter {
+          // For the case of a function that does not exist in a package
+          case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
+          case _: UnknownDecl => true
+          case _: OutputTypeRequiredForRecursiveFunction => true
+          case _: UnexpectedOptionalArgument => true
+          case _: NoOptionalArgumentsExpected => true
+          case _: KeyNotComparable => true
+          case _: ItemsNotComparable => true
+          case _: MandatoryArgumentAfterOptionalArgument => true
+          case _: RepeatedFieldNames => true
+          case _: UnexpectedArguments => true
+          case _: MandatoryArgumentsMissing => true
+          case _: RepeatedOptionalArguments => true
+          case _: PackageNotFound => true
+          case _: NamedParameterAfterOptionalParameter => true
+          case _: ExpectedTypeButGotExpression => true
+          case _ => false
+        }
+        ValidateResponse(formatErrors(selection, positions))
+      case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+    }
+     */
     withTruffleContext(
       environment,
       _ => {
-        val compiler = getCompiler(environment.user)
-        val programContext = getProgramContext(compiler, source, environment)
+        val programContext = getProgramContext(environment.user, environment)
         try {
-          compiler.aiValidate(source, environment)(programContext)
+          // Will analyze the code and return only unknown declarations errors.
+          val positions = new Positions()
+          val parser = new FrontendSyntaxAnalyzer(positions)
+          parser.parse(source) match {
+            case Right(program) =>
+              val sourceProgram = program.asInstanceOf[SourceProgram]
+              val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+                sourceProgram
+              )
+              val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+
+              // Selecting only a subset of the errors
+              val selection = analyzer.errors.filter {
+                // For the case of a function that does not exist in a package
+                case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
+                case _: UnknownDecl => true
+                case _: OutputTypeRequiredForRecursiveFunction => true
+                case _: UnexpectedOptionalArgument => true
+                case _: NoOptionalArgumentsExpected => true
+                case _: KeyNotComparable => true
+                case _: ItemsNotComparable => true
+                case _: MandatoryArgumentAfterOptionalArgument => true
+                case _: RepeatedFieldNames => true
+                case _: UnexpectedArguments => true
+                case _: MandatoryArgumentsMissing => true
+                case _: RepeatedOptionalArguments => true
+                case _: PackageNotFound => true
+                case _: NamedParameterAfterOptionalParameter => true
+                case _: ExpectedTypeButGotExpression => true
+                case _ => false
+              }
+              ValidateResponse(formatErrors(selection, positions))
+            case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+          }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
+
+//        val compiler = getCompiler(environment.user)
+//        val programContext = getProgramContext(compiler, source, environment)
+//        try {
+//          compiler.aiValidate(source, environment)(programContext)
+//        } catch {
+//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+//        }
       }
     )
   }
 
+  private def withLspTree[T](source: String, f: CompilerLspService => T)(
+      implicit programContext: base.ProgramContext
+  ): Either[(String, Position), T] = {
+    // Parse tree with dedicated parser, which is more lose and tries to obtain an AST even with broken code.
+    val positions = new Positions()
+    val parser = new LspSyntaxAnalyzer(positions)
+    parser.parse(source).right.map { program =>
+      // Manually instantiate an analyzer to create a "flexible tree" that copes with broken code.
+      val sourceProgram = program.asInstanceOf[SourceProgram]
+      val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+        sourceProgram,
+        shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
+      )
+      // Do not perform any validation on errors as we fully expect the tree to be "broken" in most cases.
+      val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+      // Handle the LSP request.
+      val lspService = new CompilerLspService(
+        analyzer,
+        positions,
+        n => SourcePrettyPrinter.format(n)
+      )(programContext.asInstanceOf[ProgramContext])
+      f(lspService)
+    }
+  }
+
+  private def parseError(error: String, position: Position): List[ErrorMessage] = {
+    val range = ErrorRange(ErrorPosition(position.line, position.column), ErrorPosition(position.line, position.column))
+    List(ErrorMessage(error, List(range)))
+  }
+
+  private def formatErrors(errors: Seq[BaseError], positions: Positions): List[ErrorMessage] = {
+    errors.map { err =>
+      val ranges = positions.getStart(err.node) match {
+        case Some(begin) =>
+          val Some(end) = positions.getFinish(err.node)
+          List(ErrorRange(ErrorPosition(begin.line, begin.column), ErrorPosition(end.line, end.column)))
+        case _ => List.empty
+      }
+      ErrorMessage(ErrorsPrettyPrinter.format(err), ranges)
+    }.toList
+  }
+
   override def doStop(): Unit = {
-    compilerCaches.values.foreach(compiler => compiler.compilerContext.inferrer.stop())
+    compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
     credentials.stop()
   }
 
@@ -452,7 +707,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   ): Context = {
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
-      .newBuilder(RawLanguage.ID)
+      .newBuilder(RawLanguage.ID, "python")
       .environment("RAW_SETTINGS", settings.renderAsString)
       .environment("RAW_USER", environment.user.uid.toString)
       .environment("RAW_TRACE_ID", environment.user.uid.toString)
@@ -460,9 +715,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
     // Set output format as a config setting.
-    environment.options
-      .get("output-format")
-      .foreach(f => ctxBuilder.option(RawLanguage.ID + ".output-format", f))
+//    environment.options
+//      .get("output-format")
+//      .foreach(f => ctxBuilder.option(RawLanguage.ID + ".output-format", f))
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     // Add arguments as polyglot bindings.
     val ctx = ctxBuilder.build()

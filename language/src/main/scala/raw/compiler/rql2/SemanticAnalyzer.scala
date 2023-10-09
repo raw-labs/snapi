@@ -16,6 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.Entity
+import raw.compiler.api.{CompilerServiceProvider, EvalRuntimeFailure, EvalSuccess, EvalValidationFailure}
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
@@ -489,11 +490,12 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                   // is a perfect match. For instance, if the user does String.IsNull instead of Nullable.IsNull,
                   // or Text.Split instead of String.Split. The criteria is that the entry name must be a perfect match
                   // but defined in a single other package.
-                  val packagesWithEntry = PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap {
-                    case p => p.p.entries.collect {
-                        case e if badEntryName == e => p.p.name
-                      }
-                  }
+                  val packagesWithEntry =
+                    PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap {
+                      case p => p.p.entries.collect {
+                          case e if badEntryName == e => p.p.name
+                        }
+                    }
                   if (packagesWithEntry.length == 1)
                     Seq(UnknownDecl(i, hint = Some(s"did you mean ${packagesWithEntry.head}.$badEntryName?")))
                   else Seq(UnknownDecl(i))
@@ -633,8 +635,9 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   // Scopes for Expressions
   ///////////////////////////////////////////////////////////////////////////
 
-  override protected lazy val defenv: Environment =
-    rootenv(PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).map(p => p.p.name -> p): _*)
+  override protected lazy val defenv: Environment = rootenv(
+    PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).map(p => p.p.name -> p): _*
+  )
 
   override protected def envin(in: SourceNode => Environment): SourceNode ==> Environment =
     envinDef(in) orElse super.envin(in)
@@ -881,7 +884,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             .getOrElse(ErrorType())
         case _ => ErrorType()
       }
-    case PackageIdnExp(name) => PackageExtensionProvider.getPackage(name,programContext.compilerContext.maybeClassLoader) match {
+    case PackageIdnExp(name) =>
+      PackageExtensionProvider.getPackage(name, programContext.compilerContext.maybeClassLoader) match {
         case Some(_) => PackageType(name)
         case None => throw new AssertionError(s"Built-in package $name not found")
       }
@@ -1583,49 +1587,56 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     }
 
     programContext.getOrAddStagedCompilation(
-      program,
-      // Perform compilation of expression and its dependencies.
-      try {
-        CompilerProvider
-          .eval(programContext.compilerContext.language, program)(getProgramContext)
-          .right
-          .map { v =>
-            var stagedCompilerResult = v
+      program, {
+        // Perform compilation of expression and its dependencies.
+        val prettyPrinterProgram = SourcePrettyPrinter.format(program)
+        try {
+          CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(getProgramContext.settings).eval(
+            prettyPrinterProgram,
+            getProgramContext.runtimeContext.environment
+          ) match {
+            case EvalSuccess(v) =>
+              var stagedCompilerResult = v
 
-            // Remove extraProps
-            if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
-              val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
-              if (tryValue.isLeft) {
-                return Left(FailedToEvaluate(e, tryValue.left.toOption))
+              // Remove extraProps
+              if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
+                val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
+                if (tryValue.isLeft) {
+                  return Left(FailedToEvaluate(e, tryValue.left.toOption))
+                }
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryValue].v.right.get
               }
-              stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryValue].v.right.get
-            }
-            if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
-              val optionValue = stagedCompilerResult.asInstanceOf[OptionValue].v
-              if (optionValue.isEmpty) {
-                return Left(FailedToEvaluate(e, Some("unexpected null value found")))
+              if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
+                val optionValue = stagedCompilerResult.asInstanceOf[OptionValue].v
+                if (optionValue.isEmpty) {
+                  return Left(FailedToEvaluate(e, Some("unexpected null value found")))
+                }
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
               }
-              stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
-            }
-            stagedCompilerResult
+              Right(stagedCompilerResult)
+            case EvalValidationFailure(errs) =>
+              logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
+                |Expected type: $expected
+                |Expression: $e
+                |Errors: $errs""".stripMargin)
+              Left(FailedToEvaluate(e))
+            case EvalRuntimeFailure(err) =>
+              logger.warn(s"""Staged compilation of expression failed at runtime with errors:
+                |Expected type: $expected
+                |Expression: $e
+                |Error: $err""".stripMargin)
+              Left(FailedToEvaluate(e))
           }
-          .left
-          .map { errs =>
-            logger.warn(s"""Staged compilation of expression failed with semantic errors:
-              |Expected type: $expected
-              |Expression: $e
-              |Error: $errs""".stripMargin)
-            FailedToEvaluate(e)
-          }
-      } catch {
-        case NonFatal(t) =>
-          logger.warn(
-            s"""Staged compilation of expression failed with NonFatal:
-              |Expected type: $expected
-              |Expression: $e""".stripMargin,
-            t
-          )
-          Left(FailedToEvaluate(e))
+        } catch {
+          case NonFatal(t) =>
+            logger.warn(
+              s"""Staged compilation of expression failed with NonFatal:
+                |Expected type: $expected
+                |Expression: $e""".stripMargin,
+              t
+            )
+            Left(FailedToEvaluate(e))
+        }
       }
     )
   }
@@ -1841,25 +1852,30 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       if (i.nonEmpty) {
         actualType(e) match {
           case PackageType(name) =>
-            for (p <- PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader); if p.p.name == name; e <- p.p.entries; if e == i) {
+            for (
+              p <- PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader);
+              if p.p.name == name; e <- p.p.entries; if e == i
+            ) {
               return ExpectedType(ExpectedProjType(i))
             }
             val actualName = s"$name.$i"
-            val names = PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap { p =>
-              p.p.entries.collect {
-                case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
+            val names =
+              PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap { p =>
+                p.p.entries.collect {
+                  case e if levenshteinDistance(actualName, s"${p.p.name}.$e") < 3 => s"${p.p.name}.$e"
+                }
               }
-            }
             if (names.isEmpty) {
               // No found based on levenshtein distance. Try to see if there is any entry name in another package that
               // is a perfect match. For instance, if the user does String.IsNull instead of Nullable.IsNull,
               // or Text.Split instead of String.Split. The criteria is that the entry name must be a perfect match
               // but defined in a single other package.
-              val packagesWithEntry = PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap {
-                case p => p.p.entries.collect {
-                    case e if i == e => p.p.name
-                  }
-              }
+              val packagesWithEntry =
+                PackageExtensionProvider.packages(programContext.compilerContext.maybeClassLoader).flatMap {
+                  case p => p.p.entries.collect {
+                      case e if i == e => p.p.name
+                    }
+                }
               if (packagesWithEntry.length == 1)
                 ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${packagesWithEntry.head}.$i?"))
               else ExpectedType(ExpectedProjType(i))

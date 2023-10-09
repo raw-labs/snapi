@@ -15,6 +15,7 @@ package raw.compiler.api
 import raw.compiler.{EntryDoc, ErrorMessage, ErrorPosition, PackageDoc, ProgramDescription}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.SourceProgram
+import raw.runtime.interpreter.Value
 import raw.runtime.{Entrypoint, ProgramEnvironment}
 import raw.utils.{AuthenticatedUser, RawException, RawService}
 
@@ -50,7 +51,8 @@ trait CompilerService extends RawService {
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse
 
-  // Compile a source program.
+  // TODO (msb): Remove and move inner implementation onto RawLanguage itself (once emission is done in Java)
+  // Compile a source program and return an AST.
   @throws[CompilerServiceException]
   def compile(
       source: String,
@@ -58,7 +60,14 @@ trait CompilerService extends RawService {
       ref: Any
   ): CompilationResponse
 
-  // Execute a source program.
+  // Evaluate a source program and return the result as a Value.
+  @throws[CompilerServiceException]
+  def eval(
+      source: String,
+      environment: ProgramEnvironment
+  ): EvalResponse
+
+  // Execute a source program and write the results to the output stream.
   @throws[CompilerServiceException]
   def execute(
       source: String,
@@ -137,6 +146,11 @@ final case class GetProgramDescriptionSuccess(programDescription: ProgramDescrip
 sealed trait CompilationResponse
 final case class CompilationFailure(errors: List[ErrorMessage]) extends CompilationResponse
 final case class CompilationSuccess(entrypoint: Entrypoint) extends CompilationResponse
+
+sealed trait EvalResponse
+final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
+final case class EvalSuccess(v: Value) extends EvalResponse
+final case class EvalRuntimeFailure(error: String) extends EvalResponse
 
 sealed trait ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse

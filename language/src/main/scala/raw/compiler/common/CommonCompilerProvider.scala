@@ -20,7 +20,9 @@ import scala.collection.JavaConverters._
 
 object CommonCompilerProvider {
 
-  def apply(language: String, maybeClassLoader: Option[ClassLoader] = None)(implicit compilerContext: CompilerContext): Compiler = {
+  def apply(language: String, maybeClassLoader: Option[ClassLoader] = None)(
+      implicit compilerContext: CompilerContext
+  ): Compiler = {
     val services = maybeClassLoader match {
       case Some(cl) => ServiceLoader.load(classOf[CommonCompilerBuilder], cl).asScala.toArray
       case None => ServiceLoader.load(classOf[CommonCompilerBuilder]).asScala.toArray

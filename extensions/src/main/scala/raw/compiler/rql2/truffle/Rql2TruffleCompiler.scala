@@ -326,8 +326,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               )
             )
         }
-      case "json" =>
-        new ProgramExpressionNode(
+      case "json" => new ProgramExpressionNode(
           rawLanguage,
           frameDescriptor,
           new ExpBlockNode(

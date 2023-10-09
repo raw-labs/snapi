@@ -263,5 +263,6 @@ publishLocal := (publishLocal dependsOn publishM2).value
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawLanguage % "compile->compile;test->test"
+  rawLanguage % "compile->compile;test->test",
+  "org.graalvm.polyglot" % "python" % "23.1.0" % "runtime",
 )
