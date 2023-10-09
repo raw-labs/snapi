@@ -29,7 +29,7 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.Rql2TruffleCompilerBuilder;
   provides raw.compiler.rql2.api.EntryExtension with
       raw.compiler.snapi.truffle.builtin.aws_extension.AwsV4SignedRequestEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleByteFromEntry,
+      raw.compiler.snapi.truffle.builtin.byte_extension.TruffleByteFromEntry,
       raw.compiler.rql2.truffle.builtin.TruffleEmptyCollectionEntry,
       raw.compiler.rql2.truffle.builtin.TruffleBuildCollectionEntry,
       raw.compiler.rql2.truffle.builtin.TruffleFilterCollectionEntry,
