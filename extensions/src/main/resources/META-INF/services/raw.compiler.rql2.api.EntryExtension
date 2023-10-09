@@ -23,8 +23,8 @@ raw.compiler.rql2.truffle.builtin.TruffleUnionCollectionEntry
 raw.compiler.rql2.truffle.builtin.TruffleExistsCollectionEntry
 raw.compiler.rql2.truffle.builtin.TruffleZipCollectionEntry
 raw.compiler.rql2.truffle.builtin.TruffleMkStringCollectionEntry
-raw.compiler.rql2.truffle.builtin.TruffleCsvReadEntry
-raw.compiler.rql2.truffle.builtin.TruffleCsvParseEntry
+raw.compiler.snapi.truffle.builtin.csv_extension.TruffleCsvReadEntry
+raw.compiler.snapi.truffle.builtin.csv_extension.TruffleCsvParseEntry
 raw.compiler.rql2.truffle.builtin.TruffleDateBuildEntry
 raw.compiler.rql2.truffle.builtin.TruffleDateFromEpochDayEntry
 raw.compiler.rql2.truffle.builtin.TruffleDateFromTimestampEntry
