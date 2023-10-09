@@ -29,20 +29,6 @@ licenses/APL.txt."""
 
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 
-// Read version to use
-import java.util.Properties
-import java.io.FileInputStream
-version := {
-  val properties = new Properties()
-  val fs = new FileInputStream("../version.properties")
-  try {
-    properties.load(fs)
-    properties.getProperty("extensions.version")
-  } finally {
-    fs.close()
-  }
-}
-
 homepage := Some(url("https://www.raw-labs.com/"))
 
 organization := "com.raw-labs"
@@ -255,3 +241,16 @@ publishLocal := (publishLocal dependsOn publishM2).value
 
 // Dependencies
 libraryDependencies ++= Seq(rawLanguage % "compile->compile;test->test")
+
+// auto output version to a file on compile
+lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
+
+outputVersion := {
+  val versionFile = baseDirectory.value / "version"
+  if (!versionFile.exists()) {
+    IO.touch(versionFile)
+  }
+  IO.write(versionFile, version.value)
+}
+
+(compile in Compile) := ((compile in Compile) dependsOn outputVersion).value
