@@ -19,6 +19,7 @@ import raw.compiler.rql2.builtin.OracleQueryEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
+import raw.compiler.snapi.truffle.builtin.jdbc.Jdbc;
 import raw.compiler.snapi.truffle.builtin.jdbc.WithJdbcArgs;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -26,7 +27,6 @@ import raw.runtime.truffle.ast.expressions.binary.PlusNode;
 import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuildNode;
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler;
-import raw.compiler.snapi.truffle.builtin.jdbc.Jdbc;
 
 public class TruffleOracleQueryEntry extends OracleQueryEntry
     implements TruffleEntryExtension, WithJdbcArgs {

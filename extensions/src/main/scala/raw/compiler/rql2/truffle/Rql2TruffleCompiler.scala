@@ -30,7 +30,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2ben.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{CompilerException, ErrorMessage, base}
+import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
@@ -56,7 +56,7 @@ import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.{mutable, JavaConverters}
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
@@ -332,14 +332,16 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
           )
         )
       case "binary" =>
-        val writer = TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2BinaryType], rawLanguage, frameDescriptor)
+        val writer =
+          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2BinaryType], rawLanguage, frameDescriptor)
         new ProgramStatementNode(
           rawLanguage,
           frameDescriptor,
           new BinaryWriterNode(bodyExpNode, writer)
         )
       case "text" =>
-        val writer = TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2StringType], rawLanguage, frameDescriptor)
+        val writer =
+          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2StringType], rawLanguage, frameDescriptor)
         new ProgramStatementNode(
           rawLanguage,
           frameDescriptor,
