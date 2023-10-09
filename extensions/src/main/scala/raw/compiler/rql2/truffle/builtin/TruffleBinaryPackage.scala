@@ -24,23 +24,7 @@ import raw.runtime.truffle.ast.ProgramStatementNode
 //}
 import raw.runtime.truffle.ast.io.binary.{BinaryBytesWriterNode, NullableBinaryWriterNode, TryableBinaryWriterNode}
 import raw.runtime.truffle.{ExpressionNode, RawLanguage}
-//
-//class TruffleFromStringBinaryEntryExtension extends FromStringBinaryEntryExtension with TruffleShortEntryExtension {
-//
-//  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryFromStringNodeGen.create(args.head)
-//
-//}
-//
-//class TruffleBinaryReadEntry extends BinaryReadEntry with TruffleShortEntryExtension {
-//
-//  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryReadNodeGen.create(args.head)
-//
-//}
-//
-//class TruffleBinaryBase64Entry extends BinaryBase64Entry with TruffleShortEntryExtension {
-//  override def toTruffle(args: Seq[ExpressionNode]): ExpressionNode = BinaryBase64NodeGen.create(args.head)
-//}
-//
+
 object TruffleBinaryWriter {
 
   def apply(t: Rql2BinaryType, lang: RawLanguage): ProgramStatementNode = {
