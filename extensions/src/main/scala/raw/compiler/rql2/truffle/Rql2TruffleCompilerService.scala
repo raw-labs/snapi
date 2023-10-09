@@ -294,7 +294,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       val v = maybeDecl match {
         case Some(decl) =>
 //          ctx.eval("rql", source)
-//          val f = ctx.getBindings("rql").getMember(maybeDecl.get)
+//          val f = ctx.getBindings("rql").getMember(decl)
 //          f.execute(maybeArguments)
           ???
         case None => ctx.eval("rql", source)
