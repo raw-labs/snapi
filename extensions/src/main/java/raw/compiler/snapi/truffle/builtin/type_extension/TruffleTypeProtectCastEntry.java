@@ -73,11 +73,11 @@ public class TruffleTypeProtectCastEntry extends TypeProtectCastEntry
         Rql2RecordType targetType = (Rql2RecordType) target;
         Set<Rql2TypeProperty> sourceProps = JavaConverters.setAsJavaSet(sourceType.props());
         Set<Rql2TypeProperty> targetProps = JavaConverters.setAsJavaSet(targetType.props());
-        sourceProps.removeAll(targetProps);
+        Set<Rql2TypeProperty> finalProps = new HashSet<>(sourceProps);
+        finalProps.removeAll(targetProps);
         List<Type> sourceTypes = JavaConverters.seqAsJavaList(sourceType.atts()).stream().map(Rql2AttrType::tipe).toList();
         List<Type> targetTypes = JavaConverters.seqAsJavaList(targetType.atts()).stream().map(Rql2AttrType::tipe).toList();
         assert sourceTypes.size() == targetTypes.size();
-        Set<Rql2TypeProperty> finalProps = new HashSet<>(sourceProps);
         for (int i = 0; i < sourceTypes.size(); i++) {
           Type sourceAttrType = sourceTypes.get(i);
           Type targetAttrType = targetTypes.get(i);
