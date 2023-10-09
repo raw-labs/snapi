@@ -82,7 +82,7 @@ import raw.compiler.{
   ProgramDescription
 }
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
-import raw.compiler.base.source.BaseNode
+import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
@@ -299,13 +299,29 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           ???
         case None => ctx.eval("rql", source)
       }
-      ctx.eval(
-        "python",
-        s"""import json
-          |import sys
-          |def f(data):
-          |  json.dump(data, sys.stdout, indent=4)""".stripMargin
-      )
+
+      // FIXME (msb): If we do the output format check client-side, this means we validate the tree twice.
+
+      environment.options
+        .get("output-format") match {
+//        case Some("csv") =>
+//          if (!isCsvCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
+        case Some("json") =>
+//          if (!isJsonCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
+//          else ctx.eval(
+          ctx.eval(
+            "python",
+            s"""import json
+              |import sys
+              |def f(data):
+              |  json.dump(data, sys.stdout, indent=4)""".stripMargin
+          )
+//        case Some("text") =>
+//          if (!isTextCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
+//        case Some("binary") =>
+//          if (!isBinaryCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
+        case None => return ExecutionRuntimeFailure("unknown output format")
+      }
       val wf = ctx.getBindings("python").getMember("f")
       wf.execute(v)
       outputStream.flush()
@@ -315,6 +331,22 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       ctx.close()
     }
   }
+
+//  private def isJsonCompatible(dataType: Type): Boolean = {
+//    true
+//  }
+//
+//  private def isCsvCompatible(dataType: Type): Boolean = {
+//    true
+//  }
+//
+//  private def isTextCompatible(dataType: Type): Boolean = {
+//    true
+//  }
+//
+//  private def isBinaryCompatible(dataType: Type): Boolean = {
+//    true
+//  }
 
   override def formatCode(
       source: String,
@@ -412,12 +444,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   }
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
-    /*
-    withLspTree(source, lspService => lspService.rename(source, environment, position)) match {
-      case Right(value) => value
-      case Left((err, pos)) => RenameResponse(Array.empty, parseError(err, pos))
-    }
-     */
     withTruffleContext(
       environment,
       _ => {
@@ -430,13 +456,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
-//        val compiler = getCompiler(environment.user)
-//        val programContext = getProgramContext(compiler, source, environment)
-//        try {
-//          compiler.rename(source, environment, position)(programContext)
-//        } catch {
-//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
-//        }
       }
     )
   }
@@ -446,12 +465,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       environment: ProgramEnvironment,
       position: Pos
   ): GoToDefinitionResponse = {
-    /*
-    withLspTree(source, lspService => lspService.definition(source, environment, position)) match {
-      case Right(value) => value
-      case Left((err, pos)) => GoToDefinitionResponse(None, parseError(err, pos))
-    }
-     */
     withTruffleContext(
       environment,
       _ => {
@@ -466,41 +479,11 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
-//        val compiler = getCompiler(environment.user)
-//        val programContext = getProgramContext(compiler, source, environment)
-//        try {
-//          compiler.goToDefinition(source, environment, position)(programContext)
-//        } catch {
-//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
-//        }
       }
     )
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    /*
-    withLspTree(
-      source,
-      lspService => {
-        val response = lspService.validate
-        if (response.errors.isEmpty) {
-          // The "flexible" tree did not find any semantic errors.
-          // So now we should parse with the "strict" parser/analyzer to get a proper tree and check for errors
-          // in that one.
-          buildInputTree(source) match {
-            case Right(_) => ValidateResponse(List.empty)
-            case Left(errors) => ValidateResponse(errors)
-          }
-        } else {
-          // The "flexible" tree found some semantic errors, so report only those.
-          response
-        }
-      }
-    ) match {
-      case Right(value) => value
-      case Left((err, pos)) => ValidateResponse(parseError(err, pos))
-    }
-     */
     withTruffleContext(
       environment,
       _ => {
@@ -532,55 +515,11 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
-
-//        val compiler = getCompiler(environment.user)
-//        val programContext = getProgramContext(compiler, source, environment)
-//        try {
-//          compiler.validate(source, environment)(programContext)
-//        } catch {
-//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
-//        }
       }
     )
   }
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
-    /*
-    // Will analyze the code and return only unknown declarations errors.
-    val positions = new Positions()
-    val parser = new FrontendSyntaxAnalyzer(positions)
-    parser.parse(source) match {
-      case Right(program) =>
-        val sourceProgram = program.asInstanceOf[SourceProgram]
-        val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
-          sourceProgram
-        )
-        val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
-
-        // Selecting only a subset of the errors
-        val selection = analyzer.errors.filter {
-          // For the case of a function that does not exist in a package
-          case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
-          case _: UnknownDecl => true
-          case _: OutputTypeRequiredForRecursiveFunction => true
-          case _: UnexpectedOptionalArgument => true
-          case _: NoOptionalArgumentsExpected => true
-          case _: KeyNotComparable => true
-          case _: ItemsNotComparable => true
-          case _: MandatoryArgumentAfterOptionalArgument => true
-          case _: RepeatedFieldNames => true
-          case _: UnexpectedArguments => true
-          case _: MandatoryArgumentsMissing => true
-          case _: RepeatedOptionalArguments => true
-          case _: PackageNotFound => true
-          case _: NamedParameterAfterOptionalParameter => true
-          case _: ExpectedTypeButGotExpression => true
-          case _ => false
-        }
-        ValidateResponse(formatErrors(selection, positions))
-      case Left((err, pos)) => ValidateResponse(parseError(err, pos))
-    }
-     */
     withTruffleContext(
       environment,
       _ => {
@@ -623,14 +562,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
-
-//        val compiler = getCompiler(environment.user)
-//        val programContext = getProgramContext(compiler, source, environment)
-//        try {
-//          compiler.aiValidate(source, environment)(programContext)
-//        } catch {
-//          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
-//        }
       }
     )
   }
@@ -714,10 +645,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       .environment("RAW_SCOPES", environment.scopes.mkString(","))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
-    // Set output format as a config setting.
-//    environment.options
-//      .get("output-format")
-//      .foreach(f => ctxBuilder.option(RawLanguage.ID + ".output-format", f))
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     // Add arguments as polyglot bindings.
     val ctx = ctxBuilder.build()
