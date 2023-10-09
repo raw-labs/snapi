@@ -30,7 +30,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{CompilerException, ErrorMessage, base}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
@@ -56,7 +56,7 @@ import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
-import scala.collection.{mutable, JavaConverters}
+import scala.collection.{JavaConverters, mutable}
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
@@ -304,7 +304,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               frameDescriptor,
               new CsvIterableWriterNode(
                 bodyExpNode,
-                CsvWriter(atts.map(_.tipe), rawLanguage),
+                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
                 atts.map(_.idn).toArray,
                 lineSeparator
               )
@@ -317,7 +317,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               frameDescriptor,
               new CsvListWriterNode(
                 bodyExpNode,
-                CsvWriter(atts.map(_.tipe), rawLanguage),
+                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
                 atts.map(_.idn).toArray,
                 lineSeparator
               )
