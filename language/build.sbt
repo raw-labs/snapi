@@ -27,10 +27,6 @@ the Business Source License, use of this software will be governed
 by the Apache License, Version 2.0, included in the file
 licenses/APL.txt."""
 
-// Read version to use
-import java.util.Properties
-import java.io.FileInputStream
-
 headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 
 homepage := Some(url("https://www.raw-labs.com/"))
