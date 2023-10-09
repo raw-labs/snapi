@@ -3,6 +3,7 @@ package raw.compiler.snapi.truffle.builtin.sqlserver_extension;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.SQLServerQueryEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -19,7 +20,8 @@ import raw.runtime.truffle.runtime.exceptions.rdbms.SqlServerExceptionHandler;
 public class TruffleSQLServerQueryEntry extends SQLServerQueryEntry
     implements TruffleEntryExtension {
 
-  private record Handler(String key, ExpressionNode value) {}
+  private record JdbcParam(String key, ExpressionNode value) {
+  }
 
   private final Map<String, String> keyMappings =
       new HashMap<>() {
@@ -31,25 +33,33 @@ public class TruffleSQLServerQueryEntry extends SQLServerQueryEntry
         }
       };
 
+  protected static String[] optionalKeys(List<TruffleArg> args, Map<String, String> keyMappings) {
+    List<JdbcParam> optionalArgs =
+        args.stream()
+            .map(arg -> new JdbcParam(keyMappings.get(arg.getIdentifier()), arg.getExprNode())).filter(param -> param.key() != null).toList();
+    return optionalArgs.stream().map(JdbcParam::key).toArray(String[]::new);
+
+  }
+
+  protected static ExpressionNode[] optionalValues(List<TruffleArg> args, Map<String, String> keyMappings) {
+    List<JdbcParam> optionalArgs =
+        args.stream()
+            .map(arg -> new JdbcParam(keyMappings.get(arg.getIdentifier()), arg.getExprNode())).filter(param -> param.key() != null).toList();
+    return optionalArgs.stream().map(JdbcParam::value).toArray(ExpressionNode[]::new);
+  }
+
+  protected static Rql2TypeWithProperties[] types(List<TruffleArg> args) {
+    return args.stream()
+        .filter(arg -> arg.getIdentifier() != null)
+        .map(arg -> (Rql2TypeWithProperties) arg.getType())
+        .toArray(Rql2TypeWithProperties[]::new);
+  }
+
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode db = args.get(0).getExprNode();
-    List<Handler> optionalArgs =
-        args.stream()
-            .filter(arg -> keyMappings.containsKey(arg.getIdentifier()))
-            .map(
-                arg -> {
-                  String idn = arg.getIdentifier();
-                  return new Handler(keyMappings.get(idn), arg.getExprNode());
-                })
-            .toList();
-    String[] keys = optionalArgs.stream().map(Handler::key).toArray(String[]::new);
-    ExpressionNode[] values =
-        optionalArgs.stream().map(Handler::value).toArray(ExpressionNode[]::new);
-    Rql2TypeWithProperties[] types =
-        args.stream()
-            .filter(arg -> arg.getIdentifier() != null)
-            .map(arg -> (Rql2TypeWithProperties) arg.getType())
-            .toArray(Rql2TypeWithProperties[]::new);
+    String[] keys = optionalKeys(args, keyMappings);
+    ExpressionNode[] values = optionalValues(args, keyMappings);
+    Rql2TypeWithProperties[] types = types(args);
     ExpressionNode location =
         new LocationBuildNode(new PlusNode(new StringNode("sqlserver:"), db), keys, values, types);
     return TruffleJdbc.query(
