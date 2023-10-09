@@ -46,7 +46,7 @@ raw.compiler.snapi.truffle.builtin.float_extension.TruffleFloatFromEntry
 raw.compiler.snapi.truffle.builtin.environment_extension.TruffleEnvironmentSecretEntry
 raw.compiler.snapi.truffle.builtin.environment_extension.TruffleEnvironmentScopesEntry
 raw.compiler.snapi.truffle.builtin.environment_extension.TruffleEnvironmentParameterEntry
-raw.compiler.rql2.truffle.builtin.TruffleFunctionInvokeAfterEntry
+raw.compiler.snapi.truffle.builtin.function_extension.TruffleFunctionInvokeAfterEntry
 raw.compiler.rql2.truffle.builtin.TruffleHttpReadEntry
 raw.compiler.rql2.truffle.builtin.TruffleHttpGetEntry
 raw.compiler.rql2.truffle.builtin.TruffleHttpPostEntry
