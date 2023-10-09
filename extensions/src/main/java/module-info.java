@@ -107,7 +107,6 @@ module raw.language.extensions {
       raw.compiler.rql2.truffle.builtin.TruffleRecordAddFieldEntry,
       raw.compiler.rql2.truffle.builtin.TruffleRecordRemoveFieldEntry,
       raw.compiler.rql2.truffle.builtin.TruffleRecordGetFieldByIndexEntry,
-      raw.compiler.rql2.truffle.builtin.TruffleS3BuildEntry,
       raw.compiler.rql2.truffle.builtin.TruffleSnowflakeQueryEntry,
       //      raw.compiler.rql2.truffle.builtin.TruffleFromStringBinaryEntryExtension,
       //      raw.compiler.rql2.truffle.builtin.TruffleBinaryReadEntry,
@@ -234,5 +233,6 @@ module raw.language.extensions {
       raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexReplaceEntry,
       raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexMatchesEntry,
       raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexFirstMatchInEntry,
-      raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexGroupsEntry;
+      raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexGroupsEntry,
+      raw.compiler.snapi.truffle.builtin.s3_extension.TruffleS3BuildEntry;
 }
