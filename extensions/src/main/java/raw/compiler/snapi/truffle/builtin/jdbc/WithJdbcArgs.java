@@ -37,6 +37,7 @@ public interface WithJdbcArgs extends WithArgs {
   default ExpressionNode accountID(List<TruffleArg> args) {
     return arg(args, "accountID").orElse(null);
   }
+
   default ExpressionNode options(List<TruffleArg> args) {
     return arg(args, "options").orElse(null);
   }

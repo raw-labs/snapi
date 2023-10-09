@@ -42,9 +42,7 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("key"))
                 .findFirst()
-                .orElse(
-                    Rql2AttrType.apply(
-                        "key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
 
     Rql2IterableType iterableValueType =
@@ -52,9 +50,7 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("group"))
                 .findFirst()
-                .orElse(
-                    Rql2AttrType.apply(
-                        "key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
 
     Rql2TypeWithProperties valueType = (Rql2TypeWithProperties) iterableValueType.innerType();

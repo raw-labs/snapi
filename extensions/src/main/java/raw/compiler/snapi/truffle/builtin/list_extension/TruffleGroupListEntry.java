@@ -40,9 +40,7 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("key"))
                 .findFirst()
-                .orElse(
-                    Rql2AttrType.apply(
-                        "key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
 
     Rql2IterableType valueType =
@@ -50,9 +48,7 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
             Arrays.stream(atts)
                 .filter(a -> a.idn().equals("group"))
                 .findFirst()
-                .orElse(
-                    Rql2AttrType.apply(
-                        "key", new Rql2UndefinedType(new HashSet<>())))
+                .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
     return ListGroupByNodeGen.create(
         args.get(0).getExprNode(), args.get(1).getExprNode(), keyType, valueType);

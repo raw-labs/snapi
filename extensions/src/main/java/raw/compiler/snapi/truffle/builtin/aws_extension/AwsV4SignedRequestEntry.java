@@ -103,7 +103,7 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
                 new ListBuildNode(
                     Rql2ListType.apply(
                         Rql2RecordType.apply(new Vector<Rql2AttrType>(0, 0, 0), new HashSet<>()),
-                            new HashSet<>()),
+                        new HashSet<>()),
                     new ExpressionNode[] {}));
 
     ExpressionNode headers =
@@ -115,9 +115,8 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
             .orElse(
                 new ListBuildNode(
                     Rql2ListType.apply(
-                        Rql2RecordType.apply(
-                            new Vector<Rql2AttrType>(0, 0, 0),new HashSet<>()),
-                            new HashSet<>()),
+                        Rql2RecordType.apply(new Vector<Rql2AttrType>(0, 0, 0), new HashSet<>()),
+                        new HashSet<>()),
                     new ExpressionNode[] {}));
 
     ExpressionNode sessionToken = maybeSessionToken.orElse(new StringNode(""));

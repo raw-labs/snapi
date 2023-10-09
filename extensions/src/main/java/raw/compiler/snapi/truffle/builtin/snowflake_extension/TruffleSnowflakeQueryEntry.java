@@ -12,8 +12,9 @@
 
 package raw.compiler.snapi.truffle.builtin.snowflake_extension;
 
+import java.util.List;
+import java.util.stream.IntStream;
 import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.MySQLQueryEntry;
 import raw.compiler.rql2.builtin.SnowflakeQueryEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.rql2.truffle.builtin.TruffleJdbc;
@@ -27,17 +28,19 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationBuil
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.MySQLExceptionHandler;
 
-import java.util.List;
-import java.util.stream.IntStream;
-
 public class TruffleSnowflakeQueryEntry extends SnowflakeQueryEntry
     implements TruffleEntryExtension, WithJdbcArgs {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode db = args.get(0).getExprNode();
-    String[] allKeys = new String[]{"db-host", "db-port", "db-username", "db-password", "db-account-id", "db-options"};
+    String[] allKeys =
+        new String[] {
+          "db-host", "db-port", "db-username", "db-password", "db-account-id", "db-options"
+        };
     ExpressionNode[] allValues =
-        new ExpressionNode[]{host(args), port(args), username(args), password(args), accountID(args), options(args)};
+        new ExpressionNode[] {
+          host(args), port(args), username(args), password(args), accountID(args), options(args)
+        };
 
     String[] keys =
         IntStream.range(0, allKeys.length)

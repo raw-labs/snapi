@@ -1,10 +1,7 @@
 package raw.compiler.snapi.truffle.builtin.sqlserver_extension;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.stream.IntStream;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.SQLServerQueryEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;

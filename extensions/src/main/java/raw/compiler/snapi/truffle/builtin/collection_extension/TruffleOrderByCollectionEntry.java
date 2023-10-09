@@ -33,7 +33,8 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
 
     index.set(0);
     ExpressionNode[] keyFunctions =
-        args.stream().skip(1)
+        args.stream()
+            .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
             .map(a -> args.get(a + 1).getExprNode())
@@ -41,15 +42,17 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
 
     index.set(0);
     Rql2TypeWithProperties[] keyTypes =
-        args.stream().skip(1)
+        args.stream()
+            .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
-            .map(a -> (Rql2TypeWithProperties)((FunType) args.get(a + 1).getType()).r())
+            .map(a -> (Rql2TypeWithProperties) ((FunType) args.get(a + 1).getType()).r())
             .toArray(Rql2TypeWithProperties[]::new);
 
     index.set(0);
     ExpressionNode[] orderings =
-        args.stream().skip(1)
+        args.stream()
+            .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 1)
             .map(a -> args.get(a + 1).getExprNode())
