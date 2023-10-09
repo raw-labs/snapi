@@ -120,7 +120,7 @@ class IntRangeEntry extends EntryExtension {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext) = {
+  )(implicit programContext: ProgramContext): Either[String, Type] = {
     Right(Rql2IterableType(Rql2IntType()))
   }
 

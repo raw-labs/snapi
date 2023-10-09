@@ -56,10 +56,7 @@ headerSources / excludeFilter := HiddenFileFilter
 scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
-  "-source",
-  "11",
-  "-target",
-  "11"
+  "-source", "21","-target", "21"
 )
 
 scalacOptions ++= Seq(

@@ -133,7 +133,9 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
     } catch {
       case ex: RawTruffleRuntimeException => ExecutionRuntimeFailure(ex.getMessage)
       case ex: RawException => ExecutionRuntimeFailure(ex.getMessage)
-      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+      case NonFatal(t) =>
+        println("arg")
+        throw new CompilerServiceException(t, programContext.dumpDebugInfo)
     }
   }
 
