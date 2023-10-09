@@ -20,7 +20,9 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode;
+import raw.runtime.truffle.ast.expressions.literals.IntNode;
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
+import raw.runtime.truffle.ast.expressions.option.OptionSomeNodeGen;
 import raw.runtime.truffle.ast.io.csv.reader.parser.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
@@ -56,10 +58,10 @@ public class CsvParser {
     this.args = args;
 
     this.encoding = arg("encoding").orElse(new StringNode("utf-8"));
-    this.skip = arg("skip").orElse(new StringNode("0"));
-    this.escape = arg("escape").orElse(new StringNode("\\"));
+    this.skip = arg("skip").orElse(new IntNode("0"));
+    this.escape = arg("escape").orElse(OptionSomeNodeGen.create(new StringNode("\\")));
     this.delimiter = arg("delimiter").orElse(new StringNode(","));
-    this.quote = arg("quote").orElse(new StringNode("\""));
+    this.quote = arg("quote").orElse(OptionSomeNodeGen.create(new StringNode("\"")));
     this.nulls =
         arg("nulls")
             .orElse(

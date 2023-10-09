@@ -21,13 +21,12 @@ import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.list.ListFromUnsafeNodeGen;
+import raw.runtime.truffle.ast.expressions.iterable.list.ListFromNodeGen;
 
 public class TruffleFromListEntry extends FromListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     Rql2ListType rql2ListType = (Rql2ListType) type;
-    return ListFromUnsafeNodeGen.create(
-        args.get(0).getExprNode(), (Rql2Type) rql2ListType.innerType());
+    return ListFromNodeGen.create(args.get(0).getExprNode(), (Rql2Type) rql2ListType.innerType());
   }
 }

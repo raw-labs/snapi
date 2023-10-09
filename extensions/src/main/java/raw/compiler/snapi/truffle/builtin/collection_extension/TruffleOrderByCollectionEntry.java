@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.OrderByCollectionEntry;
+import raw.compiler.rql2.source.FunType;
 import raw.compiler.rql2.source.Rql2IterableType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
@@ -30,25 +31,31 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     AtomicInteger index = new AtomicInteger();
 
+    index.set(0);
     ExpressionNode[] keyFunctions =
         args.stream()
+            .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
-            .map(a -> args.get(a).getExprNode())
+            .map(a -> args.get(a + 1).getExprNode())
             .toArray(ExpressionNode[]::new);
 
+    index.set(0);
     Rql2TypeWithProperties[] keyTypes =
         args.stream()
+            .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
-            .map(a -> (Rql2TypeWithProperties) args.get(a).getType())
+            .map(a -> (Rql2TypeWithProperties) ((FunType) args.get(a + 1).getType()).r())
             .toArray(Rql2TypeWithProperties[]::new);
 
+    index.set(0);
     ExpressionNode[] orderings =
         args.stream()
+            .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 1)
-            .map(a -> args.get(a).getExprNode())
+            .map(a -> args.get(a + 1).getExprNode())
             .toArray(ExpressionNode[]::new);
     Rql2IterableType valueType = (Rql2IterableType) args.get(0).getType();
 
