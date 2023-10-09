@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.truffle.builtin;
+package raw.compiler.rql2ben.truffle.builtin;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import raw.compiler.rql2.source.*;
@@ -21,8 +21,8 @@ import raw.runtime.truffle.ast.io.json.writer.internal.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
-import static raw.compiler.rql2.truffle.builtin.CompilerScalaConsts.nullable;
-import static raw.compiler.rql2.truffle.builtin.CompilerScalaConsts.tryable;
+import static raw.compiler.rql2ben.truffle.builtin.CompilerScalaConsts.nullable;
+import static raw.compiler.rql2ben.truffle.builtin.CompilerScalaConsts.tryable;
 
 public class JsonWriter {
 

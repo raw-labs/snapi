@@ -27,7 +27,7 @@ import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import scala.collection.JavaConverters;
 
 public class Jdbc {
-  public JdbcQueryNode query(
+  static public JdbcQueryNode query(
       ExpressionNode location,
       ExpressionNode query,
       Type t,
@@ -55,7 +55,7 @@ public class Jdbc {
         exceptionHandler);
   }
 
-  private ProgramExpressionNode columnReader(String colName, Type t, RawLanguage lang) {
+  static private ProgramExpressionNode columnReader(String colName, Type t, RawLanguage lang) {
     FrameDescriptor frameDescriptor = new FrameDescriptor();
     ExpressionNode node = switch (t){
       case Rql2TypeWithProperties r when r.props().contains(tryable) -> {

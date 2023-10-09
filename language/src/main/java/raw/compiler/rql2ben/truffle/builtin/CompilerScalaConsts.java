@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.truffle.builtin;
+package raw.compiler.rql2ben.truffle.builtin;
 
 import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
 import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
