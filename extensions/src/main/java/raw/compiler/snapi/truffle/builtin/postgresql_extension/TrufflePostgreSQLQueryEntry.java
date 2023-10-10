@@ -17,9 +17,9 @@ import java.util.stream.IntStream;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.PostgreSQLQueryEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.compiler.rql2.truffle.builtin.TruffleJdbc;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
+import raw.compiler.snapi.truffle.builtin.jdbc.Jdbc;
 import raw.compiler.snapi.truffle.builtin.jdbc.WithJdbcArgs;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -60,7 +60,7 @@ public class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry
     LocationBuildNode location =
         new LocationBuildNode(new PlusNode(new StringNode("pgsql:"), db), keys, values, types);
 
-    return TruffleJdbc.query(
+    return Jdbc.query(
         location, args.get(1).getExprNode(), type, new MySQLExceptionHandler(), rawLanguage);
   }
 }

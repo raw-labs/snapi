@@ -27,11 +27,11 @@ import raw.runtime.truffle.ast.io.csv.reader.parser.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashSet;
+import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.nullable;
+import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.tryable;
 
 import java.util.List;
 import java.util.Optional;
-
-import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
 
 public class CsvParser {
 
