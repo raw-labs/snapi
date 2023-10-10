@@ -300,6 +300,31 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         case None => ctx.eval("rql", source)
       }
 
+//      if (v.isString) {
+//        logger.debug(s" ---> ${v.getMetaQualifiedName} ${v.getMetaSimpleName}")
+//      }
+
+      if (v.isException) {
+        logger.debug(s" ---> IS EXCEPTION!")
+        logger.debug(v.throwException().toString)
+      } else {
+        if (v.isNumber) {
+          logger.debug("v is number!")
+          if (v.fitsInInt()) {
+            logger.debug(v.asInt().toString)
+          }
+        } else if (v.isString) {
+          logger.debug("v is string!")
+          logger.debug(v.asString())
+        }
+      }
+//      v.isException
+//      v.throwException()
+
+      //logger.debug(v.toString)
+      logger.debug("isString: " + v.isString.toString)
+      logger.debug("isNumber: " + v.isNumber.toString)
+
       // FIXME (msb): If we do the output format check client-side, this means we validate the tree twice.
 
       environment.options
@@ -312,9 +337,19 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           ctx.eval(
             "python",
             s"""import json
+              |import polyglot
               |import sys
+              |
+              |def serialize_foreign(obj):
+              |  if isinstance(obj, int) or isinstance(obj, bool):
+              |    return obj
+              |  if hasattr(obj, '__str__'):
+              |    return obj.__str__() + "cucu"
+              |  raise Exception("bum")
+              |
               |def f(data):
-              |  json.dump(data, sys.stdout, indent=4)""".stripMargin
+              |  print(len(data))
+              |  #json.dump(serialize_foreign(data), sys.stdout, indent=4)""".stripMargin
           )
 //        case Some("text") =>
 //          if (!isTextCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")

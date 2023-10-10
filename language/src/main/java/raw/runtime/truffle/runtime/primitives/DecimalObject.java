@@ -12,9 +12,18 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.RawLanguage;
+
 import java.math.BigDecimal;
 
+
+@ExportLibrary(InteropLibrary.class)
 public class DecimalObject implements TruffleObject {
   private final BigDecimal bigDecimal;
 
@@ -25,4 +34,33 @@ public class DecimalObject implements TruffleObject {
   public BigDecimal getBigDecimal() {
     return bigDecimal;
   }
+
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
+
+  @ExportMessage
+  Class<? extends TruffleLanguage<?>> getLanguage() {
+    return RawLanguage.class;
+  }
+
+  @ExportMessage
+  @CompilerDirectives.TruffleBoundary
+  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    return "Decimal";
+  }
+
+
+  @ExportMessage
+  boolean isString() {
+    return true;
+  }
+
+  @ExportMessage
+  @CompilerDirectives.TruffleBoundary
+  String asString() {
+    return bigDecimal.toString();
+  }
+
 }

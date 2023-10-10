@@ -12,16 +12,28 @@
 
 package raw.runtime.truffle.runtime.tryable;
 
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
+import java.math.BigInteger;
+
 @ExportLibrary(TryableLibrary.class)
+@ExportLibrary(InteropLibrary.class)
 public final class ObjectTryable implements TruffleObject {
 
   private final Object successValue;
   private final String failureValue;
+
+  private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
 
   private ObjectTryable(Object successValue, String failureValue) {
     this.successValue = successValue;
@@ -66,4 +78,125 @@ public final class ObjectTryable implements TruffleObject {
   public boolean isFailure() {
     return failureValue != null;
   }
+
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
+
+  @ExportMessage
+  Class<? extends TruffleLanguage<?>> getLanguage() {
+    return RawLanguage.class;
+  }
+
+  @ExportMessage
+  @CompilerDirectives.TruffleBoundary
+  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    return "ObjectTryable";
+  }
+
+
+  @ExportMessage
+  boolean isString() {
+    return interops.isString(successValue);
+  }
+
+  @ExportMessage
+  String asString() throws UnsupportedMessageException {
+    return interops.asString(successValue);
+  }
+
+  @ExportMessage
+  boolean isNumber() {
+    return interops.isNumber(successValue);
+  }
+
+  @ExportMessage
+  boolean fitsInByte() {
+    return interops.fitsInByte(successValue);
+  }
+
+  @ExportMessage
+  boolean fitsInShort() {
+    return interops.fitsInShort(successValue);
+  }
+
+  @ExportMessage
+  boolean fitsInInt() {
+    return interops.fitsInInt(successValue);
+  }
+
+  @ExportMessage
+  boolean fitsInLong() {
+    return interops.fitsInLong(successValue);
+  }
+
+  @ExportMessage
+  boolean fitsInFloat() {
+    return interops.fitsInFloat(successValue);
+  }
+
+
+  @ExportMessage
+  boolean fitsInDouble() {
+    return interops.fitsInDouble(successValue);
+  }
+
+
+  @ExportMessage
+  boolean fitsInBigInteger() {
+    return interops.fitsInBigInteger(successValue);
+  }
+
+@ExportMessage
+byte asByte() throws UnsupportedMessageException {
+    return interops.asByte(successValue);
+}
+
+
+  @ExportMessage
+  short asShort() throws UnsupportedMessageException {
+    return interops.asShort(successValue);
+  }
+
+
+  @ExportMessage
+  int asInt() throws UnsupportedMessageException {
+    return interops.asInt(successValue);
+  }
+
+
+  @ExportMessage
+  long asLong() throws UnsupportedMessageException {
+    return interops.asLong(successValue);
+  }
+
+
+  @ExportMessage
+  float asFloat() throws UnsupportedMessageException {
+    return interops.asFloat(successValue);
+  }
+
+
+  @ExportMessage
+  double asDouble() throws UnsupportedMessageException {
+    return interops.asDouble(successValue);
+  }
+
+
+  @ExportMessage
+  BigInteger asBigInteger() throws UnsupportedMessageException {
+    return interops.asBigInteger(successValue);
+  }
+
+  @ExportMessage
+  public boolean isException() {
+    return isFailure();
+  }
+
+  @ExportMessage
+  public RuntimeException throwException() {
+    return new RuntimeException(failureValue);
+  }
+
 }
