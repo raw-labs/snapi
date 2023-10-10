@@ -27,10 +27,10 @@ public class TruffleStringReadLinesEntry extends StringReadLinesEntry
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode encoding =
         args.stream()
-            .filter(arg -> arg.getIdentifier() != null && arg.getIdentifier().equals("encoding"))
+            .filter(arg -> arg.identifier() != null && arg.identifier().equals("encoding"))
             .findFirst()
-            .map(TruffleArg::getExprNode)
+            .map(TruffleArg::exprNode)
             .orElseGet(() -> new StringNode("utf-8"));
-    return StringReadLinesNodeGen.create(args.get(0).getExprNode(), encoding);
+    return StringReadLinesNodeGen.create(args.get(0).exprNode(), encoding);
   }
 }

@@ -23,6 +23,6 @@ import raw.runtime.truffle.ast.expressions.tryable.TryableSuccessNodeGen;
 
 public class TruffleSuccessBuildEntry extends SuccessBuildEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return TryableSuccessNodeGen.create(args.get(0).getExprNode());
+    return TryableSuccessNodeGen.create(args.get(0).exprNode());
   }
 }

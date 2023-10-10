@@ -31,7 +31,7 @@ public class TruffleRecordBuildEntry extends RecordBuildEntry implements Truffle
 
     for (int i = 0; i < recordType.atts().size(); i++) {
       keyTypePairs[i * 2] = new StringNode(recordType.atts().apply(i).idn());
-      keyTypePairs[i * 2 + 1] = args.get(i).getExprNode();
+      keyTypePairs[i * 2 + 1] = args.get(i).exprNode();
     }
 
     return new RecordBuildNode(keyTypePairs);

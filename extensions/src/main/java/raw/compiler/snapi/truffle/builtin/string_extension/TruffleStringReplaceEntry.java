@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.string_package.StringReplaceN
 public class TruffleStringReplaceEntry extends StringReplaceEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     return StringReplaceNodeGen.create(
-        args.get(0).getExprNode(), args.get(1).getExprNode(), args.get(2).getExprNode());
+        args.get(0).exprNode(), args.get(1).exprNode(), args.get(2).exprNode());
   }
 }

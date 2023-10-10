@@ -25,6 +25,6 @@ import raw.runtime.truffle.ast.expressions.unary.NotNodeGen;
 public class TruffleNullableIsNullEntry extends NullableIsNullEntry
     implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return NotNodeGen.create(OptionIsDefinedNodeGen.create(args.get(0).getExprNode()));
+    return NotNodeGen.create(OptionIsDefinedNodeGen.create(args.get(0).exprNode()));
   }
 }

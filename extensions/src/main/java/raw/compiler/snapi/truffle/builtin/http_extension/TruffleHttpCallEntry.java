@@ -59,20 +59,20 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
 
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode url = args.get(0).getExprNode();
+    ExpressionNode url = args.get(0).exprNode();
 
     String[] keys =
         Stream.concat(
                 args.stream()
                     .skip(1)
-                    .filter(e -> e.getIdentifier() != null)
-                    .map(e -> replaceKey(e.getIdentifier())),
+                    .filter(e -> e.identifier() != null)
+                    .map(e -> replaceKey(e.identifier())),
                 Stream.of("http-method"))
             .toArray(String[]::new);
 
     ExpressionNode[] values =
         Stream.concat(
-                args.stream().skip(1).map(TruffleArg::getExprNode),
+                args.stream().skip(1).map(TruffleArg::exprNode),
                 Stream.of(new StringNode(this.method)))
             .toArray(ExpressionNode[]::new);
 
@@ -80,8 +80,8 @@ public abstract class TruffleHttpCallEntry extends HttpCallEntry implements Truf
         Stream.concat(
                 args.stream()
                     .skip(1)
-                    .filter(e -> e.getIdentifier() != null && e.getExprNode() != null)
-                    .map(e -> (Rql2TypeWithProperties) e.getType()),
+                    .filter(e -> e.identifier() != null && e.exprNode() != null)
+                    .map(e -> (Rql2TypeWithProperties) e.type()),
                 Stream.of(
                     (Rql2TypeWithProperties) Rql2StringType.apply(new HashSet<>())))
             .toArray(Rql2TypeWithProperties[]::new);

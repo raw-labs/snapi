@@ -34,18 +34,18 @@ public class TruffleInternalEquiJoinCollectionEntry extends InternalEquiJoinColl
     TruffleArg rightK = args.get(3);
     TruffleArg remap = args.get(4);
 
-    FunType funType = (FunType) leftK.getType();
-    Rql2IterableType leftValue = (Rql2IterableType) left.getType();
-    Rql2IterableType rightValue = (Rql2IterableType) right.getType();
+    FunType funType = (FunType) leftK.type();
+    Rql2IterableType leftValue = (Rql2IterableType) left.type();
+    Rql2IterableType rightValue = (Rql2IterableType) right.type();
 
     return new CollectionEquiJoinNode(
-        left.getExprNode(),
-        right.getExprNode(),
-        leftK.getExprNode(),
-        rightK.getExprNode(),
+        left.exprNode(),
+        right.exprNode(),
+        leftK.exprNode(),
+        rightK.exprNode(),
         (Rql2TypeWithProperties) funType.r(),
         (Rql2TypeWithProperties) leftValue.innerType(),
         (Rql2TypeWithProperties) rightValue.innerType(),
-        remap.getExprNode());
+        remap.exprNode());
   }
 }

@@ -28,10 +28,10 @@ public class TruffleFilterListEntry extends FilterListEntry implements TruffleEn
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     Rql2ListType listType = (Rql2ListType) type;
-    FunType funType = (FunType) args.get(1).getType();
+    FunType funType = (FunType) args.get(1).type();
     return ListFilterNodeGen.create(
-        args.get(0).getExprNode(),
-        args.get(1).getExprNode(),
+        args.get(0).exprNode(),
+        args.get(1).exprNode(),
         (Rql2Type) listType.innerType(),
         (Rql2Type) funType.r());
   }

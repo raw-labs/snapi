@@ -25,6 +25,6 @@ public class TruffleBuildListEntry extends BuildListEntry implements TruffleEntr
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     return new ListBuildNode(
-        type, args.stream().map(TruffleArg::getExprNode).toArray(ExpressionNode[]::new));
+        type, args.stream().map(TruffleArg::exprNode).toArray(ExpressionNode[]::new));
   }
 }

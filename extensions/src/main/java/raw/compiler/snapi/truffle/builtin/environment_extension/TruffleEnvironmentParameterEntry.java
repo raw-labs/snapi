@@ -27,7 +27,7 @@ public class TruffleEnvironmentParameterEntry extends EnvironmentParameterEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode paramIndex = args.get(1).getExprNode();
+    ExpressionNode paramIndex = args.get(1).exprNode();
     return EnvironmentParameterNodeGen.create(
         paramIndex, (Rql2Type) resetProps(type, new HashSet<>()));
   }

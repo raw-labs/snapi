@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.option.OptionSomeNodeGen;
 public class TruffleNullableBuildEntry extends NullableBuildEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return OptionSomeNodeGen.create(args.get(0).getExprNode());
+    return OptionSomeNodeGen.create(args.get(0).exprNode());
   }
 }

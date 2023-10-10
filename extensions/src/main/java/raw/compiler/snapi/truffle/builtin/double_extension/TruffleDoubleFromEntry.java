@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.numeric.double_package.Double
 public class TruffleDoubleFromEntry extends DoubleFromEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return DoubleFromNodeGen.create(args.get(0).getExprNode());
+    return DoubleFromNodeGen.create(args.get(0).exprNode());
   }
 }

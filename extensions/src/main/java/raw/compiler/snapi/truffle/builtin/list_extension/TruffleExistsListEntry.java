@@ -26,8 +26,8 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListExistsNodeGen;
 public class TruffleExistsListEntry extends ExistsListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    FunType funType = (FunType) args.get(1).getType();
+    FunType funType = (FunType) args.get(1).type();
     return ListExistsNodeGen.create(
-        args.get(0).getExprNode(), args.get(1).getExprNode(), (Rql2Type) funType.r());
+        args.get(0).exprNode(), args.get(1).exprNode(), (Rql2Type) funType.r());
   }
 }

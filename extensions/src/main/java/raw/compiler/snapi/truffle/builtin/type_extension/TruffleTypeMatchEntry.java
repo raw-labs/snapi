@@ -32,14 +32,14 @@ public class TruffleTypeMatchEntry extends TypeMatchEntry implements TruffleEntr
   private record Handler(int idx, TruffleArg arg) {}
 
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    Rql2OrType orType = (Rql2OrType) args.get(0).getType();
+    Rql2OrType orType = (Rql2OrType) args.get(0).type();
     ExpressionNode[] handlers =
         args.stream()
             .skip(1)
             .map(
                 arg -> {
                   Type paramType =
-                      ((FunType) arg.getType()).ms().apply(0); // first (and only) parameter type
+                      ((FunType) arg.type()).ms().apply(0); // first (and only) parameter type
                   int idx =
                       orType
                           .tipes()
@@ -52,8 +52,8 @@ public class TruffleTypeMatchEntry extends TypeMatchEntry implements TruffleEntr
             .sorted(Comparator.comparingInt(Handler::idx))
             . // reorder items by index
             map(Handler::arg)
-            .map(TruffleArg::getExprNode)
+            .map(TruffleArg::exprNode)
             .toArray(ExpressionNode[]::new); // extract 'e' (the function)
-    return new TypeMatchNode(args.getFirst().getExprNode(), handlers);
+    return new TypeMatchNode(args.getFirst().exprNode(), handlers);
   }
 }

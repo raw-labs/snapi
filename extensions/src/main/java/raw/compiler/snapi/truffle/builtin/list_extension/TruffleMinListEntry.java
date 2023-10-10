@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListMinNodeGen;
 public class TruffleMinListEntry extends MinListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ListMinNodeGen.create(args.get(0).getExprNode());
+    return ListMinNodeGen.create(args.get(0).exprNode());
   }
 }

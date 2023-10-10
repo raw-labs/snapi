@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.math_package.MathAbsNodeGen;
 public class TruffleMathAbsEntry extends MathAbsEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return MathAbsNodeGen.create(args.get(0).getExprNode());
+    return MathAbsNodeGen.create(args.get(0).exprNode());
   }
 }

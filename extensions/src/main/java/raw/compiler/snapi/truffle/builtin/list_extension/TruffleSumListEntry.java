@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListSumNodeGen;
 public class TruffleSumListEntry extends SumListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ListSumNodeGen.create(args.get(0).getExprNode());
+    return ListSumNodeGen.create(args.get(0).exprNode());
   }
 }

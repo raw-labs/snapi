@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.option.OptionMapNodeGen;
 public class TruffleNullableTransformEntry extends NullableTransformEntry
     implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return OptionMapNodeGen.create(args.get(0).getExprNode(), args.get(1).getExprNode());
+    return OptionMapNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

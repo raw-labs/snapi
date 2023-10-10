@@ -37,7 +37,7 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
             .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
-            .map(a -> args.get(a + 1).getExprNode())
+            .map(a -> args.get(a + 1).exprNode())
             .toArray(ExpressionNode[]::new);
 
     index.set(0);
@@ -46,7 +46,7 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
             .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
-            .map(a -> (Rql2TypeWithProperties) ((FunType) args.get(a + 1).getType()).r())
+            .map(a -> (Rql2TypeWithProperties) ((FunType) args.get(a + 1).type()).r())
             .toArray(Rql2TypeWithProperties[]::new);
 
     index.set(0);
@@ -55,11 +55,11 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
             .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 1)
-            .map(a -> args.get(a + 1).getExprNode())
+            .map(a -> args.get(a + 1).exprNode())
             .toArray(ExpressionNode[]::new);
-    Rql2IterableType valueType = (Rql2IterableType) args.get(0).getType();
+    Rql2IterableType valueType = (Rql2IterableType) args.get(0).type();
 
     return new CollectionOrderByNode(
-        args.get(0).getExprNode(), keyFunctions, orderings, keyTypes, valueType);
+        args.get(0).exprNode(), keyFunctions, orderings, keyTypes, valueType);
   }
 }

@@ -29,11 +29,11 @@ import java.util.List;
 public class TruffleTimestampTimeBucketEntry extends TimestampTimeBucketEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
 
-    return switch (args.get(0).getType()) {
+    return switch (args.get(0).type()) {
       case Rql2StringType ignored ->
-          TimestampTimeBucketStringNodeGen.create(args.get(0).getExprNode(), args.get(1).getExprNode());
+          TimestampTimeBucketStringNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
       case Rql2IntervalType ignored ->
-          TimestampTimeBucketIntervalNodeGen.create(args.get(0).getExprNode(), args.get(1).getExprNode());
+          TimestampTimeBucketIntervalNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
       default -> throw new RawTruffleInternalErrorException();
     };
   }

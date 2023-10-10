@@ -23,6 +23,6 @@ import raw.runtime.truffle.ast.expressions.tryable.TryableUnsafeGetNodeGen;
 
 public class TruffleTryUnsafeGetEntry extends TryUnsafeGetEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return TryableUnsafeGetNodeGen.create(args.get(0).getExprNode());
+    return TryableUnsafeGetNodeGen.create(args.get(0).exprNode());
   }
 }

@@ -29,14 +29,14 @@ public class TruffleLocationBuildEntry extends LocationBuildEntry
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     String[] keys =
         args.stream()
-            .filter(a -> a.getIdentifier() != null)
-            .map(a -> a.getIdentifier().replace('_', '-'))
+            .filter(a -> a.identifier() != null)
+            .map(a -> a.identifier().replace('_', '-'))
             .toArray(String[]::new);
 
     ExpressionNode[] values = optionalArgs(args);
 
     Rql2TypeWithProperties[] types = optionalArgsTypes(args);
 
-    return new LocationBuildNode(args.get(0).getExprNode(), keys, values, types);
+    return new LocationBuildNode(args.get(0).exprNode(), keys, values, types);
   }
 }

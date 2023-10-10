@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.record.RecordConcatNodeGen;
 public class TruffleRecordConcatEntry extends RecordConcatEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return RecordConcatNodeGen.create(args.get(0).getExprNode(), args.get(1).getExprNode());
+    return RecordConcatNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

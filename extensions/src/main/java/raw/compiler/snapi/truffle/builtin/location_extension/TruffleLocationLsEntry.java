@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.location_package.LocationLsNo
 public class TruffleLocationLsEntry extends LocationLsEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return LocationLsNodeGen.create(args.get(0).getExprNode());
+    return LocationLsNodeGen.create(args.get(0).exprNode());
   }
 }

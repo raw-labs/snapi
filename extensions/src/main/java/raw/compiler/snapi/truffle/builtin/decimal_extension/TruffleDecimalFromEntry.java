@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.numeric.decimal_package.Decim
 public class TruffleDecimalFromEntry extends DecimalFromEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return DecimalFromNodeGen.create(args.get(0).getExprNode());
+    return DecimalFromNodeGen.create(args.get(0).exprNode());
   }
 }

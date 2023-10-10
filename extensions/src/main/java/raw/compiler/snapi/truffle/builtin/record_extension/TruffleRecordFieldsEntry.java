@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.record.RecordFieldsNodeGen;
 public class TruffleRecordFieldsEntry extends RecordFieldsEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return RecordFieldsNodeGen.create(args.get(0).getExprNode());
+    return RecordFieldsNodeGen.create(args.get(0).exprNode());
   }
 }

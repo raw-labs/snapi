@@ -26,6 +26,6 @@ public class TruffleBuildCollectionEntry extends BuildCollectionEntry
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     return new CollectionBuildNode(
-        args.stream().map(TruffleArg::getExprNode).toArray(ExpressionNode[]::new));
+        args.stream().map(TruffleArg::exprNode).toArray(ExpressionNode[]::new));
   }
 }

@@ -27,9 +27,9 @@ public class TruffleExistsCollectionEntry extends ExistsCollectionEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    FunType funType = (FunType) args.get(1).getType();
+    FunType funType = (FunType) args.get(1).type();
 
     return CollectionExistsNodeGen.create(
-        args.get(0).getExprNode(), args.get(1).getExprNode(), (Rql2TypeWithProperties) funType.r());
+        args.get(0).exprNode(), args.get(1).exprNode(), (Rql2TypeWithProperties) funType.r());
   }
 }

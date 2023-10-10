@@ -26,6 +26,6 @@ public class TruffleUnionCollectionEntry extends UnionCollectionEntry
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     return new CollectionUnionNode(
-        args.stream().map(TruffleArg::getExprNode).toArray(ExpressionNode[]::new));
+        args.stream().map(TruffleArg::exprNode).toArray(ExpressionNode[]::new));
   }
 }

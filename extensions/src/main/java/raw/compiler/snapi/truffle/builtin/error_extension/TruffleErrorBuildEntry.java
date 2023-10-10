@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.tryable.TryableFailureNodeGen;
 public class TruffleErrorBuildEntry extends ErrorBuildEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return TryableFailureNodeGen.create(args.get(0).getExprNode());
+    return TryableFailureNodeGen.create(args.get(0).exprNode());
   }
 }

@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionZipNode
 public class TruffleZipCollectionEntry extends ZipCollectionEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return CollectionZipNodeGen.create(args.get(0).getExprNode(), args.get(1).getExprNode());
+    return CollectionZipNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

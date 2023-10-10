@@ -25,6 +25,6 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListFirstNodeGen;
 public class TruffleFirstListEntry extends FirstListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ListFirstNodeGen.create(args.get(0).getExprNode(), (Rql2Type) type);
+    return ListFirstNodeGen.create(args.get(0).exprNode(), (Rql2Type) type);
   }
 }

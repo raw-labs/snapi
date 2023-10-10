@@ -37,7 +37,7 @@ public class TruffleRecordRemoveFieldEntry extends RecordRemoveFieldEntry
             .map(Rql2AttrType::idn)
             .distinct()
             .toList();
-    Rql2RecordType original = (Rql2RecordType) args.get(0).getType();
+    Rql2RecordType original = (Rql2RecordType) args.get(0).type();
     String[] originalFieldNames =
         JavaConverters.asJavaCollection(original.atts()).stream()
             .map(a -> (Rql2AttrType) a)
@@ -49,6 +49,6 @@ public class TruffleRecordRemoveFieldEntry extends RecordRemoveFieldEntry
             .filter(a -> !finalFieldNames.contains(a))
             .findFirst()
             .orElseThrow();
-    return RecordRemoveFieldNodeGen.create(args.get(0).getExprNode(), new StringNode(f));
+    return RecordRemoveFieldNodeGen.create(args.get(0).exprNode(), new StringNode(f));
   }
 }

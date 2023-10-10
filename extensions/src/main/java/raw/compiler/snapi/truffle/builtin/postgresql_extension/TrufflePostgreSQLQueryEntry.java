@@ -32,7 +32,7 @@ public class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry
     implements TruffleEntryExtension, WithJdbcArgs {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode db = args.get(0).getExprNode();
+    ExpressionNode db = args.get(0).exprNode();
 
     String[] allKeys = new String[] {"db-host", "db-port", "db-username", "db-password"};
     ExpressionNode[] allValues =
@@ -53,14 +53,14 @@ public class TrufflePostgreSQLQueryEntry extends PostgreSQLQueryEntry
     Rql2TypeWithProperties[] types =
         args.stream()
             .skip(1)
-            .filter(a -> a.getIdentifier() != null)
-            .map(a -> (Rql2TypeWithProperties) a.getType())
+            .filter(a -> a.identifier() != null)
+            .map(a -> (Rql2TypeWithProperties) a.type())
             .toArray(Rql2TypeWithProperties[]::new);
 
     LocationBuildNode location =
         new LocationBuildNode(new PlusNode(new StringNode("pgsql:"), db), keys, values, types);
 
     return Jdbc.query(
-        location, args.get(1).getExprNode(), type, new MySQLExceptionHandler(), rawLanguage);
+        location, args.get(1).exprNode(), type, new MySQLExceptionHandler(), rawLanguage);
   }
 }

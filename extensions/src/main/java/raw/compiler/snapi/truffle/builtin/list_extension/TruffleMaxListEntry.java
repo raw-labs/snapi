@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListMaxNodeGen;
 public class TruffleMaxListEntry extends MaxListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ListMaxNodeGen.create(args.get(0).getExprNode());
+    return ListMaxNodeGen.create(args.get(0).exprNode());
   }
 }

@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.numeric.byte_package.ByteFrom
 public class TruffleByteFromEntry extends ByteFromEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ByteFromNodeGen.create(args.get(0).getExprNode());
+    return ByteFromNodeGen.create(args.get(0).exprNode());
   }
 }

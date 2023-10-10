@@ -21,29 +21,29 @@ import raw.runtime.truffle.ExpressionNode;
 public interface WithArgs {
   default Optional<ExpressionNode> arg(List<TruffleArg> args, String kw) {
     return args.stream()
-        .filter(a -> a.getIdentifier() != null && a.getIdentifier().contains(kw))
-        .map(TruffleArg::getExprNode)
+        .filter(a -> a.identifier() != null && a.identifier().contains(kw))
+        .map(TruffleArg::exprNode)
         .findFirst();
   }
 
   default ExpressionNode[] mandatoryArgs(List<TruffleArg> args) {
     return args.stream()
-        .filter(a -> a.getIdentifier() == null)
-        .map(TruffleArg::getExprNode)
+        .filter(a -> a.identifier() == null)
+        .map(TruffleArg::exprNode)
         .toArray(ExpressionNode[]::new);
   }
 
   default ExpressionNode[] optionalArgs(List<TruffleArg> args) {
     return args.stream()
-        .filter(a -> a.getIdentifier() != null)
-        .map(TruffleArg::getExprNode)
+        .filter(a -> a.identifier() != null)
+        .map(TruffleArg::exprNode)
         .toArray(ExpressionNode[]::new);
   }
 
   default Rql2TypeWithProperties[] optionalArgsTypes(List<TruffleArg> args) {
     return args.stream()
-        .filter(a -> a.getIdentifier() != null)
-        .map(a -> (Rql2TypeWithProperties) a.getType())
+        .filter(a -> a.identifier() != null)
+        .map(a -> (Rql2TypeWithProperties) a.type())
         .toArray(Rql2TypeWithProperties[]::new);
   }
 }

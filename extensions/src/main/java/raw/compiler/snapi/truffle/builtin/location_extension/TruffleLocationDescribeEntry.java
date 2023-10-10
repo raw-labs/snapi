@@ -28,10 +28,10 @@ public class TruffleLocationDescribeEntry extends LocationDescribeEntry
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode sampleSize =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().contains("sampleSize"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().contains("sampleSize"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode(Integer.toString(Integer.MIN_VALUE)));
-    return LocationDescribeNodeGen.create(args.get(0).getExprNode(), sampleSize);
+    return LocationDescribeNodeGen.create(args.get(0).exprNode(), sampleSize);
   }
 }

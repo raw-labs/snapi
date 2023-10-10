@@ -25,12 +25,12 @@ import raw.runtime.truffle.ast.expressions.literals.LongNode;
 public class TruffleLongRangeEntry extends LongRangeEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode start = args.get(0).getExprNode();
-    ExpressionNode end = args.get(1).getExprNode();
+    ExpressionNode start = args.get(0).exprNode();
+    ExpressionNode end = args.get(1).exprNode();
     ExpressionNode step =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("step"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("step"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new LongNode("1"));
     return LongRangeNodeGen.create(start, end, step);

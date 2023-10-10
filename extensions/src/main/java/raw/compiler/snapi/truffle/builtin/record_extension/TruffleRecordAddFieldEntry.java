@@ -30,7 +30,7 @@ public class TruffleRecordAddFieldEntry extends RecordAddFieldEntry
     Rql2RecordType recordType = (Rql2RecordType) type;
     String f = recordType.atts().last().idn();
     StringNode fieldName = new StringNode(f);
-    ExpressionNode value = args.get(1).getExprNode();
-    return RecordAddFieldNodeGen.create(args.get(0).getExprNode(), fieldName, value);
+    ExpressionNode value = args.get(1).exprNode();
+    return RecordAddFieldNodeGen.create(args.get(0).exprNode(), fieldName, value);
   }
 }

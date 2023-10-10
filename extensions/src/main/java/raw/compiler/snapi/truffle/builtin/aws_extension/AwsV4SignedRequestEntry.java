@@ -33,38 +33,38 @@ import scala.collection.immutable.Vector;
 public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode key = args.get(0).getExprNode();
-    ExpressionNode secretKey = args.get(1).getExprNode();
-    ExpressionNode service = args.get(2).getExprNode();
+    ExpressionNode key = args.get(0).exprNode();
+    ExpressionNode secretKey = args.get(1).exprNode();
+    ExpressionNode service = args.get(2).exprNode();
 
     Optional<ExpressionNode> maybeRegion =
         args.stream()
             .filter(
-                (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("region"))
-            .map(TruffleArg::getExprNode)
+                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("region"))
+            .map(TruffleArg::exprNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeSessionToken =
         args.stream()
             .filter(
                 (TruffleArg a) ->
-                    a.getIdentifier() != null && a.getIdentifier().equals("sessionToken"))
-            .map(TruffleArg::getExprNode)
+                    a.identifier() != null && a.identifier().equals("sessionToken"))
+            .map(TruffleArg::exprNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeMethod =
         args.stream()
             .filter(
-                (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("method"))
-            .map(TruffleArg::getExprNode)
+                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("method"))
+            .map(TruffleArg::exprNode)
             .findFirst();
 
     ExpressionNode method = maybeMethod.orElse(new StringNode("GET"));
 
     Optional<ExpressionNode> maybeHost =
         args.stream()
-            .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("host"))
-            .map(TruffleArg::getExprNode)
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("host"))
+            .map(TruffleArg::exprNode)
             .findFirst();
 
     ExpressionNode host =
@@ -80,8 +80,8 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
 
     ExpressionNode path =
         args.stream()
-            .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("path"))
-            .map(TruffleArg::getExprNode)
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("path"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new StringNode("/"));
 
@@ -89,15 +89,15 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
         args.stream()
             .filter(
                 (TruffleArg a) ->
-                    a.getIdentifier() != null && a.getIdentifier().equals("bodyString"))
-            .map(TruffleArg::getExprNode)
+                    a.identifier() != null && a.identifier().equals("bodyString"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new StringNode(""));
 
     ExpressionNode urlParams =
         args.stream()
-            .filter((TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("args"))
-            .map(TruffleArg::getExprNode)
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("args"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(
                 new ListBuildNode(
@@ -109,8 +109,8 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
     ExpressionNode headers =
         args.stream()
             .filter(
-                (TruffleArg a) -> a.getIdentifier() != null && a.getIdentifier().equals("headers"))
-            .map(TruffleArg::getExprNode)
+                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("headers"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(
                 new ListBuildNode(

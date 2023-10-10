@@ -49,8 +49,8 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
                 .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
     return ListGroupByNodeGen.create(
-        args.get(0).getExprNode(),
-        args.get(1).getExprNode(),
+        args.get(0).exprNode(),
+        args.get(1).exprNode(),
         keyType,
         (Rql2TypeWithProperties) groupType.innerType());
   }

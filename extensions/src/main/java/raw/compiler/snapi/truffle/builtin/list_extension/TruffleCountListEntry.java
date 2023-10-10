@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListCountNodeGen;
 public class TruffleCountListEntry extends CountListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ListCountNodeGen.create(args.get(0).getExprNode());
+    return ListCountNodeGen.create(args.get(0).exprNode());
   }
 }

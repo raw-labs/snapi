@@ -23,6 +23,6 @@ import raw.runtime.truffle.ast.expressions.builtin.numeric.short_package.ShortFr
 
 public class TruffleShortFromEntry extends ShortFromEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ShortFromNodeGen.create(args.get(0).getExprNode());
+    return ShortFromNodeGen.create(args.get(0).exprNode());
   }
 }

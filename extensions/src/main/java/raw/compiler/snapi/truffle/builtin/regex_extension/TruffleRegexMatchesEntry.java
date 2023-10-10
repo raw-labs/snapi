@@ -23,6 +23,6 @@ import raw.runtime.truffle.ast.expressions.builtin.regex_package.RegexMatchesNod
 
 public class TruffleRegexMatchesEntry extends RegexMatchesEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return RegexMatchesNodeGen.create(args.get(0).getExprNode(), args.get(1).getExprNode());
+    return RegexMatchesNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

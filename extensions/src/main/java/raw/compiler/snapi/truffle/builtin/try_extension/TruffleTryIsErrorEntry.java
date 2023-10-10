@@ -23,6 +23,6 @@ import raw.runtime.truffle.ast.expressions.tryable.TryableIsFailureNodeGen;
 
 public class TruffleTryIsErrorEntry extends TryIsErrorEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return TryableIsFailureNodeGen.create(args.get(0).getExprNode());
+    return TryableIsFailureNodeGen.create(args.get(0).exprNode());
   }
 }

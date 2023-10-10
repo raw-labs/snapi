@@ -23,6 +23,6 @@ import raw.runtime.truffle.ast.expressions.builtin.string_package.StringFromNode
 
 public class TruffleStringFromEntry extends StringFromEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return StringFromNodeGen.create(args.get(0).getExprNode());
+    return StringFromNodeGen.create(args.get(0).exprNode());
   }
 }

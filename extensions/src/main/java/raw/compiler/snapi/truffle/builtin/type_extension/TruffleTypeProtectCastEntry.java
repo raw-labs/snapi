@@ -22,7 +22,6 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.type_package.TypeProtectCastOptionNode;
 import raw.runtime.truffle.ast.expressions.builtin.type_package.TypeProtectCastTryableNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import scala.collection.JavaConverters;
 
 import java.util.HashSet;
@@ -32,11 +31,11 @@ import java.util.Set;
 public class TruffleTypeProtectCastEntry extends TypeProtectCastEntry
     implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpType expSourceType = (ExpType) args.get(0).getType();
-    ExpType expTargetType = (ExpType) args.get(1).getType();
+    ExpType expSourceType = (ExpType) args.get(0).type();
+    ExpType expTargetType = (ExpType) args.get(1).type();
     Type sourceType = expSourceType.t();
     Type targetType = expTargetType.t();
-    ExpressionNode e = args.get(2).getExprNode();
+    ExpressionNode e = args.get(2).exprNode();
     Set<Rql2TypeProperty> extraProps = extraProps(targetType, sourceType);
     if (extraProps.equals(Set.of(new Rql2IsTryableTypeProperty()))) {
       return new TypeProtectCastTryableNode(e);

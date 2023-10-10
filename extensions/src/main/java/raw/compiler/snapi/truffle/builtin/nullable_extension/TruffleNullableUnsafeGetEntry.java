@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.option.OptionUnsafeGetNodeGen;
 public class TruffleNullableUnsafeGetEntry extends NullableUnsafeGetEntry
     implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return OptionUnsafeGetNodeGen.create(args.get(0).getExprNode());
+    return OptionUnsafeGetNodeGen.create(args.get(0).exprNode());
   }
 }

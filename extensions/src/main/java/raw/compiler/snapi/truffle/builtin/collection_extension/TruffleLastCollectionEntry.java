@@ -25,6 +25,6 @@ public class TruffleLastCollectionEntry extends LastCollectionEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return CollectionLastNodeGen.create(args.get(0).getExprNode());
+    return CollectionLastNodeGen.create(args.get(0).exprNode());
   }
 }

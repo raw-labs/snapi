@@ -28,25 +28,25 @@ public class TruffleMkStringCollectionEntry extends MkStringCollectionEntry
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode start =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().contains("start"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().contains("start"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new StringNode(""));
 
     ExpressionNode sep =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().contains("sep"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().contains("sep"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new StringNode(""));
 
     ExpressionNode end =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().contains("end"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().contains("end"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new StringNode(""));
 
-    return CollectionMkStringNodeGen.create(args.get(0).getExprNode(), start, sep, end);
+    return CollectionMkStringNodeGen.create(args.get(0).exprNode(), start, sep, end);
   }
 }

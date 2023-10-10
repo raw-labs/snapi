@@ -28,6 +28,6 @@ public class TruffleDistinctCollectionEntry extends DistinctCollectionEntry
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     return CollectionDistinctNodeGen.create(
-        args.get(0).getExprNode(), (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType());
+        args.get(0).exprNode(), (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType());
   }
 }

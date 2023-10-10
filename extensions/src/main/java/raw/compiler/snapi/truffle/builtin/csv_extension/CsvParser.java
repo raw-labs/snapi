@@ -49,8 +49,8 @@ public class CsvParser {
 
   private Optional<ExpressionNode> arg(String kw) {
     return args.stream()
-        .filter(a -> a.getIdentifier() != null && a.getIdentifier().contains(kw))
-        .map(TruffleArg::getExprNode)
+        .filter(a -> a.identifier() != null && a.identifier().contains(kw))
+        .map(TruffleArg::exprNode)
         .findFirst();
   }
 

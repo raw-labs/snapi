@@ -27,6 +27,6 @@ public class TruffleFromListEntry extends FromListEntry implements TruffleEntryE
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     Rql2ListType rql2ListType = (Rql2ListType) type;
-    return ListFromNodeGen.create(args.get(0).getExprNode(), (Rql2Type) rql2ListType.innerType());
+    return ListFromNodeGen.create(args.get(0).exprNode(), (Rql2Type) rql2ListType.innerType());
   }
 }

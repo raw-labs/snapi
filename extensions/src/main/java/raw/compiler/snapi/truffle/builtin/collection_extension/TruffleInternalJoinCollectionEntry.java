@@ -32,14 +32,14 @@ public class TruffleInternalJoinCollectionEntry extends InternalJoinCollectionEn
     TruffleArg right = args.get(1);
     TruffleArg reshape = args.get(2);
     TruffleArg predicate = args.get(3);
-    Rql2IterableType rql2IterableType = (Rql2IterableType) right.getType();
+    Rql2IterableType rql2IterableType = (Rql2IterableType) right.type();
     Rql2TypeWithProperties rightType = (Rql2TypeWithProperties) rql2IterableType.innerType();
-    boolean reshapeBeforePredicate = ((FunType) predicate.getType()).ms().size() == 1;
+    boolean reshapeBeforePredicate = ((FunType) predicate.type()).ms().size() == 1;
     return CollectionJoinNodeGen.create(
-        left.getExprNode(),
-        right.getExprNode(),
-        reshape.getExprNode(),
-        predicate.getExprNode(),
+        left.exprNode(),
+        right.exprNode(),
+        reshape.exprNode(),
+        predicate.exprNode(),
         rightType,
         reshapeBeforePredicate);
   }

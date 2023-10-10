@@ -25,6 +25,6 @@ import raw.runtime.truffle.ast.expressions.literals.ZeroedConstNode;
 public class TruffleTypeEmptyEntry extends TypeEmptyEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return new ZeroedConstNode((Rql2Type) args.getFirst().getType());
+    return new ZeroedConstNode((Rql2Type) args.getFirst().type());
   }
 }

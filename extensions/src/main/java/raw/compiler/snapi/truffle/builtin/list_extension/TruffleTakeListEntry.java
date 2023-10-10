@@ -28,6 +28,6 @@ public class TruffleTakeListEntry extends TakeListEntry implements TruffleEntryE
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     Rql2ListType listType = (Rql2ListType) type;
     return ListTakeNodeGen.create(
-        args.get(0).getExprNode(), args.get(1).getExprNode(), (Rql2Type) listType.innerType());
+        args.get(0).exprNode(), args.get(1).exprNode(), (Rql2Type) listType.innerType());
   }
 }

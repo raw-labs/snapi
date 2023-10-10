@@ -28,7 +28,7 @@ public class TrufflePrintJsonEntry extends PrintJsonEntry implements TruffleEntr
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     JsonWriter jsonWriter = new JsonWriter();
     return JsonPrintNodeGen.create(
-        args.get(0).getExprNode(),
-        jsonWriter.recurse((Rql2TypeWithProperties) args.get(0).getType(), rawLanguage));
+        args.get(0).exprNode(),
+        jsonWriter.recurse((Rql2TypeWithProperties) args.get(0).type(), rawLanguage));
   }
 }

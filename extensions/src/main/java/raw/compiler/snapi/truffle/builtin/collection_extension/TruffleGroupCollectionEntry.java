@@ -56,6 +56,6 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
     Rql2TypeWithProperties valueType = (Rql2TypeWithProperties) iterableValueType.innerType();
 
     return CollectionGroupByNodeGen.create(
-        args.get(0).getExprNode(), args.get(1).getExprNode(), keyType, valueType);
+        args.get(0).exprNode(), args.get(1).exprNode(), keyType, valueType);
   }
 }

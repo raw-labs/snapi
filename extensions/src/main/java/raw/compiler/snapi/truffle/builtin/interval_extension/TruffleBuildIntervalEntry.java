@@ -27,57 +27,57 @@ public class TruffleBuildIntervalEntry extends BuildIntervalEntry implements Tru
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode y =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("years"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("years"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 
     ExpressionNode m =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("months"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("months"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 
     ExpressionNode w =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("weeks"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("weeks"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 
     ExpressionNode d =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("days"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("days"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 
     ExpressionNode h =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("hours"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("hours"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 
     ExpressionNode mi =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("minutes"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("minutes"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 
     ExpressionNode s =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("seconds"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("seconds"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 
     ExpressionNode ms =
         args.stream()
-            .filter(a -> a.getIdentifier() != null && a.getIdentifier().equals("millis"))
-            .map(TruffleArg::getExprNode)
+            .filter(a -> a.identifier() != null && a.identifier().equals("millis"))
+            .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new IntNode("0"));
 

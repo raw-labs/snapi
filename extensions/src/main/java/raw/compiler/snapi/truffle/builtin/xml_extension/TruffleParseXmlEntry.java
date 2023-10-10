@@ -34,7 +34,7 @@ import java.util.List;
 public class TruffleParseXmlEntry extends ParseXmlEntry implements TruffleEntryExtension {
 
   private static ExpressionNode getArg(List<TruffleArg> namedArgs, String identifier, ExpressionNode defExp) {
-    return namedArgs.stream().filter(arg -> arg.getIdentifier() != null && arg.getIdentifier().equals(identifier)).map(TruffleArg::getExprNode).findFirst().orElse(defExp);
+    return namedArgs.stream().filter(arg -> arg.identifier() != null && arg.identifier().equals(identifier)).map(TruffleArg::exprNode).findFirst().orElse(defExp);
   }
 
   private static final ExpressionNode defaultEncoding = new StringNode("utf-8");
@@ -44,8 +44,8 @@ public class TruffleParseXmlEntry extends ParseXmlEntry implements TruffleEntryE
 
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    List<TruffleArg> unnamedArgs = args.stream().filter(arg -> arg.getIdentifier() == null).toList();
-    List<TruffleArg> namedArgs = args.stream().filter(arg -> arg.getIdentifier() != null).toList();
+    List<TruffleArg> unnamedArgs = args.stream().filter(arg -> arg.identifier() == null).toList();
+    List<TruffleArg> namedArgs = args.stream().filter(arg -> arg.identifier() != null).toList();
     ExpressionNode encoding = getArg(namedArgs, "encoding", defaultEncoding);
     ExpressionNode timeFormatExp = getArg(namedArgs, "timeFormat", defaultTimeFormat);
     ExpressionNode dateFormatExp = getArg(namedArgs, "dateFormat", defaultDateFormat);
@@ -54,7 +54,7 @@ public class TruffleParseXmlEntry extends ParseXmlEntry implements TruffleEntryE
     return switch (type) {
       case Rql2IterableType iterableType -> {
         ExpressionNode parseNode = new XmlParseCollectionNode(
-            unnamedArgs.get(0).getExprNode(),
+            unnamedArgs.get(0).exprNode(),
             dateFormatExp,
             timeFormatExp,
             timestampFormatExp,
@@ -69,7 +69,7 @@ public class TruffleParseXmlEntry extends ParseXmlEntry implements TruffleEntryE
       }
       case Rql2ListType listType -> {
         ExpressionNode parseNode = new XmlParseCollectionNode(
-            unnamedArgs.get(0).getExprNode(),
+            unnamedArgs.get(0).exprNode(),
             dateFormatExp,
             timeFormatExp,
             timestampFormatExp,
@@ -84,7 +84,7 @@ public class TruffleParseXmlEntry extends ParseXmlEntry implements TruffleEntryE
       }
       case Rql2TypeWithProperties t -> {
         ExpressionNode parseNode = new XmlParseValueNode(
-            unnamedArgs.get(0).getExprNode(),
+            unnamedArgs.get(0).exprNode(),
             dateFormatExp,
             timeFormatExp,
             timestampFormatExp,

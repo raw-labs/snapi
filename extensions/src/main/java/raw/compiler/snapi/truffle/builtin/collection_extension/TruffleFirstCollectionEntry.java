@@ -25,6 +25,6 @@ public class TruffleFirstCollectionEntry extends FirstCollectionEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return CollectionFirstNodeGen.create(args.get(0).getExprNode());
+    return CollectionFirstNodeGen.create(args.get(0).exprNode());
   }
 }

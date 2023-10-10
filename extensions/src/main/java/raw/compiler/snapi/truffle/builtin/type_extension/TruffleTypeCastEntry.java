@@ -22,6 +22,6 @@ import raw.runtime.truffle.RawLanguage;
 
 public class TruffleTypeCastEntry extends TypeCastEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return args.get(1).getExprNode();
+    return args.get(1).exprNode();
   }
 }

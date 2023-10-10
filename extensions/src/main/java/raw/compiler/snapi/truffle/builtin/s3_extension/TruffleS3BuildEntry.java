@@ -37,21 +37,21 @@ public class TruffleS3BuildEntry extends S3BuildEntry implements TruffleEntryExt
       };
 
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode url = args.get(0).getExprNode();
+    ExpressionNode url = args.get(0).exprNode();
     String[] keys =
         args.stream()
             .skip(1)
-            .map(TruffleArg::getIdentifier)
+            .map(TruffleArg::identifier)
             .filter(Objects::nonNull)
             .map(keyMap::get)
             .toArray(String[]::new);
     ExpressionNode[] values =
-        args.stream().skip(1).map(TruffleArg::getExprNode).toArray(ExpressionNode[]::new);
+        args.stream().skip(1).map(TruffleArg::exprNode).toArray(ExpressionNode[]::new);
     Rql2TypeWithProperties[] types =
         args.stream()
             .skip(1)
-            .filter(arg -> arg.getIdentifier() != null)
-            .map(arg -> (Rql2TypeWithProperties) arg.getType())
+            .filter(arg -> arg.identifier() != null)
+            .map(arg -> (Rql2TypeWithProperties) arg.type())
             .toArray(Rql2TypeWithProperties[]::new);
     return new LocationBuildNode(url, keys, values, types);
   }

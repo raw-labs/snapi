@@ -38,13 +38,13 @@ public class TruffleTimestampRangeEntry extends TimestampRangeEntry
           new IntNode("0"));
 
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    ExpressionNode start = args.get(0).getExprNode();
-    ExpressionNode end = args.get(1).getExprNode();
+    ExpressionNode start = args.get(0).exprNode();
+    ExpressionNode end = args.get(1).exprNode();
     ExpressionNode step =
         args.stream()
-            .filter(arg -> arg.getIdentifier() != null && arg.getIdentifier().contains("step"))
+            .filter(arg -> arg.identifier() != null && arg.identifier().contains("step"))
             .findFirst()
-            .map(TruffleArg::getExprNode)
+            .map(TruffleArg::exprNode)
             .orElseGet(() -> defaultStep);
     return TimestampRangeNodeGen.create(start, end, step);
   }

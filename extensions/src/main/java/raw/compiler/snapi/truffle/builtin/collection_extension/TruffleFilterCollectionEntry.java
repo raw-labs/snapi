@@ -25,6 +25,6 @@ public class TruffleFilterCollectionEntry extends FilterCollectionEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return CollectionFilterNodeGen.create(args.get(0).getExprNode(), args.get(1).getExprNode());
+    return CollectionFilterNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

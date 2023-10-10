@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.builtin.numeric.int_package.IntFromNo
 public class TruffleIntFromEntry extends IntFromEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return IntFromNodeGen.create(args.get(0).getExprNode());
+    return IntFromNodeGen.create(args.get(0).exprNode());
   }
 }
