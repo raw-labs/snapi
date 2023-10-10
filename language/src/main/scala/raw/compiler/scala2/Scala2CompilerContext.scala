@@ -26,7 +26,8 @@ class Scala2CompilerContext(
     language: String,
     user: AuthenticatedUser,
     sourceContext: SourceContext,
-    inferrer: InferrerService
+    inferrer: InferrerService,
+    val scala2JvmCompiler: Scala2JvmCompiler
 )(implicit settings: RawSettings)
     extends CompilerContext(language, user, inferrer, sourceContext) {
 
@@ -35,10 +36,5 @@ class Scala2CompilerContext(
   val evalCtorType = MethodType.methodType(classOf[Unit], classOf[RuntimeContext])
 
   val executeCtorType = MethodType.methodType(classOf[Unit], classOf[OutputStream], classOf[RuntimeContext])
-
-  private val mutableClassLoader = new RawMutableURLClassLoader(getClass.getClassLoader)
-  private val rawClassLoader = new RawDelegatingURLClassLoader(mutableClassLoader)
-
-  lazy val scala2JvmCompiler = new Scala2JvmCompiler(mutableClassLoader, rawClassLoader)
 
 }

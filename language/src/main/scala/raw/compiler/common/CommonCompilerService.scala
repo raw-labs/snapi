@@ -16,7 +16,8 @@ import raw.compiler.api._
 import raw.compiler._
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.BaseNode
-import raw.compiler.scala2.Scala2CompilerContext
+import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
+import raw.compiler.scala2.{Scala2CompilerContext, Scala2JvmCompiler}
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
@@ -33,6 +34,14 @@ abstract class CommonCompilerService(language: String)(implicit settings: RawSet
   // Map of users to compilers.
   private val compilerCaches = new RawConcurrentHashMap[(AuthenticatedUser, String), Compiler]
 
+  private val scala2JvmCompiler = language match {
+    case "rql2-truffle" => null
+    case "rql2-scala" =>
+      val mutableClassLoader = new RawMutableURLClassLoader(getClass.getClassLoader)
+      val rawClassLoader = new RawDelegatingURLClassLoader(mutableClassLoader)
+      new Scala2JvmCompiler(mutableClassLoader, rawClassLoader)
+  }
+
   protected def getCompiler(user: AuthenticatedUser): Compiler = {
     compilerCaches.getOrElseUpdate((user, language), createCompiler(user, language))
   }
@@ -45,7 +54,7 @@ abstract class CommonCompilerService(language: String)(implicit settings: RawSet
     val inferrer = InferrerServiceProvider()
 
     // Initialize compiler context
-    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer)
+    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer, scala2JvmCompiler)
     try {
       // Initialize compiler. Default language, if not specified is 'rql2'.
       CommonCompilerProvider(language)(compilerContext)
