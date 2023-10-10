@@ -52,14 +52,14 @@ public class TruffleBinaryWriter {
       return new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode());
     } else if (type.props().contains(Rql2IsTryableTypeProperty.apply())) {
       Rql2StringType innerType =
-          (Rql2StringType) type.cloneAndAddProp(Rql2IsTryableTypeProperty.apply());
+          (Rql2StringType) type.cloneAndRemoveProp(Rql2IsTryableTypeProperty.apply());
       ProgramStatementNode innerWriter =
           TruffleBinaryWriter.getBinaryWriterNode(innerType, lang, frameDescriptor);
       return new ProgramStatementNode(
           lang, frameDescriptor, new TryableBinaryWriterNode(innerWriter));
     } else {
       Rql2StringType innerType =
-          (Rql2StringType) type.cloneAndAddProp(Rql2IsNullableTypeProperty.apply());
+          (Rql2StringType) type.cloneAndRemoveProp(Rql2IsNullableTypeProperty.apply());
       ProgramStatementNode innerWriter =
           TruffleBinaryWriter.getBinaryWriterNode(innerType, lang, frameDescriptor);
       return new ProgramStatementNode(
