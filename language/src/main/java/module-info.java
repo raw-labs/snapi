@@ -46,7 +46,7 @@ module raw.language {
   uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.compiler.rql2.api.EntryExtension;
 
-  exports raw.compiler.rql2ben.truffle.builtin;
+  exports raw.compiler.rql2output.truffle.builtin;
 
   provides raw.creds.api.CredentialsServiceBuilder with
       raw.creds.local.LocalCredentialsServiceBuilder;
