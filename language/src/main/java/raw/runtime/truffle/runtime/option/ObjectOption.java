@@ -16,10 +16,13 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
 
 import java.math.BigInteger;
 import java.time.Instant;
@@ -265,6 +268,35 @@ public final class ObjectOption implements TruffleObject {
   @ExportMessage
   ZoneId asTimeZone() throws UnsupportedMessageException {
     return interops.asTimeZone(value);
+  }
+
+  @ExportMessage
+  boolean hasMembers() {
+    return !isNull() && interops.hasMembers(value);
+  }
+
+  @ExportMessage
+  Object readMember(String name) throws UnsupportedMessageException, UnknownIdentifierException {
+    return interops.readMember(value, name);
+  }
+
+  @ExportMessage
+  Object getMembers(boolean includeInternal) throws UnsupportedMessageException {
+    return interops.getMembers(value, includeInternal);
+  }
+
+  @ExportMessage boolean isMemberReadable(String member) {
+    return interops.isMemberReadable(value, member);
+  }
+
+  @ExportMessage
+  boolean hasIterator() {
+    return !isNull() && interops.hasIterator(value);
+  }
+
+  @ExportMessage
+  Object getIterator() throws UnsupportedMessageException {
+    return interops.getIterator(value);
   }
 
 }

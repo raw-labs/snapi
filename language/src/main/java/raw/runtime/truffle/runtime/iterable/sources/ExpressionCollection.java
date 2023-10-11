@@ -38,8 +38,6 @@ so then I have a generator object
 @ExportLibrary(InteropLibrary.class)
 public final class ExpressionCollection implements TruffleObject {
 
-  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(3);
-
   private final Object[] values;
 
   public ExpressionCollection(Object[] values) {
@@ -60,6 +58,8 @@ public final class ExpressionCollection implements TruffleObject {
   boolean hasIterator() {
     return true;
   }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(3);
 
   @ExportMessage
   Object getIterator() {

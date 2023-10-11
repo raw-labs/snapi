@@ -16,6 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -237,4 +238,34 @@ byte asByte() throws UnsupportedMessageException {
   public Instant asInstant() throws UnsupportedMessageException {
     return interops.asInstant(successValue);
   }
+
+  @ExportMessage
+  boolean hasMembers() {
+    return isSuccess() && interops.hasMembers(successValue);
+  }
+
+  @ExportMessage
+  Object readMember(String name) throws UnsupportedMessageException, UnknownIdentifierException {
+    return interops.readMember(successValue, name);
+  }
+
+  @ExportMessage
+  Object getMembers(boolean includeInternal) throws UnsupportedMessageException {
+    return interops.getMembers(successValue, includeInternal);
+  }
+
+  @ExportMessage boolean isMemberReadable(String member) {
+    return interops.isMemberReadable(successValue, member);
+  }
+
+  @ExportMessage
+  boolean hasIterator() {
+    return isSuccess() && interops.hasIterator(successValue);
+  }
+
+  @ExportMessage
+  Object getIterator() throws UnsupportedMessageException {
+    return interops.getIterator(successValue);
+  }
+
 }

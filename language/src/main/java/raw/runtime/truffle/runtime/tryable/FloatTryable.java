@@ -115,7 +115,7 @@ public final class FloatTryable implements TruffleObject {
 
   @ExportMessage
   boolean fitsInFloat() {
-    return false;
+    return true;
   }
 
   @ExportMessage

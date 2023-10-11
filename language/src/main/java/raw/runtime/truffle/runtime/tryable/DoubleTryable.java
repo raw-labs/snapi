@@ -120,7 +120,7 @@ public final class DoubleTryable implements TruffleObject {
 
   @ExportMessage
   boolean fitsInDouble() {
-    return false;
+    return true;
   }
 
 
