@@ -13,12 +13,17 @@
 package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
+@ExportLibrary(InteropLibrary.class)
 public final class IntervalObject implements TruffleObject {
 
   private final int years;
@@ -242,5 +247,15 @@ public final class IntervalObject implements TruffleObject {
       result += ("T" + time);
     }
     return result;
+  }
+
+  @ExportMessage
+  boolean isDuration() {
+    return true;
+  }
+
+  @ExportMessage
+  Duration asDuration() {
+    return Duration.ofMillis(toMillis());
   }
 }

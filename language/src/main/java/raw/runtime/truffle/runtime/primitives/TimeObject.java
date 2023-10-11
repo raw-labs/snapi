@@ -14,9 +14,14 @@ package raw.runtime.truffle.runtime.primitives;
 
 import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.TIME_FORMATTER;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+
 import java.time.LocalTime;
 
+@ExportLibrary(InteropLibrary.class)
 public class TimeObject implements TruffleObject {
 
   private final LocalTime time;
@@ -32,4 +37,15 @@ public class TimeObject implements TruffleObject {
   public String toString() {
     return time.format(TIME_FORMATTER);
   }
+
+  @ExportMessage
+  public final boolean isTime() {
+    return true;
+  }
+
+  @ExportMessage
+  public final LocalTime asTime() {
+    return time;
+  }
+
 }

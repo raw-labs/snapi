@@ -12,11 +12,13 @@
 
 package raw.runtime.truffle.runtime.option;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 
 @ExportLibrary(OptionLibrary.class)
+@ExportLibrary(InteropLibrary.class)
 public final class BooleanOption implements TruffleObject {
 
   private boolean value;
@@ -51,5 +53,17 @@ public final class BooleanOption implements TruffleObject {
   @ExportMessage
   public boolean isDefined() {
     return isDefined;
+  }
+
+  @ExportMessage boolean isBoolean() {
+    return true;
+  }
+
+  @ExportMessage boolean isNull() {
+    return !isDefined;
+  }
+
+  @ExportMessage boolean asBoolean() {
+    return value;
   }
 }

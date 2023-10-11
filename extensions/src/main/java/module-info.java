@@ -46,8 +46,7 @@ module raw.language.extensions {
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleFromCollectionEntry,
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleGroupCollectionEntry,
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleInternalJoinCollectionEntry,
-      raw.compiler.snapi.truffle.builtin.collection_extension
-          .TruffleInternalEquiJoinCollectionEntry,
+      raw.compiler.snapi.truffle.builtin.collection_extension.TruffleInternalEquiJoinCollectionEntry,
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleUnionCollectionEntry,
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleExistsCollectionEntry,
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleZipCollectionEntry,
@@ -97,8 +96,7 @@ module raw.language.extensions {
       raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableIsNullEntry,
       raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableUnsafeGetEntry,
       raw.compiler.snapi.truffle.builtin.nullable_extension.TruffleNullableTransformEntry,
-      raw.compiler.snapi.truffle.builtin.nullable_tryable_extension
-          .TruffleFlatMapNullableTryableEntry,
+      raw.compiler.snapi.truffle.builtin.nullable_tryable_extension.TruffleFlatMapNullableTryableEntry,
       raw.compiler.snapi.truffle.builtin.oracle_extension.TruffleOracleQueryEntry,
       raw.compiler.snapi.truffle.builtin.postgresql_extension.TrufflePostgreSQLQueryEntry,
       raw.compiler.snapi.truffle.builtin.record_extension.TruffleRecordBuildEntry,
@@ -231,5 +229,10 @@ module raw.language.extensions {
       raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexMatchesEntry,
       raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexFirstMatchInEntry,
       raw.compiler.snapi.truffle.builtin.regex_extension.TruffleRegexGroupsEntry,
-      raw.compiler.snapi.truffle.builtin.s3_extension.TruffleS3BuildEntry;
+      raw.compiler.snapi.truffle.builtin.s3_extension.TruffleS3BuildEntry,
+      raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryFlatMapEntry,
+      raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsErrorEntry,
+      raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryUnsafeGetEntry,
+      raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryIsSuccessEntry,
+      raw.compiler.snapi.truffle.builtin.try_extension.TruffleTryTransformEntry;
 }

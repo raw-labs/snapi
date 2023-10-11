@@ -13,6 +13,7 @@
 package raw.runtime.truffle.runtime.list;
 
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -21,6 +22,7 @@ import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 @ExportLibrary(ListLibrary.class)
+@ExportLibrary(InteropLibrary.class)
 public class ObjectList implements TruffleObject {
   private final Object[] list;
 
@@ -68,4 +70,29 @@ public class ObjectList implements TruffleObject {
     Arrays.sort(result, compare::execute);
     return new ObjectList(result);
   }
+
+  @ExportMessage
+  boolean hasArrayElements() {
+    return true;
+  }
+
+  @ExportMessage
+  long getArraySize() {
+    return list.length;
+  }
+
+  @ExportMessage
+  boolean isArrayElementReadable(long index) {
+    return index >= 0 && index < list.length;
+  }
+
+  @ExportMessage
+  Object readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
+    int idx = (int) index;
+    if (!isElementReadable(idx)) {
+      throw new ArrayIndexOutOfBoundsException(idx);
+    }
+    return list[idx];
+  }
+
 }

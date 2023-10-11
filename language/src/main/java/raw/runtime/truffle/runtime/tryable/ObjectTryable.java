@@ -14,9 +14,7 @@ package raw.runtime.truffle.runtime.tryable;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -25,6 +23,8 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 import java.math.BigInteger;
+import java.nio.ByteOrder;
+import java.time.*;
 
 @ExportLibrary(TryableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
@@ -197,6 +197,148 @@ byte asByte() throws UnsupportedMessageException {
   @ExportMessage
   public RuntimeException throwException() {
     return new RuntimeException(failureValue);
+  }
+
+  @ExportMessage
+  public boolean isDate() {
+    return interops.isDate(successValue);
+  }
+
+  @ExportMessage
+  public LocalDate asDate() throws UnsupportedMessageException {
+    return interops.asDate(successValue);
+  }
+
+  @ExportMessage
+  public boolean isTime() {
+    return interops.isTime(successValue);
+  }
+
+  @ExportMessage
+  public LocalTime asTime() throws UnsupportedMessageException {
+    return interops.asTime(successValue);
+  }
+
+  @ExportMessage
+  public boolean isTimeZone() {
+    return interops.isTimeZone(successValue);
+  }
+
+  @ExportMessage
+  ZoneId asTimeZone() throws UnsupportedMessageException {
+    return interops.asTimeZone(successValue);
+  }
+
+  @ExportMessage
+  public Instant asInstant() throws UnsupportedMessageException {
+    return interops.asInstant(successValue);
+  }
+
+  @ExportMessage
+  boolean hasMembers() {
+    return isSuccess() && interops.hasMembers(successValue);
+  }
+
+  @ExportMessage
+  Object readMember(String name) throws UnsupportedMessageException, UnknownIdentifierException {
+    return interops.readMember(successValue, name);
+  }
+
+  @ExportMessage
+  Object getMembers(boolean includeInternal) throws UnsupportedMessageException {
+    return interops.getMembers(successValue, includeInternal);
+  }
+
+  @ExportMessage boolean isMemberReadable(String member) {
+    return interops.isMemberReadable(successValue, member);
+  }
+
+  @ExportMessage
+  boolean hasIterator() {
+    return isSuccess() && interops.hasIterator(successValue);
+  }
+
+  @ExportMessage
+  Object getIterator() throws UnsupportedMessageException {
+    return interops.getIterator(successValue);
+  }
+
+  @ExportMessage
+  boolean hasArrayElements() {
+    return isSuccess() && interops.hasArrayElements(successValue);
+  }
+
+  @ExportMessage
+  long getArraySize() throws UnsupportedMessageException {
+    return interops.getArraySize(successValue);
+  }
+
+  @ExportMessage
+  boolean isArrayElementReadable(long index) {
+    return isSuccess() && interops.isArrayElementReadable(successValue, index);
+  }
+
+  @ExportMessage
+  Object readArrayElement(long index) throws InvalidArrayIndexException, UnsupportedMessageException {
+    return interops.readArrayElement(successValue, index);
+  }
+
+  @ExportMessage
+  boolean isDuration() {
+    return isSuccess() && interops.isDuration(successValue);
+  }
+
+  @ExportMessage
+  Duration asDuration() throws UnsupportedMessageException {
+    return interops.asDuration(successValue);
+  }
+
+  @ExportMessage
+  public boolean hasBufferElements() {
+    return isSuccess() && interops.hasBufferElements(successValue);
+  }
+
+  @ExportMessage
+  final long getBufferSize() throws UnsupportedMessageException {
+    return interops.getBufferSize(successValue);
+  }
+
+  @ExportMessage
+  final byte readBufferByte(long byteOffset) throws InvalidBufferOffsetException, UnsupportedMessageException {
+    return interops.readBufferByte(successValue, byteOffset);
+  }
+
+  @ExportMessage
+  final short readBufferShort(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferShort(successValue, order, byteOffset);
+  }
+
+  @ExportMessage
+  final int readBufferInt(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferInt(successValue, order, byteOffset);
+  }
+
+  @ExportMessage
+  final long readBufferLong(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferLong(successValue, order, byteOffset);
+  }
+
+  @ExportMessage
+  final float readBufferFloat(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferFloat(successValue, order, byteOffset);
+  }
+
+  @ExportMessage
+  final double readBufferDouble(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferDouble(successValue, order, byteOffset);
+  }
+
+  @ExportMessage boolean isBoolean() {
+    return isSuccess() && interops.isBoolean(successValue);
+  }
+
+  @ExportMessage boolean asBoolean() throws UnsupportedMessageException {
+    return interops.asBoolean(successValue);
   }
 
 }

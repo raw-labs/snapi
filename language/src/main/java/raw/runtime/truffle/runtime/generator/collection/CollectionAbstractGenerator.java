@@ -12,6 +12,10 @@
 
 package raw.runtime.truffle.runtime.generator.collection;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.StopIterationException;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -24,7 +28,8 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 // When either next or hasNext is called, the computeNext method is called
 // Then the result is stored in the next field until it is consumed by next
 @ExportLibrary(GeneratorLibrary.class)
-public class CollectionAbstractGenerator {
+@ExportLibrary(InteropLibrary.class)
+public class CollectionAbstractGenerator implements TruffleObject {
 
   private Object next = null;
 
@@ -89,5 +94,20 @@ public class CollectionAbstractGenerator {
       }
     }
     return true;
+  }
+
+  @ExportMessage
+  final boolean isIterator() {
+    return true;
+  }
+
+  @ExportMessage
+  final boolean hasIteratorNextElement(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) throws UnsupportedMessageException {
+    return hasNext(computeNextLibrary);
+  }
+
+  @ExportMessage
+  final Object getIteratorNextElement(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) throws UnsupportedMessageException, StopIterationException {
+    return next(computeNextLibrary);
   }
 }

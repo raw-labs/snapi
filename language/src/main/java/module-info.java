@@ -170,6 +170,7 @@ module raw.language {
   exports raw.compiler.rql2.errors;
   exports raw.compiler.scala2;
   exports raw.runtime;
+  exports raw.runtime.interpreter;
   exports raw.runtime.truffle;
   exports raw.runtime.truffle.boundary;
   exports raw.runtime.truffle.runtime.aggregation;
