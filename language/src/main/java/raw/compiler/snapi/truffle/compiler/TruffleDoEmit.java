@@ -29,6 +29,7 @@ import raw.compiler.rql2.source.*;
 import raw.compiler.rql2ben.truffle.builtin.CsvWriter;
 import raw.compiler.rql2ben.truffle.builtin.JsonWriter;
 import raw.compiler.rql2ben.truffle.builtin.TruffleBinaryWriter;
+import raw.runtime.Entrypoint;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
@@ -47,7 +48,7 @@ import scala.collection.JavaConverters;
 public class TruffleDoEmit {
   private final String WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending";
 
-  public TruffleEntrypoint doEmit(
+  public Entrypoint doEmit(
       SourceProgram program,
       RawLanguage language,
       raw.compiler.base.ProgramContext programContext) {

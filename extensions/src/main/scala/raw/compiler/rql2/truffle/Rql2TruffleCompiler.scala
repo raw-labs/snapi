@@ -29,9 +29,9 @@ import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2ben.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
-import raw.compiler.snapi.truffle.compiler.{SnapiTruffleEmitter, TruffleDoEmit}
+import raw.compiler.snapi.truffle.compiler.{SnapiTruffleEmitter, TruffleDoEmit, TruffleEntrypoint}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{CompilerException, ErrorMessage, base}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
@@ -57,16 +57,16 @@ import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
-import scala.collection.{mutable, JavaConverters}
+import scala.collection.{JavaConverters, mutable}
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
 }
 
-final case class TruffleEntrypoint(context: Context, node: RootNode, frameDescriptor: FrameDescriptor)
-    extends Entrypoint {
-  def target = node
-}
+//final case class TruffleEntrypoint(context: Context, node: RootNode, frameDescriptor: FrameDescriptor)
+//    extends Entrypoint {
+//  def target = node
+//}
 
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
@@ -88,8 +88,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     context.initialize(RawLanguage.ID)
     context.enter()
     try {
-      val TruffleEntrypoint(_, node, _) = doCompile(tree, null).asInstanceOf[TruffleEntrypoint]
-      val target = Truffle.getRuntime.createDirectCallNode(node.getCallTarget)
+      val entrypoint = doCompile(tree, null).asInstanceOf[TruffleEntrypoint]
+      val target = Truffle.getRuntime.createDirectCallNode(entrypoint.target().getCallTarget)
       val res = target.call()
       convertAnyToValue(res, tree.rootType.get)
     } finally {
