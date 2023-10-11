@@ -14,9 +14,14 @@ package raw.runtime.truffle.runtime.primitives;
 
 import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.DATE_FORMATTER;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+
 import java.time.LocalDate;
 
+@ExportLibrary(InteropLibrary.class)
 public class DateObject implements TruffleObject {
 
   private final LocalDate date;
@@ -31,5 +36,15 @@ public class DateObject implements TruffleObject {
 
   public String toString() {
     return date.format(DATE_FORMATTER);
+  }
+
+  @ExportMessage
+  public final boolean isDate() {
+    return true;
+  }
+
+  @ExportMessage
+  public final LocalDate asDate() {
+    return date;
   }
 }

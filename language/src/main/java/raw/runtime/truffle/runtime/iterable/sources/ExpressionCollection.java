@@ -12,8 +12,11 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -32,7 +35,10 @@ so then I have a generator object
  */
 
 @ExportLibrary(IterableLibrary.class)
-public final class ExpressionCollection {
+@ExportLibrary(InteropLibrary.class)
+public final class ExpressionCollection implements TruffleObject {
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(3);
 
   private final Object[] values;
 
@@ -48,5 +54,17 @@ public final class ExpressionCollection {
   @ExportMessage
   Object getGenerator() {
     return new CollectionAbstractGenerator(new ExpressionComputeNext(values));
+  }
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  @ExportMessage
+  Object getIterator() {
+    Object generator = getGenerator();
+    generatorLibrary.init(generator);
+    return generator;
   }
 }

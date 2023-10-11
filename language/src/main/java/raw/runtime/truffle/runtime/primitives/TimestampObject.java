@@ -14,9 +14,15 @@ package raw.runtime.truffle.runtime.primitives;
 
 import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.TIMESTAMP_FORMATTER;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import java.time.LocalDateTime;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 
+import java.time.*;
+
+@ExportLibrary(InteropLibrary.class)
 public class TimestampObject implements TruffleObject {
 
   private final LocalDateTime timestamp;
@@ -32,4 +38,40 @@ public class TimestampObject implements TruffleObject {
   public String toString() {
     return timestamp.format(TIMESTAMP_FORMATTER);
   }
+
+  @ExportMessage
+  public boolean isTimeZone() {
+    return true;
+  }
+
+  @ExportMessage
+  public Instant asInstant() {
+    return timestamp.toInstant(java.time.ZoneOffset.UTC); // TODO: get the actual timezone
+  }
+
+  @ExportMessage
+  ZoneId asTimeZone() throws UnsupportedMessageException {
+    return ZoneId.of("UTC"); // TODO: get the actual timezone
+  }
+
+  @ExportMessage
+  final boolean isDate() {
+    return true;
+  }
+
+  @ExportMessage
+  final LocalDate asDate() throws UnsupportedMessageException {
+    return timestamp.toLocalDate();
+  }
+
+  @ExportMessage
+  final boolean isTime() {
+    return true;
+  }
+
+  @ExportMessage
+  final LocalTime asTime() throws UnsupportedMessageException {
+    return timestamp.toLocalTime();
+  }
+
 }

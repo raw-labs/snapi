@@ -22,6 +22,10 @@ import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.RawLanguage;
 
 import java.math.BigInteger;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 
 @ExportLibrary(OptionLibrary.class)
 @ExportLibrary(InteropLibrary.class)
@@ -228,5 +232,39 @@ public final class ObjectOption implements TruffleObject {
     return interops.asBigInteger(value);
   }
 
+  @ExportMessage
+  public boolean isDate() {
+    return interops.isDate(value);
+  }
+
+  @ExportMessage
+  public LocalDate asDate() throws UnsupportedMessageException {
+    return interops.asDate(value);
+  }
+
+  @ExportMessage
+  public boolean isTime() {
+    return interops.isTime(value);
+  }
+
+  @ExportMessage
+  public LocalTime asTime() throws UnsupportedMessageException {
+    return interops.asTime(value);
+  }
+
+  @ExportMessage
+  public boolean isTimeZone() {
+    return interops.isTimeZone(value);
+  }
+
+  @ExportMessage
+  public Instant asInstant() throws UnsupportedMessageException {
+    return interops.asInstant(value);
+  }
+
+  @ExportMessage
+  ZoneId asTimeZone() throws UnsupportedMessageException {
+    return interops.asTimeZone(value);
+  }
 
 }

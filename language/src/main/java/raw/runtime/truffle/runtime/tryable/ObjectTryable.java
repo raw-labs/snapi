@@ -25,6 +25,10 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 import java.math.BigInteger;
+import java.time.Instant;
+import java.time.LocalDate;
+import java.time.LocalTime;
+import java.time.ZoneId;
 
 @ExportLibrary(TryableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
@@ -199,4 +203,38 @@ byte asByte() throws UnsupportedMessageException {
     return new RuntimeException(failureValue);
   }
 
+  @ExportMessage
+  public boolean isDate() {
+    return interops.isDate(successValue);
+  }
+
+  @ExportMessage
+  public LocalDate asDate() throws UnsupportedMessageException {
+    return interops.asDate(successValue);
+  }
+
+  @ExportMessage
+  public boolean isTime() {
+    return interops.isTime(successValue);
+  }
+
+  @ExportMessage
+  public LocalTime asTime() throws UnsupportedMessageException {
+    return interops.asTime(successValue);
+  }
+
+  @ExportMessage
+  public boolean isTimeZone() {
+    return interops.isTimeZone(successValue);
+  }
+
+  @ExportMessage
+  ZoneId asTimeZone() throws UnsupportedMessageException {
+    return interops.asTimeZone(successValue);
+  }
+
+  @ExportMessage
+  public Instant asInstant() throws UnsupportedMessageException {
+    return interops.asInstant(successValue);
+  }
 }
