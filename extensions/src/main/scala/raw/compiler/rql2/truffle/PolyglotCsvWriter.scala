@@ -13,6 +13,7 @@
 package raw.compiler.rql2.truffle
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonGenerator, JsonParser}
+import com.fasterxml.jackson.dataformat.csv.CsvFactory
 import org.graalvm.polyglot.Value
 
 import java.io.{Closeable, IOException, OutputStream}
@@ -20,7 +21,7 @@ import java.time.format.DateTimeFormatter
 import java.time.LocalDate
 import scala.util.control.NonFatal
 
-class PolyglotJsonWriter(os: OutputStream) extends Closeable {
+class PolyglotCsvWriter(os: OutputStream) extends Closeable {
 
   private val dateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
   private val zonedDateFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-ddOOOO")
@@ -30,7 +31,7 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
   private val zonedDateTimeFormatter: DateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSSZ")
 
   private val gen: JsonGenerator = {
-    val factory = new JsonFactory()
+    val factory = new CsvFactory()
     factory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE) // Don't close file descriptors automatically
     factory.createGenerator(os, JsonEncoding.UTF8)
   }
@@ -68,17 +69,17 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
       } else if (v.isString) {
         gen.writeString(v.asString())
       } else if (v.isInstant) // Must take precedence over date or time, since instants are also dates/times.
-        {
-          val instant = v.asInstant()
-          val formatted =
-            if (v.isTimeZone) { // If it has a timezone indication, format as a zoned date time.
-              val zonedDateTime = instant.atZone(v.asTimeZone())
-              zonedDateTimeFormatter.format(zonedDateTime)
-            } else {
-              instantFormatter.format(instant)
-            }
-          gen.writeString(formatted)
-        } else if (v.isDate) {
+      {
+        val instant = v.asInstant()
+        val formatted =
+          if (v.isTimeZone) { // If it has a timezone indication, format as a zoned date time.
+            val zonedDateTime = instant.atZone(v.asTimeZone())
+            zonedDateTimeFormatter.format(zonedDateTime)
+          } else {
+            instantFormatter.format(instant)
+          }
+        gen.writeString(formatted)
+      } else if (v.isDate) {
         val date = v.asDate()
         val formatted =
           if (v.isTimeZone) {

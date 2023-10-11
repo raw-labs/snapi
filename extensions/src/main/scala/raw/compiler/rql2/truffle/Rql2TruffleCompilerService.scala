@@ -93,13 +93,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{
-  endsWithIgnoreCase,
-  withSuppressNonFatalException,
-  AuthenticatedUser,
-  RawConcurrentHashMap,
-  RawSettings
-}
+import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
 import scala.util.control.NonFatal
@@ -306,50 +300,46 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         case None => ctx.eval("rql", source)
       }
 
-//      if (v.isString) {
-//        logger.debug(s" ---> ${v.getMetaQualifiedName} ${v.getMetaSimpleName}")
-//      }
-
-      if (v.isException) {
-        logger.debug(s" ---> IS EXCEPTION!")
-        logger.debug(v.throwException().toString)
-      } else {
-        if (v.isNumber) {
-          logger.debug("v is number!")
-          if (v.fitsInInt()) {
-            logger.debug(v.asInt().toString)
-          }
-        } else if (v.isString) {
-          logger.debug("v is string!")
-          logger.debug(v.asString())
-        }
-      }
-//      v.isException
-//      v.throwException()
-
-      //logger.debug(v.toString)
-      logger.debug("isString: " + v.isString.toString)
-      logger.debug("isNumber: " + v.isNumber.toString)
-
-      // FIXME (msb): If we do the output format check client-side, this means we validate the tree twice.
-
       environment.options
-        .get("output-format") match {
-        case Some("csv") => ???
-        case Some("json") =>
-          val w = new PolyglotJsonWriter(outputStream)
+        .get("output-format")
+        .map(_.toLowerCase) match {
+        case Some("csv") =>
+          val w = new PolyglotCsvWriter(outputStream)
           try {
             w.writeValue(v)
-            outputStream.flush()
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
             withSuppressNonFatalException(w.close())
           }
-        case Some("text") => ???
-        case Some("binary") => ???
-        case None =>  ExecutionRuntimeFailure("unknown output format")
+        case Some("json") =>
+          val w = new PolyglotJsonWriter(outputStream)
+          try {
+            w.writeValue(v)
+            ExecutionSuccess
+          } catch {
+            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          } finally {
+            withSuppressNonFatalException(w.close())
+          }
+        case Some("text") =>
+          val w = new PolyglotTextWriter(outputStream)
+          try {
+            w.writeValue(v)
+            ExecutionSuccess
+          } catch {
+            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          }
+        case Some("binary") =>
+          val w = new PolyglotBinaryWriter(outputStream)
+          try {
+            w.writeValue(v)
+            ExecutionSuccess
+          } catch {
+            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          }
+        case None => ExecutionRuntimeFailure("unknown output format")
       }
     } finally {
       ctx.leave()
