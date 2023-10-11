@@ -1561,8 +1561,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     // LocationType (i.e. LocationDescription).
     val expected = addProps(report.t, report.extraProps)
     val program = {
-      if (lets.isEmpty) Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, e)))
-      else Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, Let(lets.to, e))))
+      if (lets.isEmpty) Rql2Program(Vector.empty, Some(TypePackageBuilder.StageCompilerCast(expected, e)))
+      else Rql2Program(Vector.empty, Some(TypePackageBuilder.StageCompilerCast(expected, Let(lets.to, e))))
     }
 
     programContext.getOrAddStagedCompilation(
