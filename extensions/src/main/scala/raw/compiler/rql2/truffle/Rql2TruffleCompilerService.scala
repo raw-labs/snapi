@@ -19,7 +19,16 @@ import raw.compiler.api._
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.runtime._
 import raw.runtime.truffle.RawLanguage
-import raw.compiler.{CompilerParserException, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, ParamDescription, ProgramDescription, base}
+import raw.compiler.{
+  base,
+  CompilerParserException,
+  DeclDescription,
+  ErrorMessage,
+  ErrorPosition,
+  ErrorRange,
+  ParamDescription,
+  ProgramDescription
+}
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
@@ -32,7 +41,13 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, saveToTemporaryFileNoDeleteOnExit, withSuppressNonFatalException}
+import raw.utils.{
+  saveToTemporaryFileNoDeleteOnExit,
+  withSuppressNonFatalException,
+  AuthenticatedUser,
+  RawConcurrentHashMap,
+  RawSettings
+}
 
 import java.io.{IOException, OutputStream}
 import java.time.{LocalDate, ZoneId}
@@ -211,15 +226,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val rawValue = convertPolyglotValueToRawValue(polyglotValue, tipe)
           EvalSuccess(rawValue)
         } catch {
-          case NonFatal(t) => EvalFailure(t.getMessage)
+          case NonFatal(t) => EvalRuntimeFailure(t.getMessage)
         }
     )
-    val x: PolyglotException = null
-    x.isGuestException
-      x.getGuestObject
-x.getCause
-
-
   }
 
   private def convertPolyglotValueToRawValue(v: Value, t: Type): raw.runtime.interpreter.Value = {

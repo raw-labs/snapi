@@ -149,6 +149,7 @@ trait SourcePrettyPrinter
     case Proj(e, i) => e <> "." <> ident(i)
     case PackageIdnExp(name) => method("$package", s""""$name"""")
   }
+
   protected def enclosedList(ls: Seq[Doc], sep: Doc = comma) = group(nest(lsep(ls.to, sep)) <> linebreak)
 
   protected def funAppArg(a: FunAppArg): Doc = {

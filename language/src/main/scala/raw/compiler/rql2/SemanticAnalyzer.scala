@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.Entity
-import raw.compiler.api.{CompilerServiceProvider, EvalFailure, EvalSuccess}
+import raw.compiler.api.{CompilerServiceProvider, EvalRuntimeFailure, EvalSuccess, EvalValidationFailure}
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
@@ -53,7 +53,6 @@ import raw.compiler.rql2.errors.{
   UnexpectedOptionalArgument
 }
 import raw.compiler.rql2.source._
-import raw.runtime.ProgramEnvironment
 import raw.runtime.interpreter._
 
 import scala.collection.mutable
@@ -1594,8 +1593,14 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                 stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
               }
               Right(stagedCompilerResult)
-            case EvalFailure(err) =>
-              logger.warn(s"""Staged compilation of expression failed:
+            case EvalValidationFailure(errs) =>
+              logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
+-                |Expected type: $expected
+-                |Expression: $e
+-                |Errors: $errs""".stripMargin)
+              Left(FailedToEvaluate(e))
+            case EvalRuntimeFailure(err) =>
+              logger.warn(s"""Staged compilation of expression failed at runtime with errors:
                 |Expected type: $expected
                 |Expression: $e
                 |Error: $err""".stripMargin)

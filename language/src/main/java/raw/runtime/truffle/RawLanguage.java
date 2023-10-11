@@ -19,13 +19,16 @@ import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import org.graalvm.options.OptionDescriptors;
+import raw.compiler.ErrorMessage;
 import raw.compiler.api.*;
 import raw.runtime.Entrypoint;
 import raw.runtime.ProgramEnvironment;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.utils.RawSettings;
 import scala.Option;
+import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(
     id = RawLanguage.ID,
@@ -72,22 +75,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
-    /*
-
-  @Child private InteropLibrary bindings = insert(InteropLibrary.getFactory().createDispatched(1));
-
-  private Object getParam(String key) {
-    TruffleObject polyglotBindings = RawContext.get(this).getPolyglotBindings();
-    assert bindings.hasMembers(polyglotBindings);
-    try {
-      return bindings.readMember(polyglotBindings, key);
-    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
-      throw new RuntimeException(e);
-    }
-  }
-  uncached version
-     */
-
     ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
     RawContext context = RawContext.get(null);
@@ -97,16 +84,10 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     String source = request.getSource().getCharacters().toString();
 
     CompilerService compilerService = CompilerServiceProvider.apply(classLoader, rawSettings);
-
     CompilationResponse compilationResponse =
         compilerService.compile(source,  programEnvironment, this);
-
-    throw new RawTruffleRuntimeException();
-
-    if (compilationResponse instanceof CompilationFailure) {
-      // FIXME (msb): Return all errors, not just head.
-      String result = ((CompilationFailure) compilationResponse).errors().head().toString();
-      throw new RawTruffleRuntimeException(result);
+    if (compilationResponse instanceof CompilationFailure compilationFailure) {
+      throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(compilationFailure.errors()));
     }
     Entrypoint entrypoint = ((CompilationSuccess) compilationResponse).entrypoint();
     RootNode rootNode = (RootNode) entrypoint.target();

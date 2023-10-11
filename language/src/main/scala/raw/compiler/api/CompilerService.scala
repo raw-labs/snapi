@@ -150,11 +150,12 @@ final case class CompilationSuccess(entrypoint: Entrypoint) extends CompilationR
 
 sealed trait EvalResponse
 final case class EvalSuccess(v: Value) extends EvalResponse
-final case class EvalFailure(error: String) extends EvalResponse
+final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
+final case class EvalRuntimeFailure(error: String) extends EvalResponse
 
 sealed trait ExecutionResponse
+case object ExecutionSuccess extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
-final case object ExecutionSuccess extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 
 final case class FormatCodeResponse(code: Option[String], errors: List[ErrorMessage])
