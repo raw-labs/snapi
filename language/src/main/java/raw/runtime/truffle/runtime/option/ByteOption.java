@@ -83,42 +83,27 @@ public final class ByteOption implements TruffleObject {
   }
 
   @ExportMessage
-  boolean isNumber() {
+  boolean isNumber() { return !isNull(); }
+
+  @ExportMessage boolean fitsInByte() {
     return true;
   }
-
-  @ExportMessage
-  boolean fitsInByte() {
-    return true;
-  }
-
-  @ExportMessage
-  boolean fitsInShort() {
+  @ExportMessage boolean fitsInShort() {
     return false;
   }
-
-  @ExportMessage
-  boolean fitsInInt() {
+  @ExportMessage boolean fitsInInt() {
     return false;
   }
-
-  @ExportMessage
-  boolean fitsInLong() {
+  @ExportMessage boolean fitsInLong() {
     return false;
   }
-
-  @ExportMessage
-  boolean fitsInFloat() {
+  @ExportMessage boolean fitsInFloat() {
     return false;
   }
-
-  @ExportMessage
-  boolean fitsInDouble() {
+  @ExportMessage boolean fitsInDouble() {
     return false;
   }
-
-  @ExportMessage
-  boolean fitsInBigInteger() {
+  @ExportMessage boolean fitsInBigInteger() {
     return false;
   }
 
@@ -127,11 +112,10 @@ public final class ByteOption implements TruffleObject {
     return value;
   }
 
-  @ExportMessage int asInt() throws UnsupportedMessageException { return 0; }
-  @ExportMessage short asShort() throws UnsupportedMessageException { return (short) 0; }
-  @ExportMessage long asLong() throws UnsupportedMessageException { return 0L; }
-  @ExportMessage float asFloat() throws UnsupportedMessageException { return 0.0F; }
-  @ExportMessage double asDouble() throws UnsupportedMessageException { return 0.0D; }
-  @ExportMessage
-  BigInteger asBigInteger() throws UnsupportedMessageException { return null; }
+  @ExportMessage short asShort() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage int asInt() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage long asLong() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage float asFloat() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage double asDouble() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage BigInteger asBigInteger() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
 }

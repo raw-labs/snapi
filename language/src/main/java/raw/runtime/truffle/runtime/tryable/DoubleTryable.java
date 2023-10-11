@@ -88,44 +88,27 @@ public final class DoubleTryable implements TruffleObject {
     return "DoubleTryable";
   }
 
-  @ExportMessage
-  boolean isNumber() {
+  @ExportMessage boolean isNumber() {return isSuccess(); }
+
+  @ExportMessage boolean fitsInByte() {
+    return false;
+  }
+  @ExportMessage boolean fitsInShort() {
+    return false;
+  }
+  @ExportMessage boolean fitsInInt() {
+    return false;
+  }
+  @ExportMessage boolean fitsInLong() {
+    return false;
+  }
+  @ExportMessage boolean fitsInFloat() {
+    return false;
+  }
+  @ExportMessage boolean fitsInDouble() {
     return true;
   }
-
-  @ExportMessage
-  boolean fitsInByte() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInShort() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInInt() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInLong() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInFloat() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInDouble() {
-    return true;
-  }
-
-
-  @ExportMessage
-  boolean fitsInBigInteger() {
+  @ExportMessage boolean fitsInBigInteger() {
     return false;
   }
 
@@ -134,13 +117,12 @@ public final class DoubleTryable implements TruffleObject {
     return successValue;
   }
 
-  @ExportMessage byte asByte() throws UnsupportedMessageException { return (byte) 0; }
-  @ExportMessage short asShort() throws UnsupportedMessageException { return (short) 0; }
-  @ExportMessage int asInt() throws UnsupportedMessageException { return 0; }
-  @ExportMessage long asLong() throws UnsupportedMessageException { return 0L; }
-  @ExportMessage float asFloat() throws UnsupportedMessageException { return 0.0F; }
-  @ExportMessage
-  BigInteger asBigInteger() throws UnsupportedMessageException { return null; }
+  @ExportMessage byte asByte() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage short asShort() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage int asInt() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage long asLong() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage float asFloat() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage BigInteger asBigInteger() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
 
   @ExportMessage
   public boolean isException() {

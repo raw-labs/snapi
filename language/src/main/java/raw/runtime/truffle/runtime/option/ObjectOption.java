@@ -14,10 +14,7 @@ package raw.runtime.truffle.runtime.option;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.RawLanguage;
@@ -25,10 +22,8 @@ import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenera
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
 
 import java.math.BigInteger;
-import java.time.Instant;
-import java.time.LocalDate;
-import java.time.LocalTime;
-import java.time.ZoneId;
+import java.nio.ByteOrder;
+import java.time.*;
 
 @ExportLibrary(OptionLibrary.class)
 @ExportLibrary(InteropLibrary.class)
@@ -299,4 +294,73 @@ public final class ObjectOption implements TruffleObject {
     return interops.getIterator(value);
   }
 
+  @ExportMessage
+  boolean hasArrayElements() {
+    return !isNull() && interops.hasArrayElements(value);
+  }
+
+  @ExportMessage
+  long getArraySize() throws UnsupportedMessageException {
+    return interops.getArraySize(value);
+  }
+
+  @ExportMessage
+  boolean isArrayElementReadable(long index) {
+    return !isNull() && interops.isArrayElementReadable(value, index);
+  }
+
+  @ExportMessage
+  Object readArrayElement(long index) throws InvalidArrayIndexException, UnsupportedMessageException {
+    return interops.readArrayElement(value, index);
+  }
+
+  @ExportMessage
+  boolean isDuration() {
+    return !isNull() && interops.isDuration(value);
+  }
+
+  @ExportMessage
+  Duration asDuration() throws UnsupportedMessageException {
+    return interops.asDuration(value);
+  }
+
+  @ExportMessage
+  public boolean hasBufferElements() {
+    return !isNull() && interops.hasBufferElements(value);
+  }
+
+  @ExportMessage
+  final long getBufferSize() throws UnsupportedMessageException {
+    return interops.getBufferSize(value);
+  }
+
+  @ExportMessage
+  final byte readBufferByte(long byteOffset) throws InvalidBufferOffsetException, UnsupportedMessageException {
+    return interops.readBufferByte(value, byteOffset);
+  }
+
+  @ExportMessage
+  final short readBufferShort(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferShort(value, order, byteOffset);
+  }
+
+  @ExportMessage
+  final int readBufferInt(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferInt(value, order, byteOffset);
+  }
+
+  @ExportMessage
+  final long readBufferLong(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferLong(value, order, byteOffset);
+  }
+
+  @ExportMessage
+  final float readBufferFloat(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferFloat(value, order, byteOffset);
+  }
+
+  @ExportMessage
+  final double readBufferDouble(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+    return interops.readBufferDouble(value, order, byteOffset);
+  }
 }

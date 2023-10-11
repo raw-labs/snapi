@@ -18,6 +18,7 @@ import org.graalvm.polyglot.Value
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.time.LocalDate
+import java.util.Base64
 import scala.util.control.NonFatal
 
 class PolyglotJsonWriter(os: OutputStream) extends Closeable {
@@ -45,7 +46,11 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
     } else {
       if (v.isNull) {
         gen.writeNull()
-      } else if (v.isBoolean) {
+      } else if (v.hasBufferElements) {
+        val bytes = (0L until v.getBufferSize).map(v.readBufferByte)
+        gen.writeString(Base64.getEncoder.encodeToString(bytes.toArray))
+      }
+      else if (v.isBoolean) {
         gen.writeBoolean(v.asBoolean())
       } else if (v.isNumber) {
         if (v.fitsInByte()) {

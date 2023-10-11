@@ -71,42 +71,27 @@ public final class FloatOption implements TruffleObject {
   }
 
   @ExportMessage
-  boolean isNumber() {
+  boolean isNumber() { return !isNull(); }
+
+  @ExportMessage boolean fitsInByte() {
+    return false;
+  }
+  @ExportMessage boolean fitsInShort() {
+    return false;
+  }
+  @ExportMessage boolean fitsInInt() {
+    return false;
+  }
+  @ExportMessage boolean fitsInLong() {
+    return false;
+  }
+  @ExportMessage boolean fitsInFloat() {
     return true;
   }
-
-  @ExportMessage
-  boolean fitsInByte() {
-    return true;
-  }
-
-  @ExportMessage
-  boolean fitsInShort() {
+  @ExportMessage boolean fitsInDouble() {
     return false;
   }
-
-  @ExportMessage
-  boolean fitsInInt() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInLong() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInFloat() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInDouble() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean fitsInBigInteger() {
+  @ExportMessage boolean fitsInBigInteger() {
     return false;
   }
 
@@ -115,11 +100,10 @@ public final class FloatOption implements TruffleObject {
     return value;
   }
 
-  @ExportMessage int asInt() throws UnsupportedMessageException { return 0; }
-  @ExportMessage short asShort() throws UnsupportedMessageException { return (short) 0; }
-  @ExportMessage long asLong() throws UnsupportedMessageException { return 0L; }
-  @ExportMessage byte asByte() throws UnsupportedMessageException { return (byte)0; }
-  @ExportMessage double asDouble() throws UnsupportedMessageException { return 0.0D; }
-  @ExportMessage
-  BigInteger asBigInteger() throws UnsupportedMessageException { return null; }
+  @ExportMessage byte asByte() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage short asShort() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage int asInt() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage long asLong() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage double asDouble() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage BigInteger asBigInteger() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
 }
