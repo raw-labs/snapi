@@ -13,10 +13,8 @@
 package raw.compiler.snapi.truffle
 
 import java.util
-import java.util.stream.Collectors
 import raw.compiler.base.source.Type
 import raw.compiler.rql2.api.Rql2Arg
-import raw.compiler.rql2.truffle.TruffleEmitter
 import raw.runtime.truffle.ExpressionNode
 import raw.runtime.truffle.RawLanguage
 
@@ -42,7 +40,7 @@ trait TruffleEntryExtension { // TO DO: remove if not needed
     toTruffle(
       `type`,
       args2,
-      emitter.rawLanguage
+      emitter.getLanguage
     )
   }
 }

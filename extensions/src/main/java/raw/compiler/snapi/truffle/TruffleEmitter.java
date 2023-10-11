@@ -14,17 +14,23 @@ package raw.compiler.snapi.truffle;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import raw.compiler.common.source.Exp;
+import raw.compiler.rql2.source.Rql2Method;
+import raw.compiler.snapi.truffle.compiler.TruffleBuildBody;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.StatementNode;
+import raw.runtime.truffle.ast.expressions.function.ClosureNode;
 
-public interface TruffleEmitter {
-  void addScope();
+public abstract class TruffleEmitter {
+  protected abstract void addScope();
 
-  FrameDescriptor dropScope();
+  protected abstract FrameDescriptor dropScope();
 
-  ExpressionNode recurseExp(Exp in);
+  protected abstract ExpressionNode recurseExp(Exp in);
 
-  ExpressionNode recurseLambda(ExpressionNode exp);
+  protected abstract ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody);
 
-  RawLanguage getLanguage();
+  protected abstract RawLanguage getLanguage();
+
+  protected abstract StatementNode emitMethod(Rql2Method m);
 }
