@@ -40,21 +40,6 @@ public class TimestampObject implements TruffleObject {
   }
 
   @ExportMessage
-  public boolean isTimeZone() {
-    return true;
-  }
-
-  @ExportMessage
-  public Instant asInstant() {
-    return timestamp.toInstant(java.time.ZoneOffset.UTC); // TODO: get the actual timezone
-  }
-
-  @ExportMessage
-  ZoneId asTimeZone() throws UnsupportedMessageException {
-    return ZoneId.of("UTC"); // TODO: get the actual timezone
-  }
-
-  @ExportMessage
   final boolean isDate() {
     return true;
   }

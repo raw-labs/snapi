@@ -13,13 +13,13 @@
 package raw.compiler.rql2.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.common.source.Exp
+import raw.compiler.common.source.{Exp, IdnExp}
 import raw.compiler.rql2.source._
 
 object TypePackageBuilder {
 
   def Cast(t: Type, e: Exp): Exp = {
-    FunApp(Proj(PackageIdnExp("Type"), "Cast"), Vector(FunAppArg(TypeExp(t), None), FunAppArg(e, None)))
+    FunApp(Proj(IdnExp("Type"), "Cast"), Vector(FunAppArg(TypeExp(t), None), FunAppArg(e, None)))
   }
 
   def ProtectCast(actual: Type, target: Type, e: Exp): Exp = {

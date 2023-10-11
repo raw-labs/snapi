@@ -179,7 +179,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                         val src = IdnDef()
                         val fieldCasts = expectedFields.zip(actualFields).zipWithIndex.map {
                           case ((expectedField, actualField), idx) => cast(
-                              Proj(IdnExp(src), actualField.idn),
+                              RecordPackageBuilder.GetFieldByIndex(IdnExp(src), IntConst((idx + 1).toString)),
                               actualField.tipe,
                               expectedField.tipe
                             )
