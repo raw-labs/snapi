@@ -12,11 +12,19 @@
 
 package raw.runtime.truffle.runtime.option;
 
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.RawLanguage;
+
+import java.math.BigInteger;
 
 @ExportLibrary(OptionLibrary.class)
+@ExportLibrary(InteropLibrary.class)
 public final class ByteOption implements TruffleObject {
 
   private byte value;
@@ -52,4 +60,78 @@ public final class ByteOption implements TruffleObject {
   public boolean isDefined() {
     return isDefined;
   }
+
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
+
+  @ExportMessage
+  Class<? extends TruffleLanguage<?>> getLanguage() {
+    return RawLanguage.class;
+  }
+
+  @ExportMessage
+  @CompilerDirectives.TruffleBoundary
+  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    return "ByteOption";
+  }
+
+  @ExportMessage
+  boolean isNull() {
+    return !isDefined;
+  }
+
+  @ExportMessage
+  boolean isNumber() {
+    return true;
+  }
+
+  @ExportMessage
+  boolean fitsInByte() {
+    return true;
+  }
+
+  @ExportMessage
+  boolean fitsInShort() {
+    return false;
+  }
+
+  @ExportMessage
+  boolean fitsInInt() {
+    return false;
+  }
+
+  @ExportMessage
+  boolean fitsInLong() {
+    return false;
+  }
+
+  @ExportMessage
+  boolean fitsInFloat() {
+    return false;
+  }
+
+  @ExportMessage
+  boolean fitsInDouble() {
+    return false;
+  }
+
+  @ExportMessage
+  boolean fitsInBigInteger() {
+    return false;
+  }
+
+  @ExportMessage
+  byte asByte() throws UnsupportedMessageException {
+    return value;
+  }
+
+  @ExportMessage int asInt() throws UnsupportedMessageException { return 0; }
+  @ExportMessage short asShort() throws UnsupportedMessageException { return (short) 0; }
+  @ExportMessage long asLong() throws UnsupportedMessageException { return 0L; }
+  @ExportMessage float asFloat() throws UnsupportedMessageException { return 0.0F; }
+  @ExportMessage double asDouble() throws UnsupportedMessageException { return 0.0D; }
+  @ExportMessage
+  BigInteger asBigInteger() throws UnsupportedMessageException { return null; }
 }
