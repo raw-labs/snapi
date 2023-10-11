@@ -129,7 +129,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
 
   final private lazy val primitiveType: Parser[Rql2PrimitiveType] =
-    boolType | stringType | locationType | binaryType | numberType | temporalType | regexType
+    boolType | stringType | locationType | binaryType | numberType | temporalType
 
   final private lazy val boolType: Parser[Rql2BoolType] = tokBool ^^^ Rql2BoolType(defaultProps)
 
@@ -165,10 +165,6 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   final private lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ^^^ Rql2IntervalType(defaultProps)
 
   final private lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ^^^ Rql2TimestampType(defaultProps)
-
-  final private lazy val regexType: Parser[Rql2RegexType] = tokRegex ~> ("(" ~> int <~ ")") ^^ {
-    case n => Rql2RegexType(n.toInt, defaultProps)
-  }
 
   final private lazy val recordType: Parser[Rql2RecordType] =
     tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ {

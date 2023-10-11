@@ -57,7 +57,6 @@ trait SourcePrettyPrinter
       case _: Rql2TimeType => "time"
       case _: Rql2IntervalType => "interval"
       case _: Rql2TimestampType => "timestamp"
-      case Rql2RegexType(ngroups, _) => method("regex", ngroups.toString)
       case Rql2RecordType(atts, _) => method("record", atts.map(att => ident(att.idn) <> ":" <+> att.tipe): _*)
       case Rql2IterableType(innerType, _) => innerType match {
           case _: AnythingType => "collection"

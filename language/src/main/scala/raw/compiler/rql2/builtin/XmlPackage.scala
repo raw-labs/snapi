@@ -183,7 +183,7 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
   }
 
   protected def validateXmlType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
-    case _: Rql2LocationType | _: Rql2RegexType => Left(Seq(UnsupportedType(t, t, None)))
+    case _: Rql2LocationType => Left(Seq(UnsupportedType(t, t, None)))
     case t: Rql2RecordType =>
       val atts = t.atts
         .map { x =>

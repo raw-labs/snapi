@@ -153,16 +153,6 @@ final case class Rql2IntervalType(props: Set[Rql2TypeProperty] = Set.empty) exte
 }
 
 /**
- * Regex Type.
- *
- * @param n Number of groups
- */
-final case class Rql2RegexType(n: Int, props: Set[Rql2TypeProperty] = Set.empty) extends Rql2PrimitiveType {
-  override def cloneAndAddProp(p: Rql2TypeProperty): Type = Rql2RegexType(n, props + p)
-  override def cloneAndRemoveProp(p: Rql2TypeProperty): Type = Rql2RegexType(n, props - p)
-}
-
-/**
  * Record Type
  */
 final case class Rql2RecordType(atts: Vector[Rql2AttrType], props: Set[Rql2TypeProperty] = Set.empty)

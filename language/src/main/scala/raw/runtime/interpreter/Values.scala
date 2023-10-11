@@ -39,13 +39,9 @@ final case class IntervalValue(
     millis: Int
 ) extends Value
 final case class LocationValue(v: LocationDescription) extends Value
-final case class VoidValue() extends Value
-final case class RegexValue(r: scala.util.matching.Regex) extends Value
-final case class NothingValue() extends Value
 final case class RecordValue(v: Seq[Value]) extends Value
 final case class TryValue(v: Either[String, Value]) extends Value
 final case class OptionValue(v: Option[Value]) extends Value
 final case class ListValue(v: Seq[Value]) extends Value
-final case class GeneratorValue(v: Seq[Value]) extends Value // Data has been ready is now materialized.
 final case class IterableValue(v: Seq[Value]) extends Value // Data has been ready is now materialized.
 final case class OrValue(vs: Seq[Value]) extends Value

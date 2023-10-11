@@ -12,64 +12,12 @@
 
 package raw.compiler.rql2.truffle
 
-import com.oracle.truffle.api.interop.TruffleObject
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.{Context, PolyglotAccess, Source, Value}
-import raw.compiler.api.{
-  AutoCompleteResponse,
-  CompilationFailure,
-  CompilationResponse,
-  CompilationSuccess,
-  CompilerService,
-  CompilerServiceException,
-  EvalResponse,
-  EvalRuntimeFailure,
-  EvalSuccess,
-  ExecutionResponse,
-  ExecutionRuntimeFailure,
-  ExecutionSuccess,
-  ExecutionValidationFailure,
-  FormatCodeResponse,
-  GetProgramDescriptionFailure,
-  GetProgramDescriptionResponse,
-  GetProgramDescriptionSuccess,
-  GetTypeFailure,
-  GetTypeResponse,
-  GetTypeSuccess,
-  GoToDefinitionResponse,
-  HoverResponse,
-  ParseFailure,
-  ParseResponse,
-  ParseSuccess,
-  ParseTypeFailure,
-  ParseTypeResponse,
-  ParseTypeSuccess,
-  Pos,
-  RenameResponse,
-  ValidateResponse
-}
+import org.graalvm.polyglot.{Context, PolyglotAccess, Value}
+import raw.compiler.api._
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
-import raw.compiler.common.{CommonCompilerProvider, Compiler}
-import raw.runtime.{
-  ParamBool,
-  ParamByte,
-  ParamDate,
-  ParamDecimal,
-  ParamDouble,
-  ParamFloat,
-  ParamInt,
-  ParamInterval,
-  ParamLong,
-  ParamNull,
-  ParamShort,
-  ParamString,
-  ParamTime,
-  ParamTimestamp,
-  ParamValue,
-  ProgramEnvironment,
-  RuntimeContext
-}
+import raw.runtime._
 import raw.runtime.truffle.RawLanguage
 import raw.compiler.{
   base,
@@ -93,9 +41,17 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
+import raw.utils.{
+  saveToTemporaryFileNoDeleteOnExit,
+  withSuppressNonFatalException,
+  AuthenticatedUser,
+  RawConcurrentHashMap,
+  RawSettings
+}
 
 import java.io.{IOException, OutputStream}
+import java.time.{LocalDate, ZoneId}
+import scala.collection.mutable
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
@@ -261,23 +217,119 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     }
   }
 
-  override def eval(source: String, environment: ProgramEnvironment): EvalResponse = {
-    // TODO (msb): This is not handling Validation vs Runtime errors!
+  override def eval(source: String, tipe: Type, environment: ProgramEnvironment): EvalResponse = {
     withTruffleContext(
       environment,
       ctx =>
         try {
           val polyglotValue = ctx.eval("rql", source)
-          val rawValue = convertPolyglotValueToRawValue(polyglotValue)
+          val rawValue = convertPolyglotValueToRawValue(polyglotValue, tipe)
           EvalSuccess(rawValue)
         } catch {
-          case NonFatal(t) => EvalRuntimeFailure(t.getMessage)
+          case NonFatal(t) => EvalFailure(t.getMessage)
         }
     )
   }
 
-  private def convertPolyglotValueToRawValue(v: Value): raw.runtime.interpreter.Value = {
-    ???
+  private def convertPolyglotValueToRawValue(v: Value, t: Type): raw.runtime.interpreter.Value = {
+    t match {
+      case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
+        try {
+          v.throwException()
+          // Did not throw, so recurse without the tryable property.
+          val v1 = convertPolyglotValueToRawValue(v, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))
+          raw.runtime.interpreter.TryValue(Right(v1))
+        } catch {
+          case NonFatal(ex) => raw.runtime.interpreter.TryValue(Left(ex.getMessage))
+        }
+      case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) =>
+        if (v.isNull) {
+          raw.runtime.interpreter.OptionValue(None)
+        } else {
+          val v1 = convertPolyglotValueToRawValue(v, t.cloneAndRemoveProp(Rql2IsNullableTypeProperty()))
+          raw.runtime.interpreter.OptionValue(Some(v1))
+        }
+      case _: Rql2BoolType => raw.runtime.interpreter.BoolValue(v.asBoolean())
+      case _: Rql2StringType => raw.runtime.interpreter.StringValue(v.asString())
+      case _: Rql2ByteType => raw.runtime.interpreter.ByteValue(v.asByte())
+      case _: Rql2ShortType => raw.runtime.interpreter.ShortValue(v.asShort())
+      case _: Rql2IntType => raw.runtime.interpreter.IntValue(v.asInt())
+      case _: Rql2LongType => raw.runtime.interpreter.LongValue(v.asLong())
+      case _: Rql2FloatType => raw.runtime.interpreter.FloatValue(v.asFloat())
+      case _: Rql2DoubleType => raw.runtime.interpreter.DoubleValue(v.asDouble())
+      case _: Rql2DecimalType =>
+        val bg = BigDecimal(v.asString())
+        raw.runtime.interpreter.DecimalValue(bg)
+      case _: Rql2DateType =>
+        val date = v.asDate()
+        if (v.isTimeZone) {
+          val zonedDateTime = date.atStartOfDay(v.asTimeZone())
+          raw.runtime.interpreter.DateValue(zonedDateTime.toLocalDate)
+        } else {
+          raw.runtime.interpreter.DateValue(date)
+        }
+      case _: Rql2TimeType =>
+        val time = v.asTime()
+        if (v.isTimeZone) {
+          val zonedDateTime = time.atDate(LocalDate.ofEpochDay(0)).atZone(v.asTimeZone())
+          raw.runtime.interpreter.TimeValue(zonedDateTime.toLocalTime)
+        } else {
+          raw.runtime.interpreter.TimeValue(time)
+        }
+      case _: Rql2TimestampType =>
+        val instant = v.asInstant()
+        if (v.isTimeZone) {
+          raw.runtime.interpreter.TimestampValue(instant.atZone(v.asTimeZone()).toLocalDateTime)
+        } else {
+          raw.runtime.interpreter.TimestampValue(instant.atZone(ZoneId.systemDefault()).toLocalDateTime)
+        }
+      case _: Rql2IntervalType =>
+        val duration = v.asDuration()
+        raw.runtime.interpreter.IntervalValue(
+          0,
+          0,
+          0,
+          duration.toDaysPart.intValue(),
+          duration.toHoursPart,
+          duration.toMinutesPart,
+          duration.toSecondsPart,
+          duration.toMillisPart
+        )
+      case _: Rql2BinaryType =>
+        val bufferSize = v.getBufferSize.toInt
+        val byteArray = new Array[Byte](bufferSize)
+        for (i <- 0 until bufferSize) {
+          byteArray(i) = v.readBufferByte(i)
+        }
+        raw.runtime.interpreter.BinaryValue(byteArray)
+      case Rql2RecordType(atts, _) =>
+        val vs = atts.map(att => convertPolyglotValueToRawValue(v.getMember(att.idn), att.tipe))
+        raw.runtime.interpreter.RecordValue(vs)
+      case Rql2ListType(innerType, _) =>
+        val seq = mutable.ArrayBuffer[raw.runtime.interpreter.Value]()
+        for (i <- 0L until v.getArraySize) {
+          val v1 = v.getArrayElement(i)
+          seq.append(convertPolyglotValueToRawValue(v1, innerType))
+        }
+        raw.runtime.interpreter.ListValue(seq)
+      case Rql2IterableType(innerType, _) =>
+        val seq = mutable.ArrayBuffer[raw.runtime.interpreter.Value]()
+        val it = v.getIterator
+        while (it.hasIteratorNextElement) {
+          val v1 = it.getIteratorNextElement
+          seq.append(convertPolyglotValueToRawValue(v1, innerType))
+        }
+        if (it.canInvokeMember("close")) {
+          val callable = it.getMember("close")
+          callable.execute()
+        }
+        raw.runtime.interpreter.IterableValue(seq)
+      case Rql2OrType(tipes, _) =>
+        val idx = v.getMember("index").asInt()
+        val v1 = v.getMember("value")
+        val tipe = tipes(idx)
+        convertPolyglotValueToRawValue(v1, tipe)
+    }
   }
 
   override def execute(

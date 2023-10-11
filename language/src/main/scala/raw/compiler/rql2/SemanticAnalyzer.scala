@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.Entity
-import raw.compiler.api.{CompilerServiceProvider, EvalRuntimeFailure, EvalSuccess, EvalValidationFailure}
+import raw.compiler.api.{CompilerServiceProvider, EvalFailure, EvalSuccess}
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
@@ -244,7 +244,6 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
           Some(CompatibilityReport(resetProps(actual, Set.empty), actual))
         case (r: Rql2RecordType, e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) =>
           Some(CompatibilityReport(actual, actual))
-        case (_: Rql2RegexType, ExpectedRegexType()) => Some(CompatibilityReport(actual, actual))
         case (_, _: AnythingType) => Some(CompatibilityReport(actual, actual))
         case _ => None
       }
@@ -391,8 +390,6 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
     case (a: Rql2TimestampType, e: Rql2TimestampType) if a.props.subsetOf(e.props) => Rql2TimestampType(e.props)
     // Interval type
     case (a: Rql2IntervalType, e: Rql2IntervalType) if a.props.subsetOf(e.props) => Rql2IntervalType(e.props)
-    // Regex type
-    case (a: Rql2RegexType, e: Rql2RegexType) if a.n == e.n && a.props.subsetOf(e.props) => Rql2RegexType(a.n, e.props)
     // Record Type
     case (a: Rql2RecordType, e: Rql2RecordType)
         if a.atts.map(_.idn) == e.atts.map(_.idn) && a.props.subsetOf(e.props) =>
@@ -441,7 +438,6 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
     // Projection on lists or collections: collection.name same as Collection.Transform(collection, x -> x.name)
     case (Rql2IterableType(r: Rql2RecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
     case (Rql2ListType(r: Rql2RecordType, _), e: ExpectedProjType) if r.atts.exists(att => att.idn == e.i) => actual
-    case (_: Rql2RegexType, ExpectedRegexType()) => actual
     case (_, _: AnythingType) => actual
     //
     // Base Types
@@ -1557,7 +1553,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         return Left(ex.err)
     }
 
-    // Otherwise, create an RQL2 program with the expressions and declarations it depends on.
+    // Create an RQL2 program with the expressions and declarations it depends on.
     // Wrap it into a Type.Cast so that we ensure implicit casts are already.
     // This allows us to pattern match at L0 more easily, since all types are implicitly casted:
     // for instance if the <e> is a StringType (i.e. StringConst) but expected type as LocationType, the implicit cast phase
@@ -1569,31 +1565,15 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       else Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, Let(lets.to, e))))
     }
 
-    def getProgramContext = {
-      // Create a clone of the RuntimeContext overriding the output format setting.
-      val runtimeContext = programContext.runtimeContext
-      val environment = runtimeContext.environment
-      new ProgramContext(
-        programContext.runtimeContext.cloneWith(newEnvironment =
-          ProgramEnvironment(
-            environment.user,
-            environment.maybeArguments,
-            environment.scopes,
-            environment.options + ("output-format" -> ""),
-            environment.maybeTraceId
-          )
-        )
-      )(programContext.compilerContext)
-    }
-
     programContext.getOrAddStagedCompilation(
       program, {
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = SourcePrettyPrinter.format(program)
         try {
-          CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(getProgramContext.settings).eval(
+          CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(programContext.settings).eval(
             prettyPrinterProgram,
-            getProgramContext.runtimeContext.environment
+            expected,
+            programContext.runtimeContext.environment
           ) match {
             case EvalSuccess(v) =>
               var stagedCompilerResult = v
@@ -1614,14 +1594,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                 stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
               }
               Right(stagedCompilerResult)
-            case EvalValidationFailure(errs) =>
-              logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
-                |Expected type: $expected
-                |Expression: $e
-                |Errors: $errs""".stripMargin)
-              Left(FailedToEvaluate(e))
-            case EvalRuntimeFailure(err) =>
-              logger.warn(s"""Staged compilation of expression failed at runtime with errors:
+            case EvalFailure(err) =>
+              logger.warn(s"""Staged compilation of expression failed:
                 |Expected type: $expected
                 |Expression: $e
                 |Error: $err""".stripMargin)

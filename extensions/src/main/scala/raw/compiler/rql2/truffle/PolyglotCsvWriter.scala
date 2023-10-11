@@ -69,17 +69,17 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
       } else if (v.isString) {
         gen.writeString(v.asString())
       } else if (v.isInstant) // Must take precedence over date or time, since instants are also dates/times.
-      {
-        val instant = v.asInstant()
-        val formatted =
-          if (v.isTimeZone) { // If it has a timezone indication, format as a zoned date time.
-            val zonedDateTime = instant.atZone(v.asTimeZone())
-            zonedDateTimeFormatter.format(zonedDateTime)
-          } else {
-            instantFormatter.format(instant)
-          }
-        gen.writeString(formatted)
-      } else if (v.isDate) {
+        {
+          val instant = v.asInstant()
+          val formatted =
+            if (v.isTimeZone) { // If it has a timezone indication, format as a zoned date time.
+              val zonedDateTime = instant.atZone(v.asTimeZone())
+              zonedDateTimeFormatter.format(zonedDateTime)
+            } else {
+              instantFormatter.format(instant)
+            }
+          gen.writeString(formatted)
+        } else if (v.isDate) {
         val date = v.asDate()
         val formatted =
           if (v.isTimeZone) {
@@ -124,32 +124,15 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
           val v1 = v.getIteratorNextElement
           writeValue(v1)
         }
+        if (v.canInvokeMember("close")) {
+          val callable = v.getMember("close")
+          callable.execute()
+        }
         gen.writeEndArray()
       } else if (v.hasArrayElements) {
         for (i <- 0L until v.getArraySize) {
           val v1 = v.getArrayElement(i)
           writeValue(v1)
-        }
-      } else if (v.hasHashEntries) {
-        val it = v.getHashKeysIterator
-        while (it.hasIteratorNextElement) {
-          val key = it.getIteratorNextElement
-          val value = v.getHashValue(key)
-          gen.writeStartObject()
-          if (!key.isString) {
-            throw new IOException("unsupported key format")
-          }
-          gen.writeFieldName(key.asString())
-          writeValue(value)
-          gen.writeEndObject()
-        }
-      } else if (v.hasMembers) {
-        v.getMemberKeys.forEach { key =>
-          val value = v.getMember(key)
-          gen.writeStartObject()
-          gen.writeFieldName(key)
-          writeValue(value)
-          gen.writeEndObject()
         }
       } else {
         throw new IOException("unsupported value format")

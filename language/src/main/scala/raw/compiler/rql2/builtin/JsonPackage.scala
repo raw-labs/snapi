@@ -583,7 +583,7 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
   }
 
   protected def validateJsonType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
-    case _: Rql2LocationType | _: Rql2RegexType => Left(Seq(UnsupportedType(t, t, None)))
+    case _: Rql2LocationType => Left(Seq(UnsupportedType(t, t, None)))
     case Rql2RecordType(atts, props) =>
       val validation = atts
         .map(x => validateJsonType(x.tipe))

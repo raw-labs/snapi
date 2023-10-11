@@ -123,6 +123,10 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
           val v1 = v.getIteratorNextElement
           writeValue(v1)
         }
+        if (v.canInvokeMember("close")) {
+          val callable = v.getMember("close")
+          callable.execute()
+        }
         gen.writeEndArray()
       } else if (v.hasArrayElements) {
         for (i <- 0L until v.getArraySize) {
@@ -131,25 +135,25 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
         }
       } else if (v.hasHashEntries) {
         val it = v.getHashKeysIterator
+        gen.writeStartObject()
         while (it.hasIteratorNextElement) {
           val key = it.getIteratorNextElement
           val value = v.getHashValue(key)
-          gen.writeStartObject()
           if (!key.isString) {
             throw new IOException("unsupported key format")
           }
           gen.writeFieldName(key.asString())
           writeValue(value)
-          gen.writeEndObject()
         }
+        gen.writeEndObject()
       } else if (v.hasMembers) {
+        gen.writeStartObject()
         v.getMemberKeys.forEach { key =>
           val value = v.getMember(key)
-          gen.writeStartObject()
           gen.writeFieldName(key)
           writeValue(value)
-          gen.writeEndObject()
         }
+        gen.writeEndObject()
       } else {
         throw new IOException("unsupported value format")
       }

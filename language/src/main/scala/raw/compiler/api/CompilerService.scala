@@ -64,6 +64,7 @@ trait CompilerService extends RawService {
   @throws[CompilerServiceException]
   def eval(
       source: String,
+      tipe: Type,
       environment: ProgramEnvironment
   ): EvalResponse
 
@@ -148,9 +149,8 @@ final case class CompilationFailure(errors: List[ErrorMessage]) extends Compilat
 final case class CompilationSuccess(entrypoint: Entrypoint) extends CompilationResponse
 
 sealed trait EvalResponse
-final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
 final case class EvalSuccess(v: Value) extends EvalResponse
-final case class EvalRuntimeFailure(error: String) extends EvalResponse
+final case class EvalFailure(error: String) extends EvalResponse
 
 sealed trait ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
