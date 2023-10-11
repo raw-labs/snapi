@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.truffle
 
-import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonGenerator, JsonParser}
+import com.fasterxml.jackson.core.{JsonEncoding, JsonGenerator, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvFactory
 import org.graalvm.polyglot.Value
 
