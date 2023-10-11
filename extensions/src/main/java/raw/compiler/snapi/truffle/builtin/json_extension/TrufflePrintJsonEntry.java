@@ -16,7 +16,7 @@ import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.PrintJsonEntry;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.compiler.rql2ben.truffle.builtin.JsonWriter;
+import raw.compiler.rql2output.truffle.builtin.JsonWriter;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;

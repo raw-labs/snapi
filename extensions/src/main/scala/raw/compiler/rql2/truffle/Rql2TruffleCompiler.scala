@@ -28,7 +28,7 @@ import raw.compiler.rql2.api._
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
-import raw.compiler.rql2ben.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
+import raw.compiler.rql2output.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
 import raw.compiler.truffle.TruffleCompiler
 import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime._
