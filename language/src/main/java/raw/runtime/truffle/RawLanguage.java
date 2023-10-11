@@ -100,6 +100,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
     CompilationResponse compilationResponse =
         compilerService.compile(source,  programEnvironment, this);
+
+    throw new RawTruffleRuntimeException();
+
     if (compilationResponse instanceof CompilationFailure) {
       // FIXME (msb): Return all errors, not just head.
       String result = ((CompilationFailure) compilationResponse).errors().head().toString();

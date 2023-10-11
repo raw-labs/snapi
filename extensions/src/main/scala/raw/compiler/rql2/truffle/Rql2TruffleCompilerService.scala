@@ -14,21 +14,12 @@ package raw.compiler.rql2.truffle
 
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.{Context, PolyglotAccess, Value}
+import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Value}
 import raw.compiler.api._
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.runtime._
 import raw.runtime.truffle.RawLanguage
-import raw.compiler.{
-  base,
-  CompilerParserException,
-  DeclDescription,
-  ErrorMessage,
-  ErrorPosition,
-  ErrorRange,
-  ParamDescription,
-  ProgramDescription
-}
+import raw.compiler.{CompilerParserException, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, ParamDescription, ProgramDescription, base}
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
@@ -41,13 +32,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{
-  saveToTemporaryFileNoDeleteOnExit,
-  withSuppressNonFatalException,
-  AuthenticatedUser,
-  RawConcurrentHashMap,
-  RawSettings
-}
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, saveToTemporaryFileNoDeleteOnExit, withSuppressNonFatalException}
 
 import java.io.{IOException, OutputStream}
 import java.time.{LocalDate, ZoneId}
@@ -229,6 +214,12 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           case NonFatal(t) => EvalFailure(t.getMessage)
         }
     )
+    val x: PolyglotException = null
+    x.isGuestException
+      x.getGuestObject
+x.getCause
+
+
   }
 
   private def convertPolyglotValueToRawValue(v: Value, t: Type): raw.runtime.interpreter.Value = {
@@ -343,14 +334,15 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     ctx.initialize(RawLanguage.ID)
     ctx.enter()
     try {
-      val v = maybeDecl match {
+      val f = maybeDecl match {
         case Some(decl) =>
 //          ctx.eval("rql", source)
 //          val f = ctx.getBindings("rql").getMember(decl)
 //          f.execute(maybeArguments)
           ???
-        case None => ctx.eval("rql", source)
+        case None => ctx.parse("rql", source)
       }
+      val v = f.execute()
 
       environment.options
         .get("output-format")
