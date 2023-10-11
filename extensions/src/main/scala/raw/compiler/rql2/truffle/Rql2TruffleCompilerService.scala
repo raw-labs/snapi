@@ -93,9 +93,15 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{endsWithIgnoreCase, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
+import raw.utils.{
+  endsWithIgnoreCase,
+  withSuppressNonFatalException,
+  AuthenticatedUser,
+  RawConcurrentHashMap,
+  RawSettings
+}
 
-import java.io.OutputStream
+import java.io.{IOException, OutputStream}
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
@@ -329,59 +335,27 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
 
       environment.options
         .get("output-format") match {
-//        case Some("csv") =>
-//          if (!isCsvCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
+        case Some("csv") => ???
         case Some("json") =>
-//          if (!isJsonCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
-//          else ctx.eval(
-          ctx.eval(
-            "python",
-            s"""import json
-              |import polyglot
-              |import sys
-              |
-              |def serialize_foreign(obj):
-              |  if isinstance(obj, int) or isinstance(obj, bool):
-              |    return obj
-              |  if hasattr(obj, '__str__'):
-              |    return obj.__str__() + "cucu"
-              |  raise Exception("bum")
-              |
-              |def f(data):
-              |  print(len(data))
-              |  #json.dump(serialize_foreign(data), sys.stdout, indent=4)""".stripMargin
-          )
-//        case Some("text") =>
-//          if (!isTextCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
-//        case Some("binary") =>
-//          if (!isBinaryCompatible(dataType)) return ExecutionRuntimeFailure("unsupported type")
-        case None => return ExecutionRuntimeFailure("unknown output format")
+          val w = new PolyglotJsonWriter(outputStream)
+          try {
+            w.writeValue(v)
+            outputStream.flush()
+            ExecutionSuccess
+          } catch {
+            case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
+          } finally {
+            withSuppressNonFatalException(w.close())
+          }
+        case Some("text") => ???
+        case Some("binary") => ???
+        case None =>  ExecutionRuntimeFailure("unknown output format")
       }
-      val wf = ctx.getBindings("python").getMember("f")
-      wf.execute(v)
-      outputStream.flush()
-      ExecutionSuccess
     } finally {
       ctx.leave()
       ctx.close()
     }
   }
-
-//  private def isJsonCompatible(dataType: Type): Boolean = {
-//    true
-//  }
-//
-//  private def isCsvCompatible(dataType: Type): Boolean = {
-//    true
-//  }
-//
-//  private def isTextCompatible(dataType: Type): Boolean = {
-//    true
-//  }
-//
-//  private def isBinaryCompatible(dataType: Type): Boolean = {
-//    true
-//  }
 
   override def formatCode(
       source: String,
