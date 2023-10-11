@@ -16,7 +16,8 @@ import raw.compiler.api._
 import raw.compiler._
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.BaseNode
-import raw.compiler.scala2.Scala2CompilerContext
+import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
+import raw.compiler.scala2.{Scala2CompilerContext, Scala2JvmCompiler}
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
@@ -24,16 +25,31 @@ import raw.sources.api.SourceContext
 import raw.utils._
 
 import java.io.OutputStream
+import java.lang.invoke.{MethodHandles, MethodType}
 import scala.util.control.NonFatal
 
 abstract class CommonCompilerService(language: String, maybeClassLoader: Option[ClassLoader] = None)(
     implicit settings: RawSettings
 ) extends CompilerService {
 
+  val methodHandlesLookup = MethodHandles.lookup()
+
+  val evalCtorType = MethodType.methodType(classOf[Unit], classOf[RuntimeContext])
+
+  val executeCtorType = MethodType.methodType(classOf[Unit], classOf[OutputStream], classOf[RuntimeContext])
+
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
   // Map of users to compilers.
   private val compilerCaches = new RawConcurrentHashMap[(AuthenticatedUser, String), Compiler]
+
+  private val scala2JvmCompiler = language match {
+    case "rql2-truffle" => null
+    case "rql2-scala" =>
+      val mutableClassLoader = new RawMutableURLClassLoader(getClass.getClassLoader)
+      val rawClassLoader = new RawDelegatingURLClassLoader(mutableClassLoader)
+      new Scala2JvmCompiler(mutableClassLoader, rawClassLoader)
+  }
 
   protected def getCompiler(user: AuthenticatedUser): Compiler = {
     compilerCaches.getOrElseUpdate((user, language), createCompiler(user, language))
@@ -47,7 +63,8 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
     val inferrer = InferrerServiceProvider(maybeClassLoader)
 
     // Initialize compiler context
-    val compilerContext = new Scala2CompilerContext(language, user, sourceContext, inferrer, maybeClassLoader)
+    val compilerContext =
+      new Scala2CompilerContext(language, user, sourceContext, inferrer, maybeClassLoader, scala2JvmCompiler)
     try {
       // Initialize compiler. Default language, if not specified is 'rql2'.
       CommonCompilerProvider(language, maybeClassLoader)(compilerContext)

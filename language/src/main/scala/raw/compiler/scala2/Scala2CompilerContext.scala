@@ -12,13 +12,8 @@
 
 package raw.compiler.scala2
 
-import raw.runtime.RuntimeContext
-
-import java.io.OutputStream
-import java.lang.invoke.{MethodHandles, MethodType}
 import raw.utils.{AuthenticatedUser, RawSettings}
 import raw.compiler.base.CompilerContext
-import raw.compiler.jvm.{RawDelegatingURLClassLoader, RawMutableURLClassLoader}
 import raw.inferrer.api.InferrerService
 import raw.sources.api.SourceContext
 
@@ -27,19 +22,7 @@ class Scala2CompilerContext(
     user: AuthenticatedUser,
     sourceContext: SourceContext,
     inferrer: InferrerService,
-    maybeClassLoader: Option[ClassLoader]
+    maybeClassLoader: Option[ClassLoader],
+    val scala2JvmCompiler: Scala2JvmCompiler
 )(implicit settings: RawSettings)
-    extends CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader) {
-
-  val methodHandlesLookup = MethodHandles.lookup()
-
-  val evalCtorType = MethodType.methodType(classOf[Unit], classOf[RuntimeContext])
-
-  val executeCtorType = MethodType.methodType(classOf[Unit], classOf[OutputStream], classOf[RuntimeContext])
-
-  private val mutableClassLoader = new RawMutableURLClassLoader(getClass.getClassLoader)
-  private val rawClassLoader = new RawDelegatingURLClassLoader(mutableClassLoader)
-
-  lazy val scala2JvmCompiler = new Scala2JvmCompiler(mutableClassLoader, rawClassLoader)
-
-}
+    extends CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader)
