@@ -16,7 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.api.Rql2Arg;
-import raw.compiler.rql2.truffle.TruffleEmitter;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 
@@ -36,6 +36,6 @@ public interface TruffleEntryExtension {
                         a.t(),
                         a.idn().isDefined() ? a.idn().get() : null))
             .collect(Collectors.toList()),
-        emitter.rawLanguage());
+        emitter.getLanguage());
   }
 }

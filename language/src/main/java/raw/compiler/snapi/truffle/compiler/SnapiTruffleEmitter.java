@@ -240,7 +240,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
 
 
 
-  protected ExpressionNode recurseExp(Exp in) {
+  public ExpressionNode recurseExp(Exp in) {
     return switch (in) {
       case Exp ignored when tipe(in) instanceof PackageType || tipe(in) instanceof PackageEntryType ->
               new ZeroedConstNode(Rql2ByteType.apply(new scala.collection.immutable.HashSet<Rql2TypeProperty>().seq()));

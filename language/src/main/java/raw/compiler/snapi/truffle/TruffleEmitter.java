@@ -26,7 +26,7 @@ public abstract class TruffleEmitter {
 
   protected abstract FrameDescriptor dropScope();
 
-  protected abstract ExpressionNode recurseExp(Exp in);
+  public abstract ExpressionNode recurseExp(Exp in);
 
   protected abstract ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody);
 

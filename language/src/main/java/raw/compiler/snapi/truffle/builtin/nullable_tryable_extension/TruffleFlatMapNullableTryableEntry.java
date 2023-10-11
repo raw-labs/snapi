@@ -20,7 +20,7 @@ import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.FlatMapNullableTryableEntry;
 import raw.compiler.rql2.source.FunType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.compiler.rql2.truffle.TruffleEmitter;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.option.OptionFlatMapNodeGen;
