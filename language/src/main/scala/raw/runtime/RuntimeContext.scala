@@ -18,10 +18,6 @@ import raw.utils.RawSettings
 import java.time.{LocalDateTime, ZoneId}
 import scala.collection.mutable
 
-object RuntimeContext {
-  private val RUNTIME_TIME_ZONE = "raw.runtime.time-zone"
-}
-
 /**
  * Context holding structures necessary by the runtime execution of a program.
  */
@@ -31,9 +27,7 @@ class RuntimeContext(
     val environment: ProgramEnvironment
 ) {
 
-  import RuntimeContext._
-
-  private val zoneID = settings.getStringOpt(RUNTIME_TIME_ZONE).map(ZoneId.of).getOrElse(ZoneId.systemDefault())
+  private val zoneID = ZoneId.of("UTC")
 
   final val currentTimestamp: LocalDateTime = LocalDateTime.now(zoneID)
 

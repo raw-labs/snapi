@@ -19,9 +19,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.NoSuchElementException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
 @NodeInfo(shortName = "Timestamp.FromUnixTimestamp")
@@ -30,15 +28,7 @@ public abstract class TimestampFromUnixTimestampNode extends ExpressionNode {
   @Specialization
   @CompilerDirectives.TruffleBoundary
   protected TimestampObject fromUnixTimestamp(long epoch) {
-    ZoneId zoneID;
-    RawContext context = RawContext.get(this);
-    try {
-      String zone =
-          context.getSourceContext().settings().getStringOpt("raw.runtime.time-zone", true).get();
-      zoneID = ZoneId.of(zone);
-    } catch (NoSuchElementException ex) {
-      zoneID = ZoneId.systemDefault();
-    }
+    ZoneId zoneID = ZoneId.of("UTC");
     Instant instant = Instant.ofEpochSecond(epoch);
     return new TimestampObject(LocalDateTime.ofInstant(instant, zoneID));
   }

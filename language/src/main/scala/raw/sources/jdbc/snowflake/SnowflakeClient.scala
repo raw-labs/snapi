@@ -23,12 +23,7 @@ import java.util.concurrent.{Executors, TimeUnit}
 import java.util.{Properties, TimeZone}
 import scala.util.control.NonFatal
 
-object SnowflakeClient {
-  private val RUNTIME_TIME_ZONE = "raw.runtime.time-zone"
-}
-
 class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) extends JdbcClient {
-  import SnowflakeClient._
 
   Class.forName("net.snowflake.client.jdbc.SnowflakeDriver")
 
@@ -51,11 +46,8 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
 
       for ((key, value) <- parameters) props.setProperty(key, value)
 
-      // (CTM) I am having issues with sql.Time with timezones. I am seeing a shift if the time-zone was not set to UTC.
-      //       So setting it here according with raw.runtime (snowflake tests set this property to "UTC")
-      // TODO (msb): This seems wrong and instead should be passed as an argument/option to the client when it is built.
-      val maybeTz = settings.getStringOpt(RUNTIME_TIME_ZONE)
-      maybeTz.foreach(tz => TimeZone.setDefault(TimeZone.getTimeZone(tz)))
+      // (CTM) I am having issues with sql.Time with timezones. I am seeing a shift if the timezone was not set to UTC.
+      TimeZone.setDefault(TimeZone.getTimeZone("UTC"))
       logger.info(s"current timezone ${TimeZone.getDefault}")
       val conn = DriverManager.getConnection(connectionString, props)
       conn.setNetworkTimeout(Executors.newSingleThreadExecutor(), getNetworkTimeout(TimeUnit.MILLISECONDS).toInt)
