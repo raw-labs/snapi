@@ -39,23 +39,20 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
 
     Optional<ExpressionNode> maybeRegion =
         args.stream()
-            .filter(
-                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("region"))
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("region"))
             .map(TruffleArg::exprNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeSessionToken =
         args.stream()
             .filter(
-                (TruffleArg a) ->
-                    a.identifier() != null && a.identifier().equals("sessionToken"))
+                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("sessionToken"))
             .map(TruffleArg::exprNode)
             .findFirst();
 
     Optional<ExpressionNode> maybeMethod =
         args.stream()
-            .filter(
-                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("method"))
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("method"))
             .map(TruffleArg::exprNode)
             .findFirst();
 
@@ -87,9 +84,7 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
 
     ExpressionNode body =
         args.stream()
-            .filter(
-                (TruffleArg a) ->
-                    a.identifier() != null && a.identifier().equals("bodyString"))
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("bodyString"))
             .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(new StringNode(""));
@@ -108,8 +103,7 @@ public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements Truff
 
     ExpressionNode headers =
         args.stream()
-            .filter(
-                (TruffleArg a) -> a.identifier() != null && a.identifier().equals("headers"))
+            .filter((TruffleArg a) -> a.identifier() != null && a.identifier().equals("headers"))
             .map(TruffleArg::exprNode)
             .findFirst()
             .orElse(

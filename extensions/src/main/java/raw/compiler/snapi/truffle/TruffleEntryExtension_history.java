@@ -9,11 +9,11 @@
  * by the Apache License, Version 2.0, included in the file
  * licenses/APL.txt.
  */
+
 package raw.compiler.snapi.truffle;
 
 import java.util.List;
 import java.util.stream.Collectors;
-
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.truffle.TruffleEmitter;

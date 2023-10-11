@@ -26,11 +26,7 @@ public class TruffleCsvReadEntry extends CsvReadEntry implements TruffleEntryExt
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     CsvParser makeParser = new CsvParser(args);
     ExpressionNode url =
-        args.stream()
-            .filter(a -> a.identifier() == null)
-            .findFirst()
-            .orElseThrow()
-            .exprNode();
+        args.stream().filter(a -> a.identifier() == null).findFirst().orElseThrow().exprNode();
     return makeParser.fileParser(url, (Rql2TypeWithProperties) type, rawLanguage);
   }
 }

@@ -25,7 +25,6 @@ public class TruffleErrorBuildWithTypeEntry extends ErrorBuildWithTypeEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return TryableFailureWithTypeNodeGen.create(
-        args.get(0).exprNode(), args.get(1).exprNode());
+    return TryableFailureWithTypeNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

@@ -16,9 +16,9 @@ module raw.language.extensions {
   requires org.graalvm.polyglot;
   requires org.graalvm.truffle;
   requires raw.language;
-    requires kiama;
+  requires kiama;
 
-    exports raw.compiler.snapi.truffle;
+  exports raw.compiler.snapi.truffle;
   exports raw.compiler.snapi.truffle.compiler;
   exports raw.compiler.rql2.truffle;
 
