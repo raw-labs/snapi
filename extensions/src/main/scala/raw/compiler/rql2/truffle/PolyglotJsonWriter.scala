@@ -129,10 +129,12 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
         }
         gen.writeEndArray()
       } else if (v.hasArrayElements) {
+        gen.writeStartArray()
         for (i <- 0L until v.getArraySize) {
           val v1 = v.getArrayElement(i)
           writeValue(v1)
         }
+        gen.writeEndArray()
       } else if (v.hasHashEntries) {
         val it = v.getHashKeysIterator
         gen.writeStartObject()
