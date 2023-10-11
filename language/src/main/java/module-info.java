@@ -46,110 +46,112 @@ module raw.language {
   uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.compiler.rql2.api.EntryExtension;
 
-  exports raw.compiler.rql2ben.truffle.builtin;
 
   provides raw.creds.api.CredentialsServiceBuilder with
-      raw.creds.local.LocalCredentialsServiceBuilder;
-  //    provides raw.creds.api.CredentialsServiceBuilder with
-  // raw.creds.mock.MockCredentialsServiceBuilder;
+          raw.creds.local.LocalCredentialsServiceBuilder;
 
   uses raw.inferrer.api.InferrerServiceBuilder;
 
   provides raw.inferrer.api.InferrerServiceBuilder with
-      raw.inferrer.local.LocalInferrerServiceBuilder;
+          raw.inferrer.local.LocalInferrerServiceBuilder;
 
   uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
 
   provides raw.sources.bytestream.api.ByteStreamLocationBuilder with
-      raw.sources.bytestream.http.HttpByteStreamLocationBuilder,
-      raw.sources.bytestream.github.GithubByteStreamLocationBuilder,
-      raw.sources.bytestream.in_memory.InMemoryByteStreamLocationBuilder,
-      raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
-      raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
-      raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
-      raw.sources.filesystem.mock.MockFileSystemLocationBuilder;
+          raw.sources.bytestream.http.HttpByteStreamLocationBuilder,
+          raw.sources.bytestream.github.GithubByteStreamLocationBuilder,
+          raw.sources.bytestream.in_memory.InMemoryByteStreamLocationBuilder,
+          raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
+          raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
+          raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
+          raw.sources.filesystem.mock.MockFileSystemLocationBuilder;
 
   uses raw.sources.filesystem.api.FileSystemLocationBuilder;
 
   provides raw.sources.filesystem.api.FileSystemLocationBuilder with
-      raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
-      raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
-      raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
-      raw.sources.filesystem.mock.MockFileSystemLocationBuilder;
+          raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
+          raw.sources.filesystem.s3.S3FileSystemLocationBuilder,
+          raw.sources.filesystem.dropbox.DropboxFileSystemLocationBuilder,
+          raw.sources.filesystem.mock.MockFileSystemLocationBuilder;
 
   uses raw.sources.jdbc.api.JdbcLocationBuilder;
 
   provides raw.sources.jdbc.api.JdbcLocationBuilder with
-      raw.sources.jdbc.mysql.MySqlLocationBuilder,
-      raw.sources.jdbc.pgsql.PostgresqlLocationBuilder,
-      raw.sources.jdbc.snowflake.SnowflakeLocationBuilder,
-      raw.sources.jdbc.sqlite.SqliteLocationBuilder,
-      raw.sources.jdbc.sqlserver.SqlServerLocationBuilder;
+          raw.sources.jdbc.mysql.MySqlLocationBuilder,
+          raw.sources.jdbc.pgsql.PostgresqlLocationBuilder,
+          raw.sources.jdbc.snowflake.SnowflakeLocationBuilder,
+          raw.sources.jdbc.sqlite.SqliteLocationBuilder,
+          raw.sources.jdbc.sqlserver.SqlServerLocationBuilder;
 
   uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
 
   provides raw.sources.jdbc.api.JdbcSchemaLocationBuilder with
-      raw.sources.jdbc.mysql.MySqlSchemaLocationBuilder,
-      raw.sources.jdbc.pgsql.PostgresqlSchemaLocationBuilder,
-      raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder,
-      raw.sources.jdbc.sqlite.SqliteSchemaLocationBuilder,
-      raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder;
+          raw.sources.jdbc.mysql.MySqlSchemaLocationBuilder,
+          raw.sources.jdbc.pgsql.PostgresqlSchemaLocationBuilder,
+          raw.sources.jdbc.snowflake.SnowflakeSchemaLocationBuilder,
+          raw.sources.jdbc.sqlite.SqliteSchemaLocationBuilder,
+          raw.sources.jdbc.sqlserver.SqlServerSchemaLocationBuilder;
 
   uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
 
   provides raw.sources.jdbc.api.JdbcTableLocationBuilder with
-      raw.sources.jdbc.mysql.MySqlTableLocationBuilder,
-      raw.sources.jdbc.pgsql.PostgresqlTableLocationBuilder,
-      raw.sources.jdbc.snowflake.SnowflakeTableLocationBuilder,
-      raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
-      raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder;
+          raw.sources.jdbc.mysql.MySqlTableLocationBuilder,
+          raw.sources.jdbc.pgsql.PostgresqlTableLocationBuilder,
+          raw.sources.jdbc.snowflake.SnowflakeTableLocationBuilder,
+          raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
+          raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder;
 
   uses PackageExtension;
 
   provides PackageExtension with
-      raw.compiler.rql2.builtin.AwsPackage,
-      raw.compiler.rql2.builtin.BinaryPackage,
-      raw.compiler.rql2.builtin.BytePackage,
-      raw.compiler.rql2.builtin.CollectionPackage,
-      raw.compiler.rql2.builtin.CsvPackage,
-      raw.compiler.rql2.builtin.DatePackage,
-      raw.compiler.rql2.builtin.DecimalPackage,
-      raw.compiler.rql2.builtin.DoublePackage,
-      raw.compiler.rql2.builtin.EnvironmentPackage,
-      raw.compiler.rql2.builtin.ErrorPackage,
-      raw.compiler.rql2.builtin.FloatPackage,
-      raw.compiler.rql2.builtin.FunctionPackage,
-      raw.compiler.rql2.builtin.HttpPackage,
-      raw.compiler.rql2.builtin.IntPackage,
-      raw.compiler.rql2.builtin.IntervalPackage,
-      raw.compiler.rql2.builtin.JsonPackage,
-      raw.compiler.rql2.builtin.ListPackage,
-      raw.compiler.rql2.builtin.LocationPackage,
-      raw.compiler.rql2.builtin.LongPackage,
-      raw.compiler.rql2.builtin.MathPackage,
-      raw.compiler.rql2.builtin.MySQLPackage,
-      raw.compiler.rql2.builtin.NullablePackage,
-      raw.compiler.rql2.builtin.NullableTryablePackage,
-      raw.compiler.rql2.builtin.OraclePackage,
-      raw.compiler.rql2.builtin.PostgreSQLPackage,
-      raw.compiler.rql2.builtin.RecordPackage,
-      raw.compiler.rql2.builtin.RegexPackage,
-      raw.compiler.rql2.builtin.S3Package,
-      raw.compiler.rql2.builtin.SQLServerPackage,
-      raw.compiler.rql2.builtin.ShortPackage,
-      raw.compiler.rql2.builtin.SnowflakePackage,
-      raw.compiler.rql2.builtin.StringPackage,
-      raw.compiler.rql2.builtin.SuccessPackage,
-      raw.compiler.rql2.builtin.TimePackage,
-      raw.compiler.rql2.builtin.TimestampPackage,
-      raw.compiler.rql2.builtin.TryPackage,
-      raw.compiler.rql2.builtin.TypePackage,
-      raw.compiler.rql2.builtin.XmlPackage;
+          raw.compiler.rql2.builtin.AwsPackage,
+          raw.compiler.rql2.builtin.BinaryPackage,
+          raw.compiler.rql2.builtin.BytePackage,
+          raw.compiler.rql2.builtin.CollectionPackage,
+          raw.compiler.rql2.builtin.CsvPackage,
+          raw.compiler.rql2.builtin.DatePackage,
+          raw.compiler.rql2.builtin.DecimalPackage,
+          raw.compiler.rql2.builtin.DoublePackage,
+          raw.compiler.rql2.builtin.EnvironmentPackage,
+          raw.compiler.rql2.builtin.ErrorPackage,
+          raw.compiler.rql2.builtin.FloatPackage,
+          raw.compiler.rql2.builtin.FunctionPackage,
+          raw.compiler.rql2.builtin.HttpPackage,
+          raw.compiler.rql2.builtin.IntPackage,
+          raw.compiler.rql2.builtin.IntervalPackage,
+          raw.compiler.rql2.builtin.JsonPackage,
+          raw.compiler.rql2.builtin.ListPackage,
+          raw.compiler.rql2.builtin.LocationPackage,
+          raw.compiler.rql2.builtin.LongPackage,
+          raw.compiler.rql2.builtin.MathPackage,
+          raw.compiler.rql2.builtin.MySQLPackage,
+          raw.compiler.rql2.builtin.NullablePackage,
+          raw.compiler.rql2.builtin.NullableTryablePackage,
+          raw.compiler.rql2.builtin.OraclePackage,
+          raw.compiler.rql2.builtin.PostgreSQLPackage,
+          raw.compiler.rql2.builtin.RecordPackage,
+          raw.compiler.rql2.builtin.RegexPackage,
+          raw.compiler.rql2.builtin.S3Package,
+          raw.compiler.rql2.builtin.SQLServerPackage,
+          raw.compiler.rql2.builtin.ShortPackage,
+          raw.compiler.rql2.builtin.SnowflakePackage,
+          raw.compiler.rql2.builtin.StringPackage,
+          raw.compiler.rql2.builtin.SuccessPackage,
+          raw.compiler.rql2.builtin.TimePackage,
+          raw.compiler.rql2.builtin.TimestampPackage,
+          raw.compiler.rql2.builtin.TryPackage,
+          raw.compiler.rql2.builtin.TypePackage,
+          raw.compiler.rql2.builtin.XmlPackage;
+
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
-      raw.runtime.truffle.RawLanguageProvider;
+          raw.runtime.truffle.RawLanguageProvider;
 
   uses raw.compiler.api.CompilerServiceBuilder;
 
+  exports raw.utils;
+  exports raw.sources.api;
+  exports raw.creds.api;
+  exports raw.inferrer.api;
   exports raw.compiler;
   exports raw.compiler.api;
   exports raw.compiler.base;

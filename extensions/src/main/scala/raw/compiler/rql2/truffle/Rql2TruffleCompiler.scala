@@ -29,6 +29,7 @@ import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2ben.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
+import raw.compiler.snapi.truffle.compiler.{SnapiTruffleEmitter, TruffleDoEmit}
 import raw.compiler.truffle.TruffleCompiler
 import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime._
@@ -246,117 +247,120 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       implicit programContext: raw.compiler.base.ProgramContext
   ): Entrypoint = {
 
-    val rawLanguage = rawLanguageAsAny.asInstanceOf[RawLanguage]
+    val doEmit = new TruffleDoEmit()
+    doEmit.doEmit(program, rawLanguageAsAny.asInstanceOf[RawLanguage], programContext)
 
-    logger.debug(s"Output final program is:\n${prettyPrintOutput(program)}")
-
-//    // We explicitly create and then enter the context during code emission.
-//    // This context will be left on close in the TruffleProgramOutputWriter.
-//    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
-//    ctx.initialize(RawLanguage.ID)
-//    ctx.enter()
-    val ctx = null
-
-    val tree = new Tree(program)(programContext.asInstanceOf[ProgramContext])
-    val emitter = new TruffleEmitterImpl(tree, rawLanguage)(programContext.asInstanceOf[ProgramContext])
-    val Rql2Program(methods, me) = tree.root
-    val dataType = tree.analyzer.tipe(me.get)
-    val outputFormat = programContext.runtimeContext.environment.options.getOrElse("output-format", defaultOutputFormat)
-    outputFormat match {
-      case "csv" => if (!CsvPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
-      case "json" => if (!JsonPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
-      case "text" => if (!StringPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
-      case "binary" => if (!BinaryPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
-      case null | "" => // stage compilation
-      case _ => throw new CompilerException("unknown output format")
-    }
-
-    assert(me.isDefined)
-    val bodyExp = me.get
-
-    emitter.addScope() // we need a scope for potential function declarations
-    val functionDeclarations = methods.map(emitter.emitMethod).toArray
-    val body = emitter.recurseExp(bodyExp)
-    val bodyExpNode =
-      if (functionDeclarations.nonEmpty) {
-        new ExpBlockNode(functionDeclarations, body)
-      } else {
-        body
-      }
-    val frameDescriptor = emitter.dropScope()
-
-    // Wrap output node
-
-    val rootNode: RootNode = outputFormat match {
-      case "csv" =>
-        val windowsLineEnding = programContext.runtimeContext.environment.options.get("windows-line-ending") match {
-          case Some("true") => true
-          case Some("false") => false
-          case None => programContext.settings.getBoolean(WINDOWS_LINE_ENDING)
-        }
-        val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-        dataType match {
-          case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
-            assert(rProps.isEmpty)
-            assert(iProps.isEmpty)
-            new ProgramStatementNode(
-              rawLanguage,
-              frameDescriptor,
-              new CsvIterableWriterNode(
-                bodyExpNode,
-                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
-                atts.map(_.idn).toArray,
-                lineSeparator
-              )
-            )
-          case Rql2ListType(Rql2RecordType(atts, rProps), iProps) =>
-            assert(rProps.isEmpty)
-            assert(iProps.isEmpty)
-            new ProgramStatementNode(
-              rawLanguage,
-              frameDescriptor,
-              new CsvListWriterNode(
-                bodyExpNode,
-                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
-                atts.map(_.idn).toArray,
-                lineSeparator
-              )
-            )
-        }
-      case "json" => new ProgramStatementNode(
-          rawLanguage,
-          frameDescriptor,
-          JsonWriterNodeGen.create(
-            bodyExpNode,
-            JsonWriter.recurse(dataType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
-          )
-        )
-      case "binary" =>
-        val writer =
-          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2BinaryType], rawLanguage, frameDescriptor)
-        new ProgramStatementNode(
-          rawLanguage,
-          frameDescriptor,
-          new BinaryWriterNode(bodyExpNode, writer)
-        )
-      case "text" =>
-        val writer =
-          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2StringType], rawLanguage, frameDescriptor)
-        new ProgramStatementNode(
-          rawLanguage,
-          frameDescriptor,
-          new BinaryWriterNode(bodyExpNode, writer)
-        )
-      case null | "" => new ProgramExpressionNode(
-          rawLanguage,
-          frameDescriptor,
-          bodyExpNode
-        )
-      case _ => throw new CompilerException("unknown output format")
-    }
-
-    TruffleEntrypoint(ctx, rootNode, frameDescriptor)
-  }
+//    val rawLanguage = rawLanguageAsAny.asInstanceOf[RawLanguage]
+//
+//    logger.debug(s"Output final program is:\n${prettyPrintOutput(program)}")
+//
+////    // We explicitly create and then enter the context during code emission.
+////    // This context will be left on close in the TruffleProgramOutputWriter.
+////    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
+////    ctx.initialize(RawLanguage.ID)
+////    ctx.enter()
+//    val ctx = null
+//
+//    val tree = new Tree(program)(programContext.asInstanceOf[ProgramContext])
+//    val emitter = new TruffleEmitterImpl(tree, rawLanguage)(programContext.asInstanceOf[ProgramContext])
+//    val Rql2Program(methods, me) = tree.root
+//    val dataType = tree.analyzer.tipe(me.get)
+//    val outputFormat = programContext.runtimeContext.environment.options.getOrElse("output-format", defaultOutputFormat)
+//    outputFormat match {
+//      case "csv" => if (!CsvPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+//      case "json" => if (!JsonPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+//      case "text" => if (!StringPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+//      case "binary" => if (!BinaryPackage.outputWriteSupport(dataType)) throw new CompilerException("unsupported type")
+//      case null | "" => // stage compilation
+//      case _ => throw new CompilerException("unknown output format")
+//    }
+//
+//    assert(me.isDefined)
+//    val bodyExp = me.get
+//
+//    emitter.addScope() // we need a scope for potential function declarations
+//    val functionDeclarations = methods.map(emitter.emitMethod).toArray
+//    val body = emitter.recurseExp(bodyExp)
+//    val bodyExpNode =
+//      if (functionDeclarations.nonEmpty) {
+//        new ExpBlockNode(functionDeclarations, body)
+//      } else {
+//        body
+//      }
+//    val frameDescriptor = emitter.dropScope()
+//
+//    // Wrap output node
+//
+//    val rootNode: RootNode = outputFormat match {
+//      case "csv" =>
+//        val windowsLineEnding = programContext.runtimeContext.environment.options.get("windows-line-ending") match {
+//          case Some("true") => true
+//          case Some("false") => false
+//          case None => programContext.settings.getBoolean(WINDOWS_LINE_ENDING)
+//        }
+//        val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
+//        dataType match {
+//          case Rql2IterableType(Rql2RecordType(atts, rProps), iProps) =>
+//            assert(rProps.isEmpty)
+//            assert(iProps.isEmpty)
+//            new ProgramStatementNode(
+//              rawLanguage,
+//              frameDescriptor,
+//              new CsvIterableWriterNode(
+//                bodyExpNode,
+//                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
+//                atts.map(_.idn).toArray,
+//                lineSeparator
+//              )
+//            )
+//          case Rql2ListType(Rql2RecordType(atts, rProps), iProps) =>
+//            assert(rProps.isEmpty)
+//            assert(iProps.isEmpty)
+//            new ProgramStatementNode(
+//              rawLanguage,
+//              frameDescriptor,
+//              new CsvListWriterNode(
+//                bodyExpNode,
+//                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
+//                atts.map(_.idn).toArray,
+//                lineSeparator
+//              )
+//            )
+//        }
+//      case "json" => new ProgramStatementNode(
+//          rawLanguage,
+//          frameDescriptor,
+//          JsonWriterNodeGen.create(
+//            bodyExpNode,
+//            JsonWriter.recurse(dataType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
+//          )
+//        )
+//      case "binary" =>
+//        val writer =
+//          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2BinaryType], rawLanguage, frameDescriptor)
+//        new ProgramStatementNode(
+//          rawLanguage,
+//          frameDescriptor,
+//          new BinaryWriterNode(bodyExpNode, writer)
+//        )
+//      case "text" =>
+//        val writer =
+//          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2StringType], rawLanguage, frameDescriptor)
+//        new ProgramStatementNode(
+//          rawLanguage,
+//          frameDescriptor,
+//          new BinaryWriterNode(bodyExpNode, writer)
+//        )
+//      case null | "" => new ProgramExpressionNode(
+//          rawLanguage,
+//          frameDescriptor,
+//          bodyExpNode
+//        )
+//      case _ => throw new CompilerException("unknown output format")
+//    }
+//
+//    TruffleEntrypoint(ctx, rootNode, frameDescriptor)
+//  }
 
 }
 

@@ -20,7 +20,7 @@ import raw.compiler.rql2.truffle.TruffleEmitter;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 
-public interface TruffleEntryExtension_history {
+public interface TruffleEntryExtension {
   default ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     throw new UnsupportedOperationException("Not implemented");
   }

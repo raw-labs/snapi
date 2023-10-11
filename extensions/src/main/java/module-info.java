@@ -20,7 +20,6 @@ module raw.language.extensions {
 
   exports raw.compiler.snapi.truffle;
   exports raw.compiler.snapi.truffle.compiler;
-  exports raw.compiler.rql2.truffle;
 
   provides raw.compiler.api.CompilerServiceBuilder with
       raw.compiler.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
