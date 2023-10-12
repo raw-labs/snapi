@@ -24,7 +24,7 @@ import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.snapi.truffle.compiler.{TruffleDoEmit, TruffleEntrypoint}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{CompilerException, ErrorMessage, base}
+import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
