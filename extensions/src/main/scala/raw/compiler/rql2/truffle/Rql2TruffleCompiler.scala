@@ -60,8 +60,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     //              We shouldn't have access to doCompile and hence not do be rawLanguageAsNull as null, which is broken!
     val context = Context
       .newBuilder(RawLanguage.ID)
-      .environment("RAW_USER", programContext.runtimeContext.environment.user.uid)
-      .environment("RAW_TRACE_ID", programContext.runtimeContext.environment.user.uid)
+      .environment("RAW_USER", programContext.runtimeContext.environment.user.uid.toString)
+      .environment("RAW_TRACE_ID", programContext.runtimeContext.environment.user.uid.toString)
       .environment("RAW_SCOPES", programContext.runtimeContext.environment.scopes.mkString(","))
       .build()
     context.initialize(RawLanguage.ID)
