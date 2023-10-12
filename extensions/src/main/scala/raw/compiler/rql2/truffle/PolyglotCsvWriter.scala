@@ -19,6 +19,7 @@ import org.graalvm.polyglot.Value
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.time.LocalDate
+import java.util.Base64
 import scala.util.control.NonFatal
 
 class PolyglotCsvWriter(os: OutputStream) extends Closeable {
@@ -46,6 +47,9 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
     } else {
       if (v.isNull) {
         gen.writeNull()
+      } else if (v.hasBufferElements) {
+        val bytes = (0L until v.getBufferSize).map(v.readBufferByte)
+        gen.writeString(Base64.getEncoder.encodeToString(bytes.toArray))
       } else if (v.isBoolean) {
         gen.writeBoolean(v.asBoolean())
       } else if (v.isNumber) {
@@ -68,18 +72,18 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
         }
       } else if (v.isString) {
         gen.writeString(v.asString())
-      } else if (v.isInstant) // Must take precedence over date or time, since instants are also dates/times.
-        {
-          val instant = v.asInstant()
-          val formatted =
-            if (v.isTimeZone) { // If it has a timezone indication, format as a zoned date time.
-              val zonedDateTime = instant.atZone(v.asTimeZone())
-              zonedDateTimeFormatter.format(zonedDateTime)
-            } else {
-              instantFormatter.format(instant)
-            }
-          gen.writeString(formatted)
-        } else if (v.isDate) {
+      } else if (v.isInstant) {
+        // Must take precedence over date or time, since instants are also dates/times.
+        val instant = v.asInstant()
+        val formatted =
+          if (v.isTimeZone) { // If it has a timezone indication, format as a zoned date time.
+            val zonedDateTime = instant.atZone(v.asTimeZone())
+            zonedDateTimeFormatter.format(zonedDateTime)
+          } else {
+            instantFormatter.format(instant)
+          }
+        gen.writeString(formatted)
+      } else if (v.isDate) {
         val date = v.asDate()
         val formatted =
           if (v.isTimeZone) {
