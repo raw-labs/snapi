@@ -39,6 +39,9 @@ module raw.language {
   requires ch.qos.logback.classic;
   requires com.google.common;
   // requires jul.to.slf4j;
+  requires dropbox.core.sdk;
+  requires spring.core;
+  requires spring.jcl;
 
   uses raw.auth.api.AuthServiceBuilder;
   uses raw.compiler.base.CompilerBuilder;

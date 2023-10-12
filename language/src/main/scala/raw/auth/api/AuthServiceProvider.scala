@@ -24,10 +24,26 @@ object AuthServiceProvider {
   private var instance: AuthService = _
   private val instanceLock = new Object
 
+  def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): AuthService = {
+    maybeClassLoader match {
+      case Some(cl) => apply(cl)
+      case None => apply()
+    }
+  }
+
   def apply()(implicit settings: RawSettings): AuthService = {
     instanceLock.synchronized {
       if (instance == null) {
         instance = build()
+      }
+      return instance
+    }
+  }
+
+  def apply(classLoader: ClassLoader)(implicit settings: RawSettings): AuthService = {
+    instanceLock.synchronized {
+      if (instance == null) {
+        instance = build(Some(classLoader))
       }
       return instance
     }
@@ -39,8 +55,13 @@ object AuthServiceProvider {
     }
   }
 
-  private def build()(implicit settings: RawSettings): AuthService = {
-    val services = ServiceLoader.load(classOf[AuthServiceBuilder]).asScala.toArray
+  private def build(
+      maybeClassLoader: Option[ClassLoader] = None
+  )(implicit settings: RawSettings): AuthService = {
+    val services = maybeClassLoader match {
+      case Some(cl) => ServiceLoader.load(classOf[AuthServiceBuilder], cl).asScala.toArray
+      case None => ServiceLoader.load(classOf[AuthServiceBuilder]).asScala.toArray
+    }
     if (services.isEmpty) {
       throw new GenericAuthException("no authentication service available")
     } else if (services.size > 1) {

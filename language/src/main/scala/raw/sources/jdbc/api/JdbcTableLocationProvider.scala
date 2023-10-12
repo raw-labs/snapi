@@ -18,7 +18,8 @@ import raw.sources.api.{LocationDescription, LocationProvider, SourceContext}
 
 object JdbcTableLocationProvider extends LocationProvider {
 
-  private val services = ServiceLoader.load(classOf[JdbcTableLocationBuilder]).asScala.toArray
+  private var services: Array[JdbcTableLocationBuilder] = _
+  private val servicesLock = new Object
 
   private val lock = new Object
 
@@ -31,7 +32,17 @@ object JdbcTableLocationProvider extends LocationProvider {
     }
   }
 
+  private def loadServices()(implicit sourceContext: SourceContext): Unit = {
+    servicesLock.synchronized {
+      services = sourceContext.maybeClassLoader match {
+        case Some(cl) => ServiceLoader.load(classOf[JdbcTableLocationBuilder], cl).asScala.toArray
+        case None => ServiceLoader.load(classOf[JdbcTableLocationBuilder]).asScala.toArray
+      }
+    }
+  }
+
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): JdbcTableLocation = {
+    loadServices()
     lock.synchronized {
       getScheme(location.url) match {
         case Some(scheme) =>

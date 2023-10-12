@@ -81,7 +81,7 @@ public final class RawContext {
 
     // Create source context.
     CredentialsService credentialsService = CredentialsServiceProvider.apply(classLoader, rawSettings);
-    this.sourceContext = new SourceContext(user, credentialsService, rawSettings);
+    this.sourceContext = new SourceContext(user, credentialsService, rawSettings, new Some<>(classLoader));
 
     // Create program environment.
     Set<String> scalaScopes =

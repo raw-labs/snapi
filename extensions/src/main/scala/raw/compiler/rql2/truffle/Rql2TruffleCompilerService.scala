@@ -39,16 +39,9 @@ import raw.compiler.rql2.source._
 import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
-import raw.runtime.truffle.runtime.exceptions.{RawTruffleValidationException, ValidationErrorObject}
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{
-  saveToTemporaryFileNoDeleteOnExit,
-  withSuppressNonFatalException,
-  AuthenticatedUser,
-  RawConcurrentHashMap,
-  RawSettings
-}
+import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
 import java.time.{LocalDate, ZoneId}
@@ -69,7 +62,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
 
   private def createCompilerContext(user: AuthenticatedUser, language: String): CompilerContext = {
     // Initialize source context
-    implicit val sourceContext = new SourceContext(user, credentials, settings)
+    implicit val sourceContext = new SourceContext(user, credentials, settings, maybeClassLoader)
 
     // Initialize inferrer
     val inferrer = InferrerServiceProvider(maybeClassLoader)

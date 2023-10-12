@@ -57,7 +57,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
 
   private def createCompiler(user: AuthenticatedUser, language: String): Compiler = {
     // Initialize source context
-    implicit val sourceContext = new SourceContext(user, credentials, settings)
+    implicit val sourceContext = new SourceContext(user, credentials, settings, None)
 
     // Initialize inferrer
     val inferrer = InferrerServiceProvider(maybeClassLoader)

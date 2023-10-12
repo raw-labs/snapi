@@ -18,5 +18,6 @@ import raw.creds.api.CredentialsService
 class SourceContext(
     val user: AuthenticatedUser,
     val credentialsService: CredentialsService,
-    val settings: RawSettings
+    val settings: RawSettings,
+    val maybeClassLoader: Option[ClassLoader]
 )

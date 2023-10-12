@@ -20,12 +20,23 @@ import raw.sources.api.{LocationDescription, LocationProvider, SourceContext}
 
 object FileSystemLocationProvider extends LocationProvider {
 
-  private val services = ServiceLoader.load(classOf[FileSystemLocationBuilder]).asScala.toArray
+  private var services: Array[FileSystemLocationBuilder] = _
+  private val servicesLock = new Object
 
   private val lock = new Object
 
+  private def loadServices()(implicit sourceContext: SourceContext): Unit = {
+    servicesLock.synchronized {
+      services = sourceContext.maybeClassLoader match {
+        case Some(cl) => ServiceLoader.load(classOf[FileSystemLocationBuilder], cl).asScala.toArray
+        case None => ServiceLoader.load(classOf[FileSystemLocationBuilder]).asScala.toArray
+      }
+    }
+  }
+
   @throws[RawException]
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
+    loadServices()
     lock.synchronized {
       getScheme(location.url) match {
         case Some(scheme) =>

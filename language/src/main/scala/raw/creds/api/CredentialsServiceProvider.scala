@@ -49,13 +49,6 @@ object CredentialsServiceProvider {
     }
   }
 
-  def get(): CredentialsService = {
-    instanceLock.synchronized {
-      assert(instance != null, "credentials service not initialized")
-      return instance
-    }
-  }
-
   private[raw] def set(instance: CredentialsService): Unit = {
     instanceLock.synchronized {
       this.instance = instance
