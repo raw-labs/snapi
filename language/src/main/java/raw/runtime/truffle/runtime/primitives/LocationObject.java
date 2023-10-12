@@ -18,6 +18,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.list.StringList;
 import raw.sources.api.*;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashMap;
@@ -63,9 +64,9 @@ public class LocationObject implements TruffleObject {
   }
 
   @ExportMessage
-  final String[] getMembers(boolean includeInternal) {
-    return (String[])
-        JavaConverters.asJavaCollection(locationDescription.settings().keys()).stream().map(LocationSettingKey::key).toArray();
+  final Object getMembers(boolean includeInternal) {
+    String[] keys = JavaConverters.asJavaCollection(locationDescription.settings().keys()).stream().map(LocationSettingKey::key).toArray(String[]::new);
+    return new StringList(keys);
   }
 
   @ExportMessage
