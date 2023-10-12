@@ -14,7 +14,7 @@ package raw.compiler.rql2.truffle
 
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Value}
+import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Value}
 import raw.compiler.api._
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.runtime._
@@ -50,6 +50,24 @@ import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
     extends CompilerService {
+
+  private val engine = {
+    val options = new java.util.HashMap[String, String]()
+    if (settings.onTrainingWheels) {
+      options.put("engine.CompileImmediately", "true")
+      options.put("engine.TraceCompilation", "true")
+      //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
+      //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
+      //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
+      //  "-Dpolyglotimpl.BackgroundCompilation=false",
+      //  "-Dpolyglotimpl.TraceCompilationDetails=true",
+      //  "-Dpolyglotimpl.TraceInlining=true"
+      //  "-Dgraal.Dump=Truffle:2",
+      //  "-Dgraal.DumpPath=/tmp/graal_dumps",
+      //  "-Dgraal.PrintGraph=Network",
+    }
+    Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+  }
 
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
@@ -712,6 +730,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   override def doStop(): Unit = {
     compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
     credentials.stop()
+    engine.close()
   }
 
   private def javaValueOf(value: ParamValue) = {
@@ -740,6 +759,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
       .newBuilder(RawLanguage.ID, "python")
+      .engine(engine)
       .environment("RAW_SETTINGS", settings.renderAsString)
       .environment("RAW_USER", environment.user.uid.toString)
       .environment("RAW_TRACE_ID", environment.user.uid.toString)

@@ -121,22 +121,7 @@ Test / javaOptions ++= Seq(
   // Limit overall memory and force crashing hard and early.
   // Useful for debugging memleaks.
   "-Xmx4G",
-  "-XX:+CrashOnOutOfMemoryError",
-  // Truffle test settings.
-//  "-Dpolyglotimpl.Inlining=false",
-  "-Dpolyglotimpl.CompileImmediately=true",
-  "-Dpolyglotimpl.AllowExperimentalOptions=true",
-  "-Dgraal.Dump=Truffle:2",
-  "-Dgraal.DumpPath=/tmp/graal_dumps",
-  "-Dgraal.PrintGraph=Network",
-//  "-Dpolyglotimpl.CompilationFailureAction=Throw",
-//  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
-//  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
-//  "-Dpolyglotimpl.DisableClassPathIsolation=true",
-  "-Dpolyglotimpl.BackgroundCompilation=false",
-  "-Dpolyglotimpl.TraceCompilation=true",
-  "-Dpolyglotimpl.TraceCompilationDetails=true",
-  "-Dpolyglotimpl.TraceInlining=true"
+  "-XX:+CrashOnOutOfMemoryError"
 )
 
 // Group tests by the scala package of the test
