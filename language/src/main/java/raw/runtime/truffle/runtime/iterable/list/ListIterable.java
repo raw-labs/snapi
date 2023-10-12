@@ -12,14 +12,18 @@
 
 package raw.runtime.truffle.runtime.iterable.list;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.list.ListGenerator;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
-public class ListIterable implements TruffleObject {
+@ExportLibrary(InteropLibrary.class)
+public final class ListIterable implements TruffleObject {
 
   private final Object list;
 
@@ -35,5 +39,19 @@ public class ListIterable implements TruffleObject {
   @ExportMessage
   Object getGenerator() {
     return new ListGenerator(this.list);
+  }
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
   }
 }

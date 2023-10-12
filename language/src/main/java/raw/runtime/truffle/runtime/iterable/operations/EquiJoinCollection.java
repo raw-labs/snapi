@@ -12,18 +12,23 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.EquiJoinComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
-public final class EquiJoinCollection {
+@ExportLibrary(InteropLibrary.class)
+public final class EquiJoinCollection implements TruffleObject {
 
   final Object leftIterable, rightIterable;
   final Closure leftKeyF, rightKeyF;
@@ -75,5 +80,21 @@ public final class EquiJoinCollection {
             reshapeFun,
             language,
             context));
+  }
+
+  // InteropLibrary: Iterable
+
+  @ExportMessage
+  final boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  final Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
   }
 }

@@ -12,10 +12,14 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.XmlReadComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -23,7 +27,8 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
-public class XmlReadCollection {
+@ExportLibrary(InteropLibrary.class)
+public class XmlReadCollection implements TruffleObject {
 
   private final LocationObject locationObject;
   private final DirectCallNode parseNextRootNode;
@@ -55,4 +60,21 @@ public class XmlReadCollection {
     return new CollectionAbstractGenerator(
         new XmlReadComputeNext(locationObject, encoding, context, parseNextRootNode, settings));
   }
+
+  // InteropLibrary: Iterable
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
+  }
+
 }

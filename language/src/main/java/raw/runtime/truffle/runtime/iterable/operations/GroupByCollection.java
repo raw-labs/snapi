@@ -13,6 +13,8 @@
 package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -26,7 +28,8 @@ import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
-public final class GroupByCollection {
+@ExportLibrary(InteropLibrary.class)
+public final class GroupByCollection implements TruffleObject {
 
   final Object iterable;
   final Closure keyFun;
@@ -77,4 +80,20 @@ public final class GroupByCollection {
     }
     return map.generator();
   }
+  // InteropLibrary: Iterable
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
+  }
+
 }

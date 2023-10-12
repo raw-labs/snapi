@@ -135,8 +135,7 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
           writeValue(v1)
         }
         if (v.canInvokeMember("close")) {
-          val callable = v.getMember("close")
-          callable.execute()
+          v.invokeMember("close")
         }
         gen.writeEndArray()
       } else if (v.hasArrayElements) {

@@ -341,4 +341,8 @@ byte asByte() throws UnsupportedMessageException {
     return interops.asBoolean(successValue);
   }
 
+  @ExportMessage
+  boolean isNull() {
+    return interops.isNull(successValue);
+  }
 }

@@ -12,13 +12,18 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.EmptyCollectionGenerator;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
-public final class EmptyCollection {
+@ExportLibrary(InteropLibrary.class)
+public final class EmptyCollection implements TruffleObject {
 
   @ExportMessage
   boolean isIterable() {
@@ -29,4 +34,21 @@ public final class EmptyCollection {
   Object getGenerator() {
     return new EmptyCollectionGenerator();
   }
+
+  // InteropLibrary: Iterable
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
+  }
+
 }

@@ -447,7 +447,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           throw new InterruptedException()
         } else if (ex.isGuestException) {
           val err = ex.getGuestObject
-          if (err.hasMembers && err.hasMember("errors")) {
+          if (err != null && err.hasMembers && err.hasMember("errors")) {
             val errorsValue = err.getMember("errors")
             val errors = (0L until errorsValue.getArraySize).map { i =>
               val errorValue = errorsValue.getArrayElement(i)

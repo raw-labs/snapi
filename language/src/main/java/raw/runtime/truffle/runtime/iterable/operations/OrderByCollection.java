@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -26,7 +28,8 @@ import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.sources.api.SourceContext;
 
 @ExportLibrary(IterableLibrary.class)
-public final class OrderByCollection {
+@ExportLibrary(InteropLibrary.class)
+public final class OrderByCollection implements TruffleObject {
 
   final Object parentIterable;
   final Closure[] keyFunctions;
@@ -105,4 +108,21 @@ public final class OrderByCollection {
     }
     return groupByKeys.generator();
   }
+
+  // InteropLibrary: Iterable
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
+  }
+
 }

@@ -12,16 +12,20 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.FilterComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
-public final class FilterCollection {
+@ExportLibrary(InteropLibrary.class)
+public final class FilterCollection implements TruffleObject {
 
   final Object parentIterable;
   final Closure predicate;
@@ -40,5 +44,20 @@ public final class FilterCollection {
   Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
     Object parentGenerator = iterables.getGenerator(parentIterable);
     return new CollectionAbstractGenerator(new FilterComputeNext(parentGenerator, predicate));
+  }
+  // InteropLibrary: Iterable
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
   }
 }
