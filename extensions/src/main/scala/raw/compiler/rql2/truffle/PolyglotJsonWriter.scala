@@ -71,6 +71,13 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
         }
       } else if (v.isString) {
         gen.writeString(v.asString())
+      } else if (v.isDate && v.isTime && !v.isTimeZone) {
+        // A timestamp without a timezone.
+        val date = v.asDate()
+        val time = v.asTime()
+        val dateTime = date.atTime(time)
+        val formatted = instantFormatter.format(dateTime)
+        gen.writeString(formatted)
       } else if (v.isInstant) {
         // Must take precedence over date or time, since instants are also dates/times.
         val instant = v.asInstant()
