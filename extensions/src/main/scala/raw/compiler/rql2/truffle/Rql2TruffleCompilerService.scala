@@ -14,7 +14,7 @@ package raw.compiler.rql2.truffle
 
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Value}
+import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
 import raw.compiler.api._
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.runtime._
@@ -234,7 +234,11 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       environment,
       ctx =>
         try {
-          val polyglotValue = ctx.eval("rql", source)
+          val truffleSource = Source
+            .newBuilder("rql", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          val polyglotValue = ctx.eval(truffleSource)
           val rawValue = convertPolyglotValueToRawValue(polyglotValue, tipe)
           EvalSuccess(rawValue)
         } catch {
@@ -388,7 +392,12 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           //          val f = ctx.getBindings("rql").getMember(decl)
           //          f.execute(maybeArguments)
           ???
-        case None => ctx.eval("rql", source)
+        case None =>
+          val truffleSource = Source
+            .newBuilder("rql", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          ctx.eval(truffleSource)
       }
 
       environment.options
