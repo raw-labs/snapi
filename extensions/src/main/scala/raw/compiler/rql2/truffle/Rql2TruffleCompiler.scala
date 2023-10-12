@@ -13,41 +13,21 @@
 package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.Truffle
-import com.oracle.truffle.api.frame.{FrameDescriptor, FrameSlotKind}
 import com.oracle.truffle.api.interop.InteropLibrary
-import com.oracle.truffle.api.nodes.RootNode
-import com.typesafe.scalalogging.StrictLogging
-import org.bitbucket.inkytonik.kiama.util.Entity
 import org.graalvm.polyglot.Context
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.base.{BaseTree, CompilerContext}
 import raw.compiler.common.source._
 import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
-import raw.compiler.rql2.api._
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
-import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
-import raw.compiler.rql2ben.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
-import raw.compiler.snapi.truffle.compiler.{SnapiTruffleEmitter, TruffleDoEmit, TruffleEntrypoint}
+import raw.compiler.snapi.truffle.compiler.{TruffleDoEmit, TruffleEntrypoint}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{CompilerException, ErrorMessage, base}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
-import raw.runtime.truffle.ast._
-import raw.runtime.truffle.ast.controlflow._
-import raw.runtime.truffle.ast.expressions.binary._
-import raw.runtime.truffle.ast.expressions.function._
-import raw.runtime.truffle.ast.expressions.literals._
-import raw.runtime.truffle.ast.expressions.option.OptionNoneNode
-import raw.runtime.truffle.ast.expressions.record.RecordProjNodeGen
-import raw.runtime.truffle.ast.expressions.unary._
-import raw.runtime.truffle.ast.io.binary.BinaryWriterNode
-import raw.runtime.truffle.ast.io.csv.writer.{CsvIterableWriterNode, CsvListWriterNode}
-import raw.runtime.truffle.ast.io.json.writer.JsonWriterNodeGen
-import raw.runtime.truffle.ast.local._
-import raw.runtime.truffle.runtime.function.Function
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary
 import raw.runtime.truffle.runtime.iterable.IterableLibrary
 import raw.runtime.truffle.runtime.list.ListLibrary
@@ -56,12 +36,11 @@ import raw.runtime.truffle.runtime.or.OrObject
 import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
-import java.util.UUID
-import scala.collection.{mutable, JavaConverters}
+import scala.collection.mutable
 
-object Rql2TruffleCompiler {
-  private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
-}
+//object Rql2TruffleCompiler {
+//  private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
+//}
 
 //final case class TruffleEntrypoint(context: Context, node: RootNode, frameDescriptor: FrameDescriptor)
 //    extends Entrypoint {
@@ -81,8 +60,8 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     //              We shouldn't have access to doCompile and hence not do be rawLanguageAsNull as null, which is broken!
     val context = Context
       .newBuilder(RawLanguage.ID)
-      .environment("RAW_USER", programContext.runtimeContext.environment.user.uid.toString)
-      .environment("RAW_TRACE_ID", programContext.runtimeContext.environment.user.uid.toString)
+      .environment("RAW_USER", programContext.runtimeContext.environment.user.uid)
+      .environment("RAW_TRACE_ID", programContext.runtimeContext.environment.user.uid)
       .environment("RAW_SCOPES", programContext.runtimeContext.environment.scopes.mkString(","))
       .build()
     context.initialize(RawLanguage.ID)
@@ -247,21 +226,22 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
       implicit programContext: raw.compiler.base.ProgramContext
   ): Entrypoint = {
 
-    val doEmit = new TruffleDoEmit()
-    doEmit.doEmit(program, rawLanguageAsAny.asInstanceOf[RawLanguage], programContext)
+    val rawLanguage = rawLanguageAsAny.asInstanceOf[RawLanguage]
 
-//    val rawLanguage = rawLanguageAsAny.asInstanceOf[RawLanguage]
-//
-//    logger.debug(s"Output final program is:\n${prettyPrintOutput(program)}")
-//
-////    // We explicitly create and then enter the context during code emission.
-////    // This context will be left on close in the TruffleProgramOutputWriter.
-////    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
-////    ctx.initialize(RawLanguage.ID)
-////    ctx.enter()
+    logger.debug(s"Output final program is:\n${prettyPrintOutput(program)}")
+
+//    // We explicitly create and then enter the context during code emission.
+//    // This context will be left on close in the TruffleProgramOutputWriter.
+//    val ctx: Context = Context.newBuilder(RawLanguage.ID).build()
+//    ctx.initialize(RawLanguage.ID)
+//    ctx.enter()
 //    val ctx = null
-//
+
 //    val tree = new Tree(program)(programContext.asInstanceOf[ProgramContext])
+
+    val emmiter = new TruffleDoEmit()
+    emmiter.doEmit(program, rawLanguage, programContext.asInstanceOf[ProgramContext])
+
 //    val emitter = new TruffleEmitterImpl(tree, rawLanguage)(programContext.asInstanceOf[ProgramContext])
 //    val Rql2Program(methods, me) = tree.root
 //    val dataType = tree.analyzer.tipe(me.get)
@@ -360,12 +340,12 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 //    }
 //
 //    TruffleEntrypoint(ctx, rootNode, frameDescriptor)
+//  }
+
   }
 
-}
-//
 //final case class SlotLocation(depth: Int, slot: Int)
-//
+
 //class TruffleEmitterImpl(tree: Tree, val rawLanguage: RawLanguage)(implicit programContext: ProgramContext)
 //    extends TruffleEmitter
 //    with StrictLogging {
@@ -649,4 +629,4 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 //      new InvokeNode(recurseExp(f), args.map(_.idn.orNull).toArray, args.map(arg => recurseExp(arg.e)).toArray)
 //  }
 //
-//}
+}

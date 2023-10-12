@@ -117,7 +117,7 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
             ctx.enter()
             try {
               val target = Truffle.getRuntime
-                .createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].target().getCallTarget)
+                .createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].target.getCallTarget)
               target.call()
               outputStream.flush()
               ExecutionSuccess
@@ -206,8 +206,8 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
   ): Context = {
     val ctxBuilder = Context
       .newBuilder(RawLanguage.ID)
-      .environment("RAW_USER", environment.user.uid.toString)
-      .environment("RAW_TRACE_ID", environment.user.uid.toString)
+      .environment("RAW_USER", environment.user.uid)
+      .environment("RAW_TRACE_ID", environment.user.uid)
       .environment("RAW_SCOPES", environment.scopes.mkString(","))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)

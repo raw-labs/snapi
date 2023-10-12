@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2ben.truffle.builtin;
+package raw.compiler.rql2output.truffle.builtin;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import java.util.Arrays;
