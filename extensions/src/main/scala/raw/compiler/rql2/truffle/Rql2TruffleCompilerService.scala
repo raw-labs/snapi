@@ -14,10 +14,42 @@ package raw.compiler.rql2.truffle
 
 import com.oracle.truffle.api.Truffle
 import org.graalvm.polyglot.{Context, PolyglotAccess}
-import raw.compiler.api.{AutoCompleteResponse, CompilationResponse, CompilerServiceException, ExecutionResponse, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GetProgramDescriptionResponse, GetTypeResponse, GoToDefinitionResponse, HoverResponse, Pos, RenameResponse, ValidateResponse}
+import raw.compiler.api.{
+  AutoCompleteResponse,
+  CompilationResponse,
+  CompilerServiceException,
+  ExecutionResponse,
+  ExecutionRuntimeFailure,
+  ExecutionSuccess,
+  ExecutionValidationFailure,
+  GetProgramDescriptionResponse,
+  GetTypeResponse,
+  GoToDefinitionResponse,
+  HoverResponse,
+  Pos,
+  RenameResponse,
+  ValidateResponse
+}
 import raw.compiler.common.CommonCompilerService
 import raw.compiler.snapi.truffle.compiler.TruffleEntrypoint
-import raw.runtime.{ParamBool, ParamByte, ParamDate, ParamDecimal, ParamDouble, ParamFloat, ParamInt, ParamInterval, ParamLong, ParamNull, ParamShort, ParamString, ParamTime, ParamTimestamp, ParamValue, ProgramEnvironment}
+import raw.runtime.{
+  ParamBool,
+  ParamByte,
+  ParamDate,
+  ParamDecimal,
+  ParamDouble,
+  ParamFloat,
+  ParamInt,
+  ParamInterval,
+  ParamLong,
+  ParamNull,
+  ParamShort,
+  ParamString,
+  ParamTime,
+  ParamTimestamp,
+  ParamValue,
+  ProgramEnvironment
+}
 import raw.runtime.truffle.RawLanguage
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
@@ -84,8 +116,8 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
             ctx.initialize(RawLanguage.ID)
             ctx.enter()
             try {
-              val target =
-                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].target().getCallTarget)
+              val target = Truffle.getRuntime
+                .createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].target().getCallTarget)
               target.call()
               outputStream.flush()
               ExecutionSuccess

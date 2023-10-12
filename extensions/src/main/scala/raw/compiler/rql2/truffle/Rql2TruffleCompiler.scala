@@ -31,7 +31,7 @@ import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
 import raw.compiler.rql2ben.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
 import raw.compiler.snapi.truffle.compiler.{SnapiTruffleEmitter, TruffleDoEmit, TruffleEntrypoint}
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{CompilerException, ErrorMessage, base}
+import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
@@ -57,7 +57,7 @@ import raw.runtime.truffle.runtime.primitives._
 import raw.runtime.truffle.runtime.tryable.TryableLibrary
 
 import java.util.UUID
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.{mutable, JavaConverters}
 
 object Rql2TruffleCompiler {
   private val WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending"
