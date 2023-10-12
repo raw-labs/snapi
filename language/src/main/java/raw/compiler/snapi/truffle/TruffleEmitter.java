@@ -28,7 +28,7 @@ public abstract class TruffleEmitter {
 
   public abstract ExpressionNode recurseExp(Exp in);
 
-  protected abstract ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody);
+  public abstract ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody);
 
   protected abstract RawLanguage getLanguage();
 

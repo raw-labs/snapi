@@ -1,2 +1,2 @@
-raw.compiler.rql2.tests.builtin.KryoPackage
-raw.compiler.rql2.tests.builtin.TestPackage
+raw.compiler.rql2.builtin.KryoPackage
+raw.compiler.rql2.builtin.TestPackage

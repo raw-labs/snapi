@@ -254,7 +254,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return new Function(rootCallTarget, argNames);
     }
 
-    protected ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody) {
+    public ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody) {
         addScope();
         ExpressionNode functionBody = truffleBuildBody.buildBody();
         FrameDescriptor funcFrameDescriptor = dropScope();
