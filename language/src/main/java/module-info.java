@@ -253,4 +253,5 @@ module raw.language {
   exports raw.runtime.truffle.ast.controlflow;
   exports raw.runtime.truffle.handlers;
   exports raw.compiler.rql2.api;
+  exports raw.runtime.truffle.runtime.exceptions.validation;
 }

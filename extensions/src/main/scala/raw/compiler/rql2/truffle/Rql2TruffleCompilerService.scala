@@ -39,6 +39,7 @@ import raw.compiler.rql2.source._
 import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
+import raw.runtime.truffle.runtime.exceptions.{RawTruffleValidationException, ValidationErrorObject}
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
 import raw.utils.{
@@ -226,7 +227,34 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val rawValue = convertPolyglotValueToRawValue(polyglotValue, tipe)
           EvalSuccess(rawValue)
         } catch {
-          case NonFatal(t) => EvalRuntimeFailure(t.getMessage)
+          case ex: PolyglotException =>
+            if (ex.isInterrupted) {
+              throw new InterruptedException()
+            } else if (ex.isGuestException) {
+              val err = ex.getGuestObject
+              if (err.hasMembers && err.hasMember("errors")) {
+                val errorsValue = err.getMember("errors")
+                val errors = (0L until errorsValue.getArraySize).map { i =>
+                  val errorValue = errorsValue.getArrayElement(i)
+                  val message = errorValue.asString
+                  val positions = (0L until errorValue.getArraySize).map { j =>
+                    val posValue = errorValue.getArrayElement(j)
+                    val beginValue = posValue.getMember("begin")
+                    val endValue = posValue.getMember("end")
+                    val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+                    val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+                    ErrorRange(begin, end)
+                  }
+                  ErrorMessage(message, positions.to)
+                }
+                EvalValidationFailure(errors.to)
+              } else {
+                EvalRuntimeFailure(ex.getMessage)
+              }
+            } else {
+              // Unexpected error. For now we throw the PolyglotException.
+              throw ex
+            }
         }
     )
   }
@@ -343,15 +371,14 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     ctx.initialize(RawLanguage.ID)
     ctx.enter()
     try {
-      val f = maybeDecl match {
+      val v = maybeDecl match {
         case Some(decl) =>
-//          ctx.eval("rql", source)
-//          val f = ctx.getBindings("rql").getMember(decl)
-//          f.execute(maybeArguments)
+          //          ctx.eval("rql", source)
+          //          val f = ctx.getBindings("rql").getMember(decl)
+          //          f.execute(maybeArguments)
           ???
-        case None => ctx.parse("rql", source)
+        case None => ctx.eval("rql", source)
       }
-      val v = f.execute()
 
       environment.options
         .get("output-format")
@@ -394,6 +421,35 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           }
         case None => ExecutionRuntimeFailure("unknown output format")
       }
+    } catch {
+      case ex: PolyglotException =>
+        if (ex.isInterrupted) {
+          throw new InterruptedException()
+        } else if (ex.isGuestException) {
+          val err = ex.getGuestObject
+          if (err.hasMembers && err.hasMember("errors")) {
+            val errorsValue = err.getMember("errors")
+            val errors = (0L until errorsValue.getArraySize).map { i =>
+              val errorValue = errorsValue.getArrayElement(i)
+              val message = errorValue.asString
+              val positions = (0L until errorValue.getArraySize).map { j =>
+                val posValue = errorValue.getArrayElement(j)
+                val beginValue = posValue.getMember("begin")
+                val endValue = posValue.getMember("end")
+                val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+                val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+                ErrorRange(begin, end)
+              }
+              ErrorMessage(message, positions.to)
+            }
+            ExecutionValidationFailure(errors.to)
+          } else {
+            ExecutionRuntimeFailure(ex.getMessage)
+          }
+        } else {
+          // Unexpected error. For now we throw the PolyglotException.
+          throw ex
+        }
     } finally {
       ctx.leave()
       ctx.close()

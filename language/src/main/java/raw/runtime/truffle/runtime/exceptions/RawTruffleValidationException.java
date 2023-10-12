@@ -18,20 +18,20 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.ErrorMessage;
+import raw.runtime.truffle.runtime.exceptions.validation.ValidationErrorObject;
 
 import java.util.List;
 
 @ExportLibrary(InteropLibrary.class)
 public class RawTruffleValidationException extends AbstractTruffleException {
 
-    private final List<ErrorMessage> errors;
+    private final ValidationErrorObject errors;
 
     @CompilerDirectives.TruffleBoundary
     public RawTruffleValidationException(List<ErrorMessage> errors) {
         super("validation failure");
-        this.errors = errors;
+        this.errors = new ValidationErrorObject(errors);
     }
 
     @ExportMessage
@@ -46,7 +46,7 @@ public class RawTruffleValidationException extends AbstractTruffleException {
 
     @ExportMessage
     public Object getExceptionCause() {
-        return new ValidationErrorObject(errors);
+        return errors;
     }
 
     @ExportMessage
@@ -73,4 +73,24 @@ public class RawTruffleValidationException extends AbstractTruffleException {
         return null;
     }
 
+    @ExportMessage
+    public final boolean hasMembers() {
+        return true;
+    }
+
+    @ExportMessage
+    public final Object readMember(String member) {
+        if (member.equals("errors"))
+            return errors;
+        else
+            return null;
+    }
+
+    @ExportMessage final Object getMembers(boolean includeInternal) throws UnsupportedMessageException {
+        return new String[] { "errors" };
+    }
+
+    @ExportMessage final boolean isMemberReadable(String member) {
+        return member.equals("errors");
+    }
 }

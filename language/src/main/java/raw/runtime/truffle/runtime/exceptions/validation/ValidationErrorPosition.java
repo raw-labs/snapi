@@ -1,0 +1,43 @@
+package raw.runtime.truffle.runtime.exceptions.validation;
+
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+
+@ExportLibrary(InteropLibrary.class)
+public class ValidationErrorPosition implements TruffleObject {
+
+    private final int line;
+    private final int column;
+
+    public ValidationErrorPosition(int line, int column) {
+        this.line = line;
+        this.column = column;
+    }
+
+    @ExportMessage
+    public final boolean hasMembers() {
+        return true;
+    }
+
+    @ExportMessage
+    public final Object readMember(String member) {
+        if (member.equals("line"))
+            return line;
+        else if (member.equals("column"))
+            return column;
+        else
+            return null;
+    }
+
+    @ExportMessage final Object getMembers(boolean includeInternal) throws UnsupportedMessageException {
+        return new String[] { "line", "column" };
+    }
+
+    @ExportMessage final boolean isMemberReadable(String member) {
+        return member.equals("line") || member.equals("column");
+    }
+
+}
