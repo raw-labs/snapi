@@ -367,4 +367,6 @@ public final class ObjectOption implements TruffleObject {
   @ExportMessage boolean isBoolean() {
     return !isNull() && interops.isBoolean(value);
   }
+  @ExportMessage boolean asBoolean() throws UnsupportedMessageException { return interops.asBoolean(value); }
+
 }
