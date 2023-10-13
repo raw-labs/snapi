@@ -254,7 +254,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
             Array(
               JsonWriterNodeGen.create(
                 bodyExpNode,
-                JsonIO.recurseJsonWriter(dataType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
+                JsonWriter.recurse(dataType.asInstanceOf[Rql2TypeWithProperties], rawLanguage)
               )
             ),
             new IntNode("0")
