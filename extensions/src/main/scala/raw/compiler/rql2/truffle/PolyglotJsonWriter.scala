@@ -36,7 +36,15 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
     factory.createGenerator(os, JsonEncoding.UTF8)
   }
 
-  def writeValue(v: Value): Unit = {
+  def write(v: Value): Unit = {
+    if (v.isException) {
+      v.throwException()
+    } else {
+      writeValue(v)
+    }
+  }
+
+  private def writeValue(v: Value): Unit = {
     if (v.isException) {
       try {
         v.throwException()

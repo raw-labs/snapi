@@ -434,7 +434,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         case Some("json") =>
           val w = new PolyglotJsonWriter(outputStream)
           try {
-            w.writeValue(v)
+            w.write(v)
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
