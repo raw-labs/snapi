@@ -36,7 +36,6 @@ public class SingleAggregation {
   }
 
   @ExportMessage(limit = "3")
-  @TruffleBoundary // Otherwise the inlining fails, maybe try to convert it into nodes
   public Object aggregate(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,

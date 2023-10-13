@@ -67,6 +67,8 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     if (settings.onTrainingWheels) {
       options.put("engine.CompileImmediately", "true")
       options.put("engine.TraceCompilation", "true")
+      options.put("engine.CompilationFailureAction", "Throw")
+      options.put("engine.BackgroundCompilation", "false")
       //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
       //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
       //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",

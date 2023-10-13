@@ -62,8 +62,6 @@ public class UnnestComputeNext {
   // null/error
 
   @ExportMessage
-  @ExplodeLoop
-  @CompilerDirectives.TruffleBoundary
   Object computeNext(
       @Cached TryableNullableNodes.GetOrElseNode getOrElse,
       @CachedLibrary(limit = "3") GeneratorLibrary generators,
