@@ -45,10 +45,10 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import scala.Option;
 import scala.collection.JavaConverters;
 
-public class TruffleDoEmit {
-  private final String WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending";
+public class TruffleEmit {
+  private static final String WINDOWS_LINE_ENDING = "raw.compiler.windows-line-ending";
 
-  public Entrypoint doEmit(
+  public static Entrypoint doEmit(
       SourceProgram program,
       RawLanguage language,
       raw.compiler.base.ProgramContext programContext) {
