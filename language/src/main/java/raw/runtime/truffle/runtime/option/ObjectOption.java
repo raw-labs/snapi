@@ -17,13 +17,10 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
-
 import java.math.BigInteger;
 import java.nio.ByteOrder;
 import java.time.*;
+import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(OptionLibrary.class)
 @ExportLibrary(InteropLibrary.class)
@@ -115,7 +112,6 @@ public final class ObjectOption implements TruffleObject {
   //        return value != null;
   //    }
 
-
   @ExportMessage
   boolean hasLanguage() {
     return true;
@@ -177,12 +173,10 @@ public final class ObjectOption implements TruffleObject {
     return interops.fitsInFloat(value);
   }
 
-
   @ExportMessage
   boolean fitsInDouble() {
     return interops.fitsInDouble(value);
   }
-
 
   @ExportMessage
   boolean fitsInBigInteger() {
@@ -194,36 +188,30 @@ public final class ObjectOption implements TruffleObject {
     return interops.asByte(value);
   }
 
-
   @ExportMessage
   short asShort() throws UnsupportedMessageException {
     return interops.asShort(value);
   }
-
 
   @ExportMessage
   int asInt() throws UnsupportedMessageException {
     return interops.asInt(value);
   }
 
-
   @ExportMessage
   long asLong() throws UnsupportedMessageException {
     return interops.asLong(value);
   }
-
 
   @ExportMessage
   float asFloat() throws UnsupportedMessageException {
     return interops.asFloat(value);
   }
 
-
   @ExportMessage
   double asDouble() throws UnsupportedMessageException {
     return interops.asDouble(value);
   }
-
 
   @ExportMessage
   BigInteger asBigInteger() throws UnsupportedMessageException {
@@ -280,7 +268,8 @@ public final class ObjectOption implements TruffleObject {
     return interops.getMembers(value, includeInternal);
   }
 
-  @ExportMessage boolean isMemberReadable(String member) {
+  @ExportMessage
+  boolean isMemberReadable(String member) {
     return interops.isMemberReadable(value, member);
   }
 
@@ -310,7 +299,8 @@ public final class ObjectOption implements TruffleObject {
   }
 
   @ExportMessage
-  Object readArrayElement(long index) throws InvalidArrayIndexException, UnsupportedMessageException {
+  Object readArrayElement(long index)
+      throws InvalidArrayIndexException, UnsupportedMessageException {
     return interops.readArrayElement(value, index);
   }
 
@@ -335,38 +325,48 @@ public final class ObjectOption implements TruffleObject {
   }
 
   @ExportMessage
-  final byte readBufferByte(long byteOffset) throws InvalidBufferOffsetException, UnsupportedMessageException {
+  final byte readBufferByte(long byteOffset)
+      throws InvalidBufferOffsetException, UnsupportedMessageException {
     return interops.readBufferByte(value, byteOffset);
   }
 
   @ExportMessage
-  final short readBufferShort(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final short readBufferShort(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     return interops.readBufferShort(value, order, byteOffset);
   }
 
   @ExportMessage
-  final int readBufferInt(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final int readBufferInt(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     return interops.readBufferInt(value, order, byteOffset);
   }
 
   @ExportMessage
-  final long readBufferLong(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final long readBufferLong(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     return interops.readBufferLong(value, order, byteOffset);
   }
 
   @ExportMessage
-  final float readBufferFloat(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final float readBufferFloat(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     return interops.readBufferFloat(value, order, byteOffset);
   }
 
   @ExportMessage
-  final double readBufferDouble(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final double readBufferDouble(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     return interops.readBufferDouble(value, order, byteOffset);
   }
 
-  @ExportMessage boolean isBoolean() {
+  @ExportMessage
+  boolean isBoolean() {
     return !isNull() && interops.isBoolean(value);
   }
-  @ExportMessage boolean asBoolean() throws UnsupportedMessageException { return interops.asBoolean(value); }
 
+  @ExportMessage
+  boolean asBoolean() throws UnsupportedMessageException {
+    return interops.asBoolean(value);
+  }
 }

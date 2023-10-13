@@ -55,16 +55,18 @@ public class StringOption implements TruffleObject {
     return isDefined;
   }
 
-
-  @ExportMessage boolean isString() {
+  @ExportMessage
+  boolean isString() {
     return true;
   }
 
-  @ExportMessage boolean isNull() {
+  @ExportMessage
+  boolean isNull() {
     return !isDefined;
   }
 
-  @ExportMessage String asString() {
+  @ExportMessage
+  String asString() {
     return value;
   }
 }

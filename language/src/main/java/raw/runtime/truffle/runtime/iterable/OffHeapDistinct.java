@@ -169,23 +169,39 @@ public class OffHeapDistinct {
     }
 
     @ExportMessage
-    final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary) throws UnsupportedMessageException {
+    final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException {
       return generatorLibrary.hasNext(this);
     }
 
     @ExportMessage
-    final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary) throws UnsupportedMessageException, StopIterationException {
+    final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException, StopIterationException {
       return generatorLibrary.next(this);
     }
 
-    @ExportMessage final boolean hasMembers() { return true; }
-    @ExportMessage final Object getMembers(boolean includeInternal) { return new Object[] { "close" }; }
-    @ExportMessage final boolean isMemberInvocable(String member) { return Objects.equals(member, "close"); }
-    @ExportMessage final Object invokeMember(String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) { assert(Objects.equals(member, "close"));
+    @ExportMessage
+    final boolean hasMembers() {
+      return true;
+    }
+
+    @ExportMessage
+    final Object getMembers(boolean includeInternal) {
+      return new Object[] {"close"};
+    }
+
+    @ExportMessage
+    final boolean isMemberInvocable(String member) {
+      return Objects.equals(member, "close");
+    }
+
+    @ExportMessage
+    final Object invokeMember(
+        String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) {
+      assert (Objects.equals(member, "close"));
       generatorLibrary.close(this);
       return 0;
     }
-
   }
 
   // An iterator that reads the spilled data from disk and merges it with the in-memory map.
@@ -281,22 +297,38 @@ public class OffHeapDistinct {
     }
 
     @ExportMessage
-    final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary) throws UnsupportedMessageException {
+    final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException {
       return generatorLibrary.hasNext(this);
     }
 
     @ExportMessage
-    final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary) throws UnsupportedMessageException, StopIterationException {
+    final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException, StopIterationException {
       return generatorLibrary.next(this);
     }
 
-    @ExportMessage final boolean hasMembers() { return true; }
-    @ExportMessage final Object getMembers(boolean includeInternal) { return new Object[] { "close" }; }
-    @ExportMessage final boolean isMemberInvocable(String member) { return Objects.equals(member, "close"); }
-    @ExportMessage final Object invokeMember(String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) { assert(Objects.equals(member, "close"));
+    @ExportMessage
+    final boolean hasMembers() {
+      return true;
+    }
+
+    @ExportMessage
+    final Object getMembers(boolean includeInternal) {
+      return new Object[] {"close"};
+    }
+
+    @ExportMessage
+    final boolean isMemberInvocable(String member) {
+      return Objects.equals(member, "close");
+    }
+
+    @ExportMessage
+    final Object invokeMember(
+        String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) {
+      assert (Objects.equals(member, "close"));
       generatorLibrary.close(this);
       return 0;
     }
-
   }
 }

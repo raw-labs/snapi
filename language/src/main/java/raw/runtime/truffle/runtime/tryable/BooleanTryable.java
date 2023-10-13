@@ -88,5 +88,4 @@ public final class BooleanTryable implements TruffleObject {
   public RuntimeException throwException() {
     return new RuntimeException(failureValue);
   }
-
 }

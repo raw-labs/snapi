@@ -19,7 +19,6 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-
 import java.time.*;
 
 @ExportLibrary(InteropLibrary.class)
@@ -58,5 +57,4 @@ public class TimestampObject implements TruffleObject {
   final LocalTime asTime() throws UnsupportedMessageException {
     return timestamp.toLocalTime();
   }
-
 }

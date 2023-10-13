@@ -55,11 +55,14 @@ trait ConstTest extends CompilerTestContext with TableDrivenPropertyChecks {
     TestValue("interval", """Interval.Build(months=1, days=2, hours=3)"""),
     TestValue("binary", """Binary.FromString("Hello World") """),
     TestValue("bool", "true")
-  ).flatMap(tv => Seq(
-    tv, // plain
-    tv.copy(v1 = s"let v = if true then ${tv.v1} else null in v"), // nullable
-    tv.copy(v1 = s"""let v = if true then ${tv.v1} else Error.Build("argh!") in v"""), // tryable
-    tv.copy(v1 = s"let v: ${tv.tipe} = ${tv.v1} in v"))) // nullable and tryable
+  ).flatMap(tv =>
+    Seq(
+      tv, // plain
+      tv.copy(v1 = s"let v = if true then ${tv.v1} else null in v"), // nullable
+      tv.copy(v1 = s"""let v = if true then ${tv.v1} else Error.Build("argh!") in v"""), // tryable
+      tv.copy(v1 = s"let v: ${tv.tipe} = ${tv.v1} in v")
+    )
+  ) // nullable and tryable
 
   test("consts several types")(_ => forAll(consts)(x => TestData(x.v1) should (evaluateTo(x.v1) and typeAs(x.tipe))))
 

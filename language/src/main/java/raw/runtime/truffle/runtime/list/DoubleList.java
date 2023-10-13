@@ -94,5 +94,4 @@ public class DoubleList implements TruffleObject {
     }
     return list[idx];
   }
-
 }

@@ -68,5 +68,4 @@ public final class ErrorTryable implements TruffleObject {
   public RuntimeException throwException() {
     return new RuntimeException(failureValue);
   }
-
 }

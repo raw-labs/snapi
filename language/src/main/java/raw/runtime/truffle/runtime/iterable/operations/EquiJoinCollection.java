@@ -89,7 +89,8 @@ public final class EquiJoinCollection implements TruffleObject {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+  private final GeneratorLibrary generatorLibrary =
+      GeneratorLibrary.getFactory().createDispatched(1);
 
   @ExportMessage
   final Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {

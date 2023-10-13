@@ -55,15 +55,18 @@ public final class BooleanOption implements TruffleObject {
     return isDefined;
   }
 
-  @ExportMessage boolean isBoolean() {
+  @ExportMessage
+  boolean isBoolean() {
     return true;
   }
 
-  @ExportMessage boolean isNull() {
+  @ExportMessage
+  boolean isNull() {
     return !isDefined;
   }
 
-  @ExportMessage boolean asBoolean() {
+  @ExportMessage
+  boolean asBoolean() {
     return value;
   }
 }

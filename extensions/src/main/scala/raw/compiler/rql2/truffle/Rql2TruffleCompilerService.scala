@@ -19,7 +19,16 @@ import raw.compiler.api._
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.runtime._
 import raw.runtime.truffle.RawLanguage
-import raw.compiler.{CompilerParserException, DeclDescription, ErrorMessage, ErrorPosition, ErrorRange, ParamDescription, ProgramDescription, base}
+import raw.compiler.{
+  base,
+  CompilerParserException,
+  DeclDescription,
+  ErrorMessage,
+  ErrorPosition,
+  ErrorRange,
+  ParamDescription,
+  ProgramDescription
+}
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
@@ -32,8 +41,18 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.interpreter.LocationValue
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
-import raw.sources.api.{LocationBinarySetting, LocationBooleanSetting, LocationDescription, LocationDurationSetting, LocationIntSetting, LocationSettingKey, LocationSettingValue, LocationStringSetting, SourceContext}
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, withSuppressNonFatalException}
+import raw.sources.api.{
+  LocationBinarySetting,
+  LocationBooleanSetting,
+  LocationDescription,
+  LocationDurationSetting,
+  LocationIntSetting,
+  LocationSettingKey,
+  LocationSettingValue,
+  LocationStringSetting,
+  SourceContext
+}
+import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
 import java.time.{LocalDate, ZoneId}
@@ -373,20 +392,21 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         while (keys.hasNext) {
           val key = keys.next()
           val tv = v.getMember(key)
-          val value = if (tv.isNumber) LocationIntSetting(tv.asInt)
-          else if (tv.isBoolean) LocationBooleanSetting(tv.asBoolean)
-          else if (tv.isString) LocationStringSetting(tv.asString)
-          else if (tv.hasBufferElements) {
-            val bufferSize = tv.getBufferSize.toInt
-            val byteArray = new Array[Byte](bufferSize)
-            for (i <- 0 until bufferSize) {
-              byteArray(i) = tv.readBufferByte(i)
-            }
-            LocationBinarySetting(byteArray)
-          } else if (tv.isDuration) LocationDurationSetting(tv.asDuration())
-          else if (tv.hasArrayElements) ???
-          else if (tv.hasHashEntries) ???
-          else ???
+          val value =
+            if (tv.isNumber) LocationIntSetting(tv.asInt)
+            else if (tv.isBoolean) LocationBooleanSetting(tv.asBoolean)
+            else if (tv.isString) LocationStringSetting(tv.asString)
+            else if (tv.hasBufferElements) {
+              val bufferSize = tv.getBufferSize.toInt
+              val byteArray = new Array[Byte](bufferSize)
+              for (i <- 0 until bufferSize) {
+                byteArray(i) = tv.readBufferByte(i)
+              }
+              LocationBinarySetting(byteArray)
+            } else if (tv.isDuration) LocationDurationSetting(tv.asDuration())
+            else if (tv.hasArrayElements) ???
+            else if (tv.hasHashEntries) ???
+            else ???
           settings.put(LocationSettingKey(key), value)
         }
         LocationValue(LocationDescription(url, settings.toMap))

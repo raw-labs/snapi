@@ -90,7 +90,6 @@ module raw.language {
       raw.compiler.rql2.builtin.UnionListEntry,
       raw.compiler.rql2.builtin.UnnestListEntry,
       raw.compiler.rql2.builtin.ZipListEntry;
-
   provides raw.creds.api.CredentialsServiceBuilder with
       raw.creds.local.LocalCredentialsServiceBuilder,
       raw.creds.mock.MockCredentialsServiceBuilder;
@@ -189,7 +188,6 @@ module raw.language {
       raw.compiler.rql2.builtin.XmlPackage,
       raw.compiler.rql2.builtin.KryoPackage,
       raw.compiler.rql2.builtin.TestPackage;
-
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       raw.runtime.truffle.RawLanguageProvider;
 

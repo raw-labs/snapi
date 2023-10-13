@@ -18,7 +18,6 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-
 import java.nio.ByteOrder;
 
 @ExportLibrary(InteropLibrary.class)
@@ -74,28 +73,32 @@ public class BinaryObject implements TruffleObject {
   }
 
   @ExportMessage
-  final short readBufferShort(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final short readBufferShort(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
-  final int readBufferInt(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final int readBufferInt(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
-  final long readBufferLong(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final long readBufferLong(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
-  final float readBufferFloat(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final float readBufferFloat(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
 
   @ExportMessage
-  final double readBufferDouble(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
+  final double readBufferDouble(ByteOrder order, long byteOffset)
+      throws UnsupportedMessageException, InvalidBufferOffsetException {
     throw new UnsupportedOperationException();
   }
-
 }

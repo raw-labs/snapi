@@ -63,7 +63,8 @@ public class XmlParseCollection implements TruffleObject {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+  private final GeneratorLibrary generatorLibrary =
+      GeneratorLibrary.getFactory().createDispatched(1);
 
   @ExportMessage
   Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
@@ -71,5 +72,4 @@ public class XmlParseCollection implements TruffleObject {
     generatorLibrary.init(generator);
     return generator;
   }
-
 }

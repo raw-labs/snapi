@@ -94,5 +94,4 @@ public class ObjectList implements TruffleObject {
     }
     return list[idx];
   }
-
 }

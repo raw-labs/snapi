@@ -59,7 +59,8 @@ public final class ExpressionCollection implements TruffleObject {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(3);
+  private final GeneratorLibrary generatorLibrary =
+      GeneratorLibrary.getFactory().createDispatched(3);
 
   @ExportMessage
   Object getIterator() {

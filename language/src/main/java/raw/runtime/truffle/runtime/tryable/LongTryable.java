@@ -19,10 +19,9 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.math.BigInteger;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-
-import java.math.BigInteger;
 
 // before anything else, looks like final tree is "too simple"
 // and misses the cast phase
@@ -78,7 +77,10 @@ public final class LongTryable implements TruffleObject {
     return failureValue != null;
   }
 
-  @ExportMessage boolean hasLanguage() { return true; }
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
 
   @ExportMessage
   Class<? extends TruffleLanguage<?>> getLanguage() {
@@ -91,27 +93,43 @@ public final class LongTryable implements TruffleObject {
     return "LongTryable";
   }
 
-  @ExportMessage boolean isNumber() {return isSuccess(); }
+  @ExportMessage
+  boolean isNumber() {
+    return isSuccess();
+  }
 
-  @ExportMessage boolean fitsInByte() {
+  @ExportMessage
+  boolean fitsInByte() {
     return false;
   }
-  @ExportMessage boolean fitsInShort() {
+
+  @ExportMessage
+  boolean fitsInShort() {
     return false;
   }
-  @ExportMessage boolean fitsInInt() {
+
+  @ExportMessage
+  boolean fitsInInt() {
     return false;
   }
-  @ExportMessage boolean fitsInLong() {
+
+  @ExportMessage
+  boolean fitsInLong() {
     return true;
   }
-  @ExportMessage boolean fitsInFloat() {
+
+  @ExportMessage
+  boolean fitsInFloat() {
     return false;
   }
-  @ExportMessage boolean fitsInDouble() {
+
+  @ExportMessage
+  boolean fitsInDouble() {
     return false;
   }
-  @ExportMessage boolean fitsInBigInteger() {
+
+  @ExportMessage
+  boolean fitsInBigInteger() {
     return false;
   }
 
@@ -120,12 +138,35 @@ public final class LongTryable implements TruffleObject {
     return successValue;
   }
 
-  @ExportMessage byte asByte() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
-  @ExportMessage short asShort() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
-  @ExportMessage int asInt() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
-  @ExportMessage float asFloat() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
-  @ExportMessage double asDouble() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
-  @ExportMessage BigInteger asBigInteger() throws UnsupportedMessageException { throw UnsupportedMessageException.create(); }
+  @ExportMessage
+  byte asByte() throws UnsupportedMessageException {
+    throw UnsupportedMessageException.create();
+  }
+
+  @ExportMessage
+  short asShort() throws UnsupportedMessageException {
+    throw UnsupportedMessageException.create();
+  }
+
+  @ExportMessage
+  int asInt() throws UnsupportedMessageException {
+    throw UnsupportedMessageException.create();
+  }
+
+  @ExportMessage
+  float asFloat() throws UnsupportedMessageException {
+    throw UnsupportedMessageException.create();
+  }
+
+  @ExportMessage
+  double asDouble() throws UnsupportedMessageException {
+    throw UnsupportedMessageException.create();
+  }
+
+  @ExportMessage
+  BigInteger asBigInteger() throws UnsupportedMessageException {
+    throw UnsupportedMessageException.create();
+  }
 
   @ExportMessage
   public boolean isException() {

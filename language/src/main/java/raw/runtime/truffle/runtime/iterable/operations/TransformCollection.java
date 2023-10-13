@@ -23,8 +23,6 @@ import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenera
 import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.TransformComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
-import java.util.Objects;
-
 @ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public class TransformCollection implements TruffleObject {
@@ -54,7 +52,8 @@ public class TransformCollection implements TruffleObject {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+  private final GeneratorLibrary generatorLibrary =
+      GeneratorLibrary.getFactory().createDispatched(1);
 
   @ExportMessage
   Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
@@ -62,5 +61,4 @@ public class TransformCollection implements TruffleObject {
     generatorLibrary.init(generator);
     return generator;
   }
-
 }

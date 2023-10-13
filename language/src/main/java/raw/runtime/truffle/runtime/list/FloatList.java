@@ -95,5 +95,4 @@ public class FloatList implements TruffleObject {
     }
     return list[idx];
   }
-
 }

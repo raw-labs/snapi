@@ -18,10 +18,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.RawLanguage;
-
 import java.math.BigDecimal;
-
+import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
 public class DecimalObject implements TruffleObject {
@@ -51,7 +49,6 @@ public class DecimalObject implements TruffleObject {
     return "Decimal";
   }
 
-
   @ExportMessage
   boolean isString() {
     return true;
@@ -62,5 +59,4 @@ public class DecimalObject implements TruffleObject {
   String asString() {
     return bigDecimal.toString();
   }
-
 }
