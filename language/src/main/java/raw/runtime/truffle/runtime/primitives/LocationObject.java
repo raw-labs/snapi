@@ -18,6 +18,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.list.IntList;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.sources.api.*;
 import scala.collection.JavaConverters;
@@ -79,11 +80,18 @@ public class LocationObject implements TruffleObject {
     return switch (locationDescription.settings().get(new LocationSettingKey(member)).get()) {
       case LocationIntSetting v -> v.value();
       case LocationStringSetting v -> v.value();
-      case LocationBinarySetting v -> v.value();
+      case LocationBinarySetting v -> {
+          int size = v.value().size();
+          byte[] bytes = new byte[size];
+          for (int i = 0; i < size; i++) {
+            bytes[i] = (byte) v.value().apply(i);
+          }
+          yield new BinaryObject(bytes);
+      }
       case LocationBooleanSetting v -> v.value();
       case LocationDurationSetting v -> v.value();
       case LocationKVSetting v -> JavaConverters.asJavaCollectionConverter(v.map());
-      case LocationIntArraySetting v -> v.value();
+      case LocationIntArraySetting v -> new IntList(v.value());
       default -> throw new RawTruffleInternalErrorException();
     };
   }

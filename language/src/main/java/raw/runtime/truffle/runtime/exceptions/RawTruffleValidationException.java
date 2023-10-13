@@ -21,6 +21,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.util.List;
 import raw.compiler.ErrorMessage;
 import raw.runtime.truffle.runtime.exceptions.validation.ValidationErrorObject;
+import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
 public class RawTruffleValidationException extends AbstractTruffleException {
@@ -86,7 +87,7 @@ public class RawTruffleValidationException extends AbstractTruffleException {
 
   @ExportMessage
   final Object getMembers(boolean includeInternal) throws UnsupportedMessageException {
-    return new String[] {"errors"};
+    return new StringList(new String[] {"errors"});
   }
 
   @ExportMessage

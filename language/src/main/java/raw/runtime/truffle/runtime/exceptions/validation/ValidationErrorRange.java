@@ -17,6 +17,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
 public class ValidationErrorRange implements TruffleObject {
@@ -43,7 +44,7 @@ public class ValidationErrorRange implements TruffleObject {
 
   @ExportMessage
   final Object getMembers(boolean includeInternal) throws UnsupportedMessageException {
-    return new String[] {"begin", "end"};
+    return new StringList(new String[] {"begin", "end"});
   }
 
   @ExportMessage
