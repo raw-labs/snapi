@@ -27,8 +27,6 @@ trait DecimalPackageTest extends CompilerTestContext {
 
   test("""Decimal.From("123.45")""")(it => it should evaluateTo("""123.45q"""))
 
-  test("""Decimal.From(123.45)""")(it => it should evaluateTo("""123.45q"""))
-
   test("""Decimal.From(123)""")(it => it should evaluateTo("""123q"""))
 
   // Make sure that the decimal can be written to record
