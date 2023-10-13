@@ -13,9 +13,9 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.SnapiInterpolator
-import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
+import raw.compiler.rql2.tests.CompilerTestContext
 
-trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
+trait CsvPackageTest extends CompilerTestContext {
 
   val ttt = "\"\"\""
 
@@ -84,24 +84,18 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   // Each line has 11 bytes so it will fail at line 10 more or less.
-  override def failServices: Seq[FailAfter] = Seq(
-    FailAfter(
-      "/fail-after-10",
-      110,
-      """1, #1, 1.1
-        |2, #2, 2.2
-        |3, #3, 3.3
-        |4, #4, 4.4
-        |5, #5, 5.5
-        |6, #6, 6.6
-        |7, #7, 7.7
-        |8, #8, 8.8
-        |9, #9, 9.9
-        |10, #10, 10.10
-        |11, #11, 11.11
-        |12, #12, 12.12
-        |""".stripMargin
-    )
+  private val junkAfter10Items = tempFile(
+    """1, #1, 1.1
+      |2, #2, 2.2
+      |3, #3, 3.3
+      |4, #4, 4.4
+      |5, #5, 5.5
+      |6, #6, 6.6
+      |7, #7, 7.7
+      |8, #8, 8.8
+      |9, #9, 9.9
+      |10, #10, 10.10
+      |#############################""".stripMargin
   )
 
   test("""Csv.Parse("a", type int)""".stripMargin)(it => it should typeErrorAs("unsupported type"))
@@ -297,12 +291,14 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     }
   )
 
-  test(s"""Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double)))""")(
-    _ should runErrorAs(s"failed to read CSV (url: $testServerUrl/fail-after-10): closed")
+  test(snapi"""Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
+    _ should runErrorAs(
+      snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+    )
   )
 
   test(
-    s"""Collection.Take(Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 9)"""
+    snapi"""Collection.Take(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9)"""
   )(
     _ should evaluateTo(s"""[
       | {a: 1, b: "#1", c: 1.1},
@@ -318,31 +314,35 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   test(
-    s"""Collection.Take(Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 11)"""
+    snapi"""Collection.Take(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
   )(
-    _ should runErrorAs(s"failed to read CSV (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(
+      snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+    )
   )
 
   test(
-    s"""Collection.Count(Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))))""".stripMargin
+    snapi"""Collection.Count(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
   )(
-    _ should runErrorAs(s"failed to read CSV (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(
+      snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+    )
   )
 
   test(
-    s"""Try.IsError(Collection.Count(Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double)))) ) """
+    snapi"""Try.IsError(Collection.Count(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
   ) {
     _ should evaluateTo("true")
   }
 
   test(
-    s"""Try.IsError( List.From(Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double)))) ) """
+    snapi"""Try.IsError( List.From(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
   ) {
     _ should evaluateTo("true")
   }
 
   test(
-    s""" List.From( Collection.Take(Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))) , 9 )) """
+    snapi""" List.From( Collection.Take(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))) , 9 )) """
   ) {
     _ should evaluateTo(s"""[
       | {a: 1, b: "#1", c: 1.1},
@@ -357,8 +357,8 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
       |]""".stripMargin)
   }
 
-  test(s"""Try.IsError(
-    |  List.From(Collection.Take(Csv.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 9))
+  test(snapi"""Try.IsError(
+    |  List.From(Collection.Take(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9))
     |)""".stripMargin) {
     _ should evaluateTo("false")
   }
@@ -371,11 +371,11 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
   test(snapi"""Csv.InferAndRead("$csvWithAllTypes")""") { it =>
     it should evaluateTo("""[
       |{byteCol: Int.From("1"), shortCol:Int.From("10"), intCol: Int.From("100"), longCol: Int.From("1000"),
-      | floatCol: Double.From("3.14"), doubleCol: Double.From("6.28"), decimalCol: Double.From("9.42"), boolCol: true,
+      | floatCol: Double.From("3.14"), doubleCol: Double.From("6.28"), decimalCol: Decimal.From("9.42"), boolCol: true,
       | dateCol: Date.Parse("12/25/2023", "M/d/yyyy"), timeCol: Time.Parse("01:02:03", "H:m:s"),
       | timestampCol: Timestamp.Parse("12/25/2023 01:02:03", "M/d/yyyy H:m:s")},
       |{byteCol: Int.From("120"), shortCol:Int.From("2500"), intCol: Int.From("25000"), longCol: Int.From("250000"),
-      | floatCol: Double.From("30.14"), doubleCol: Double.From("60.28"), decimalCol: Double.From("90.42"), boolCol: false,
+      | floatCol: Double.From("30.14"), doubleCol: Double.From("60.28"), decimalCol: Decimal.From("90.42"), boolCol: false,
       | dateCol: Date.Parse("2/5/2023", "M/d/yyyy"), timeCol: Time.Parse("11:12:13", "H:m:s"),
       | timestampCol: Timestamp.Parse("2/5/2023 11:12:13", "M/d/yyyy H:m:s")}
       |]""".stripMargin)
@@ -399,11 +399,11 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
     it should
       evaluateTo("""[
         |{byteCol: Byte.From(1), shortCol:Short.From(10), intCol: Int.From(100), longCol: Long.From(1000),
-        | floatCol: Float.From(3.14), doubleCol: Double.From(6.28), decimalCol: Decimal.From(9.42), boolCol: true,
+        | floatCol: Float.From(3.14), doubleCol: Double.From(6.28), decimalCol: Decimal.From("9.42"), boolCol: true,
         | dateCol: Date.Parse("12/25/2023", "M/d/yyyy"), timeCol: Time.Parse("01:02:03", "H:m:s"),
         | timestampCol: Timestamp.Parse("12/25/2023 01:02:03", "M/d/yyyy H:m:s")},
         |{byteCol: Byte.From(120), shortCol:Short.From(2500), intCol: Int.From(25000), longCol: Long.From(250000),
-        | floatCol: Float.From(30.14), doubleCol: Double.From(60.28), decimalCol: Decimal.From(90.42), boolCol: false,
+        | floatCol: Float.From(30.14), doubleCol: Double.From(60.28), decimalCol: Decimal.From("90.42"), boolCol: false,
         | dateCol: Date.Parse("2/5/2023", "M/d/yyyy"), timeCol: Time.Parse("11:12:13", "H:m:s"),
         | timestampCol: Timestamp.Parse("2/5/2023 11:12:13", "M/d/yyyy H:m:s")}
         |]""".stripMargin)
@@ -438,11 +438,11 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
         | timeCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 79), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'"),
         | timestampCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 87), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'")},
         |{byteCol: Byte.From(1), shortCol:Short.From(10), intCol: Int.From(100), longCol: Long.From(1000),
-        | floatCol: Float.From(3.14), doubleCol: Double.From(6.28), decimalCol: Decimal.From(9.42), boolCol: true,
+        | floatCol: Float.From(3.14), doubleCol: Double.From(6.28), decimalCol: Decimal.From("9.42"), boolCol: true,
         | dateCol: Date.Parse("12/25/2023", "M/d/yyyy"), timeCol: Time.Parse("01:02:03", "H:m:s"),
         | timestampCol: Timestamp.Parse("12/25/2023 01:02:03", "M/d/yyyy H:m:s")},
         |{byteCol: Byte.From(120), shortCol:Short.From(2500), intCol: Int.From(25000), longCol: Long.From(250000),
-        | floatCol: Float.From(30.14), doubleCol: Double.From(60.28), decimalCol: Decimal.From(90.42), boolCol: false,
+        | floatCol: Float.From(30.14), doubleCol: Double.From(60.28), decimalCol: Decimal.From("90.42"), boolCol: false,
         | dateCol: Date.Parse("2/5/2023", "M/d/yyyy"), timeCol: Time.Parse("11:12:13", "H:m:s"),
         | timestampCol: Timestamp.Parse("2/5/2023 11:12:13", "M/d/yyyy H:m:s")}
         |]""".stripMargin)
@@ -464,11 +464,11 @@ trait CsvPackageTest extends CompilerTestContext with FailAfterNServer {
           | timeCol: Error.Build("failed to parse CSV (line 1, col 10), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'"),
           | timestampCol: Error.Build("failed to parse CSV (line 1, col 11), string 'timestampCol' does not match timestamp template 'yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]'")},
           |{byteCol: Byte.From(1), shortCol:Short.From(10), intCol: Int.From(100), longCol: Long.From(1000),
-          | floatCol: Float.From(3.14), doubleCol: Double.From(6.28), decimalCol: Decimal.From(9.42), boolCol: true,
+          | floatCol: Float.From(3.14), doubleCol: Double.From(6.28), decimalCol: Decimal.From("9.42"), boolCol: true,
           | dateCol: Date.Parse("12/25/2023", "M/d/yyyy"), timeCol: Time.Parse("01:02:03", "H:m:s"),
           | timestampCol: Timestamp.Parse("12/25/2023 01:02:03", "M/d/yyyy H:m:s")},
           |{byteCol: Byte.From(120), shortCol:Short.From(2500), intCol: Int.From(25000), longCol: Long.From(250000),
-          | floatCol: Float.From(30.14), doubleCol: Double.From(60.28), decimalCol: Decimal.From(90.42), boolCol: false,
+          | floatCol: Float.From(30.14), doubleCol: Double.From(60.28), decimalCol: Decimal.From("90.42"), boolCol: false,
           | dateCol: Date.Parse("2/5/2023", "M/d/yyyy"), timeCol: Time.Parse("11:12:13", "H:m:s"),
           | timestampCol: Timestamp.Parse("2/5/2023 11:12:13", "M/d/yyyy H:m:s")}
           |]""".stripMargin)
