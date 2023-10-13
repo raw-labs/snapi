@@ -12,31 +12,18 @@
 
 package raw.compiler.rql2.truffle
 
-import com.oracle.truffle.api.frame.{FrameDescriptor, FrameSlotKind}
-import com.oracle.truffle.api.interop.InteropLibrary
-import org.graalvm.polyglot.Context
-import raw.compiler.base.source.{BaseNode, Type}
+import raw.compiler.base.source.BaseNode
 import raw.compiler.base.{BaseTree, CompilerContext}
 import raw.compiler.common.source._
-import raw.compiler.rql2.Rql2TypeUtils.removeProp
 import raw.compiler.rql2._
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
-import raw.compiler.snapi.truffle.compiler.{TruffleEmit, TruffleEntrypoint}
+import raw.compiler.snapi.truffle.compiler.TruffleEmit
 import raw.compiler.truffle.TruffleCompiler
-import raw.compiler.{base, CompilerException, ErrorMessage}
+import raw.compiler.{CompilerException, ErrorMessage, base}
 import raw.runtime._
 import raw.runtime.interpreter._
 import raw.runtime.truffle._
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary
-import raw.runtime.truffle.runtime.iterable.IterableLibrary
-import raw.runtime.truffle.runtime.list.ListLibrary
-import raw.runtime.truffle.runtime.option.OptionLibrary
-import raw.runtime.truffle.runtime.or.OrObject
-import raw.runtime.truffle.runtime.primitives._
-import raw.runtime.truffle.runtime.tryable.TryableLibrary
-
-import scala.collection.mutable
 
 class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
     extends Compiler
