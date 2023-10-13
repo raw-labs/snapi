@@ -348,9 +348,8 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                             yield new ReadParamClosureNode(depth, idx);
                         }
                     }
-                    default -> throw new RawTruffleInternalErrorException();
-                }
-                        ;
+                    default -> throw new RawTruffleInternalErrorException("Unknown entity type");
+                };
             }
             case IfThenElse ite -> new IfThenElseNode(recurseExp(ite.e1()), recurseExp(ite.e2()), recurseExp(ite.e3()));
             case Proj proj -> RecordProjNodeGen.create(recurseExp(proj.e()), new StringNode(proj.i()));
@@ -378,14 +377,14 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                                 this
                         ))
                         .findFirst()
-                        .orElseThrow();
+                        .orElseThrow(() -> new RawTruffleInternalErrorException("Could not find entry"));
             }
             case FunApp fa -> {
                 String[] argNames = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> a.idn().isDefined() ? a.idn().get() : null).toArray(String[]::new);
                 ExpressionNode[] exps = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> recurseExp(a.e())).toArray(ExpressionNode[]::new);
                 yield new InvokeNode(recurseExp(fa.f()), argNames, exps);
             }
-            default -> throw new RawTruffleInternalErrorException();
+            default -> throw new RawTruffleInternalErrorException("Unknown expression type");
         };
     }
 }
