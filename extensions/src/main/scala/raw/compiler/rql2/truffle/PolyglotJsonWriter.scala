@@ -49,8 +49,7 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
       try {
         v.throwException()
       } catch {
-        case ex: PolyglotException =>
-          gen.writeString(ex.getMessage)
+        case ex: PolyglotException => gen.writeString(ex.getMessage)
       }
     } else {
       if (v.isNull) {
