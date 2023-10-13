@@ -28,7 +28,7 @@ module raw.language {
   requires scala.library;
   //    requires scala.reflect;
   requires org.apache.commons.io;
-  //    requires org.apache.commons.text;
+  requires org.apache.commons.text;
   requires com.ctc.wstx;
   requires com.ibm.icu;
   requires typesafe.config;

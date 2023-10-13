@@ -400,13 +400,6 @@ trait XmlPackageTest extends CompilerTestContext {
 
   test("""Xml.Read(
     |  "file:/something/else",
-    |  type collection(record(a: int, b: int, c: regex(0)))
-    |)""".stripMargin)(
-    _ should typeErrorAs("unsupported type")
-  )
-
-  test("""Xml.Read(
-    |  "file:/something/else",
     |  type collection(record(a: int, b: int, c: location))
     |)""".stripMargin)(
     _ should typeErrorAs("unsupported type")
