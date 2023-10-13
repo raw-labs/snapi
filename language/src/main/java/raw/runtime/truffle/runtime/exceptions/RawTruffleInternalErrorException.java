@@ -24,6 +24,10 @@ public class RawTruffleInternalErrorException extends AbstractTruffleException {
     super(message);
   }
 
+  public RawTruffleInternalErrorException(String message) {
+    super(message);
+  }
+
   public RawTruffleInternalErrorException(Throwable cause) {
     super(message, cause, UNLIMITED_STACK_TRACE, null);
   }

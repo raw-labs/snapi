@@ -31,6 +31,7 @@ import raw.compiler.api.{
   ValidateResponse
 }
 import raw.compiler.common.CommonCompilerService
+import raw.compiler.snapi.truffle.compiler.TruffleEntrypoint
 import raw.runtime.{
   ParamBool,
   ParamByte,
@@ -115,8 +116,8 @@ class Rql2TruffleCompilerService(implicit settings: RawSettings) extends CommonC
             ctx.initialize(RawLanguage.ID)
             ctx.enter()
             try {
-              val target =
-                Truffle.getRuntime.createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].node.getCallTarget)
+              val target = Truffle.getRuntime
+                .createDirectCallNode(entrypoint.asInstanceOf[TruffleEntrypoint].target.getCallTarget)
               target.call()
               outputStream.flush()
               ExecutionSuccess

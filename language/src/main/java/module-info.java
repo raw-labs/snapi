@@ -144,7 +144,9 @@ module raw.language {
       raw.compiler.rql2.builtin.TimestampPackage,
       raw.compiler.rql2.builtin.TryPackage,
       raw.compiler.rql2.builtin.TypePackage,
-      raw.compiler.rql2.builtin.XmlPackage;
+      raw.compiler.rql2.builtin.XmlPackage,
+      raw.compiler.rql2.builtin.TestPackage,
+      raw.compiler.rql2.builtin.KryoPackage;
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       raw.runtime.truffle.RawLanguageProvider;
 
