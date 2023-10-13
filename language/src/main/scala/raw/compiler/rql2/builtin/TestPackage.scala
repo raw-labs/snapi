@@ -14,7 +14,7 @@ package raw.compiler.rql2.builtin
 
 import raw.compiler.base.source.Type
 import raw.compiler.rql2._
-import raw.compiler.rql2.api.{Arg, EntryExtension, ExpParam, PackageExtension, Param, ValueParam}
+import raw.compiler.rql2.api._
 import raw.compiler.rql2.source._
 import raw.compiler.{EntryDoc, PackageDoc}
 

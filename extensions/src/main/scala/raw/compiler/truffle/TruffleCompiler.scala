@@ -14,10 +14,10 @@ package raw.compiler.truffle
 
 import com.oracle.truffle.api.Truffle
 import com.typesafe.scalalogging.StrictLogging
-import raw.compiler.{CompilerExecutionException, ProgramOutputWriter}
 import raw.compiler.base.ProgramContext
 import raw.compiler.base.source.BaseNode
-import raw.compiler.rql2.truffle.TruffleEntrypoint
+import raw.compiler.snapi.truffle.compiler.TruffleEntrypoint
+import raw.compiler.{CompilerExecutionException, ProgramOutputWriter}
 import raw.runtime.Entrypoint
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 
@@ -39,7 +39,7 @@ class TruffleProgramOutputWriter(entrypoint: TruffleEntrypoint)(
   override def writeTo(outputStream: OutputStream): Unit = {
     try {
       try {
-        val target = Truffle.getRuntime.createDirectCallNode(entrypoint.node.getCallTarget)
+        val target = Truffle.getRuntime.createDirectCallNode(entrypoint.target().getCallTarget)
         target.call()
       } catch {
         case ex: RawTruffleRuntimeException =>
