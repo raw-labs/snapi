@@ -24,6 +24,8 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 
+import java.util.Objects;
+
 // Similar to AbstractIterator implementation
 // When either next or hasNext is called, the computeNext method is called
 // Then the result is stored in the next field until it is consumed by next
@@ -96,18 +98,30 @@ public class CollectionAbstractGenerator implements TruffleObject {
     return true;
   }
 
+  // InteropLibrary: Iterator
+
   @ExportMessage
   final boolean isIterator() {
     return true;
   }
 
   @ExportMessage
-  final boolean hasIteratorNextElement(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) throws UnsupportedMessageException {
-    return hasNext(computeNextLibrary);
+  final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary) throws UnsupportedMessageException {
+    return generatorLibrary.hasNext(this);
   }
 
   @ExportMessage
-  final Object getIteratorNextElement(@CachedLibrary("this.computeNext") ComputeNextLibrary computeNextLibrary) throws UnsupportedMessageException, StopIterationException {
-    return next(computeNextLibrary);
+  final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary) throws UnsupportedMessageException, StopIterationException {
+    return generatorLibrary.next(this);
   }
+
+  @ExportMessage final boolean hasMembers() { return true; }
+  @ExportMessage final Object getMembers(boolean includeInternal) { return new Object[] { "close" }; }
+  @ExportMessage final boolean isMemberInvocable(String member) { return Objects.equals(member, "close"); }
+  @ExportMessage final Object invokeMember(String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) { assert(Objects.equals(member, "close"));
+    generatorLibrary.close(this);
+    return 0;
+  }
+
+
 }

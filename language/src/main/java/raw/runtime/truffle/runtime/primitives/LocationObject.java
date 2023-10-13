@@ -13,13 +13,20 @@
 package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import raw.sources.api.LocationDescription;
-import raw.sources.api.LocationSettingKey;
-import raw.sources.api.LocationSettingValue;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.list.StringList;
+import raw.sources.api.*;
+import scala.collection.JavaConverters;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
+import scala.collection.JavaConverters;
 
-public class LocationObject {
+@ExportLibrary(InteropLibrary.class)
+public class LocationObject implements TruffleObject {
   private final LocationDescription locationDescription;
 
   @CompilerDirectives.TruffleBoundary
@@ -41,8 +48,43 @@ public class LocationObject {
     return locationDescription;
   }
 
-  //    public String getUrl() {
-  //        return locationDescription.url();
-  //    }
+  @ExportMessage
+  final boolean isString() {
+    return true;
+  }
 
+  @ExportMessage
+  final String asString() {
+    return locationDescription.url();
+  }
+
+  @ExportMessage
+  final boolean hasMembers() {
+    return true;
+  }
+
+  @ExportMessage
+  final Object getMembers(boolean includeInternal) {
+    String[] keys = JavaConverters.asJavaCollection(locationDescription.settings().keys()).stream().map(LocationSettingKey::key).toArray(String[]::new);
+    return new StringList(keys);
+  }
+
+  @ExportMessage
+  final boolean isMemberReadable(String member) {
+    return locationDescription.settings().keySet().contains(new LocationSettingKey(member));
+  }
+
+  @ExportMessage
+  final Object readMember(String member) {
+    return switch (locationDescription.settings().get(new LocationSettingKey(member)).get()) {
+      case LocationIntSetting v -> v.value();
+      case LocationStringSetting v -> v.value();
+      case LocationBinarySetting v -> v.value();
+      case LocationBooleanSetting v -> v.value();
+      case LocationDurationSetting v -> v.value();
+      case LocationKVSetting v -> JavaConverters.asJavaCollectionConverter(v.map());
+      case LocationIntArraySetting v -> v.value();
+      default -> throw new RawTruffleInternalErrorException();
+    };
+  }
 }

@@ -196,7 +196,7 @@ byte asByte() throws UnsupportedMessageException {
 
   @ExportMessage
   public RuntimeException throwException() {
-    return new RuntimeException(failureValue);
+    return new RawTruffleRuntimeException(failureValue);
   }
 
   @ExportMessage
@@ -341,4 +341,8 @@ byte asByte() throws UnsupportedMessageException {
     return interops.asBoolean(successValue);
   }
 
+  @ExportMessage
+  boolean isNull() {
+    return interops.isNull(successValue);
+  }
 }

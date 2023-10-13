@@ -12,12 +12,14 @@
 
 package raw.runtime.truffle.runtime.list;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
 @ExportLibrary(ListLibrary.class)
+@ExportLibrary(InteropLibrary.class)
 public class BooleanList implements TruffleObject {
   private final boolean[] list;
 
@@ -62,5 +64,31 @@ public class BooleanList implements TruffleObject {
   @ExportMessage
   public Object sort() {
     return this;
+  }
+
+  // InteropLibrary: Array
+
+  @ExportMessage
+  final boolean hasArrayElements() {
+    return true;
+  }
+
+  @ExportMessage
+  final long getArraySize() {
+    return list.length;
+  }
+
+  @ExportMessage
+  final boolean isArrayElementReadable(long index) {
+    return index >= 0 && index < list.length;
+  }
+
+  @ExportMessage
+  final boolean readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
+    int idx = (int) index;
+    if (!isElementReadable(idx)) {
+      throw new ArrayIndexOutOfBoundsException(idx);
+    }
+    return list[idx];
   }
 }

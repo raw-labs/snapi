@@ -12,16 +12,20 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.ZipComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(IterableLibrary.class)
-public class ZipCollection {
+@ExportLibrary(InteropLibrary.class)
+public class ZipCollection implements TruffleObject {
   final Object parentIterable1;
   final Object parentIterable2;
 
@@ -46,4 +50,21 @@ public class ZipCollection {
     Object generator2 = iterables2.getGenerator(parentIterable2);
     return new CollectionAbstractGenerator(new ZipComputeNext(generator1, generator2, language));
   }
+
+  // InteropLibrary: Iterable
+
+  @ExportMessage
+  boolean hasIterator() {
+    return true;
+  }
+
+  private final GeneratorLibrary generatorLibrary = GeneratorLibrary.getFactory().createDispatched(1);
+
+  @ExportMessage
+  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
+    Object generator = iterables.getGenerator(this);
+    generatorLibrary.init(generator);
+    return generator;
+  }
+
 }

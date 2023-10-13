@@ -363,4 +363,10 @@ public final class ObjectOption implements TruffleObject {
   final double readBufferDouble(ByteOrder order, long byteOffset) throws UnsupportedMessageException, InvalidBufferOffsetException {
     return interops.readBufferDouble(value, order, byteOffset);
   }
+
+  @ExportMessage boolean isBoolean() {
+    return !isNull() && interops.isBoolean(value);
+  }
+  @ExportMessage boolean asBoolean() throws UnsupportedMessageException { return interops.asBoolean(value); }
+
 }

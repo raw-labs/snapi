@@ -30,7 +30,7 @@ final case class LocationSettingKey(key: String)
     new JsonType(value = classOf[LocationKVSetting], name = "kv"),
     new JsonType(value = classOf[LocationIntArraySetting], name = "array-int")
   )
-) trait LocationSettingValue
+) sealed trait LocationSettingValue
 final case class LocationIntSetting(value: Int) extends LocationSettingValue
 final case class LocationStringSetting(value: String) extends LocationSettingValue
 final case class LocationBinarySetting(value: Seq[Byte]) extends LocationSettingValue

@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.list;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -19,6 +20,7 @@ import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
 @ExportLibrary(ListLibrary.class)
+@ExportLibrary(InteropLibrary.class)
 public class LongList implements TruffleObject {
   private final long[] list;
 
@@ -65,5 +67,31 @@ public class LongList implements TruffleObject {
     long[] result = this.list.clone();
     Arrays.sort(result);
     return new LongList(result);
+  }
+
+  // InteropLibrary: Array
+
+  @ExportMessage
+  final boolean hasArrayElements() {
+    return true;
+  }
+
+  @ExportMessage
+  final long getArraySize() {
+    return list.length;
+  }
+
+  @ExportMessage
+  final boolean isArrayElementReadable(long index) {
+    return index >= 0 && index < list.length;
+  }
+
+  @ExportMessage
+  final long readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
+    int idx = (int) index;
+    if (!isElementReadable(idx)) {
+      throw new ArrayIndexOutOfBoundsException(idx);
+    }
+    return list[idx];
   }
 }

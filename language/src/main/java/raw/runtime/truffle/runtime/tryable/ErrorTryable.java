@@ -12,12 +12,14 @@
 
 package raw.runtime.truffle.runtime.tryable;
 
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ExportLibrary(TryableLibrary.class)
+@ExportLibrary(InteropLibrary.class)
 public final class ErrorTryable implements TruffleObject {
   private final String failureValue;
 
@@ -56,4 +58,15 @@ public final class ErrorTryable implements TruffleObject {
   public boolean isFailure() {
     return true;
   }
+
+  @ExportMessage
+  public boolean isException() {
+    return true;
+  }
+
+  @ExportMessage
+  public RuntimeException throwException() {
+    return new RuntimeException(failureValue);
+  }
+
 }

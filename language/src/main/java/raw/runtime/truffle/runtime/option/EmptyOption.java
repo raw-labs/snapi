@@ -42,4 +42,9 @@ public final class EmptyOption implements TruffleObject {
   public boolean isDefined() {
     return false;
   }
+
+  @ExportMessage
+  boolean isNull() {
+    return true;
+  }
 }

@@ -69,23 +69,25 @@ public class IntList implements TruffleObject {
     return new IntList(result);
   }
 
+  // InteropLibrary: Array
+
   @ExportMessage
-  boolean hasArrayElements() {
+  final boolean hasArrayElements() {
     return true;
   }
 
   @ExportMessage
-  long getArraySize() {
+  final long getArraySize() {
     return list.length;
   }
 
   @ExportMessage
-  boolean isArrayElementReadable(long index) {
+  final boolean isArrayElementReadable(long index) {
     return index >= 0 && index < list.length;
   }
 
   @ExportMessage
-  int readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
+  final int readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
       throw new ArrayIndexOutOfBoundsException(idx);
