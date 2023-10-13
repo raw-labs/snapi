@@ -13,7 +13,7 @@
 package raw.compiler.rql2.truffle
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonGenerator, JsonParser}
-import org.graalvm.polyglot.Value
+import org.graalvm.polyglot.{PolyglotException, Value}
 
 import java.io.{Closeable, IOException, OutputStream}
 import java.time.format.DateTimeFormatter
@@ -49,7 +49,8 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
       try {
         v.throwException()
       } catch {
-        case NonFatal(ex) => gen.writeString(ex.getMessage)
+        case ex: PolyglotException =>
+          gen.writeString(ex.getMessage)
       }
     } else {
       if (v.isNull) {

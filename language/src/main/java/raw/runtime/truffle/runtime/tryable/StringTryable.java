@@ -86,6 +86,6 @@ public class StringTryable implements TruffleObject {
 
   @ExportMessage
   public RuntimeException throwException() {
-    return new RuntimeException(failureValue);
+    return new RawTruffleRuntimeException(failureValue);
   }
 }

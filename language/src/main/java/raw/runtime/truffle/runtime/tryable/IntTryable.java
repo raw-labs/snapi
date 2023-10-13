@@ -172,6 +172,6 @@ public final class IntTryable implements TruffleObject {
 
   @ExportMessage
   public RuntimeException throwException() {
-    return new RuntimeException(failureValue);
+    return new RawTruffleRuntimeException(failureValue);
   }
 }

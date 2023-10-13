@@ -66,6 +66,6 @@ public final class ErrorTryable implements TruffleObject {
 
   @ExportMessage
   public RuntimeException throwException() {
-    return new RuntimeException(failureValue);
+    return new RawTruffleRuntimeException(failureValue);
   }
 }
