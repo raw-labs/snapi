@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.snapi.truffle.builtin.json_extension;
+package raw.compiler.rql2output.truffle.builtin;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import raw.compiler.rql2.source.*;
@@ -21,15 +21,16 @@ import raw.runtime.truffle.ast.io.json.writer.internal.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
-import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
+import static raw.compiler.rql2output.truffle.builtin.CompilerScalaConsts.nullable;
+import static raw.compiler.rql2output.truffle.builtin.CompilerScalaConsts.tryable;
 
 public class JsonWriter {
 
-  public ProgramStatementNode recurse(Rql2TypeWithProperties tipe, RawLanguage lang) {
+  public static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, RawLanguage lang) {
     return recurse(tipe, false, lang);
   }
 
-  private ProgramStatementNode recurse(Rql2TypeWithProperties tipe, boolean isSafe, RawLanguage lang) {
+  private static ProgramStatementNode recurse(Rql2TypeWithProperties tipe, boolean isSafe, RawLanguage lang) {
     return program(switch (tipe){
       case Rql2TypeWithProperties nt when nt.props().contains(tryable) -> {
         Rql2TypeWithProperties nextType = (Rql2TypeWithProperties) nt.cloneAndRemoveProp(tryable);

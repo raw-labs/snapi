@@ -90,6 +90,9 @@ module raw.language {
       raw.compiler.rql2.builtin.UnionListEntry,
       raw.compiler.rql2.builtin.UnnestListEntry,
       raw.compiler.rql2.builtin.ZipListEntry;
+
+  exports raw.compiler.rql2output.truffle.builtin;
+
   provides raw.creds.api.CredentialsServiceBuilder with
       raw.creds.local.LocalCredentialsServiceBuilder,
       raw.creds.mock.MockCredentialsServiceBuilder;

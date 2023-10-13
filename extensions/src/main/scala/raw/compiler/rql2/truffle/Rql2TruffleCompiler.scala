@@ -27,7 +27,7 @@ import raw.compiler.rql2.api._
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.truffle.Rql2TruffleCompiler.WINDOWS_LINE_ENDING
-import raw.compiler.rql2.truffle.builtin.{CsvWriter, JsonIO, TruffleBinaryWriter}
+import raw.compiler.rql2output.truffle.builtin.{CsvWriter, JsonWriter, TruffleBinaryWriter}
 import raw.compiler.truffle.TruffleCompiler
 import raw.compiler.{base, CompilerException, ErrorMessage}
 import raw.runtime._
@@ -228,7 +228,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               frameDescriptor,
               new CsvIterableWriterNode(
                 bodyExpNode,
-                CsvWriter(atts.map(_.tipe), rawLanguage),
+                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
                 atts.map(_.idn).toArray,
                 lineSeparator
               )
@@ -241,7 +241,7 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
               frameDescriptor,
               new CsvListWriterNode(
                 bodyExpNode,
-                CsvWriter(atts.map(_.tipe), rawLanguage),
+                CsvWriter.getCsvWriter(atts.map(_.tipe).toArray, rawLanguage),
                 atts.map(_.idn).toArray,
                 lineSeparator
               )
@@ -269,14 +269,16 @@ class Rql2TruffleCompiler(implicit compilerContext: CompilerContext)
 //          )
 //        )
       case "binary" =>
-        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2BinaryType], rawLanguage)
+        val writer =
+          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2BinaryType], rawLanguage, frameDescriptor)
         new ProgramStatementNode(
           rawLanguage,
           frameDescriptor,
           new BinaryWriterNode(bodyExpNode, writer)
         )
       case "text" =>
-        val writer = TruffleBinaryWriter(dataType.asInstanceOf[Rql2StringType], rawLanguage)
+        val writer =
+          TruffleBinaryWriter.getBinaryWriterNode(dataType.asInstanceOf[Rql2StringType], rawLanguage, frameDescriptor)
         new ProgramStatementNode(
           rawLanguage,
           frameDescriptor,

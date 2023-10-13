@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.snapi.truffle.builtin.binary_extension;
+package raw.compiler.rql2output.truffle.builtin;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import raw.compiler.rql2.source.Rql2BinaryType;
@@ -31,14 +31,14 @@ public class TruffleBinaryWriter {
       return new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode());
     } else if (type.props().contains(Rql2IsTryableTypeProperty.apply())) {
       Rql2BinaryType innerType =
-          (Rql2BinaryType) type.cloneAndAddProp(Rql2IsTryableTypeProperty.apply());
+          (Rql2BinaryType) type.cloneAndRemoveProp(Rql2IsTryableTypeProperty.apply());
       ProgramStatementNode innerWriter =
           TruffleBinaryWriter.getBinaryWriterNode(innerType, lang, frameDescriptor);
       return new ProgramStatementNode(
           lang, frameDescriptor, new TryableBinaryWriterNode(innerWriter));
     } else {
       Rql2BinaryType innerType =
-          (Rql2BinaryType) type.cloneAndAddProp(Rql2IsNullableTypeProperty.apply());
+          (Rql2BinaryType) type.cloneAndRemoveProp(Rql2IsNullableTypeProperty.apply());
       ProgramStatementNode innerWriter =
           TruffleBinaryWriter.getBinaryWriterNode(innerType, lang, frameDescriptor);
       return new ProgramStatementNode(
@@ -52,14 +52,14 @@ public class TruffleBinaryWriter {
       return new ProgramStatementNode(lang, frameDescriptor, new BinaryBytesWriterNode());
     } else if (type.props().contains(Rql2IsTryableTypeProperty.apply())) {
       Rql2StringType innerType =
-          (Rql2StringType) type.cloneAndAddProp(Rql2IsTryableTypeProperty.apply());
+          (Rql2StringType) type.cloneAndRemoveProp(Rql2IsTryableTypeProperty.apply());
       ProgramStatementNode innerWriter =
           TruffleBinaryWriter.getBinaryWriterNode(innerType, lang, frameDescriptor);
       return new ProgramStatementNode(
           lang, frameDescriptor, new TryableBinaryWriterNode(innerWriter));
     } else {
       Rql2StringType innerType =
-          (Rql2StringType) type.cloneAndAddProp(Rql2IsNullableTypeProperty.apply());
+          (Rql2StringType) type.cloneAndRemoveProp(Rql2IsNullableTypeProperty.apply());
       ProgramStatementNode innerWriter =
           TruffleBinaryWriter.getBinaryWriterNode(innerType, lang, frameDescriptor);
       return new ProgramStatementNode(

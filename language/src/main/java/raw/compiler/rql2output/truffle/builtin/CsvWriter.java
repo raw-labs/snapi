@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.snapi.truffle.builtin.csv_extension;
+package raw.compiler.rql2output.truffle.builtin;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import java.util.Arrays;
@@ -22,11 +22,9 @@ import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.csv.writer.internal.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
-import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
-
 public class CsvWriter {
 
-  public ProgramStatementNode getCsvWriter(Type[] args, RawLanguage lang) {
+  public static ProgramStatementNode getCsvWriter(Type[] args, RawLanguage lang) {
     ProgramStatementNode[] columnWriters =
         Arrays.stream(args)
             .map(arg -> columnWriter(arg, lang))
@@ -36,14 +34,14 @@ public class CsvWriter {
     return new ProgramStatementNode(lang, new FrameDescriptor(), recordWriter);
   }
 
-  private StatementNode columnWriter(Type t, RawLanguage lang) {
+  private static StatementNode columnWriter(Type t, RawLanguage lang) {
     return switch (t){
-      case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
-        StatementNode inner = columnWriter(r.cloneAndRemoveProp(tryable), lang);
+      case Rql2TypeWithProperties r when r.props().contains(CompilerScalaConsts.tryable) -> {
+        StatementNode inner = columnWriter(r.cloneAndRemoveProp(CompilerScalaConsts.tryable), lang);
         yield  new TryableWriteCsvNode(program(inner, lang));
       }
-      case Rql2TypeWithProperties r when r.props().contains(nullable) -> {
-        StatementNode inner = columnWriter(r.cloneAndRemoveProp(nullable), lang);
+      case Rql2TypeWithProperties r when r.props().contains(CompilerScalaConsts.nullable) -> {
+        StatementNode inner = columnWriter(r.cloneAndRemoveProp(CompilerScalaConsts.nullable), lang);
         yield  new NullableWriteCsvNode(program(inner, lang));
       }
       case Rql2TypeWithProperties r -> {
