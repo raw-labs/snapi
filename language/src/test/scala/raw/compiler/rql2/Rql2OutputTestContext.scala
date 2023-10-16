@@ -59,7 +59,7 @@ trait Rql2OutputTestContext {
     def recurse(n: JsonNode, t: Type): Any = {
       t match {
         case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
-          if (n.isTextual && !t.isInstanceOf[Rql2DecimalType] /* */) n.asText()
+          if (n.isTextual && !t.isInstanceOf[Rql2DecimalType] /* */ ) n.asText()
           else recurse(n, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))
         case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) && n.isNull => null
         case _: Rql2BoolType if n.isBoolean => n.asBoolean
@@ -80,15 +80,16 @@ trait Rql2OutputTestContext {
           }
           if (floatingPointAsString) v.toString
           else v
-        case _: Rql2DecimalType => try {
-          val decimal = BigDecimal(n.asText())
-          precision match {
-            case Some(p) => decimal.setScale(p, RoundingMode.HALF_DOWN)
-            case None => decimal
+        case _: Rql2DecimalType =>
+          try {
+            val decimal = BigDecimal(n.asText())
+            precision match {
+              case Some(p) => decimal.setScale(p, RoundingMode.HALF_DOWN)
+              case None => decimal
+            }
+          } catch {
+            case NonFatal(_) => n.asText() // in case it was tryable
           }
-        } catch {
-          case NonFatal(_) => n.asText() // in case it was tryable
-        }
         case _: Rql2DateType if n.isTextual =>
           // TODO (msb): Validate it's the actual type complying with our format
           n.asText
