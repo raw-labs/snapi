@@ -13,11 +13,16 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -39,10 +44,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected ByteList doByte(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     byte[] values = new byte[(int) lists.size(list)];
@@ -50,7 +56,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (byte) function.call(argumentValues);
+      try {
+        values[cnt] = (byte) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new ByteList(values);
@@ -61,10 +71,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected ShortList doShort(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     short[] values = new short[(int) lists.size(list)];
@@ -72,7 +83,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (short) function.call(argumentValues);
+      try {
+        values[cnt] = (short) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new ShortList(values);
@@ -83,10 +98,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected IntList doInt(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     int[] values = new int[(int) lists.size(list)];
@@ -94,7 +110,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (int) function.call(argumentValues);
+      try {
+        values[cnt] = (int) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new IntList(values);
@@ -105,10 +125,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected LongList doLong(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     long[] values = new long[(int) lists.size(list)];
@@ -116,7 +137,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (long) function.call(argumentValues);
+      try {
+        values[cnt] = (long) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new LongList(values);
@@ -127,10 +152,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected FloatList doFloat(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     float[] values = new float[(int) lists.size(list)];
@@ -138,7 +164,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (float) function.call(argumentValues);
+      try {
+        values[cnt] = (float) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new FloatList(values);
@@ -149,10 +179,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected DoubleList doDouble(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     double[] values = new double[(int) lists.size(list)];
@@ -160,7 +191,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (double) function.call(argumentValues);
+      try {
+        values[cnt] = (double) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new DoubleList(values);
@@ -171,10 +206,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected BooleanList doBoolean(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     boolean[] values = new boolean[(int) lists.size(list)];
@@ -182,7 +218,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (boolean) function.call(argumentValues);
+      try {
+        values[cnt] = (boolean) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new BooleanList(values);
@@ -193,10 +233,11 @@ public abstract class ListTransformNode extends ExpressionNode {
       limit = "3")
   protected StringList doString(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     String[] values = new String[(int) lists.size(list)];
@@ -204,7 +245,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = (String) function.call(argumentValues);
+      try {
+        values[cnt] = (String) interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new StringList(values);
@@ -213,10 +258,11 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(limit = "3")
   protected ObjectList doObject(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     Object[] values = new Object[(int) lists.size(list)];
@@ -224,7 +270,11 @@ public abstract class ListTransformNode extends ExpressionNode {
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      values[cnt] = function.call(argumentValues);
+      try {
+        values[cnt] = interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       cnt++;
     }
     return new ObjectList(values);

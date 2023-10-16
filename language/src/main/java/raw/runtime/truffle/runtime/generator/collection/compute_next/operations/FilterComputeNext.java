@@ -13,11 +13,16 @@
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
@@ -26,9 +31,9 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 public class FilterComputeNext {
 
   final Object parent;
-  final Closure predicate;
+  final Object predicate;
 
-  public FilterComputeNext(Object parent, Closure predicate) {
+  public FilterComputeNext(Object parent, Object predicate) {
     this.parent = parent;
     this.predicate = predicate;
   }
@@ -51,14 +56,21 @@ public class FilterComputeNext {
   @ExportMessage
   Object computeNext(
       @Cached TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTryablePredicate,
+      @CachedLibrary("this.predicate") InteropLibrary interops,
       @CachedLibrary("this.parent") GeneratorLibrary generators) {
     Object[] argumentValues = new Object[1];
 
     while (generators.hasNext(parent)) {
       Object v = generators.next(parent);
       argumentValues[0] = v;
-      Boolean isPredicateTrue =
-          handleOptionTryablePredicate.execute(predicate.call(argumentValues), false);
+      Boolean isPredicateTrue = null;
+      try {
+        isPredicateTrue =
+            handleOptionTryablePredicate.execute(
+                interops.execute(predicate, argumentValues), false);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       if (isPredicateTrue) {
         return v;
       }

@@ -12,10 +12,15 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
@@ -23,9 +28,9 @@ import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNext
 @ExportLibrary(ComputeNextLibrary.class)
 public class TransformComputeNext {
   final Object parent;
-  final Closure transform;
+  final Object transform;
 
-  public TransformComputeNext(Object parent, Closure transform) {
+  public TransformComputeNext(Object parent, Object transform) {
     this.parent = parent;
     this.transform = transform;
   }
@@ -46,12 +51,18 @@ public class TransformComputeNext {
   }
 
   @ExportMessage
-  Object computeNext(@CachedLibrary("this.parent") GeneratorLibrary generators) {
+  Object computeNext(
+      @CachedLibrary("this.transform") InteropLibrary interops,
+      @CachedLibrary("this.parent") GeneratorLibrary generators) {
     if (!generators.hasNext(parent)) {
       throw new BreakException();
     }
     Object[] argumentValues = new Object[1];
     argumentValues[0] = generators.next(parent);
-    return transform.call(argumentValues);
+    try {
+      return interops.execute(transform, argumentValues);
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
+    }
   }
 }

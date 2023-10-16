@@ -13,13 +13,13 @@
 package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -32,7 +32,7 @@ import raw.sources.api.SourceContext;
 public final class GroupByCollection implements TruffleObject {
 
   final Object iterable;
-  final Closure keyFun;
+  final Object keyFun;
 
   final RawLanguage language;
 
@@ -42,7 +42,7 @@ public final class GroupByCollection implements TruffleObject {
 
   public GroupByCollection(
       Object iterable,
-      Closure keyFun,
+      Object keyFun,
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
@@ -63,6 +63,7 @@ public final class GroupByCollection implements TruffleObject {
   @ExportMessage
   Object getGenerator(
       @Cached OperatorNodes.CompareNode compare,
+      @CachedLibrary("this.keyFun") InteropLibrary keyFunLib,
       @CachedLibrary("this.iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "5") GeneratorLibrary generators) {
     OffHeapCollectionGroupByKey map =
@@ -72,14 +73,17 @@ public final class GroupByCollection implements TruffleObject {
       generators.init(inputGenerator);
       while (generators.hasNext(inputGenerator)) {
         Object v = generators.next(inputGenerator);
-        Object key = keyFun.call(v);
+        Object key = keyFunLib.execute(keyFun, v);
         map.put(key, v);
       }
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
       generators.close(inputGenerator);
     }
     return map.generator();
   }
+
   // InteropLibrary: Iterable
 
   @ExportMessage

@@ -14,9 +14,14 @@ package raw.runtime.truffle.ast.expressions.option;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 
@@ -29,12 +34,19 @@ public abstract class OptionFlatMapNode extends ExpressionNode {
       guards = {"options.isOption(option)"},
       limit = "1")
   protected Object optionFlatMap(
-      Object option, Closure closure, @CachedLibrary("option") OptionLibrary options) {
+      Object option,
+      Object closure,
+      @CachedLibrary("option") OptionLibrary options,
+      @CachedLibrary("closure") InteropLibrary interops) {
     if (options.isDefined(option)) {
       Object v = options.get(option);
       Object[] argumentValues = new Object[1];
       argumentValues[0] = v;
-      return closure.call(argumentValues);
+      try {
+        return interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
     } else {
       return option;
     }

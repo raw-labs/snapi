@@ -15,6 +15,10 @@ package raw.runtime.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -37,8 +41,9 @@ public abstract class CollectionExistsNode extends ExpressionNode {
   @Specialization(limit = "3")
   protected BooleanTryable doIterable(
       Object iterable,
-      Closure function,
+      Object closure,
       @CachedLibrary("iterable") IterableLibrary iterables,
+      @CachedLibrary("closure") InteropLibrary interops,
       @CachedLibrary(limit = "2") GeneratorLibrary generators) {
     Object generator = iterables.getGenerator(iterable);
     try {
@@ -48,13 +53,16 @@ public abstract class CollectionExistsNode extends ExpressionNode {
         argumentValues[0] = generators.next(generator);
         Boolean predicate =
             NullableTryableHandler.handleOptionTriablePredicate(
-                function.call(argumentValues), getPredicateType(), false);
+                interops.execute(closure, argumentValues), getPredicateType(), false);
         if (predicate) {
           return BooleanTryable.BuildSuccess(true);
         }
       }
       return BooleanTryable.BuildSuccess(false);
-    } catch (RawTruffleRuntimeException ex) {
+    } catch (RawTruffleRuntimeException
+        | UnsupportedMessageException
+        | UnsupportedTypeException
+        | ArityException ex) {
       return BooleanTryable.BuildFailure(ex.getMessage());
     } finally {
       generators.close(generator);

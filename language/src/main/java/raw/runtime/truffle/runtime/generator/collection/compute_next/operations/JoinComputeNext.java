@@ -15,6 +15,10 @@ package raw.runtime.truffle.runtime.generator.collection.compute_next.operations
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -25,7 +29,6 @@ import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -42,8 +45,8 @@ public class JoinComputeNext {
   protected final Object leftIterable;
   protected final Object rightIterable;
   private Object leftGen = null;
-  private final Closure remap;
-  private final Closure predicate;
+  private final Object remap;
+  private final Object predicate;
 
   private Object leftRow = null;
   private Object rightRow = null;
@@ -59,14 +62,16 @@ public class JoinComputeNext {
   private final File diskRight;
   private final Boolean reshapeBeforePredicate;
 
+  private final InteropLibrary interop = InteropLibrary.getFactory().getUncached();
+
   TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTriablePredicateNode =
       TryableNullableNodesFactory.HandleOptionTryablePredicateNodeGen.create();
 
   public JoinComputeNext(
       Object leftIterable,
       Object rightIterable,
-      Closure remap,
-      Closure predicate,
+      Object remap,
+      Object predicate,
       Boolean reshapeBeforePredicate,
       Rql2TypeWithProperties rightRowType,
       SourceContext context,
@@ -172,16 +177,22 @@ public class JoinComputeNext {
   }
 
   private Object check(Object leftRow, Object rightRow) {
-    Boolean pass;
-    Object row = null;
-    if (reshapeBeforePredicate) {
-      row = remap.call(leftRow, rightRow);
-      pass = handleOptionTriablePredicateNode.execute(predicate.call(row), false);
-      if (!pass) row = null;
-    } else {
-      pass = handleOptionTriablePredicateNode.execute(predicate.call(leftRow, rightRow), false);
-      if (pass) row = remap.call(leftRow, rightRow);
+    try {
+      Boolean pass;
+      Object row = null;
+      if (reshapeBeforePredicate) {
+        row = interop.execute(remap, leftRow, rightRow);
+        pass = handleOptionTriablePredicateNode.execute(interop.execute(predicate, row), false);
+        if (!pass) row = null;
+      } else {
+        pass =
+            handleOptionTriablePredicateNode.execute(
+                interop.execute(predicate, leftRow, rightRow), false);
+        if (pass) row = interop.execute(remap, leftRow, rightRow);
+      }
+      return row;
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     }
-    return row;
   }
 }

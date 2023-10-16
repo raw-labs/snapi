@@ -19,18 +19,17 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 
-@ExportLibrary(InteropLibrary.class)
 public final class Function implements TruffleObject {
 
   private final String name;
 
-  private final DirectCallNode callNode;
+  private final RootCallTarget rootCallTarget;
 
   public final String[] argNames;
 
-  public Function(RootCallTarget callTarget, String[] argNames) {
-    this.name = callTarget.getRootNode().getName();
-    this.callNode = DirectCallNode.create(callTarget);
+  public Function(RootCallTarget rootCallTarget, String[] argNames) {
+    this.name = rootCallTarget.getRootNode().getName();
+    this.rootCallTarget = rootCallTarget;
     this.argNames = argNames;
   }
 
@@ -38,14 +37,11 @@ public final class Function implements TruffleObject {
     return name;
   }
 
-  @ExportMessage
-  boolean isExecutable() {
-    return true;
-  }
+    public RootCallTarget getCallTarget() {
+        return rootCallTarget;
+    }
 
-  @ExportMessage
-  Object execute(Object... arguments) {
-    assert (arguments.length == argNames.length + 1);
-    return callNode.call(arguments);
+  public String[] getArgNames() {
+    return argNames;
   }
 }
