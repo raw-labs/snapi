@@ -46,6 +46,7 @@ import raw.sources.api.{
   LocationBooleanSetting,
   LocationDescription,
   LocationDurationSetting,
+  LocationIntArraySetting,
   LocationIntSetting,
   LocationSettingKey,
   LocationSettingValue,
@@ -406,8 +407,15 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
               }
               LocationBinarySetting(byteArray)
             } else if (tv.isDuration) LocationDurationSetting(tv.asDuration())
-            else if (tv.hasArrayElements) ???
-            else if (tv.hasHashEntries) ???
+            else if (tv.hasArrayElements) {
+              // int-array for sure
+              val size = tv.getArraySize
+              val array = new Array[Int](size.toInt)
+              for (i <- 0L until size) {
+                array(i.toInt) = tv.getArrayElement(i).asInt
+              }
+              LocationIntArraySetting(array)
+            } else if (tv.hasHashEntries) ???
             else ???
           settings.put(LocationSettingKey(key), value)
         }

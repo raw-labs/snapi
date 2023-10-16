@@ -24,6 +24,7 @@ import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
+import raw.runtime.truffle.runtime.list.StringList;
 
 // Similar to AbstractIterator implementation
 // When either next or hasNext is called, the computeNext method is called
@@ -123,7 +124,7 @@ public class CollectionAbstractGenerator implements TruffleObject {
 
   @ExportMessage
   final Object getMembers(boolean includeInternal) {
-    return new Object[] {"close"};
+    return new StringList(new String[] {"close"});
   }
 
   @ExportMessage

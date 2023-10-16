@@ -34,6 +34,7 @@ import raw.runtime.truffle.runtime.kryo.KryoReader;
 import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
 import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
+import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
@@ -187,7 +188,7 @@ public class OffHeapDistinct {
 
     @ExportMessage
     final Object getMembers(boolean includeInternal) {
-      return new Object[] {"close"};
+      return new StringList(new String[] {"close"});
     }
 
     @ExportMessage
@@ -315,7 +316,7 @@ public class OffHeapDistinct {
 
     @ExportMessage
     final Object getMembers(boolean includeInternal) {
-      return new Object[] {"close"};
+      return new StringList(new String[] {"close"});
     }
 
     @ExportMessage

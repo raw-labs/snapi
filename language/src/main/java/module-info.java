@@ -28,7 +28,7 @@ module raw.language {
   requires scala.library;
   //    requires scala.reflect;
   requires org.apache.commons.io;
-  //    requires org.apache.commons.text;
+  requires org.apache.commons.text;
   requires com.ctc.wstx;
   requires com.ibm.icu;
   requires typesafe.config;
@@ -42,6 +42,8 @@ module raw.language {
   requires dropbox.core.sdk;
   requires spring.core;
   requires spring.jcl;
+  requires java.net.http;
+  requires org.apache.httpcomponents.core5.httpcore5;
 
   uses raw.auth.api.AuthServiceBuilder;
   uses raw.compiler.base.CompilerBuilder;

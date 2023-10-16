@@ -22,6 +22,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Objects;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(GeneratorLibrary.class)
 @ExportLibrary(InteropLibrary.class)
@@ -83,7 +84,7 @@ public class ListGenerator implements TruffleObject {
 
   @ExportMessage
   final Object getMembers(boolean includeInternal) {
-    return new Object[] {"close"};
+    return new StringList(new String[] {"close"});
   }
 
   @ExportMessage

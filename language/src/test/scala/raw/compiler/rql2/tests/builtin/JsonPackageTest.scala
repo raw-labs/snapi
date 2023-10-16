@@ -15,29 +15,19 @@ package raw.compiler.rql2.tests.builtin
 import raw.compiler.SnapiInterpolator
 import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
-trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
+trait JsonPackageTest extends CompilerTestContext {
 
-  override def failServices: Seq[FailAfter] = Seq(
-    FailAfter(
-      "/fail-after-10",
-      330,
-      """[
-        |  {"a": 1, "b": "#1", "c": 1.1},
-        |  {"a": 2, "b": "#2", "c": 2.2},
-        |  {"a": 3, "b": "#3", "c": 3.3},
-        |  {"a": 4, "b": "#4", "c": 4.4},
-        |  {"a": 5, "b": "#5", "c": 5.5},
-        |  {"a": 6, "b": "#6", "c": 6.6},
-        |  {"a": 7, "b": "#7", "c": 7.7},
-        |  {"a": 8, "b": "#8", "c": 8.8},
-        |  {"a": 9, "b": "#9", "c": 9.9},
-        |  {"a": 10, "b": "#10", "c": 10.10},
-        |  {"a": 11, "b": "#11", "c": 11.11},
-        |  {"a": 12, "b": "#12", "c": 12.12}
-        |]
-        |""".stripMargin
-    )
-  )
+  private val junkAfter10Items = tempFile("""[
+    |  {"a": 1, "b": "#1", "c": 1.1},
+    |  {"a": 2, "b": "#2", "c": 2.2},
+    |  {"a": 3, "b": "#3", "c": 3.3},
+    |  {"a": 4, "b": "#4", "c": 4.4},
+    |  {"a": 5, "b": "#5", "c": 5.5},
+    |  {"a": 6, "b": "#6", "c": 6.6},
+    |  {"a": 7, "b": "#7", "c": 7.7},
+    |  {"a": 8, "b": "#8", "c": 8.8},
+    |  {"a": 9, "b": "#9", "c": 9.9},
+    |  {"a": 10, "b": "#10", "c": 10.10}###################################""".stripMargin)
 
   private val data = tempFile("""
     |[
@@ -414,12 +404,12 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
     )
   }
 
-  test(s"""Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double)))""")(
-    _ should runErrorAs(s"failed to read JSON (url: $testServerUrl/fail-after-10): closed")
+  test(snapi"""Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
+    _ should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
   )
 
   test(
-    s"""Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 9)"""
+    snapi"""Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9)"""
   )(
     _ should evaluateTo(s"""[
       | {a: 1, b: "#1", c: 1.1},
@@ -435,31 +425,31 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
   )
 
   test(
-    s"""Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 11)"""
+    snapi"""Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
   )(
-    _ should runErrorAs(s"failed to read JSON (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
   )
 
   test(
-    s"""Collection.Count(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))))""".stripMargin
+    snapi"""Collection.Count(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
   )(
-    _ should runErrorAs(s"failed to read JSON (url: $testServerUrl/fail-after-10): closed")
+    _ should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
   )
 
   test(
-    s"""Try.IsError(Collection.Count(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double)))) ) """
+    snapi"""Try.IsError(Collection.Count(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
   ) {
     _ should evaluateTo("true")
   }
 
   test(
-    s"""Try.IsError( List.From(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double)))) ) """
+    snapi"""Try.IsError( List.From(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
   ) {
     _ should evaluateTo("true")
   }
 
   test(
-    s""" List.From( Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))) , 9 )) """
+    snapi""" List.From( Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))) , 9 )) """
   ) {
     _ should evaluateTo(s"""[
       | {a: 1, b: "#1", c: 1.1},
@@ -474,8 +464,8 @@ trait JsonPackageTest extends CompilerTestContext with FailAfterNServer {
       |]""".stripMargin)
   }
 
-  test(s"""Try.IsError(
-    |  List.From(Collection.Take(Json.Read("$testServerUrl/fail-after-10", type collection(record(a: int, b: string, c: double))), 9))
+  test(snapi"""Try.IsError(
+    |  List.From(Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9))
     |)""".stripMargin) {
     _ should evaluateTo("false")
   }
