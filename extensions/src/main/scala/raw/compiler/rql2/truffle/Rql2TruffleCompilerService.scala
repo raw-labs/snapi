@@ -289,13 +289,17 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   private def convertPolyglotValueToRawValue(v: Value, t: Type): raw.runtime.interpreter.Value = {
     t match {
       case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
-        try {
-          v.throwException()
-          // Did not throw, so recurse without the tryable property.
+        if (v.isException) {
+          try {
+            v.throwException()
+            ??? // Should not happen.
+          } catch {
+            case NonFatal(ex) => raw.runtime.interpreter.TryValue(Left(ex.getMessage))
+          }
+        } else {
+          // Success, recurse without the tryable property.
           val v1 = convertPolyglotValueToRawValue(v, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))
           raw.runtime.interpreter.TryValue(Right(v1))
-        } catch {
-          case NonFatal(ex) => raw.runtime.interpreter.TryValue(Left(ex.getMessage))
         }
       case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) =>
         if (v.isNull) {
