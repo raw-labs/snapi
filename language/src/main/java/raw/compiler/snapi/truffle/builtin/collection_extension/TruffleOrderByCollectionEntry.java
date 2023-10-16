@@ -57,7 +57,8 @@ public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
             .filter(a -> a % 2 == 1)
             .map(a -> args.get(a + 1).exprNode())
             .toArray(ExpressionNode[]::new);
-    Rql2TypeWithProperties valueType = (Rql2TypeWithProperties)((Rql2IterableType) args.get(0).type()).innerType();
+    Rql2TypeWithProperties valueType =
+        (Rql2TypeWithProperties) ((Rql2IterableType) args.get(0).type()).innerType();
 
     return new CollectionOrderByNode(
         args.get(0).exprNode(), keyFunctions, orderings, keyTypes, valueType);
