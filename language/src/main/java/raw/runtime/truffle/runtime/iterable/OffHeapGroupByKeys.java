@@ -247,7 +247,6 @@ public class OffHeapGroupByKeys {
       generatorLibrary.close(this);
       return 0;
     }
-
   }
 
   // An iterator that reads the spilled data from disk and merges it with the in-memory map.
@@ -412,6 +411,5 @@ public class OffHeapGroupByKeys {
       generatorLibrary.close(this);
       return 0;
     }
-
   }
 }
