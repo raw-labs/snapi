@@ -337,12 +337,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           raw.runtime.interpreter.TimeValue(time)
         }
       case _: Rql2TimestampType =>
-        val instant = v.asInstant()
-        if (v.isTimeZone) {
-          raw.runtime.interpreter.TimestampValue(instant.atZone(v.asTimeZone()).toLocalDateTime)
-        } else {
-          raw.runtime.interpreter.TimestampValue(instant.atZone(ZoneId.systemDefault()).toLocalDateTime)
-        }
+        val localDate = v.asDate()
+        val localTime = v.asTime()
+        raw.runtime.interpreter.TimestampValue(localDate.atTime(localTime))
       case _: Rql2IntervalType =>
         val duration = v.asDuration()
         raw.runtime.interpreter.IntervalValue(
