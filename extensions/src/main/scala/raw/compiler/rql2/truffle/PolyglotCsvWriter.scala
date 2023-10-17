@@ -130,7 +130,6 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
         val v1 = v.getIterator
         writeValue(v1)
       } else if (v.isIterator) {
-        gen.writeStartArray()
         while (v.hasIteratorNextElement) {
           val v1 = v.getIteratorNextElement
           writeValue(v1)
@@ -138,13 +137,19 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
         if (v.canInvokeMember("close")) {
           val callable = v.getMember("close")
           callable.execute()
+        } else if (v.hasArrayElements) {
+          for (i <- 0L until v.getArraySize) {
+            val v1 = v.getArrayElement(i)
+            writeValue(v1)
+          }
+        }
+      } else if (v.hasMembers) {
+        gen.writeStartArray()
+        v.getMemberKeys.forEach { key =>
+          val value = v.getMember(key)
+          writeValue(value)
         }
         gen.writeEndArray()
-      } else if (v.hasArrayElements) {
-        for (i <- 0L until v.getArraySize) {
-          val v1 = v.getArrayElement(i)
-          writeValue(v1)
-        }
       } else {
         throw new IOException("unsupported type")
       }
