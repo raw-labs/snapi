@@ -12,10 +12,12 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
@@ -34,7 +36,7 @@ public class CsvReadComputeNext {
 
   private final LocationObject location;
   private RawTruffleCsvParser parser;
-  private final DirectCallNode rowParser;
+  protected final RootNode rowParserNode;
   private final SourceContext context;
 
   private TruffleCharInputStream stream;
@@ -44,12 +46,12 @@ public class CsvReadComputeNext {
   public CsvReadComputeNext(
       LocationObject location,
       SourceContext context,
-      DirectCallNode rowParser,
+      RootNode rowParserNode,
       String encoding,
       RawTruffleCsvParserSettings settings) {
     this.context = context;
     this.location = location;
-    this.rowParser = rowParser;
+    this.rowParserNode = rowParserNode;
     this.encoding = encoding;
     this.settings = settings;
   }
@@ -83,7 +85,10 @@ public class CsvReadComputeNext {
   }
 
   @ExportMessage
-  Object computeNext() {
+  Object computeNext(
+      @Cached(value = "this.rowParserNode.getCallTarget()", allowUncached = true)
+          RootCallTarget cachedTarget,
+      @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
     if (parser.done()) {
       throw new BreakException();
     }

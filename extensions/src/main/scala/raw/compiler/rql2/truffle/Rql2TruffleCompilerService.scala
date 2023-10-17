@@ -70,7 +70,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       options.put("engine.CompileImmediately", "true")
       options.put("engine.TraceCompilation", "true")
       options.put("engine.BackgroundCompilation", "false")
-//      options.put("engine.CompilationFailureAction", "Throw")
+      options.put("engine.CompilationFailureAction", "Throw")
 //      options.put("engine.CompilationFailureAction", "Diagnose")
 //      options.put("compiler.LogInlinedTargets", "true")
       //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
