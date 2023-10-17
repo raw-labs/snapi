@@ -24,7 +24,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 
 @NodeInfo(shortName = "Option.Map")
@@ -45,7 +44,7 @@ public abstract class OptionMapNode extends ExpressionNode {
       Object v = options.get(option);
       Object[] argumentValues = new Object[1];
       argumentValues[0] = v;
-      Object result = null;
+      Object result;
       try {
         result = interops.execute(closure, argumentValues);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {

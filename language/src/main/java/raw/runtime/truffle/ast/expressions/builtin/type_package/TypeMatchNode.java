@@ -18,10 +18,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
-import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.or.OrObject;
 
 public class TypeMatchNode extends ExpressionNode {
@@ -43,7 +41,7 @@ public class TypeMatchNode extends ExpressionNode {
     int index = orType.getIndex();
     Object[] closures = new Object[closureExps.length];
     for (int i = 0; i < closureExps.length; i++) {
-      closures[i] = (Object) closureExps[i].executeGeneric(frame);
+      closures[i] = closureExps[i].executeGeneric(frame);
     }
     try {
       return interop.execute(closures[index], orType.getValue());

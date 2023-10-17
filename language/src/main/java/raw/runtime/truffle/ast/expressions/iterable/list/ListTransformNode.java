@@ -23,7 +23,6 @@ import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.*;

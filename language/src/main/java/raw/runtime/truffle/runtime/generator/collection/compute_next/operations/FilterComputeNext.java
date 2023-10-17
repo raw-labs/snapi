@@ -23,7 +23,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 

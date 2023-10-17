@@ -23,7 +23,6 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;

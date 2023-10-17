@@ -23,7 +23,6 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.function.Closure;
 
 @NodeInfo(shortName = "Function.InvokeAfter")
 @NodeChild(value = "function")

@@ -24,7 +24,6 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -54,7 +53,7 @@ public class EquiJoinComputeNext {
   private Object leftKey = null, rightKey = null;
   private Object[] leftRows = null, rightRows = null;
 
-//  private InteropLibrary interop = InteropLibrary.getFactory().getUncached();
+  //  private InteropLibrary interop = InteropLibrary.getFactory().getUncached();
 
   private int compareKey(Object key1, Object key2) {
     return compare.execute(key1, key2);
@@ -149,8 +148,7 @@ public class EquiJoinComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached.Shared("sharedGenerators")
-      @CachedLibrary(limit = "5") GeneratorLibrary generators,
+      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators,
       @CachedLibrary("this.mkJoinedRecord") InteropLibrary interops) {
 
     assert (leftMapGenerator != null);

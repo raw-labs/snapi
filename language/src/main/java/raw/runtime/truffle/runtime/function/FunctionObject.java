@@ -1,4 +1,16 @@
-///*
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+/// *
 // * Copyright 2023 RAW Labs S.A.
 // *
 // * Use of this software is governed by the Business Source License
@@ -10,21 +22,21 @@
 // * licenses/APL.txt.
 // */
 //
-//package raw.runtime.truffle.runtime.function;
+// package raw.runtime.truffle.runtime.function;
 //
-//import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-//import com.oracle.truffle.api.interop.InteropLibrary;
-//import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-//import com.oracle.truffle.api.interop.TruffleObject;
-//import com.oracle.truffle.api.interop.UnknownIdentifierException;
-//import com.oracle.truffle.api.library.ExportLibrary;
-//import com.oracle.truffle.api.library.ExportMessage;
-//import java.util.HashMap;
-//import java.util.Map;
+// import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+// import com.oracle.truffle.api.interop.InteropLibrary;
+// import com.oracle.truffle.api.interop.InvalidArrayIndexException;
+// import com.oracle.truffle.api.interop.TruffleObject;
+// import com.oracle.truffle.api.interop.UnknownIdentifierException;
+// import com.oracle.truffle.api.library.ExportLibrary;
+// import com.oracle.truffle.api.library.ExportMessage;
+// import java.util.HashMap;
+// import java.util.Map;
 //
-//@ExportLibrary(InteropLibrary.class)
-//@SuppressWarnings("static-method")
-//final class FunctionObject implements TruffleObject {
+// @ExportLibrary(InteropLibrary.class)
+// @SuppressWarnings("static-method")
+// final class FunctionObject implements TruffleObject {
 //
 //  final Map<String, Function> functions = new HashMap<>();
 //
@@ -89,4 +101,4 @@
 //      return names[(int) index];
 //    }
 //  }
-//}
+// }

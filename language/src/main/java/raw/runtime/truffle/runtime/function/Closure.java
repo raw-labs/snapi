@@ -140,5 +140,4 @@ public class Closure implements TruffleObject {
   boolean isExecutable() {
     return true;
   }
-
 }

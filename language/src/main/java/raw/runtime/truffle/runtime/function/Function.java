@@ -13,11 +13,7 @@
 package raw.runtime.truffle.runtime.function;
 
 import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.ExportLibrary;
-import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 
 public final class Function implements TruffleObject {
 
@@ -37,9 +33,9 @@ public final class Function implements TruffleObject {
     return name;
   }
 
-    public RootCallTarget getCallTarget() {
-        return rootCallTarget;
-    }
+  public RootCallTarget getCallTarget() {
+    return rootCallTarget;
+  }
 
   public String[] getArgNames() {
     return argNames;
