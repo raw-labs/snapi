@@ -287,7 +287,12 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val funAppArg: Parser[FunAppArg] = opt(ident <~ "=") ~ exp ^^ { case i ~ e => FunAppArg(e, i) }
 
-  override protected def baseExp: PackratParser[Exp] = baseExpAttr
+  final private lazy val packageIdnExp: Parser[PackageIdnExp] =
+    "\\$package\\b".r ~> "(" ~> stringLit <~ ")" ^^ PackageIdnExp
+
+  override protected def baseExp: PackratParser[Exp] = packageIdnExp |
+    eval |
+    baseExpAttr
 
   final private lazy val baseExpAttr: PackratParser[Exp] = {
     let |

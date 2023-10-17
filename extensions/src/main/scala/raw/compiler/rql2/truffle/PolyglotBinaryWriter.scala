@@ -14,7 +14,7 @@ package raw.compiler.rql2.truffle
 
 import org.graalvm.polyglot.Value
 
-import java.io.{BufferedOutputStream, OutputStream}
+import java.io.{BufferedOutputStream, IOException, OutputStream}
 
 class PolyglotBinaryWriter(os: OutputStream) {
 
@@ -27,7 +27,7 @@ class PolyglotBinaryWriter(os: OutputStream) {
       }
       bufferedOutputStream.flush()
     } else {
-      throw new RuntimeException("unsupported value type")
+      throw new IOException("unsupported type")
     }
   }
 

@@ -48,6 +48,7 @@ import raw.sources.api.{
   LocationDurationSetting,
   LocationIntArraySetting,
   LocationIntSetting,
+  LocationKVSetting,
   LocationSettingKey,
   LocationSettingValue,
   LocationStringSetting,
@@ -57,7 +58,7 @@ import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurren
 
 import java.io.{IOException, OutputStream}
 import java.time.{LocalDate, ZoneId}
-import scala.collection.mutable
+import scala.collection.{mutable, JavaConverters}
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
@@ -294,13 +295,17 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   private def convertPolyglotValueToRawValue(v: Value, t: Type): raw.runtime.interpreter.Value = {
     t match {
       case t: Rql2TypeWithProperties if t.props.contains(Rql2IsTryableTypeProperty()) =>
-        try {
-          v.throwException()
-          // Did not throw, so recurse without the tryable property.
+        if (v.isException) {
+          try {
+            v.throwException()
+            ??? // Should not happen.
+          } catch {
+            case NonFatal(ex) => raw.runtime.interpreter.TryValue(Left(ex.getMessage))
+          }
+        } else {
+          // Success, recurse without the tryable property.
           val v1 = convertPolyglotValueToRawValue(v, t.cloneAndRemoveProp(Rql2IsTryableTypeProperty()))
           raw.runtime.interpreter.TryValue(Right(v1))
-        } catch {
-          case NonFatal(ex) => raw.runtime.interpreter.TryValue(Left(ex.getMessage))
         }
       case t: Rql2TypeWithProperties if t.props.contains(Rql2IsNullableTypeProperty()) =>
         if (v.isNull) {
@@ -411,15 +416,25 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
               LocationBinarySetting(byteArray)
             } else if (tv.isDuration) LocationDurationSetting(tv.asDuration())
             else if (tv.hasArrayElements) {
-              // int-array for sure
+              // in the context of a location, it's int-array for sure
               val size = tv.getArraySize
               val array = new Array[Int](size.toInt)
               for (i <- 0L until size) {
                 array(i.toInt) = tv.getArrayElement(i).asInt
               }
               LocationIntArraySetting(array)
-            } else if (tv.hasHashEntries) ???
-            else ???
+            } else if (tv.hasHashEntries) {
+              // kv settings
+              val iterator = tv.getHashEntriesIterator
+              val keyValues = mutable.ArrayBuffer.empty[(String, String)]
+              while (iterator.hasIteratorNextElement) {
+                val kv = iterator.getIteratorNextElement // array with two elements: key and value
+                val key = kv.getArrayElement(0).asString
+                val value = kv.getArrayElement(1).asString
+                keyValues += ((key, value))
+              }
+              LocationKVSetting(keyValues)
+            } else ???
           settings.put(LocationSettingKey(key), value)
         }
         LocationValue(LocationDescription(url, settings.toMap))

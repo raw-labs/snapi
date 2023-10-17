@@ -14,7 +14,7 @@ package raw.compiler.rql2.truffle
 
 import org.graalvm.polyglot.Value
 
-import java.io.OutputStream
+import java.io.{IOException, OutputStream}
 import java.nio.charset.Charset
 
 class PolyglotTextWriter(os: OutputStream) {
@@ -24,7 +24,7 @@ class PolyglotTextWriter(os: OutputStream) {
       val s = v.asString()
       os.write(s.getBytes(Charset.forName("UTF-8")))
     } else {
-      throw new RuntimeException("unsupported value type")
+      throw new IOException("unsupported type")
     }
   }
 

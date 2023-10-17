@@ -17,6 +17,11 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.StopIterationException;
+import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.io.*;
@@ -26,6 +31,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.kryo.*;
+import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
@@ -145,7 +151,8 @@ class OffHeapGroupByKey {
   // A simple in-memory generator over the map content. Internally iterates through the
   // key set and returns a pair of key and list of values.
   @ExportLibrary(GeneratorLibrary.class)
-  class GroupByMemoryGenerator {
+  @ExportLibrary(InteropLibrary.class)
+  class GroupByMemoryGenerator implements TruffleObject {
 
     private final Iterator<Object> keys = memMap.keySet().iterator();
 
@@ -171,11 +178,52 @@ class OffHeapGroupByKey {
     boolean hasNext() {
       return keys.hasNext();
     }
+
+    @ExportMessage
+    final boolean isIterator() {
+      return true;
+    }
+
+    @ExportMessage
+    final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException {
+      return generatorLibrary.hasNext(this);
+    }
+
+    @ExportMessage
+    final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException, StopIterationException {
+      return generatorLibrary.next(this);
+    }
+
+    @ExportMessage
+    final boolean hasMembers() {
+      return true;
+    }
+
+    @ExportMessage
+    final Object getMembers(boolean includeInternal) {
+      return new StringList(new String[] {"close"});
+    }
+
+    @ExportMessage
+    final boolean isMemberInvocable(String member) {
+      return Objects.equals(member, "close");
+    }
+
+    @ExportMessage
+    final Object invokeMember(
+        String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) {
+      assert (Objects.equals(member, "close"));
+      generatorLibrary.close(this);
+      return 0;
+    }
   }
 
   // A generator that reads the spilled data from disk and merges it with the in-memory map.
   @ExportLibrary(GeneratorLibrary.class)
-  class GroupBySpilledFilesGenerator {
+  @ExportLibrary(InteropLibrary.class)
+  class GroupBySpilledFilesGenerator implements TruffleObject {
 
     // A helper class to manage the multiple kryo buffers.
     private class InputBuffer {
@@ -302,6 +350,46 @@ class OffHeapGroupByKey {
         }
       }
       return reshape.makeRow(key, values);
+    }
+
+    @ExportMessage
+    final boolean isIterator() {
+      return true;
+    }
+
+    @ExportMessage
+    final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException {
+      return generatorLibrary.hasNext(this);
+    }
+
+    @ExportMessage
+    final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+        throws UnsupportedMessageException, StopIterationException {
+      return generatorLibrary.next(this);
+    }
+
+    @ExportMessage
+    final boolean hasMembers() {
+      return true;
+    }
+
+    @ExportMessage
+    final Object getMembers(boolean includeInternal) {
+      return new StringList(new String[] {"close"});
+    }
+
+    @ExportMessage
+    final boolean isMemberInvocable(String member) {
+      return Objects.equals(member, "close");
+    }
+
+    @ExportMessage
+    final Object invokeMember(
+        String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) {
+      assert (Objects.equals(member, "close"));
+      generatorLibrary.close(this);
+      return 0;
     }
   }
 }

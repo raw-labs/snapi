@@ -175,7 +175,7 @@ class PolyglotJsonWriter(os: OutputStream) extends Closeable {
         }
         gen.writeEndObject()
       } else {
-        throw new IOException("unsupported value format")
+        throw new IOException("unsupported type")
       }
     }
   }

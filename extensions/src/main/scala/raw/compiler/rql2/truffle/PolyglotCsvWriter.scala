@@ -146,7 +146,7 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
           writeValue(v1)
         }
       } else {
-        throw new IOException("unsupported value format")
+        throw new IOException("unsupported type")
       }
     }
   }
