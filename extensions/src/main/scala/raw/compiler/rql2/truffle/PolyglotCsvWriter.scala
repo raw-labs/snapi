@@ -135,8 +135,7 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
           writeValue(v1)
         }
         if (v.canInvokeMember("close")) {
-          val callable = v.getMember("close")
-          callable.execute()
+          v.invokeMember("close")
         } else if (v.hasArrayElements) {
           for (i <- 0L until v.getArraySize) {
             val v1 = v.getArrayElement(i)
