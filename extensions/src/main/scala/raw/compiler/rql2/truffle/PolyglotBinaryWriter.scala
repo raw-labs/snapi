@@ -19,7 +19,9 @@ import java.io.{BufferedOutputStream, IOException, OutputStream}
 class PolyglotBinaryWriter(os: OutputStream) {
 
   def writeValue(v: Value): Unit = {
-    if (v.hasBufferElements) {
+    if (v.isException) {
+      v.throwException()
+    } else if (v.isNull) {} else if (v.hasBufferElements) {
       // TODO (msb): I suspect this is still terribly slow but not sure what the correct polyglot interface is.
       val bufferedOutputStream = new BufferedOutputStream(os)
       for (i <- 0L until v.getBufferSize) {
