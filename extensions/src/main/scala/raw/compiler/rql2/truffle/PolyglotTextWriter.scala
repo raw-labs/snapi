@@ -20,7 +20,9 @@ import java.nio.charset.Charset
 class PolyglotTextWriter(os: OutputStream) {
 
   def writeValue(v: Value): Unit = {
-    if (v.isString) {
+    if (v.isException) {
+      v.throwException()
+    } else if (v.isNull) {} else if (v.isString) {
       val s = v.asString()
       os.write(s.getBytes(Charset.forName("UTF-8")))
     } else {

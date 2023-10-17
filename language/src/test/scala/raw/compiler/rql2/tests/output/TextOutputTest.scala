@@ -32,6 +32,30 @@ trait TextOutputTest extends CompilerTestContext {
     }
   }
 
+  test(""" if true then "Hello World" else null""") { it =>
+    val expected = "Hello World"
+    val tmpFile = Files.createTempFile("", "")
+    try {
+      it should saveTo(tmpFile)
+      val actual = Files.readString(tmpFile)
+      assert(actual == expected)
+    } finally {
+      Files.delete(tmpFile)
+    }
+  }
+
+  test(""" if false then "Hello World" else null""") { it =>
+    val expected = ""
+    val tmpFile = Files.createTempFile("", "")
+    try {
+      it should saveTo(tmpFile)
+      val actual = Files.readString(tmpFile)
+      assert(actual == expected)
+    } finally {
+      Files.delete(tmpFile)
+    }
+  }
+
   test(""" 3 """) { it =>
     val tmpFile = Files.createTempFile("", "")
     try {
