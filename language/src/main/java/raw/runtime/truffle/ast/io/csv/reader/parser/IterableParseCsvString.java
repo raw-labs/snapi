@@ -13,8 +13,8 @@
 package raw.runtime.truffle.ast.io.csv.reader.parser;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
@@ -26,7 +26,7 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeInfo(shortName = "IterableParseCsvString")
 public class IterableParseCsvString extends ExpressionNode {
 
-  @Child private DirectCallNode childDirectCall;
+  private final RootNode childRootNode;
   @Child private ExpressionNode strExp;
   @Child private ExpressionNode skip;
   @Child private ExpressionNode delimiterExp;
@@ -53,7 +53,7 @@ public class IterableParseCsvString extends ExpressionNode {
       ExpressionNode dateFormatExp,
       ExpressionNode timeFormatExp,
       ExpressionNode datetimeFormatExp) {
-    this.childDirectCall = DirectCallNode.create(columnParser.getCallTarget());
+    this.childRootNode = columnParser;
     this.strExp = strExp;
     this.skip = skipExp;
     this.delimiterExp = delimiterExp;
@@ -106,7 +106,7 @@ public class IterableParseCsvString extends ExpressionNode {
               dateFormat,
               timeFormat,
               datetimeFormat);
-      return new CsvFromStringCollection(str, childDirectCall, settings);
+      return new CsvFromStringCollection(str, childRootNode, settings);
     } catch (UnexpectedResultException ex) {
       throw new CsvParserRawTruffleException(ex.getMessage(), 0, 0, ex, this);
     }
