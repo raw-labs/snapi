@@ -24,7 +24,6 @@ import raw.sources.api.*;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
-import scala.collection.JavaConverters;
 
 @ExportLibrary(InteropLibrary.class)
 public class LocationObject implements TruffleObject {
@@ -81,16 +80,26 @@ public class LocationObject implements TruffleObject {
       case LocationIntSetting v -> v.value();
       case LocationStringSetting v -> v.value();
       case LocationBinarySetting v -> {
-          int size = v.value().size();
-          byte[] bytes = new byte[size];
-          for (int i = 0; i < size; i++) {
-            bytes[i] = (byte) v.value().apply(i);
-          }
-          yield new BinaryObject(bytes);
+        int size = v.value().size();
+        byte[] bytes = new byte[size];
+        for (int i = 0; i < size; i++) {
+          bytes[i] = (byte) v.value().apply(i);
+        }
+        yield new BinaryObject(bytes);
       }
       case LocationBooleanSetting v -> v.value();
       case LocationDurationSetting v -> v.value();
-      case LocationKVSetting v -> JavaConverters.asJavaCollectionConverter(v.map());
+      case LocationKVSetting v -> {
+        // a hash
+        int size = v.map().size();
+        String[][] pairsArray = new String[size][];
+        for (int i = 0; i < size; i++) {
+          String key = v.map().apply(i)._1();
+          String value = v.map().apply(i)._2();
+          pairsArray[i] = new String[]{key, value};
+        }
+        yield new LocationKVSettingHash(pairsArray);
+      }
       case LocationIntArraySetting v -> new IntList(v.value());
       default -> throw new RawTruffleInternalErrorException();
     };
