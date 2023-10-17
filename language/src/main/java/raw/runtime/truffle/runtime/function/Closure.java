@@ -21,9 +21,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
-
 import java.util.Objects;
 
 @ExportLibrary(InteropLibrary.class)
@@ -107,7 +105,7 @@ public class Closure implements TruffleObject {
       return args;
     }
 
-    @ExplodeLoop
+    // Don't explode loop, graph becomes too big.
     private static Object[] getNamedArgs(
         Closure closure, String[] namedArgsNames, Object[] arguments) {
       Object[] args = new Object[closure.getArgNames().length + 1];

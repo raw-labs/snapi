@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.aggregation;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -24,7 +23,7 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 @ExportLibrary(AggregationLibrary.class)
 public class SingleAggregation {
 
-  Object aggregator;
+  final Object aggregator;
 
   public SingleAggregation(Object aggregator) {
     this.aggregator = aggregator;
