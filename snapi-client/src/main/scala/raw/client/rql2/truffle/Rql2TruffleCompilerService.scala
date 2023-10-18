@@ -25,7 +25,7 @@ import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
-import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, TreeWithPositions}
+import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
 import raw.compiler.rql2.source._
 import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
@@ -90,9 +90,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   }
 
   // TODO (msb): Change signature to include position of the parsing error.
-  def parseType(tipe: String, user: AuthenticatedUser): ParseTypeResponse = {
+  def parseType(tipe: String, user: AuthenticatedUser, internal: Boolean = false): ParseTypeResponse = {
     val positions = new Positions()
-    val parser = new FrontendSyntaxAnalyzer(positions)
+    val parser = if (!internal) new FrontendSyntaxAnalyzer(positions) else new SyntaxAnalyzer(positions)
     parser.parseType(tipe) match {
       case Right(t) => ParseTypeSuccess(t)
       case Left((err, pos)) => ParseTypeFailure(err)
@@ -187,7 +187,11 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           val polyglotValue = ctx.eval(truffleSource)
-          val rawType = parseType(tipe, environment.user).asInstanceOf[ParseTypeSuccess].tipe
+          val internal = environment.options.get("staged-compiler") match {
+            case Some("true") => true
+            case None => false
+          }
+          val rawType = parseType(tipe, environment.user, internal).asInstanceOf[ParseTypeSuccess].tipe
           val rawValue = convertPolyglotValueToRawValue(polyglotValue, rawType)
           EvalSuccess(rawValue)
         } catch {
