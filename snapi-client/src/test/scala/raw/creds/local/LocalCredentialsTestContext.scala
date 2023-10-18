@@ -10,30 +10,30 @@
  * licenses/APL.txt.
  */
 
-package raw.creds.mock
+package raw.creds.local
 
 import raw.utils.{RawTestSuite, SettingsTestContext}
 import raw.creds.api.CredentialsTestContext
 import raw.utils._
 
-trait MockCredentialsTestContext extends CredentialsTestContext {
+trait LocalCredentialsTestContext extends CredentialsTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
-  protected var mockCredentialsService: MockCredentialsService = _
+  protected var localCredentialsService: LocalCredentialsService = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
 
-    property("raw.creds.impl", "mock")
+    property("raw.creds.impl", "local")
 
-    mockCredentialsService = new MockCredentialsService()
-    setCredentials(mockCredentialsService)
+    localCredentialsService = new LocalCredentialsService()
+    setCredentials(localCredentialsService)
   }
 
   override def afterAll(): Unit = {
-    if (mockCredentialsService != null) {
-      withSuppressNonFatalException(mockCredentialsService.stop())
-      mockCredentialsService = null
+    if (localCredentialsService != null) {
+      withSuppressNonFatalException(localCredentialsService.stop())
+      localCredentialsService = null
     }
     super.afterAll()
   }
