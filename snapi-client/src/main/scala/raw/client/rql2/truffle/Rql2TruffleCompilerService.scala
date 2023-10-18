@@ -794,7 +794,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   override def doStop(): Unit = {
     compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
     credentials.stop()
-    engine.close()
+    engine.close(true)
   }
 
   private def javaValueOf(value: ParamValue) = {
