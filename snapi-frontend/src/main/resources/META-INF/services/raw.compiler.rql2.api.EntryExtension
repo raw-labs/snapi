@@ -60,8 +60,15 @@ raw.compiler.rql2.builtin.ErrorGetEntry
 raw.compiler.rql2.builtin.FloatFromEntry
 raw.compiler.rql2.builtin.FunctionInvokeAfterEntry
 raw.compiler.rql2.builtin.HttpReadEntry
-raw.compiler.rql2.builtin.HttpUrlEncode
-raw.compiler.rql2.builtin.HttpUrlDecode
+raw.compiler.rql2.builtin.HttpUrlEncodeEntry
+raw.compiler.rql2.builtin.HttpUrlDecodeEntry
+raw.compiler.rql2.builtin.HttpPutEntry
+raw.compiler.rql2.builtin.HttpDeleteEntry
+raw.compiler.rql2.builtin.HttpGetEntry
+raw.compiler.rql2.builtin.HttpHeadEntry
+raw.compiler.rql2.builtin.HttpOptionsEntry
+raw.compiler.rql2.builtin.HttpPatchEntry
+raw.compiler.rql2.builtin.HttpPostEntry
 raw.compiler.rql2.builtin.BuildIntervalEntry
 raw.compiler.rql2.builtin.IntervalToMillisEntryExtension
 raw.compiler.rql2.builtin.IntervalFromMillisEntryExtension

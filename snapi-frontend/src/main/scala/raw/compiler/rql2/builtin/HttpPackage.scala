@@ -252,7 +252,7 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
 
 }
 
-class HttpUrlEncode
+class HttpUrlEncodeEntry
     extends ShortEntryExtension(
       "Http",
       "UrlEncode",
@@ -265,7 +265,7 @@ class HttpUrlEncode
       )
     )
 
-class HttpUrlDecode
+class HttpUrlDecodeEntry
     extends ShortEntryExtension(
       "Http",
       "UrlDecode",
@@ -277,3 +277,11 @@ class HttpUrlDecode
         ret = Some(ReturnDoc("The decoded string.", retType = Some(TypeDoc(List("string")))))
       )
     )
+
+class HttpPutEntry extends HttpCallEntry("put")
+class HttpDeleteEntry extends HttpCallEntry("delete")
+class HttpGetEntry extends HttpCallEntry("get")
+class HttpHeadEntry extends HttpCallEntry("head")
+class HttpOptionsEntry extends HttpCallEntry("options")
+class HttpPatchEntry extends HttpCallEntry("patch")
+class HttpPostEntry extends HttpCallEntry("post")
