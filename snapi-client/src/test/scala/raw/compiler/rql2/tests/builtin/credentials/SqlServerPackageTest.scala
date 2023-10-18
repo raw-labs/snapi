@@ -10,11 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.builtin
-import raw.creds.jdbc.RDBMSTestCreds
-import raw.compiler.rql2.tests.CompilerTestContext
+package raw.compiler.rql2.tests.builtin.credentials
 
-trait SqlServerPackageTest extends CompilerTestContext with RDBMSTestCreds {
+import raw.compiler.rql2.tests.CompilerTestContext
+import raw.creds.api.CredentialsTestContext
+import raw.creds.jdbc.RDBMSTestCreds
+
+trait SqlServerPackageTest extends CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
 
   val sqlServDb = "rawtest"
   val sqlServRegDb = "registered-db"

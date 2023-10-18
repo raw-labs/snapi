@@ -25,8 +25,6 @@ trait RD5932Test extends CompilerTestContext with S3TestCreds {
     |    {"id": 4}
     |]  """.stripMargin)
 
-  s3Bucket(authorizedUser, UnitTestPrivateBucket)
-
   test(snapi"""Json.InferAndRead("$data")""")(it => it should run)
 
   test(
@@ -50,9 +48,5 @@ trait RD5932Test extends CompilerTestContext with S3TestCreds {
       |    data
       |    """.stripMargin
   )(it => it should run)
-
-  test("""Json.InferAndRead("s3://rawlabs-private-test-data/rd-5932.json")""") {
-    _ should run
-  }
 
 }

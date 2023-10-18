@@ -27,8 +27,6 @@ import raw.client.rql2.truffle.{
 }
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.CompilerServiceTestContext
-import raw.creds.api._
-import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.utils._
 
