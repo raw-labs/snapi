@@ -15,14 +15,14 @@ package raw.compiler.snapi.truffle.builtin.http_extension;
 import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.common.source.Exp;
-import raw.compiler.rql2.builtin.HttpUrlDecode;
+import raw.compiler.rql2.builtin.HttpUrlDecodeEntry;
 import raw.compiler.snapi.truffle.TruffleShortEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.builtin.http_package.HttpUrlDecodeNodeGen;
 import scala.Tuple2;
 import scala.collection.immutable.ListMap;
 
-public class TruffleHttpUrlDecode extends HttpUrlDecode implements TruffleShortEntryExtension {
+public class TruffleHttpUrlDecode extends HttpUrlDecodeEntry implements TruffleShortEntryExtension {
   @Override
   public ListMap<String, Tuple2<Type, Exp>> getOptionalParamsMap() {
     return this.optionalParamsMap();
