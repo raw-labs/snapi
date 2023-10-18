@@ -9,14 +9,19 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % scalacVersion
   )
 
-  val rawUtilsVersion = IO.read(new File("../utils/version")).trim
+  def getVersionFromPath(path: String, default: String = "0.0.0"): String = {
+    val file = new File(path)
+    if (file.exists()) IO.read(file).trim else default
+  }
+
+  val rawUtilsVersion: String = getVersionFromPath("../utils/version").trim
   val rawUtils = "com.raw-labs" %% "raw-utils" % rawUtilsVersion
 
-  val rawSnapiFrontendVersion = IO.read(new File("../snapi-frontend/version")).trim
+  val rawSnapiFrontendVersion: String = getVersionFromPath("../snapi-frontend/version").trim
   val rawSnapiFrontend = "com.raw-labs" %% "raw-snapi-frontend" % rawSnapiFrontendVersion
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
-  val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
+  val scalaLoggingVersion: String = getVersionFromPath("../deps/scala-logging/version").trim
+  val kiamaVersion: String = getVersionFromPath("../deps/kiama/version").trim
 
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
 

@@ -2,8 +2,13 @@ import sbt._
 
 object Dependencies {
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
-  val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
+  def getVersionFromPath(path: String, default: String = "0.0.0"): String = {
+    val file = new File(path)
+    if (file.exists()) IO.read(file).trim else default
+  }
+
+  val scalaLoggingVersion: String = getVersionFromPath("../deps/scala-logging/version").trim
+  val kiamaVersion: String = getVersionFromPath("../deps/kiama/version").trim
 
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
 

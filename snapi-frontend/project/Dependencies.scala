@@ -5,10 +5,15 @@ object Dependencies {
   val scalacVersion =
     "2.12.18" // In a common place to be used when importing scalac and setting the project Scala version.
 
-  val rawUtilsVersion = IO.read(new File("../utils/version")).trim
+  def getVersionFromPath(path: String, default: String = "0.0.0"): String = {
+    val file = new File(path)
+    if (file.exists()) IO.read(file).trim else default
+  }
+  
+  val rawUtilsVersion: String = getVersionFromPath("../utils/version")
   val rawUtils = "com.raw-labs" %% "raw-utils" % rawUtilsVersion
 
-  val rawClientVersion = IO.read(new File("../client/version")).trim
+  val rawClientVersion: String = getVersionFromPath("../client/version").trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
   val scalaCompiler = Seq(
@@ -16,8 +21,8 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % scalacVersion
   )
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
-  val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
+  val scalaLoggingVersion: String = getVersionFromPath("../deps/scala-logging/version").trim
+  val kiamaVersion: String = getVersionFromPath("../deps/kiama/version").trim
 
   val aws = "com.amazonaws" % "aws-java-sdk-bundle" % "1.12.540"
 

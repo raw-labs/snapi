@@ -2,13 +2,17 @@ import sbt._
 
 object Dependencies {
 
-  val rawClientVersion = IO.read(new File("../client/version")).trim
+  def getVersionFromPath(path: String, default: String = "0.0.0"): String = {
+    val file = new File(path)
+    if (file.exists()) IO.read(file).trim else default
+  }
+
+  val rawClientVersion: String = getVersionFromPath("../client/version")
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val rawSnapiFrontendVersion = IO.read(new File("../snapi-frontend/version")).trim
+  val rawSnapiFrontendVersion: String = getVersionFromPath("../snapi-frontend/version")
   val rawSnapiFrontend = "com.raw-labs" %% "raw-snapi-frontend" % rawSnapiFrontendVersion
 
-  val rawSnapiTruffleVersion = IO.read(new File("../snapi-truffle/version")).trim
+  val rawSnapiTruffleVersion: String = getVersionFromPath("../snapi-truffle/version")
   val rawSnapiTruffle = "com.raw-labs" %% "raw-snapi-truffle" % rawSnapiTruffleVersion
-
 }
