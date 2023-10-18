@@ -13,7 +13,12 @@
 package raw.sources.bytestream.in_memory
 
 import raw.client.api._
-import raw.sources.bytestream.api.{ByteStreamLocation, DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
+import raw.sources.bytestream.api.{
+  ByteStreamLocation,
+  DelegatingSeekableInputStream,
+  GenericSkippableInputStream,
+  SeekableInputStream
+}
 
 import java.io.{ByteArrayInputStream, InputStream}
 import java.nio.file.Path

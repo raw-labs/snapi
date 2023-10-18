@@ -112,7 +112,7 @@ abstract class CommonCompilerService(language: String, maybeClassLoader: Option[
     }
   }
 
- override def execute(
+  override def execute(
       source: String,
       environment: ProgramEnvironment,
       maybeDecl: Option[String],

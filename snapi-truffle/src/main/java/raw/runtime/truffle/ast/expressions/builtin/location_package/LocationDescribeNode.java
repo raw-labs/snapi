@@ -39,7 +39,6 @@ import raw.runtime.truffle.runtime.option.StringOption;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.sources.api.SourceContext;
 import raw.utils.RawException;
 import scala.Some;
 

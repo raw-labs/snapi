@@ -33,7 +33,6 @@ import raw.compiler.rql2.source._
 import raw.client.api._
 import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
 
-
 class SQLServerPackage extends PackageExtension {
 
   override def name: String = "SQLServer"

@@ -19,10 +19,10 @@ import com.oracle.truffle.api.nodes.Node;
 import com.typesafe.config.ConfigFactory;
 import java.io.OutputStream;
 import java.util.Objects;
+import raw.client.api.*;
 import raw.creds.api.CredentialsService;
 import raw.creds.api.CredentialsServiceProvider;
 import raw.creds.api.Secret;
-import raw.client.api.*;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -140,7 +140,9 @@ public final class RawContext {
     return traceId;
   }
 
-  public InferrerService getInferrer() { return inferrer; }
+  public InferrerService getInferrer() {
+    return inferrer;
+  }
 
   public OutputStream getOutput() {
     return output;
@@ -157,7 +159,9 @@ public final class RawContext {
     return sourceContext.credentialsService().getSecret(user, key).get();
   }
 
-  public AuthenticatedUser getUser() { return user; }
+  public AuthenticatedUser getUser() {
+    return user;
+  }
 
   public String[] getScopes() {
     return scopes;

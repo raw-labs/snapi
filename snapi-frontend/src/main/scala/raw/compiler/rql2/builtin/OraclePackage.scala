@@ -44,7 +44,6 @@ import raw.compiler.rql2.ProgramContext
 import raw.client.api._
 import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
 
-
 class OraclePackage extends PackageExtension {
 
   override def name: String = "Oracle"

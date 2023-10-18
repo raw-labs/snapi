@@ -17,7 +17,14 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.client.api._
-import raw.client.rql2.truffle.{GetTypeFailure, GetTypeSuccess, ParseFailure, ParseSuccess, ParseTypeFailure, ParseTypeSuccess}
+import raw.client.rql2.truffle.{
+  GetTypeFailure,
+  GetTypeSuccess,
+  ParseFailure,
+  ParseSuccess,
+  ParseTypeFailure,
+  ParseTypeSuccess
+}
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.CompilerServiceTestContext
 import raw.creds.api._

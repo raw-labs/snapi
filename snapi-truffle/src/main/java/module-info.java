@@ -42,7 +42,6 @@ module raw.snapi.truffle {
   requires spring.jcl;
   requires java.net.http;
   requires org.apache.httpcomponents.core5.httpcore5;
-
   requires raw.utils;
   requires raw.client;
   requires raw.snapi.frontend;
@@ -62,8 +61,7 @@ module raw.snapi.truffle {
   uses raw.sources.jdbc.api.JdbcSchemaLocationBuilder;
 
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
-          raw.runtime.truffle.RawLanguageProvider;
-
+      raw.runtime.truffle.RawLanguageProvider;
   provides raw.compiler.rql2.api.EntryExtension with
       raw.compiler.snapi.truffle.builtin.aws_extension.AwsV4SignedRequestEntry,
       raw.compiler.snapi.truffle.builtin.byte_extension.TruffleByteFromEntry,
@@ -387,5 +385,4 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.exceptions.validation;
   exports raw.compiler.snapi.truffle.compiler;
   exports raw.compiler.rql2output.truffle.builtin;
-
 }

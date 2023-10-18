@@ -52,9 +52,21 @@ jobs:
       - name: snapi-client scala fmt
         run: sbt scalafmtCheckAll
         working-directory: snapi-client
+      - name: utils java fmt
+        run: sbt javafmtCheckAll
+        working-directory: utils
+      - name: client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: client
+      - name: snapi-frontend java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-frontend
       - name: snapi-truffle java fmt
         run: sbt javafmtCheckAll
         working-directory: snapi-truffle
+      - name: snapi-client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-client
 
   tests:
     needs: code-checks
