@@ -17,7 +17,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
@@ -30,7 +29,7 @@ public class JdbcQueryComputeNext {
 
   private final LocationObject dbLocation;
   private final String query;
-  protected final RootNode rowParserNode;
+  protected final RootCallTarget rowParserCallTarget;
   private final SourceContext context;
 
   private JdbcQuery rs = null;
@@ -40,12 +39,12 @@ public class JdbcQueryComputeNext {
       LocationObject dbLocation,
       String query,
       SourceContext context,
-      RootNode rowParserNode,
+      RootCallTarget rowParserCallTarget,
       JdbcExceptionHandler exceptionHandler) {
     this.context = context;
     this.dbLocation = dbLocation;
     this.query = query;
-    this.rowParserNode = rowParserNode;
+    this.rowParserCallTarget = rowParserCallTarget;
     this.exceptionHandler = exceptionHandler;
   }
 
@@ -69,7 +68,7 @@ public class JdbcQueryComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached(value = "this.rowParserNode.getCallTarget()", allowUncached = true)
+      @Cached(value = "this.rowParserCallTarget", allowUncached = true, neverDefault = true)
           RootCallTarget cachedTarget,
       @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
     boolean ok = rs.next();

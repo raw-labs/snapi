@@ -12,12 +12,12 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
@@ -29,14 +29,14 @@ import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 public class CsvFromStringCollection implements TruffleObject {
 
   private final String str;
-  private final RootNode rowParserNode;
+  private final RootCallTarget rowParserCallTarget;
 
   private final RawTruffleCsvParserSettings settings;
 
   public CsvFromStringCollection(
-      String str, RootNode rowParserNode, RawTruffleCsvParserSettings settings) {
+      String str, RootCallTarget rowParserCallTarget, RawTruffleCsvParserSettings settings) {
     this.str = str;
-    this.rowParserNode = rowParserNode;
+    this.rowParserCallTarget = rowParserCallTarget;
     this.settings = settings;
   }
 
@@ -48,7 +48,7 @@ public class CsvFromStringCollection implements TruffleObject {
   @ExportMessage
   Object getGenerator() {
     return new CollectionAbstractGenerator(
-        new CsvReadFromStringComputeNext(str, rowParserNode, settings));
+        new CsvReadFromStringComputeNext(str, rowParserCallTarget, settings));
   }
 
   // InteropLibrary: Iterable

@@ -12,9 +12,9 @@
 
 package raw.runtime.truffle.ast.io.csv.reader.parser;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -29,7 +29,7 @@ import raw.sources.api.SourceContext;
 @NodeInfo(shortName = "IterableParseCsvFile")
 public class IterableParseCsvFile extends ExpressionNode {
 
-  private final RootNode parserRootNode;
+  private final RootCallTarget parserRootCallTarget;
   @Child private ExpressionNode location;
   @Child private ExpressionNode encodingExp;
   @Child private ExpressionNode skipExp;
@@ -57,7 +57,7 @@ public class IterableParseCsvFile extends ExpressionNode {
       ExpressionNode dateFormatExp,
       ExpressionNode timeFormatExp,
       ExpressionNode datetimeFormatExp) {
-    this.parserRootNode = columnParser;
+    this.parserRootCallTarget = columnParser.getCallTarget();
     this.location = location;
     this.encodingExp = encodingExp;
     this.skipExp = skipExp;
@@ -113,7 +113,8 @@ public class IterableParseCsvFile extends ExpressionNode {
               dateFormat,
               timeFormat,
               datetimeFormat);
-      return new CsvCollection(locationValue, context, parserRootNode, encodingValue, settings);
+      return new CsvCollection(
+          locationValue, context, parserRootCallTarget, encodingValue, settings);
     } catch (UnexpectedResultException ex) {
       throw new CsvParserRawTruffleException(ex.getMessage(), 0, 0, ex, this);
     }

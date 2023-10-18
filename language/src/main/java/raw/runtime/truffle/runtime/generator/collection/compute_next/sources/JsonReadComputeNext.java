@@ -19,7 +19,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -35,7 +34,7 @@ public class JsonReadComputeNext {
 
   private final LocationObject locationObject;
   private JsonParser parser;
-  protected final RootNode parseNextRootNode;
+  protected final RootCallTarget parseNextCallTarget;
   private final SourceContext context;
   private final String encoding;
 
@@ -45,11 +44,11 @@ public class JsonReadComputeNext {
       LocationObject locationObject,
       String encoding,
       SourceContext context,
-      RootNode parseNextRootNode) {
+      RootCallTarget parseNextRootCallTarget) {
     this.encoding = encoding;
     this.context = context;
     this.locationObject = locationObject;
-    this.parseNextRootNode = parseNextRootNode;
+    this.parseNextCallTarget = parseNextRootCallTarget;
   }
 
   @ExportMessage
@@ -92,7 +91,7 @@ public class JsonReadComputeNext {
   @ExportMessage
   Object computeNext(
       @Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(value = "this.parseNextRootNode.getCallTarget()", allowUncached = true)
+      @Cached(value = "this.parseNextCallTarget", allowUncached = true, neverDefault = true)
           RootCallTarget cachedTarget,
       @Cached(value = "create(cachedTarget)", allowUncached = true)
           DirectCallNode parseNextCallNode) {

@@ -12,12 +12,12 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
@@ -32,7 +32,7 @@ public class JdbcQueryCollection implements TruffleObject {
 
   private final LocationObject dbLocation;
   private final String query;
-  private final RootNode rowParserNode;
+  private final RootCallTarget rowParserCallTarget;
 
   private final SourceContext context;
   private final JdbcExceptionHandler exceptionHandler;
@@ -41,11 +41,11 @@ public class JdbcQueryCollection implements TruffleObject {
       LocationObject dbLocation,
       String query,
       SourceContext context,
-      RootNode rowParserNode,
+      RootCallTarget rowParserCallTarget,
       JdbcExceptionHandler exceptionHandler) {
     this.dbLocation = dbLocation;
     this.query = query;
-    this.rowParserNode = rowParserNode;
+    this.rowParserCallTarget = rowParserCallTarget;
     this.context = context;
     this.exceptionHandler = exceptionHandler;
   }
@@ -58,7 +58,8 @@ public class JdbcQueryCollection implements TruffleObject {
   @ExportMessage
   Object getGenerator() {
     return new CollectionAbstractGenerator(
-        new JdbcQueryComputeNext(dbLocation, query, context, rowParserNode, exceptionHandler));
+        new JdbcQueryComputeNext(
+            dbLocation, query, context, rowParserCallTarget, exceptionHandler));
   }
 
   // InteropLibrary: Iterable

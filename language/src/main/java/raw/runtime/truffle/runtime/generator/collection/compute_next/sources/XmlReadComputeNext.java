@@ -17,7 +17,6 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
@@ -34,7 +33,7 @@ import raw.sources.api.SourceContext;
 public class XmlReadComputeNext {
 
   private final LocationObject locationObject;
-  protected final RootNode parseNextRootNode;
+  protected final RootCallTarget parseNextRootCallTarget;
   private final SourceContext context;
   private final String encoding;
   private RawTruffleXmlParser parser;
@@ -46,13 +45,13 @@ public class XmlReadComputeNext {
       LocationObject locationObject,
       String encoding,
       SourceContext context,
-      RootNode parseNextRootNode,
+      RootCallTarget parseNextRootCallTarget,
       RawTruffleXmlParserSettings settings) {
     this.encoding = encoding;
     this.context = context;
     this.settings = settings;
     this.locationObject = locationObject;
-    this.parseNextRootNode = parseNextRootNode;
+    this.parseNextRootCallTarget = parseNextRootCallTarget;
   }
 
   @ExportMessage
@@ -82,7 +81,7 @@ public class XmlReadComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached(value = "this.parseNextRootNode.getCallTarget()", allowUncached = true)
+      @Cached(value = "this.parseNextRootCallTarget", allowUncached = true, neverDefault = true)
           RootCallTarget cachedTarget,
       @Cached(value = "create(cachedTarget)", allowUncached = true)
           DirectCallNode parseNextCallNode) {
