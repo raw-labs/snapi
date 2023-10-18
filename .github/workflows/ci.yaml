@@ -22,53 +22,6 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
-      - name: prep
-        run: touch utils/version && touch client/version && touch snapi-frontend/version && touch snapi-truffle/version && touch snapi-client/version
-      - name: utils headers
-        run: sbt headerCheckAll
-        working-directory: utils
-      - name: client headers
-        run: sbt headerCheckAll
-        working-directory: client
-      - name: snapi-frontend headers
-        run: sbt headerCheckAll
-        working-directory: snapi-frontend
-      - name: snapi-truffle headers
-        run: sbt headerCheckAll
-        working-directory: snapi-truffle
-      - name: snapi-client headers
-        run: sbt headerCheckAll
-        working-directory: snapi-client
-      - name: utils scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: utils
-      - name: client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: client
-      - name: snapi-frontend scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-frontend
-      - name: snapi-truffle scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-truffle
-      - name: snapi-client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-client
-      - name: utils java fmt
-        run: sbt javafmtCheckAll
-        working-directory: utils
-      - name: client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: client
-      - name: snapi-frontend java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-frontend
-      - name: snapi-truffle java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-truffle
-      - name: snapi-client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-client
 
   tests:
     needs: code-checks
@@ -91,18 +44,63 @@ jobs:
         run: |
           deps/kiama/build.sh
           deps/scala-logging/build.sh
+      - name: utils headers
+        run: sbt headerCheckAll
+        working-directory: utils
+      - name: utils scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: utils
+      - name: utils java fmt
+        run: sbt javafmtCheckAll
+        working-directory: utils
       - name: build utils
         working-directory: utils
         run: ./build.sh
+      - name: client headers
+        run: sbt headerCheckAll
+        working-directory: client
+      - name: client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: client
+      - name: client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: client
       - name: build client
         working-directory: client
         run: ./build.sh
+      - name: snapi-frontend headers
+        run: sbt headerCheckAll
+        working-directory: snapi-frontend
+      - name: snapi-frontend scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-frontend
+      - name: snapi-frontend java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-frontend
       - name: build snapi-frontend
         working-directory: snapi-frontend
         run: ./build.sh
+      - name: snapi-truffle headers
+        run: sbt headerCheckAll
+        working-directory: snapi-truffle
+      - name: snapi-truffle scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-truffle
+      - name: snapi-truffle java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-truffle
       - name: build snapi-truffle
         working-directory: snapi-truffle
         run: ./build.sh
+      - name: snapi-client headers
+        run: sbt headerCheckAll
+        working-directory: snapi-client
+      - name: snapi-client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-client
+      - name: snapi-client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-client
       - name: build snapi-client
         working-directory: snapi-client
         run: ./build.sh
