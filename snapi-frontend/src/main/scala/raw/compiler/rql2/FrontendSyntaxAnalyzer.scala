@@ -106,12 +106,25 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   final private lazy val tipeAttr: Parser[Type] = rql2Type0 |
     failure("illegal type")
 
-  final protected lazy val rql2Type0: Parser[Rql2Type] = rql2Type1 ~ rep(tokOr ~> rql2Type1) ^^ {
-    case t1 ~ t2s =>
-      if (t2s.isEmpty) t1
-      else {
-        val ts = t1 +: t2s
-        Rql2OrType(ts, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+  final protected lazy val rql2Type0: Parser[Rql2Type] = {
+    // Wrap in parenthesis to disambiguate the type property annotations
+    // e.g. (int or string) @null @try
+    ("(" ~> rql2Type1) ~ (rep(tokOr ~> rql2Type1) <~ ")") ~ typeProps ^^ {
+      case t1 ~ t2s ~ props =>
+        if (t2s.isEmpty) t1
+        else {
+          val ts = t1 +: t2s
+          Rql2OrType(ts, props)
+        }
+    } |
+      // int or string
+      rql2Type1 ~ rep(tokOr ~> rql2Type1) ^^ {
+        case t1 ~ t2s =>
+          if (t2s.isEmpty) t1
+          else {
+            val ts = t1 +: t2s
+            Rql2OrType(ts, Set.empty)
+          }
       }
   }
 
@@ -126,59 +139,57 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     undefinedType |
     typeAliasType
 
-  private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
-
   final private lazy val primitiveType: Parser[Rql2PrimitiveType] =
     boolType | stringType | locationType | binaryType | numberType | temporalType
 
-  final private lazy val boolType: Parser[Rql2BoolType] = tokBool ^^^ Rql2BoolType(defaultProps)
+  final private lazy val boolType: Parser[Rql2BoolType] = tokBool ~> typeProps ^^ Rql2BoolType
 
-  final private lazy val stringType: Parser[Rql2StringType] = tokString ^^^ Rql2StringType(defaultProps)
+  final private lazy val stringType: Parser[Rql2StringType] = tokString ~> typeProps ^^ Rql2StringType
 
-  final private lazy val locationType: Parser[Rql2LocationType] = tokLocation ^^^ Rql2LocationType(defaultProps)
+  final private lazy val locationType: Parser[Rql2LocationType] = tokLocation ~> typeProps ^^ Rql2LocationType
 
-  final private lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ^^^ Rql2BinaryType(defaultProps)
+  final private lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ~> typeProps ^^ Rql2BinaryType
 
   final private lazy val numberType: Parser[Rql2NumberType] =
     byteType | shortType | intType | longType | floatType | doubleType | decimalType
 
-  final private lazy val byteType: Parser[Rql2ByteType] = tokByte ^^^ Rql2ByteType(defaultProps)
+  final private lazy val byteType: Parser[Rql2ByteType] = tokByte ~> typeProps ^^ Rql2ByteType
 
-  final private lazy val shortType: Parser[Rql2ShortType] = tokShort ^^^ Rql2ShortType(defaultProps)
+  final private lazy val shortType: Parser[Rql2ShortType] = tokShort ~> typeProps ^^ Rql2ShortType
 
-  final private lazy val intType: Parser[Rql2IntType] = tokInt ^^^ Rql2IntType(defaultProps)
+  final private lazy val intType: Parser[Rql2IntType] = tokInt ~> typeProps ^^ Rql2IntType
 
-  final private lazy val longType: Parser[Rql2LongType] = tokLong ^^^ Rql2LongType(defaultProps)
+  final private lazy val longType: Parser[Rql2LongType] = tokLong ~> typeProps ^^ Rql2LongType
 
-  final private lazy val floatType: Parser[Rql2FloatType] = tokFloat ^^^ Rql2FloatType(defaultProps)
+  final private lazy val floatType: Parser[Rql2FloatType] = tokFloat ~> typeProps ^^ Rql2FloatType
 
-  final private lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ^^^ Rql2DoubleType(defaultProps)
+  final private lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ~> typeProps ^^ Rql2DoubleType
 
-  final private lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ^^^ Rql2DecimalType(defaultProps)
+  final private lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ~> typeProps ^^ Rql2DecimalType
 
   final private lazy val temporalType: Parser[Rql2TemporalType] = dateType | timeType | intervalType | timestampType
 
-  final private lazy val dateType: Parser[Rql2DateType] = tokDate ^^^ Rql2DateType(defaultProps)
+  final private lazy val dateType: Parser[Rql2DateType] = tokDate ~> typeProps ^^ Rql2DateType
 
-  final private lazy val timeType: Parser[Rql2TimeType] = tokTime ^^^ Rql2TimeType(defaultProps)
+  final private lazy val timeType: Parser[Rql2TimeType] = tokTime ~> typeProps ^^ Rql2TimeType
 
-  final private lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ^^^ Rql2IntervalType(defaultProps)
+  final private lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ~> typeProps ^^ Rql2IntervalType
 
-  final private lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ^^^ Rql2TimestampType(defaultProps)
+  final private lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ~> typeProps ^^ Rql2TimestampType
 
   final private lazy val recordType: Parser[Rql2RecordType] =
-    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ {
-      case atts => Rql2RecordType(atts, defaultProps)
+    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ~ typeProps ^^ {
+      case atts ~ props => Rql2RecordType(atts, props)
     }
 
   final private lazy val attrType: Parser[Rql2AttrType] = (ident <~ ":") ~ tipe ^^ Rql2AttrType
 
-  final private lazy val iterableType: Parser[Rql2IterableType] = tokCollection ~> ("(" ~> tipe <~ ")") ^^ {
-    case t => Rql2IterableType(t, defaultProps)
+  final private lazy val iterableType: Parser[Rql2IterableType] = tokCollection ~> ("(" ~> tipe <~ ")") ~ typeProps ^^ {
+    case t ~ props => Rql2IterableType(t, props)
   }
 
-  final private lazy val listType: Parser[Rql2ListType] = tokList ~> ("(" ~> tipe <~ ")") ^^ {
-    case t => Rql2ListType(t, defaultProps)
+  final private lazy val listType: Parser[Rql2ListType] = tokList ~> ("(" ~> tipe <~ ")") ~ typeProps ^^ {
+    case t ~ props => Rql2ListType(t, props)
   }
 
   final private lazy val funType: PackratParser[FunType] = {
@@ -190,9 +201,9 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     //
     // Wrap in parenthesis to disambiguate the type property annotations
     // e.g. ((int) -> string) @null @try
-    ("(" ~> "(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe <~ ")") ^^ {
-      case ts ~ r =>
-        FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, defaultProps)
+    ("(" ~> "(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe <~ ")") ~ typeProps ^^ {
+      case ts ~ r ~ props =>
+        FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, props)
     } |
       // e.g. (int) -> string
       ("(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe) ^^ {
@@ -200,7 +211,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
             ts.collect { case t: Type => t },
             ts.collect { case p: FunOptTypeParam => p },
             r,
-            defaultProps
+            Set.empty
           )
       }
   }
@@ -214,7 +225,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final private lazy val expType: Parser[ExpType] = tokType ~> tipe ^^ ExpType
 
-  final private lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ^^^ Rql2UndefinedType(defaultProps)
+  final private lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ~> typeProps ^^ Rql2UndefinedType
 
   final private lazy val typeAliasType: Parser[TypeAliasType] = typeIdnUse ^^ TypeAliasType
 
@@ -223,6 +234,11 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   final private lazy val typeIdent: Parser[String] = escapedIdent | identRegex into { idn =>
     if (isReservedType(idn)) failure("reserved type keyword") else success(idn)
   }
+
+  // By default, all user types are tryable and nullable.
+  // The internal parser overrides this: refer to SyntaxAnalyzer.scala
+  protected def typeProps: Parser[Set[Rql2TypeProperty]] =
+    success(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))
 
   ///////////////////////////////////////////////////////////////////////////
   // Expressions

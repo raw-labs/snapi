@@ -22,10 +22,6 @@ object TypePackageBuilder {
     FunApp(Proj(PackageIdnExp("Type"), "Cast"), Vector(FunAppArg(TypeExp(t), None), FunAppArg(e, None)))
   }
 
-  def StageCompilerCast(t: Type, e: Exp): Exp = {
-    FunApp(Proj(IdnExp("Type"), "Cast"), Vector(FunAppArg(TypeExp(t), None), FunAppArg(e, None)))
-  }
-
   def ProtectCast(actual: Type, target: Type, e: Exp): Exp = {
     FunApp(
       Proj(PackageIdnExp("Type"), "ProtectCast"),

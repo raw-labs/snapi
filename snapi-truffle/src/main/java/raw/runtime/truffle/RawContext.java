@@ -90,7 +90,6 @@ public final class RawContext {
         JavaConverters.asScalaSetConverter(java.util.Set.of(this.scopes)).asScala().toSet();
 
     java.util.Map<String, String> javaOptions = new java.util.HashMap<>();
-    javaOptions.put("output-format", env.getOptions().get(RawOptions.OUTPUT_FORMAT_KEY));
 
     Map<String, String> scalaOptions =
         JavaConverters.mapAsScalaMapConverter(javaOptions)
@@ -121,39 +120,13 @@ public final class RawContext {
     this.inferrer = InferrerServiceProvider.apply(classLoader, this.sourceContext);
   }
 
-  ParamValue paramValueOf(Object o) {
-    throw new IllegalArgumentException("Not implemented");
-    //    return switch (o) {
-    //      case Integer i -> i.doubleValue();
-    //      case Float f -> f.doubleValue();
-    //      case String s -> Double.parseDouble(s);
-    //      default -> 0d;
-    //    };
-    //    value match {
-    //      case ParamNull() => null
-    //      case ParamByte(v) => v
-    //      case ParamShort(v) => v
-    //      case ParamInt(v) => v
-    //      case ParamLong(v) => v
-    //      case ParamFloat(v) => v
-    //      case ParamDouble(v) => v
-    //      case ParamBool(v) => v
-    //      case ParamString(v) => v
-    //      case ParamDecimal(v) => new DecimalObject(v)
-    //      case ParamDate(v) => new DateObject(v)
-    //      case ParamTime(v) => new TimeObject(v)
-    //      case ParamTimestamp(v) => new TimestampObject(v)
-    //      case ParamInterval(v) => IntervalObject.fromDuration(v)
-    //    }
-  }
-
   public RawLanguage getLanguage() {
     return language;
   }
 
-  //  public Env getEnv() {
-  //    return env;
-  //  }
+  public Env getEnv() {
+    return env;
+  }
 
   public RawSettings getRawSettings() {
     return rawSettings;

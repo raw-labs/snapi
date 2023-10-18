@@ -18,13 +18,13 @@ import org.graalvm.options.OptionKey;
 
 public class RawOptions {
 
-  public static final String OUTPUT_FORMAT = optionName("output-format");
+  public static final String STAGED_COMPILER = optionName("staged-compiler");
 
-  public static final OptionKey<String> OUTPUT_FORMAT_KEY = new OptionKey<>("");
-  public static final OptionDescriptor OUTPUT_FORMAT_DESCRIPTOR =
-      OptionDescriptor.newBuilder(OUTPUT_FORMAT_KEY, OUTPUT_FORMAT).build();
+  public static final OptionKey<String> STAGED_COMPILER_KEY = new OptionKey<>("");
+  public static final OptionDescriptor STAGED_COMPILER_DESCRIPTOR =
+      OptionDescriptor.newBuilder(STAGED_COMPILER_KEY, STAGED_COMPILER).build();
   public static final OptionDescriptors OPTION_DESCRIPTORS =
-      OptionDescriptors.create(java.util.Arrays.asList(OUTPUT_FORMAT_DESCRIPTOR));
+      OptionDescriptors.create(java.util.Arrays.asList(STAGED_COMPILER_DESCRIPTOR));
 
   private static String optionName(String name) {
     return RawLanguage.ID + "." + name;

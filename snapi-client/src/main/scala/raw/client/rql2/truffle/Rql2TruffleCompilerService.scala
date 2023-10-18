@@ -826,6 +826,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       .environment("RAW_SCOPES", environment.scopes.mkString(","))
       .allowExperimentalOptions(true)
       .allowPolyglotAccess(PolyglotAccess.ALL)
+    environment.options.get("staged-compiler").foreach { stagedCompiler =>
+      ctxBuilder.option("rql.staged-compiler", stagedCompiler)
+    }
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     // Add arguments as polyglot bindings.
     val ctx = ctxBuilder.build()

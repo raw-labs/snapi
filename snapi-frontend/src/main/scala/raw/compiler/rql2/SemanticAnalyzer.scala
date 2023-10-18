@@ -1559,20 +1559,26 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     // LocationType (i.e. LocationDescription).
     val expected = addProps(report.t, report.extraProps)
     val program = {
-      if (lets.isEmpty) Rql2Program(Vector.empty, Some(TypePackageBuilder.StageCompilerCast(expected, e)))
-      else Rql2Program(Vector.empty, Some(TypePackageBuilder.StageCompilerCast(expected, Let(lets.to, e))))
+      if (lets.isEmpty) Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, e)))
+      else Rql2Program(Vector.empty, Some(TypePackageBuilder.Cast(expected, Let(lets.to, e))))
     }
 
     programContext.getOrAddStagedCompilation(
       program, {
         // Perform compilation of expression and its dependencies.
-        val prettyPrinterProgram = SourcePrettyPrinter.format(program)
-        val prettyPrinterType = SourcePrettyPrinter.format(expected)
+        val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
+        val prettyPrinterType = InternalSourcePrettyPrinter.format(expected)
+        val stagedCompilerEnvironment = programContext.runtimeContext.environment
+          .copy(options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"))
+
+        logger.debug("Pretty printed program is:\n" + prettyPrinterProgram)
+        logger.debug("Pretty printed type is:\n" + prettyPrinterType)
+
         try {
           CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(programContext.settings).eval(
             prettyPrinterProgram,
             prettyPrinterType,
-            programContext.runtimeContext.environment
+            stagedCompilerEnvironment
           ) match {
             case EvalSuccess(v) =>
               var stagedCompilerResult = v

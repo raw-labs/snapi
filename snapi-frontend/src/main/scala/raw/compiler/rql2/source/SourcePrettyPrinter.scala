@@ -28,6 +28,8 @@ trait SourcePrettyPrinter
     with Rql2TypeUtils
     with ParenPrettyPrinter {
 
+  protected def internal: Boolean = false
+
   protected def rql2Type(t: Rql2Type): Doc = t match {
     case t: Rql2TypeConstraint => rql2TypeConstraints(t)
     case t: Rql2TypeWithProperties => rql2TypeWithProperties(t)
@@ -38,9 +40,6 @@ trait SourcePrettyPrinter
   }
 
   protected def rql2TypeWithProperties(t: Rql2TypeWithProperties): Doc = {
-//    val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
-//    val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
-
     val d: Doc = t match {
       case _: Rql2BoolType => "bool"
       case _: Rql2StringType => "string"
@@ -66,17 +65,39 @@ trait SourcePrettyPrinter
           case _: AnythingType => "list"
           case _ => method("list", innerType)
         }
-      case Rql2OrType(ts, _) => folddoc(ts.map(toDoc), _ <+> "or" <+> _)
+      case Rql2OrType(ts, props) =>
+        val d = folddoc(ts.map(toDoc), _ <+> "or" <+> _)
+        if (internal && props.nonEmpty) {
+          // Wrap in parenthesis to disambiguate the type property annotations.
+          // Refer to the parser for details.
+          parens(d)
+        } else {
+          d
+        }
       case FunType(ms, os, r, props) =>
         val args = ms.map(toDoc) ++ os.map(o => o.i <> ":" <+> o.t)
         val d = parens(enclosedList(args)) <+> "->" <+> r
-//        parens(d) // Wrap in parenthesis to disambiguiate the type property annotations added below.
-        d
+        if (internal && props.nonEmpty) {
+          // Wrap in parenthesis to disambiguate the type property annotations.
+          // Refer to the parser for details.
+          parens(d)
+        } else {
+          d
+        }
       case _: Rql2UndefinedType => "undefined"
     }
 
-//    d <+> (if (isTryable) "@try" else "@notTry") <+> (if (isNullable) "@null" else "@notNull")
-    d
+    if (internal) {
+      val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
+      val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
+
+      if (isTryable && isNullable) d <+> "@try" <+> "@null"
+      else if (isTryable) d <+> "@try"
+      else if (isNullable) d <+> "@null"
+      else d
+    } else {
+      d
+    }
   }
 
   private def rql2TypeConstraints(t: Rql2TypeConstraint): Doc = t match {
@@ -252,3 +273,7 @@ trait SourcePrettyPrinter
 }
 
 object SourcePrettyPrinter extends SourcePrettyPrinter
+
+object InternalSourcePrettyPrinter extends SourcePrettyPrinter {
+  final override protected def internal: Boolean = true
+}
