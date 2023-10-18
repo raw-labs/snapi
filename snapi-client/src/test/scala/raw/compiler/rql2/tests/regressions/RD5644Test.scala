@@ -61,11 +61,11 @@ trait RD5644Test extends CompilerTestContext {
 
   // Functions that have 'the same type' can be merged in a list. This is the same rule as when they're passed as a parameter
   // to a user function.
-  test("""let fs = [x: int -> x + 2, x: int -> x * 10]
+  test("""let fs = [(x: int) -> x + 2, (x: int) -> x * 10]
     |in List.Transform(fs, f -> f(10))""".stripMargin)(_ should evaluateTo("[12, 100]"))
 
   // Functions that don't have 'the same type' can be merged in a list if their return type merge.
-  test("""let fs = [x: int -> x + 2, x: int -> x * 10.4]
+  test("""let fs = [(x: int) -> x + 2, (x: int) -> x * 10.4]
     |in List.Transform(fs, f -> f(10))""".stripMargin)(
     _ should typeAs("list(double)")
   )
@@ -73,47 +73,47 @@ trait RD5644Test extends CompilerTestContext {
   // Typechecking is also strict with user-defined functions taking a function as parameter. In that case, a user
   // has declared the expected type, and typechecking accepts an argument only if it matches.
   test("""
-    |let myTransform(l: list(int), f: (int) -> bool) = List.Transform(l, f)
-    |in myTransform([1,2,3,4], x: int -> x % 2 == 0)
+    |let myTransform(l: list(int), f: int -> bool) = List.Transform(l, f)
+    |in myTransform([1,2,3,4], (x: int) -> x % 2 == 0)
     |
     |""".stripMargin)(_ should evaluateTo("[false, true, false, true]"))
 
   // Checking it fails normally when the actual type is totally wrong.
   test("""
-    |let myTransform(l: list(int), f: (int) -> bool) = List.Transform(l, f)
-    |in myTransform([1,2,3,4], x: int -> x + 10)
+    |let myTransform(l: list(int), f: int -> bool) = List.Transform(l, f)
+    |in myTransform([1,2,3,4], (x: int) -> x + 10)
     |
     |""".stripMargin)(_ should runErrorAs("expected (int) -> bool but got (int) -> int"))
 
   // This is accepted although the output type doesn't match, because output types can be merged.
   test("""
     |let myTransform(l: list(int), f: (int) -> float) = List.Transform(l, f)
-    |in myTransform([1,2,3,4], x: int -> x + 10)
+    |in myTransform([1,2,3,4], (x: int) -> x + 10)
     |
     |""".stripMargin)(_ should typeAs("list(float)"))
 
   // This doesn't type because the argument type doesn't match.
   test("""
-    |let myTransform(l: list(int), f: (int) -> float) = List.Transform(l, f)
-    |in myTransform([1,2,3,4], x: float -> x + 10)
+    |let myTransform(l: list(int), f: int -> float) = List.Transform(l, f)
+    |in myTransform([1,2,3,4], (x: float) -> x + 10)
     |
     |""".stripMargin)(_ should runErrorAs("expected (int) -> float but got (float) -> float"))
 
   // Functions that don't have 'the same type' cannot be merged in a list. This is the same rule as when they're passed as a parameter
   // to a user function.
-  test("""let fs = [x: int -> x + 2, x: float -> x * 10]
+  test("""let fs = [(x: int) -> x + 2, (x: float) -> x * 10]
     |in List.Transform(fs, f -> f(10))""".stripMargin)(
     _ should runErrorAs("expected compatible with (int) -> int but got (float) -> float")
   )
 
   // Same here.
-  test("""let fs = [x: int -> x + 2, x: float -> 10]
+  test("""let fs = [(x: int) -> x + 2, (x: float) -> 10]
     |in List.Transform(fs, f -> f(10))""".stripMargin)(
     _ should runErrorAs("expected compatible with (int) -> int but got (float) -> int")
   )
 
   // Same here.
-  test("""let fs = [x: int -> x + 2, null, Error.Build("bug")]
+  test("""let fs = [(x: int) -> x + 2, null, Error.Build("bug")]
     |in List.Transform(fs, f -> f(10))""".stripMargin)(
     _ should evaluateTo("""[12, null, Error.Build("bug")]""")
   )

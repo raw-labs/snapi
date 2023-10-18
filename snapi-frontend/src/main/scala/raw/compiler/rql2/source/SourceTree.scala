@@ -205,6 +205,18 @@ final case class Rql2OrType(tipes: Vector[Type], props: Set[Rql2TypeProperty] = 
   override def cloneAndRemoveProp(p: Rql2TypeProperty): Type = Rql2OrType(tipes, props - p)
 }
 
+object Rql2OrType {
+  def apply(t1: Type, t2: Type, props: Set[Rql2TypeProperty]): Rql2OrType = {
+    (t1, t2) match {
+      case (Rql2OrType(tipes1, props1), Rql2OrType(tipes2, props2)) if props == props1 && props == props2 =>
+        Rql2OrType(tipes1 ++ tipes2, props)
+      case (Rql2OrType(tipes1, props1), _) if props == props1 => Rql2OrType(tipes1 :+ t2, props)
+      case (_, Rql2OrType(tipes2, props2)) if props == props2 => Rql2OrType(Vector(t1) ++ tipes2, props)
+      case _ => Rql2OrType(Vector(t1, t2), props)
+    }
+  }
+}
+
 /**
  * Package Type.
  */

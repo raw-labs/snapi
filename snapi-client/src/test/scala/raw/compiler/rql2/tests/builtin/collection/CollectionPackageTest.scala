@@ -465,8 +465,8 @@ trait CollectionPackageTest extends CompilerTestContext {
     _ should runErrorAs("path not found")
   )
   // Functions aren't comparable
-  test("""let l = Collection.Build(x: int -> x + 1, x: int -> x * 2)
-    |in Collection.Contains(l, x: int -> x + 1)""".stripMargin)(_ should runErrorAs(ItemsNotComparable.message))
+  test("""let l = Collection.Build((x: int) -> x + 1, (x: int) -> x * 2)
+    |in Collection.Contains(l, (x: int) -> x + 1)""".stripMargin)(_ should runErrorAs(ItemsNotComparable.message))
 
   // Zip
   test("""Collection.Zip(Collection.Build(1,2,3), Collection.Build("a", "b", "c"))""")(

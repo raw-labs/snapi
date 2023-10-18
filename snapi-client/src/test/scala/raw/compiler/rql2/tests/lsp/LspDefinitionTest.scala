@@ -72,7 +72,7 @@ trait LspDefinitionTest extends CompilerTestContext {
 
   test("go to definition function identifier at definition test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |                                            a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
@@ -96,7 +96,7 @@ trait LspDefinitionTest extends CompilerTestContext {
 
   test("go to definition function identifier at usage test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |                                            a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
@@ -110,7 +110,7 @@ trait LspDefinitionTest extends CompilerTestContext {
 
   test("go to definition function parameter test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
@@ -119,12 +119,12 @@ trait LspDefinitionTest extends CompilerTestContext {
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
     val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(2, 20))
     assertResult(2)(line)
-    assertResult(19)(column)
+    assertResult(20)(column)
   }
 
   test("go to definition function parameter usage test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
@@ -133,12 +133,12 @@ trait LspDefinitionTest extends CompilerTestContext {
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
     val GoToDefinitionResponse(Some(Pos(line, column)), _) = goToDefinition(code, Pos(3, 29))
     assertResult(2)(line)
-    assertResult(19)(column)
+    assertResult(20)(column)
   }
 
   test("go to definition let should return empty response") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |                                            a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
