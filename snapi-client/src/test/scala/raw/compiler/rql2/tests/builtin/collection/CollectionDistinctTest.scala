@@ -24,6 +24,6 @@ trait CollectionDistinctTest extends CompilerTestContext {
     |in Collection.Distinct(numbers)""".stripMargin)(_ should evaluateTo("[]"))
 
   // Functions aren't comparable
-  test("""let l = Collection.Build(x: int -> x + 1, x: int -> x * 2)
+  test("""let l = Collection.Build((x: int) -> x + 1, (x: int) -> x * 2)
     |in Collection.Distinct(l)""".stripMargin)(_ should runErrorAs(ItemsNotComparable.message))
 }

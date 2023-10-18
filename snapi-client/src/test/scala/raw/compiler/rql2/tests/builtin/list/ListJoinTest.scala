@@ -66,7 +66,7 @@ trait ListJoinTest extends CompilerTestContext with LocalLocationsTestContext {
     |""".stripMargin)(it => it should evaluateTo(listOfCountries))
 
   // Functions aren't comparable
-  test("""let l = List.Build({fName: "f1", f: x: int -> x + 1}, {fName: "f2", f: x: int -> x * 2})
+  test("""let l = List.Build({fName: "f1", f: (x: int) -> x + 1}, {fName: "f2", f: (x: int) -> x * 2})
     |in List.EquiJoin(l, l, r -> r.f, r -> r.f)""".stripMargin)(_ should runErrorAs(KeyNotComparable.message))
 
   // docs examples (RD-9034, with a function with two parameters)

@@ -51,9 +51,9 @@ trait TypePackageTest extends CompilerTestContext {
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
-    |       x: collection(string) -> Collection.Count(x),
-    |       x: collection(string) -> Collection.Count(x),
-    |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions)
+    |       (x: collection(string)) -> Collection.Count(x),
+    |       (x: collection(string)) -> Collection.Count(x),
+    |       (x: record(partitions: collection(string))) -> Collection.Count(x.partitions)
     |   )
     |)""".stripMargin)(_ should runErrorAs("only one handler function per type is expected"))
 
@@ -67,7 +67,7 @@ trait TypePackageTest extends CompilerTestContext {
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
-    |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions)
+    |       (x: record(partitions: collection(string))) -> Collection.Count(x.partitions)
     |   )
     |)""".stripMargin)(_ should runErrorAs("handler functions should be provided for all types"))
 
@@ -81,8 +81,8 @@ trait TypePackageTest extends CompilerTestContext {
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
-    |       x: collection(string) -> Collection.Count(x),
-    |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions)
+    |       (x: collection(string)) -> Collection.Count(x),
+    |       (x: record(partitions: collection(string))) -> Collection.Count(x.partitions)
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2L, 3L]"))
 
@@ -96,8 +96,8 @@ trait TypePackageTest extends CompilerTestContext {
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
-    |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions),
-    |       x: collection(string) -> Collection.Count(x)
+    |       (x: record(partitions: collection(string))) -> Collection.Count(x.partitions),
+    |       (x: collection(string)) -> Collection.Count(x)
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2L, 3L]"))
 
@@ -106,8 +106,8 @@ trait TypePackageTest extends CompilerTestContext {
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
-    |       x: collection(string) -> Collection.Count(x),
-    |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions)
+    |       (x: collection(string)) -> Collection.Count(x),
+    |       (x: record(partitions: collection(string))) -> Collection.Count(x.partitions)
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2L, 3L]"))
 
@@ -121,8 +121,8 @@ trait TypePackageTest extends CompilerTestContext {
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
-    |       x: collection(string) -> Collection.Count(x),
-    |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions) * 3.14
+    |       (x: collection(string)) -> Collection.Count(x),
+    |       (x: record(partitions: collection(string))) -> Collection.Count(x.partitions) * 3.14
     |   )
     |)""".stripMargin)(_ should evaluateTo("[2d, 9.42d]"))
 
@@ -133,8 +133,8 @@ trait TypePackageTest extends CompilerTestContext {
     |      disks: collection(string) or record(partitions: collection(string))
     |  )
     |)),
-    |    f1s = [x: collection(string) -> Collection.Count(x), null],
-    |    f2s = [x: record(partitions: collection(string)) -> Collection.Count(x.partitions) * 3.14, Error.Build("bug")]
+    |    f1s = [(x: collection(string)) -> Collection.Count(x), null],
+    |    f2s = [(x: record(partitions: collection(string))) -> Collection.Count(x.partitions) * 3.14, Error.Build("bug")]
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
@@ -152,8 +152,8 @@ trait TypePackageTest extends CompilerTestContext {
     |      disks: collection(string) or record(partitions: collection(string))
     |  )
     |)),
-    |    f1s = [x: collection(string) -> Collection.Count(x), null],
-    |    f2s = [x: record(partitions: collection(string)) -> Collection.Count(x.partitions) * 3.14, Error.Build("bug")]
+    |    f1s = [(x: collection(string)) -> Collection.Count(x), null],
+    |    f2s = [(x: record(partitions: collection(string))) -> Collection.Count(x.partitions) * 3.14, Error.Build("bug")]
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
@@ -171,8 +171,8 @@ trait TypePackageTest extends CompilerTestContext {
     |      disks: collection(string) or record(partitions: collection(string))
     |  )
     |)),
-    |    f1s = [x: collection(string) -> Collection.Count(x), null],
-    |    f2s = [x: record(partitions: collection(string)) -> Collection.Count(x.partitions) * 3.14, Error.Build("bug")]
+    |    f1s = [(x: collection(string)) -> Collection.Count(x), null],
+    |    f2s = [(x: record(partitions: collection(string))) -> Collection.Count(x.partitions) * 3.14, Error.Build("bug")]
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,

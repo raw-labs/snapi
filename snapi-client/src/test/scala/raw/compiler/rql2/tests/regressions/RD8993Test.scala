@@ -16,29 +16,29 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RD8993Test extends CompilerTestContext {
 
-  test("""apply(f: (int) -> bool) = f(1)
-    |apply(x: int -> true)""".stripMargin)(_ should evaluateTo("true"))
+  test("""apply(f: int -> bool) = f(1)
+    |apply((x: int) -> true)""".stripMargin)(_ should evaluateTo("true"))
 
-  test("""let apply(f: (int) -> bool) = f(1)
-    |in apply(x: int -> true)""".stripMargin)(_ should evaluateTo("true"))
+  test("""let apply(f: int -> bool) = f(1)
+    |in apply((x: int) -> true)""".stripMargin)(_ should evaluateTo("true"))
 
   test("""apply(f: (int) -> double) = f(1)
     |apply(x: int -> 12.3)""".stripMargin)(_ should evaluateTo("12.3"))
 
   // test with function returning int when expecting double
   test("""apply(f: (int) -> double) = f(1)
-    |apply(x: int -> 12)""".stripMargin)(_ should evaluateTo("12.0"))
+    |apply((x: int) -> 12)""".stripMargin)(_ should evaluateTo("12.0"))
 
   test("""let apply(f: (int) -> double) = f(1)
-    |in apply(x: int -> 12.3)""".stripMargin)(_ should evaluateTo("12.3"))
+    |in apply((x: int) -> 12.3)""".stripMargin)(_ should evaluateTo("12.3"))
 
   // That case worked because x < 0 is nullable/tryable, which matches the return type of the function.
   test("""apply(f: (int) -> bool) = f(1)
-    |apply(x: int -> x < 0)""".stripMargin)(_ should evaluateTo("false"))
+    |apply((x: int) -> x < 0)""".stripMargin)(_ should evaluateTo("false"))
 
   // Same with 'let'.
   test("""let apply(f: (int) -> bool) = f(1)
-    |in apply(x: int -> x < 0)""".stripMargin)(_ should evaluateTo("false"))
+    |in apply((x: int) -> x < 0)""".stripMargin)(_ should evaluateTo("false"))
 
   // Original RD-8993 bug
   test("""ListJoinRec(
@@ -123,7 +123,7 @@ trait RD8993Test extends CompilerTestContext {
     |in apply(aFunction, 14)""".stripMargin)(_ should runErrorAs("expected (int) -> bool but got (int) -> double"))
 
   test("""let apply(f: (int) -> bool, n: int) = f(n)
-    |in apply(x: int -> x > 12, true)""".stripMargin)(
+    |in apply((x: int) -> x > 12, true)""".stripMargin)(
     _ should runErrorAs("expected int but got bool")
   )
 
