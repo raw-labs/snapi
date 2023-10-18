@@ -22,6 +22,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.boundary.BoundaryNodes;
+import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
@@ -29,9 +30,9 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 @NodeChild("format")
 public abstract class IntervalParseNode extends ExpressionNode {
 
-  private int intOrDefault(String toParse, BoundaryNodes.ParseIntNode parseIntNode) {
+  private int intOrDefault(String toParse) {
     try {
-      return parseIntNode.execute(toParse);
+      return BoundaryNodesFactory.ParseIntNodeGen.getUncached().execute(toParse);
     } catch (NumberFormatException ex) {
       return 0;
     }
@@ -39,8 +40,9 @@ public abstract class IntervalParseNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  public Object parse(String format, @Cached BoundaryNodes.ParseIntNode parseIntNode) {
+  public Object parse(String format) {
     try {
+      BoundaryNodes.ParseIntNode parseIntNode = BoundaryNodesFactory.ParseIntNodeGen.getUncached();
       Pattern pattern =
           Pattern.compile(
               "P(?:(-?\\d+)Y)?(?:(-?\\d+)M)?(?:(-?\\d+)W)?(?:(-?\\d+)D)?T?(?:(-?\\d+)H)?(?:(-?\\d+)M)?(?:(-?\\d+)S|(-?\\d+)\\.(\\d+)S)?");
@@ -89,12 +91,12 @@ public abstract class IntervalParseNode extends ExpressionNode {
         }
         return ObjectTryable.BuildSuccess(
             new IntervalObject(
-                this.intOrDefault(y, parseIntNode),
-                this.intOrDefault(m, parseIntNode),
-                this.intOrDefault(w, parseIntNode),
-                this.intOrDefault(d, parseIntNode),
-                this.intOrDefault(h, parseIntNode),
-                this.intOrDefault(mi, parseIntNode),
+                this.intOrDefault(y),
+                this.intOrDefault(m),
+                this.intOrDefault(w),
+                this.intOrDefault(d),
+                this.intOrDefault(h),
+                this.intOrDefault(mi),
                 seconds,
                 millis));
       } else {
