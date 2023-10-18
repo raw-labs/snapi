@@ -3,8 +3,11 @@ on:
   pull_request:
     paths:
       - deps/**
-      - language/**
-      - extensions/**
+      - utils/**
+      - client/**
+      - snapi-frontend/**
+      - snapi-truffle/**
+      - snapi-client/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
