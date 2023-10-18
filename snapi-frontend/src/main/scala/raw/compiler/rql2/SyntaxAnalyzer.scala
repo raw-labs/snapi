@@ -29,8 +29,6 @@ class SyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(positi
   // Types
   ///////////////////////////////////////////////////////////////////////////
 
-  final override protected lazy val tipe: Parser[Type] = commonType | super.tipe
-
   override protected lazy val typeProps: Parser[Set[Rql2TypeProperty]] = {
     ("@try" ~ "@null" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |
       ("@null" ~ "@try" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |

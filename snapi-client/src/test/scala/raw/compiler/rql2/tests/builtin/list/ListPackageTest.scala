@@ -526,8 +526,8 @@ trait ListPackageTest extends CompilerTestContext {
   test("List.Contains(List.Build(1.0d,2.0d,3.0d,4.0d), 3)")(_ should evaluateTo("true"))
   test("List.Contains(List.Build(1,2,3), [1,2,3])")(_ should runErrorAs("expected int but got"))
   // Functions aren't comparable
-  test("""let l = List.Build(x: int -> x + 1, x: int -> x * 2)
-    |in List.Contains(l, x: int -> x + 1)""".stripMargin)(_ should runErrorAs(ItemsNotComparable.message))
+  test("""let l = List.Build((x: int) -> x + 1, (x: int) -> x * 2)
+    |in List.Contains(l, (x: int) -> x + 1)""".stripMargin)(_ should runErrorAs(ItemsNotComparable.message))
 
   // Zip
   test("""List.Zip(List.Build(1,2,3), List.Build("a", "b", "c"))""")(

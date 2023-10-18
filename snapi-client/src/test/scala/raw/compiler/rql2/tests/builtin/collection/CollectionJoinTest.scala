@@ -169,7 +169,7 @@ trait CollectionJoinTest extends CompilerTestContext with LocalLocationsTestCont
     |""".stripMargin
 
   // Functions aren't comparable
-  test("""let l = Collection.Build({fName: "f1", f: x: int -> x + 1}, {fName: "f2", f: x: int -> x * 2})
+  test("""let l = Collection.Build({fName: "f1", f: (x: int) -> x + 1}, {fName: "f2", f: (x: int) -> x * 2})
     |in Collection.EquiJoin(l, l, r -> r.f, r -> r.f)""".stripMargin)(_ should runErrorAs(KeyNotComparable.message))
 
   // docs examples (RD-9034, with a function with two parameters)

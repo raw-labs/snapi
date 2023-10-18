@@ -24,6 +24,6 @@ trait ListDistinctTest extends CompilerTestContext {
     |in List.Distinct(numbers)""".stripMargin)(_ should evaluateTo("[]"))
 
   // Functions aren't comparable
-  test("""let l = List.Build(x: int -> x + 1, x: int -> x * 2)
+  test("""let l = List.Build((x: int) -> x + 1, (x: int) -> x * 2)
     |in List.Distinct(l)""".stripMargin)(_ should runErrorAs(ItemsNotComparable.message))
 }

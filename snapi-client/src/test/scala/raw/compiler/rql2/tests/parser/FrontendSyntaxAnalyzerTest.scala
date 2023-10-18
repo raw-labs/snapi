@@ -12,6 +12,15 @@
 
 package raw.compiler.rql2.tests.parser
 
+import raw.compiler.rql2.source.{
+  Rql2FloatType,
+  Rql2IntType,
+  Rql2IsNullableTypeProperty,
+  Rql2IsTryableTypeProperty,
+  Rql2OrType,
+  Rql2StringType,
+  Rql2TypeProperty
+}
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
@@ -65,5 +74,43 @@ trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
     |in
     |  hello
     |""".stripMargin)(it => it should parseErrorAs("illegal type use"))
+
+  test("""type priority tests""") { _ =>
+    val props = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
+    assert(parseType("int or string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props))))
+    assert(
+      parseType("int or string or float") == Rql2OrType(
+        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props))
+      )
+    )
+    assert(
+      parseType("(int or string) or float") == Rql2OrType(
+        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props))
+      )
+    )
+    assert(
+      parseType("int or (string or float)") == Rql2OrType(
+        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props))
+      )
+    )
+    assert(
+      parseType("int -> string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)))
+    )
+    assert(
+      parseType("int or string -> float") == Rql2OrType(
+        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props))
+      )
+    )
+    assert(
+      parseType("int or (string -> float)") == Rql2OrType(
+        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props))
+      )
+    )
+    assert(
+      parseType("(int or string) -> float") == Rql2OrType(
+        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props))
+      )
+    )
+  }
 
 }
