@@ -20,55 +20,55 @@ trait S3PackageTest extends CompilerTestContext with CredentialsTestContext with
 
   // reading a non public s3 bucket passing credentials in the location settings
   test(s"""let
-          |  data = Csv.InferAndRead(
-          |    S3.Build(
-          |      "s3://rawlabs-private-test-data/students.csv",
-          |      region = "${UnitTestPrivateBucket.region.get}",
-          |      accessKey = "${UnitTestPrivateBucket.credentials.get.accessKey}",
-          |      secretKey = "${UnitTestPrivateBucket.credentials.get.secretKey}"
-          |    )
-          |  )
-          |in
-          |  Collection.Count(data)
-          |""".stripMargin)(it => it should evaluateTo("7"))
+    |  data = Csv.InferAndRead(
+    |    S3.Build(
+    |      "s3://rawlabs-private-test-data/students.csv",
+    |      region = "${UnitTestPrivateBucket.region.get}",
+    |      accessKey = "${UnitTestPrivateBucket.credentials.get.accessKey}",
+    |      secretKey = "${UnitTestPrivateBucket.credentials.get.secretKey}"
+    |    )
+    |  )
+    |in
+    |  Collection.Count(data)
+    |""".stripMargin)(it => it should evaluateTo("7"))
 
   s3Bucket(authorizedUser, UnitTestPrivateBucket2)
 
   // using a private bucket registered in the credentials server
   test(s"""String.Read(S3.Build("s3://${UnitTestPrivateBucket2.name}/file1.csv"))
-          |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
+    |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
   // listing a s3 bucket from us-east-1 (non default region)
   test(s"""let
-          |  data = Location.Ls(
-          |    S3.Build(
-          |      "s3://${unitTestPrivateBucketUsEast1.name}/csvs/01",
-          |      region = "${unitTestPrivateBucketUsEast1.region.get}",
-          |      accessKey = "${unitTestPrivateBucketUsEast1.credentials.get.accessKey}",
-          |      secretKey = "${unitTestPrivateBucketUsEast1.credentials.get.secretKey}"
-          |    )
-          |  )
-          |in
-          |  data
-          |""".stripMargin)(it => it should evaluateTo("""[
-                                                         |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
-                                                         |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
-                                                         |]""".stripMargin))
+    |  data = Location.Ls(
+    |    S3.Build(
+    |      "s3://${unitTestPrivateBucketUsEast1.name}/csvs/01",
+    |      region = "${unitTestPrivateBucketUsEast1.region.get}",
+    |      accessKey = "${unitTestPrivateBucketUsEast1.credentials.get.accessKey}",
+    |      secretKey = "${unitTestPrivateBucketUsEast1.credentials.get.secretKey}"
+    |    )
+    |  )
+    |in
+    |  data
+    |""".stripMargin)(it => it should evaluateTo("""[
+    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
+    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
+    |]""".stripMargin))
 
   // listing a s3 bucket from us-east-1 without passing the region
   test(s"""let
-          |  data = Location.Ls(
-          |    S3.Build(
-          |      "s3://${unitTestPrivateBucketUsEast1.name}/csvs/01",
-          |      accessKey = "${unitTestPrivateBucketUsEast1.credentials.get.accessKey}",
-          |      secretKey = "${unitTestPrivateBucketUsEast1.credentials.get.secretKey}"
-          |    )
-          |  )
-          |in
-          |  data
-          |""".stripMargin)(it => it should evaluateTo("""[
-                                                         |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
-                                                         |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
-                                                         |]""".stripMargin))
+    |  data = Location.Ls(
+    |    S3.Build(
+    |      "s3://${unitTestPrivateBucketUsEast1.name}/csvs/01",
+    |      accessKey = "${unitTestPrivateBucketUsEast1.credentials.get.accessKey}",
+    |      secretKey = "${unitTestPrivateBucketUsEast1.credentials.get.secretKey}"
+    |    )
+    |  )
+    |in
+    |  data
+    |""".stripMargin)(it => it should evaluateTo("""[
+    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data2.csv",
+    |   "s3://rawlabs-unit-tests-us-east-1/csvs/01/data1.csv"
+    |]""".stripMargin))
 
 }
