@@ -17,7 +17,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.JsonReadComputeNext;
@@ -30,7 +30,7 @@ import raw.sources.api.SourceContext;
 public class JsonReadCollection implements TruffleObject {
 
   private final LocationObject locationObject;
-  private final DirectCallNode parseNextRootNode;
+  private final RootNode parseNextRootNode;
 
   private final SourceContext context;
 
@@ -40,7 +40,7 @@ public class JsonReadCollection implements TruffleObject {
       LocationObject locationObject,
       String encoding,
       SourceContext context,
-      DirectCallNode parseNextRootNode) {
+      RootNode parseNextRootNode) {
     this.locationObject = locationObject;
     this.parseNextRootNode = parseNextRootNode;
     this.context = context;

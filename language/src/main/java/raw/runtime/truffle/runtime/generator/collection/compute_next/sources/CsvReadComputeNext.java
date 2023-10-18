@@ -38,7 +38,6 @@ public class CsvReadComputeNext {
   private RawTruffleCsvParser parser;
   protected final RootNode rowParserNode;
   private final SourceContext context;
-
   private TruffleCharInputStream stream;
   private final String encoding;
   private final RawTruffleCsvParserSettings settings;

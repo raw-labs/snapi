@@ -14,10 +14,12 @@ package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -33,7 +35,7 @@ public class JsonReadComputeNext {
 
   private final LocationObject locationObject;
   private JsonParser parser;
-  private final DirectCallNode parseNextCallNode;
+  protected final RootNode parseNextRootNode;
   private final SourceContext context;
   private final String encoding;
 
@@ -43,11 +45,11 @@ public class JsonReadComputeNext {
       LocationObject locationObject,
       String encoding,
       SourceContext context,
-      DirectCallNode parseNextCallNode) {
+      RootNode parseNextRootNode) {
     this.encoding = encoding;
     this.context = context;
     this.locationObject = locationObject;
-    this.parseNextCallNode = parseNextCallNode;
+    this.parseNextRootNode = parseNextRootNode;
   }
 
   @ExportMessage
@@ -88,7 +90,12 @@ public class JsonReadComputeNext {
   }
 
   @ExportMessage
-  Object computeNext(@Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken) {
+  Object computeNext(
+      @Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken,
+      @Cached(value = "this.parseNextRootNode.getCallTarget()", allowUncached = true)
+          RootCallTarget cachedTarget,
+      @Cached(value = "create(cachedTarget)", allowUncached = true)
+          DirectCallNode parseNextCallNode) {
     try {
       JsonToken token = currentToken.execute(parser);
       if (token != JsonToken.END_ARRAY && token != null) {

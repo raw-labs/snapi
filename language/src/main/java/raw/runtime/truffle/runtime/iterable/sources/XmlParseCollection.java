@@ -17,7 +17,7 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
@@ -30,14 +30,14 @@ import raw.sources.api.SourceContext;
 public class XmlParseCollection implements TruffleObject {
 
   private final String text;
-  private final DirectCallNode parseNextRootNode;
+  private final RootNode parseNextRootNode;
   private final RawTruffleXmlParserSettings settings;
   private final SourceContext context;
 
   public XmlParseCollection(
       String text,
       SourceContext context,
-      DirectCallNode parseNextRootNode,
+      RootNode parseNextRootNode,
       RawTruffleXmlParserSettings settings) {
     this.text = text;
     this.parseNextRootNode = parseNextRootNode;

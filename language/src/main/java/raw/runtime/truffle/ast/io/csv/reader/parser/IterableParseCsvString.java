@@ -26,7 +26,7 @@ import raw.runtime.truffle.runtime.option.OptionLibrary;
 @NodeInfo(shortName = "IterableParseCsvString")
 public class IterableParseCsvString extends ExpressionNode {
 
-  private final RootNode childRootNode;
+  private final RootNode parserRootNode;
   @Child private ExpressionNode strExp;
   @Child private ExpressionNode skip;
   @Child private ExpressionNode delimiterExp;
@@ -53,7 +53,7 @@ public class IterableParseCsvString extends ExpressionNode {
       ExpressionNode dateFormatExp,
       ExpressionNode timeFormatExp,
       ExpressionNode datetimeFormatExp) {
-    this.childRootNode = columnParser;
+    this.parserRootNode = columnParser;
     this.strExp = strExp;
     this.skip = skipExp;
     this.delimiterExp = delimiterExp;
@@ -106,7 +106,7 @@ public class IterableParseCsvString extends ExpressionNode {
               dateFormat,
               timeFormat,
               datetimeFormat);
-      return new CsvFromStringCollection(str, childRootNode, settings);
+      return new CsvFromStringCollection(str, parserRootNode, settings);
     } catch (UnexpectedResultException ex) {
       throw new CsvParserRawTruffleException(ex.getMessage(), 0, 0, ex, this);
     }

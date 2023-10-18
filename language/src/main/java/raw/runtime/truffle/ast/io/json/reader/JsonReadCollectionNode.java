@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.io.json.reader;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
@@ -28,13 +27,13 @@ public class JsonReadCollectionNode extends ExpressionNode {
 
   @Child private ExpressionNode encodingExp;
 
-  @Child private DirectCallNode childDirectCall;
+  private final RootNode childDirectCall;
 
   public JsonReadCollectionNode(
       ExpressionNode locationExp, ExpressionNode encodingExp, RootNode readerNode) {
     this.locationExp = locationExp;
     this.encodingExp = encodingExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+    this.childDirectCall = readerNode;
   }
 
   @Override

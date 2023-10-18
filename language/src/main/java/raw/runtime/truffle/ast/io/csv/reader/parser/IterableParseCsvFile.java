@@ -29,7 +29,7 @@ import raw.sources.api.SourceContext;
 @NodeInfo(shortName = "IterableParseCsvFile")
 public class IterableParseCsvFile extends ExpressionNode {
 
-  private final RootNode parserRootCall;
+  private final RootNode parserRootNode;
   @Child private ExpressionNode location;
   @Child private ExpressionNode encodingExp;
   @Child private ExpressionNode skipExp;
@@ -57,7 +57,7 @@ public class IterableParseCsvFile extends ExpressionNode {
       ExpressionNode dateFormatExp,
       ExpressionNode timeFormatExp,
       ExpressionNode datetimeFormatExp) {
-    this.parserRootCall = columnParser;
+    this.parserRootNode = columnParser;
     this.location = location;
     this.encodingExp = encodingExp;
     this.skipExp = skipExp;
@@ -113,7 +113,7 @@ public class IterableParseCsvFile extends ExpressionNode {
               dateFormat,
               timeFormat,
               datetimeFormat);
-      return new CsvCollection(locationValue, context, parserRootCall, encodingValue, settings);
+      return new CsvCollection(locationValue, context, parserRootNode, encodingValue, settings);
     } catch (UnexpectedResultException ex) {
       throw new CsvParserRawTruffleException(ex.getMessage(), 0, 0, ex, this);
     }

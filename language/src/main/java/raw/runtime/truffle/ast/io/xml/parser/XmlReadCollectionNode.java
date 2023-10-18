@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.io.xml.parser;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
@@ -31,7 +30,7 @@ public class XmlReadCollectionNode extends ExpressionNode {
   @Child private ExpressionNode timeFormatExp;
   @Child private ExpressionNode datetimeFormatExp;
 
-  @Child private DirectCallNode childDirectCall;
+  private final RootNode parseRootNode;
 
   public XmlReadCollectionNode(
       ExpressionNode locationExp,
@@ -45,7 +44,7 @@ public class XmlReadCollectionNode extends ExpressionNode {
     this.dateFormatExp = dateFormatExp;
     this.timeFormatExp = timeFormatExp;
     this.datetimeFormatExp = datetimeFormatExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+    this.parseRootNode = readerNode;
   }
 
   @Override
@@ -58,6 +57,6 @@ public class XmlReadCollectionNode extends ExpressionNode {
     RawTruffleXmlParserSettings settings =
         new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
     SourceContext context = RawContext.get(this).getSourceContext();
-    return new XmlReadCollection(locationObject, encoding, context, childDirectCall, settings);
+    return new XmlReadCollection(locationObject, encoding, context, parseRootNode, settings);
   }
 }
