@@ -148,7 +148,8 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
   rawSnapiFrontend % "compile->compile;test->test",
-  rawSnapiTruffle
+  rawSnapiTruffle,
+  rawUtils % "compile->compile;test->test"
 )
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.client")

@@ -5,6 +5,9 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
+  val rawUtilsVersion = IO.read(new File("../utils/version")).trim
+  val rawUtils = "com.raw-labs" %% "raw-utils" % rawUtilsVersion
+
   val rawSnapiFrontendVersion = IO.read(new File("../snapi-frontend/version")).trim
   val rawSnapiFrontend = "com.raw-labs" %% "raw-snapi-frontend" % rawSnapiFrontendVersion
 

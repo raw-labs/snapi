@@ -460,6 +460,8 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
 
           ???
         case None =>
+          val programContext = getProgramContext(environment.user, environment)
+          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
           val truffleSource = Source
             .newBuilder("rql", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
@@ -467,13 +469,21 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           ctx.eval(truffleSource)
       }
 
+      val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
+      val ParseTypeSuccess(tipe: Rql2TypeWithProperties) = parseType(rawType, environment.user, internal = true)
       environment.options
         .get("output-format")
         .map(_.toLowerCase) match {
         case Some("csv") =>
-          val w = new PolyglotCsvWriter(outputStream)
+          val programContext = getProgramContext(environment.user, environment)
+          val windowsLineEnding = environment.options.get("windows-line-ending") match {
+            case Some("true") => true
+            case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
+          }
+          val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
+          val w = new RawCsvWriter(outputStream, lineSeparator)
           try {
-            w.writeValue(v)
+            w.write(v, tipe)
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)

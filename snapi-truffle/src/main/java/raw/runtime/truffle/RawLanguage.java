@@ -16,8 +16,10 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
@@ -25,6 +27,7 @@ import raw.client.api.*;
 import raw.compiler.InitPhase;
 import raw.compiler.base.Phase;
 import raw.compiler.common.PhaseDescriptor;
+import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
 import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.*;
 import raw.compiler.scala2.Scala2CompilerContext;
@@ -68,6 +71,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   public static RawLanguage get(Node node) {
     return REFERENCE.get(node);
   }
+
+  private final InteropLibrary bindings = InteropLibrary.getFactory().createDispatched(1);
 
   // FIXME (msb): Why is this here?
   public RecordObject createRecord() {
@@ -120,6 +125,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
         SourceProgram outputProgram = transpile(inputProgram, programContext);
         Entrypoint entrypoint = TruffleEmit.doEmit(outputProgram, this, programContext);
         RootNode rootNode = (RootNode) entrypoint.target();
+        bindings.writeMember(context.getPolyglotBindings(), "@type", InternalSourcePrettyPrinter.format(tree.rootType().get()));
         return rootNode.getCallTarget();
       } else {
         throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
