@@ -489,9 +489,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           if (!JsonPackage.outputWriteSupport(tipe)) {
             return ExecutionRuntimeFailure("unsupported type");
           }
-          val w = new PolyglotJsonWriter(outputStream)
+          val w = new RawJsonWriter(outputStream)
           try {
-            w.write(v)
+            w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
