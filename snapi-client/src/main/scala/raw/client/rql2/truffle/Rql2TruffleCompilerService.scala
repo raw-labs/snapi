@@ -23,6 +23,7 @@ import raw.compiler.base
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
+import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
 import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
@@ -30,9 +31,10 @@ import raw.compiler.rql2.source._
 import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, withSuppressNonFatalException}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
@@ -267,20 +269,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         raw.client.api.DecimalValue(bg)
       case _: Rql2DateType =>
         val date = v.asDate()
-//        if (v.isTimeZone) {
-//          val zonedDateTime = date.atStartOfDay(v.asTimeZone())
-//          raw.client.api.DateValue(zonedDateTime.toLocalDate)
-//        } else {
         raw.client.api.DateValue(date)
-//        }
       case _: Rql2TimeType =>
         val time = v.asTime()
-//        if (v.isTimeZone) {
-//          val zonedDateTime = time.atDate(LocalDate.ofEpochDay(0)).atZone(v.asTimeZone())
-//          raw.client.api.TimeValue(zonedDateTime.toLocalTime)
-//        } else {
         raw.client.api.TimeValue(time)
-//        }
       case _: Rql2TimestampType =>
         val localDate = v.asDate()
         val localTime = v.asTime()
@@ -470,27 +462,33 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       }
 
       val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
-      val ParseTypeSuccess(tipe: Rql2TypeWithProperties) = parseType(rawType, environment.user, internal = true)
+      val ParseTypeSuccess(tipe) = parseType(rawType, environment.user, internal = true)
       environment.options
         .get("output-format")
         .map(_.toLowerCase) match {
         case Some("csv") =>
+          if (!CsvPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type");
+          }
           val programContext = getProgramContext(environment.user, environment)
           val windowsLineEnding = environment.options.get("windows-line-ending") match {
             case Some("true") => true
             case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
           }
           val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-          val w = new RawCsvWriter(outputStream, lineSeparator)
+          val csvWriter = new RawCsvWriter(outputStream, lineSeparator)
           try {
-            w.write(v, tipe)
+            csvWriter.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            withSuppressNonFatalException(w.close())
+            withSuppressNonFatalException(csvWriter.close())
           }
         case Some("json") =>
+          if (!JsonPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type");
+          }
           val w = new PolyglotJsonWriter(outputStream)
           try {
             w.write(v)
@@ -502,6 +500,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           }
         case Some("text") =>
           val w = new PolyglotTextWriter(outputStream)
+          if (!StringPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type");
+          }
           try {
             w.writeValue(v)
             ExecutionSuccess
@@ -509,6 +510,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
         case Some("binary") =>
+          if (!BinaryPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type");
+          }
           val w = new PolyglotBinaryWriter(outputStream)
           try {
             w.writeValue(v)
