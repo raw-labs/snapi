@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.SnapiInterpolator
-import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
+import raw.compiler.rql2.tests.CompilerTestContext
 
 trait JsonPackageTest extends CompilerTestContext {
 

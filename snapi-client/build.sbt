@@ -102,8 +102,6 @@ Compile / javacOptions ++= Seq(
 // Here we copy any "raw." system properties to the java options passed to the forked JVMs.
 Test / fork := true
 
-Test / parallelExecution := true
-
 Test / javaOptions ++= {
   import scala.collection.JavaConverters._
   val props = System.getProperties
@@ -122,100 +120,29 @@ Test / javaOptions ++= Seq(
 //  "-ea",
   // Limit overall memory and force crashing hard and early.
   // Useful for debugging memleaks.
-  "-Xmx4G",
+  "-Xmx8G",
   "-XX:+CrashOnOutOfMemoryError"
-)
-
-// Group tests by the scala package of the test
-Test / testGrouping := {
-  // This is called for each sbt project
-  val tests = (Test / definedTests).value
-  val projectName = name.value
-  var javaOptionsTest = (Test / javaOptions).value
-  val logsRootDir = Paths.get(sys.env.getOrElse("SBT_FORK_OUTPUT_DIR", "target/test-results"))
-  val executorLogsDir = logsRootDir.resolve("executor-logs")
-  val heapDumpsRoot = logsRootDir.resolve("heap-dumps")
-  // Generating a random directory in order the case when tests run in parallel
-  for (file <- Seq(executorLogsDir, heapDumpsRoot)) {
-    Files.createDirectories(file)
-  }
-  javaOptionsTest = javaOptionsTest ++ Seq(
-    "-XX:+HeapDumpOnOutOfMemoryError",
-    s"-XX:HeapDumpPath=$heapDumpsRoot"
-  )
-
-  var outputLogsDir: Option[java.nio.file.Path] = None
-  val currentLogFileName: (String, String) => String = (a, b) => s"$a-$b.log"
-
-  def resolvePath(
-      executorLogsDir: Path,
-      logFileName: String
-  ): Path = {
-    executorLogsDir.resolve(logFileName)
-  }
-
-  val testExecutionLogGroups = resolvePath(executorLogsDir, "test-groups.list")
-  val testActor = "executor"
-
-  // This is run for each sbt project
-  tests
-    .grouped(10)
-    .zipWithIndex
-    .map {
-      case (testGroup, i) => {
-        val testGroupName = s"$projectName-testgroup$i"
-        val names = testGroup.map(td => td.name).mkString(s"Group: $testGroupName\n", "\n", "\n\n")
-
-        Files.write(testExecutionLogGroups, names.getBytes(), StandardOpenOption.APPEND, StandardOpenOption.CREATE)
-
-        val outputFile = resolvePath(
-          executorLogsDir,
-          currentLogFileName.apply(testActor, testGroupName)
-        )
-        println(s"Writing output of test group $testGroupName to $outputFile")
-        Files.deleteIfExists(outputFile)
-        val options = ForkOptions()
-          .withRunJVMOptions(javaOptionsTest.to)
-          .withOutputStrategy(Some(CustomOutput(new BufferedOutputStream(Files.newOutputStream(outputFile)))))
-        Group(testGroupName, testGroup, SubProcess(options))
-      }
-    }
-    .toSeq
-}
-
-// Enable running multiple test VMs in parallel.
-concurrentRestrictions in Global := Seq(
-  Tags.limit(
-    Tags.ForkedTestGroup,
-    sys.env
-      .get("UNIT_TESTS_PARALLELISM")
-      .map(_.toInt)
-      .getOrElse(Math.max(java.lang.Runtime.getRuntime.availableProcessors - 2, 1))
-  ),
-  Tags.limit(Tags.CPU, java.lang.Runtime.getRuntime.availableProcessors),
-  Tags.limit(Tags.Network, 10),
-  Tags.limit(
-    Tags.Test,
-    sys.env
-      .get("UNIT_TESTS_PARALLELISM")
-      .map(_.toInt)
-      .getOrElse(Math.max(java.lang.Runtime.getRuntime.availableProcessors - 2, 1))
-  ),
-  Tags.limitAll(
-    sys.env.get("SBT_MAX_PARALLELISM").map(_.toInt).getOrElse(java.lang.Runtime.getRuntime.availableProcessors)
-  ),
-  Tags.limit(Tags.Publish, 1)
 )
 
 // Add dependency resolvers
 resolvers += Resolver.mavenLocal
 resolvers += Resolver.sonatypeRepo("releases")
 
+// Output version to a file
+val outputVersion = taskKey[Unit]("Outputs the version to a file")
+outputVersion := {
+  val versionFile = baseDirectory.value / "version"
+  if (!versionFile.exists()) {
+    IO.touch(versionFile)
+  }
+  IO.write(versionFile, (ThisBuild / version).value)
+}
+
 // Publish settings
 Test / publishArtifact := true
 Compile / packageSrc / publishArtifact := true
-// When doing publishLocal, also publish to the local maven repository.
-publishLocal := (publishLocal dependsOn publishM2).value
+// When doing publishLocal, also publish to the local maven repository and generate the version number file.
+publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)).value
 
 // Dependencies
 libraryDependencies ++= Seq(
@@ -224,22 +151,4 @@ libraryDependencies ++= Seq(
   rawSnapiTruffle
 )
 
-// auto output version to a file on compile
-lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
-
-outputVersion := {
-  val versionFile = baseDirectory.value / "version"
-  if (!versionFile.exists()) {
-    IO.touch(versionFile)
-  }
-  IO.write(versionFile, version.value)
-}
-
-Compile / compile := ((Compile / compile) dependsOn outputVersion).value
-
-//Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.client")
-
-excludeDependencies ++= Seq(
-//  ExclusionRule("org.graalvm.sdk"),
-//  ExclusionRule("org.graalvm.truffle")
-)
+Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.client")

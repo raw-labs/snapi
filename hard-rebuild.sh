@@ -1,3 +1,7 @@
+#!/bin/bash
+
+set -e
+
 cd utils
 rm -rf target/
 sbt clean publishLocal

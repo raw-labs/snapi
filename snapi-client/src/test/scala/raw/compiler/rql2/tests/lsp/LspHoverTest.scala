@@ -72,7 +72,7 @@ trait LspHoverTest extends CompilerTestContext {
 
   test("hover function identifier at definition test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |                                            a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
@@ -127,7 +127,7 @@ trait LspHoverTest extends CompilerTestContext {
 
   test("hover function identifier at usage test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |                                            a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
@@ -141,21 +141,21 @@ trait LspHoverTest extends CompilerTestContext {
 
   test("hover function parameter test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |                                            a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 19))
+    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 20))
     assertResult("lastElement")(name)
     assertResult("int")(tipe)
   }
 
   test("hover function parameter usage test") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)
@@ -169,7 +169,7 @@ trait LspHoverTest extends CompilerTestContext {
 
   test("hover let should return empty response") { _ =>
     val code = """let
-      |buildCollection = lastElement:int -> let
+      |buildCollection = (lastElement:int) -> let
       |                                            a = Collection.Build(1,2,3,lastElement),
       |                                            b = Collection.Build(1,2,3,lastElement),
       |                                            c = Collection.Build(1,2,3,lastElement)

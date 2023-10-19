@@ -41,6 +41,11 @@ import scala.util.control.NonFatal
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
     extends CompilerService {
 
+  private val credentials = CredentialsServiceProvider(maybeClassLoader)
+
+  // Map of users to compiler context.
+  private val compilerContextCaches = new RawConcurrentHashMap[AuthenticatedUser, CompilerContext]
+
   private val engine = {
     val options = new java.util.HashMap[String, String]()
     if (settings.onTrainingWheels) {
@@ -58,11 +63,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     }
     Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
   }
-
-  private val credentials = CredentialsServiceProvider(maybeClassLoader)
-
-  // Map of users to compiler context.
-  private val compilerContextCaches = new RawConcurrentHashMap[AuthenticatedUser, CompilerContext]
 
   private def getCompilerContext(user: AuthenticatedUser): CompilerContext = {
     compilerContextCaches.getOrElseUpdate(user, createCompilerContext(user, "rql2-truffle"))
@@ -794,7 +794,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   override def doStop(): Unit = {
     compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
     credentials.stop()
-    engine.close()
+    engine.close(true)
   }
 
   private def javaValueOf(value: ParamValue) = {

@@ -19,17 +19,7 @@ import scala.collection.JavaConverters._
 
 trait EnvironmentPackageTest extends CompilerTestContext {
 
-  secret(authorizedUser, "my-secret", "my-secret-value")
-
-  test("""Environment.Secret("my-secret")""")(it => it should evaluateTo(""" "my-secret-value" """))
-
   test("""Environment.Secret("my-typo")""")(it => it should runErrorAs("could not find secret my-typo"))
-
-  // checking it doesn't fail if one of the secrets is not found (RD-9041)
-  test("""[Environment.Secret("my-secret"), Environment.Secret("my-typo")]""")(it =>
-    it should evaluateTo("""["my-secret-value", Error.Build("could not find secret my-typo")]
-      |""".stripMargin)
-  )
 
   test("""Environment.Scopes()""")(it => it should evaluateTo("""[]"""))
 

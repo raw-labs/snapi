@@ -10,12 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.regressions
+package raw.compiler.rql2.tests.regressions.credentials
 
-import raw.creds.dropbox.DropboxTestCreds
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.creds.api.CredentialsTestContext
+import raw.creds.dropbox.DropboxTestCreds
 
-trait RD4445Test extends CompilerTestContext with DropboxTestCreds {
+trait RD4445Test extends CompilerTestContext with CredentialsTestContext with DropboxTestCreds {
 
   dropbox(authorizedUser, dropboxToken)
   oauth(authorizedUser, "rawlabs-dropbox", dropboxAccessTokenCredential)

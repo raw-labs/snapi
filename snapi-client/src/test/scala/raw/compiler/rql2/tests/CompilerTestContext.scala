@@ -27,8 +27,6 @@ import raw.client.rql2.truffle.{
 }
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.CompilerServiceTestContext
-import raw.creds.api._
-import raw.creds.mock.MockCredentialsTestContext
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.utils._
 
@@ -44,9 +42,6 @@ trait CompilerTestContext
     with SettingsTestContext
     with TrainingWheelsContext
     with CompilerServiceTestContext
-
-    // Mock credentials
-    with MockCredentialsTestContext
 
     // Simple inferrer
     with LocalInferrerTestContext {
@@ -69,31 +64,10 @@ trait CompilerTestContext
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-
     dataFiles.foreach { case ViewFileContent(content, charset, path) => Files.write(path, content.getBytes(charset)) }
-
-    s3Buckets.foreach { case (user, bucket) => credentials.registerS3Bucket(user, bucket) }
-    rdbmsServers.foreach { case ((user, name), rdbms) => credentials.registerRDBMSServer(user, name, rdbms) }
-    newHttpCreds.foreach { case (user, (name, cred)) => credentials.registerNewHttpCredential(user, name, cred) }
-    dropboxTokens.foreach { case (user, token) => credentials.registerDropboxToken(user, token) }
-    secrets.foreach { case (user, secret) => credentials.registerSecret(user, secret) }
-
   }
 
   override def afterAll(): Unit = {
-    s3Buckets.foreach {
-      case (user, bucket) => withSuppressNonFatalException(credentials.unregisterS3Bucket(user, bucket.name))
-    }
-    rdbmsServers.foreach {
-      case ((user, name), _) => withSuppressNonFatalException(credentials.unregisterRDBMSServer(user, name))
-    }
-    newHttpCreds.foreach {
-      case (user, (name, _)) => withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
-    }
-    dropboxTokens.foreach { case (user, _) => withSuppressNonFatalException(credentials.unregisterDropboxToken(user)) }
-    secrets.foreach {
-      case (user, secret) => withSuppressNonFatalException(credentials.unregisterSecret(user, secret.name))
-    }
     for (f <- dataFiles) {
       deleteTestPath(f.path)
     }
@@ -103,32 +77,6 @@ trait CompilerTestContext
   private case class ViewFileContent(content: String, charset: Charset, path: Path)
 
   private val dataFiles = mutable.ArrayBuffer.empty[ViewFileContent]
-
-  private val newHttpCreds = new mutable.ArrayBuffer[(AuthenticatedUser, (String, NewHttpCredential))]()
-  private val s3Buckets = new mutable.HashSet[(AuthenticatedUser, S3Bucket)]()
-  private val rdbmsServers = new mutable.HashMap[(AuthenticatedUser, String), RelationalDatabaseCredential]()
-  private val dropboxTokens = new mutable.HashMap[AuthenticatedUser, DropboxToken]()
-  private val secrets = new mutable.HashSet[(AuthenticatedUser, Secret)]()
-
-  def rdbms(user: AuthenticatedUser, name: String, db: RelationalDatabaseCredential): Unit = {
-    assert(rdbmsServers.put((user, name), db).isEmpty, "Reusing database name with different server")
-  }
-
-  def s3Bucket(user: AuthenticatedUser, s3Bucket: S3Bucket): Unit = {
-    s3Buckets.add((user, s3Bucket))
-  }
-
-  def secret(user: AuthenticatedUser, name: String, value: String): Unit = {
-    secrets.add((user, Secret(name, value)))
-  }
-
-  def dropbox(user: AuthenticatedUser, dropboxToken: DropboxToken): Unit = {
-    dropboxTokens.put(user, dropboxToken)
-  }
-
-  def oauth(user: AuthenticatedUser, name: String, token: NewHttpCredential): Unit = {
-    newHttpCreds.append((user, (name, token)))
-  }
 
   protected def dataFile(content: String, charset: Charset, path: Path) = {
     dataFiles.append(ViewFileContent(content, charset, path))

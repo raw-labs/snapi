@@ -13,31 +13,13 @@
 package raw.compiler.rql2.tests.builtin
 
 import raw.compiler.SnapiInterpolator
-import raw.creds.dropbox.DropboxTestCreds
 import raw.creds.s3.S3TestCreds
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
 
 import java.nio.file.Path
 
-trait LocationPackageTest
-    extends CompilerTestContext
-    with DropboxTestCreds
-    with LocalLocationsTestContext
-    with S3TestCreds {
-
-  oauth(authorizedUser, "dropbox-refresh-token", dropboxRefreshTokenCredential)
-
-  property("raw.sources.dropbox.clientId", dropboxClientId)
-
-  test("""
-    |String.Read(
-    |    Location.Build(
-    |        "https://api.dropboxapi.com/2/users/get_space_usage",
-    |        http_method = "POST",
-    |        http_auth_cred_name = "dropbox-refresh-token"
-    |    )
-    |)""".stripMargin)(it => it should run)
+trait LocationPackageTest extends CompilerTestContext with S3TestCreds with LocalLocationsTestContext {
 
   test(s"""
     |let
@@ -86,26 +68,6 @@ trait LocationPackageTest
     |in
     |  Collection.Count(data)
     |""".stripMargin)(it => it should evaluateTo("7"))
-
-  // reading a non public s3 bucket passing credentials in the location settings
-  test(s"""let
-    |  data = Csv.InferAndRead(
-    |    Location.Build(
-    |      "s3://${UnitTestPrivateBucket.name}/students.csv",
-    |      s3_region = "${UnitTestPrivateBucket.region.get}",
-    |      s3_access_key = "${UnitTestPrivateBucket.credentials.get.accessKey}",
-    |      s3_secret_key = "${UnitTestPrivateBucket.credentials.get.secretKey}"
-    |    )
-    |  )
-    |in
-    |  Collection.Count(data)
-    |""".stripMargin)(it => it should evaluateTo("7"))
-
-  s3Bucket(authorizedUser, UnitTestPrivateBucket2)
-
-  // using a private bucket registered in the credentials server
-  test(s"""String.Read(Location.Build("s3://${UnitTestPrivateBucket2.name}/file1.csv"))
-    |""".stripMargin)(it => it should evaluateTo(""" "foobar" """))
 
   test(s"""Location.Ls("s3://${UnitTestPublicBucket.name}/publications/")""") { it =>
     it should evaluateTo("""Collection.Build(

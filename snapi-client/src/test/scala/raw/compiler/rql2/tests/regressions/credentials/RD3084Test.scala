@@ -10,12 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests.regressions
+package raw.compiler.rql2.tests.regressions.credentials
 
-import raw.creds.jdbc.RDBMSTestCreds
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.creds.api.CredentialsTestContext
+import raw.creds.jdbc.RDBMSTestCreds
 
-trait RD3084Test extends CompilerTestContext with RDBMSTestCreds {
+trait RD3084Test extends CompilerTestContext with CredentialsTestContext with RDBMSTestCreds {
 
   rdbms(authorizedUser, "mysql-test", mysqlCreds)
   rdbms(authorizedUser, "postgres-test", pgsqlCreds)
