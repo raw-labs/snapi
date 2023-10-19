@@ -1,12 +1,45 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.client.rql2.truffle
 
 import com.fasterxml.jackson.core.JsonEncoding
 import com.fasterxml.jackson.core.JsonParser
 import org.graalvm.polyglot.Value
-import raw.compiler.rql2.source.{Rql2BinaryType, Rql2BoolType, Rql2ByteType, Rql2DateType, Rql2DecimalType, Rql2DoubleType, Rql2FloatType, Rql2IntType, Rql2IntervalType, Rql2IsNullableTypeProperty, Rql2IsTryableTypeProperty, Rql2IterableType, Rql2ListType, Rql2LongType, Rql2RecordType, Rql2ShortType, Rql2StringType, Rql2TimeType, Rql2TimestampType, Rql2TypeProperty, Rql2TypeWithProperties}
+import raw.compiler.rql2.source.{
+  Rql2BinaryType,
+  Rql2BoolType,
+  Rql2ByteType,
+  Rql2DateType,
+  Rql2DecimalType,
+  Rql2DoubleType,
+  Rql2FloatType,
+  Rql2IntType,
+  Rql2IntervalType,
+  Rql2IsNullableTypeProperty,
+  Rql2IsTryableTypeProperty,
+  Rql2IterableType,
+  Rql2ListType,
+  Rql2LongType,
+  Rql2RecordType,
+  Rql2ShortType,
+  Rql2StringType,
+  Rql2TimeType,
+  Rql2TimestampType,
+  Rql2TypeProperty,
+  Rql2TypeWithProperties
+}
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
-
 
 import java.io.IOException
 import java.io.OutputStream
@@ -17,14 +50,14 @@ import scala.util.control.NonFatal
 
 class RawCsvWriter(os: OutputStream, lineSeparator: String) {
 
-  private final val gen = try {
-    val factory = new CsvFactory
-    factory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE) // Don't close file descriptors automatically
-    factory.createGenerator(os, JsonEncoding.UTF8)
-  }
-  catch {
-    case e: IOException => throw new RuntimeException(e)
-  }
+  final private val gen =
+    try {
+      val factory = new CsvFactory
+      factory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE) // Don't close file descriptors automatically
+      factory.createGenerator(os, JsonEncoding.UTF8)
+    } catch {
+      case e: IOException => throw new RuntimeException(e)
+    }
 
   private val schemaBuilder = CsvSchema.builder()
   schemaBuilder.setColumnSeparator(',')

@@ -34,7 +34,7 @@ import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, withSuppressNonFatalException}
+import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
