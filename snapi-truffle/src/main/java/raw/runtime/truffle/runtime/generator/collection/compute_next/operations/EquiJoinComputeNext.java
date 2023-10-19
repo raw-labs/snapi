@@ -38,6 +38,7 @@ import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class EquiJoinComputeNext {
+  private final GeneratorLibrary generators = GeneratorLibrary.getUncached();
   private final OperatorNodes.CompareNode compare =
       OperatorNodesFactory.CompareNodeGen.getUncached();
   protected final Object leftIterable, rightIterable;
@@ -85,8 +86,7 @@ public class EquiJoinComputeNext {
       @CachedLibrary("this.leftIterable") IterableLibrary leftIterables,
       @CachedLibrary("this.rightIterable") IterableLibrary rightIterables,
       @CachedLibrary("this.leftKeyF") InteropLibrary leftKeyFLib,
-      @CachedLibrary("this.rightKeyF") InteropLibrary rightKeyFLib,
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+      @CachedLibrary("this.rightKeyF") InteropLibrary rightKeyFLib) {
     // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
     OffHeapEquiJoinGroupByKey leftMap =
         new OffHeapEquiJoinGroupByKey(this::compareKey, keyType, leftRowType, language, context);
@@ -128,7 +128,7 @@ public class EquiJoinComputeNext {
 
   @ExportMessage
   void close(
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "6") GeneratorLibrary generators) {
     if (leftMapGenerator != null) {
       generators.close(leftMapGenerator);
       leftMapGenerator = null;
@@ -146,7 +146,7 @@ public class EquiJoinComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators,
+      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "6") GeneratorLibrary generators,
       @CachedLibrary("this.mkJoinedRecord") InteropLibrary interops) {
 
     assert (leftMapGenerator != null);

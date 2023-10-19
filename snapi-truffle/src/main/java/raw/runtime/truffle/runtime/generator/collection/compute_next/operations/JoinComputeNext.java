@@ -66,8 +66,9 @@ public class JoinComputeNext {
   private final InteropLibrary interop = InteropLibrary.getFactory().getUncached();
 
   TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTriablePredicateNode =
-      TryableNullableNodesFactory.HandleOptionTryablePredicateNodeGen.create();
+      TryableNullableNodesFactory.HandleOptionTryablePredicateNodeGen.getUncached();
 
+  @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public JoinComputeNext(
       Object leftIterable,
       Object rightIterable,
