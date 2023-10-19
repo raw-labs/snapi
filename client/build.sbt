@@ -109,7 +109,7 @@ Test / javaOptions ++= Seq(
 //  "-ea",
   // Limit overall memory and force crashing hard and early.
   // Useful for debugging memleaks.
-  "-Xmx4G",
+  "-Xmx8G",
   "-XX:+CrashOnOutOfMemoryError"
 )
 
