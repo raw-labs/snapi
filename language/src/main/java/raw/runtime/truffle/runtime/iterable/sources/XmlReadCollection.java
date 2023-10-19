@@ -12,12 +12,12 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
@@ -31,7 +31,7 @@ import raw.sources.api.SourceContext;
 public class XmlReadCollection implements TruffleObject {
 
   private final LocationObject locationObject;
-  private final DirectCallNode parseNextRootNode;
+  private final RootCallTarget parseNextRootCallTarget;
   private RawTruffleXmlParserSettings settings;
   private final SourceContext context;
 
@@ -41,10 +41,10 @@ public class XmlReadCollection implements TruffleObject {
       LocationObject locationObject,
       String encoding,
       SourceContext context,
-      DirectCallNode parseNextRootNode,
+      RootCallTarget parseNextRootCallTarget,
       RawTruffleXmlParserSettings settings) {
     this.locationObject = locationObject;
-    this.parseNextRootNode = parseNextRootNode;
+    this.parseNextRootCallTarget = parseNextRootCallTarget;
     this.settings = settings;
     this.context = context;
     this.encoding = encoding;
@@ -58,7 +58,8 @@ public class XmlReadCollection implements TruffleObject {
   @ExportMessage
   Object getGenerator() {
     return new CollectionAbstractGenerator(
-        new XmlReadComputeNext(locationObject, encoding, context, parseNextRootNode, settings));
+        new XmlReadComputeNext(
+            locationObject, encoding, context, parseNextRootCallTarget, settings));
   }
 
   // InteropLibrary: Iterable

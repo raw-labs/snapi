@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection.compute_next.operations
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -93,7 +94,7 @@ public class JoinComputeNext {
   @CompilerDirectives.TruffleBoundary
   void init(
       @CachedLibrary(limit = "5") IterableLibrary iterables,
-      @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+      @Cached.Shared("gen") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
     // initialize left
     leftGen = iterables.getGenerator(leftIterable);
     generators.init(leftGen);
@@ -120,7 +121,7 @@ public class JoinComputeNext {
   }
 
   @ExportMessage
-  void close(@CachedLibrary(limit = "5") GeneratorLibrary generators) {
+  void close(@Cached.Shared("gen") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
     generators.close(leftGen);
     if (kryoRight != null) kryoRight.close();
   }

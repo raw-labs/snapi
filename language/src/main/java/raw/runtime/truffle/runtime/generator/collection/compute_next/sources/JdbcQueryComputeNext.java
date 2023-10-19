@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
+import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -27,7 +29,7 @@ public class JdbcQueryComputeNext {
 
   private final LocationObject dbLocation;
   private final String query;
-  private final DirectCallNode rowParser;
+  protected final RootCallTarget rowParserCallTarget;
   private final SourceContext context;
 
   private JdbcQuery rs = null;
@@ -37,12 +39,12 @@ public class JdbcQueryComputeNext {
       LocationObject dbLocation,
       String query,
       SourceContext context,
-      DirectCallNode rowParser,
+      RootCallTarget rowParserCallTarget,
       JdbcExceptionHandler exceptionHandler) {
     this.context = context;
     this.dbLocation = dbLocation;
     this.query = query;
-    this.rowParser = rowParser;
+    this.rowParserCallTarget = rowParserCallTarget;
     this.exceptionHandler = exceptionHandler;
   }
 
@@ -65,7 +67,10 @@ public class JdbcQueryComputeNext {
   }
 
   @ExportMessage
-  Object computeNext() {
+  Object computeNext(
+      @Cached(value = "this.rowParserCallTarget", allowUncached = true, neverDefault = true)
+          RootCallTarget cachedTarget,
+      @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
     boolean ok = rs.next();
     if (ok) {
       return rowParser.call(rs);

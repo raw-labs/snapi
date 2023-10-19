@@ -53,8 +53,6 @@ public class EquiJoinComputeNext {
   private Object leftKey = null, rightKey = null;
   private Object[] leftRows = null, rightRows = null;
 
-  //  private InteropLibrary interop = InteropLibrary.getFactory().getUncached();
-
   private int compareKey(Object key1, Object key2) {
     return compare.execute(key1, key2);
   }

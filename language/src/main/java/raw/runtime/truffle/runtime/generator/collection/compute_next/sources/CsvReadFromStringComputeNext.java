@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -32,12 +33,12 @@ public class CsvReadFromStringComputeNext {
 
   private final RawTruffleCharStream stream;
   private RawTruffleCsvParser parser;
-  private final DirectCallNode rowParser;
+  protected final RootCallTarget rowParserCallTarget;
   private final RawTruffleCsvParserSettings settings;
 
   public CsvReadFromStringComputeNext(
-      String str, DirectCallNode rowParser, RawTruffleCsvParserSettings settings) {
-    this.rowParser = rowParser;
+      String str, RootCallTarget rowParserCallTarget, RawTruffleCsvParserSettings settings) {
+    this.rowParserCallTarget = rowParserCallTarget;
     this.settings = settings;
     this.stream = new RawTruffleStringCharStream(str);
   }
@@ -75,7 +76,10 @@ public class CsvReadFromStringComputeNext {
   }
 
   @ExportMessage
-  Object computeNext() {
+  Object computeNext(
+      @Cached(value = "this.rowParserCallTarget", allowUncached = true, neverDefault = true)
+          RootCallTarget cachedTarget,
+      @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
     if (parser.done()) {
       throw new BreakException();
     }
