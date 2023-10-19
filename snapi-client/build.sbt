@@ -56,8 +56,10 @@ headerSources / excludeFilter := HiddenFileFilter
 scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
-  "-source", "21",
-  "-target", "21"
+  "-source",
+  "21",
+  "-target",
+  "21"
 )
 
 scalacOptions ++= Seq(
@@ -126,11 +128,21 @@ Test / javaOptions ++= Seq(
 resolvers += Resolver.mavenLocal
 resolvers += Resolver.sonatypeRepo("releases")
 
+// Output version to a file
+val outputVersion = taskKey[Unit]("Outputs the version to a file")
+outputVersion := {
+  val versionFile = baseDirectory.value / "version"
+  if (!versionFile.exists()) {
+    IO.touch(versionFile)
+  }
+  IO.write(versionFile, (ThisBuild / version).value)
+}
+
 // Publish settings
 Test / publishArtifact := true
 Compile / packageSrc / publishArtifact := true
-// When doing publishLocal, also publish to the local maven repository.
-publishLocal := (publishLocal dependsOn publishM2).value
+// When doing publishLocal, also publish to the local maven repository and generate the version number file.
+publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)).value
 
 // Dependencies
 libraryDependencies ++= Seq(
@@ -138,18 +150,5 @@ libraryDependencies ++= Seq(
   rawSnapiFrontend % "compile->compile;test->test",
   rawSnapiTruffle
 )
-
-// auto output version to a file on compile
-lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
-
-outputVersion := {
-  val versionFile = baseDirectory.value / "version"
-  if (!versionFile.exists()) {
-    IO.touch(versionFile)
-  }
-  IO.write(versionFile, version.value)
-}
-
-Compile / compile := ((Compile / compile) dependsOn outputVersion).value
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.client")

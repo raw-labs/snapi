@@ -169,8 +169,14 @@ libraryDependencies ++= Seq(
   scalaCompiler ++
   truffleCompiler
 
-// auto output version to a file on compile
-lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
+// Output version to a file on compile
+val initializeVersion = taskKey[Unit]("Initialize the version number early")
+
+initializeVersion := {
+  println("Initializing version" + version.value)
+}
+
+val outputVersion = taskKey[Unit]("Outputs the version to a file")
 
 outputVersion := {
   val versionFile = baseDirectory.value / "version"

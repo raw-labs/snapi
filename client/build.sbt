@@ -117,26 +117,23 @@ Test / javaOptions ++= Seq(
 resolvers += Resolver.mavenLocal
 resolvers += Resolver.sonatypeRepo("releases")
 
-// Publish settings
-Test / publishArtifact := true
-Compile / packageSrc / publishArtifact := true
-// When doing publishLocal, also publish to the local maven repository.
-publishLocal := (publishLocal dependsOn publishM2).value
-
-// Dependencies
-libraryDependencies ++= Seq(rawUtils % "compile->compile;test->test", trufflePolyglot)
-
-// auto output version to a file on compile
-lazy val outputVersion = taskKey[Unit]("Outputs the version to a file")
-
+// Output version to a file
+val outputVersion = taskKey[Unit]("Outputs the version to a file")
 outputVersion := {
   val versionFile = baseDirectory.value / "version"
   if (!versionFile.exists()) {
     IO.touch(versionFile)
   }
-  IO.write(versionFile, version.value)
+  IO.write(versionFile, (ThisBuild / version).value)
 }
 
-Compile / compile := ((Compile / compile) dependsOn outputVersion).value
+// Publish settings
+Test / publishArtifact := true
+Compile / packageSrc / publishArtifact := true
+// When doing publishLocal, also publish to the local maven repository and generate the version number file.
+publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)).value
+
+// Dependencies
+libraryDependencies ++= Seq(rawUtils % "compile->compile;test->test", trufflePolyglot)
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.client")
