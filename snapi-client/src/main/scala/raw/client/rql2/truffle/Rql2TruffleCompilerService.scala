@@ -38,26 +38,38 @@ import java.io.{IOException, OutputStream}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
+object TruffleEngine {
+
+  private val instanceLock = new Object
+  private var engine: Engine = _
+
+  def getEngine(implicit settings: RawSettings): Engine = {
+    instanceLock.synchronized {
+      if (engine == null) {
+        val options = new java.util.HashMap[String, String]()
+        if (settings.onTrainingWheels) {
+          options.put("engine.CompileImmediately", "true")
+          options.put("engine.TraceCompilation", "true")
+          //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
+          //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
+          //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
+          //  "-Dpolyglotimpl.BackgroundCompilation=false",
+          //  "-Dpolyglotimpl.TraceCompilationDetails=true",
+          //  "-Dpolyglotimpl.TraceInlining=true"
+          //  "-Dgraal.Dump=Truffle:2",
+          //  "-Dgraal.DumpPath=/tmp/graal_dumps",
+          //  "-Dgraal.PrintGraph=Network",
+        }
+        engine = Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+      }
+      engine
+    }
+  }
+
+}
+
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
     extends CompilerService {
-
-  private val engine = {
-    val options = new java.util.HashMap[String, String]()
-    if (settings.onTrainingWheels) {
-      options.put("engine.CompileImmediately", "true")
-      options.put("engine.TraceCompilation", "true")
-      //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
-      //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
-      //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
-      //  "-Dpolyglotimpl.BackgroundCompilation=false",
-      //  "-Dpolyglotimpl.TraceCompilationDetails=true",
-      //  "-Dpolyglotimpl.TraceInlining=true"
-      //  "-Dgraal.Dump=Truffle:2",
-      //  "-Dgraal.DumpPath=/tmp/graal_dumps",
-      //  "-Dgraal.PrintGraph=Network",
-    }
-    Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
-  }
 
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
@@ -794,7 +806,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   override def doStop(): Unit = {
     compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
     credentials.stop()
-    engine.close(true)
   }
 
   private def javaValueOf(value: ParamValue) = {
@@ -823,7 +834,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
       .newBuilder("rql", "python")
-      .engine(engine)
+      .engine(TruffleEngine.getEngine)
       .environment("RAW_SETTINGS", settings.renderAsString)
       .environment("RAW_USER", environment.user.uid.toString)
       .environment("RAW_TRACE_ID", environment.user.uid.toString)
