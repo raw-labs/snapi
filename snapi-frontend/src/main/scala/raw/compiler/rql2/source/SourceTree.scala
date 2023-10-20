@@ -37,6 +37,7 @@ trait SourceProgram extends SourceNode with BaseProgram {
 }
 
 final case class SourceProgramParam(idn: CommonIdnNode, t: Type) extends CommonNode
+
 /**
  * Qualifiers
  */

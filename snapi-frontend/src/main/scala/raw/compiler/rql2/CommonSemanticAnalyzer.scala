@@ -23,8 +23,9 @@ import raw.compiler.rql2.source._
 
 import scala.collection.mutable
 
-abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(implicit protected val programContext: ProgramContext)
-    extends base.SemanticAnalyzer[SourceNode, SourceProgram, Exp](tree) {
+abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
+    implicit protected val programContext: ProgramContext
+) extends base.SemanticAnalyzer[SourceNode, SourceProgram, Exp](tree) {
 
   override protected def errorDef: SourceNode ==> Seq[BaseError] = {
     super.errorDef orElse {

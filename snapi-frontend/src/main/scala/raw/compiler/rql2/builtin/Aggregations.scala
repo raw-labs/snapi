@@ -15,7 +15,16 @@ package raw.compiler.rql2.builtin
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.api.{EntryExtension, EntryExtensionHelper}
-import raw.compiler.rql2.source.{HasTypeProperties, IsNullable, OneOfType, Rql2AttrType, Rql2DecimalType, Rql2IsNullableTypeProperty, Rql2LongType, Rql2RecordType}
+import raw.compiler.rql2.source.{
+  HasTypeProperties,
+  IsNullable,
+  OneOfType,
+  Rql2AttrType,
+  Rql2DecimalType,
+  Rql2IsNullableTypeProperty,
+  Rql2LongType,
+  Rql2RecordType
+}
 
 abstract class Aggregation extends EntryExtensionHelper {
 

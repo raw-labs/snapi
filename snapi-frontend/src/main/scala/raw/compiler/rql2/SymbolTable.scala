@@ -26,7 +26,6 @@ final class ProgramParamEntity(val p: SourceProgramParam) extends Entity
  */
 final class BindEntity(val b: Bind) extends Entity
 
-
 trait SymbolTable extends base.SymbolTable
 
 object SymbolTable extends SymbolTable

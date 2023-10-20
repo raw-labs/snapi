@@ -87,16 +87,15 @@ abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest]
           .map { e =>
             val t = analyzer.tipe(e)
             s"""Expression: $e
-               |Type: $t""".stripMargin
+              |Type: $t""".stripMargin
           }
           .mkString("\n")
-        throw new AssertionError(
-          s"""Error types found on tree that has no errors reported!
-             |This is the full (broken) tree:
-             |$pretty
-             |This is the expression(s) that typed with an error type:
-             |(just above is a pretty-printed version of the full (broken) tree):
-             |$msg""".stripMargin)
+        throw new AssertionError(s"""Error types found on tree that has no errors reported!
+          |This is the full (broken) tree:
+          |$pretty
+          |This is the expression(s) that typed with an error type:
+          |(just above is a pretty-printed version of the full (broken) tree):
+          |$msg""".stripMargin)
         // msb: The following lines are commented but can be useful to uncomment during debugging:
         //      I found that AssertionError was sometimes hard to debug: so I "let it go" by commenting out the assert
         //      and then the plan would fail at some later point (by "chance") and we'd have the pretty printed errors

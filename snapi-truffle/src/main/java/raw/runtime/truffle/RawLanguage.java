@@ -25,8 +25,8 @@ import raw.client.api.*;
 import raw.compiler.base.CompilerContext;
 import raw.compiler.base.InitPhase;
 import raw.compiler.base.Phase;
-import raw.compiler.rql2.source.SourceProgram;
 import raw.compiler.rql2.*;
+import raw.compiler.rql2.source.SourceProgram;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
@@ -94,7 +94,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     CompilerContext compilerContext =
         new CompilerContext(
             "rql2-truffle",
-            context.getUser(), context.getInferrer(),
+            context.getUser(),
+            context.getInferrer(),
             context.getSourceContext(),
             new Some<>(classLoader),
             rawSettings);

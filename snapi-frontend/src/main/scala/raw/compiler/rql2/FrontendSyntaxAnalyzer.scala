@@ -105,7 +105,6 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val idnUse: Parser[IdnUse] = ident ^^ { idn => IdnUse(idn) }
 
-
   ///////////////////////////////////////////////////////////////////////////
   // Program vs Package
   ///////////////////////////////////////////////////////////////////////////
@@ -236,7 +235,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   // Expressions
   ///////////////////////////////////////////////////////////////////////////
 
-  final  protected lazy val exp: PackratParser[Exp] = exp1
+  final protected lazy val exp: PackratParser[Exp] = exp1
 
   final private lazy val exp1: PackratParser[Exp] = exp1 ~ orOp ~ exp2 ^^ {
     case e1 ~ op ~ e2 => BinaryExp(op, e1, e2)
@@ -295,7 +294,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val funAppArg: Parser[FunAppArg] = opt(ident <~ "=") ~ exp ^^ { case i ~ e => FunAppArg(e, i) }
 
-   protected def baseExp: PackratParser[Exp] = baseExpAttr
+  protected def baseExp: PackratParser[Exp] = baseExpAttr
 
   final private lazy val baseExpAttr: PackratParser[Exp] = {
     let |
