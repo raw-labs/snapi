@@ -40,6 +40,7 @@ import raw.compiler.rql2.source.{
 }
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
+import raw.utils.RecordFieldsNaming
 
 import java.io.IOException
 import java.io.OutputStream
@@ -120,10 +121,14 @@ class RawCsvWriter(os: OutputStream, lineSeparator: String) {
   }
 
   private def writeColumns(value: Value, recordType: Rql2RecordType): Unit = {
+    val keys = new java.util.Vector[String]
+    recordType.atts.foreach(a => keys.add(a.idn))
+    val distincted = RecordFieldsNaming.makeDistinct(keys)
     gen.writeStartArray()
-    for (field <- recordType.atts) {
-      val v = value.getMember(field.idn)
-      writeValue(v, field.tipe.asInstanceOf[Rql2TypeWithProperties])
+    for (i <- 0 until distincted.size()) {
+      val field = distincted.get(i)
+      val v = value.getMember(field)
+      writeValue(v, recordType.atts(i).tipe.asInstanceOf[Rql2TypeWithProperties])
     }
     gen.writeEndArray()
   }

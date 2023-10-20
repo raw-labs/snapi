@@ -15,7 +15,7 @@ package raw.client.rql2.truffle
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import org.graalvm.polyglot.Value
 import raw.compiler.rql2.source._
-
+import raw.utils.RecordFieldsNaming
 import java.io.{IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.util.Base64
@@ -103,10 +103,14 @@ class RawJsonWriter(os: OutputStream) {
         gen.writeString(s.toString())
       case Rql2RecordType(atts, _) =>
         gen.writeStartObject()
-        for (field <- atts) {
-          gen.writeFieldName(field.idn)
-          val a = v.getMember(field.idn)
-          writeValue(a, field.tipe.asInstanceOf[Rql2TypeWithProperties])
+        val keys = new java.util.Vector[String]
+        atts.foreach(a => keys.add(a.idn))
+        val distincted = RecordFieldsNaming.makeDistinct(keys)
+        for (i <- 0 until distincted.size()) {
+          val field = distincted.get(i)
+          gen.writeFieldName(field)
+          val a = v.getMember(field)
+          writeValue(a, atts(i).tipe.asInstanceOf[Rql2TypeWithProperties])
         }
         gen.writeEndObject()
       case Rql2IterableType(innerType, _) =>
