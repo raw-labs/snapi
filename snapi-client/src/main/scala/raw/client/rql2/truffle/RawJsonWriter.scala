@@ -125,6 +125,10 @@ class RawJsonWriter(os: OutputStream) {
           writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties])
         }
         gen.writeEndArray()
+      case Rql2OrType(tipes, _) =>
+        val index = v.invokeMember("getIndex").asInt()
+        val actualValue = v.invokeMember("getValue")
+        writeValue(actualValue, tipes(index).asInstanceOf[Rql2TypeWithProperties])
 
       case _ => throw new RuntimeException("Unsupported type: " + t)
     }

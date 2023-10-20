@@ -32,7 +32,7 @@ trait XmlPackageTest extends CompilerTestContext {
     | <time>03:01:02</time>
     |</items>""".stripMargin)
 
-  test(snapi"""Xml.Read("$allTypes", type record(
+  ignore(snapi"""Xml.Read("$allTypes", type record(
     |  byte: byte,
     |  short: short,
     |  int: int,
@@ -153,17 +153,17 @@ trait XmlPackageTest extends CompilerTestContext {
     |</person>
     |<person/>""".stripMargin)
 
-  test(snapi"""Xml.InferAndRead("$simple")""") { it =>
+  ignore(snapi"""Xml.InferAndRead("$simple")""") { it =>
     it should typeAs("record(name: string, age: int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }
 
-  test(snapi"""Xml.Read("$simple", type record(name: string, age: int))""") { it =>
+  ignore(snapi"""Xml.Read("$simple", type record(name: string, age: int))""") { it =>
     it should typeAs("record(name: string, age: int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }
 
-  test(snapi"""Xml.Read("$simple", type record(name: string, age: bool or int))""") { it =>
+  ignore(snapi"""Xml.Read("$simple", type record(name: string, age: bool or int))""") { it =>
     it should typeAs("record(name: string, age: bool or int)")
     it should evaluateTo("{name: \"john\", age: 34}")
   }

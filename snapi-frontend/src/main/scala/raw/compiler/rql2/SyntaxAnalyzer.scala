@@ -15,6 +15,7 @@ package raw.compiler.rql2
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.source.Type
 import raw.compiler.common.source.Exp
+import raw.compiler.rql2.FrontendSyntaxAnalyzerTokens.tokOr
 import raw.compiler.rql2.source._
 
 /**
@@ -49,5 +50,16 @@ class SyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(positi
 
   final private lazy val packageIdnExp: Parser[PackageIdnExp] =
     "\\$package\\b".r ~> "(" ~> stringLit <~ ")" ^^ PackageIdnExp
+
+  final override lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> tipe2) ~ ("(" ~> typeProps <~ ")") ^^ {
+    case t ~ r ~ props => FunType(Vector(t), Vector.empty, r, props)
+  } |
+    tipe2
+
+  final override lazy val tipe2: PackratParser[Type] = tipe2 ~ (tokOr ~> baseType) ~ ("(" ~> typeProps <~ ")") ^^ {
+    case t1 ~ t2 ~ props => Rql2OrType(t1, t2, props)
+  } |
+    baseType
+
 
 }

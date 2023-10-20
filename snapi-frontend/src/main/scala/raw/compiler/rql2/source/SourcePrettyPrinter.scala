@@ -23,7 +23,7 @@ import raw.utils._
 import scala.collection.mutable
 
 trait SourcePrettyPrinter
-    extends common.source.SourcePrettyPrinter
+  extends common.source.SourcePrettyPrinter
     with Keywords
     with Rql2TypeUtils
     with ParenPrettyPrinter {
@@ -40,37 +40,13 @@ trait SourcePrettyPrinter
   }
 
   protected def rql2TypeWithProperties(t: Rql2TypeWithProperties): Doc = {
-    val d: Doc = t match {
-      case _: Rql2BoolType => "bool"
-      case _: Rql2StringType => "string"
-      case _: Rql2LocationType => "location"
-      case _: Rql2BinaryType => "binary"
-      case _: Rql2ByteType => "byte"
-      case _: Rql2ShortType => "short"
-      case _: Rql2IntType => "int"
-      case _: Rql2LongType => "long"
-      case _: Rql2FloatType => "float"
-      case _: Rql2DoubleType => "double"
-      case _: Rql2DecimalType => "decimal"
-      case _: Rql2DateType => "date"
-      case _: Rql2TimeType => "time"
-      case _: Rql2IntervalType => "interval"
-      case _: Rql2TimestampType => "timestamp"
-      case Rql2RecordType(atts, _) => method("record", atts.map(att => ident(att.idn) <> ":" <+> att.tipe): _*)
-      case Rql2IterableType(innerType, _) => innerType match {
-          case _: AnythingType => "collection"
-          case _ => method("collection", innerType)
-        }
-      case Rql2ListType(innerType, _) => innerType match {
-          case _: AnythingType => "list"
-          case _ => method("list", innerType)
-        }
+    t match {
       case Rql2OrType(ts, props) =>
         val d = folddoc(ts.map(toDoc), _ <+> "or" <+> _)
         if (internal && props.nonEmpty) {
           // Wrap in parenthesis to disambiguate the type property annotations.
           // Refer to the parser for details.
-          parens(d)
+          parens(showProperties(t, d, parenthesis=true))
         } else {
           d
         }
@@ -80,23 +56,53 @@ trait SourcePrettyPrinter
         if (internal && props.nonEmpty) {
           // Wrap in parenthesis to disambiguate the type property annotations.
           // Refer to the parser for details.
-          parens(d)
+          parens(showProperties(t, d, parenthesis=true))
         } else {
           d
         }
-      case _: Rql2UndefinedType => "undefined"
+      case other => val d: Doc = other match {
+        case _: Rql2BoolType => "bool"
+        case _: Rql2StringType => "string"
+        case _: Rql2LocationType => "location"
+        case _: Rql2BinaryType => "binary"
+        case _: Rql2ByteType => "byte"
+        case _: Rql2ShortType => "short"
+        case _: Rql2IntType => "int"
+        case _: Rql2LongType => "long"
+        case _: Rql2FloatType => "float"
+        case _: Rql2DoubleType => "double"
+        case _: Rql2DecimalType => "decimal"
+        case _: Rql2DateType => "date"
+        case _: Rql2TimeType => "time"
+        case _: Rql2IntervalType => "interval"
+        case _: Rql2TimestampType => "timestamp"
+        case Rql2RecordType(atts, _) => method("record", atts.map(att => ident(att.idn) <> ":" <+> att.tipe): _*)
+        case Rql2IterableType(innerType, _) => innerType match {
+          case _: AnythingType => "collection"
+          case _ => method("collection", innerType)
+        }
+        case Rql2ListType(innerType, _) => innerType match {
+          case _: AnythingType => "list"
+          case _ => method("list", innerType)
+        }
+        case _: Rql2UndefinedType => "undefined"
+      }
+        if (internal) {
+          showProperties(t, d)
+        } else {
+          d
+        }
     }
+  }
 
-    if (internal) {
-      val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
-      val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
-
-      if (isTryable && isNullable) d <+> "@try" <+> "@null"
-      else if (isTryable) d <+> "@try"
-      else if (isNullable) d <+> "@null"
-      else d
-    } else {
-      d
+  private def showProperties(t: Rql2TypeWithProperties, d: Doc, parenthesis: Boolean = false): Doc = {
+    val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
+    val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
+    if (!isTryable && !isNullable) d else {
+      val props: Doc = if (isTryable && isNullable) "@try" <+> "@null"
+      else if (isTryable) "@try"
+      else "@null"
+      if (parenthesis) d<+> parens(props) else d <+> props
     }
   }
 
@@ -138,35 +144,35 @@ trait SourcePrettyPrinter
       "let" <> nest(line <> ssep(stmts.map(toDoc), comma <> line)) <> line <> "in" <> nest(line <> e)
     case TypeExp(t) => "type" <+> t
     case c: Const => c match {
-        case _: NullConst => "null"
-        case nc: NumberConst => nc match {
-            case IntConst(v) => v
-            case LongConst(v) => if (endsWithIgnoreCase(v, 'l')) v else s"${v}L"
-            case FloatConst(v) => if (endsWithIgnoreCase(v, 'f')) v else s"${v}f"
-            case DoubleConst(v) => if (endsWithIgnoreCase(v, 'd')) v else s"${v}d"
-            case DecimalConst(v) => if (endsWithIgnoreCase(v, 'q')) v else s"${v}q"
-            case ShortConst(v) => if (endsWithIgnoreCase(v, 's')) v else s"${v}s"
-            case ByteConst(v) => if (endsWithIgnoreCase(v, 'b')) v else s"${v}b"
-          }
-        case BoolConst(v) => v.toString
-        case StringConst(v) => s""""${descape(v)}""""
-        case TripleQuotedStringConst(v) => s"""\"\"\"$v\"\"\""""
-        case BinaryConst(bytes) => s"""0x${bytes.map("%02x".format(_)).mkString}"""
+      case _: NullConst => "null"
+      case nc: NumberConst => nc match {
+        case IntConst(v) => v
+        case LongConst(v) => if (endsWithIgnoreCase(v, 'l')) v else s"${v}L"
+        case FloatConst(v) => if (endsWithIgnoreCase(v, 'f')) v else s"${v}f"
+        case DoubleConst(v) => if (endsWithIgnoreCase(v, 'd')) v else s"${v}d"
+        case DecimalConst(v) => if (endsWithIgnoreCase(v, 'q')) v else s"${v}q"
+        case ShortConst(v) => if (endsWithIgnoreCase(v, 's')) v else s"${v}s"
+        case ByteConst(v) => if (endsWithIgnoreCase(v, 'b')) v else s"${v}b"
       }
+      case BoolConst(v) => v.toString
+      case StringConst(v) => s""""${descape(v)}""""
+      case TripleQuotedStringConst(v) => s"""\"\"\"$v\"\"\""""
+      case BinaryConst(bytes) => s"""0x${bytes.map("%02x".format(_)).mkString}"""
+    }
     case IfThenElse(e1, e2, e3) => "if" <+> e1 <+> "then" <> nest(line <> e2) <@> "else" <> nest(line <> e3)
     // Here we are using the toParenDoc only for binary and unary expressions
     case exp: UnaryExp => toParenDoc(exp)
     case binExp: BinaryExp => toParenDoc(binExp)
     case fa: FunApp => fa match {
-        // The following must be handled before FunApp.
-        case ListPackageBuilder.Build(es) => brackets(enclosedList(es.map(toDoc).to))
-        case RecordPackageBuilder.Build(as) => braces(enclosedList(as.map(a => ident(a._1) <> ":" <+> toDoc(a._2))))
-        case FunApp(f, as) => method(f, as.map(funAppArg): _*)
-      }
+      // The following must be handled before FunApp.
+      case ListPackageBuilder.Build(es) => brackets(enclosedList(es.map(toDoc).to))
+      case RecordPackageBuilder.Build(as) => braces(enclosedList(as.map(a => ident(a._1) <> ":" <+> toDoc(a._2))))
+      case FunApp(f, as) => method(f, as.map(funAppArg): _*)
+    }
     case FunAbs(FunProto(ps, mr, FunBody(e))) => mr match {
-        case Some(r) => group(parens(enclosedList(ps.map(funParam))) <> ":" <+> r <+> "->" <> nest(line <> e))
-        case None => group(parens(enclosedList(ps.map(funParam))) <+> "->" <> nest(line <> e))
-      }
+      case Some(r) => group(parens(enclosedList(ps.map(funParam))) <> ":" <+> r <+> "->" <> nest(line <> e))
+      case None => group(parens(enclosedList(ps.map(funParam))) <+> "->" <> nest(line <> e))
+    }
     case Proj(e, i) => e <> "." <> ident(i)
     case PackageIdnExp(name) => method("$package", s""""$name"""")
   }
@@ -193,9 +199,9 @@ trait SourcePrettyPrinter
 
   protected def rql2LetDecl(d: LetDecl): Doc = d match {
     case LetBind(e, i, mt) => mt match {
-        case Some(t) => i <> ":" <+> t <+> "=" <+> e
-        case None => i <+> "=" <+> e
-      }
+      case Some(t) => i <> ":" <+> t <+> "=" <+> e
+      case None => i <+> "=" <+> e
+    }
     case LetFun(p, i) => i <> funProto(p)
     case LetFunRec(i, p) => "rec" <+> i <> funProto(p)
   }

@@ -102,12 +102,12 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final override protected lazy val tipe: Parser[Type] = tipe1
 
-  final private lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> tipe2) ~ typeProps ^^ {
+  protected lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> tipe2) ~ typeProps ^^ {
     case t ~ r ~ props => FunType(Vector(t), Vector.empty, r, props)
   } |
     tipe2
 
-  final private lazy val tipe2: PackratParser[Type] = tipe2 ~ (tokOr ~> baseType) ~ typeProps ^^ {
+  protected lazy val tipe2: PackratParser[Type] = tipe2 ~ (tokOr ~> baseType) ~ typeProps ^^ {
     case t1 ~ t2 ~ props => Rql2OrType(t1, t2, props)
   } |
     baseType

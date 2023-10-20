@@ -274,6 +274,15 @@ public final class ObjectOption implements TruffleObject {
   }
 
   @ExportMessage
+  boolean isMemberInvocable(String member) {
+    return interops.isMemberInvocable(value, member);
+  }
+
+  @ExportMessage
+  Object invokeMember(String member, Object[] arguments) throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException, ArityException {
+    return interops.invokeMember(value, member, arguments);
+  }
+  @ExportMessage
   boolean hasIterator() {
     return !isNull() && interops.hasIterator(value);
   }
