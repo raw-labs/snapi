@@ -61,5 +61,4 @@ class SyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(positi
   } |
     baseType
 
-
 }

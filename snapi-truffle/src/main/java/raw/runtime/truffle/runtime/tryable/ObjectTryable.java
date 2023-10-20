@@ -248,7 +248,9 @@ public final class ObjectTryable implements TruffleObject {
   }
 
   @ExportMessage
-  Object invokeMember(String member, Object[] arguments) throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException, ArityException {
+  Object invokeMember(String member, Object[] arguments)
+      throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException,
+          ArityException {
     return interops.invokeMember(successValue, member, arguments);
   }
 
