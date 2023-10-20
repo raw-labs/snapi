@@ -15,6 +15,7 @@ package raw.compiler.rql2.source
 import org.bitbucket.inkytonik.kiama.output._
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
+import raw.compiler.rql2.Rql2TypeUtils.{resetProps, getProps}
 
 sealed trait Rql2Node extends SourceNode
 
@@ -208,10 +209,9 @@ final case class Rql2OrType(tipes: Vector[Type], props: Set[Rql2TypeProperty] = 
 object Rql2OrType {
   def apply(t1: Type, t2: Type, props: Set[Rql2TypeProperty]): Rql2OrType = {
     (t1, t2) match {
-      case (Rql2OrType(tipes1, props1), Rql2OrType(tipes2, props2)) if props == props1 && props == props2 =>
-        Rql2OrType(tipes1 ++ tipes2, props)
-      case (Rql2OrType(tipes1, props1), _) if props == props1 => Rql2OrType(tipes1 :+ t2, props)
-      case (_, Rql2OrType(tipes2, props2)) if props == props2 => Rql2OrType(Vector(t1) ++ tipes2, props)
+      case (Rql2OrType(tipes1, props1), Rql2OrType(tipes2, props2)) => Rql2OrType(tipes1 ++ tipes2, props1 ++ props2 ++ props)
+      case (Rql2OrType(tipes1, props1), t) => Rql2OrType(tipes1 :+ resetProps(t2, Set.empty), props1 ++ getProps(t) ++ props)
+      case (t, Rql2OrType(tipes2, props2))=> Rql2OrType(Vector(resetProps(t1, Set.empty)) ++ tipes2, props2 ++ getProps(t) ++ props)
       case _ => Rql2OrType(Vector(t1, t2), props)
     }
   }
