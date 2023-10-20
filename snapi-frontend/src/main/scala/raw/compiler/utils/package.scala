@@ -10,13 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw
+package raw.compiler
 
 import raw.sources.api.Location
 
 import java.nio.file.Path
 
-package object compiler {
+package object utils {
 
   /**
    * An interpolator for RQL code.

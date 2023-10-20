@@ -13,9 +13,8 @@
 package raw.compiler.rql2.source
 
 import org.bitbucket.inkytonik.kiama.output._
+import raw.compiler.base
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
-import raw.compiler.common
-import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}
 import raw.utils._
@@ -23,10 +22,22 @@ import raw.utils._
 import scala.collection.mutable
 
 trait SourcePrettyPrinter
-    extends common.source.SourcePrettyPrinter
+    extends base.source.SourcePrettyPrinter
     with Keywords
     with Rql2TypeUtils
     with ParenPrettyPrinter {
+
+  protected def args(n: Vector[SourceNode]): Doc = sepArgs(comma, n.map(toDoc): _*)
+
+  protected def idnToDoc(i: CommonIdnNode): Doc = i match {
+    case IdnDef(idn) => ident(idn)
+    case IdnUse(idn) => ident(idn)
+  }
+
+  protected def listOfNodes(es: Vector[BaseNode]): Doc = brackets(ssep(es.map(toDoc), comma))
+
+  protected def listOfTuple2Nodes(es: Vector[(BaseNode, BaseNode)]): Doc =
+    brackets(ssep(es.map(e => parens(e._1 <> comma <> e._2)), comma))
 
   protected def internal: Boolean = false
 
@@ -212,7 +223,6 @@ trait SourcePrettyPrinter
   protected def rql2Node(n: Rql2Node): Doc = n match {
     case e: Rql2Exp => rql2Exp(e)
     case t: Rql2Type => rql2Type(t)
-
     case Rql2Program(methods, me) =>
       val methodsDoc = methods.map { case Rql2Method(p, idn) => idn <> funProto(p) }
       ssep(methodsDoc ++ me.toSeq.map(toDoc), line)
@@ -243,6 +253,7 @@ trait SourcePrettyPrinter
       cleanTs.foreach(t => info += toDoc(t))
       if (info.length == 1) info.head
       else "either" <+> folddoc(info.to, { case (x, y) => x <+> "or" <+> y })
+    case i: CommonIdnNode => idnToDoc(i)
     case n: Rql2Node => rql2Node(n)
     case _ => super.toDoc(n)
   }

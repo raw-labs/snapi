@@ -12,8 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.common.source.{Exp, IdnExp}
-import raw.compiler.rql2.source.{FunApp, FunAppArg, PackageIdnExp, Proj}
+import raw.compiler.rql2.source._
 
 object TryPackageBuilder {
 

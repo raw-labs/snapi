@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2
 
-import raw.compiler.common.source.SourceProgram
+import raw.compiler.rql2.source.SourceProgram
 
 trait PipelinedPhase extends raw.compiler.base.PipelinedPhase[SourceProgram] with source.SourcePrettyPrinter {
 

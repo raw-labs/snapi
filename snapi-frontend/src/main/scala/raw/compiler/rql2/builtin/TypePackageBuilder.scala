@@ -13,7 +13,6 @@
 package raw.compiler.rql2.builtin
 
 import raw.compiler.base.source.Type
-import raw.compiler.common.source.{Exp, IdnExp}
 import raw.compiler.rql2.source._
 
 object TypePackageBuilder {

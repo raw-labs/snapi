@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.offheap
 
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 
 trait OffHeapOrderByTest extends OffHeapDatasets {
 

@@ -20,9 +20,6 @@ import raw.client.api._
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
-import raw.compiler.common
-import raw.compiler.common.ProgramParamEntity
-import raw.compiler.common.source._
 import raw.compiler.rql2.api.{
   Arg,
   EntryExtension,
@@ -456,7 +453,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
 }
 
 class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext: ProgramContext)
-    extends common.SemanticAnalyzer(tree)
+    extends CommonSemanticAnalyzer(tree)
     with ExpectedTypes
     with Rql2TypeUtils {
 

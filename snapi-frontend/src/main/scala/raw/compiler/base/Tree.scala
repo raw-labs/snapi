@@ -13,7 +13,9 @@
 package raw.compiler.base
 
 import org.apache.commons.lang3.StringUtils
+import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import raw.compiler.base.source._
+import raw.compiler.rql2.source.ErrorType
 import raw.utils._
 
 abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](
@@ -69,6 +71,49 @@ abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest]
     }
     r &= checkSemanticAnalyzer()
     r
+  }
+
+  override def isTreeValid: Boolean = {
+    val isValid = super.isTreeValid
+    if (programContext.settings.onTrainingWheels && isValid) {
+      // Check if any ErrorType "accidentally" left in the tree
+      val collectBugs = collectNodes[N, Seq, E] {
+        case e: E if containsErrorType(analyzer.tipe(e)) => e
+      }
+      val bugs = collectBugs(root)
+
+      if (bugs.nonEmpty) {
+        val msg = bugs
+          .map { e =>
+            val t = analyzer.tipe(e)
+            s"""Expression: $e
+               |Type: $t""".stripMargin
+          }
+          .mkString("\n")
+        throw new AssertionError(
+          s"""Error types found on tree that has no errors reported!
+             |This is the full (broken) tree:
+             |$pretty
+             |This is the expression(s) that typed with an error type:
+             |(just above is a pretty-printed version of the full (broken) tree):
+             |$msg""".stripMargin)
+        // msb: The following lines are commented but can be useful to uncomment during debugging:
+        //      I found that AssertionError was sometimes hard to debug: so I "let it go" by commenting out the assert
+        //      and then the plan would fail at some later point (by "chance") and we'd have the pretty printed errors
+        //      to help us out. Those pretty printed errors are not available via this assertion mechanism.
+        //        logger.error(
+        //          s"""Error types found on tree that has no errors reported!
+        //             |$msg""".stripMargin)
+
+      }
+    }
+    isValid
+  }
+
+  private def containsErrorType(t: Type): Boolean = {
+    val check = everywhere(query[Type] { case _: ErrorType => return true })
+    check(t)
+    false
   }
 
 }

@@ -13,11 +13,11 @@
 package raw.compiler.rql2
 
 import raw.client.api.{CompilerParserException, ErrorPosition}
-import raw.compiler.common.source.SourceProgram
+import raw.compiler.rql2.source._
 
 class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, frontend: Boolean = false)(
     implicit programContext: ProgramContext
-) extends raw.compiler.common.TreeWithPositions(originalSource, ensureTree)
+) extends raw.compiler.base.TreeWithPositions[SourceNode, SourceProgram, Exp](originalSource, ensureTree)
     with source.SourcePrettyPrinter
     with errors.ErrorsPrettyPrinter {
 

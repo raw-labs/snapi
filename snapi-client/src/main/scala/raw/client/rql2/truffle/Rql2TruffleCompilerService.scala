@@ -22,12 +22,10 @@ import raw.runtime._
 import raw.compiler.base
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.base.source.{BaseNode, Type}
-import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
 import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
 import raw.compiler.rql2.source._
-import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
@@ -76,7 +74,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     val inferrer = InferrerServiceProvider(maybeClassLoader)
 
     // Initialize compiler context
-    new Scala2CompilerContext(language, user, sourceContext, inferrer, maybeClassLoader, null)
+    new CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader)
   }
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {

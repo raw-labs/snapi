@@ -12,7 +12,6 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.common.source.Exp
 import raw.compiler.rql2.source._
 
 object BinaryPackageBuilder {

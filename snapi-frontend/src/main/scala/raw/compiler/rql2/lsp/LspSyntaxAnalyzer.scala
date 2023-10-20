@@ -14,7 +14,6 @@ package raw.compiler.rql2.lsp
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.common.source.{ErrorExp, ErrorType, Exp}
 import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ParsedNamedAttribute, ParsedUnnamedAttribute}
 import raw.compiler.rql2.FrontendSyntaxAnalyzerTokens._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}

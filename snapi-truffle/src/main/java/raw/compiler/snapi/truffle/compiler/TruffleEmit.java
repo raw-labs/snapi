@@ -17,8 +17,8 @@ package raw.compiler.snapi.truffle.compiler;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
 import raw.compiler.base.source.Type;
-import raw.compiler.common.source.Exp;
-import raw.compiler.common.source.SourceProgram;
+import raw.compiler.rql2.source.Exp;
+import raw.compiler.rql2.source.SourceProgram;
 import raw.compiler.rql2.ProgramContext;
 import raw.compiler.rql2.Tree;
 //import raw.compiler.rql2.builtin.BinaryPackage;
@@ -56,7 +56,7 @@ public class TruffleEmit {
     Tree tree = new Tree(program, true, ctx);
     SnapiTruffleEmitter emitter = new SnapiTruffleEmitter(tree, language, ctx);
     Rql2Program prog = (Rql2Program) tree.root();
-    Type dataType = tree.analyzer().tipe(prog.me().get());
+//    Type dataType = tree.analyzer().tipe(prog.me().get());
 //    String outputFormat =
 //        ctx.runtimeContext()
 //            .environment()

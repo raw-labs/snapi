@@ -18,7 +18,6 @@ import raw.client.api.CompilerException
 import raw.compiler.base.Phase
 import raw.compiler.base.errors.BaseError
 import raw.compiler.base.source.Type
-import raw.compiler.common.source.SourceProgram
 import raw.compiler.rql2.api.SugarEntryExtension
 import raw.compiler.rql2.source._
 

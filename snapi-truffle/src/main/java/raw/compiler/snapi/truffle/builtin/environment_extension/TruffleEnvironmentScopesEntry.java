@@ -14,7 +14,7 @@ package raw.compiler.snapi.truffle.builtin.environment_extension;
 
 import java.util.List;
 import raw.compiler.base.source.Type;
-import raw.compiler.common.source.Exp;
+import raw.compiler.rql2.source.Exp;
 import raw.compiler.rql2.builtin.EnvironmentScopesEntry;
 import raw.compiler.snapi.truffle.TruffleShortEntryExtension;
 import raw.runtime.truffle.ExpressionNode;

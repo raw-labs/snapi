@@ -31,7 +31,7 @@ import scala.collection.JavaConverters._
 trait Rql2OutputTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
-  property(raw.compiler.Compiler.OUTPUT_FORMAT, "json")
+  property("output-format", "json")
 
   def outputParser(
       queryResultPath: Path,

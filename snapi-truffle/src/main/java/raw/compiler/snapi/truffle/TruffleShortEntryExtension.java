@@ -15,7 +15,7 @@ package raw.compiler.snapi.truffle;
 import java.util.List;
 import java.util.stream.Collectors;
 import raw.compiler.base.source.Type;
-import raw.compiler.common.source.Exp;
+import raw.compiler.rql2.source.Exp;
 import raw.compiler.rql2.api.Rql2Arg;
 import raw.runtime.truffle.ExpressionNode;
 import scala.Tuple2;

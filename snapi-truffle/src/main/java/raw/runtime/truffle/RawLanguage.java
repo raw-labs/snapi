@@ -22,12 +22,11 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
-import raw.compiler.InitPhase;
+import raw.compiler.base.CompilerContext;
+import raw.compiler.base.InitPhase;
 import raw.compiler.base.Phase;
-import raw.compiler.common.PhaseDescriptor;
-import raw.compiler.common.source.SourceProgram;
+import raw.compiler.rql2.source.SourceProgram;
 import raw.compiler.rql2.*;
-import raw.compiler.scala2.Scala2CompilerContext;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
@@ -92,14 +91,12 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     // Parse and validate
     RuntimeContext runtimeContext =
         new RuntimeContext(context.getSourceContext(), rawSettings, programEnvironment);
-    Scala2CompilerContext compilerContext =
-        new Scala2CompilerContext(
+    CompilerContext compilerContext =
+        new CompilerContext(
             "rql2-truffle",
-            context.getUser(),
+            context.getUser(), context.getInferrer(),
             context.getSourceContext(),
-            context.getInferrer(),
             new Some<>(classLoader),
-            null,
             rawSettings);
     ProgramContext programContext = new ProgramContext(runtimeContext, compilerContext);
     try {

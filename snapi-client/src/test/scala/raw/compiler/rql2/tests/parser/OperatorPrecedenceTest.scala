@@ -12,7 +12,6 @@
 
 package raw.compiler.rql2.tests.parser
 
-import raw.compiler.common.source.{IdnExp, IdnUse}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.tests.CompilerTestContext
 
