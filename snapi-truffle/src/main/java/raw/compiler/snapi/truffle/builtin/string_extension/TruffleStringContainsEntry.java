@@ -15,7 +15,7 @@ package raw.compiler.snapi.truffle.builtin.string_extension;
 import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.StringContainsEntry;
-import raw.compiler.rql2.source.Exp;
+import raw.compiler.common.source.Exp;
 import raw.compiler.snapi.truffle.TruffleShortEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.builtin.string_package.StringContainsNodeGen;

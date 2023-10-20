@@ -17,6 +17,7 @@ import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.SyntaxAnalyzer.identRegex
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.base
+import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.source._
 

@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2
 
-import raw.compiler.rql2.source._
+import raw.compiler.common.source._
 
 class Tree(originalRoot: SourceProgram, ensureTree: Boolean = true)(
     implicit programContext: ProgramContext

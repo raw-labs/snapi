@@ -15,7 +15,7 @@ package raw.compiler.base
 import org.apache.commons.lang3.StringUtils
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import raw.compiler.base.source._
-import raw.compiler.rql2.source.ErrorType
+import raw.compiler.common.source.ErrorType
 import raw.utils._
 
 abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](

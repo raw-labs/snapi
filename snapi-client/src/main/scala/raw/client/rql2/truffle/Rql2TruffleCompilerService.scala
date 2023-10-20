@@ -22,6 +22,7 @@ import raw.runtime._
 import raw.compiler.base
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.base.source.{BaseNode, Type}
+import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
 import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
@@ -30,7 +31,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.sources.api.SourceContext
-import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, withSuppressNonFatalException}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable

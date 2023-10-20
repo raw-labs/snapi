@@ -13,7 +13,7 @@
 package raw.compiler.rql2
 
 import raw.client.api.{CompilerParserException, ErrorPosition}
-import raw.compiler.rql2.source._
+import raw.compiler.common.source._
 
 class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, frontend: Boolean = false)(
     implicit programContext: ProgramContext

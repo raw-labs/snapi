@@ -15,11 +15,11 @@ package raw.compiler.rql2
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.Entity
-import raw.compiler.base.{ExpectedType, MultipleEntity, ProgramContext, TreeDescription, UnknownEntity}
+import raw.compiler.base.{ExpectedType, MultipleEntity, TreeDescription, UnknownEntity}
 import raw.compiler.base
 import raw.compiler.base.source._
 import raw.compiler.base.errors._
-import raw.compiler.rql2.source._
+import raw.compiler.common.source._
 
 import scala.collection.mutable
 

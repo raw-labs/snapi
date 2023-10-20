@@ -13,7 +13,7 @@
 package raw.compiler.snapi.truffle;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
-import raw.compiler.rql2.source.Exp;
+import raw.compiler.common.source.Exp;
 import raw.compiler.rql2.source.Rql2Method;
 import raw.compiler.snapi.truffle.compiler.TruffleBuildBody;
 import raw.runtime.truffle.ExpressionNode;

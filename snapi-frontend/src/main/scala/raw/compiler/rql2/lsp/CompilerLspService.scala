@@ -16,6 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import raw.compiler.base.source.{BaseIdnNode, BaseNode}
+import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 import raw.compiler.rql2.source._

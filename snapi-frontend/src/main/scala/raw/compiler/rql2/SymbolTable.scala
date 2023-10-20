@@ -13,9 +13,10 @@
 package raw.compiler.rql2
 
 import org.bitbucket.inkytonik.kiama.util.Entity
+import raw.compiler.base
+import raw.compiler.common.source._
 import raw.compiler.rql2.api.PackageExtension
 import raw.compiler.rql2.source._
-import raw.compiler.base
 
 /** Entity for a program parameter. */
 final class ProgramParamEntity(val p: SourceProgramParam) extends Entity

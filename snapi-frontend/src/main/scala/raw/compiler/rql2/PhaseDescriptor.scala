@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2
 
-import raw.compiler.rql2.source.SourceProgram
+import raw.compiler.common.source._
 
 final case class PhaseDescriptor(name: String, phase: Class[raw.compiler.base.PipelinedPhase[SourceProgram]])
     extends raw.compiler.base.PhaseDescriptor[SourceProgram] {

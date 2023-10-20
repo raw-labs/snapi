@@ -13,6 +13,7 @@
 package raw.compiler.rql2
 
 import org.bitbucket.inkytonik.kiama.util.Positions
+import raw.compiler.common.source._
 import raw.compiler.rql2.source._
 
 /**

@@ -20,6 +20,7 @@ import raw.client.api._
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
+import raw.compiler.common.source._
 import raw.compiler.rql2.api.{
   Arg,
   EntryExtension,

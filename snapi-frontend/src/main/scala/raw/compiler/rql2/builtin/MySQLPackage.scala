@@ -14,6 +14,7 @@ package raw.compiler.rql2.builtin
 
 import raw.compiler.base.errors.BaseError
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
+import raw.compiler.common.source._
 import raw.compiler.rql2.api._
 import raw.compiler.rql2.ProgramContext
 import raw.compiler.rql2.source._
