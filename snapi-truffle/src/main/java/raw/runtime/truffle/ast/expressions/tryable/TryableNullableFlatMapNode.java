@@ -15,10 +15,14 @@ package raw.runtime.truffle.ast.expressions.tryable;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.tryable.ObjectTryable;
@@ -36,15 +40,20 @@ public abstract class TryableNullableFlatMapNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected Object doTryable(
       Object tryable,
-      Closure closure,
+      Object closure,
       @CachedLibrary("tryable") TryableLibrary tryables,
+      @CachedLibrary("closure") InteropLibrary interops,
       @CachedLibrary(limit = "1") OptionLibrary nullables) {
     if (tryables.isSuccess(tryable)) {
       Object n = tryables.success(tryable);
       if (nullables.isDefined(n)) {
         Object v = nullables.get(n);
         argumentValues[0] = v;
-        return closure.call(argumentValues);
+        try {
+          return interops.execute(closure, argumentValues);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
       } else {
         return successNone;
       }

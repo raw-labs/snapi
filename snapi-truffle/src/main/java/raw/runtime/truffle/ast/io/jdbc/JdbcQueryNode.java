@@ -12,8 +12,8 @@
 
 package raw.runtime.truffle.ast.io.jdbc;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -28,7 +28,7 @@ public class JdbcQueryNode extends ExpressionNode {
 
   @Child private ExpressionNode locationExp;
   @Child private ExpressionNode queryExp;
-  @Child private DirectCallNode makeRow;
+  private final RootCallTarget makeRowCallTarget;
 
   private final JdbcExceptionHandler exceptionHandler;
 
@@ -39,7 +39,7 @@ public class JdbcQueryNode extends ExpressionNode {
       JdbcExceptionHandler exceptionHandler) {
     this.locationExp = locationExp;
     this.queryExp = queryExp;
-    this.makeRow = DirectCallNode.create(rowReader.getCallTarget());
+    this.makeRowCallTarget = rowReader.getCallTarget();
     this.exceptionHandler = exceptionHandler;
   }
 
@@ -48,6 +48,6 @@ public class JdbcQueryNode extends ExpressionNode {
     LocationObject dbLocation = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String query = (String) this.queryExp.executeGeneric(virtualFrame);
     SourceContext context = RawContext.get(this).getSourceContext();
-    return new JdbcQueryCollection(dbLocation, query, context, makeRow, exceptionHandler);
+    return new JdbcQueryCollection(dbLocation, query, context, makeRowCallTarget, exceptionHandler);
   }
 }

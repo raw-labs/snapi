@@ -81,6 +81,7 @@ public class OffHeapGroupByKeys {
     return size;
   }
 
+  @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKeys(
       Comparator<Object[]> keyCompare,
       Rql2TypeWithProperties[] kTypes,

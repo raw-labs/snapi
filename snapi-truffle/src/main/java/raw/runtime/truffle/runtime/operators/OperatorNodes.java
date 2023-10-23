@@ -45,36 +45,43 @@ public class OperatorNodes {
     public abstract int execute(Object obj1, Object obj2);
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doBoolean(boolean left, boolean right) {
       return Boolean.compare(left, right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doByte(byte left, byte right) {
       return Byte.compare(left, right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doShort(short left, short right) {
       return Short.compare(left, right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doInt(int left, int right) {
       return Integer.compare(left, right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doLong(long left, long right) {
       return Long.compare(left, right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doFloat(float left, float right) {
       return Float.compare(left, right);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static int doDouble(double left, double right) {
       return Double.compare(left, right);
     }
