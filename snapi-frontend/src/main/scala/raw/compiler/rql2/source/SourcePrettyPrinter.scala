@@ -46,7 +46,7 @@ trait SourcePrettyPrinter
         if (internal && props.nonEmpty) {
           // Wrap in parenthesis to disambiguate the type property annotations.
           // Refer to the parser for details.
-          parens(showProperties(t, d, parenthesis = true))
+          parens(showProperties(t, d, parenthesis = false))
         } else {
           d
         }

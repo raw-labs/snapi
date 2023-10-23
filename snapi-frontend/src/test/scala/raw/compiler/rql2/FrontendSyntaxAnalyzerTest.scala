@@ -12,18 +12,7 @@
 
 package raw.compiler.rql2
 
-import raw.compiler.rql2.source.{
-  FunOptTypeParam,
-  FunType,
-  Rql2BoolType,
-  Rql2FloatType,
-  Rql2IntType,
-  Rql2IsNullableTypeProperty,
-  Rql2IsTryableTypeProperty,
-  Rql2OrType,
-  Rql2StringType,
-  Rql2TypeProperty
-}
+import raw.compiler.rql2.source.{FunOptTypeParam, FunType, Rql2BoolType, Rql2FloatType, Rql2IntType, Rql2IsNullableTypeProperty, Rql2IsTryableTypeProperty, Rql2ListType, Rql2OrType, Rql2StringType, Rql2TypeProperty}
 import raw.utils.RawTestSuite
 
 class FrontendSyntaxAnalyzerTest extends RawTestSuite {
@@ -152,6 +141,13 @@ class FrontendSyntaxAnalyzerTest extends RawTestSuite {
           Vector(Rql2IntType(props)),
           Vector.empty,
           FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props),
+          props
+        )
+    )
+    assert(
+      parseType("list(int)") ==
+        Rql2ListType(
+          Rql2IntType(props),
           props
         )
     )
