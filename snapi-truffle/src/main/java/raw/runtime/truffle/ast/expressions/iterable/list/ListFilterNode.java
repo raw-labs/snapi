@@ -17,6 +17,10 @@ import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
@@ -25,7 +29,7 @@ import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.handlers.NullableTryableHandler;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.*;
@@ -50,19 +54,25 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected ByteList doByte(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     ArrayList<Byte> llist = new ArrayList<>();
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      Boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
+      Boolean predicate = null;
+      try {
+        predicate =
+            NullableTryableHandler.handleOptionTriablePredicate(
+                interops.execute(closure, argumentValues), getPredicateType(), false);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       if (predicate) {
         llist.add((Byte) argumentValues[0]);
       }
@@ -80,19 +90,25 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected ShortList doShort(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     ArrayList<Short> llist = new ArrayList<>();
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      Boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
+      Boolean predicate = null;
+      try {
+        predicate =
+            NullableTryableHandler.handleOptionTriablePredicate(
+                interops.execute(closure, argumentValues), getPredicateType(), false);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       if (predicate) {
         llist.add((Short) argumentValues[0]);
       }
@@ -110,10 +126,11 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected IntList doInt(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     Object[] argumentValues = new Object[1];
@@ -122,8 +139,14 @@ public abstract class ListFilterNode extends ExpressionNode {
             .filter(
                 x -> {
                   argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
+                  try {
+                    return NullableTryableHandler.handleOptionTriablePredicate(
+                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                  } catch (UnsupportedMessageException
+                      | UnsupportedTypeException
+                      | ArityException e) {
+                    throw new RawTruffleRuntimeException("failed to execute function");
+                  }
                 })
             .toArray();
     return new IntList(values);
@@ -135,10 +158,11 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected LongList doLong(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     Object[] argumentValues = new Object[1];
@@ -147,8 +171,14 @@ public abstract class ListFilterNode extends ExpressionNode {
             .filter(
                 x -> {
                   argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
+                  try {
+                    return NullableTryableHandler.handleOptionTriablePredicate(
+                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                  } catch (UnsupportedMessageException
+                      | UnsupportedTypeException
+                      | ArityException e) {
+                    throw new RawTruffleRuntimeException("failed to execute function");
+                  }
                 })
             .toArray();
     return new LongList(values);
@@ -160,19 +190,25 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected FloatList doFloat(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     ArrayList<Float> llist = new ArrayList<>();
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      Boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
+      Boolean predicate = null;
+      try {
+        predicate =
+            NullableTryableHandler.handleOptionTriablePredicate(
+                interops.execute(closure, argumentValues), getPredicateType(), false);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       if (predicate) {
         llist.add((Float) argumentValues[0]);
       }
@@ -190,10 +226,11 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected DoubleList doDouble(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     Object[] argumentValues = new Object[1];
@@ -202,8 +239,14 @@ public abstract class ListFilterNode extends ExpressionNode {
             .filter(
                 x -> {
                   argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
+                  try {
+                    return NullableTryableHandler.handleOptionTriablePredicate(
+                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                  } catch (UnsupportedMessageException
+                      | UnsupportedTypeException
+                      | ArityException e) {
+                    throw new RawTruffleRuntimeException("failed to execute function");
+                  }
                 })
             .toArray();
     return new DoubleList(values);
@@ -215,19 +258,25 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected BooleanList doBoolean(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     ArrayList<Boolean> llist = new ArrayList<>();
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
+      boolean predicate = false;
+      try {
+        predicate =
+            NullableTryableHandler.handleOptionTriablePredicate(
+                interops.execute(closure, argumentValues), getPredicateType(), false);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       if (predicate) {
         llist.add((Boolean) argumentValues[0]);
       }
@@ -245,19 +294,25 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected StringList doString(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     ArrayList<String> llist = new ArrayList<>();
     Object[] argumentValues = new Object[1];
     while (generators.hasNext(generator)) {
       argumentValues[0] = generators.next(generator);
-      boolean predicate =
-          NullableTryableHandler.handleOptionTriablePredicate(
-              function.call(argumentValues), getPredicateType(), false);
+      boolean predicate = false;
+      try {
+        predicate =
+            NullableTryableHandler.handleOptionTriablePredicate(
+                interops.execute(closure, argumentValues), getPredicateType(), false);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
       if (predicate) {
         llist.add((String) argumentValues[0]);
       }
@@ -273,10 +328,11 @@ public abstract class ListFilterNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   protected ObjectList doObject(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
+      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
     Object generator = iterables.getGenerator(iterable);
     Object[] argumentValues = new Object[1];
@@ -285,8 +341,14 @@ public abstract class ListFilterNode extends ExpressionNode {
             .filter(
                 x -> {
                   argumentValues[0] = generators.next(generator);
-                  return NullableTryableHandler.handleOptionTriablePredicate(
-                      function.call(argumentValues), getPredicateType(), false);
+                  try {
+                    return NullableTryableHandler.handleOptionTriablePredicate(
+                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                  } catch (UnsupportedMessageException
+                      | UnsupportedTypeException
+                      | ArityException e) {
+                    throw new RawTruffleRuntimeException("failed to execute function");
+                  }
                 })
             .toArray();
     return new ObjectList(values);

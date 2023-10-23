@@ -15,6 +15,10 @@ package raw.runtime.truffle.ast.expressions.iterable.list;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
@@ -22,7 +26,7 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapListGroupByKey;
@@ -56,7 +60,8 @@ public abstract class ListGroupByNode extends ExpressionNode {
   @Specialization(limit = "3")
   protected Object doGroup(
       Object input,
-      Closure keyFun,
+      Object keyFun,
+      @CachedLibrary("keyFun") InteropLibrary keyFunLib,
       @CachedLibrary("input") ListLibrary lists,
       @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
       @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
@@ -70,9 +75,11 @@ public abstract class ListGroupByNode extends ExpressionNode {
       generators.init(generator);
       while (generators.hasNext(generator)) {
         Object v = generators.next(generator);
-        Object key = keyFun.call(v);
+        Object key = keyFunLib.execute(keyFun, v);
         map.put(key, v);
       }
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
       generators.close(generator);
     }

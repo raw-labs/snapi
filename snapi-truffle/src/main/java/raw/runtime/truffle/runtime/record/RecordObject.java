@@ -42,7 +42,6 @@ public final class RecordObject implements TruffleObject {
     this.distinctKeys = new Vector<>();
   }
 
-  @TruffleBoundary
   private Vector<String> getDistinctKeys() {
     return distinctKeys;
   }
@@ -83,7 +82,6 @@ public final class RecordObject implements TruffleObject {
   }
 
   @ExportMessage
-  @TruffleBoundary
   Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
     return "Record";
   }

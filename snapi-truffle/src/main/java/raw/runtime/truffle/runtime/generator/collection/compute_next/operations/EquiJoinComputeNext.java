@@ -13,13 +13,17 @@
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -34,10 +38,11 @@ import raw.sources.api.SourceContext;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class EquiJoinComputeNext {
+  private final GeneratorLibrary generators = GeneratorLibrary.getUncached();
   private final OperatorNodes.CompareNode compare =
       OperatorNodesFactory.CompareNodeGen.getUncached();
   protected final Object leftIterable, rightIterable;
-  private final Closure leftKeyF, rightKeyF, mkJoinedRecord;
+  public final Object leftKeyF, rightKeyF, mkJoinedRecord;
   private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
   private final RawLanguage language;
   private final SourceContext context;
@@ -55,13 +60,13 @@ public class EquiJoinComputeNext {
 
   public EquiJoinComputeNext(
       Object leftIterable,
-      Closure leftKeyF,
+      Object leftKeyF,
       Rql2TypeWithProperties leftRowType,
       Object rightIterable,
-      Closure rightKeyF,
+      Object rightKeyF,
       Rql2TypeWithProperties rightRowType,
       Rql2TypeWithProperties keyType,
-      Closure mkJoinedRecord,
+      Object mkJoinedRecord,
       RawLanguage language,
       SourceContext context) {
     this.leftIterable = leftIterable;
@@ -80,7 +85,8 @@ public class EquiJoinComputeNext {
   void init(
       @CachedLibrary("this.leftIterable") IterableLibrary leftIterables,
       @CachedLibrary("this.rightIterable") IterableLibrary rightIterables,
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+      @CachedLibrary("this.leftKeyF") InteropLibrary leftKeyFLib,
+      @CachedLibrary("this.rightKeyF") InteropLibrary rightKeyFLib) {
     // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
     OffHeapEquiJoinGroupByKey leftMap =
         new OffHeapEquiJoinGroupByKey(this::compareKey, keyType, leftRowType, language, context);
@@ -89,9 +95,11 @@ public class EquiJoinComputeNext {
       generators.init(leftGenerator);
       while (generators.hasNext(leftGenerator)) {
         Object leftItem = generators.next(leftGenerator);
-        Object leftKey = leftKeyF.call(leftItem);
+        Object leftKey = leftKeyFLib.execute(leftKeyF, leftItem);
         leftMap.put(leftKey, leftItem);
       }
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
       generators.close(leftGenerator);
     }
@@ -106,9 +114,11 @@ public class EquiJoinComputeNext {
       generators.init(rightGenerator);
       while (generators.hasNext(rightGenerator)) {
         Object rightItem = generators.next(rightGenerator);
-        Object rightKey = rightKeyF.call(rightItem);
+        Object rightKey = rightKeyFLib.execute(rightKeyF, rightItem);
         rightMap.put(rightKey, rightItem);
       }
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
       generators.close(rightGenerator);
     }
@@ -118,7 +128,7 @@ public class EquiJoinComputeNext {
 
   @ExportMessage
   void close(
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "6") GeneratorLibrary generators) {
     if (leftMapGenerator != null) {
       generators.close(leftMapGenerator);
       leftMapGenerator = null;
@@ -136,7 +146,8 @@ public class EquiJoinComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "5") GeneratorLibrary generators) {
+      @Cached.Shared("sharedGenerators") @CachedLibrary(limit = "6") GeneratorLibrary generators,
+      @CachedLibrary("this.mkJoinedRecord") InteropLibrary interops) {
 
     assert (leftMapGenerator != null);
     assert (rightMapGenerator != null);
@@ -182,7 +193,12 @@ public class EquiJoinComputeNext {
     }
 
     // record to return
-    Object joinedRow = mkJoinedRecord.call(leftRows[leftIndex], rightRows[rightIndex]);
+    Object joinedRow = null;
+    try {
+      joinedRow = interops.execute(mkJoinedRecord, leftRows[leftIndex], rightRows[rightIndex]);
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
+    }
 
     // move to the next right row
     rightIndex++;

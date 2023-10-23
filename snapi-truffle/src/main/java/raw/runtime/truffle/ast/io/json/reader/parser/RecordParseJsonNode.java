@@ -61,19 +61,16 @@ public class RecordParseJsonNode extends ExpressionNode {
       JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
 
   @Child
-  private BoundaryNodes.BitSetSetNode bitSetSet =
+  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+
+  private final BoundaryNodes.BitSetSetNode bitSetSet =
       BoundaryNodesFactory.BitSetSetNodeGen.getUncached();
 
-  @Child
-  private BoundaryNodes.BitSetCardinalityNode bitSetCardinality =
+  private final BoundaryNodes.BitSetCardinalityNode bitSetCardinality =
       BoundaryNodesFactory.BitSetCardinalityNodeGen.getUncached();
 
-  @Child
-  private BoundaryNodes.BitSetGetNode bitSetGet =
+  private final BoundaryNodes.BitSetGetNode bitSetGet =
       BoundaryNodesFactory.BitSetGetNodeGen.getUncached();
-
-  @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;

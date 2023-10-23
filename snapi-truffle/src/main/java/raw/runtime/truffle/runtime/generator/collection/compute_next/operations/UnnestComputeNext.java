@@ -12,15 +12,17 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
@@ -29,11 +31,11 @@ import raw.runtime.truffle.runtime.iterable.operations.EmptyCollection;
 @ExportLibrary(ComputeNextLibrary.class)
 public class UnnestComputeNext {
   final Object parent;
-  final Closure transform;
+  final Object transform;
 
   Object currentGenerator = null;
 
-  public UnnestComputeNext(Object parent, Closure transform) {
+  public UnnestComputeNext(Object parent, Object transform) {
     this.parent = parent;
     this.transform = transform;
   }
@@ -62,10 +64,9 @@ public class UnnestComputeNext {
   // null/error
 
   @ExportMessage
-  @ExplodeLoop
-  @CompilerDirectives.TruffleBoundary
   Object computeNext(
       @Cached TryableNullableNodes.GetOrElseNode getOrElse,
+      @CachedLibrary("this.transform") InteropLibrary interops,
       @CachedLibrary(limit = "3") GeneratorLibrary generators,
       @CachedLibrary(limit = "5") IterableLibrary iterables) {
     Object next = null;
@@ -75,7 +76,12 @@ public class UnnestComputeNext {
         if (!generators.hasNext(parent)) {
           throw new BreakException();
         }
-        Object functionResult = transform.call(generators.next(parent));
+        Object functionResult = null;
+        try {
+          functionResult = interops.execute(transform, generators.next(parent));
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
         // the function result could be tryable/nullable. If error/null,
         // we replace it by an empty collection.
         Object iterable = getOrElse.execute(functionResult, empty);

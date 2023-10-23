@@ -12,14 +12,12 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.OffHeapGroupByKeys;
@@ -32,7 +30,7 @@ import raw.sources.api.SourceContext;
 public final class OrderByCollection implements TruffleObject {
 
   final Object parentIterable;
-  final Closure[] keyFunctions;
+  final Object[] keyFunctions;
 
   final int[] keyOrderings;
   final Rql2TypeWithProperties[] keyTypes;
@@ -42,7 +40,7 @@ public final class OrderByCollection implements TruffleObject {
 
   public OrderByCollection(
       Object iterable,
-      Closure[] keyFunctions,
+      Object[] keyFunctions,
       int[] keyOrderings,
       Rql2TypeWithProperties[] keyTypes,
       Rql2TypeWithProperties rowType,
@@ -79,12 +77,13 @@ public final class OrderByCollection implements TruffleObject {
     return true;
   }
 
-  private Object[] computeKeys(Object v) {
+  private Object[] computeKeys(Object v)
+      throws UnsupportedMessageException, UnsupportedTypeException, ArityException {
     Object[] argumentValues = new Object[1];
     argumentValues[0] = v;
     Object[] key = new Object[keyFunctions.length];
     for (int i = 0; i < keyFunctions.length; i++) {
-      key[i] = keyFunctions[i].call(argumentValues);
+      key[i] = InteropLibrary.getUncached().execute(keyFunctions[i], argumentValues);
     }
     return key;
   }
@@ -103,6 +102,8 @@ public final class OrderByCollection implements TruffleObject {
         Object[] key = computeKeys(v);
         groupByKeys.put(key, v);
       }
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RuntimeException(e);
     } finally {
       generators.close(generator);
     }

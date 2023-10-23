@@ -51,6 +51,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     if (settings.onTrainingWheels) {
       options.put("engine.CompileImmediately", "true")
       options.put("engine.TraceCompilation", "true")
+      options.put("engine.BackgroundCompilation", "false")
+//      options.put("engine.CompilationFailureAction", "Throw")
+//      options.put("engine.CompilationFailureAction", "Diagnose")
+//      options.put("compiler.LogInlinedTargets", "true")
       //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
       //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
       //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
@@ -60,6 +64,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       //  "-Dgraal.Dump=Truffle:2",
       //  "-Dgraal.DumpPath=/tmp/graal_dumps",
       //  "-Dgraal.PrintGraph=Network",
+      // https://www.graalvm.org/latest/graalvm-as-a-platform/language-implementation-framework/Options/
     }
     Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
   }

@@ -12,12 +12,12 @@
 
 package raw.runtime.truffle.ast.io.json.reader;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.iterable.sources.JsonReadCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.SourceContext;
@@ -28,13 +28,13 @@ public class JsonReadCollectionNode extends ExpressionNode {
 
   @Child private ExpressionNode encodingExp;
 
-  @Child private DirectCallNode childDirectCall;
+  private final RootCallTarget rootCallTarget;
 
   public JsonReadCollectionNode(
-      ExpressionNode locationExp, ExpressionNode encodingExp, RootNode readerNode) {
+      ExpressionNode locationExp, ExpressionNode encodingExp, ProgramExpressionNode readerNode) {
     this.locationExp = locationExp;
     this.encodingExp = encodingExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+    this.rootCallTarget = readerNode.getCallTarget();
   }
 
   @Override
@@ -43,6 +43,6 @@ public class JsonReadCollectionNode extends ExpressionNode {
     String encoding = (String) encodingExp.executeGeneric(virtualFrame);
 
     SourceContext context = RawContext.get(this).getSourceContext();
-    return new JsonReadCollection(locationObject, encoding, context, childDirectCall);
+    return new JsonReadCollection(locationObject, encoding, context, rootCallTarget);
   }
 }
