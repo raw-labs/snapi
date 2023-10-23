@@ -14,8 +14,10 @@ package raw.client.rql2.truffle
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import org.graalvm.polyglot.Value
+import raw.compiler.rql2.Rql2TypeUtils
 import raw.compiler.rql2.source._
 import raw.utils.RecordFieldsNaming
+
 import java.io.{IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.util.Base64
@@ -129,6 +131,11 @@ class RawJsonWriter(os: OutputStream) {
           writeValue(next, innerType.asInstanceOf[Rql2TypeWithProperties])
         }
         gen.writeEndArray()
+      case Rql2OrType(tipes, _) if tipes.exists(Rql2TypeUtils.getProps(_).nonEmpty) =>
+        // A trick to make sur inner types do not have properties
+        val inners = tipes.map { case inner: Rql2TypeWithProperties => Rql2TypeUtils.resetProps(inner, Set.empty) }
+        val orProps = tipes.flatMap { case inner: Rql2TypeWithProperties => inner.props }.toSet
+        writeValue(v, Rql2OrType(inners, orProps))
       case Rql2OrType(tipes, _) =>
         val index = v.invokeMember("getIndex").asInt()
         val actualValue = v.invokeMember("getValue")
