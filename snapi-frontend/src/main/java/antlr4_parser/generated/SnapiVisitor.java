@@ -1,0 +1,492 @@
+// Generated from Snapi.g4 by ANTLR 4.13.0
+package antlr4_parser.generated;
+import org.antlr.v4.runtime.tree.ParseTreeVisitor;
+
+/**
+ * This interface defines a complete generic visitor for a parse tree produced
+ * by {@link SnapiParser}.
+ *
+ * @param <T> The return type of the visit operation. Use {@link Void} for
+ * operations with no return type.
+ */
+public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#prog}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProg(SnapiParser.ProgContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunDecStat}
+	 * labeled alternative in {@link SnapiParser#stat}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunDecStat(SnapiParser.FunDecStatContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunDecExprStat}
+	 * labeled alternative in {@link SnapiParser#stat}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunDecExprStat(SnapiParser.FunDecExprStatContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunDec}
+	 * labeled alternative in {@link SnapiParser#fun_dec}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunDec(SnapiParser.FunDecContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NormalFun}
+	 * labeled alternative in {@link SnapiParser#fun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNormalFun(SnapiParser.NormalFunContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RecFun}
+	 * labeled alternative in {@link SnapiParser#fun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecFun(SnapiParser.RecFunContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NormalFunProto}
+	 * labeled alternative in {@link SnapiParser#normal_fun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNormalFunProto(SnapiParser.NormalFunProtoContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RecFunProto}
+	 * labeled alternative in {@link SnapiParser#rec_fun}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecFunProto(SnapiParser.RecFunProtoContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunProtoWithoutType}
+	 * labeled alternative in {@link SnapiParser#fun_proto}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunProtoWithType}
+	 * labeled alternative in {@link SnapiParser#fun_proto}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunParams}
+	 * labeled alternative in {@link SnapiParser#fun_params}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunParams(SnapiParser.FunParamsContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunParamAttr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunParamAttr(SnapiParser.FunParamAttrContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunParamAttrExpr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrWithType}
+	 * labeled alternative in {@link SnapiParser#attr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrWithType(SnapiParser.AttrWithTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#fun_app}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFun_app(SnapiParser.Fun_appContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#fun_ar}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFun_ar(SnapiParser.Fun_arContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#fun_args}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFun_args(SnapiParser.Fun_argsContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunArgExpr}
+	 * labeled alternative in {@link SnapiParser#fun_arg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunArgExpr(SnapiParser.FunArgExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NamedFunArgExpr}
+	 * labeled alternative in {@link SnapiParser#fun_arg}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNamedFunArgExpr(SnapiParser.NamedFunArgExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunAbs}
+	 * labeled alternative in {@link SnapiParser#fun_abs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunAbs(SnapiParser.FunAbsContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunAbsUnnamed}
+	 * labeled alternative in {@link SnapiParser#fun_abs}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code TypeWithParen}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeWithParen(SnapiParser.TypeWithParenContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RecordType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecordType(SnapiParser.RecordTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ExprType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprType(SnapiParser.ExprTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunTypeWithParams}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunTypeWithParams(SnapiParser.FunTypeWithParamsContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ListType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitListType(SnapiParser.ListTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunType(SnapiParser.FunTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code TypeAlias}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTypeAlias(SnapiParser.TypeAliasContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PremetiveType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPremetiveType(SnapiParser.PremetiveTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code UndefinedType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitUndefinedType(SnapiParser.UndefinedTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IterableType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIterableType(SnapiParser.IterableTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#record_type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecord_type(SnapiParser.Record_typeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#iterable_type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIterable_type(SnapiParser.Iterable_typeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#list_type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitList_type(SnapiParser.List_typeContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#expr_type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExpr_type(SnapiParser.Expr_typeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AndExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAndExpr(SnapiParser.AndExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MulExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMulExpr(SnapiParser.MulExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code StringExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitStringExpr(SnapiParser.StringExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IdentExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIdentExpr(SnapiParser.IdentExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code BoolConstExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBoolConstExpr(SnapiParser.BoolConstExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ProjectionExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitProjectionExpr(SnapiParser.ProjectionExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LetExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLetExpr(SnapiParser.LetExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunAbsExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunAbsExpr(SnapiParser.FunAbsExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunAppExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunAppExpr(SnapiParser.FunAppExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code OrExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrExpr(SnapiParser.OrExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code IfThenElseExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIfThenElseExpr(SnapiParser.IfThenElseExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NullExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNullExpr(SnapiParser.NullExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ExprTypeType}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitExprTypeType(SnapiParser.ExprTypeTypeContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code DivExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitDivExpr(SnapiParser.DivExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code PlusExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitPlusExpr(SnapiParser.PlusExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NumberExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNumberExpr(SnapiParser.NumberExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code TrippleStringExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitTrippleStringExpr(SnapiParser.TrippleStringExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code CompareExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitCompareExpr(SnapiParser.CompareExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ListExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitListExpr(SnapiParser.ListExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code NotExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNotExpr(SnapiParser.NotExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ModExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitModExpr(SnapiParser.ModExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code ParenExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitParenExpr(SnapiParser.ParenExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code RecordExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecordExpr(SnapiParser.RecordExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code MinusExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitMinusExpr(SnapiParser.MinusExprContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#let}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLet(SnapiParser.LetContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#let_left}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLet_left(SnapiParser.Let_leftContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LetBind}
+	 * labeled alternative in {@link SnapiParser#let_decl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLetBind(SnapiParser.LetBindContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code LetFunDec}
+	 * labeled alternative in {@link SnapiParser#let_decl}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLetFunDec(SnapiParser.LetFunDecContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#let_bind}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLet_bind(SnapiParser.Let_bindContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#if_then_else}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitIf_then_else(SnapiParser.If_then_elseContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#lists}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLists(SnapiParser.ListsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#lists_element}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitLists_element(SnapiParser.Lists_elementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#records}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecords(SnapiParser.RecordsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#record_elements}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecord_elements(SnapiParser.Record_elementsContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#record_element}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecord_element(SnapiParser.Record_elementContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#number}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitNumber(SnapiParser.NumberContext ctx);
+}

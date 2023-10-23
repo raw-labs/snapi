@@ -17,13 +17,14 @@ fun: normal_fun                             # NormalFun
    | rec_fun                                # RecFun
    ;
 
-normal_fun: ident fun_proto                 # NormalFunProto
+normal_fun: IDENT fun_proto                 # NormalFunProto
           ;
 
 rec_fun: REC_TOKEN normal_fun               # RecFunProto
        ;
 
-fun_proto: '(' fun_params? ')'              # FunProto
+fun_proto: '(' fun_params? ')'              # FunProtoWithoutType
+         | '(' fun_params? ')' ':' type     # FunProtoWithType
          ;
 
 fun_params: fun_param (',' fun_param)*      # FunParams
@@ -33,72 +34,67 @@ fun_param: attr                             # FunParamAttr
          | attr '=' expr                    # FunParamAttrExpr
          ;
 
-attr: ident ':' type
+attr: IDENT ':' type                        # AttrWithType
     ;
 
 // the input parameters of a function
-fun_app: ident fun_ar ;
+fun_app: IDENT fun_ar ;
 fun_ar: '(' fun_args? ')';
 fun_args: fun_arg (',' fun_arg)*;
-fun_arg: expr
-    | ident '=' expr
-    | fun_abs
+fun_arg: expr                               # FunArgExpr
+    | IDENT '=' expr                        # NamedFunArgExpr
     ;
 
 // lambda expression
-fun_abs: fun_proto '->' expr
-       | ident '->' expr
+fun_abs: fun_proto '->' expr                # FunAbs
+       | IDENT '->' expr                    # FunAbsUnnamed
        ;
 
 // ============= types =================
-type: pure_type (OR_TOKEN pure_type)*;
-pure_type: premetive_type
-    | UNDEFINED_TOKEN
-    | ident // Type Alias
-    | record_type
-    | iterable_type
-    | list_type
-    | fun_type
-    | expr_type
+type: '(' type ')'                          # TypeWithParen
+    | PRIMITIVE_TYPES                       # PremetiveType
+    | UNDEFINED_TOKEN                       # UndefinedType
+    | IDENT                                 # TypeAlias
+    | record_type                           # RecordType
+    | iterable_type                         # IterableType
+    | list_type                             # ListType
+    | fun_params '->' type                  # FunTypeWithParams
+    | type '->' type                        # FunType
+    | expr_type                             # ExprType
     ;
-
 
 record_type: RECORD_TOKEN '(' attr (',' attr)* ')';
 iterable_type: COLLECTION_TOKEN '(' type ')';
 list_type: LIST_TOKEN '(' type ')';
 expr_type: TYPE_TOKEN type;
-typealias_type: TYPE_TOKEN type '=' type;
-
-fun_type: '(' (fun_params | type)? ')' '->' type;
-
 
 // ========== expressions ============
-expr: number
-    | if_then_else
-    | lists
-    | records
-    | bool_const
-    | NULL_TOKEN
-    | TRIPPLE_STRING
-    | STRING
-    | '(' expr ')'
-    | bool_const
-    | ident
-    | NOT_TOKEN expr
-    | expr AND_TOKEN expr
-    | expr OR_TOKEN expr
-    | expr compare_tokens expr
-    | MINUS_TOKEN expr
-    | PLUS_TOKEN expr
-    | expr MUL_TOKEN expr
-    | expr DIV_TOKEN expr
-    | expr MOD_TOKEN expr
-    | expr PLUS_TOKEN expr
-    | expr MINUS_TOKEN expr
-    | fun_app
-    | let
-    | expr_type // to check if this works correctly with recor(a:int)
-    | <assoc=right> expr '.' ident fun_ar?  // projection
+expr: '(' expr ')'                         # ParenExpr
+    | number                               # NumberExpr
+    | if_then_else                         # IfThenElseExpr
+    | lists                                # ListExpr
+    | records                              # RecordExpr
+    | BOOL_CONST                           # BoolConstExpr
+    | NULL_TOKEN                           # NullExpr
+    | TRIPPLE_STRING                       # TrippleStringExpr
+    | STRING                               # StringExpr
+    | IDENT                                # IdentExpr
+    | NOT_TOKEN expr                       # NotExpr
+    | expr AND_TOKEN expr                  # AndExpr
+    | expr OR_TOKEN expr                   # OrExpr
+    | expr op=COMPARE_TOKENS expr          # CompareExpr
+    | MINUS_TOKEN expr                     # MinusExpr
+    | PLUS_TOKEN expr                      # PlusExpr
+    | expr MUL_TOKEN expr                  # MulExpr
+    | expr DIV_TOKEN expr                  # DivExpr
+    | expr MOD_TOKEN expr                  # ModExpr
+    | expr PLUS_TOKEN expr                 # PlusExpr
+    | expr MINUS_TOKEN expr                # MinusExpr
+    | fun_app                              # FunAppExpr
+    | fun_abs                              # FunAbsExpr
+    | let                                  # LetExpr
+    | expr_type                            # ExprTypeType  // to check if this works correctly with recor(a:int)
+    | <assoc=right> expr '.' IDENT fun_ar? # ProjectionExpr  // projection
     // | expr '.'  {notifyErrorListeners("Incomplete projection");}
     ;
 
@@ -108,11 +104,11 @@ let_left: let_decl (',' let_decl)*
         // | let_decl (let_decl)* {notifyErrorListeners("Missing ','");}
         ;
 
-let_decl: let_bind
-        | fun_dec
+let_decl: let_bind                         # LetBind
+        | fun_dec                          # LetFunDec
         ;
 
-let_bind: ident '=' expr | ident ':' type '=' expr;
+let_bind: IDENT '=' expr | IDENT ':' type '=' expr;
 
 if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
             // | IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN {notifyErrorListeners("Missing else expr");}
@@ -124,46 +120,18 @@ lists_element: expr (',' expr)*;
 
 records: '{' (record_elements)? '}';
 record_elements: record_element (',' record_element)* ;
-record_element: ident ':' expr | expr;
-
-ident: NON_ESC_IDENTIFIER | ESC_IDENTIFIER;
+record_element: IDENT ':' expr
+              | expr
+              ;
 
 number: BYTE
-    | SHORT
-    | INTEGER
-    | LONG
-    | FLOAT
-    | DOUBLE
-    | DECIMAL;
-
-number_type: BYTE_TOKEN
-    | SHORT_TOKEN
-    | INT_TOKEN
-    | LONG_TOKEN
-    | FLOAT_TOKEN
-    | DOUBLE_TOKEN
-    | DECIMAL_TOKEN;
-
-premetive_type: BOOL_TOKEN
-              | STRING_TOKEN
-              | LOCATION_TOKEN
-              | BINARY_TOKEN
-              | number_type
-              | temporal_type
-              | REGEX_TOKEN;
-
-temporal_type: DATE_TOKEN
-    | TIME_TOKEN
-    | INTERVAL_TOKEN
-    | TIMESTAMP_TOKEN;
+      | SHORT
+      | INTEGER
+      | LONG
+      | FLOAT
+      | DOUBLE
+      | DECIMAL
+      ;
 
 
-compare_tokens: EQ_TOKEN
-             | NEQ_TOKEN
-             | LE_TOKEN
-             | LT_TOKEN
-             | GE_TOKEN
-             | GT_TOKEN;
 
-bool_const: TRUE_TOKEN
-          | FALSE_TOKEN;

@@ -1,6 +1,31 @@
 lexer grammar SnapiLexerRules;
 
 // Types
+
+PRIMITIVE_TYPES : BOOL_TOKEN
+              | STRING_TOKEN
+              | LOCATION_TOKEN
+              | BINARY_TOKEN
+              | NUMBER_TYPE
+              | TEMPORAL_TYPE
+              | REGEX_TOKEN
+              ;
+
+TEMPORAL_TYPE: DATE_TOKEN
+             | TIME_TOKEN
+             | INTERVAL_TOKEN
+             | TIMESTAMP_TOKEN
+             ;
+
+NUMBER_TYPE: BYTE_TOKEN
+           | SHORT_TOKEN
+           | INT_TOKEN
+           | LONG_TOKEN
+           | FLOAT_TOKEN
+           | DOUBLE_TOKEN
+           | DECIMAL_TOKEN
+           ;
+
 TYPE_TOKEN: 'type';
 
 BOOL_TOKEN: 'bool';
@@ -51,7 +76,16 @@ DOUBLE: FLOAT_FR  D?;
 DECIMAL: FLOAT_FR  Q;
 
 // Binary Exp
+
 // Compare
+COMPARE_TOKENS: EQ_TOKEN
+              | NEQ_TOKEN
+              | LE_TOKEN
+              | LT_TOKEN
+              | GE_TOKEN
+              | GT_TOKEN
+              ;
+
 EQ_TOKEN: '==';
 NEQ_TOKEN: '!=';
 LE_TOKEN: '<=';
@@ -71,13 +105,19 @@ OR_TOKEN:  'or';
 
 NOT_TOKEN: 'not';
 
+// Boolean
+BOOL_CONST: TRUE_TOKEN
+          | FALSE_TOKEN
+          ;
 TRUE_TOKEN: 'true';
 FALSE_TOKEN: 'false';
 
 // Strings
 STRING: '"' (ESC | ~["\\])* '"';
 TRIPPLE_STRING: '"""' .*? '"""';
+
 // Identifiers
+IDENT: NON_ESC_IDENTIFIER | ESC_IDENTIFIER;
 NON_ESC_IDENTIFIER: [_a-zA-Z]+;
 ESC_IDENTIFIER: '`' .*? '`';
 WS : [ \t\r\n]+ -> skip;
