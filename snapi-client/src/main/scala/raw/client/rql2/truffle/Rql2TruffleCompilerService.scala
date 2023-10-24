@@ -397,13 +397,15 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val ParseTypeSuccess(Rql2RecordType(atts, _)) = parseType(rawType, environment.user, internal = true)
           val bindings = ctx.getBindings("rql")
           val f = bindings.getMember(decl)
-          val arguments = environment.maybeArguments.map(_.map(_._2).map(v => javaValueOf(v, ctx))).getOrElse(Array.empty)
-          val result = f.execute(arguments:_*)
           val funType = atts.find(_.idn == decl).get.tipe.asInstanceOf[FunType]
           // Some typechecking
-          if (funType.ms.size != arguments.length) {
-            return ExecutionRuntimeFailure(s"expected ${funType.ms.size} arguments but got ${arguments.size}")
+          val nArgs = environment.maybeArguments.map(_.length).getOrElse(0)
+          if (funType.ms.size + funType.os.size != nArgs) {
+            return ExecutionRuntimeFailure(s"expected ${funType.ms.size + funType.os.size} arguments but got $nArgs")
           }
+          val polyglotArguments =
+            environment.maybeArguments.map(_.map(_._2).map(v => javaValueOf(v, ctx))).getOrElse(Array.empty)
+          val result = f.execute(polyglotArguments: _*)
           val tipe = funType.r
           (result, tipe)
         case None =>
@@ -783,8 +785,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       case ParamString(v) => s"""let x: string = "$v" in x"""
       case ParamDecimal(v) => s"""let x: decimal = Decimal.From("$v") in x"""
       case ParamDate(v) => s"""let x: date = Date.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}) in x"""
-      case ParamTime(v) => s"""let x: time = Time.Build(${v.getHour}, ${v.getMinute}, millis=${v.getNano/1000000}) in x"""
-      case ParamTimestamp(v) => s"""let x: timestamp = Timestamp.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}, ${v.getHour}, ${v.getMinute}, millis=${v.getNano/1000000}) in x"""
+      case ParamTime(v) =>
+        s"""let x: time = Time.Build(${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
+      case ParamTimestamp(v) =>
+        s"""let x: timestamp = Timestamp.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}, ${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
       case ParamInterval(v) => ???
     }
     val value = ctx.eval("rql", code)
@@ -809,16 +813,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
-    // Add arguments as polyglot bindings.
     val ctx = ctxBuilder.build()
-//    environment.maybeArguments.foreach { args =>
-//      args.foreach(arg =>
-//        ctx.getPolyglotBindings.putMember(
-//          arg._1,
-//          javaValueOf(arg._2)
-//        )
-//      )
-//    }
     ctx
   }
 

@@ -1916,8 +1916,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     val Rql2Program(methods, me) = tree.root
     me match {
       case Some(e) => Some(actualType(e))
-      case None =>
-        Some(Rql2RecordType(methods.map(m => Rql2AttrType(m.i.idn, getFunType(m.p)))))
+      case None => Some(Rql2RecordType(methods.map(m => Rql2AttrType(m.i.idn, getFunType(m.p)))))
     }
   }
 
