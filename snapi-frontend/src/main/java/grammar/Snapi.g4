@@ -27,9 +27,6 @@ fun_proto: '(' fun_params? ')'              # FunProtoWithoutType
          | '(' fun_params? ')' ':' type     # FunProtoWithType
          ;
 
-fun_opt_params: attr (',' attr)*
-        ;
-
 fun_params: fun_param (',' fun_param)*      # FunParams
           ;
 
@@ -54,17 +51,16 @@ fun_abs: fun_proto '->' expr                # FunAbs
        ;
 
 // ============= types =================
-type: '(' type ')'                                    # TypeWithParenType
-    | PRIMITIVE_TYPES                                 # PrimitiveTypeType
-    | UNDEFINED_TOKEN                                 # UndefinedTypeType
-    | IDENT                                           # TypeAliasType
-    | record_type                                     # RecordTypeType
-    | iterable_type                                   # IterableTypeType
-    | list_type                                       # ListTypeType
-    | '(' type (',' type)* (',' attr)* ')' '->' type  # FunTypeWithParamsType
-    | '(' attr (',' type)* (',' attr)* ')' '->' type  # FunTypeWithParamsType
-    | type '->' type                                  # FunTypeType
-    | expr_type                                       # ExprTypeType
+type: '(' type ')'                                          # TypeWithParenType
+    | PRIMITIVE_TYPES                                       # PrimitiveTypeType
+    | UNDEFINED_TOKEN                                       # UndefinedTypeType
+    | IDENT                                                 # TypeAliasType
+    | record_type                                           # RecordTypeType
+    | iterable_type                                         # IterableTypeType
+    | list_type                                             # ListTypeType
+    | '(' (type | attr) (',' (type | attr))* ')' '->' type  # FunTypeWithParamsType
+    | type '->' type                                        # FunTypeType
+    | expr_type                                             # ExprTypeType
     ;
 
 record_type: RECORD_TOKEN '(' attr (',' attr)* ')';

@@ -126,6 +126,54 @@ public interface SnapiListener extends ParseTreeListener {
 	 */
 	void exitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code FunParams}
+	 * labeled alternative in {@link SnapiParser#fun_params}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunParams(SnapiParser.FunParamsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunParams}
+	 * labeled alternative in {@link SnapiParser#fun_params}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunParams(SnapiParser.FunParamsContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FunParamAttr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunParamAttr(SnapiParser.FunParamAttrContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunParamAttr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunParamAttr(SnapiParser.FunParamAttrContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FunParamAttrExpr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunParamAttrExpr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AttrWithType}
+	 * labeled alternative in {@link SnapiParser#attr}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttrWithType(SnapiParser.AttrWithTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AttrWithType}
+	 * labeled alternative in {@link SnapiParser#attr}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttrWithType(SnapiParser.AttrWithTypeContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SnapiParser#fun_app}.
 	 * @param ctx the parse tree
 	 */
@@ -323,66 +371,6 @@ public interface SnapiListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunTypeType(SnapiParser.FunTypeTypeContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code FunOptParams}
-	 * labeled alternative in {@link SnapiParser#fun_opt_params}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunOptParams(SnapiParser.FunOptParamsContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code FunOptParams}
-	 * labeled alternative in {@link SnapiParser#fun_opt_params}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunOptParams(SnapiParser.FunOptParamsContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code FunParams}
-	 * labeled alternative in {@link SnapiParser#fun_params}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunParams(SnapiParser.FunParamsContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code FunParams}
-	 * labeled alternative in {@link SnapiParser#fun_params}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunParams(SnapiParser.FunParamsContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code FunParamAttr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunParamAttr(SnapiParser.FunParamAttrContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code FunParamAttr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunParamAttr(SnapiParser.FunParamAttrContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code FunParamAttrExpr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code FunParamAttrExpr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code AttrWithType}
-	 * labeled alternative in {@link SnapiParser#attr}.
-	 * @param ctx the parse tree
-	 */
-	void enterAttrWithType(SnapiParser.AttrWithTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code AttrWithType}
-	 * labeled alternative in {@link SnapiParser#attr}.
-	 * @param ctx the parse tree
-	 */
-	void exitAttrWithType(SnapiParser.AttrWithTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SnapiParser#record_type}.
 	 * @param ctx the parse tree

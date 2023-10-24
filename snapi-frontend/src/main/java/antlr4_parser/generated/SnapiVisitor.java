@@ -80,6 +80,34 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code FunParams}
+	 * labeled alternative in {@link SnapiParser#fun_params}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunParams(SnapiParser.FunParamsContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunParamAttr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunParamAttr(SnapiParser.FunParamAttrContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code FunParamAttrExpr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
+	/**
+	 * Visit a parse tree produced by the {@code AttrWithType}
+	 * labeled alternative in {@link SnapiParser#attr}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitAttrWithType(SnapiParser.AttrWithTypeContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SnapiParser#fun_app}.
 	 * @param ctx the parse tree
 	 * @return the visitor result
@@ -195,41 +223,6 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitFunTypeType(SnapiParser.FunTypeTypeContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code FunOptParams}
-	 * labeled alternative in {@link SnapiParser#fun_opt_params}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunOptParams(SnapiParser.FunOptParamsContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code FunParams}
-	 * labeled alternative in {@link SnapiParser#fun_params}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunParams(SnapiParser.FunParamsContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code FunParamAttr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunParamAttr(SnapiParser.FunParamAttrContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code FunParamAttrExpr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
-	/**
-	 * Visit a parse tree produced by the {@code AttrWithType}
-	 * labeled alternative in {@link SnapiParser#attr}.
-	 * @param ctx the parse tree
-	 * @return the visitor result
-	 */
-	T visitAttrWithType(SnapiParser.AttrWithTypeContext ctx);
 	/**
 	 * Visit a parse tree produced by {@link SnapiParser#record_type}.
 	 * @param ctx the parse tree
