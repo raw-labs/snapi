@@ -6,25 +6,18 @@ PRIMITIVE_TYPES : BOOL_TOKEN
               | STRING_TOKEN
               | LOCATION_TOKEN
               | BINARY_TOKEN
-              | NUMBER_TYPE
-              | TEMPORAL_TYPE
-              | REGEX_TOKEN
+              | DATE_TOKEN
+              | TIME_TOKEN
+              | INTERVAL_TOKEN
+              | TIMESTAMP_TOKEN
+              | BYTE_TOKEN
+              | SHORT_TOKEN
+              | INT_TOKEN
+              | LONG_TOKEN
+              | FLOAT_TOKEN
+              | DOUBLE_TOKEN
+              | DECIMAL_TOKEN
               ;
-
-TEMPORAL_TYPE: DATE_TOKEN
-             | TIME_TOKEN
-             | INTERVAL_TOKEN
-             | TIMESTAMP_TOKEN
-             ;
-
-NUMBER_TYPE: BYTE_TOKEN
-           | SHORT_TOKEN
-           | INT_TOKEN
-           | LONG_TOKEN
-           | FLOAT_TOKEN
-           | DOUBLE_TOKEN
-           | DECIMAL_TOKEN
-           ;
 
 TYPE_TOKEN: 'type';
 
@@ -43,7 +36,6 @@ DATE_TOKEN: 'date';
 TIME_TOKEN: 'time';
 INTERVAL_TOKEN: 'interval';
 TIMESTAMP_TOKEN: 'timestamp';
-REGEX_TOKEN: 'regex';
 RECORD_TOKEN: 'record';
 COLLECTION_TOKEN: 'collection';
 LIST_TOKEN: 'list';

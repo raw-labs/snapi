@@ -157,7 +157,8 @@ libraryDependencies ++= Seq(
   snowflakeDeps,
   commonsCodec,
   springCore,
-  kryo
+  kryo,
+  antlr4
 ) ++
   poiDeps ++
   scalaCompiler

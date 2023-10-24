@@ -137,54 +137,6 @@ public class SnapiBaseListener implements SnapiListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunParams(SnapiParser.FunParamsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFunParams(SnapiParser.FunParamsContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFunParamAttr(SnapiParser.FunParamAttrContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFunParamAttr(SnapiParser.FunParamAttrContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterAttrWithType(SnapiParser.AttrWithTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitAttrWithType(SnapiParser.AttrWithTypeContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
 	@Override public void enterFun_app(SnapiParser.Fun_appContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -269,121 +221,181 @@ public class SnapiBaseListener implements SnapiListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeWithParen(SnapiParser.TypeWithParenContext ctx) { }
+	@Override public void enterFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeWithParen(SnapiParser.TypeWithParenContext ctx) { }
+	@Override public void exitFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterRecordType(SnapiParser.RecordTypeContext ctx) { }
+	@Override public void enterExprTypeType(SnapiParser.ExprTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitRecordType(SnapiParser.RecordTypeContext ctx) { }
+	@Override public void exitExprTypeType(SnapiParser.ExprTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprType(SnapiParser.ExprTypeContext ctx) { }
+	@Override public void enterUndefinedTypeType(SnapiParser.UndefinedTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprType(SnapiParser.ExprTypeContext ctx) { }
+	@Override public void exitUndefinedTypeType(SnapiParser.UndefinedTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunTypeWithParams(SnapiParser.FunTypeWithParamsContext ctx) { }
+	@Override public void enterRecordTypeType(SnapiParser.RecordTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunTypeWithParams(SnapiParser.FunTypeWithParamsContext ctx) { }
+	@Override public void exitRecordTypeType(SnapiParser.RecordTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterListType(SnapiParser.ListTypeContext ctx) { }
+	@Override public void enterIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitListType(SnapiParser.ListTypeContext ctx) { }
+	@Override public void exitIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterFunType(SnapiParser.FunTypeContext ctx) { }
+	@Override public void enterTypeWithParenType(SnapiParser.TypeWithParenTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitFunType(SnapiParser.FunTypeContext ctx) { }
+	@Override public void exitTypeWithParenType(SnapiParser.TypeWithParenTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterTypeAlias(SnapiParser.TypeAliasContext ctx) { }
+	@Override public void enterListTypeType(SnapiParser.ListTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitTypeAlias(SnapiParser.TypeAliasContext ctx) { }
+	@Override public void exitListTypeType(SnapiParser.ListTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterPremetiveType(SnapiParser.PremetiveTypeContext ctx) { }
+	@Override public void enterPrimitiveTypeType(SnapiParser.PrimitiveTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitPremetiveType(SnapiParser.PremetiveTypeContext ctx) { }
+	@Override public void exitPrimitiveTypeType(SnapiParser.PrimitiveTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterUndefinedType(SnapiParser.UndefinedTypeContext ctx) { }
+	@Override public void enterTypeAliasType(SnapiParser.TypeAliasTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitUndefinedType(SnapiParser.UndefinedTypeContext ctx) { }
+	@Override public void exitTypeAliasType(SnapiParser.TypeAliasTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterIterableType(SnapiParser.IterableTypeContext ctx) { }
+	@Override public void enterFunTypeType(SnapiParser.FunTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitIterableType(SnapiParser.IterableTypeContext ctx) { }
+	@Override public void exitFunTypeType(SnapiParser.FunTypeTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunOptParams(SnapiParser.FunOptParamsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunOptParams(SnapiParser.FunOptParamsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunParams(SnapiParser.FunParamsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunParams(SnapiParser.FunParamsContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunParamAttr(SnapiParser.FunParamAttrContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunParamAttr(SnapiParser.FunParamAttrContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterAttrWithType(SnapiParser.AttrWithTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitAttrWithType(SnapiParser.AttrWithTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -468,18 +480,6 @@ public class SnapiBaseListener implements SnapiListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitStringExpr(SnapiParser.StringExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterIdentExpr(SnapiParser.IdentExprContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitIdentExpr(SnapiParser.IdentExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -581,13 +581,13 @@ public class SnapiBaseListener implements SnapiListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterExprTypeType(SnapiParser.ExprTypeTypeContext ctx) { }
+	@Override public void enterExprTypeExpr(SnapiParser.ExprTypeExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitExprTypeType(SnapiParser.ExprTypeTypeContext ctx) { }
+	@Override public void exitExprTypeExpr(SnapiParser.ExprTypeExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -749,25 +749,13 @@ public class SnapiBaseListener implements SnapiListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void enterLetBind(SnapiParser.LetBindContext ctx) { }
+	@Override public void enterLet_decl(SnapiParser.Let_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
-	@Override public void exitLetBind(SnapiParser.LetBindContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void enterLetFunDec(SnapiParser.LetFunDecContext ctx) { }
-	/**
-	 * {@inheritDoc}
-	 *
-	 * <p>The default implementation does nothing.</p>
-	 */
-	@Override public void exitLetFunDec(SnapiParser.LetFunDecContext ctx) { }
+	@Override public void exitLet_decl(SnapiParser.Let_declContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

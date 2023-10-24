@@ -126,54 +126,6 @@ public interface SnapiListener extends ParseTreeListener {
 	 */
 	void exitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code FunParams}
-	 * labeled alternative in {@link SnapiParser#fun_params}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunParams(SnapiParser.FunParamsContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code FunParams}
-	 * labeled alternative in {@link SnapiParser#fun_params}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunParams(SnapiParser.FunParamsContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code FunParamAttr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunParamAttr(SnapiParser.FunParamAttrContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code FunParamAttr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunParamAttr(SnapiParser.FunParamAttrContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code FunParamAttrExpr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void enterFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code FunParamAttrExpr}
-	 * labeled alternative in {@link SnapiParser#fun_param}.
-	 * @param ctx the parse tree
-	 */
-	void exitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code AttrWithType}
-	 * labeled alternative in {@link SnapiParser#attr}.
-	 * @param ctx the parse tree
-	 */
-	void enterAttrWithType(SnapiParser.AttrWithTypeContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code AttrWithType}
-	 * labeled alternative in {@link SnapiParser#attr}.
-	 * @param ctx the parse tree
-	 */
-	void exitAttrWithType(SnapiParser.AttrWithTypeContext ctx);
-	/**
 	 * Enter a parse tree produced by {@link SnapiParser#fun_app}.
 	 * @param ctx the parse tree
 	 */
@@ -252,125 +204,185 @@ public interface SnapiListener extends ParseTreeListener {
 	 */
 	void exitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code TypeWithParen}
+	 * Enter a parse tree produced by the {@code FunTypeWithParamsType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeWithParen(SnapiParser.TypeWithParenContext ctx);
+	void enterFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code TypeWithParen}
+	 * Exit a parse tree produced by the {@code FunTypeWithParamsType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeWithParen(SnapiParser.TypeWithParenContext ctx);
+	void exitFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code RecordType}
+	 * Enter a parse tree produced by the {@code ExprTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterRecordType(SnapiParser.RecordTypeContext ctx);
+	void enterExprTypeType(SnapiParser.ExprTypeTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code RecordType}
+	 * Exit a parse tree produced by the {@code ExprTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitRecordType(SnapiParser.RecordTypeContext ctx);
+	void exitExprTypeType(SnapiParser.ExprTypeTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprType}
+	 * Enter a parse tree produced by the {@code UndefinedTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprType(SnapiParser.ExprTypeContext ctx);
+	void enterUndefinedTypeType(SnapiParser.UndefinedTypeTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprType}
+	 * Exit a parse tree produced by the {@code UndefinedTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprType(SnapiParser.ExprTypeContext ctx);
+	void exitUndefinedTypeType(SnapiParser.UndefinedTypeTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code FunTypeWithParams}
+	 * Enter a parse tree produced by the {@code RecordTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunTypeWithParams(SnapiParser.FunTypeWithParamsContext ctx);
+	void enterRecordTypeType(SnapiParser.RecordTypeTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code FunTypeWithParams}
+	 * Exit a parse tree produced by the {@code RecordTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunTypeWithParams(SnapiParser.FunTypeWithParamsContext ctx);
+	void exitRecordTypeType(SnapiParser.RecordTypeTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ListType}
+	 * Enter a parse tree produced by the {@code IterableTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterListType(SnapiParser.ListTypeContext ctx);
+	void enterIterableTypeType(SnapiParser.IterableTypeTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ListType}
+	 * Exit a parse tree produced by the {@code IterableTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitListType(SnapiParser.ListTypeContext ctx);
+	void exitIterableTypeType(SnapiParser.IterableTypeTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code FunType}
+	 * Enter a parse tree produced by the {@code TypeWithParenType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterFunType(SnapiParser.FunTypeContext ctx);
+	void enterTypeWithParenType(SnapiParser.TypeWithParenTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code FunType}
+	 * Exit a parse tree produced by the {@code TypeWithParenType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitFunType(SnapiParser.FunTypeContext ctx);
+	void exitTypeWithParenType(SnapiParser.TypeWithParenTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code TypeAlias}
+	 * Enter a parse tree produced by the {@code ListTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterTypeAlias(SnapiParser.TypeAliasContext ctx);
+	void enterListTypeType(SnapiParser.ListTypeTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code TypeAlias}
+	 * Exit a parse tree produced by the {@code ListTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitTypeAlias(SnapiParser.TypeAliasContext ctx);
+	void exitListTypeType(SnapiParser.ListTypeTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code PremetiveType}
+	 * Enter a parse tree produced by the {@code PrimitiveTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterPremetiveType(SnapiParser.PremetiveTypeContext ctx);
+	void enterPrimitiveTypeType(SnapiParser.PrimitiveTypeTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code PremetiveType}
+	 * Exit a parse tree produced by the {@code PrimitiveTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitPremetiveType(SnapiParser.PremetiveTypeContext ctx);
+	void exitPrimitiveTypeType(SnapiParser.PrimitiveTypeTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code UndefinedType}
+	 * Enter a parse tree produced by the {@code TypeAliasType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterUndefinedType(SnapiParser.UndefinedTypeContext ctx);
+	void enterTypeAliasType(SnapiParser.TypeAliasTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code UndefinedType}
+	 * Exit a parse tree produced by the {@code TypeAliasType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitUndefinedType(SnapiParser.UndefinedTypeContext ctx);
+	void exitTypeAliasType(SnapiParser.TypeAliasTypeContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code IterableType}
+	 * Enter a parse tree produced by the {@code FunTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void enterIterableType(SnapiParser.IterableTypeContext ctx);
+	void enterFunTypeType(SnapiParser.FunTypeTypeContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code IterableType}
+	 * Exit a parse tree produced by the {@code FunTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
 	 */
-	void exitIterableType(SnapiParser.IterableTypeContext ctx);
+	void exitFunTypeType(SnapiParser.FunTypeTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FunOptParams}
+	 * labeled alternative in {@link SnapiParser#fun_opt_params}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunOptParams(SnapiParser.FunOptParamsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunOptParams}
+	 * labeled alternative in {@link SnapiParser#fun_opt_params}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunOptParams(SnapiParser.FunOptParamsContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FunParams}
+	 * labeled alternative in {@link SnapiParser#fun_params}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunParams(SnapiParser.FunParamsContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunParams}
+	 * labeled alternative in {@link SnapiParser#fun_params}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunParams(SnapiParser.FunParamsContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FunParamAttr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunParamAttr(SnapiParser.FunParamAttrContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunParamAttr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunParamAttr(SnapiParser.FunParamAttrContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code FunParamAttrExpr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void enterFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code FunParamAttrExpr}
+	 * labeled alternative in {@link SnapiParser#fun_param}.
+	 * @param ctx the parse tree
+	 */
+	void exitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code AttrWithType}
+	 * labeled alternative in {@link SnapiParser#attr}.
+	 * @param ctx the parse tree
+	 */
+	void enterAttrWithType(SnapiParser.AttrWithTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code AttrWithType}
+	 * labeled alternative in {@link SnapiParser#attr}.
+	 * @param ctx the parse tree
+	 */
+	void exitAttrWithType(SnapiParser.AttrWithTypeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SnapiParser#record_type}.
 	 * @param ctx the parse tree
@@ -447,18 +459,6 @@ public interface SnapiListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitStringExpr(SnapiParser.StringExprContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code IdentExpr}
-	 * labeled alternative in {@link SnapiParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void enterIdentExpr(SnapiParser.IdentExprContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code IdentExpr}
-	 * labeled alternative in {@link SnapiParser#expr}.
-	 * @param ctx the parse tree
-	 */
-	void exitIdentExpr(SnapiParser.IdentExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code BoolConstExpr}
 	 * labeled alternative in {@link SnapiParser#expr}.
@@ -556,17 +556,17 @@ public interface SnapiListener extends ParseTreeListener {
 	 */
 	void exitNullExpr(SnapiParser.NullExprContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code ExprTypeType}
+	 * Enter a parse tree produced by the {@code ExprTypeExpr}
 	 * labeled alternative in {@link SnapiParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void enterExprTypeType(SnapiParser.ExprTypeTypeContext ctx);
+	void enterExprTypeExpr(SnapiParser.ExprTypeExprContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code ExprTypeType}
+	 * Exit a parse tree produced by the {@code ExprTypeExpr}
 	 * labeled alternative in {@link SnapiParser#expr}.
 	 * @param ctx the parse tree
 	 */
-	void exitExprTypeType(SnapiParser.ExprTypeTypeContext ctx);
+	void exitExprTypeExpr(SnapiParser.ExprTypeExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code DivExpr}
 	 * labeled alternative in {@link SnapiParser#expr}.
@@ -720,29 +720,15 @@ public interface SnapiListener extends ParseTreeListener {
 	 */
 	void exitLet_left(SnapiParser.Let_leftContext ctx);
 	/**
-	 * Enter a parse tree produced by the {@code LetBind}
-	 * labeled alternative in {@link SnapiParser#let_decl}.
+	 * Enter a parse tree produced by {@link SnapiParser#let_decl}.
 	 * @param ctx the parse tree
 	 */
-	void enterLetBind(SnapiParser.LetBindContext ctx);
+	void enterLet_decl(SnapiParser.Let_declContext ctx);
 	/**
-	 * Exit a parse tree produced by the {@code LetBind}
-	 * labeled alternative in {@link SnapiParser#let_decl}.
+	 * Exit a parse tree produced by {@link SnapiParser#let_decl}.
 	 * @param ctx the parse tree
 	 */
-	void exitLetBind(SnapiParser.LetBindContext ctx);
-	/**
-	 * Enter a parse tree produced by the {@code LetFunDec}
-	 * labeled alternative in {@link SnapiParser#let_decl}.
-	 * @param ctx the parse tree
-	 */
-	void enterLetFunDec(SnapiParser.LetFunDecContext ctx);
-	/**
-	 * Exit a parse tree produced by the {@code LetFunDec}
-	 * labeled alternative in {@link SnapiParser#let_decl}.
-	 * @param ctx the parse tree
-	 */
-	void exitLetFunDec(SnapiParser.LetFunDecContext ctx);
+	void exitLet_decl(SnapiParser.Let_declContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SnapiParser#let_bind}.
 	 * @param ctx the parse tree

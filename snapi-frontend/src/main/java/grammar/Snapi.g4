@@ -27,6 +27,9 @@ fun_proto: '(' fun_params? ')'              # FunProtoWithoutType
          | '(' fun_params? ')' ':' type     # FunProtoWithType
          ;
 
+fun_opt_params: attr (',' attr)*
+        ;
+
 fun_params: fun_param (',' fun_param)*      # FunParams
           ;
 
@@ -51,16 +54,17 @@ fun_abs: fun_proto '->' expr                # FunAbs
        ;
 
 // ============= types =================
-type: '(' type ')'                          # TypeWithParen
-    | PRIMITIVE_TYPES                       # PremetiveType
-    | UNDEFINED_TOKEN                       # UndefinedType
-    | IDENT                                 # TypeAlias
-    | record_type                           # RecordType
-    | iterable_type                         # IterableType
-    | list_type                             # ListType
-    | fun_params '->' type                  # FunTypeWithParams
-    | type '->' type                        # FunType
-    | expr_type                             # ExprType
+type: '(' type ')'                                    # TypeWithParenType
+    | PRIMITIVE_TYPES                                 # PrimitiveTypeType
+    | UNDEFINED_TOKEN                                 # UndefinedTypeType
+    | IDENT                                           # TypeAliasType
+    | record_type                                     # RecordTypeType
+    | iterable_type                                   # IterableTypeType
+    | list_type                                       # ListTypeType
+    | '(' type (',' type)* (',' attr)* ')' '->' type  # FunTypeWithParamsType
+    | '(' attr (',' type)* (',' attr)* ')' '->' type  # FunTypeWithParamsType
+    | type '->' type                                  # FunTypeType
+    | expr_type                                       # ExprTypeType
     ;
 
 record_type: RECORD_TOKEN '(' attr (',' attr)* ')';
@@ -78,11 +82,11 @@ expr: '(' expr ')'                         # ParenExpr
     | NULL_TOKEN                           # NullExpr
     | TRIPPLE_STRING                       # TrippleStringExpr
     | STRING                               # StringExpr
-    | IDENT                                # IdentExpr
+//    | IDENT                                # IdentExpr // probably will be deleted
     | NOT_TOKEN expr                       # NotExpr
     | expr AND_TOKEN expr                  # AndExpr
     | expr OR_TOKEN expr                   # OrExpr
-    | expr op=COMPARE_TOKENS expr          # CompareExpr
+    | expr COMPARE_TOKENS expr             # CompareExpr
     | MINUS_TOKEN expr                     # MinusExpr
     | PLUS_TOKEN expr                      # PlusExpr
     | expr MUL_TOKEN expr                  # MulExpr
@@ -93,7 +97,7 @@ expr: '(' expr ')'                         # ParenExpr
     | fun_app                              # FunAppExpr
     | fun_abs                              # FunAbsExpr
     | let                                  # LetExpr
-    | expr_type                            # ExprTypeType  // to check if this works correctly with recor(a:int)
+    | expr_type                            # ExprTypeExpr  // to check if this works correctly with recor(a:int)
     | <assoc=right> expr '.' IDENT fun_ar? # ProjectionExpr  // projection
     // | expr '.'  {notifyErrorListeners("Incomplete projection");}
     ;
@@ -104,11 +108,13 @@ let_left: let_decl (',' let_decl)*
         // | let_decl (let_decl)* {notifyErrorListeners("Missing ','");}
         ;
 
-let_decl: let_bind                         # LetBind
-        | fun_dec                          # LetFunDec
+let_decl: let_bind
+        | fun_dec
         ;
 
-let_bind: IDENT '=' expr | IDENT ':' type '=' expr;
+let_bind: IDENT '=' expr
+        | IDENT ':' type '=' expr
+        ;
 
 if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
             // | IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN {notifyErrorListeners("Missing else expr");}
