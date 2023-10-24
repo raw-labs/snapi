@@ -21,7 +21,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.time.LocalTime;
 
 @ExportLibrary(InteropLibrary.class)
-public class TimeObject implements TruffleObject {
+public final class TimeObject implements TruffleObject {
 
   private final LocalTime time;
 
@@ -38,12 +38,12 @@ public class TimeObject implements TruffleObject {
   }
 
   @ExportMessage
-  public final boolean isTime() {
+  final boolean isTime() {
     return true;
   }
 
   @ExportMessage
-  public final LocalTime asTime() {
+  final LocalTime asTime() {
     return time;
   }
 }

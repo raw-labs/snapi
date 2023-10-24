@@ -24,7 +24,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
-public class OrObject implements TruffleObject {
+public final class OrObject implements TruffleObject {
 
   private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
 

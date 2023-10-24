@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.function;
 
 import com.oracle.truffle.api.interop.TruffleObject;
 
-public class RawFunctionRegistry {
+public final class RawFunctionRegistry {
 
   private final FunctionRegistryObject registry;
 

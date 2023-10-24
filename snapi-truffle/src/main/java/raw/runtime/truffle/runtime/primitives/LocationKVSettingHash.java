@@ -22,8 +22,10 @@ import raw.runtime.truffle.runtime.list.StringList;
 
 import java.util.Objects;
 
+/* This class is used to export Location KVSettings (as a Hash) */
+
 @ExportLibrary(InteropLibrary.class)
-class LocationKVSettingHash implements TruffleObject {
+final class LocationKVSettingHash implements TruffleObject {
 
   private final java.util.Map<String, String> map = new java.util.HashMap<>();
 
@@ -39,12 +41,12 @@ class LocationKVSettingHash implements TruffleObject {
   }
 
   @ExportMessage
-  final public long getHashSize() {
+  final long getHashSize() {
     return map.size();
   }
 
   @ExportMessage
-  final public boolean isHashEntryReadable(Object key) {
+  final boolean isHashEntryReadable(Object key) {
     if (Objects.requireNonNull(key) instanceof String stringKey) {
       return map.containsKey(stringKey);
     } else {
@@ -53,7 +55,7 @@ class LocationKVSettingHash implements TruffleObject {
   }
 
   @ExportMessage
-  final public Object readHashValue(Object key) {
+  final Object readHashValue(Object key) {
     if (Objects.requireNonNull(key) instanceof String stringKey) {
       return map.get(stringKey);
     } else {
@@ -62,7 +64,7 @@ class LocationKVSettingHash implements TruffleObject {
   }
 
   @ExportMessage
-  public Object getHashEntriesIterator() {
+  final  Object getHashEntriesIterator() {
     return new CollectionAbstractGenerator(new ExpressionComputeNext(map.keySet().stream().map(k -> new StringList(new String[]{k, map.get(k)})).toArray()));
 //    return map.keySet().stream().map(k -> new Object[]{k, map.get(k)}).iterator();
   }

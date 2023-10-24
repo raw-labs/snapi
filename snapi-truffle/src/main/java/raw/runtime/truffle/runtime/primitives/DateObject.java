@@ -24,7 +24,7 @@ import java.time.LocalDate;
 import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
-public class DateObject implements TruffleObject {
+public final class DateObject implements TruffleObject {
 
   private final LocalDate date;
 
@@ -41,12 +41,12 @@ public class DateObject implements TruffleObject {
   }
 
   @ExportMessage
-  public final boolean isDate() {
+  boolean isDate() {
     return true;
   }
 
   @ExportMessage
-  public final LocalDate asDate() {
+  LocalDate asDate() {
     return date;
   }
 

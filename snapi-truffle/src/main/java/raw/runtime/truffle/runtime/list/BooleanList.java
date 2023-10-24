@@ -20,7 +20,7 @@ import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
 @ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
-public class BooleanList implements TruffleObject {
+public final class BooleanList implements TruffleObject {
   private final boolean[] list;
 
   public BooleanList(boolean[] list) {

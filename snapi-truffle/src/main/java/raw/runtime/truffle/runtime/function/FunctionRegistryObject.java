@@ -24,7 +24,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
-public class FunctionRegistryObject implements TruffleObject {
+public final class FunctionRegistryObject implements TruffleObject {
 
   private final Map<String, Closure> functions = new HashMap<>();
 

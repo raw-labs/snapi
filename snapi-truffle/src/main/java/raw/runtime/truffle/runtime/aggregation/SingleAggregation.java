@@ -21,7 +21,7 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(AggregationLibrary.class)
-public class SingleAggregation {
+public final class SingleAggregation {
 
   final Object aggregator;
 
