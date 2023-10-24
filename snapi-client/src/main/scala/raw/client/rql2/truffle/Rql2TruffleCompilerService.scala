@@ -12,6 +12,7 @@
 
 package raw.client.rql2.truffle
 
+import com.oracle.truffle.api.strings.TruffleString
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
@@ -32,12 +33,15 @@ import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
+import raw.runtime.truffle.runtime.option.{EmptyOption, ObjectOption, StringOption}
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
+import raw.runtime.truffle.runtime.tryable.ObjectTryable
 import raw.sources.api.SourceContext
-import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, withSuppressNonFatalException}
 
 import java.io.{IOException, OutputStream}
-import scala.collection.mutable
+import java.time.LocalDate
+import scala.collection.{JavaConverters, mutable}
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
@@ -449,11 +453,18 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         }
 
            */
-
-          ???
+          val truffleSource = Source
+            .newBuilder("rql", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          ctx.eval(truffleSource)
+          logger.info("members:")
+          val bindings = ctx.getBindings("rql")
+          val f = bindings.getMember(decl)
+          val paramValues = environment.maybeArguments.map(_.map(_._2).map(javaValueOf)).getOrElse(Array.empty)
+          f.execute(new DateObject(LocalDate.now()))
+//          f.execute(TruffleString.fromConstant("tralala", TruffleString.Encoding.UTF_8))
         case None =>
-          val programContext = getProgramContext(environment.user, environment)
-          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
           val truffleSource = Source
             .newBuilder("rql", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
@@ -818,20 +829,24 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
 
   private def javaValueOf(value: ParamValue) = {
     value match {
-      case ParamNull() => null
-      case ParamByte(v) => v
-      case ParamShort(v) => v
-      case ParamInt(v) => v
-      case ParamLong(v) => v
-      case ParamFloat(v) => v
-      case ParamDouble(v) => v
-      case ParamBool(v) => v
-      case ParamString(v) => v
-      case ParamDecimal(v) => new DecimalObject(v)
-      case ParamDate(v) => new DateObject(v)
-      case ParamTime(v) => new TimeObject(v)
-      case ParamTimestamp(v) => new TimestampObject(v)
-      case ParamInterval(v) => IntervalObject.fromDuration(v)
+      case ParamNull() => ObjectTryable.BuildSuccess(new EmptyOption)
+      case _ =>
+        val innerValue = value match {
+          case ParamByte(v) => v
+          case ParamShort(v) => v
+          case ParamInt(v) => v
+          case ParamLong(v) => v
+          case ParamFloat(v) => v
+          case ParamDouble(v) => v
+          case ParamBool(v) => v
+          case ParamString(v) => v
+          case ParamDecimal(v) => new DecimalObject(v)
+          case ParamDate(v) => new DateObject(v)
+          case ParamTime(v) => new TimeObject(v)
+          case ParamTimestamp(v) => new TimestampObject(v)
+          case ParamInterval(v) => IntervalObject.fromDuration(v)
+        }
+        ObjectTryable.BuildSuccess(new ObjectOption(innerValue))
     }
   }
 

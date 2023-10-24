@@ -19,6 +19,7 @@ import com.oracle.truffle.api.nodes.RootNode;
 import raw.compiler.base.source.Type;
 import raw.compiler.common.source.Exp;
 import raw.compiler.common.source.SourceProgram;
+import raw.compiler.common.source.VoidType;
 import raw.compiler.rql2.ProgramContext;
 import raw.compiler.rql2.Tree;
 //import raw.compiler.rql2.builtin.BinaryPackage;
@@ -56,7 +57,7 @@ public class TruffleEmit {
     Tree tree = new Tree(program, true, ctx);
     SnapiTruffleEmitter emitter = new SnapiTruffleEmitter(tree, language, ctx);
     Rql2Program prog = (Rql2Program) tree.root();
-    Type dataType = tree.analyzer().tipe(prog.me().get());
+//    Type dataType = prog.me().isDefined() ? tree.analyzer().tipe(prog.me().get()) : new VoidType();
 //    String outputFormat =
 //        ctx.runtimeContext()
 //            .environment()
@@ -89,107 +90,19 @@ public class TruffleEmit {
 //        throw new RawTruffleRuntimeException("unknown output format");
 //    }
 
-    assert prog.me().isDefined();
-
-    Exp bodyExp = prog.me().get();
+    Exp bodyExp = (prog.me().isDefined()) ? prog.me().get() : new IntConst("0");
     emitter.addScope();
-
     StatementNode[] functionDeclarations =
         JavaConverters.asJavaCollection(prog.methods()).stream()
             .map(emitter::emitMethod)
             .toArray(StatementNode[]::new);
-
     ExpressionNode body = emitter.recurseExp(bodyExp);
-
     ExpressionNode bodyExpNode =
         functionDeclarations.length != 0 ? new ExpBlockNode(functionDeclarations, body) : body;
 
     FrameDescriptor frameDescriptor = emitter.dropScope();
-
     RootNode rootNode;
-
-//    boolean windowsLineEnding;
-//    assert outputFormat != null;
-//    switch (outputFormat) {
-//      case "csv" -> {
-//        Option<String> lineEnding =
-//            programContext.runtimeContext().environment().options().get("windows-line-ending");
-//        if (lineEnding.isDefined()) {
-//          windowsLineEnding = lineEnding.get().equals("true");
-//        } else {
-//          windowsLineEnding = programContext.settings().getBoolean(WINDOWS_LINE_ENDING);
-//        }
-//        String lineSeparator = windowsLineEnding ? "\r\n" : "\n";
-//        rootNode =
-//            switch (dataType) {
-//              case Rql2IterableType iterable -> {
-//                Rql2RecordType record = (Rql2RecordType) iterable.innerType();
-//                assert record.props().isEmpty();
-//                assert iterable.props().isEmpty();
-//                yield new ProgramStatementNode(
-//                    language,
-//                    frameDescriptor,
-//                    new CsvIterableWriterNode(
-//                        bodyExpNode,
-//                        CsvWriter.getCsvWriter(
-//                            JavaConverters.asJavaCollection(record.atts()).stream()
-//                                .map(Rql2AttrType::tipe)
-//                                .toArray(Type[]::new),
-//                            language),
-//                        JavaConverters.asJavaCollection(record.atts()).stream()
-//                            .map(Rql2AttrType::idn)
-//                            .toArray(String[]::new),
-//                        lineSeparator));
-//              }
-//              case Rql2ListType list -> {
-//                Rql2RecordType record = (Rql2RecordType) list.innerType();
-//                assert record.props().isEmpty();
-//                assert list.props().isEmpty();
-//                yield new ProgramStatementNode(
-//                    language,
-//                    frameDescriptor,
-//                    new CsvListWriterNode(
-//                        bodyExpNode,
-//                        CsvWriter.getCsvWriter(
-//                            JavaConverters.asJavaCollection(record.atts()).stream()
-//                                .map(Rql2AttrType::tipe)
-//                                .toArray(Type[]::new),
-//                            language),
-//                        JavaConverters.asJavaCollection(record.atts()).stream()
-//                            .map(Rql2AttrType::idn)
-//                            .toArray(String[]::new),
-//                        lineSeparator));
-//              }
-//              default -> throw new RawTruffleInternalErrorException();
-//            };
-//      }
-//      case "json" -> rootNode =
-//          new ProgramStatementNode(
-//              language,
-//              frameDescriptor,
-//              JsonWriterNodeGen.create(
-//                  bodyExpNode, JsonWriter.recurse((Rql2TypeWithProperties) dataType, language)));
-//      case "binary" -> {
-//        ProgramStatementNode writer =
-//            TruffleBinaryWriter.getBinaryWriterNode(
-//                (Rql2BinaryType) dataType, language, frameDescriptor);
-//        rootNode =
-//            new ProgramStatementNode(
-//                language, frameDescriptor, new BinaryWriterNode(bodyExpNode, writer));
-//      }
-//      case "text" -> {
-//        ProgramStatementNode writer =
-//            TruffleBinaryWriter.getBinaryWriterNode(
-//                (Rql2StringType) dataType, language, frameDescriptor);
-//        rootNode =
-//            new ProgramStatementNode(
-//                language, frameDescriptor, new BinaryWriterNode(bodyExpNode, writer));
-//      }
-//      default -> rootNode = new ProgramExpressionNode(language, frameDescriptor, bodyExpNode);
-//    }
-
     rootNode = new ProgramExpressionNode(language, frameDescriptor, bodyExpNode);
-
     return new TruffleEntrypoint(rootNode, frameDescriptor);
   }
 }

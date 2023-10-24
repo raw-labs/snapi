@@ -25,6 +25,7 @@ import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
 import raw.compiler.InitPhase;
 import raw.compiler.base.Phase;
+import raw.compiler.base.source.Type;
 import raw.compiler.common.PhaseDescriptor;
 import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.*;
@@ -124,10 +125,13 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
         SourceProgram outputProgram = transpile(inputProgram, programContext);
         Entrypoint entrypoint = TruffleEmit.doEmit(outputProgram, this, programContext);
         RootNode rootNode = (RootNode) entrypoint.target();
-        bindings.writeMember(
-            context.getPolyglotBindings(),
-            "@type",
-            InternalSourcePrettyPrinter.format(tree.rootType().get()));
+        if (tree.rootType().isDefined()) {
+          Type outputType = tree.rootType().get();
+          bindings.writeMember(
+              context.getPolyglotBindings(),
+              "@type",
+              InternalSourcePrettyPrinter.format(outputType));
+        }
         return rootNode.getCallTarget();
       } else {
         throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
@@ -209,6 +213,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   @Override
   protected Object getScope(RawContext context) {
-    return super.getScope(context);
+    return context.getFunctionRegistry().asPolyglot();
   }
 }
