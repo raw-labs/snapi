@@ -16,7 +16,6 @@ import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 

@@ -29,7 +29,7 @@ public final class MethodNode extends ClosureNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    Closure closure = (Closure)super.executeGeneric(virtualFrame);
+    Closure closure = (Closure) super.executeGeneric(virtualFrame);
     RawContext.get(this).getFunctionRegistry().register(name, closure);
     return closure;
   }
