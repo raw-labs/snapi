@@ -15,7 +15,8 @@ package raw.client.rql2.truffle
 import com.oracle.truffle.api.strings.TruffleString
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
+import org.graalvm.polyglot.proxy.ProxyDate
+import org.graalvm.polyglot.{Context, Engine, HostAccess, PolyglotAccess, PolyglotException, Source, Value}
 import raw.client.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
@@ -37,11 +38,11 @@ import raw.runtime.truffle.runtime.option.{EmptyOption, ObjectOption, StringOpti
 import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
 import raw.runtime.truffle.runtime.tryable.ObjectTryable
 import raw.sources.api.SourceContext
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, withSuppressNonFatalException}
+import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
 import java.time.LocalDate
-import scala.collection.{JavaConverters, mutable}
+import scala.collection.{mutable, JavaConverters}
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
@@ -385,95 +386,37 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     ctx.initialize("rql")
     ctx.enter()
     try {
-      val v = maybeDecl match {
+      val (v, tipe) = maybeDecl match {
         case Some(decl) =>
-          //          ctx.eval("rql", source)
-          //          val f = ctx.getBindings("rql").getMember(decl)
-          //          f.execute(maybeArguments)
-
-          /*
-
-        override def parseAndValidate(source: String, maybeDecl: Option[String])(
-            implicit programContext: base.ProgramContext
-        ): Either[List[ErrorMessage], SourceProgram] = {
-          buildInputTree(source).right.flatMap { tree =>
-            val Rql2Program(methods, me) = tree.root
-
-            maybeDecl match {
-              case None =>
-                if (programContext.runtimeContext.maybeArguments.nonEmpty) {
-                  // arguments are given while no method to execute is
-                  // provided.
-                  throw new CompilerException("arguments found")
-                }
-
-                if (me.isEmpty) {
-                  // no method, but also no bottom expression. This isn't
-                  // executable.
-                  throw new CompilerException("no expression found")
-                }
-
-                val e = me.get
-                Right(Rql2Program(methods, Some(e)))
-              case Some(decl) => tree.description.expDecls.get(decl) match {
-                  case Some(descriptions) =>
-                    if (descriptions.size > 1) throw new CompilerException("multiple declarations found")
-                    val description = descriptions.head
-                    val params = description.params.get
-                    val mandatory = params.collect { case p if p.required => p.idn }.toSet
-                    val args = programContext.runtimeContext.maybeArguments.get
-                    val programArgs = args.map {
-                      case (k, v) =>
-                        val e = v match {
-                          case _: ParamNull => NullConst()
-                          case _: ParamByte => EnvironmentPackageBuilder.Parameter(Rql2ByteType(), StringConst(k))
-                          case _: ParamShort => EnvironmentPackageBuilder.Parameter(Rql2ShortType(), StringConst(k))
-                          case _: ParamInt => EnvironmentPackageBuilder.Parameter(Rql2IntType(), StringConst(k))
-                          case _: ParamLong => EnvironmentPackageBuilder.Parameter(Rql2LongType(), StringConst(k))
-                          case _: ParamFloat => EnvironmentPackageBuilder.Parameter(Rql2FloatType(), StringConst(k))
-                          case _: ParamDouble => EnvironmentPackageBuilder.Parameter(Rql2DoubleType(), StringConst(k))
-                          case _: ParamDecimal => EnvironmentPackageBuilder.Parameter(Rql2DecimalType(), StringConst(k))
-                          case _: ParamBool => EnvironmentPackageBuilder.Parameter(Rql2BoolType(), StringConst(k))
-                          case _: ParamString => EnvironmentPackageBuilder.Parameter(Rql2StringType(), StringConst(k))
-                          case _: ParamDate => EnvironmentPackageBuilder.Parameter(Rql2DateType(), StringConst(k))
-                          case _: ParamTime => EnvironmentPackageBuilder.Parameter(Rql2TimeType(), StringConst(k))
-                          case _: ParamTimestamp => EnvironmentPackageBuilder.Parameter(Rql2TimestampType(), StringConst(k))
-                          case _: ParamInterval => EnvironmentPackageBuilder.Parameter(Rql2IntervalType(), StringConst(k))
-                        }
-                        // Build the argument node.
-                        // If argument is mandatory, then according to RQL2's language definition, the argument is not named.
-                        // However, if the argument os optional, the name is added.
-                        FunAppArg(e, if (mandatory.contains(k)) None else Some(k))
-                    }
-                    Right(Rql2Program(methods, Some(FunApp(IdnExp(IdnUse(decl)), programArgs.toVector))))
-                  case None => throw new CompilerException("declaration not found")
-                }
-            }
-          }
-        }
-
-           */
           val truffleSource = Source
             .newBuilder("rql", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           ctx.eval(truffleSource)
-          logger.info("members:")
+          val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
+          val ParseTypeSuccess(Rql2RecordType(atts, _)) = parseType(rawType, environment.user, internal = true)
           val bindings = ctx.getBindings("rql")
           val f = bindings.getMember(decl)
-          val paramValues = environment.maybeArguments.map(_.map(_._2).map(javaValueOf)).getOrElse(Array.empty)
-          f.execute(new DateObject(LocalDate.now()))
-//          f.execute(TruffleString.fromConstant("tralala", TruffleString.Encoding.UTF_8))
+          val arguments = environment.maybeArguments.map(_.map(_._2).map(v => javaValueOf(v, ctx))).getOrElse(Array.empty)
+          val result = f.execute(arguments:_*)
+          val funType = atts.find(_.idn == decl).get.tipe.asInstanceOf[FunType]
+          // Some typechecking
+          if (funType.ms.size != arguments.length) {
+            return ExecutionRuntimeFailure(s"expected ${funType.ms.size} arguments but got ${arguments.size}")
+          }
+          val tipe = funType.r
+          (result, tipe)
         case None =>
           val truffleSource = Source
             .newBuilder("rql", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
             .build()
-          ctx.eval(truffleSource)
+          val result = ctx.eval(truffleSource)
+          val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
+          val ParseTypeSuccess(tipe) = parseType(rawType, environment.user, internal = true)
+          (result, tipe)
       }
 
-      val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
-      val ParseTypeSuccess(tipe) = parseType(rawType, environment.user, internal = true)
       environment.options
         .get("output-format")
         .map(_.toLowerCase) match {
@@ -827,27 +770,25 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     engine.close(true)
   }
 
-  private def javaValueOf(value: ParamValue) = {
-    value match {
-      case ParamNull() => ObjectTryable.BuildSuccess(new EmptyOption)
-      case _ =>
-        val innerValue = value match {
-          case ParamByte(v) => v
-          case ParamShort(v) => v
-          case ParamInt(v) => v
-          case ParamLong(v) => v
-          case ParamFloat(v) => v
-          case ParamDouble(v) => v
-          case ParamBool(v) => v
-          case ParamString(v) => v
-          case ParamDecimal(v) => new DecimalObject(v)
-          case ParamDate(v) => new DateObject(v)
-          case ParamTime(v) => new TimeObject(v)
-          case ParamTimestamp(v) => new TimestampObject(v)
-          case ParamInterval(v) => IntervalObject.fromDuration(v)
-        }
-        ObjectTryable.BuildSuccess(new ObjectOption(innerValue))
+  private def javaValueOf(paramValue: ParamValue, ctx: Context) = {
+    val code: String = paramValue match {
+      case ParamNull() => "let x: undefined = null in x"
+      case ParamByte(v) => s"let x: byte = ${v}b in x"
+      case ParamShort(v) => s"let x: short = ${v}s in x"
+      case ParamInt(v) => s"let x: int = $v in x"
+      case ParamLong(v) => s"let x: long = ${v}L in x"
+      case ParamFloat(v) => s"let x: float = ${v}f in x"
+      case ParamDouble(v) => s"let x: double = $v in x"
+      case ParamBool(v) => s"let x: bool = $v in x"
+      case ParamString(v) => s"""let x: string = "$v" in x"""
+      case ParamDecimal(v) => s"""let x: decimal = Decimal.From("$v") in x"""
+      case ParamDate(v) => s"""let x: date = Date.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}) in x"""
+      case ParamTime(v) => s"""let x: time = Time.Build(${v.getHour}, ${v.getMinute}, millis=${v.getNano/1000000}) in x"""
+      case ParamTimestamp(v) => s"""let x: timestamp = Timestamp.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}, ${v.getHour}, ${v.getMinute}, millis=${v.getNano/1000000}) in x"""
+      case ParamInterval(v) => ???
     }
+    val value = ctx.eval("rql", code)
+    ctx.asValue(value)
   }
 
   private def buildTruffleContext(
@@ -870,14 +811,14 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
     // Add arguments as polyglot bindings.
     val ctx = ctxBuilder.build()
-    environment.maybeArguments.foreach { args =>
-      args.foreach(arg =>
-        ctx.getPolyglotBindings.putMember(
-          arg._1,
-          javaValueOf(arg._2)
-        )
-      )
-    }
+//    environment.maybeArguments.foreach { args =>
+//      args.foreach(arg =>
+//        ctx.getPolyglotBindings.putMember(
+//          arg._1,
+//          javaValueOf(arg._2)
+//        )
+//      )
+//    }
     ctx
   }
 

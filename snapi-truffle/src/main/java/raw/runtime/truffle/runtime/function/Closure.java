@@ -26,6 +26,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import org.graalvm.polyglot.Value;
 
+import java.time.LocalDate;
 import java.util.Objects;
 
 @ExportLibrary(InteropLibrary.class)
@@ -85,14 +86,6 @@ public class Closure implements TruffleObject {
               ? getArgs(closure, arguments)
               : getNamedArgs(closure, closure.getNamedArgNames(), arguments);
 
-      try {
-        Object members = InteropLibrary.getUncached().getMembers(args[1], true);
-        for (int i = 0; i < InteropLibrary.getUncached().getArraySize(members); i++) {
-          System.out.println("member: " + InteropLibrary.getUncached().readArrayElement(members, i));
-        }
-      } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-        throw new RuntimeException(e);
-      }
       return callNode.call(args);
     }
 

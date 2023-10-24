@@ -131,6 +131,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
               context.getPolyglotBindings(),
               "@type",
               InternalSourcePrettyPrinter.format(outputType));
+        } else {
+          if (bindings.isMemberExisting(context.getPolyglotBindings(), "@type"))
+          bindings.removeMember(context.getPolyglotBindings(), "@type");
         }
         return rootNode.getCallTarget();
       } else {

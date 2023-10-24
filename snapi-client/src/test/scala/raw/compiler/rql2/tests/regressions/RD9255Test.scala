@@ -59,22 +59,22 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
 
   private def evalTo(q: String) = be(tryExecuteQuery(q).value._1) compose { e: Either[String, Any] => e.value }
 
-//  test("null param")(_ => exec("string_func", null, "string") should evalTo("String.Length(null)"))
-//  test("byte param")(_ => exec("byte_func", 10.toByte, "byte") should evalTo("Byte.From(11)"))
-//  test("short param")(_ => exec("short_func", 10.toShort, "short") should evalTo("Short.From(11)"))
-//  test("int param")(_ => exec("int_func", 10, "int") should evalTo("11"))
-//  test("long param")(_ => exec("long_func", 10.toLong, "long") should evalTo("Long.From(11)"))
-//  test("float param")(_ => exec("float_func", 3.14.toFloat, "float") should evalTo("Float.From(3.14) + 1"))
-//  test("double param")(_ => exec("double_func", 3.14, "double") should evalTo("3.14 + 1"))
-//  test("decimal param")(_ =>
-//    exec("decimal_func", new java.math.BigDecimal("3.14"), "decimal") should evalTo("Decimal.From(\"3.14\") + 1")
-//  )
-//  test("bool param") { _ =>
-//    exec("bool_func", true, "bool") should evalTo("false")
-//    exec("bool_func", false, "bool") should evalTo("true")
-//  }
-//  test("string param")(_ => exec("string_func", "tralala", "long") should evalTo("String.Length(\"tralala\")"))
-//
+  test("null param")(_ => exec("string_func", null, "string") should evalTo("String.Length(null)"))
+  test("byte param")(_ => exec("byte_func", 10.toByte, "byte") should evalTo("Byte.From(11)"))
+  test("short param")(_ => exec("short_func", 10.toShort, "short") should evalTo("Short.From(11)"))
+  test("int param")(_ => exec("int_func", 10, "int") should evalTo("11"))
+  test("long param")(_ => exec("long_func", 10.toLong, "long") should evalTo("Long.From(11)"))
+  test("float param")(_ => exec("float_func", 3.14.toFloat, "float") should evalTo("Float.From(3.14) + 1"))
+  test("double param")(_ => exec("double_func", 3.14, "double") should evalTo("3.14 + 1"))
+  test("decimal param")(_ =>
+    exec("decimal_func", new java.math.BigDecimal("3.14"), "decimal") should evalTo("Decimal.From(\"3.14\") + 1")
+  )
+  test("bool param") { _ =>
+    exec("bool_func", true, "bool") should evalTo("false")
+    exec("bool_func", false, "bool") should evalTo("true")
+  }
+  test("string param")(_ => exec("string_func", "tralala", "long") should evalTo("String.Length(\"tralala\")"))
+
   test("date param")(_ =>
     exec("date_func", LocalDate.of(2013, 1, 1), "int") should evalTo("Date.Year(Date.Build(2013, 1, 1))")
   )
