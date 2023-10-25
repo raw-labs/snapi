@@ -142,10 +142,9 @@ trait LetFunTest extends CompilerTestContext {
     it should evaluateTo("6")
   }
 
-  test(
-    """let f(x: int, y: int = 1, z: int = 2): int = (x + y) * z
-      |in f(1, z = 3, y = 2)
-      |""".stripMargin) { it =>
+  test("""let f(x: int, y: int = 1, z: int = 2): int = (x + y) * z
+    |in f(1, z = 3, y = 2)
+    |""".stripMargin) { it =>
     it should typeAs("int")
     it should evaluateTo("9")
   }
