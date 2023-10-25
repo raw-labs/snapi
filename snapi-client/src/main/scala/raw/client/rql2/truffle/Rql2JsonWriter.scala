@@ -23,7 +23,7 @@ import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.util.control.NonFatal
 
-class RawJsonWriter(os: OutputStream) {
+class Rql2JsonWriter(os: OutputStream) {
 
   final private val gen =
     try {

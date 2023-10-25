@@ -425,7 +425,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
           }
           val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-          val csvWriter = new RawCsvWriter(outputStream, lineSeparator)
+          val csvWriter = new Rql2CsvWriter(outputStream, lineSeparator)
           try {
             csvWriter.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             ExecutionSuccess
@@ -438,7 +438,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           if (!JsonPackage.outputWriteSupport(tipe)) {
             return ExecutionRuntimeFailure("unsupported type");
           }
-          val w = new RawJsonWriter(outputStream)
+          val w = new Rql2JsonWriter(outputStream)
           try {
             w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             ExecutionSuccess

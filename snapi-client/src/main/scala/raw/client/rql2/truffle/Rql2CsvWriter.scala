@@ -49,7 +49,7 @@ import java.util.Base64
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-class RawCsvWriter(os: OutputStream, lineSeparator: String) {
+class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
 
   final private val gen =
     try {
