@@ -12,37 +12,30 @@
 
 package raw.client.rql2.truffle
 
-import com.oracle.truffle.api.strings.TruffleString
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.proxy.ProxyDate
-import org.graalvm.polyglot.{Context, Engine, HostAccess, PolyglotAccess, PolyglotException, Source, Value}
+import org.graalvm.polyglot.{Value, _}
 import raw.client.api._
-import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
-import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
-import raw.runtime._
+import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import raw.compiler.base
-import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
+import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.compiler.base.source.{BaseNode, Type}
+import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
-import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
 import raw.compiler.rql2.source._
+import raw.compiler.rql2._
 import raw.compiler.scala2.Scala2CompilerContext
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException
-import raw.runtime.truffle.runtime.option.{EmptyOption, ObjectOption, StringOption}
-import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
-import raw.runtime.truffle.runtime.tryable.ObjectTryable
+import raw.runtime._
 import raw.sources.api.SourceContext
 import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
-import java.time.LocalDate
-import scala.collection.{mutable, JavaConverters}
+import scala.collection.mutable
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
@@ -201,7 +194,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val polyglotValue = ctx.eval(truffleSource)
           val internal = environment.options.get("staged-compiler") match {
             case Some("true") => true
-            case None => false
+            case _ => false
           }
           val rawType = parseType(tipe, environment.user, internal).asInstanceOf[ParseTypeSuccess].tipe
           val rawValue = convertPolyglotValueToRawValue(polyglotValue, rawType)
@@ -476,7 +469,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
-        case None => ExecutionRuntimeFailure("unknown output format")
+        case _ => ExecutionRuntimeFailure("unknown output format")
       }
     } catch {
       case ex: PolyglotException =>
