@@ -18,67 +18,65 @@ public class SnapiParser extends Parser {
 		new PredictionContextCache();
 	public static final int
 		T__0=1, T__1=2, T__2=3, T__3=4, T__4=5, T__5=6, T__6=7, T__7=8, T__8=9, 
-		T__9=10, T__10=11, PRIMITIVE_TYPES=12, TYPE_TOKEN=13, BOOL_TOKEN=14, STRING_TOKEN=15, 
-		LOCATION_TOKEN=16, BINARY_TOKEN=17, BYTE_TOKEN=18, SHORT_TOKEN=19, INT_TOKEN=20, 
-		LONG_TOKEN=21, FLOAT_TOKEN=22, DOUBLE_TOKEN=23, DECIMAL_TOKEN=24, DATE_TOKEN=25, 
-		TIME_TOKEN=26, INTERVAL_TOKEN=27, TIMESTAMP_TOKEN=28, RECORD_TOKEN=29, 
-		COLLECTION_TOKEN=30, LIST_TOKEN=31, LIBRARY_TOKEN=32, PACKAGE_TOKEN=33, 
-		LET_TOKEN=34, IN_TOKEN=35, REC_TOKEN=36, UNDEFINED_TOKEN=37, IF_TOKEN=38, 
-		THEN_TOKEN=39, ELSE_TOKEN=40, NULL_TOKEN=41, INTEGER=42, BYTE=43, SHORT=44, 
-		LONG=45, FLOAT=46, DOUBLE=47, DECIMAL=48, COMPARE_TOKENS=49, EQ_TOKEN=50, 
-		NEQ_TOKEN=51, LE_TOKEN=52, LT_TOKEN=53, GE_TOKEN=54, GT_TOKEN=55, PLUS_TOKEN=56, 
-		MINUS_TOKEN=57, MUL_TOKEN=58, DIV_TOKEN=59, MOD_TOKEN=60, AND_TOKEN=61, 
-		OR_TOKEN=62, NOT_TOKEN=63, BOOL_CONST=64, TRUE_TOKEN=65, FALSE_TOKEN=66, 
-		STRING=67, TRIPPLE_STRING=68, IDENT=69, NON_ESC_IDENTIFIER=70, ESC_IDENTIFIER=71, 
-		WS=72, LINE_COMMENT=73;
+		T__9=10, T__10=11, TYPE_TOKEN=12, BOOL_TOKEN=13, STRING_TOKEN=14, LOCATION_TOKEN=15, 
+		BINARY_TOKEN=16, BYTE_TOKEN=17, SHORT_TOKEN=18, INT_TOKEN=19, LONG_TOKEN=20, 
+		FLOAT_TOKEN=21, DOUBLE_TOKEN=22, DECIMAL_TOKEN=23, DATE_TOKEN=24, TIME_TOKEN=25, 
+		INTERVAL_TOKEN=26, TIMESTAMP_TOKEN=27, RECORD_TOKEN=28, COLLECTION_TOKEN=29, 
+		LIST_TOKEN=30, LIBRARY_TOKEN=31, PACKAGE_TOKEN=32, LET_TOKEN=33, IN_TOKEN=34, 
+		REC_TOKEN=35, UNDEFINED_TOKEN=36, IF_TOKEN=37, THEN_TOKEN=38, ELSE_TOKEN=39, 
+		NULL_TOKEN=40, INTEGER=41, BYTE=42, SHORT=43, LONG=44, FLOAT=45, DOUBLE=46, 
+		DECIMAL=47, EQ_TOKEN=48, NEQ_TOKEN=49, LE_TOKEN=50, LT_TOKEN=51, GE_TOKEN=52, 
+		GT_TOKEN=53, PLUS_TOKEN=54, MINUS_TOKEN=55, MUL_TOKEN=56, DIV_TOKEN=57, 
+		MOD_TOKEN=58, AND_TOKEN=59, OR_TOKEN=60, NOT_TOKEN=61, BOOL_CONST=62, 
+		TRUE_TOKEN=63, FALSE_TOKEN=64, STRING=65, TRIPPLE_STRING=66, IDENT=67, 
+		NON_ESC_IDENTIFIER=68, ESC_IDENTIFIER=69, WS=70, LINE_COMMENT=71;
 	public static final int
-		RULE_prog = 0, RULE_stat = 1, RULE_fun_dec = 2, RULE_fun = 3, RULE_normal_fun = 4, 
-		RULE_rec_fun = 5, RULE_fun_proto = 6, RULE_fun_params = 7, RULE_fun_param = 8, 
-		RULE_attr = 9, RULE_fun_app = 10, RULE_fun_ar = 11, RULE_fun_args = 12, 
-		RULE_fun_arg = 13, RULE_fun_abs = 14, RULE_type = 15, RULE_record_type = 16, 
-		RULE_iterable_type = 17, RULE_list_type = 18, RULE_expr_type = 19, RULE_expr = 20, 
-		RULE_let = 21, RULE_let_left = 22, RULE_let_decl = 23, RULE_let_bind = 24, 
-		RULE_if_then_else = 25, RULE_lists = 26, RULE_lists_element = 27, RULE_records = 28, 
-		RULE_record_elements = 29, RULE_record_element = 30, RULE_number = 31;
+		RULE_prog = 0, RULE_stat = 1, RULE_method_dec = 2, RULE_fun_dec = 3, RULE_fun_proto = 4, 
+		RULE_fun_param = 5, RULE_attr = 6, RULE_type_attr = 7, RULE_fun_ar = 8, 
+		RULE_fun_args = 9, RULE_fun_arg = 10, RULE_fun_abs = 11, RULE_type = 12, 
+		RULE_record_type = 13, RULE_iterable_type = 14, RULE_list_type = 15, RULE_expr_type = 16, 
+		RULE_expr = 17, RULE_let = 18, RULE_let_left = 19, RULE_let_decl = 20, 
+		RULE_let_bind = 21, RULE_if_then_else = 22, RULE_lists = 23, RULE_lists_element = 24, 
+		RULE_records = 25, RULE_record_elements = 26, RULE_record_element = 27, 
+		RULE_number = 28, RULE_primitive_types = 29, RULE_compare_tokens = 30;
 	private static String[] makeRuleNames() {
 		return new String[] {
-			"prog", "stat", "fun_dec", "fun", "normal_fun", "rec_fun", "fun_proto", 
-			"fun_params", "fun_param", "attr", "fun_app", "fun_ar", "fun_args", "fun_arg", 
-			"fun_abs", "type", "record_type", "iterable_type", "list_type", "expr_type", 
-			"expr", "let", "let_left", "let_decl", "let_bind", "if_then_else", "lists", 
-			"lists_element", "records", "record_elements", "record_element", "number"
+			"prog", "stat", "method_dec", "fun_dec", "fun_proto", "fun_param", "attr", 
+			"type_attr", "fun_ar", "fun_args", "fun_arg", "fun_abs", "type", "record_type", 
+			"iterable_type", "list_type", "expr_type", "expr", "let", "let_left", 
+			"let_decl", "let_bind", "if_then_else", "lists", "lists_element", "records", 
+			"record_elements", "record_element", "number", "primitive_types", "compare_tokens"
 		};
 	}
 	public static final String[] ruleNames = makeRuleNames();
 
 	private static String[] makeLiteralNames() {
 		return new String[] {
-			null, "'='", "'('", "')'", "':'", "','", "'->'", "'.'", "'['", "']'", 
-			"'{'", "'}'", null, "'type'", "'bool'", "'string'", "'location'", "'binary'", 
+			null, "'='", "'('", "','", "')'", "':'", "'->'", "'.'", "'['", "']'", 
+			"'{'", "'}'", "'type'", "'bool'", "'string'", "'location'", "'binary'", 
 			"'byte'", "'short'", "'int'", "'long'", "'float'", "'double'", "'decimal'", 
 			"'date'", "'time'", "'interval'", "'timestamp'", "'record'", "'collection'", 
 			"'list'", "'library'", "'package'", "'let'", "'in'", "'rec'", "'undefined'", 
 			"'if'", "'then'", "'else'", "'null'", null, null, null, null, null, null, 
-			null, null, "'=='", "'!='", "'<='", "'<'", "'>='", "'>'", "'+'", "'-'", 
-			"'*'", "'/'", "'%'", "'and'", "'or'", "'not'", null, "'true'", "'false'"
+			null, "'=='", "'!='", "'<='", "'<'", "'>='", "'>'", "'+'", "'-'", "'*'", 
+			"'/'", "'%'", "'and'", "'or'", "'not'", null, "'true'", "'false'"
 		};
 	}
 	private static final String[] _LITERAL_NAMES = makeLiteralNames();
 	private static String[] makeSymbolicNames() {
 		return new String[] {
 			null, null, null, null, null, null, null, null, null, null, null, null, 
-			"PRIMITIVE_TYPES", "TYPE_TOKEN", "BOOL_TOKEN", "STRING_TOKEN", "LOCATION_TOKEN", 
-			"BINARY_TOKEN", "BYTE_TOKEN", "SHORT_TOKEN", "INT_TOKEN", "LONG_TOKEN", 
-			"FLOAT_TOKEN", "DOUBLE_TOKEN", "DECIMAL_TOKEN", "DATE_TOKEN", "TIME_TOKEN", 
-			"INTERVAL_TOKEN", "TIMESTAMP_TOKEN", "RECORD_TOKEN", "COLLECTION_TOKEN", 
-			"LIST_TOKEN", "LIBRARY_TOKEN", "PACKAGE_TOKEN", "LET_TOKEN", "IN_TOKEN", 
-			"REC_TOKEN", "UNDEFINED_TOKEN", "IF_TOKEN", "THEN_TOKEN", "ELSE_TOKEN", 
-			"NULL_TOKEN", "INTEGER", "BYTE", "SHORT", "LONG", "FLOAT", "DOUBLE", 
-			"DECIMAL", "COMPARE_TOKENS", "EQ_TOKEN", "NEQ_TOKEN", "LE_TOKEN", "LT_TOKEN", 
-			"GE_TOKEN", "GT_TOKEN", "PLUS_TOKEN", "MINUS_TOKEN", "MUL_TOKEN", "DIV_TOKEN", 
-			"MOD_TOKEN", "AND_TOKEN", "OR_TOKEN", "NOT_TOKEN", "BOOL_CONST", "TRUE_TOKEN", 
-			"FALSE_TOKEN", "STRING", "TRIPPLE_STRING", "IDENT", "NON_ESC_IDENTIFIER", 
-			"ESC_IDENTIFIER", "WS", "LINE_COMMENT"
+			"TYPE_TOKEN", "BOOL_TOKEN", "STRING_TOKEN", "LOCATION_TOKEN", "BINARY_TOKEN", 
+			"BYTE_TOKEN", "SHORT_TOKEN", "INT_TOKEN", "LONG_TOKEN", "FLOAT_TOKEN", 
+			"DOUBLE_TOKEN", "DECIMAL_TOKEN", "DATE_TOKEN", "TIME_TOKEN", "INTERVAL_TOKEN", 
+			"TIMESTAMP_TOKEN", "RECORD_TOKEN", "COLLECTION_TOKEN", "LIST_TOKEN", 
+			"LIBRARY_TOKEN", "PACKAGE_TOKEN", "LET_TOKEN", "IN_TOKEN", "REC_TOKEN", 
+			"UNDEFINED_TOKEN", "IF_TOKEN", "THEN_TOKEN", "ELSE_TOKEN", "NULL_TOKEN", 
+			"INTEGER", "BYTE", "SHORT", "LONG", "FLOAT", "DOUBLE", "DECIMAL", "EQ_TOKEN", 
+			"NEQ_TOKEN", "LE_TOKEN", "LT_TOKEN", "GE_TOKEN", "GT_TOKEN", "PLUS_TOKEN", 
+			"MINUS_TOKEN", "MUL_TOKEN", "DIV_TOKEN", "MOD_TOKEN", "AND_TOKEN", "OR_TOKEN", 
+			"NOT_TOKEN", "BOOL_CONST", "TRUE_TOKEN", "FALSE_TOKEN", "STRING", "TRIPPLE_STRING", 
+			"IDENT", "NON_ESC_IDENTIFIER", "ESC_IDENTIFIER", "WS", "LINE_COMMENT"
 		};
 	}
 	private static final String[] _SYMBOLIC_NAMES = makeSymbolicNames();
@@ -163,9 +161,9 @@ public class SnapiParser extends Parser {
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(64);
+			setState(62);
 			stat();
-			setState(65);
+			setState(63);
 			match(EOF);
 			}
 		}
@@ -197,11 +195,11 @@ public class SnapiParser extends Parser {
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
-		public List<Fun_decContext> fun_dec() {
-			return getRuleContexts(Fun_decContext.class);
+		public List<Method_decContext> method_dec() {
+			return getRuleContexts(Method_decContext.class);
 		}
-		public Fun_decContext fun_dec(int i) {
-			return getRuleContext(Fun_decContext.class,i);
+		public Method_decContext method_dec(int i) {
+			return getRuleContext(Method_decContext.class,i);
 		}
 		public FunDecExprStatContext(StatContext ctx) { copyFrom(ctx); }
 		@Override
@@ -220,11 +218,11 @@ public class SnapiParser extends Parser {
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class FunDecStatContext extends StatContext {
-		public List<Fun_decContext> fun_dec() {
-			return getRuleContexts(Fun_decContext.class);
+		public List<Method_decContext> method_dec() {
+			return getRuleContexts(Method_decContext.class);
 		}
-		public Fun_decContext fun_dec(int i) {
-			return getRuleContext(Fun_decContext.class,i);
+		public Method_decContext method_dec(int i) {
+			return getRuleContext(Method_decContext.class,i);
 		}
 		public FunDecStatContext(StatContext ctx) { copyFrom(ctx); }
 		@Override
@@ -248,24 +246,24 @@ public class SnapiParser extends Parser {
 		int _la;
 		try {
 			int _alt;
-			setState(80);
+			setState(78);
 			_errHandler.sync(this);
 			switch ( getInterpreter().adaptivePredict(_input,2,_ctx) ) {
 			case 1:
 				_localctx = new FunDecStatContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(70);
+				setState(68);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while (_la==REC_TOKEN || _la==IDENT) {
+				while (_la==IDENT) {
 					{
 					{
-					setState(67);
-					fun_dec();
+					setState(65);
+					method_dec();
 					}
 					}
-					setState(72);
+					setState(70);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
@@ -275,26 +273,91 @@ public class SnapiParser extends Parser {
 				_localctx = new FunDecExprStatContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(76);
+				setState(74);
 				_errHandler.sync(this);
 				_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
 				while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 					if ( _alt==1 ) {
 						{
 						{
-						setState(73);
-						fun_dec();
+						setState(71);
+						method_dec();
 						}
 						} 
 					}
-					setState(78);
+					setState(76);
 					_errHandler.sync(this);
 					_alt = getInterpreter().adaptivePredict(_input,1,_ctx);
 				}
-				setState(79);
+				setState(77);
 				expr(0);
 				}
 				break;
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class Method_decContext extends ParserRuleContext {
+		public Method_decContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_method_dec; }
+	 
+		public Method_decContext() { }
+		public void copyFrom(Method_decContext ctx) {
+			super.copyFrom(ctx);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class MethodDecContext extends Method_decContext {
+		public TerminalNode IDENT() { return getToken(SnapiParser.IDENT, 0); }
+		public Fun_protoContext fun_proto() {
+			return getRuleContext(Fun_protoContext.class,0);
+		}
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public MethodDecContext(Method_decContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterMethodDec(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitMethodDec(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitMethodDec(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final Method_decContext method_dec() throws RecognitionException {
+		Method_decContext _localctx = new Method_decContext(_ctx, getState());
+		enterRule(_localctx, 4, RULE_method_dec);
+		try {
+			_localctx = new MethodDecContext(_localctx);
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(80);
+			match(IDENT);
+			setState(81);
+			fun_proto();
+			setState(82);
+			match(T__0);
+			setState(83);
+			expr(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -321,73 +384,15 @@ public class SnapiParser extends Parser {
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
-	public static class FunDecContext extends Fun_decContext {
-		public FunContext fun() {
-			return getRuleContext(FunContext.class,0);
+	public static class NormalFunContext extends Fun_decContext {
+		public TerminalNode IDENT() { return getToken(SnapiParser.IDENT, 0); }
+		public Fun_protoContext fun_proto() {
+			return getRuleContext(Fun_protoContext.class,0);
 		}
 		public ExprContext expr() {
 			return getRuleContext(ExprContext.class,0);
 		}
-		public FunDecContext(Fun_decContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterFunDec(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitFunDec(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitFunDec(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final Fun_decContext fun_dec() throws RecognitionException {
-		Fun_decContext _localctx = new Fun_decContext(_ctx, getState());
-		enterRule(_localctx, 4, RULE_fun_dec);
-		try {
-			_localctx = new FunDecContext(_localctx);
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(82);
-			fun();
-			setState(83);
-			match(T__0);
-			setState(84);
-			expr(0);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	@SuppressWarnings("CheckReturnValue")
-	public static class FunContext extends ParserRuleContext {
-		public FunContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_fun; }
-	 
-		public FunContext() { }
-		public void copyFrom(FunContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class NormalFunContext extends FunContext {
-		public Normal_funContext normal_fun() {
-			return getRuleContext(Normal_funContext.class,0);
-		}
-		public NormalFunContext(FunContext ctx) { copyFrom(ctx); }
+		public NormalFunContext(Fun_decContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNormalFun(this);
@@ -403,11 +408,16 @@ public class SnapiParser extends Parser {
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
-	public static class RecFunContext extends FunContext {
-		public Rec_funContext rec_fun() {
-			return getRuleContext(Rec_funContext.class,0);
+	public static class RecFunContext extends Fun_decContext {
+		public TerminalNode REC_TOKEN() { return getToken(SnapiParser.REC_TOKEN, 0); }
+		public TerminalNode IDENT() { return getToken(SnapiParser.IDENT, 0); }
+		public Fun_protoContext fun_proto() {
+			return getRuleContext(Fun_protoContext.class,0);
 		}
-		public RecFunContext(FunContext ctx) { copyFrom(ctx); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public RecFunContext(Fun_decContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
 			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterRecFun(this);
@@ -423,147 +433,45 @@ public class SnapiParser extends Parser {
 		}
 	}
 
-	public final FunContext fun() throws RecognitionException {
-		FunContext _localctx = new FunContext(_ctx, getState());
-		enterRule(_localctx, 6, RULE_fun);
+	public final Fun_decContext fun_dec() throws RecognitionException {
+		Fun_decContext _localctx = new Fun_decContext(_ctx, getState());
+		enterRule(_localctx, 6, RULE_fun_dec);
 		try {
-			setState(88);
+			setState(96);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case IDENT:
 				_localctx = new NormalFunContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
+				setState(85);
+				match(IDENT);
 				setState(86);
-				normal_fun();
+				fun_proto();
+				setState(87);
+				match(T__0);
+				setState(88);
+				expr(0);
 				}
 				break;
 			case REC_TOKEN:
 				_localctx = new RecFunContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(87);
-				rec_fun();
+				setState(90);
+				match(REC_TOKEN);
+				setState(91);
+				match(IDENT);
+				setState(92);
+				fun_proto();
+				setState(93);
+				match(T__0);
+				setState(94);
+				expr(0);
 				}
 				break;
 			default:
 				throw new NoViableAltException(this);
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	@SuppressWarnings("CheckReturnValue")
-	public static class Normal_funContext extends ParserRuleContext {
-		public Normal_funContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_normal_fun; }
-	 
-		public Normal_funContext() { }
-		public void copyFrom(Normal_funContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class NormalFunProtoContext extends Normal_funContext {
-		public TerminalNode IDENT() { return getToken(SnapiParser.IDENT, 0); }
-		public Fun_protoContext fun_proto() {
-			return getRuleContext(Fun_protoContext.class,0);
-		}
-		public NormalFunProtoContext(Normal_funContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNormalFunProto(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitNormalFunProto(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitNormalFunProto(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final Normal_funContext normal_fun() throws RecognitionException {
-		Normal_funContext _localctx = new Normal_funContext(_ctx, getState());
-		enterRule(_localctx, 8, RULE_normal_fun);
-		try {
-			_localctx = new NormalFunProtoContext(_localctx);
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(90);
-			match(IDENT);
-			setState(91);
-			fun_proto();
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	@SuppressWarnings("CheckReturnValue")
-	public static class Rec_funContext extends ParserRuleContext {
-		public Rec_funContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_rec_fun; }
-	 
-		public Rec_funContext() { }
-		public void copyFrom(Rec_funContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class RecFunProtoContext extends Rec_funContext {
-		public TerminalNode REC_TOKEN() { return getToken(SnapiParser.REC_TOKEN, 0); }
-		public Normal_funContext normal_fun() {
-			return getRuleContext(Normal_funContext.class,0);
-		}
-		public RecFunProtoContext(Rec_funContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterRecFunProto(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitRecFunProto(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitRecFunProto(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final Rec_funContext rec_fun() throws RecognitionException {
-		Rec_funContext _localctx = new Rec_funContext(_ctx, getState());
-		enterRule(_localctx, 10, RULE_rec_fun);
-		try {
-			_localctx = new RecFunProtoContext(_localctx);
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(93);
-			match(REC_TOKEN);
-			setState(94);
-			normal_fun();
 			}
 		}
 		catch (RecognitionException re) {
@@ -594,8 +502,11 @@ public class SnapiParser extends Parser {
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
 		}
-		public Fun_paramsContext fun_params() {
-			return getRuleContext(Fun_paramsContext.class,0);
+		public List<Fun_paramContext> fun_param() {
+			return getRuleContexts(Fun_paramContext.class);
+		}
+		public Fun_paramContext fun_param(int i) {
+			return getRuleContext(Fun_paramContext.class,i);
 		}
 		public FunProtoWithTypeContext(Fun_protoContext ctx) { copyFrom(ctx); }
 		@Override
@@ -614,8 +525,11 @@ public class SnapiParser extends Parser {
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class FunProtoWithoutTypeContext extends Fun_protoContext {
-		public Fun_paramsContext fun_params() {
-			return getRuleContext(Fun_paramsContext.class,0);
+		public List<Fun_paramContext> fun_param() {
+			return getRuleContexts(Fun_paramContext.class);
+		}
+		public Fun_paramContext fun_param(int i) {
+			return getRuleContext(Fun_paramContext.class,i);
 		}
 		public FunProtoWithoutTypeContext(Fun_protoContext ctx) { copyFrom(ctx); }
 		@Override
@@ -635,131 +549,88 @@ public class SnapiParser extends Parser {
 
 	public final Fun_protoContext fun_proto() throws RecognitionException {
 		Fun_protoContext _localctx = new Fun_protoContext(_ctx, getState());
-		enterRule(_localctx, 12, RULE_fun_proto);
+		enterRule(_localctx, 8, RULE_fun_proto);
 		int _la;
 		try {
-			setState(108);
+			setState(124);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,6,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
 			case 1:
 				_localctx = new FunProtoWithoutTypeContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(96);
-				match(T__1);
 				setState(98);
+				match(T__1);
+				setState(107);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(97);
-					fun_params();
+					setState(99);
+					fun_param();
+					setState(104);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+					while (_la==T__2) {
+						{
+						{
+						setState(100);
+						match(T__2);
+						setState(101);
+						fun_param();
+						}
+						}
+						setState(106);
+						_errHandler.sync(this);
+						_la = _input.LA(1);
+					}
 					}
 				}
 
-				setState(100);
-				match(T__2);
+				setState(109);
+				match(T__3);
 				}
 				break;
 			case 2:
 				_localctx = new FunProtoWithTypeContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(101);
+				setState(110);
 				match(T__1);
-				setState(103);
+				setState(119);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 				if (_la==IDENT) {
 					{
-					setState(102);
-					fun_params();
+					setState(111);
+					fun_param();
+					setState(116);
+					_errHandler.sync(this);
+					_la = _input.LA(1);
+					while (_la==T__2) {
+						{
+						{
+						setState(112);
+						match(T__2);
+						setState(113);
+						fun_param();
+						}
+						}
+						setState(118);
+						_errHandler.sync(this);
+						_la = _input.LA(1);
+					}
 					}
 				}
 
-				setState(105);
-				match(T__2);
-				setState(106);
+				setState(121);
 				match(T__3);
-				setState(107);
+				setState(122);
+				match(T__4);
+				setState(123);
 				type(0);
 				}
 				break;
-			}
-		}
-		catch (RecognitionException re) {
-			_localctx.exception = re;
-			_errHandler.reportError(this, re);
-			_errHandler.recover(this, re);
-		}
-		finally {
-			exitRule();
-		}
-		return _localctx;
-	}
-
-	@SuppressWarnings("CheckReturnValue")
-	public static class Fun_paramsContext extends ParserRuleContext {
-		public Fun_paramsContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_fun_params; }
-	 
-		public Fun_paramsContext() { }
-		public void copyFrom(Fun_paramsContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class FunParamsContext extends Fun_paramsContext {
-		public List<Fun_paramContext> fun_param() {
-			return getRuleContexts(Fun_paramContext.class);
-		}
-		public Fun_paramContext fun_param(int i) {
-			return getRuleContext(Fun_paramContext.class,i);
-		}
-		public FunParamsContext(Fun_paramsContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterFunParams(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitFunParams(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitFunParams(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-
-	public final Fun_paramsContext fun_params() throws RecognitionException {
-		Fun_paramsContext _localctx = new Fun_paramsContext(_ctx, getState());
-		enterRule(_localctx, 14, RULE_fun_params);
-		int _la;
-		try {
-			_localctx = new FunParamsContext(_localctx);
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(110);
-			fun_param();
-			setState(115);
-			_errHandler.sync(this);
-			_la = _input.LA(1);
-			while (_la==T__4) {
-				{
-				{
-				setState(111);
-				match(T__4);
-				setState(112);
-				fun_param();
-				}
-				}
-				setState(117);
-				_errHandler.sync(this);
-				_la = _input.LA(1);
-			}
 			}
 		}
 		catch (RecognitionException re) {
@@ -831,16 +702,16 @@ public class SnapiParser extends Parser {
 
 	public final Fun_paramContext fun_param() throws RecognitionException {
 		Fun_paramContext _localctx = new Fun_paramContext(_ctx, getState());
-		enterRule(_localctx, 16, RULE_fun_param);
+		enterRule(_localctx, 10, RULE_fun_param);
 		try {
-			setState(123);
+			setState(131);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,8,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,9,_ctx) ) {
 			case 1:
 				_localctx = new FunParamAttrContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(118);
+				setState(126);
 				attr();
 				}
 				break;
@@ -848,11 +719,11 @@ public class SnapiParser extends Parser {
 				_localctx = new FunParamAttrExprContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(119);
+				setState(127);
 				attr();
-				setState(120);
+				setState(128);
 				match(T__0);
-				setState(121);
+				setState(129);
 				expr(0);
 				}
 				break;
@@ -871,51 +742,54 @@ public class SnapiParser extends Parser {
 
 	@SuppressWarnings("CheckReturnValue")
 	public static class AttrContext extends ParserRuleContext {
-		public AttrContext(ParserRuleContext parent, int invokingState) {
-			super(parent, invokingState);
-		}
-		@Override public int getRuleIndex() { return RULE_attr; }
-	 
-		public AttrContext() { }
-		public void copyFrom(AttrContext ctx) {
-			super.copyFrom(ctx);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class AttrWithTypeContext extends AttrContext {
 		public TerminalNode IDENT() { return getToken(SnapiParser.IDENT, 0); }
 		public TypeContext type() {
 			return getRuleContext(TypeContext.class,0);
 		}
-		public AttrWithTypeContext(AttrContext ctx) { copyFrom(ctx); }
+		public AttrContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_attr; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterAttrWithType(this);
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterAttr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitAttrWithType(this);
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitAttr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitAttrWithType(this);
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitAttr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
 	public final AttrContext attr() throws RecognitionException {
 		AttrContext _localctx = new AttrContext(_ctx, getState());
-		enterRule(_localctx, 18, RULE_attr);
+		enterRule(_localctx, 12, RULE_attr);
 		try {
-			_localctx = new AttrWithTypeContext(_localctx);
-			enterOuterAlt(_localctx, 1);
-			{
-			setState(125);
-			match(IDENT);
-			setState(126);
-			match(T__3);
-			setState(127);
-			type(0);
+			setState(137);
+			_errHandler.sync(this);
+			switch ( getInterpreter().adaptivePredict(_input,10,_ctx) ) {
+			case 1:
+				enterOuterAlt(_localctx, 1);
+				{
+				setState(133);
+				match(IDENT);
+				setState(134);
+				match(T__4);
+				setState(135);
+				type(0);
+				}
+				break;
+			case 2:
+				enterOuterAlt(_localctx, 2);
+				{
+				setState(136);
+				match(IDENT);
+				}
+				break;
 			}
 		}
 		catch (RecognitionException re) {
@@ -930,40 +804,42 @@ public class SnapiParser extends Parser {
 	}
 
 	@SuppressWarnings("CheckReturnValue")
-	public static class Fun_appContext extends ParserRuleContext {
+	public static class Type_attrContext extends ParserRuleContext {
 		public TerminalNode IDENT() { return getToken(SnapiParser.IDENT, 0); }
-		public Fun_arContext fun_ar() {
-			return getRuleContext(Fun_arContext.class,0);
+		public TypeContext type() {
+			return getRuleContext(TypeContext.class,0);
 		}
-		public Fun_appContext(ParserRuleContext parent, int invokingState) {
+		public Type_attrContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
 		}
-		@Override public int getRuleIndex() { return RULE_fun_app; }
+		@Override public int getRuleIndex() { return RULE_type_attr; }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterFun_app(this);
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterType_attr(this);
 		}
 		@Override
 		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitFun_app(this);
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitType_attr(this);
 		}
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitFun_app(this);
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitType_attr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
 
-	public final Fun_appContext fun_app() throws RecognitionException {
-		Fun_appContext _localctx = new Fun_appContext(_ctx, getState());
-		enterRule(_localctx, 20, RULE_fun_app);
+	public final Type_attrContext type_attr() throws RecognitionException {
+		Type_attrContext _localctx = new Type_attrContext(_ctx, getState());
+		enterRule(_localctx, 14, RULE_type_attr);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(129);
+			setState(139);
 			match(IDENT);
-			setState(130);
-			fun_ar();
+			setState(140);
+			match(T__4);
+			setState(141);
+			type(0);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1003,25 +879,25 @@ public class SnapiParser extends Parser {
 
 	public final Fun_arContext fun_ar() throws RecognitionException {
 		Fun_arContext _localctx = new Fun_arContext(_ctx, getState());
-		enterRule(_localctx, 22, RULE_fun_ar);
+		enterRule(_localctx, 16, RULE_fun_ar);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(132);
+			setState(143);
 			match(T__1);
-			setState(134);
+			setState(145);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & -9006638211753040636L) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & 57L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 6971852744663504132L) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & 7L) != 0)) {
 				{
-				setState(133);
+				setState(144);
 				fun_args();
 				}
 			}
 
-			setState(136);
-			match(T__2);
+			setState(147);
+			match(T__3);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1064,26 +940,26 @@ public class SnapiParser extends Parser {
 
 	public final Fun_argsContext fun_args() throws RecognitionException {
 		Fun_argsContext _localctx = new Fun_argsContext(_ctx, getState());
-		enterRule(_localctx, 24, RULE_fun_args);
+		enterRule(_localctx, 18, RULE_fun_args);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(138);
+			setState(149);
 			fun_arg();
-			setState(143);
+			setState(154);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==T__4) {
+			while (_la==T__2) {
 				{
 				{
-				setState(139);
-				match(T__4);
-				setState(140);
+				setState(150);
+				match(T__2);
+				setState(151);
 				fun_arg();
 				}
 				}
-				setState(145);
+				setState(156);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -1156,16 +1032,16 @@ public class SnapiParser extends Parser {
 
 	public final Fun_argContext fun_arg() throws RecognitionException {
 		Fun_argContext _localctx = new Fun_argContext(_ctx, getState());
-		enterRule(_localctx, 26, RULE_fun_arg);
+		enterRule(_localctx, 20, RULE_fun_arg);
 		try {
-			setState(150);
+			setState(161);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,11,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,13,_ctx) ) {
 			case 1:
 				_localctx = new FunArgExprContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(146);
+				setState(157);
 				expr(0);
 				}
 				break;
@@ -1173,11 +1049,11 @@ public class SnapiParser extends Parser {
 				_localctx = new NamedFunArgExprContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(147);
+				setState(158);
 				match(IDENT);
-				setState(148);
+				setState(159);
 				match(T__0);
-				setState(149);
+				setState(160);
 				expr(0);
 				}
 				break;
@@ -1253,20 +1129,20 @@ public class SnapiParser extends Parser {
 
 	public final Fun_absContext fun_abs() throws RecognitionException {
 		Fun_absContext _localctx = new Fun_absContext(_ctx, getState());
-		enterRule(_localctx, 28, RULE_fun_abs);
+		enterRule(_localctx, 22, RULE_fun_abs);
 		try {
-			setState(159);
+			setState(170);
 			_errHandler.sync(this);
 			switch (_input.LA(1)) {
 			case T__1:
 				_localctx = new FunAbsContext(_localctx);
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(152);
+				setState(163);
 				fun_proto();
-				setState(153);
+				setState(164);
 				match(T__5);
-				setState(154);
+				setState(165);
 				expr(0);
 				}
 				break;
@@ -1274,11 +1150,11 @@ public class SnapiParser extends Parser {
 				_localctx = new FunAbsUnnamedContext(_localctx);
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(156);
+				setState(167);
 				match(IDENT);
-				setState(157);
+				setState(168);
 				match(T__5);
-				setState(158);
+				setState(169);
 				expr(0);
 				}
 				break;
@@ -1458,7 +1334,9 @@ public class SnapiParser extends Parser {
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class PrimitiveTypeTypeContext extends TypeContext {
-		public TerminalNode PRIMITIVE_TYPES() { return getToken(SnapiParser.PRIMITIVE_TYPES, 0); }
+		public Primitive_typesContext primitive_types() {
+			return getRuleContext(Primitive_typesContext.class,0);
+		}
 		public PrimitiveTypeTypeContext(TypeContext ctx) { copyFrom(ctx); }
 		@Override
 		public void enterRule(ParseTreeListener listener) {
@@ -1525,28 +1403,28 @@ public class SnapiParser extends Parser {
 		int _parentState = getState();
 		TypeContext _localctx = new TypeContext(_ctx, _parentState);
 		TypeContext _prevctx = _localctx;
-		int _startState = 30;
-		enterRecursionRule(_localctx, 30, RULE_type, _p);
+		int _startState = 24;
+		enterRecursionRule(_localctx, 24, RULE_type, _p);
 		int _la;
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(192);
+			setState(203);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,16,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,18,_ctx) ) {
 			case 1:
 				{
 				_localctx = new TypeWithParenTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(162);
+				setState(173);
 				match(T__1);
-				setState(163);
+				setState(174);
 				type(0);
-				setState(164);
-				match(T__2);
+				setState(175);
+				match(T__3);
 				}
 				break;
 			case 2:
@@ -1554,8 +1432,8 @@ public class SnapiParser extends Parser {
 				_localctx = new PrimitiveTypeTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(166);
-				match(PRIMITIVE_TYPES);
+				setState(177);
+				primitive_types();
 				}
 				break;
 			case 3:
@@ -1563,7 +1441,7 @@ public class SnapiParser extends Parser {
 				_localctx = new UndefinedTypeTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(167);
+				setState(178);
 				match(UNDEFINED_TOKEN);
 				}
 				break;
@@ -1572,7 +1450,7 @@ public class SnapiParser extends Parser {
 				_localctx = new TypeAliasTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(168);
+				setState(179);
 				match(IDENT);
 				}
 				break;
@@ -1581,7 +1459,7 @@ public class SnapiParser extends Parser {
 				_localctx = new RecordTypeTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(169);
+				setState(180);
 				record_type();
 				}
 				break;
@@ -1590,7 +1468,7 @@ public class SnapiParser extends Parser {
 				_localctx = new IterableTypeTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(170);
+				setState(181);
 				iterable_type();
 				}
 				break;
@@ -1599,7 +1477,7 @@ public class SnapiParser extends Parser {
 				_localctx = new ListTypeTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(171);
+				setState(182);
 				list_type();
 				}
 				break;
@@ -1608,59 +1486,59 @@ public class SnapiParser extends Parser {
 				_localctx = new FunTypeWithParamsTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(172);
+				setState(183);
 				match(T__1);
-				setState(175);
+				setState(186);
 				_errHandler.sync(this);
-				switch ( getInterpreter().adaptivePredict(_input,13,_ctx) ) {
+				switch ( getInterpreter().adaptivePredict(_input,15,_ctx) ) {
 				case 1:
 					{
-					setState(173);
+					setState(184);
 					type(0);
 					}
 					break;
 				case 2:
 					{
-					setState(174);
+					setState(185);
 					attr();
 					}
 					break;
 				}
-				setState(184);
+				setState(195);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
-				while (_la==T__4) {
+				while (_la==T__2) {
 					{
 					{
-					setState(177);
-					match(T__4);
-					setState(180);
+					setState(188);
+					match(T__2);
+					setState(191);
 					_errHandler.sync(this);
-					switch ( getInterpreter().adaptivePredict(_input,14,_ctx) ) {
+					switch ( getInterpreter().adaptivePredict(_input,16,_ctx) ) {
 					case 1:
 						{
-						setState(178);
+						setState(189);
 						type(0);
 						}
 						break;
 					case 2:
 						{
-						setState(179);
+						setState(190);
 						attr();
 						}
 						break;
 					}
 					}
 					}
-					setState(186);
+					setState(197);
 					_errHandler.sync(this);
 					_la = _input.LA(1);
 				}
-				setState(187);
-				match(T__2);
-				setState(188);
+				setState(198);
+				match(T__3);
+				setState(199);
 				match(T__5);
-				setState(189);
+				setState(200);
 				type(3);
 				}
 				break;
@@ -1669,15 +1547,15 @@ public class SnapiParser extends Parser {
 				_localctx = new ExprTypeTypeContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(191);
+				setState(202);
 				expr_type();
 				}
 				break;
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(199);
+			setState(210);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,17,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,19,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
@@ -1686,18 +1564,18 @@ public class SnapiParser extends Parser {
 					{
 					_localctx = new FunTypeTypeContext(new TypeContext(_parentctx, _parentState));
 					pushNewRecursionContext(_localctx, _startState, RULE_type);
-					setState(194);
+					setState(205);
 					if (!(precpred(_ctx, 2))) throw new FailedPredicateException(this, "precpred(_ctx, 2)");
-					setState(195);
+					setState(206);
 					match(T__5);
-					setState(196);
+					setState(207);
 					type(3);
 					}
 					} 
 				}
-				setState(201);
+				setState(212);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,17,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,19,_ctx);
 			}
 			}
 		}
@@ -1715,11 +1593,11 @@ public class SnapiParser extends Parser {
 	@SuppressWarnings("CheckReturnValue")
 	public static class Record_typeContext extends ParserRuleContext {
 		public TerminalNode RECORD_TOKEN() { return getToken(SnapiParser.RECORD_TOKEN, 0); }
-		public List<AttrContext> attr() {
-			return getRuleContexts(AttrContext.class);
+		public List<Type_attrContext> type_attr() {
+			return getRuleContexts(Type_attrContext.class);
 		}
-		public AttrContext attr(int i) {
-			return getRuleContext(AttrContext.class,i);
+		public Type_attrContext type_attr(int i) {
+			return getRuleContext(Type_attrContext.class,i);
 		}
 		public Record_typeContext(ParserRuleContext parent, int invokingState) {
 			super(parent, invokingState);
@@ -1742,35 +1620,35 @@ public class SnapiParser extends Parser {
 
 	public final Record_typeContext record_type() throws RecognitionException {
 		Record_typeContext _localctx = new Record_typeContext(_ctx, getState());
-		enterRule(_localctx, 32, RULE_record_type);
+		enterRule(_localctx, 26, RULE_record_type);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(202);
+			setState(213);
 			match(RECORD_TOKEN);
-			setState(203);
+			setState(214);
 			match(T__1);
-			setState(204);
-			attr();
-			setState(209);
+			setState(215);
+			type_attr();
+			setState(220);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==T__4) {
+			while (_la==T__2) {
 				{
 				{
-				setState(205);
-				match(T__4);
-				setState(206);
-				attr();
+				setState(216);
+				match(T__2);
+				setState(217);
+				type_attr();
 				}
 				}
-				setState(211);
+				setState(222);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
-			setState(212);
-			match(T__2);
+			setState(223);
+			match(T__3);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1811,18 +1689,18 @@ public class SnapiParser extends Parser {
 
 	public final Iterable_typeContext iterable_type() throws RecognitionException {
 		Iterable_typeContext _localctx = new Iterable_typeContext(_ctx, getState());
-		enterRule(_localctx, 34, RULE_iterable_type);
+		enterRule(_localctx, 28, RULE_iterable_type);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(214);
+			setState(225);
 			match(COLLECTION_TOKEN);
-			setState(215);
+			setState(226);
 			match(T__1);
-			setState(216);
+			setState(227);
 			type(0);
-			setState(217);
-			match(T__2);
+			setState(228);
+			match(T__3);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1863,18 +1741,18 @@ public class SnapiParser extends Parser {
 
 	public final List_typeContext list_type() throws RecognitionException {
 		List_typeContext _localctx = new List_typeContext(_ctx, getState());
-		enterRule(_localctx, 36, RULE_list_type);
+		enterRule(_localctx, 30, RULE_list_type);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(219);
+			setState(230);
 			match(LIST_TOKEN);
-			setState(220);
+			setState(231);
 			match(T__1);
-			setState(221);
+			setState(232);
 			type(0);
-			setState(222);
-			match(T__2);
+			setState(233);
+			match(T__3);
 			}
 		}
 		catch (RecognitionException re) {
@@ -1915,13 +1793,13 @@ public class SnapiParser extends Parser {
 
 	public final Expr_typeContext expr_type() throws RecognitionException {
 		Expr_typeContext _localctx = new Expr_typeContext(_ctx, getState());
-		enterRule(_localctx, 38, RULE_expr_type);
+		enterRule(_localctx, 32, RULE_expr_type);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(224);
+			setState(235);
 			match(TYPE_TOKEN);
-			setState(225);
+			setState(236);
 			type(0);
 			}
 		}
@@ -2015,6 +1893,221 @@ public class SnapiParser extends Parser {
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
+	public static class MinusUnaryExprContext extends ExprContext {
+		public TerminalNode MINUS_TOKEN() { return getToken(SnapiParser.MINUS_TOKEN, 0); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public MinusUnaryExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterMinusUnaryExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitMinusUnaryExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitMinusUnaryExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class NullExprContext extends ExprContext {
+		public TerminalNode NULL_TOKEN() { return getToken(SnapiParser.NULL_TOKEN, 0); }
+		public NullExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNullExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitNullExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitNullExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class PlusExprContext extends ExprContext {
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public TerminalNode PLUS_TOKEN() { return getToken(SnapiParser.PLUS_TOKEN, 0); }
+		public PlusExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterPlusExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitPlusExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitPlusExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class NumberExprContext extends ExprContext {
+		public NumberContext number() {
+			return getRuleContext(NumberContext.class,0);
+		}
+		public NumberExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNumberExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitNumberExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitNumberExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class CompareExprContext extends ExprContext {
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public Compare_tokensContext compare_tokens() {
+			return getRuleContext(Compare_tokensContext.class,0);
+		}
+		public CompareExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterCompareExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitCompareExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitCompareExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class PlusUnaryExprContext extends ExprContext {
+		public TerminalNode PLUS_TOKEN() { return getToken(SnapiParser.PLUS_TOKEN, 0); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public PlusUnaryExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterPlusUnaryExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitPlusUnaryExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitPlusUnaryExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class ListExprContext extends ExprContext {
+		public ListsContext lists() {
+			return getRuleContext(ListsContext.class,0);
+		}
+		public ListExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterListExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitListExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitListExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class NotExprContext extends ExprContext {
+		public TerminalNode NOT_TOKEN() { return getToken(SnapiParser.NOT_TOKEN, 0); }
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public NotExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNotExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitNotExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitNotExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class RecordExprContext extends ExprContext {
+		public RecordsContext records() {
+			return getRuleContext(RecordsContext.class,0);
+		}
+		public RecordExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterRecordExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitRecordExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitRecordExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
+	public static class MinusExprContext extends ExprContext {
+		public List<ExprContext> expr() {
+			return getRuleContexts(ExprContext.class);
+		}
+		public ExprContext expr(int i) {
+			return getRuleContext(ExprContext.class,i);
+		}
+		public TerminalNode MINUS_TOKEN() { return getToken(SnapiParser.MINUS_TOKEN, 0); }
+		public MinusExprContext(ExprContext ctx) { copyFrom(ctx); }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterMinusExpr(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitMinusExpr(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitMinusExpr(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+	@SuppressWarnings("CheckReturnValue")
 	public static class BoolConstExprContext extends ExprContext {
 		public TerminalNode BOOL_CONST() { return getToken(SnapiParser.BOOL_CONST, 0); }
 		public BoolConstExprContext(ExprContext ctx) { copyFrom(ctx); }
@@ -2098,8 +2191,11 @@ public class SnapiParser extends Parser {
 	}
 	@SuppressWarnings("CheckReturnValue")
 	public static class FunAppExprContext extends ExprContext {
-		public Fun_appContext fun_app() {
-			return getRuleContext(Fun_appContext.class,0);
+		public ExprContext expr() {
+			return getRuleContext(ExprContext.class,0);
+		}
+		public Fun_arContext fun_ar() {
+			return getRuleContext(Fun_arContext.class,0);
 		}
 		public FunAppExprContext(ExprContext ctx) { copyFrom(ctx); }
 		@Override
@@ -2161,24 +2257,6 @@ public class SnapiParser extends Parser {
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
-	public static class NullExprContext extends ExprContext {
-		public TerminalNode NULL_TOKEN() { return getToken(SnapiParser.NULL_TOKEN, 0); }
-		public NullExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNullExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitNullExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitNullExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
 	public static class ExprTypeExprContext extends ExprContext {
 		public Expr_typeContext expr_type() {
 			return getRuleContext(Expr_typeContext.class,0);
@@ -2223,50 +2301,6 @@ public class SnapiParser extends Parser {
 		}
 	}
 	@SuppressWarnings("CheckReturnValue")
-	public static class PlusExprContext extends ExprContext {
-		public TerminalNode PLUS_TOKEN() { return getToken(SnapiParser.PLUS_TOKEN, 0); }
-		public List<ExprContext> expr() {
-			return getRuleContexts(ExprContext.class);
-		}
-		public ExprContext expr(int i) {
-			return getRuleContext(ExprContext.class,i);
-		}
-		public PlusExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterPlusExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitPlusExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitPlusExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class NumberExprContext extends ExprContext {
-		public NumberContext number() {
-			return getRuleContext(NumberContext.class,0);
-		}
-		public NumberExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNumberExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitNumberExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitNumberExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
 	public static class TrippleStringExprContext extends ExprContext {
 		public TerminalNode TRIPPLE_STRING() { return getToken(SnapiParser.TRIPPLE_STRING, 0); }
 		public TrippleStringExprContext(ExprContext ctx) { copyFrom(ctx); }
@@ -2281,71 +2315,6 @@ public class SnapiParser extends Parser {
 		@Override
 		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
 			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitTrippleStringExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class CompareExprContext extends ExprContext {
-		public List<ExprContext> expr() {
-			return getRuleContexts(ExprContext.class);
-		}
-		public ExprContext expr(int i) {
-			return getRuleContext(ExprContext.class,i);
-		}
-		public TerminalNode COMPARE_TOKENS() { return getToken(SnapiParser.COMPARE_TOKENS, 0); }
-		public CompareExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterCompareExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitCompareExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitCompareExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class ListExprContext extends ExprContext {
-		public ListsContext lists() {
-			return getRuleContext(ListsContext.class,0);
-		}
-		public ListExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterListExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitListExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitListExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class NotExprContext extends ExprContext {
-		public TerminalNode NOT_TOKEN() { return getToken(SnapiParser.NOT_TOKEN, 0); }
-		public ExprContext expr() {
-			return getRuleContext(ExprContext.class,0);
-		}
-		public NotExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterNotExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitNotExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitNotExpr(this);
 			else return visitor.visitChildren(this);
 		}
 	}
@@ -2393,50 +2362,6 @@ public class SnapiParser extends Parser {
 			else return visitor.visitChildren(this);
 		}
 	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class RecordExprContext extends ExprContext {
-		public RecordsContext records() {
-			return getRuleContext(RecordsContext.class,0);
-		}
-		public RecordExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterRecordExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitRecordExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitRecordExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
-	@SuppressWarnings("CheckReturnValue")
-	public static class MinusExprContext extends ExprContext {
-		public TerminalNode MINUS_TOKEN() { return getToken(SnapiParser.MINUS_TOKEN, 0); }
-		public List<ExprContext> expr() {
-			return getRuleContexts(ExprContext.class);
-		}
-		public ExprContext expr(int i) {
-			return getRuleContext(ExprContext.class,i);
-		}
-		public MinusExprContext(ExprContext ctx) { copyFrom(ctx); }
-		@Override
-		public void enterRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterMinusExpr(this);
-		}
-		@Override
-		public void exitRule(ParseTreeListener listener) {
-			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitMinusExpr(this);
-		}
-		@Override
-		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
-			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitMinusExpr(this);
-			else return visitor.visitChildren(this);
-		}
-	}
 
 	public final ExprContext expr() throws RecognitionException {
 		return expr(0);
@@ -2447,27 +2372,27 @@ public class SnapiParser extends Parser {
 		int _parentState = getState();
 		ExprContext _localctx = new ExprContext(_ctx, _parentState);
 		ExprContext _prevctx = _localctx;
-		int _startState = 40;
-		enterRecursionRule(_localctx, 40, RULE_expr, _p);
+		int _startState = 34;
+		enterRecursionRule(_localctx, 34, RULE_expr, _p);
 		try {
 			int _alt;
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(250);
+			setState(260);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,19,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,21,_ctx) ) {
 			case 1:
 				{
 				_localctx = new ParenExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
 
-				setState(228);
+				setState(239);
 				match(T__1);
-				setState(229);
+				setState(240);
 				expr(0);
-				setState(230);
-				match(T__2);
+				setState(241);
+				match(T__3);
 				}
 				break;
 			case 2:
@@ -2475,7 +2400,7 @@ public class SnapiParser extends Parser {
 				_localctx = new NumberExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(232);
+				setState(243);
 				number();
 				}
 				break;
@@ -2484,7 +2409,7 @@ public class SnapiParser extends Parser {
 				_localctx = new IfThenElseExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(233);
+				setState(244);
 				if_then_else();
 				}
 				break;
@@ -2493,7 +2418,7 @@ public class SnapiParser extends Parser {
 				_localctx = new ListExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(234);
+				setState(245);
 				lists();
 				}
 				break;
@@ -2502,7 +2427,7 @@ public class SnapiParser extends Parser {
 				_localctx = new RecordExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(235);
+				setState(246);
 				records();
 				}
 				break;
@@ -2511,7 +2436,7 @@ public class SnapiParser extends Parser {
 				_localctx = new BoolConstExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(236);
+				setState(247);
 				match(BOOL_CONST);
 				}
 				break;
@@ -2520,7 +2445,7 @@ public class SnapiParser extends Parser {
 				_localctx = new NullExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(237);
+				setState(248);
 				match(NULL_TOKEN);
 				}
 				break;
@@ -2529,7 +2454,7 @@ public class SnapiParser extends Parser {
 				_localctx = new TrippleStringExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(238);
+				setState(249);
 				match(TRIPPLE_STRING);
 				}
 				break;
@@ -2538,7 +2463,7 @@ public class SnapiParser extends Parser {
 				_localctx = new StringExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(239);
+				setState(250);
 				match(STRING);
 				}
 				break;
@@ -2547,92 +2472,83 @@ public class SnapiParser extends Parser {
 				_localctx = new NotExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(240);
+				setState(251);
 				match(NOT_TOKEN);
-				setState(241);
+				setState(252);
 				expr(16);
 				}
 				break;
 			case 11:
 				{
-				_localctx = new MinusExprContext(_localctx);
+				_localctx = new MinusUnaryExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(242);
+				setState(253);
 				match(MINUS_TOKEN);
-				setState(243);
+				setState(254);
 				expr(12);
 				}
 				break;
 			case 12:
 				{
-				_localctx = new PlusExprContext(_localctx);
+				_localctx = new PlusUnaryExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(244);
+				setState(255);
 				match(PLUS_TOKEN);
-				setState(245);
+				setState(256);
 				expr(11);
 				}
 				break;
 			case 13:
 				{
-				_localctx = new FunAppExprContext(_localctx);
+				_localctx = new FunAbsExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(246);
-				fun_app();
+				setState(257);
+				fun_abs();
 				}
 				break;
 			case 14:
 				{
-				_localctx = new FunAbsExprContext(_localctx);
+				_localctx = new LetExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(247);
-				fun_abs();
+				setState(258);
+				let();
 				}
 				break;
 			case 15:
 				{
-				_localctx = new LetExprContext(_localctx);
-				_ctx = _localctx;
-				_prevctx = _localctx;
-				setState(248);
-				let();
-				}
-				break;
-			case 16:
-				{
 				_localctx = new ExprTypeExprContext(_localctx);
 				_ctx = _localctx;
 				_prevctx = _localctx;
-				setState(249);
+				setState(259);
 				expr_type();
 				}
 				break;
 			}
 			_ctx.stop = _input.LT(-1);
-			setState(284);
+			setState(297);
 			_errHandler.sync(this);
-			_alt = getInterpreter().adaptivePredict(_input,22,_ctx);
+			_alt = getInterpreter().adaptivePredict(_input,24,_ctx);
 			while ( _alt!=2 && _alt!=org.antlr.v4.runtime.atn.ATN.INVALID_ALT_NUMBER ) {
 				if ( _alt==1 ) {
 					if ( _parseListeners!=null ) triggerExitRuleEvent();
 					_prevctx = _localctx;
 					{
-					setState(282);
+					setState(295);
 					_errHandler.sync(this);
-					switch ( getInterpreter().adaptivePredict(_input,21,_ctx) ) {
+					switch ( getInterpreter().adaptivePredict(_input,23,_ctx) ) {
 					case 1:
 						{
 						_localctx = new AndExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(252);
+						setState(262);
 						if (!(precpred(_ctx, 15))) throw new FailedPredicateException(this, "precpred(_ctx, 15)");
-						setState(253);
+						setState(263);
 						match(AND_TOKEN);
-						setState(254);
+						setState(264);
 						expr(16);
 						}
 						break;
@@ -2640,11 +2556,11 @@ public class SnapiParser extends Parser {
 						{
 						_localctx = new OrExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(255);
+						setState(265);
 						if (!(precpred(_ctx, 14))) throw new FailedPredicateException(this, "precpred(_ctx, 14)");
-						setState(256);
+						setState(266);
 						match(OR_TOKEN);
-						setState(257);
+						setState(267);
 						expr(15);
 						}
 						break;
@@ -2652,11 +2568,11 @@ public class SnapiParser extends Parser {
 						{
 						_localctx = new CompareExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(258);
+						setState(268);
 						if (!(precpred(_ctx, 13))) throw new FailedPredicateException(this, "precpred(_ctx, 13)");
-						setState(259);
-						match(COMPARE_TOKENS);
-						setState(260);
+						setState(269);
+						compare_tokens();
+						setState(270);
 						expr(14);
 						}
 						break;
@@ -2664,11 +2580,11 @@ public class SnapiParser extends Parser {
 						{
 						_localctx = new MulExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(261);
+						setState(272);
 						if (!(precpred(_ctx, 10))) throw new FailedPredicateException(this, "precpred(_ctx, 10)");
-						setState(262);
+						setState(273);
 						match(MUL_TOKEN);
-						setState(263);
+						setState(274);
 						expr(11);
 						}
 						break;
@@ -2676,11 +2592,11 @@ public class SnapiParser extends Parser {
 						{
 						_localctx = new DivExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(264);
+						setState(275);
 						if (!(precpred(_ctx, 9))) throw new FailedPredicateException(this, "precpred(_ctx, 9)");
-						setState(265);
+						setState(276);
 						match(DIV_TOKEN);
-						setState(266);
+						setState(277);
 						expr(10);
 						}
 						break;
@@ -2688,11 +2604,11 @@ public class SnapiParser extends Parser {
 						{
 						_localctx = new ModExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(267);
+						setState(278);
 						if (!(precpred(_ctx, 8))) throw new FailedPredicateException(this, "precpred(_ctx, 8)");
-						setState(268);
+						setState(279);
 						match(MOD_TOKEN);
-						setState(269);
+						setState(280);
 						expr(9);
 						}
 						break;
@@ -2700,11 +2616,11 @@ public class SnapiParser extends Parser {
 						{
 						_localctx = new PlusExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(270);
+						setState(281);
 						if (!(precpred(_ctx, 7))) throw new FailedPredicateException(this, "precpred(_ctx, 7)");
-						setState(271);
+						setState(282);
 						match(PLUS_TOKEN);
-						setState(272);
+						setState(283);
 						expr(8);
 						}
 						break;
@@ -2712,30 +2628,40 @@ public class SnapiParser extends Parser {
 						{
 						_localctx = new MinusExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(273);
+						setState(284);
 						if (!(precpred(_ctx, 6))) throw new FailedPredicateException(this, "precpred(_ctx, 6)");
-						setState(274);
+						setState(285);
 						match(MINUS_TOKEN);
-						setState(275);
+						setState(286);
 						expr(7);
 						}
 						break;
 					case 9:
 						{
+						_localctx = new FunAppExprContext(new ExprContext(_parentctx, _parentState));
+						pushNewRecursionContext(_localctx, _startState, RULE_expr);
+						setState(287);
+						if (!(precpred(_ctx, 5))) throw new FailedPredicateException(this, "precpred(_ctx, 5)");
+						setState(288);
+						fun_ar();
+						}
+						break;
+					case 10:
+						{
 						_localctx = new ProjectionExprContext(new ExprContext(_parentctx, _parentState));
 						pushNewRecursionContext(_localctx, _startState, RULE_expr);
-						setState(276);
+						setState(289);
 						if (!(precpred(_ctx, 1))) throw new FailedPredicateException(this, "precpred(_ctx, 1)");
-						setState(277);
+						setState(290);
 						match(T__6);
-						setState(278);
+						setState(291);
 						match(IDENT);
-						setState(280);
+						setState(293);
 						_errHandler.sync(this);
-						switch ( getInterpreter().adaptivePredict(_input,20,_ctx) ) {
+						switch ( getInterpreter().adaptivePredict(_input,22,_ctx) ) {
 						case 1:
 							{
-							setState(279);
+							setState(292);
 							fun_ar();
 							}
 							break;
@@ -2745,9 +2671,9 @@ public class SnapiParser extends Parser {
 					}
 					} 
 				}
-				setState(286);
+				setState(299);
 				_errHandler.sync(this);
-				_alt = getInterpreter().adaptivePredict(_input,22,_ctx);
+				_alt = getInterpreter().adaptivePredict(_input,24,_ctx);
 			}
 			}
 		}
@@ -2793,17 +2719,17 @@ public class SnapiParser extends Parser {
 
 	public final LetContext let() throws RecognitionException {
 		LetContext _localctx = new LetContext(_ctx, getState());
-		enterRule(_localctx, 42, RULE_let);
+		enterRule(_localctx, 36, RULE_let);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(287);
+			setState(300);
 			match(LET_TOKEN);
-			setState(288);
+			setState(301);
 			let_left();
-			setState(289);
+			setState(302);
 			match(IN_TOKEN);
-			setState(290);
+			setState(303);
 			expr(0);
 			}
 		}
@@ -2847,26 +2773,26 @@ public class SnapiParser extends Parser {
 
 	public final Let_leftContext let_left() throws RecognitionException {
 		Let_leftContext _localctx = new Let_leftContext(_ctx, getState());
-		enterRule(_localctx, 44, RULE_let_left);
+		enterRule(_localctx, 38, RULE_let_left);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(292);
+			setState(305);
 			let_decl();
-			setState(297);
+			setState(310);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==T__4) {
+			while (_la==T__2) {
 				{
 				{
-				setState(293);
-				match(T__4);
-				setState(294);
+				setState(306);
+				match(T__2);
+				setState(307);
 				let_decl();
 				}
 				}
-				setState(299);
+				setState(312);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -2912,22 +2838,22 @@ public class SnapiParser extends Parser {
 
 	public final Let_declContext let_decl() throws RecognitionException {
 		Let_declContext _localctx = new Let_declContext(_ctx, getState());
-		enterRule(_localctx, 46, RULE_let_decl);
+		enterRule(_localctx, 40, RULE_let_decl);
 		try {
-			setState(302);
+			setState(315);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,24,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,26,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(300);
+				setState(313);
 				let_bind();
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(301);
+				setState(314);
 				fun_dec();
 				}
 				break;
@@ -2974,34 +2900,34 @@ public class SnapiParser extends Parser {
 
 	public final Let_bindContext let_bind() throws RecognitionException {
 		Let_bindContext _localctx = new Let_bindContext(_ctx, getState());
-		enterRule(_localctx, 48, RULE_let_bind);
+		enterRule(_localctx, 42, RULE_let_bind);
 		try {
-			setState(313);
+			setState(326);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,25,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,27,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(304);
+				setState(317);
 				match(IDENT);
-				setState(305);
+				setState(318);
 				match(T__0);
-				setState(306);
+				setState(319);
 				expr(0);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(307);
+				setState(320);
 				match(IDENT);
-				setState(308);
-				match(T__3);
-				setState(309);
+				setState(321);
+				match(T__4);
+				setState(322);
 				type(0);
-				setState(310);
+				setState(323);
 				match(T__0);
-				setState(311);
+				setState(324);
 				expr(0);
 				}
 				break;
@@ -3050,21 +2976,21 @@ public class SnapiParser extends Parser {
 
 	public final If_then_elseContext if_then_else() throws RecognitionException {
 		If_then_elseContext _localctx = new If_then_elseContext(_ctx, getState());
-		enterRule(_localctx, 50, RULE_if_then_else);
+		enterRule(_localctx, 44, RULE_if_then_else);
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(315);
+			setState(328);
 			match(IF_TOKEN);
-			setState(316);
+			setState(329);
 			expr(0);
-			setState(317);
+			setState(330);
 			match(THEN_TOKEN);
-			setState(318);
+			setState(331);
 			expr(0);
-			setState(319);
+			setState(332);
 			match(ELSE_TOKEN);
-			setState(320);
+			setState(333);
 			expr(0);
 			}
 		}
@@ -3105,24 +3031,24 @@ public class SnapiParser extends Parser {
 
 	public final ListsContext lists() throws RecognitionException {
 		ListsContext _localctx = new ListsContext(_ctx, getState());
-		enterRule(_localctx, 52, RULE_lists);
+		enterRule(_localctx, 46, RULE_lists);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(322);
+			setState(335);
 			match(T__7);
-			setState(324);
+			setState(337);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & -9006638211753040636L) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & 57L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 6971852744663504132L) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & 7L) != 0)) {
 				{
-				setState(323);
+				setState(336);
 				lists_element();
 				}
 			}
 
-			setState(326);
+			setState(339);
 			match(T__8);
 			}
 		}
@@ -3166,26 +3092,26 @@ public class SnapiParser extends Parser {
 
 	public final Lists_elementContext lists_element() throws RecognitionException {
 		Lists_elementContext _localctx = new Lists_elementContext(_ctx, getState());
-		enterRule(_localctx, 54, RULE_lists_element);
+		enterRule(_localctx, 48, RULE_lists_element);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(328);
+			setState(341);
 			expr(0);
-			setState(333);
+			setState(346);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==T__4) {
+			while (_la==T__2) {
 				{
 				{
-				setState(329);
-				match(T__4);
-				setState(330);
+				setState(342);
+				match(T__2);
+				setState(343);
 				expr(0);
 				}
 				}
-				setState(335);
+				setState(348);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -3228,24 +3154,24 @@ public class SnapiParser extends Parser {
 
 	public final RecordsContext records() throws RecognitionException {
 		RecordsContext _localctx = new RecordsContext(_ctx, getState());
-		enterRule(_localctx, 56, RULE_records);
+		enterRule(_localctx, 50, RULE_records);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(336);
+			setState(349);
 			match(T__9);
-			setState(338);
+			setState(351);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & -9006638211753040636L) != 0) || ((((_la - 64)) & ~0x3f) == 0 && ((1L << (_la - 64)) & 57L) != 0)) {
+			if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 6971852744663504132L) != 0) || ((((_la - 65)) & ~0x3f) == 0 && ((1L << (_la - 65)) & 7L) != 0)) {
 				{
-				setState(337);
+				setState(350);
 				record_elements();
 				}
 			}
 
-			setState(340);
+			setState(353);
 			match(T__10);
 			}
 		}
@@ -3289,26 +3215,26 @@ public class SnapiParser extends Parser {
 
 	public final Record_elementsContext record_elements() throws RecognitionException {
 		Record_elementsContext _localctx = new Record_elementsContext(_ctx, getState());
-		enterRule(_localctx, 58, RULE_record_elements);
+		enterRule(_localctx, 52, RULE_record_elements);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(342);
+			setState(355);
 			record_element();
-			setState(347);
+			setState(360);
 			_errHandler.sync(this);
 			_la = _input.LA(1);
-			while (_la==T__4) {
+			while (_la==T__2) {
 				{
 				{
-				setState(343);
-				match(T__4);
-				setState(344);
+				setState(356);
+				match(T__2);
+				setState(357);
 				record_element();
 				}
 				}
-				setState(349);
+				setState(362);
 				_errHandler.sync(this);
 				_la = _input.LA(1);
 			}
@@ -3352,26 +3278,26 @@ public class SnapiParser extends Parser {
 
 	public final Record_elementContext record_element() throws RecognitionException {
 		Record_elementContext _localctx = new Record_elementContext(_ctx, getState());
-		enterRule(_localctx, 60, RULE_record_element);
+		enterRule(_localctx, 54, RULE_record_element);
 		try {
-			setState(354);
+			setState(367);
 			_errHandler.sync(this);
-			switch ( getInterpreter().adaptivePredict(_input,30,_ctx) ) {
+			switch ( getInterpreter().adaptivePredict(_input,32,_ctx) ) {
 			case 1:
 				enterOuterAlt(_localctx, 1);
 				{
-				setState(350);
+				setState(363);
 				match(IDENT);
-				setState(351);
-				match(T__3);
-				setState(352);
+				setState(364);
+				match(T__4);
+				setState(365);
 				expr(0);
 				}
 				break;
 			case 2:
 				enterOuterAlt(_localctx, 2);
 				{
-				setState(353);
+				setState(366);
 				expr(0);
 				}
 				break;
@@ -3418,14 +3344,137 @@ public class SnapiParser extends Parser {
 
 	public final NumberContext number() throws RecognitionException {
 		NumberContext _localctx = new NumberContext(_ctx, getState());
-		enterRule(_localctx, 62, RULE_number);
+		enterRule(_localctx, 56, RULE_number);
 		int _la;
 		try {
 			enterOuterAlt(_localctx, 1);
 			{
-			setState(356);
+			setState(369);
 			_la = _input.LA(1);
-			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 558551906910208L) != 0)) ) {
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 279275953455104L) != 0)) ) {
+			_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class Primitive_typesContext extends ParserRuleContext {
+		public TerminalNode BOOL_TOKEN() { return getToken(SnapiParser.BOOL_TOKEN, 0); }
+		public TerminalNode STRING_TOKEN() { return getToken(SnapiParser.STRING_TOKEN, 0); }
+		public TerminalNode LOCATION_TOKEN() { return getToken(SnapiParser.LOCATION_TOKEN, 0); }
+		public TerminalNode BINARY_TOKEN() { return getToken(SnapiParser.BINARY_TOKEN, 0); }
+		public TerminalNode DATE_TOKEN() { return getToken(SnapiParser.DATE_TOKEN, 0); }
+		public TerminalNode TIME_TOKEN() { return getToken(SnapiParser.TIME_TOKEN, 0); }
+		public TerminalNode INTERVAL_TOKEN() { return getToken(SnapiParser.INTERVAL_TOKEN, 0); }
+		public TerminalNode TIMESTAMP_TOKEN() { return getToken(SnapiParser.TIMESTAMP_TOKEN, 0); }
+		public TerminalNode BYTE_TOKEN() { return getToken(SnapiParser.BYTE_TOKEN, 0); }
+		public TerminalNode SHORT_TOKEN() { return getToken(SnapiParser.SHORT_TOKEN, 0); }
+		public TerminalNode INT_TOKEN() { return getToken(SnapiParser.INT_TOKEN, 0); }
+		public TerminalNode LONG_TOKEN() { return getToken(SnapiParser.LONG_TOKEN, 0); }
+		public TerminalNode FLOAT_TOKEN() { return getToken(SnapiParser.FLOAT_TOKEN, 0); }
+		public TerminalNode DOUBLE_TOKEN() { return getToken(SnapiParser.DOUBLE_TOKEN, 0); }
+		public TerminalNode DECIMAL_TOKEN() { return getToken(SnapiParser.DECIMAL_TOKEN, 0); }
+		public Primitive_typesContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_primitive_types; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterPrimitive_types(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitPrimitive_types(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitPrimitive_types(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final Primitive_typesContext primitive_types() throws RecognitionException {
+		Primitive_typesContext _localctx = new Primitive_typesContext(_ctx, getState());
+		enterRule(_localctx, 58, RULE_primitive_types);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(371);
+			_la = _input.LA(1);
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 268427264L) != 0)) ) {
+			_errHandler.recoverInline(this);
+			}
+			else {
+				if ( _input.LA(1)==Token.EOF ) matchedEOF = true;
+				_errHandler.reportMatch(this);
+				consume();
+			}
+			}
+		}
+		catch (RecognitionException re) {
+			_localctx.exception = re;
+			_errHandler.reportError(this, re);
+			_errHandler.recover(this, re);
+		}
+		finally {
+			exitRule();
+		}
+		return _localctx;
+	}
+
+	@SuppressWarnings("CheckReturnValue")
+	public static class Compare_tokensContext extends ParserRuleContext {
+		public TerminalNode EQ_TOKEN() { return getToken(SnapiParser.EQ_TOKEN, 0); }
+		public TerminalNode NEQ_TOKEN() { return getToken(SnapiParser.NEQ_TOKEN, 0); }
+		public TerminalNode LE_TOKEN() { return getToken(SnapiParser.LE_TOKEN, 0); }
+		public TerminalNode LT_TOKEN() { return getToken(SnapiParser.LT_TOKEN, 0); }
+		public TerminalNode GE_TOKEN() { return getToken(SnapiParser.GE_TOKEN, 0); }
+		public TerminalNode GT_TOKEN() { return getToken(SnapiParser.GT_TOKEN, 0); }
+		public Compare_tokensContext(ParserRuleContext parent, int invokingState) {
+			super(parent, invokingState);
+		}
+		@Override public int getRuleIndex() { return RULE_compare_tokens; }
+		@Override
+		public void enterRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).enterCompare_tokens(this);
+		}
+		@Override
+		public void exitRule(ParseTreeListener listener) {
+			if ( listener instanceof SnapiListener ) ((SnapiListener)listener).exitCompare_tokens(this);
+		}
+		@Override
+		public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+			if ( visitor instanceof SnapiVisitor ) return ((SnapiVisitor<? extends T>)visitor).visitCompare_tokens(this);
+			else return visitor.visitChildren(this);
+		}
+	}
+
+	public final Compare_tokensContext compare_tokens() throws RecognitionException {
+		Compare_tokensContext _localctx = new Compare_tokensContext(_ctx, getState());
+		enterRule(_localctx, 60, RULE_compare_tokens);
+		int _la;
+		try {
+			enterOuterAlt(_localctx, 1);
+			{
+			setState(373);
+			_la = _input.LA(1);
+			if ( !((((_la) & ~0x3f) == 0 && ((1L << _la) & 17732923532771328L) != 0)) ) {
 			_errHandler.recoverInline(this);
 			}
 			else {
@@ -3448,9 +3497,9 @@ public class SnapiParser extends Parser {
 
 	public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
 		switch (ruleIndex) {
-		case 15:
+		case 12:
 			return type_sempred((TypeContext)_localctx, predIndex);
-		case 20:
+		case 17:
 			return expr_sempred((ExprContext)_localctx, predIndex);
 		}
 		return true;
@@ -3481,13 +3530,15 @@ public class SnapiParser extends Parser {
 		case 8:
 			return precpred(_ctx, 6);
 		case 9:
+			return precpred(_ctx, 5);
+		case 10:
 			return precpred(_ctx, 1);
 		}
 		return true;
 	}
 
 	public static final String _serializedATN =
-		"\u0004\u0001I\u0167\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
+		"\u0004\u0001G\u0178\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"+
 		"\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"+
 		"\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"+
 		"\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"+
@@ -3497,230 +3548,240 @@ public class SnapiParser extends Parser {
 		"\u0002\u0016\u0007\u0016\u0002\u0017\u0007\u0017\u0002\u0018\u0007\u0018"+
 		"\u0002\u0019\u0007\u0019\u0002\u001a\u0007\u001a\u0002\u001b\u0007\u001b"+
 		"\u0002\u001c\u0007\u001c\u0002\u001d\u0007\u001d\u0002\u001e\u0007\u001e"+
-		"\u0002\u001f\u0007\u001f\u0001\u0000\u0001\u0000\u0001\u0000\u0001\u0001"+
-		"\u0005\u0001E\b\u0001\n\u0001\f\u0001H\t\u0001\u0001\u0001\u0005\u0001"+
-		"K\b\u0001\n\u0001\f\u0001N\t\u0001\u0001\u0001\u0003\u0001Q\b\u0001\u0001"+
-		"\u0002\u0001\u0002\u0001\u0002\u0001\u0002\u0001\u0003\u0001\u0003\u0003"+
-		"\u0003Y\b\u0003\u0001\u0004\u0001\u0004\u0001\u0004\u0001\u0005\u0001"+
-		"\u0005\u0001\u0005\u0001\u0006\u0001\u0006\u0003\u0006c\b\u0006\u0001"+
-		"\u0006\u0001\u0006\u0001\u0006\u0003\u0006h\b\u0006\u0001\u0006\u0001"+
-		"\u0006\u0001\u0006\u0003\u0006m\b\u0006\u0001\u0007\u0001\u0007\u0001"+
-		"\u0007\u0005\u0007r\b\u0007\n\u0007\f\u0007u\t\u0007\u0001\b\u0001\b\u0001"+
-		"\b\u0001\b\u0001\b\u0003\b|\b\b\u0001\t\u0001\t\u0001\t\u0001\t\u0001"+
-		"\n\u0001\n\u0001\n\u0001\u000b\u0001\u000b\u0003\u000b\u0087\b\u000b\u0001"+
-		"\u000b\u0001\u000b\u0001\f\u0001\f\u0001\f\u0005\f\u008e\b\f\n\f\f\f\u0091"+
-		"\t\f\u0001\r\u0001\r\u0001\r\u0001\r\u0003\r\u0097\b\r\u0001\u000e\u0001"+
-		"\u000e\u0001\u000e\u0001\u000e\u0001\u000e\u0001\u000e\u0001\u000e\u0003"+
-		"\u000e\u00a0\b\u000e\u0001\u000f\u0001\u000f\u0001\u000f\u0001\u000f\u0001"+
-		"\u000f\u0001\u000f\u0001\u000f\u0001\u000f\u0001\u000f\u0001\u000f\u0001"+
-		"\u000f\u0001\u000f\u0001\u000f\u0001\u000f\u0003\u000f\u00b0\b\u000f\u0001"+
-		"\u000f\u0001\u000f\u0001\u000f\u0003\u000f\u00b5\b\u000f\u0005\u000f\u00b7"+
-		"\b\u000f\n\u000f\f\u000f\u00ba\t\u000f\u0001\u000f\u0001\u000f\u0001\u000f"+
-		"\u0001\u000f\u0001\u000f\u0003\u000f\u00c1\b\u000f\u0001\u000f\u0001\u000f"+
-		"\u0001\u000f\u0005\u000f\u00c6\b\u000f\n\u000f\f\u000f\u00c9\t\u000f\u0001"+
-		"\u0010\u0001\u0010\u0001\u0010\u0001\u0010\u0001\u0010\u0005\u0010\u00d0"+
-		"\b\u0010\n\u0010\f\u0010\u00d3\t\u0010\u0001\u0010\u0001\u0010\u0001\u0011"+
-		"\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0012\u0001\u0012"+
+		"\u0001\u0000\u0001\u0000\u0001\u0000\u0001\u0001\u0005\u0001C\b\u0001"+
+		"\n\u0001\f\u0001F\t\u0001\u0001\u0001\u0005\u0001I\b\u0001\n\u0001\f\u0001"+
+		"L\t\u0001\u0001\u0001\u0003\u0001O\b\u0001\u0001\u0002\u0001\u0002\u0001"+
+		"\u0002\u0001\u0002\u0001\u0002\u0001\u0003\u0001\u0003\u0001\u0003\u0001"+
+		"\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001\u0003\u0001"+
+		"\u0003\u0001\u0003\u0003\u0003a\b\u0003\u0001\u0004\u0001\u0004\u0001"+
+		"\u0004\u0001\u0004\u0005\u0004g\b\u0004\n\u0004\f\u0004j\t\u0004\u0003"+
+		"\u0004l\b\u0004\u0001\u0004\u0001\u0004\u0001\u0004\u0001\u0004\u0001"+
+		"\u0004\u0005\u0004s\b\u0004\n\u0004\f\u0004v\t\u0004\u0003\u0004x\b\u0004"+
+		"\u0001\u0004\u0001\u0004\u0001\u0004\u0003\u0004}\b\u0004\u0001\u0005"+
+		"\u0001\u0005\u0001\u0005\u0001\u0005\u0001\u0005\u0003\u0005\u0084\b\u0005"+
+		"\u0001\u0006\u0001\u0006\u0001\u0006\u0001\u0006\u0003\u0006\u008a\b\u0006"+
+		"\u0001\u0007\u0001\u0007\u0001\u0007\u0001\u0007\u0001\b\u0001\b\u0003"+
+		"\b\u0092\b\b\u0001\b\u0001\b\u0001\t\u0001\t\u0001\t\u0005\t\u0099\b\t"+
+		"\n\t\f\t\u009c\t\t\u0001\n\u0001\n\u0001\n\u0001\n\u0003\n\u00a2\b\n\u0001"+
+		"\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0001\u000b\u0001"+
+		"\u000b\u0003\u000b\u00ab\b\u000b\u0001\f\u0001\f\u0001\f\u0001\f\u0001"+
+		"\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001"+
+		"\f\u0003\f\u00bb\b\f\u0001\f\u0001\f\u0001\f\u0003\f\u00c0\b\f\u0005\f"+
+		"\u00c2\b\f\n\f\f\f\u00c5\t\f\u0001\f\u0001\f\u0001\f\u0001\f\u0001\f\u0003"+
+		"\f\u00cc\b\f\u0001\f\u0001\f\u0001\f\u0005\f\u00d1\b\f\n\f\f\f\u00d4\t"+
+		"\f\u0001\r\u0001\r\u0001\r\u0001\r\u0001\r\u0005\r\u00db\b\r\n\r\f\r\u00de"+
+		"\t\r\u0001\r\u0001\r\u0001\u000e\u0001\u000e\u0001\u000e\u0001\u000e\u0001"+
+		"\u000e\u0001\u000f\u0001\u000f\u0001\u000f\u0001\u000f\u0001\u000f\u0001"+
+		"\u0010\u0001\u0010\u0001\u0010\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0003\u0011\u0105\b\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0001"+
+		"\u0011\u0001\u0011\u0001\u0011\u0001\u0011\u0003\u0011\u0126\b\u0011\u0005"+
+		"\u0011\u0128\b\u0011\n\u0011\f\u0011\u012b\t\u0011\u0001\u0012\u0001\u0012"+
 		"\u0001\u0012\u0001\u0012\u0001\u0012\u0001\u0013\u0001\u0013\u0001\u0013"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0003\u0014"+
-		"\u00fb\b\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014"+
-		"\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0001\u0014\u0003\u0014"+
-		"\u0119\b\u0014\u0005\u0014\u011b\b\u0014\n\u0014\f\u0014\u011e\t\u0014"+
-		"\u0001\u0015\u0001\u0015\u0001\u0015\u0001\u0015\u0001\u0015\u0001\u0016"+
-		"\u0001\u0016\u0001\u0016\u0005\u0016\u0128\b\u0016\n\u0016\f\u0016\u012b"+
-		"\t\u0016\u0001\u0017\u0001\u0017\u0003\u0017\u012f\b\u0017\u0001\u0018"+
-		"\u0001\u0018\u0001\u0018\u0001\u0018\u0001\u0018\u0001\u0018\u0001\u0018"+
-		"\u0001\u0018\u0001\u0018\u0003\u0018\u013a\b\u0018\u0001\u0019\u0001\u0019"+
-		"\u0001\u0019\u0001\u0019\u0001\u0019\u0001\u0019\u0001\u0019\u0001\u001a"+
-		"\u0001\u001a\u0003\u001a\u0145\b\u001a\u0001\u001a\u0001\u001a\u0001\u001b"+
-		"\u0001\u001b\u0001\u001b\u0005\u001b\u014c\b\u001b\n\u001b\f\u001b\u014f"+
-		"\t\u001b\u0001\u001c\u0001\u001c\u0003\u001c\u0153\b\u001c\u0001\u001c"+
-		"\u0001\u001c\u0001\u001d\u0001\u001d\u0001\u001d\u0005\u001d\u015a\b\u001d"+
-		"\n\u001d\f\u001d\u015d\t\u001d\u0001\u001e\u0001\u001e\u0001\u001e\u0001"+
-		"\u001e\u0003\u001e\u0163\b\u001e\u0001\u001f\u0001\u001f\u0001\u001f\u0000"+
-		"\u0002\u001e( \u0000\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016"+
-		"\u0018\u001a\u001c\u001e \"$&(*,.02468:<>\u0000\u0001\u0001\u0000*0\u0181"+
-		"\u0000@\u0001\u0000\u0000\u0000\u0002P\u0001\u0000\u0000\u0000\u0004R"+
-		"\u0001\u0000\u0000\u0000\u0006X\u0001\u0000\u0000\u0000\bZ\u0001\u0000"+
-		"\u0000\u0000\n]\u0001\u0000\u0000\u0000\fl\u0001\u0000\u0000\u0000\u000e"+
-		"n\u0001\u0000\u0000\u0000\u0010{\u0001\u0000\u0000\u0000\u0012}\u0001"+
-		"\u0000\u0000\u0000\u0014\u0081\u0001\u0000\u0000\u0000\u0016\u0084\u0001"+
-		"\u0000\u0000\u0000\u0018\u008a\u0001\u0000\u0000\u0000\u001a\u0096\u0001"+
-		"\u0000\u0000\u0000\u001c\u009f\u0001\u0000\u0000\u0000\u001e\u00c0\u0001"+
-		"\u0000\u0000\u0000 \u00ca\u0001\u0000\u0000\u0000\"\u00d6\u0001\u0000"+
-		"\u0000\u0000$\u00db\u0001\u0000\u0000\u0000&\u00e0\u0001\u0000\u0000\u0000"+
-		"(\u00fa\u0001\u0000\u0000\u0000*\u011f\u0001\u0000\u0000\u0000,\u0124"+
-		"\u0001\u0000\u0000\u0000.\u012e\u0001\u0000\u0000\u00000\u0139\u0001\u0000"+
-		"\u0000\u00002\u013b\u0001\u0000\u0000\u00004\u0142\u0001\u0000\u0000\u0000"+
-		"6\u0148\u0001\u0000\u0000\u00008\u0150\u0001\u0000\u0000\u0000:\u0156"+
-		"\u0001\u0000\u0000\u0000<\u0162\u0001\u0000\u0000\u0000>\u0164\u0001\u0000"+
-		"\u0000\u0000@A\u0003\u0002\u0001\u0000AB\u0005\u0000\u0000\u0001B\u0001"+
-		"\u0001\u0000\u0000\u0000CE\u0003\u0004\u0002\u0000DC\u0001\u0000\u0000"+
-		"\u0000EH\u0001\u0000\u0000\u0000FD\u0001\u0000\u0000\u0000FG\u0001\u0000"+
-		"\u0000\u0000GQ\u0001\u0000\u0000\u0000HF\u0001\u0000\u0000\u0000IK\u0003"+
-		"\u0004\u0002\u0000JI\u0001\u0000\u0000\u0000KN\u0001\u0000\u0000\u0000"+
-		"LJ\u0001\u0000\u0000\u0000LM\u0001\u0000\u0000\u0000MO\u0001\u0000\u0000"+
-		"\u0000NL\u0001\u0000\u0000\u0000OQ\u0003(\u0014\u0000PF\u0001\u0000\u0000"+
-		"\u0000PL\u0001\u0000\u0000\u0000Q\u0003\u0001\u0000\u0000\u0000RS\u0003"+
-		"\u0006\u0003\u0000ST\u0005\u0001\u0000\u0000TU\u0003(\u0014\u0000U\u0005"+
-		"\u0001\u0000\u0000\u0000VY\u0003\b\u0004\u0000WY\u0003\n\u0005\u0000X"+
-		"V\u0001\u0000\u0000\u0000XW\u0001\u0000\u0000\u0000Y\u0007\u0001\u0000"+
-		"\u0000\u0000Z[\u0005E\u0000\u0000[\\\u0003\f\u0006\u0000\\\t\u0001\u0000"+
-		"\u0000\u0000]^\u0005$\u0000\u0000^_\u0003\b\u0004\u0000_\u000b\u0001\u0000"+
-		"\u0000\u0000`b\u0005\u0002\u0000\u0000ac\u0003\u000e\u0007\u0000ba\u0001"+
-		"\u0000\u0000\u0000bc\u0001\u0000\u0000\u0000cd\u0001\u0000\u0000\u0000"+
-		"dm\u0005\u0003\u0000\u0000eg\u0005\u0002\u0000\u0000fh\u0003\u000e\u0007"+
-		"\u0000gf\u0001\u0000\u0000\u0000gh\u0001\u0000\u0000\u0000hi\u0001\u0000"+
-		"\u0000\u0000ij\u0005\u0003\u0000\u0000jk\u0005\u0004\u0000\u0000km\u0003"+
-		"\u001e\u000f\u0000l`\u0001\u0000\u0000\u0000le\u0001\u0000\u0000\u0000"+
-		"m\r\u0001\u0000\u0000\u0000ns\u0003\u0010\b\u0000op\u0005\u0005\u0000"+
-		"\u0000pr\u0003\u0010\b\u0000qo\u0001\u0000\u0000\u0000ru\u0001\u0000\u0000"+
-		"\u0000sq\u0001\u0000\u0000\u0000st\u0001\u0000\u0000\u0000t\u000f\u0001"+
-		"\u0000\u0000\u0000us\u0001\u0000\u0000\u0000v|\u0003\u0012\t\u0000wx\u0003"+
-		"\u0012\t\u0000xy\u0005\u0001\u0000\u0000yz\u0003(\u0014\u0000z|\u0001"+
-		"\u0000\u0000\u0000{v\u0001\u0000\u0000\u0000{w\u0001\u0000\u0000\u0000"+
-		"|\u0011\u0001\u0000\u0000\u0000}~\u0005E\u0000\u0000~\u007f\u0005\u0004"+
-		"\u0000\u0000\u007f\u0080\u0003\u001e\u000f\u0000\u0080\u0013\u0001\u0000"+
-		"\u0000\u0000\u0081\u0082\u0005E\u0000\u0000\u0082\u0083\u0003\u0016\u000b"+
-		"\u0000\u0083\u0015\u0001\u0000\u0000\u0000\u0084\u0086\u0005\u0002\u0000"+
-		"\u0000\u0085\u0087\u0003\u0018\f\u0000\u0086\u0085\u0001\u0000\u0000\u0000"+
-		"\u0086\u0087\u0001\u0000\u0000\u0000\u0087\u0088\u0001\u0000\u0000\u0000"+
-		"\u0088\u0089\u0005\u0003\u0000\u0000\u0089\u0017\u0001\u0000\u0000\u0000"+
-		"\u008a\u008f\u0003\u001a\r\u0000\u008b\u008c\u0005\u0005\u0000\u0000\u008c"+
-		"\u008e\u0003\u001a\r\u0000\u008d\u008b\u0001\u0000\u0000\u0000\u008e\u0091"+
-		"\u0001\u0000\u0000\u0000\u008f\u008d\u0001\u0000\u0000\u0000\u008f\u0090"+
-		"\u0001\u0000\u0000\u0000\u0090\u0019\u0001\u0000\u0000\u0000\u0091\u008f"+
-		"\u0001\u0000\u0000\u0000\u0092\u0097\u0003(\u0014\u0000\u0093\u0094\u0005"+
-		"E\u0000\u0000\u0094\u0095\u0005\u0001\u0000\u0000\u0095\u0097\u0003(\u0014"+
-		"\u0000\u0096\u0092\u0001\u0000\u0000\u0000\u0096\u0093\u0001\u0000\u0000"+
-		"\u0000\u0097\u001b\u0001\u0000\u0000\u0000\u0098\u0099\u0003\f\u0006\u0000"+
-		"\u0099\u009a\u0005\u0006\u0000\u0000\u009a\u009b\u0003(\u0014\u0000\u009b"+
-		"\u00a0\u0001\u0000\u0000\u0000\u009c\u009d\u0005E\u0000\u0000\u009d\u009e"+
-		"\u0005\u0006\u0000\u0000\u009e\u00a0\u0003(\u0014\u0000\u009f\u0098\u0001"+
-		"\u0000\u0000\u0000\u009f\u009c\u0001\u0000\u0000\u0000\u00a0\u001d\u0001"+
-		"\u0000\u0000\u0000\u00a1\u00a2\u0006\u000f\uffff\uffff\u0000\u00a2\u00a3"+
-		"\u0005\u0002\u0000\u0000\u00a3\u00a4\u0003\u001e\u000f\u0000\u00a4\u00a5"+
-		"\u0005\u0003\u0000\u0000\u00a5\u00c1\u0001\u0000\u0000\u0000\u00a6\u00c1"+
-		"\u0005\f\u0000\u0000\u00a7\u00c1\u0005%\u0000\u0000\u00a8\u00c1\u0005"+
-		"E\u0000\u0000\u00a9\u00c1\u0003 \u0010\u0000\u00aa\u00c1\u0003\"\u0011"+
-		"\u0000\u00ab\u00c1\u0003$\u0012\u0000\u00ac\u00af\u0005\u0002\u0000\u0000"+
-		"\u00ad\u00b0\u0003\u001e\u000f\u0000\u00ae\u00b0\u0003\u0012\t\u0000\u00af"+
-		"\u00ad\u0001\u0000\u0000\u0000\u00af\u00ae\u0001\u0000\u0000\u0000\u00b0"+
-		"\u00b8\u0001\u0000\u0000\u0000\u00b1\u00b4\u0005\u0005\u0000\u0000\u00b2"+
-		"\u00b5\u0003\u001e\u000f\u0000\u00b3\u00b5\u0003\u0012\t\u0000\u00b4\u00b2"+
-		"\u0001\u0000\u0000\u0000\u00b4\u00b3\u0001\u0000\u0000\u0000\u00b5\u00b7"+
-		"\u0001\u0000\u0000\u0000\u00b6\u00b1\u0001\u0000\u0000\u0000\u00b7\u00ba"+
-		"\u0001\u0000\u0000\u0000\u00b8\u00b6\u0001\u0000\u0000\u0000\u00b8\u00b9"+
-		"\u0001\u0000\u0000\u0000\u00b9\u00bb\u0001\u0000\u0000\u0000\u00ba\u00b8"+
-		"\u0001\u0000\u0000\u0000\u00bb\u00bc\u0005\u0003\u0000\u0000\u00bc\u00bd"+
-		"\u0005\u0006\u0000\u0000\u00bd\u00be\u0003\u001e\u000f\u0003\u00be\u00c1"+
-		"\u0001\u0000\u0000\u0000\u00bf\u00c1\u0003&\u0013\u0000\u00c0\u00a1\u0001"+
-		"\u0000\u0000\u0000\u00c0\u00a6\u0001\u0000\u0000\u0000\u00c0\u00a7\u0001"+
-		"\u0000\u0000\u0000\u00c0\u00a8\u0001\u0000\u0000\u0000\u00c0\u00a9\u0001"+
-		"\u0000\u0000\u0000\u00c0\u00aa\u0001\u0000\u0000\u0000\u00c0\u00ab\u0001"+
-		"\u0000\u0000\u0000\u00c0\u00ac\u0001\u0000\u0000\u0000\u00c0\u00bf\u0001"+
-		"\u0000\u0000\u0000\u00c1\u00c7\u0001\u0000\u0000\u0000\u00c2\u00c3\n\u0002"+
-		"\u0000\u0000\u00c3\u00c4\u0005\u0006\u0000\u0000\u00c4\u00c6\u0003\u001e"+
-		"\u000f\u0003\u00c5\u00c2\u0001\u0000\u0000\u0000\u00c6\u00c9\u0001\u0000"+
-		"\u0000\u0000\u00c7\u00c5\u0001\u0000\u0000\u0000\u00c7\u00c8\u0001\u0000"+
-		"\u0000\u0000\u00c8\u001f\u0001\u0000\u0000\u0000\u00c9\u00c7\u0001\u0000"+
-		"\u0000\u0000\u00ca\u00cb\u0005\u001d\u0000\u0000\u00cb\u00cc\u0005\u0002"+
-		"\u0000\u0000\u00cc\u00d1\u0003\u0012\t\u0000\u00cd\u00ce\u0005\u0005\u0000"+
-		"\u0000\u00ce\u00d0\u0003\u0012\t\u0000\u00cf\u00cd\u0001\u0000\u0000\u0000"+
-		"\u00d0\u00d3\u0001\u0000\u0000\u0000\u00d1\u00cf\u0001\u0000\u0000\u0000"+
-		"\u00d1\u00d2\u0001\u0000\u0000\u0000\u00d2\u00d4\u0001\u0000\u0000\u0000"+
-		"\u00d3\u00d1\u0001\u0000\u0000\u0000\u00d4\u00d5\u0005\u0003\u0000\u0000"+
-		"\u00d5!\u0001\u0000\u0000\u0000\u00d6\u00d7\u0005\u001e\u0000\u0000\u00d7"+
-		"\u00d8\u0005\u0002\u0000\u0000\u00d8\u00d9\u0003\u001e\u000f\u0000\u00d9"+
-		"\u00da\u0005\u0003\u0000\u0000\u00da#\u0001\u0000\u0000\u0000\u00db\u00dc"+
-		"\u0005\u001f\u0000\u0000\u00dc\u00dd\u0005\u0002\u0000\u0000\u00dd\u00de"+
-		"\u0003\u001e\u000f\u0000\u00de\u00df\u0005\u0003\u0000\u0000\u00df%\u0001"+
-		"\u0000\u0000\u0000\u00e0\u00e1\u0005\r\u0000\u0000\u00e1\u00e2\u0003\u001e"+
-		"\u000f\u0000\u00e2\'\u0001\u0000\u0000\u0000\u00e3\u00e4\u0006\u0014\uffff"+
-		"\uffff\u0000\u00e4\u00e5\u0005\u0002\u0000\u0000\u00e5\u00e6\u0003(\u0014"+
-		"\u0000\u00e6\u00e7\u0005\u0003\u0000\u0000\u00e7\u00fb\u0001\u0000\u0000"+
-		"\u0000\u00e8\u00fb\u0003>\u001f\u0000\u00e9\u00fb\u00032\u0019\u0000\u00ea"+
-		"\u00fb\u00034\u001a\u0000\u00eb\u00fb\u00038\u001c\u0000\u00ec\u00fb\u0005"+
-		"@\u0000\u0000\u00ed\u00fb\u0005)\u0000\u0000\u00ee\u00fb\u0005D\u0000"+
-		"\u0000\u00ef\u00fb\u0005C\u0000\u0000\u00f0\u00f1\u0005?\u0000\u0000\u00f1"+
-		"\u00fb\u0003(\u0014\u0010\u00f2\u00f3\u00059\u0000\u0000\u00f3\u00fb\u0003"+
-		"(\u0014\f\u00f4\u00f5\u00058\u0000\u0000\u00f5\u00fb\u0003(\u0014\u000b"+
-		"\u00f6\u00fb\u0003\u0014\n\u0000\u00f7\u00fb\u0003\u001c\u000e\u0000\u00f8"+
-		"\u00fb\u0003*\u0015\u0000\u00f9\u00fb\u0003&\u0013\u0000\u00fa\u00e3\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00e8\u0001\u0000\u0000\u0000\u00fa\u00e9\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00ea\u0001\u0000\u0000\u0000\u00fa\u00eb\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00ec\u0001\u0000\u0000\u0000\u00fa\u00ed\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00ee\u0001\u0000\u0000\u0000\u00fa\u00ef\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00f0\u0001\u0000\u0000\u0000\u00fa\u00f2\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00f4\u0001\u0000\u0000\u0000\u00fa\u00f6\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00f7\u0001\u0000\u0000\u0000\u00fa\u00f8\u0001"+
-		"\u0000\u0000\u0000\u00fa\u00f9\u0001\u0000\u0000\u0000\u00fb\u011c\u0001"+
-		"\u0000\u0000\u0000\u00fc\u00fd\n\u000f\u0000\u0000\u00fd\u00fe\u0005="+
-		"\u0000\u0000\u00fe\u011b\u0003(\u0014\u0010\u00ff\u0100\n\u000e\u0000"+
-		"\u0000\u0100\u0101\u0005>\u0000\u0000\u0101\u011b\u0003(\u0014\u000f\u0102"+
-		"\u0103\n\r\u0000\u0000\u0103\u0104\u00051\u0000\u0000\u0104\u011b\u0003"+
-		"(\u0014\u000e\u0105\u0106\n\n\u0000\u0000\u0106\u0107\u0005:\u0000\u0000"+
-		"\u0107\u011b\u0003(\u0014\u000b\u0108\u0109\n\t\u0000\u0000\u0109\u010a"+
-		"\u0005;\u0000\u0000\u010a\u011b\u0003(\u0014\n\u010b\u010c\n\b\u0000\u0000"+
-		"\u010c\u010d\u0005<\u0000\u0000\u010d\u011b\u0003(\u0014\t\u010e\u010f"+
-		"\n\u0007\u0000\u0000\u010f\u0110\u00058\u0000\u0000\u0110\u011b\u0003"+
-		"(\u0014\b\u0111\u0112\n\u0006\u0000\u0000\u0112\u0113\u00059\u0000\u0000"+
-		"\u0113\u011b\u0003(\u0014\u0007\u0114\u0115\n\u0001\u0000\u0000\u0115"+
-		"\u0116\u0005\u0007\u0000\u0000\u0116\u0118\u0005E\u0000\u0000\u0117\u0119"+
-		"\u0003\u0016\u000b\u0000\u0118\u0117\u0001\u0000\u0000\u0000\u0118\u0119"+
-		"\u0001\u0000\u0000\u0000\u0119\u011b\u0001\u0000\u0000\u0000\u011a\u00fc"+
-		"\u0001\u0000\u0000\u0000\u011a\u00ff\u0001\u0000\u0000\u0000\u011a\u0102"+
-		"\u0001\u0000\u0000\u0000\u011a\u0105\u0001\u0000\u0000\u0000\u011a\u0108"+
-		"\u0001\u0000\u0000\u0000\u011a\u010b\u0001\u0000\u0000\u0000\u011a\u010e"+
-		"\u0001\u0000\u0000\u0000\u011a\u0111\u0001\u0000\u0000\u0000\u011a\u0114"+
-		"\u0001\u0000\u0000\u0000\u011b\u011e\u0001\u0000\u0000\u0000\u011c\u011a"+
-		"\u0001\u0000\u0000\u0000\u011c\u011d\u0001\u0000\u0000\u0000\u011d)\u0001"+
-		"\u0000\u0000\u0000\u011e\u011c\u0001\u0000\u0000\u0000\u011f\u0120\u0005"+
-		"\"\u0000\u0000\u0120\u0121\u0003,\u0016\u0000\u0121\u0122\u0005#\u0000"+
-		"\u0000\u0122\u0123\u0003(\u0014\u0000\u0123+\u0001\u0000\u0000\u0000\u0124"+
-		"\u0129\u0003.\u0017\u0000\u0125\u0126\u0005\u0005\u0000\u0000\u0126\u0128"+
-		"\u0003.\u0017\u0000\u0127\u0125\u0001\u0000\u0000\u0000\u0128\u012b\u0001"+
-		"\u0000\u0000\u0000\u0129\u0127\u0001\u0000\u0000\u0000\u0129\u012a\u0001"+
-		"\u0000\u0000\u0000\u012a-\u0001\u0000\u0000\u0000\u012b\u0129\u0001\u0000"+
-		"\u0000\u0000\u012c\u012f\u00030\u0018\u0000\u012d\u012f\u0003\u0004\u0002"+
-		"\u0000\u012e\u012c\u0001\u0000\u0000\u0000\u012e\u012d\u0001\u0000\u0000"+
-		"\u0000\u012f/\u0001\u0000\u0000\u0000\u0130\u0131\u0005E\u0000\u0000\u0131"+
-		"\u0132\u0005\u0001\u0000\u0000\u0132\u013a\u0003(\u0014\u0000\u0133\u0134"+
-		"\u0005E\u0000\u0000\u0134\u0135\u0005\u0004\u0000\u0000\u0135\u0136\u0003"+
-		"\u001e\u000f\u0000\u0136\u0137\u0005\u0001\u0000\u0000\u0137\u0138\u0003"+
-		"(\u0014\u0000\u0138\u013a\u0001\u0000\u0000\u0000\u0139\u0130\u0001\u0000"+
-		"\u0000\u0000\u0139\u0133\u0001\u0000\u0000\u0000\u013a1\u0001\u0000\u0000"+
-		"\u0000\u013b\u013c\u0005&\u0000\u0000\u013c\u013d\u0003(\u0014\u0000\u013d"+
-		"\u013e\u0005\'\u0000\u0000\u013e\u013f\u0003(\u0014\u0000\u013f\u0140"+
-		"\u0005(\u0000\u0000\u0140\u0141\u0003(\u0014\u0000\u01413\u0001\u0000"+
-		"\u0000\u0000\u0142\u0144\u0005\b\u0000\u0000\u0143\u0145\u00036\u001b"+
-		"\u0000\u0144\u0143\u0001\u0000\u0000\u0000\u0144\u0145\u0001\u0000\u0000"+
-		"\u0000\u0145\u0146\u0001\u0000\u0000\u0000\u0146\u0147\u0005\t\u0000\u0000"+
-		"\u01475\u0001\u0000\u0000\u0000\u0148\u014d\u0003(\u0014\u0000\u0149\u014a"+
-		"\u0005\u0005\u0000\u0000\u014a\u014c\u0003(\u0014\u0000\u014b\u0149\u0001"+
-		"\u0000\u0000\u0000\u014c\u014f\u0001\u0000\u0000\u0000\u014d\u014b\u0001"+
-		"\u0000\u0000\u0000\u014d\u014e\u0001\u0000\u0000\u0000\u014e7\u0001\u0000"+
-		"\u0000\u0000\u014f\u014d\u0001\u0000\u0000\u0000\u0150\u0152\u0005\n\u0000"+
-		"\u0000\u0151\u0153\u0003:\u001d\u0000\u0152\u0151\u0001\u0000\u0000\u0000"+
-		"\u0152\u0153\u0001\u0000\u0000\u0000\u0153\u0154\u0001\u0000\u0000\u0000"+
-		"\u0154\u0155\u0005\u000b\u0000\u0000\u01559\u0001\u0000\u0000\u0000\u0156"+
-		"\u015b\u0003<\u001e\u0000\u0157\u0158\u0005\u0005\u0000\u0000\u0158\u015a"+
-		"\u0003<\u001e\u0000\u0159\u0157\u0001\u0000\u0000\u0000\u015a\u015d\u0001"+
-		"\u0000\u0000\u0000\u015b\u0159\u0001\u0000\u0000\u0000\u015b\u015c\u0001"+
-		"\u0000\u0000\u0000\u015c;\u0001\u0000\u0000\u0000\u015d\u015b\u0001\u0000"+
-		"\u0000\u0000\u015e\u015f\u0005E\u0000\u0000\u015f\u0160\u0005\u0004\u0000"+
-		"\u0000\u0160\u0163\u0003(\u0014\u0000\u0161\u0163\u0003(\u0014\u0000\u0162"+
-		"\u015e\u0001\u0000\u0000\u0000\u0162\u0161\u0001\u0000\u0000\u0000\u0163"+
-		"=\u0001\u0000\u0000\u0000\u0164\u0165\u0007\u0000\u0000\u0000\u0165?\u0001"+
-		"\u0000\u0000\u0000\u001fFLPXbgls{\u0086\u008f\u0096\u009f\u00af\u00b4"+
-		"\u00b8\u00c0\u00c7\u00d1\u00fa\u0118\u011a\u011c\u0129\u012e\u0139\u0144"+
-		"\u014d\u0152\u015b\u0162";
+		"\u0005\u0013\u0135\b\u0013\n\u0013\f\u0013\u0138\t\u0013\u0001\u0014\u0001"+
+		"\u0014\u0003\u0014\u013c\b\u0014\u0001\u0015\u0001\u0015\u0001\u0015\u0001"+
+		"\u0015\u0001\u0015\u0001\u0015\u0001\u0015\u0001\u0015\u0001\u0015\u0003"+
+		"\u0015\u0147\b\u0015\u0001\u0016\u0001\u0016\u0001\u0016\u0001\u0016\u0001"+
+		"\u0016\u0001\u0016\u0001\u0016\u0001\u0017\u0001\u0017\u0003\u0017\u0152"+
+		"\b\u0017\u0001\u0017\u0001\u0017\u0001\u0018\u0001\u0018\u0001\u0018\u0005"+
+		"\u0018\u0159\b\u0018\n\u0018\f\u0018\u015c\t\u0018\u0001\u0019\u0001\u0019"+
+		"\u0003\u0019\u0160\b\u0019\u0001\u0019\u0001\u0019\u0001\u001a\u0001\u001a"+
+		"\u0001\u001a\u0005\u001a\u0167\b\u001a\n\u001a\f\u001a\u016a\t\u001a\u0001"+
+		"\u001b\u0001\u001b\u0001\u001b\u0001\u001b\u0003\u001b\u0170\b\u001b\u0001"+
+		"\u001c\u0001\u001c\u0001\u001d\u0001\u001d\u0001\u001e\u0001\u001e\u0001"+
+		"\u001e\u0000\u0002\u0018\"\u001f\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010"+
+		"\u0012\u0014\u0016\u0018\u001a\u001c\u001e \"$&(*,.02468:<\u0000\u0003"+
+		"\u0001\u0000)/\u0001\u0000\r\u001b\u0001\u000005\u0195\u0000>\u0001\u0000"+
+		"\u0000\u0000\u0002N\u0001\u0000\u0000\u0000\u0004P\u0001\u0000\u0000\u0000"+
+		"\u0006`\u0001\u0000\u0000\u0000\b|\u0001\u0000\u0000\u0000\n\u0083\u0001"+
+		"\u0000\u0000\u0000\f\u0089\u0001\u0000\u0000\u0000\u000e\u008b\u0001\u0000"+
+		"\u0000\u0000\u0010\u008f\u0001\u0000\u0000\u0000\u0012\u0095\u0001\u0000"+
+		"\u0000\u0000\u0014\u00a1\u0001\u0000\u0000\u0000\u0016\u00aa\u0001\u0000"+
+		"\u0000\u0000\u0018\u00cb\u0001\u0000\u0000\u0000\u001a\u00d5\u0001\u0000"+
+		"\u0000\u0000\u001c\u00e1\u0001\u0000\u0000\u0000\u001e\u00e6\u0001\u0000"+
+		"\u0000\u0000 \u00eb\u0001\u0000\u0000\u0000\"\u0104\u0001\u0000\u0000"+
+		"\u0000$\u012c\u0001\u0000\u0000\u0000&\u0131\u0001\u0000\u0000\u0000("+
+		"\u013b\u0001\u0000\u0000\u0000*\u0146\u0001\u0000\u0000\u0000,\u0148\u0001"+
+		"\u0000\u0000\u0000.\u014f\u0001\u0000\u0000\u00000\u0155\u0001\u0000\u0000"+
+		"\u00002\u015d\u0001\u0000\u0000\u00004\u0163\u0001\u0000\u0000\u00006"+
+		"\u016f\u0001\u0000\u0000\u00008\u0171\u0001\u0000\u0000\u0000:\u0173\u0001"+
+		"\u0000\u0000\u0000<\u0175\u0001\u0000\u0000\u0000>?\u0003\u0002\u0001"+
+		"\u0000?@\u0005\u0000\u0000\u0001@\u0001\u0001\u0000\u0000\u0000AC\u0003"+
+		"\u0004\u0002\u0000BA\u0001\u0000\u0000\u0000CF\u0001\u0000\u0000\u0000"+
+		"DB\u0001\u0000\u0000\u0000DE\u0001\u0000\u0000\u0000EO\u0001\u0000\u0000"+
+		"\u0000FD\u0001\u0000\u0000\u0000GI\u0003\u0004\u0002\u0000HG\u0001\u0000"+
+		"\u0000\u0000IL\u0001\u0000\u0000\u0000JH\u0001\u0000\u0000\u0000JK\u0001"+
+		"\u0000\u0000\u0000KM\u0001\u0000\u0000\u0000LJ\u0001\u0000\u0000\u0000"+
+		"MO\u0003\"\u0011\u0000ND\u0001\u0000\u0000\u0000NJ\u0001\u0000\u0000\u0000"+
+		"O\u0003\u0001\u0000\u0000\u0000PQ\u0005C\u0000\u0000QR\u0003\b\u0004\u0000"+
+		"RS\u0005\u0001\u0000\u0000ST\u0003\"\u0011\u0000T\u0005\u0001\u0000\u0000"+
+		"\u0000UV\u0005C\u0000\u0000VW\u0003\b\u0004\u0000WX\u0005\u0001\u0000"+
+		"\u0000XY\u0003\"\u0011\u0000Ya\u0001\u0000\u0000\u0000Z[\u0005#\u0000"+
+		"\u0000[\\\u0005C\u0000\u0000\\]\u0003\b\u0004\u0000]^\u0005\u0001\u0000"+
+		"\u0000^_\u0003\"\u0011\u0000_a\u0001\u0000\u0000\u0000`U\u0001\u0000\u0000"+
+		"\u0000`Z\u0001\u0000\u0000\u0000a\u0007\u0001\u0000\u0000\u0000bk\u0005"+
+		"\u0002\u0000\u0000ch\u0003\n\u0005\u0000de\u0005\u0003\u0000\u0000eg\u0003"+
+		"\n\u0005\u0000fd\u0001\u0000\u0000\u0000gj\u0001\u0000\u0000\u0000hf\u0001"+
+		"\u0000\u0000\u0000hi\u0001\u0000\u0000\u0000il\u0001\u0000\u0000\u0000"+
+		"jh\u0001\u0000\u0000\u0000kc\u0001\u0000\u0000\u0000kl\u0001\u0000\u0000"+
+		"\u0000lm\u0001\u0000\u0000\u0000m}\u0005\u0004\u0000\u0000nw\u0005\u0002"+
+		"\u0000\u0000ot\u0003\n\u0005\u0000pq\u0005\u0003\u0000\u0000qs\u0003\n"+
+		"\u0005\u0000rp\u0001\u0000\u0000\u0000sv\u0001\u0000\u0000\u0000tr\u0001"+
+		"\u0000\u0000\u0000tu\u0001\u0000\u0000\u0000ux\u0001\u0000\u0000\u0000"+
+		"vt\u0001\u0000\u0000\u0000wo\u0001\u0000\u0000\u0000wx\u0001\u0000\u0000"+
+		"\u0000xy\u0001\u0000\u0000\u0000yz\u0005\u0004\u0000\u0000z{\u0005\u0005"+
+		"\u0000\u0000{}\u0003\u0018\f\u0000|b\u0001\u0000\u0000\u0000|n\u0001\u0000"+
+		"\u0000\u0000}\t\u0001\u0000\u0000\u0000~\u0084\u0003\f\u0006\u0000\u007f"+
+		"\u0080\u0003\f\u0006\u0000\u0080\u0081\u0005\u0001\u0000\u0000\u0081\u0082"+
+		"\u0003\"\u0011\u0000\u0082\u0084\u0001\u0000\u0000\u0000\u0083~\u0001"+
+		"\u0000\u0000\u0000\u0083\u007f\u0001\u0000\u0000\u0000\u0084\u000b\u0001"+
+		"\u0000\u0000\u0000\u0085\u0086\u0005C\u0000\u0000\u0086\u0087\u0005\u0005"+
+		"\u0000\u0000\u0087\u008a\u0003\u0018\f\u0000\u0088\u008a\u0005C\u0000"+
+		"\u0000\u0089\u0085\u0001\u0000\u0000\u0000\u0089\u0088\u0001\u0000\u0000"+
+		"\u0000\u008a\r\u0001\u0000\u0000\u0000\u008b\u008c\u0005C\u0000\u0000"+
+		"\u008c\u008d\u0005\u0005\u0000\u0000\u008d\u008e\u0003\u0018\f\u0000\u008e"+
+		"\u000f\u0001\u0000\u0000\u0000\u008f\u0091\u0005\u0002\u0000\u0000\u0090"+
+		"\u0092\u0003\u0012\t\u0000\u0091\u0090\u0001\u0000\u0000\u0000\u0091\u0092"+
+		"\u0001\u0000\u0000\u0000\u0092\u0093\u0001\u0000\u0000\u0000\u0093\u0094"+
+		"\u0005\u0004\u0000\u0000\u0094\u0011\u0001\u0000\u0000\u0000\u0095\u009a"+
+		"\u0003\u0014\n\u0000\u0096\u0097\u0005\u0003\u0000\u0000\u0097\u0099\u0003"+
+		"\u0014\n\u0000\u0098\u0096\u0001\u0000\u0000\u0000\u0099\u009c\u0001\u0000"+
+		"\u0000\u0000\u009a\u0098\u0001\u0000\u0000\u0000\u009a\u009b\u0001\u0000"+
+		"\u0000\u0000\u009b\u0013\u0001\u0000\u0000\u0000\u009c\u009a\u0001\u0000"+
+		"\u0000\u0000\u009d\u00a2\u0003\"\u0011\u0000\u009e\u009f\u0005C\u0000"+
+		"\u0000\u009f\u00a0\u0005\u0001\u0000\u0000\u00a0\u00a2\u0003\"\u0011\u0000"+
+		"\u00a1\u009d\u0001\u0000\u0000\u0000\u00a1\u009e\u0001\u0000\u0000\u0000"+
+		"\u00a2\u0015\u0001\u0000\u0000\u0000\u00a3\u00a4\u0003\b\u0004\u0000\u00a4"+
+		"\u00a5\u0005\u0006\u0000\u0000\u00a5\u00a6\u0003\"\u0011\u0000\u00a6\u00ab"+
+		"\u0001\u0000\u0000\u0000\u00a7\u00a8\u0005C\u0000\u0000\u00a8\u00a9\u0005"+
+		"\u0006\u0000\u0000\u00a9\u00ab\u0003\"\u0011\u0000\u00aa\u00a3\u0001\u0000"+
+		"\u0000\u0000\u00aa\u00a7\u0001\u0000\u0000\u0000\u00ab\u0017\u0001\u0000"+
+		"\u0000\u0000\u00ac\u00ad\u0006\f\uffff\uffff\u0000\u00ad\u00ae\u0005\u0002"+
+		"\u0000\u0000\u00ae\u00af\u0003\u0018\f\u0000\u00af\u00b0\u0005\u0004\u0000"+
+		"\u0000\u00b0\u00cc\u0001\u0000\u0000\u0000\u00b1\u00cc\u0003:\u001d\u0000"+
+		"\u00b2\u00cc\u0005$\u0000\u0000\u00b3\u00cc\u0005C\u0000\u0000\u00b4\u00cc"+
+		"\u0003\u001a\r\u0000\u00b5\u00cc\u0003\u001c\u000e\u0000\u00b6\u00cc\u0003"+
+		"\u001e\u000f\u0000\u00b7\u00ba\u0005\u0002\u0000\u0000\u00b8\u00bb\u0003"+
+		"\u0018\f\u0000\u00b9\u00bb\u0003\f\u0006\u0000\u00ba\u00b8\u0001\u0000"+
+		"\u0000\u0000\u00ba\u00b9\u0001\u0000\u0000\u0000\u00bb\u00c3\u0001\u0000"+
+		"\u0000\u0000\u00bc\u00bf\u0005\u0003\u0000\u0000\u00bd\u00c0\u0003\u0018"+
+		"\f\u0000\u00be\u00c0\u0003\f\u0006\u0000\u00bf\u00bd\u0001\u0000\u0000"+
+		"\u0000\u00bf\u00be\u0001\u0000\u0000\u0000\u00c0\u00c2\u0001\u0000\u0000"+
+		"\u0000\u00c1\u00bc\u0001\u0000\u0000\u0000\u00c2\u00c5\u0001\u0000\u0000"+
+		"\u0000\u00c3\u00c1\u0001\u0000\u0000\u0000\u00c3\u00c4\u0001\u0000\u0000"+
+		"\u0000\u00c4\u00c6\u0001\u0000\u0000\u0000\u00c5\u00c3\u0001\u0000\u0000"+
+		"\u0000\u00c6\u00c7\u0005\u0004\u0000\u0000\u00c7\u00c8\u0005\u0006\u0000"+
+		"\u0000\u00c8\u00c9\u0003\u0018\f\u0003\u00c9\u00cc\u0001\u0000\u0000\u0000"+
+		"\u00ca\u00cc\u0003 \u0010\u0000\u00cb\u00ac\u0001\u0000\u0000\u0000\u00cb"+
+		"\u00b1\u0001\u0000\u0000\u0000\u00cb\u00b2\u0001\u0000\u0000\u0000\u00cb"+
+		"\u00b3\u0001\u0000\u0000\u0000\u00cb\u00b4\u0001\u0000\u0000\u0000\u00cb"+
+		"\u00b5\u0001\u0000\u0000\u0000\u00cb\u00b6\u0001\u0000\u0000\u0000\u00cb"+
+		"\u00b7\u0001\u0000\u0000\u0000\u00cb\u00ca\u0001\u0000\u0000\u0000\u00cc"+
+		"\u00d2\u0001\u0000\u0000\u0000\u00cd\u00ce\n\u0002\u0000\u0000\u00ce\u00cf"+
+		"\u0005\u0006\u0000\u0000\u00cf\u00d1\u0003\u0018\f\u0003\u00d0\u00cd\u0001"+
+		"\u0000\u0000\u0000\u00d1\u00d4\u0001\u0000\u0000\u0000\u00d2\u00d0\u0001"+
+		"\u0000\u0000\u0000\u00d2\u00d3\u0001\u0000\u0000\u0000\u00d3\u0019\u0001"+
+		"\u0000\u0000\u0000\u00d4\u00d2\u0001\u0000\u0000\u0000\u00d5\u00d6\u0005"+
+		"\u001c\u0000\u0000\u00d6\u00d7\u0005\u0002\u0000\u0000\u00d7\u00dc\u0003"+
+		"\u000e\u0007\u0000\u00d8\u00d9\u0005\u0003\u0000\u0000\u00d9\u00db\u0003"+
+		"\u000e\u0007\u0000\u00da\u00d8\u0001\u0000\u0000\u0000\u00db\u00de\u0001"+
+		"\u0000\u0000\u0000\u00dc\u00da\u0001\u0000\u0000\u0000\u00dc\u00dd\u0001"+
+		"\u0000\u0000\u0000\u00dd\u00df\u0001\u0000\u0000\u0000\u00de\u00dc\u0001"+
+		"\u0000\u0000\u0000\u00df\u00e0\u0005\u0004\u0000\u0000\u00e0\u001b\u0001"+
+		"\u0000\u0000\u0000\u00e1\u00e2\u0005\u001d\u0000\u0000\u00e2\u00e3\u0005"+
+		"\u0002\u0000\u0000\u00e3\u00e4\u0003\u0018\f\u0000\u00e4\u00e5\u0005\u0004"+
+		"\u0000\u0000\u00e5\u001d\u0001\u0000\u0000\u0000\u00e6\u00e7\u0005\u001e"+
+		"\u0000\u0000\u00e7\u00e8\u0005\u0002\u0000\u0000\u00e8\u00e9\u0003\u0018"+
+		"\f\u0000\u00e9\u00ea\u0005\u0004\u0000\u0000\u00ea\u001f\u0001\u0000\u0000"+
+		"\u0000\u00eb\u00ec\u0005\f\u0000\u0000\u00ec\u00ed\u0003\u0018\f\u0000"+
+		"\u00ed!\u0001\u0000\u0000\u0000\u00ee\u00ef\u0006\u0011\uffff\uffff\u0000"+
+		"\u00ef\u00f0\u0005\u0002\u0000\u0000\u00f0\u00f1\u0003\"\u0011\u0000\u00f1"+
+		"\u00f2\u0005\u0004\u0000\u0000\u00f2\u0105\u0001\u0000\u0000\u0000\u00f3"+
+		"\u0105\u00038\u001c\u0000\u00f4\u0105\u0003,\u0016\u0000\u00f5\u0105\u0003"+
+		".\u0017\u0000\u00f6\u0105\u00032\u0019\u0000\u00f7\u0105\u0005>\u0000"+
+		"\u0000\u00f8\u0105\u0005(\u0000\u0000\u00f9\u0105\u0005B\u0000\u0000\u00fa"+
+		"\u0105\u0005A\u0000\u0000\u00fb\u00fc\u0005=\u0000\u0000\u00fc\u0105\u0003"+
+		"\"\u0011\u0010\u00fd\u00fe\u00057\u0000\u0000\u00fe\u0105\u0003\"\u0011"+
+		"\f\u00ff\u0100\u00056\u0000\u0000\u0100\u0105\u0003\"\u0011\u000b\u0101"+
+		"\u0105\u0003\u0016\u000b\u0000\u0102\u0105\u0003$\u0012\u0000\u0103\u0105"+
+		"\u0003 \u0010\u0000\u0104\u00ee\u0001\u0000\u0000\u0000\u0104\u00f3\u0001"+
+		"\u0000\u0000\u0000\u0104\u00f4\u0001\u0000\u0000\u0000\u0104\u00f5\u0001"+
+		"\u0000\u0000\u0000\u0104\u00f6\u0001\u0000\u0000\u0000\u0104\u00f7\u0001"+
+		"\u0000\u0000\u0000\u0104\u00f8\u0001\u0000\u0000\u0000\u0104\u00f9\u0001"+
+		"\u0000\u0000\u0000\u0104\u00fa\u0001\u0000\u0000\u0000\u0104\u00fb\u0001"+
+		"\u0000\u0000\u0000\u0104\u00fd\u0001\u0000\u0000\u0000\u0104\u00ff\u0001"+
+		"\u0000\u0000\u0000\u0104\u0101\u0001\u0000\u0000\u0000\u0104\u0102\u0001"+
+		"\u0000\u0000\u0000\u0104\u0103\u0001\u0000\u0000\u0000\u0105\u0129\u0001"+
+		"\u0000\u0000\u0000\u0106\u0107\n\u000f\u0000\u0000\u0107\u0108\u0005;"+
+		"\u0000\u0000\u0108\u0128\u0003\"\u0011\u0010\u0109\u010a\n\u000e\u0000"+
+		"\u0000\u010a\u010b\u0005<\u0000\u0000\u010b\u0128\u0003\"\u0011\u000f"+
+		"\u010c\u010d\n\r\u0000\u0000\u010d\u010e\u0003<\u001e\u0000\u010e\u010f"+
+		"\u0003\"\u0011\u000e\u010f\u0128\u0001\u0000\u0000\u0000\u0110\u0111\n"+
+		"\n\u0000\u0000\u0111\u0112\u00058\u0000\u0000\u0112\u0128\u0003\"\u0011"+
+		"\u000b\u0113\u0114\n\t\u0000\u0000\u0114\u0115\u00059\u0000\u0000\u0115"+
+		"\u0128\u0003\"\u0011\n\u0116\u0117\n\b\u0000\u0000\u0117\u0118\u0005:"+
+		"\u0000\u0000\u0118\u0128\u0003\"\u0011\t\u0119\u011a\n\u0007\u0000\u0000"+
+		"\u011a\u011b\u00056\u0000\u0000\u011b\u0128\u0003\"\u0011\b\u011c\u011d"+
+		"\n\u0006\u0000\u0000\u011d\u011e\u00057\u0000\u0000\u011e\u0128\u0003"+
+		"\"\u0011\u0007\u011f\u0120\n\u0005\u0000\u0000\u0120\u0128\u0003\u0010"+
+		"\b\u0000\u0121\u0122\n\u0001\u0000\u0000\u0122\u0123\u0005\u0007\u0000"+
+		"\u0000\u0123\u0125\u0005C\u0000\u0000\u0124\u0126\u0003\u0010\b\u0000"+
+		"\u0125\u0124\u0001\u0000\u0000\u0000\u0125\u0126\u0001\u0000\u0000\u0000"+
+		"\u0126\u0128\u0001\u0000\u0000\u0000\u0127\u0106\u0001\u0000\u0000\u0000"+
+		"\u0127\u0109\u0001\u0000\u0000\u0000\u0127\u010c\u0001\u0000\u0000\u0000"+
+		"\u0127\u0110\u0001\u0000\u0000\u0000\u0127\u0113\u0001\u0000\u0000\u0000"+
+		"\u0127\u0116\u0001\u0000\u0000\u0000\u0127\u0119\u0001\u0000\u0000\u0000"+
+		"\u0127\u011c\u0001\u0000\u0000\u0000\u0127\u011f\u0001\u0000\u0000\u0000"+
+		"\u0127\u0121\u0001\u0000\u0000\u0000\u0128\u012b\u0001\u0000\u0000\u0000"+
+		"\u0129\u0127\u0001\u0000\u0000\u0000\u0129\u012a\u0001\u0000\u0000\u0000"+
+		"\u012a#\u0001\u0000\u0000\u0000\u012b\u0129\u0001\u0000\u0000\u0000\u012c"+
+		"\u012d\u0005!\u0000\u0000\u012d\u012e\u0003&\u0013\u0000\u012e\u012f\u0005"+
+		"\"\u0000\u0000\u012f\u0130\u0003\"\u0011\u0000\u0130%\u0001\u0000\u0000"+
+		"\u0000\u0131\u0136\u0003(\u0014\u0000\u0132\u0133\u0005\u0003\u0000\u0000"+
+		"\u0133\u0135\u0003(\u0014\u0000\u0134\u0132\u0001\u0000\u0000\u0000\u0135"+
+		"\u0138\u0001\u0000\u0000\u0000\u0136\u0134\u0001\u0000\u0000\u0000\u0136"+
+		"\u0137\u0001\u0000\u0000\u0000\u0137\'\u0001\u0000\u0000\u0000\u0138\u0136"+
+		"\u0001\u0000\u0000\u0000\u0139\u013c\u0003*\u0015\u0000\u013a\u013c\u0003"+
+		"\u0006\u0003\u0000\u013b\u0139\u0001\u0000\u0000\u0000\u013b\u013a\u0001"+
+		"\u0000\u0000\u0000\u013c)\u0001\u0000\u0000\u0000\u013d\u013e\u0005C\u0000"+
+		"\u0000\u013e\u013f\u0005\u0001\u0000\u0000\u013f\u0147\u0003\"\u0011\u0000"+
+		"\u0140\u0141\u0005C\u0000\u0000\u0141\u0142\u0005\u0005\u0000\u0000\u0142"+
+		"\u0143\u0003\u0018\f\u0000\u0143\u0144\u0005\u0001\u0000\u0000\u0144\u0145"+
+		"\u0003\"\u0011\u0000\u0145\u0147\u0001\u0000\u0000\u0000\u0146\u013d\u0001"+
+		"\u0000\u0000\u0000\u0146\u0140\u0001\u0000\u0000\u0000\u0147+\u0001\u0000"+
+		"\u0000\u0000\u0148\u0149\u0005%\u0000\u0000\u0149\u014a\u0003\"\u0011"+
+		"\u0000\u014a\u014b\u0005&\u0000\u0000\u014b\u014c\u0003\"\u0011\u0000"+
+		"\u014c\u014d\u0005\'\u0000\u0000\u014d\u014e\u0003\"\u0011\u0000\u014e"+
+		"-\u0001\u0000\u0000\u0000\u014f\u0151\u0005\b\u0000\u0000\u0150\u0152"+
+		"\u00030\u0018\u0000\u0151\u0150\u0001\u0000\u0000\u0000\u0151\u0152\u0001"+
+		"\u0000\u0000\u0000\u0152\u0153\u0001\u0000\u0000\u0000\u0153\u0154\u0005"+
+		"\t\u0000\u0000\u0154/\u0001\u0000\u0000\u0000\u0155\u015a\u0003\"\u0011"+
+		"\u0000\u0156\u0157\u0005\u0003\u0000\u0000\u0157\u0159\u0003\"\u0011\u0000"+
+		"\u0158\u0156\u0001\u0000\u0000\u0000\u0159\u015c\u0001\u0000\u0000\u0000"+
+		"\u015a\u0158\u0001\u0000\u0000\u0000\u015a\u015b\u0001\u0000\u0000\u0000"+
+		"\u015b1\u0001\u0000\u0000\u0000\u015c\u015a\u0001\u0000\u0000\u0000\u015d"+
+		"\u015f\u0005\n\u0000\u0000\u015e\u0160\u00034\u001a\u0000\u015f\u015e"+
+		"\u0001\u0000\u0000\u0000\u015f\u0160\u0001\u0000\u0000\u0000\u0160\u0161"+
+		"\u0001\u0000\u0000\u0000\u0161\u0162\u0005\u000b\u0000\u0000\u01623\u0001"+
+		"\u0000\u0000\u0000\u0163\u0168\u00036\u001b\u0000\u0164\u0165\u0005\u0003"+
+		"\u0000\u0000\u0165\u0167\u00036\u001b\u0000\u0166\u0164\u0001\u0000\u0000"+
+		"\u0000\u0167\u016a\u0001\u0000\u0000\u0000\u0168\u0166\u0001\u0000\u0000"+
+		"\u0000\u0168\u0169\u0001\u0000\u0000\u0000\u01695\u0001\u0000\u0000\u0000"+
+		"\u016a\u0168\u0001\u0000\u0000\u0000\u016b\u016c\u0005C\u0000\u0000\u016c"+
+		"\u016d\u0005\u0005\u0000\u0000\u016d\u0170\u0003\"\u0011\u0000\u016e\u0170"+
+		"\u0003\"\u0011\u0000\u016f\u016b\u0001\u0000\u0000\u0000\u016f\u016e\u0001"+
+		"\u0000\u0000\u0000\u01707\u0001\u0000\u0000\u0000\u0171\u0172\u0007\u0000"+
+		"\u0000\u0000\u01729\u0001\u0000\u0000\u0000\u0173\u0174\u0007\u0001\u0000"+
+		"\u0000\u0174;\u0001\u0000\u0000\u0000\u0175\u0176\u0007\u0002\u0000\u0000"+
+		"\u0176=\u0001\u0000\u0000\u0000!DJN`hktw|\u0083\u0089\u0091\u009a\u00a1"+
+		"\u00aa\u00ba\u00bf\u00c3\u00cb\u00d2\u00dc\u0104\u0125\u0127\u0129\u0136"+
+		"\u013b\u0146\u0151\u015a\u015f\u0168\u016f";
 	public static final ATN _ATN =
 		new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 	static {

@@ -5,54 +5,48 @@ import SnapiLexerRules;
 prog: stat EOF
     ;
 
-stat:  fun_dec*                             # FunDecStat
-    |  fun_dec* expr                        # FunDecExprStat
+stat:  method_dec*                                           # FunDecStat
+    |  method_dec* expr                                      # FunDecExprStat
     ;
 
-// function definition
-fun_dec : fun '=' expr                      # FunDec
-        ;
 
-fun: normal_fun                             # NormalFun
-   | rec_fun                                # RecFun
-   ;
-
-normal_fun: IDENT fun_proto                 # NormalFunProto
+method_dec: IDENT fun_proto '=' expr                         # MethodDec
           ;
 
-rec_fun: REC_TOKEN normal_fun               # RecFunProto
+
+fun_dec: IDENT fun_proto '=' expr                           # NormalFun
+       | REC_TOKEN IDENT fun_proto   '=' expr               # RecFun
        ;
 
-fun_proto: '(' fun_params? ')'              # FunProtoWithoutType
-         | '(' fun_params? ')' ':' type     # FunProtoWithType
+fun_proto: '(' (fun_param (',' fun_param)*)? ')'            # FunProtoWithoutType
+         | '(' (fun_param (',' fun_param)*)? ')' ':' type   # FunProtoWithType
          ;
 
-fun_params: fun_param (',' fun_param)*      # FunParams
-          ;
-
-fun_param: attr                             # FunParamAttr
-         | attr '=' expr                    # FunParamAttrExpr
+fun_param: attr                                             # FunParamAttr
+         | attr '=' expr                                    # FunParamAttrExpr
          ;
 
-attr: IDENT ':' type                        # AttrWithType
+attr: IDENT ':' type
+    | IDENT
     ;
+
+type_attr: IDENT ':' type;
 
 // the input parameters of a function
-fun_app: IDENT fun_ar ;
 fun_ar: '(' fun_args? ')';
 fun_args: fun_arg (',' fun_arg)*;
-fun_arg: expr                               # FunArgExpr
-    | IDENT '=' expr                        # NamedFunArgExpr
-    ;
+fun_arg: expr                                               # FunArgExpr
+       | IDENT '=' expr                                     # NamedFunArgExpr
+       ;
 
 // lambda expression
-fun_abs: fun_proto '->' expr                # FunAbs
-       | IDENT '->' expr                    # FunAbsUnnamed
+fun_abs: fun_proto '->' expr                                # FunAbs
+       | IDENT '->' expr                                    # FunAbsUnnamed
        ;
 
 // ============= types =================
 type: '(' type ')'                                          # TypeWithParenType
-    | PRIMITIVE_TYPES                                       # PrimitiveTypeType
+    | primitive_types                                       # PrimitiveTypeType
     | UNDEFINED_TOKEN                                       # UndefinedTypeType
     | IDENT                                                 # TypeAliasType
     | record_type                                           # RecordTypeType
@@ -63,38 +57,38 @@ type: '(' type ')'                                          # TypeWithParenType
     | expr_type                                             # ExprTypeType
     ;
 
-record_type: RECORD_TOKEN '(' attr (',' attr)* ')';
+record_type: RECORD_TOKEN '(' type_attr (',' type_attr)* ')';
 iterable_type: COLLECTION_TOKEN '(' type ')';
 list_type: LIST_TOKEN '(' type ')';
 expr_type: TYPE_TOKEN type;
 
 // ========== expressions ============
-expr: '(' expr ')'                         # ParenExpr
-    | number                               # NumberExpr
-    | if_then_else                         # IfThenElseExpr
-    | lists                                # ListExpr
-    | records                              # RecordExpr
-    | BOOL_CONST                           # BoolConstExpr
-    | NULL_TOKEN                           # NullExpr
-    | TRIPPLE_STRING                       # TrippleStringExpr
-    | STRING                               # StringExpr
+expr: '(' expr ')'                                          # ParenExpr
+    | number                                                # NumberExpr
+    | if_then_else                                          # IfThenElseExpr
+    | lists                                                 # ListExpr
+    | records                                               # RecordExpr
+    | BOOL_CONST                                            # BoolConstExpr
+    | NULL_TOKEN                                            # NullExpr
+    | TRIPPLE_STRING                                        # TrippleStringExpr
+    | STRING                                                # StringExpr
 //    | IDENT                                # IdentExpr // probably will be deleted
-    | NOT_TOKEN expr                       # NotExpr
-    | expr AND_TOKEN expr                  # AndExpr
-    | expr OR_TOKEN expr                   # OrExpr
-    | expr COMPARE_TOKENS expr             # CompareExpr
-    | MINUS_TOKEN expr                     # MinusExpr
-    | PLUS_TOKEN expr                      # PlusExpr
-    | expr MUL_TOKEN expr                  # MulExpr
-    | expr DIV_TOKEN expr                  # DivExpr
-    | expr MOD_TOKEN expr                  # ModExpr
-    | expr PLUS_TOKEN expr                 # PlusExpr
-    | expr MINUS_TOKEN expr                # MinusExpr
-    | fun_app                              # FunAppExpr
-    | fun_abs                              # FunAbsExpr
-    | let                                  # LetExpr
-    | expr_type                            # ExprTypeExpr  // to check if this works correctly with recor(a:int)
-    | <assoc=right> expr '.' IDENT fun_ar? # ProjectionExpr  // projection
+    | NOT_TOKEN expr                                        # NotExpr
+    | expr AND_TOKEN expr                                   # AndExpr
+    | expr OR_TOKEN expr                                    # OrExpr
+    | expr compare_tokens expr                              # CompareExpr
+    | MINUS_TOKEN expr                                      # MinusUnaryExpr
+    | PLUS_TOKEN expr                                       # PlusUnaryExpr
+    | expr MUL_TOKEN expr                                   # MulExpr
+    | expr DIV_TOKEN expr                                   # DivExpr
+    | expr MOD_TOKEN expr                                   # ModExpr
+    | expr PLUS_TOKEN expr                                  # PlusExpr
+    | expr MINUS_TOKEN expr                                 # MinusExpr
+    | expr fun_ar                                           # FunAppExpr
+    | fun_abs                                               # FunAbsExpr
+    | let                                                   # LetExpr
+    | expr_type                                             # ExprTypeExpr  // to check if this works correctly with recor(a:int)
+    | <assoc=right> expr '.' IDENT fun_ar?                  # ProjectionExpr  // projection
     // | expr '.'  {notifyErrorListeners("Incomplete projection");}
     ;
 
@@ -135,5 +129,29 @@ number: BYTE
       | DECIMAL
       ;
 
+primitive_types : BOOL_TOKEN
+                | STRING_TOKEN
+                | LOCATION_TOKEN
+                | BINARY_TOKEN
+                | DATE_TOKEN
+                | TIME_TOKEN
+                | INTERVAL_TOKEN
+                | TIMESTAMP_TOKEN
+                | BYTE_TOKEN
+                | SHORT_TOKEN
+                | INT_TOKEN
+                | LONG_TOKEN
+                | FLOAT_TOKEN
+                | DOUBLE_TOKEN
+                | DECIMAL_TOKEN
+                ;
+// Compare
+compare_tokens: EQ_TOKEN
+              | NEQ_TOKEN
+              | LE_TOKEN
+              | LT_TOKEN
+              | GE_TOKEN
+              | GT_TOKEN
+              ;
 
 

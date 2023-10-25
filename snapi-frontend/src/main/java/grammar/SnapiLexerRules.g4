@@ -2,23 +2,6 @@ lexer grammar SnapiLexerRules;
 
 // Types
 
-PRIMITIVE_TYPES : BOOL_TOKEN
-              | STRING_TOKEN
-              | LOCATION_TOKEN
-              | BINARY_TOKEN
-              | DATE_TOKEN
-              | TIME_TOKEN
-              | INTERVAL_TOKEN
-              | TIMESTAMP_TOKEN
-              | BYTE_TOKEN
-              | SHORT_TOKEN
-              | INT_TOKEN
-              | LONG_TOKEN
-              | FLOAT_TOKEN
-              | DOUBLE_TOKEN
-              | DECIMAL_TOKEN
-              ;
-
 TYPE_TOKEN: 'type';
 
 BOOL_TOKEN: 'bool';
@@ -68,15 +51,6 @@ DOUBLE: FLOAT_FR  D?;
 DECIMAL: FLOAT_FR  Q;
 
 // Binary Exp
-
-// Compare
-COMPARE_TOKENS: EQ_TOKEN
-              | NEQ_TOKEN
-              | LE_TOKEN
-              | LT_TOKEN
-              | GE_TOKEN
-              | GT_TOKEN
-              ;
 
 EQ_TOKEN: '==';
 NEQ_TOKEN: '!=';
