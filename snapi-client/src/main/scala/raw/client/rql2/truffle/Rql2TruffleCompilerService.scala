@@ -392,9 +392,15 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val f = bindings.getMember(decl)
           val funType = atts.find(_.idn == decl).get.tipe.asInstanceOf[FunType]
           // Some typechecking
-          val nArgs = environment.maybeArguments.map(_.length).getOrElse(0)
-          if (funType.ms.size + funType.os.size != nArgs) {
-            return ExecutionRuntimeFailure(s"expected ${funType.ms.size + funType.os.size} arguments but got $nArgs")
+          val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
+          environment.maybeArguments match {
+            case Some(args) =>
+              // mandatory arguments are those that are not named in the FunType. They should all be provided,
+              // 
+              val mandatoryArgs = args.filterNot(arg => namedArgs.contains(arg._1))
+              if (mandatoryArgs.length != funType.ms.size) {
+                return ExecutionRuntimeFailure("missing mandatory arguments")
+              }
           }
           val polyglotArguments =
             environment.maybeArguments.map(_.map(_._2).map(v => javaValueOf(v, ctx))).getOrElse(Array.empty)
