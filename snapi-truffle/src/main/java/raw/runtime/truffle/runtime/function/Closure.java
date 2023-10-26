@@ -109,12 +109,10 @@ public class Closure implements TruffleObject {
     }
 
     private static Object[] getArgs(Closure closure, Object[] arguments) {
-
-      Object[] args = new Object[closure.getArgNames().length + 1];
-      args[0] = closure.frame;
-      System.arraycopy(arguments, 0, args, 1, arguments.length);
-
-      return args;
+      String[] namedArgsNames = new String[arguments.length];
+      String[] argNames = closure.getArgNames();
+      System.arraycopy(argNames, 0, namedArgsNames, 0, namedArgsNames.length);
+      return getNamedArgs(closure, namedArgsNames, arguments);
     }
 
     // Don't explode loop, graph becomes too big.
