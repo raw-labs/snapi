@@ -141,7 +141,7 @@ class Rql2JsonWriter(os: OutputStream) {
         val actualValue = v.invokeMember("getValue")
         writeValue(actualValue, tipes(index).asInstanceOf[Rql2TypeWithProperties])
 
-      case _ => throw new RuntimeException("Unsupported type: " + t)
+      case _ => throw new RuntimeException("unsupported type")
     }
   }
 

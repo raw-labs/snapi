@@ -381,41 +381,54 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     try {
       val (v, tipe) = maybeDecl match {
         case Some(decl) =>
+          // Eval the code and extract the function referred to by 'decl'
           val truffleSource = Source
             .newBuilder("rql", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           ctx.eval(truffleSource)
+          // 'decl' is found in the context bindings (by its name)
           val bindings = ctx.getBindings("rql")
           val f = bindings.getMember(decl)
+          // its type is found in the polyglot bindings as '@type:<name>'
           val funType = {
             val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
             val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.user, internal = true)
             tipe
           }
-          // Some typechecking
+          // Prior to .execute, some checks on parameters since we may have
+          // to fill optional parameters with their default value
+
+          // mandatory arguments are those that don't have a matching 'name' in optional parameters
           val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
+
+          // split the provided parameters in two (mandatory/optional)
           val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
             case Some(args) =>
               val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
               (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
             case None => (Map.empty[String, ParamValue], Array.empty[ParamValue])
           }
+
+          // mandatory args have to be all provided
           if (mandatoryArgs.length != funType.ms.size) {
             return ExecutionRuntimeFailure("missing mandatory arguments")
           }
           val mandatoryPolyglotArguments = mandatoryArgs.map(arg => javaValueOf(arg, ctx))
-          // by order of the optional arguments in the FunType:
+          // optional arguments can be missing from the provided arguments.
+          // we replace the missing ones by their default value.
           val optionalPolyglotArguments = funType.os.map { arg =>
             optionalArgs.get(arg.i) match {
               // if the argument is provided, use it
               case Some(paramValue) => javaValueOf(paramValue, ctx)
-              // else, the argument has a default value stored in `f`. Use it.
+              // else, the argument has a default value that can be obtained from `f`.
               case None => f.invokeMember("default_" + arg.i)
             }
           }
+          // all arguments are there. Call .execute.
           val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
           val tipe = funType.r
+          // return the result and its type
           (result, tipe)
         case None =>
           val truffleSource = Source
@@ -423,6 +436,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           val result = ctx.eval(truffleSource)
+          // the value type is found in polyglot bindings after calling eval().
           val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
           val ParseTypeSuccess(tipe) = parseType(rawType, environment.user, internal = true)
           (result, tipe)

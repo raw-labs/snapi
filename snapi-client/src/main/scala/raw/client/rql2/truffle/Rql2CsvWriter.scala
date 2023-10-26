@@ -115,7 +115,7 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
             val next = v.getArrayElement(i)
             writeColumns(next, recordType)
           }
-        case _ => throw new IOException("Unsupported type: " + t)
+        case _ => throw new IOException("unsupported type")
       }
     }
   }
@@ -187,7 +187,7 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
         if (minutes > 0) s.append(s"$minutes minutes, ")
         s.append(s"$seconds seconds")
         gen.writeString(s.toString())
-      case _ => throw new IOException("Unsupported type: " + t)
+      case _ => throw new IOException("unsupported type")
     }
   }
 
