@@ -433,7 +433,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         .map(_.toLowerCase) match {
         case Some("csv") =>
           if (!CsvPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type");
+            return ExecutionRuntimeFailure("unsupported type")
           }
           val programContext = getProgramContext(environment.user, environment)
           val windowsLineEnding = environment.options.get("windows-line-ending") match {
@@ -452,7 +452,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           }
         case Some("json") =>
           if (!JsonPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type");
+            return ExecutionRuntimeFailure("unsupported type")
           }
           val w = new Rql2JsonWriter(outputStream)
           try {
@@ -464,10 +464,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             withSuppressNonFatalException(w.close())
           }
         case Some("text") =>
-          val w = new PolyglotTextWriter(outputStream)
           if (!StringPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type");
+            return ExecutionRuntimeFailure("unsupported type")
           }
+          val w = new PolyglotTextWriter(outputStream)
           try {
             w.writeValue(v)
             ExecutionSuccess
