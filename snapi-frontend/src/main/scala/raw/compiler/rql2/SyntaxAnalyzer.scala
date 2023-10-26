@@ -15,7 +15,6 @@ package raw.compiler.rql2
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.source.Type
 import raw.compiler.common.source.Exp
-import raw.compiler.rql2.FrontendSyntaxAnalyzerTokens.tokOr
 import raw.compiler.rql2.source._
 
 /**

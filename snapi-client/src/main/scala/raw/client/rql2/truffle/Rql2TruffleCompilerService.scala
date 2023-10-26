@@ -386,11 +386,13 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           ctx.eval(truffleSource)
-          val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
-          val ParseTypeSuccess(Rql2RecordType(atts, _)) = parseType(rawType, environment.user, internal = true)
           val bindings = ctx.getBindings("rql")
           val f = bindings.getMember(decl)
-          val funType = atts.find(_.idn == decl).get.tipe.asInstanceOf[FunType]
+          val funType = {
+            val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
+            val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.user, internal = true)
+            tipe
+          }
           // Some typechecking
           val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
           val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {

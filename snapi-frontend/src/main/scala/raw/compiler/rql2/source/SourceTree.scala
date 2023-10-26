@@ -15,7 +15,6 @@ package raw.compiler.rql2.source
 import org.bitbucket.inkytonik.kiama.output._
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
-import raw.compiler.rql2.Rql2TypeUtils.{getProps, resetProps}
 
 sealed trait Rql2Node extends SourceNode
 

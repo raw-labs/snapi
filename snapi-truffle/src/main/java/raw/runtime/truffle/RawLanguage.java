@@ -17,6 +17,9 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import java.util.*;
@@ -30,6 +33,7 @@ import raw.compiler.common.PhaseDescriptor;
 import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.*;
 import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
+import raw.compiler.rql2.source.Rql2Program;
 import raw.compiler.scala2.Scala2CompilerContext;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.runtime.RuntimeContext;
@@ -121,10 +125,24 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
       }
       TreeWithPositions tree = new TreeWithPositions(source, ensureTree, frontend, programContext);
       if (tree.valid()) {
-        SourceProgram inputProgram = tree.root();
+        Rql2Program inputProgram = (Rql2Program) tree.root();
         SourceProgram outputProgram = transpile(inputProgram, programContext);
         Entrypoint entrypoint = TruffleEmit.doEmit(outputProgram, this, programContext);
         RootNode rootNode = (RootNode) entrypoint.target();
+        JavaConverters.asJavaCollection(inputProgram.methods())
+            .forEach(
+                m -> {
+                  try {
+                    bindings.writeMember(
+                        context.getPolyglotBindings(),
+                        "@type:" + m.i().idn(),
+                        InternalSourcePrettyPrinter.format(tree.analyzer().idnType(m.i())));
+                  } catch (UnsupportedMessageException
+                      | UnknownIdentifierException
+                      | UnsupportedTypeException e) {
+                    throw new RuntimeException(e);
+                  }
+                });
         if (tree.rootType().isDefined()) {
           Type outputType = tree.rootType().get();
           bindings.writeMember(

@@ -1913,11 +1913,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   ///////////////////////////////////////////////////////////////////////////
 
   override lazy val rootType: Option[Type] = {
-    val Rql2Program(methods, me) = tree.root
-    me match {
-      case Some(e) => Some(actualType(e))
-      case None => Some(Rql2RecordType(methods.map(m => Rql2AttrType(m.i.idn, getFunType(m.p)))))
-    }
+    val Rql2Program(_, me) = tree.root
+    me.map(tipe)
   }
 
   override protected def descriptionDef: TreeDescription = {
