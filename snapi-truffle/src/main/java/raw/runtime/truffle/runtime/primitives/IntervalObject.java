@@ -249,12 +249,12 @@ public final class IntervalObject implements TruffleObject {
   }
 
   @ExportMessage
-  boolean isDuration() {
+  final boolean isDuration() {
     return true;
   }
 
   @ExportMessage
-  Duration asDuration() {
+  final Duration asDuration() {
     return Duration.ofMillis(toMillis());
   }
 }

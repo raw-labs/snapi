@@ -23,7 +23,7 @@ import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 @ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
-public class ObjectList implements TruffleObject {
+public final class ObjectList implements TruffleObject {
   private final Object[] list;
 
   public ObjectList(Object[] list) {

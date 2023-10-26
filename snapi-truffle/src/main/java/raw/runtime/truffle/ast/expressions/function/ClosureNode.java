@@ -19,7 +19,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 
-public final class ClosureNode extends ExpressionNode {
+public class ClosureNode extends ExpressionNode {
 
   @CompilationFinal private final Function function;
 

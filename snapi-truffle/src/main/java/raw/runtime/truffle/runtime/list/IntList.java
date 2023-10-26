@@ -21,7 +21,7 @@ import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
 @ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
-public class IntList implements TruffleObject {
+public final class IntList implements TruffleObject {
   private final int[] list;
 
   public IntList(int[] list) {

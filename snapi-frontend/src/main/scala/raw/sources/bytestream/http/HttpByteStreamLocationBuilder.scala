@@ -13,18 +13,17 @@
 package raw.sources.bytestream.http
 
 import com.fasterxml.jackson.core.JsonProcessingException
-import com.fasterxml.jackson.databind.{ObjectMapper, ObjectReader}
-import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
+import com.fasterxml.jackson.databind.ObjectMapper
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.io.IOUtils
 import org.apache.hc.client5.http.classic.methods.HttpPost
 import org.apache.hc.core5.http.HttpHeaders
 import org.apache.hc.core5.net.URIBuilder
+import raw.client.api.LocationDescription
 import raw.creds.api._
+import raw.sources.api.{LocationException, SourceContext}
 import raw.sources.bytestream.api.ByteStreamLocationBuilder
 import raw.sources.bytestream.http.oauth2clients.Auth0OAuth2Client
-import raw.sources.api.{LocationException, SourceContext}
-import raw.client.api.LocationDescription
 import raw.utils.RawSettings
 
 import java.io.IOException
@@ -34,11 +33,8 @@ import java.util.Base64
 import scala.collection.mutable
 
 object HttpByteStreamLocationBuilder extends StrictLogging {
-  private val jsonMapReader: ObjectReader = {
-    val om = new ObjectMapper() with ClassTagExtensions
-    om.registerModule(DefaultScalaModule)
-    om.readerFor(classOf[Map[String, String]])
-  }
+
+  private val mapper = new ObjectMapper()
 
   private def getClientCredsToken(clientId: String, clientSecret: String, server: String, useBasicAuth: Boolean)(
       implicit settings: RawSettings
@@ -82,13 +78,14 @@ object HttpByteStreamLocationBuilder extends StrictLogging {
           } finally {
             is.close()
           }
-        val token = jsonMapReader.readValue[Map[String, String]](contents)
-        token.getOrElse(
-          "access_token",
+        val jsonNode = mapper.readTree(contents)
+        val token = jsonNode.get("access_token")
+        if (token == null) {
           throw new HttpClientException(
             s"""error obtaining token with HTTP endpoint $server: received json does not have 'access_token' field. Response: "$contents" """
           )
-        )
+        }
+        token.asText()
       } else {
         logger.warn(s"Error obtaining token for HTTP endpoint $server. Unexpected response code: $respCode")
         throw new HttpClientException(

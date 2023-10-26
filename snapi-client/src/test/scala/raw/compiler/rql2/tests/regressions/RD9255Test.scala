@@ -35,6 +35,7 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
     |timestamp_func(x: timestamp) = Timestamp.Minute(x)
     |interval_func(x: interval) = Interval.Minutes(x)
     |three_param_func(x: string, y: int, z: string = "!") = x + String.From(y) + z
+    |three_param_func_all_opt(x: string = "tralala", y: int = 2, z: string = "!") = x + Collection.MkString(Collection.Transform(Int.Range(0, y), v -> z), sep="")
     |""".stripMargin
 
   private def exec(f: String, value: Any, t: String) = {
@@ -107,8 +108,30 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
     )
   )
 
-  // type errors
-  test("expected byte but got string")(_ =>
+  test("three parameters (all optional)")(_ => {
+    // a helper to try several combinations of parameters
+    def check(args: Array[(String, ParamValue)], expected: String) = {
+      callDecl(
+        declarations,
+        "three_param_func_all_opt",
+        args,
+        "string"
+      ) should evalTo(
+        expected
+      )
+    }
+    check(Array.empty, "\"tralala!!\"")
+    check(Array(("x", ParamString("boum"))), "\"boum!!\"")
+    check(Array(("x", ParamString("\""))), "\"\\\"!!\"")
+    check(Array(("x", ParamString("BOUM")), ("y", ParamInt(3))), "\"BOUM!!!\"")
+    check(Array(("x", ParamString("What")), ("y", ParamInt(1)), ("z", ParamString("?"))), "\"What?\"")
+    check(Array(("y", ParamInt(1)), ("z", ParamString("?"))), "\"tralala?\"")
+    check(Array(("y", ParamInt(1))), "\"tralala!\"")
+
+  })
+
+  // type errors aren't checked in the CompilerService, they are performed by repose
+  ignore("expected byte but got string")(_ =>
     exec("byte_func", "tralala", "byte").left.value should include("expected byte but got string")
   )
   test("missing mandatory arguments") { _ =>

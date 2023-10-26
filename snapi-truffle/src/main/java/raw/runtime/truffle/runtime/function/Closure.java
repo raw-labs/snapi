@@ -16,13 +16,18 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.MaterializedFrame;
+import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
+import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
 public class Closure implements TruffleObject {
@@ -32,6 +37,8 @@ public class Closure implements TruffleObject {
   private final MaterializedFrame frame;
   private final Object[] defaultArguments;
   private String[] namedArgNames = null;
+  private final Map<String, Object> namedArgs = new HashMap<>();
+  private static final String GET_DEFAULT_PREFIX = "default_";
 
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
   // and used later.
@@ -40,6 +47,11 @@ public class Closure implements TruffleObject {
     this.function = function;
     this.frame = frame;
     this.defaultArguments = defaultArguments;
+    for (int i = 0; i < defaultArguments.length; i++) {
+      if (defaultArguments[i] != null) {
+        namedArgs.put(function.getArgNames()[i], defaultArguments[i]);
+      }
+    }
   }
 
   // for top-level functions. The internal 'frame' is null because it's never used to fetch values
@@ -97,12 +109,10 @@ public class Closure implements TruffleObject {
     }
 
     private static Object[] getArgs(Closure closure, Object[] arguments) {
-
-      Object[] args = new Object[closure.getArgNames().length + 1];
-      args[0] = closure.frame;
-      System.arraycopy(arguments, 0, args, 1, arguments.length);
-
-      return args;
+      String[] namedArgsNames = new String[arguments.length];
+      String[] argNames = closure.getArgNames();
+      System.arraycopy(argNames, 0, namedArgsNames, 0, namedArgsNames.length);
+      return getNamedArgs(closure, namedArgsNames, arguments);
     }
 
     // Don't explode loop, graph becomes too big.
@@ -139,5 +149,40 @@ public class Closure implements TruffleObject {
   @ExportMessage
   boolean isExecutable() {
     return true;
+  }
+
+  @ExportMessage
+  final boolean hasMembers() {
+    return true;
+  }
+
+  @ExportMessage
+  final boolean isMemberInvocable(String member) {
+    if (member.startsWith(GET_DEFAULT_PREFIX)) {
+      String argName = member.substring(GET_DEFAULT_PREFIX.length());
+      return namedArgs.containsKey(argName);
+    } else {
+      return false;
+    }
+  }
+
+  @ExportMessage
+  final Object getMembers(boolean includeInternal) {
+    return new StringList(
+        namedArgs.keySet().stream().map(s -> GET_DEFAULT_PREFIX + s).toArray(String[]::new));
+  }
+
+  @ExportMessage
+  final Object invokeMember(String member, Object... arguments)
+      throws UnknownIdentifierException, ArityException {
+    if (member.startsWith(GET_DEFAULT_PREFIX)) {
+      if (arguments.length > 0) {
+        throw ArityException.create(0, 0, arguments.length);
+      }
+      String argName = member.substring(GET_DEFAULT_PREFIX.length());
+      return namedArgs.get(argName);
+    } else {
+      throw UnknownIdentifierException.create(member);
+    }
   }
 }

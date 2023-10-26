@@ -50,4 +50,9 @@ class SyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(positi
   final private lazy val packageIdnExp: Parser[PackageIdnExp] =
     "\\$package\\b".r ~> "(" ~> stringLit <~ ")" ^^ PackageIdnExp
 
+  final override lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> rql2Type0) ~ ("(" ~> typeProps <~ ")") ^^ {
+    case t ~ r ~ props => FunType(Vector(t), Vector.empty, r, props)
+  } | tipe1 ~ ("->" ~> rql2Type0) ^^ { case t ~ r => FunType(Vector(t), Vector.empty, r, Set.empty) } |
+    rql2Type0
+
 }
