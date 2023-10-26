@@ -14,7 +14,7 @@ package raw.compiler.rql2.source
 
 import org.bitbucket.inkytonik.kiama.output._
 import raw.compiler.base
-import raw.compiler.base.source.{AnythingType, BaseNode, Type}
+import raw.compiler.base.source.{AnythingType, BaseNode, RawBridgeImpl, RawBridgeRef, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}
@@ -34,11 +34,6 @@ trait SourcePrettyPrinter
     case IdnDef(idn) => ident(idn)
     case IdnUse(idn) => ident(idn)
   }
-
-  protected def listOfNodes(es: Vector[BaseNode]): Doc = brackets(ssep(es.map(toDoc), comma))
-
-  protected def listOfTuple2Nodes(es: Vector[(BaseNode, BaseNode)]): Doc =
-    brackets(ssep(es.map(e => parens(e._1 <> comma <> e._2)), comma))
 
   protected def internal: Boolean = false
 
@@ -183,7 +178,7 @@ trait SourcePrettyPrinter
     case PackageIdnExp(name) => method("$package", s""""$name"""")
   }
 
-  protected def enclosedList(ls: Seq[Doc], sep: Doc = comma) = group(nest(lsep(ls.to, sep)) <> linebreak)
+  protected def enclosedList(ls: Seq[Doc], sep: Doc = comma): Doc = group(nest(lsep(ls.to, sep)) <> linebreak)
 
   protected def funAppArg(a: FunAppArg): Doc = {
     val FunAppArg(e, maybeIdn) = a
@@ -235,26 +230,7 @@ trait SourcePrettyPrinter
   private val temporal: Set[Type] = Set(Rql2DateType(), Rql2TimeType(), Rql2TimestampType(), Rql2IntervalType())
 
   override def toDoc(n: BaseNode): Doc = n match {
-    case OneOfType(ts) =>
-      val info = mutable.ArrayBuffer[Doc]()
-      val cleanTs: mutable.HashSet[Type] =
-        ts.map(t => removeProps(t, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))).to
-      if (number.subsetOf(cleanTs)) {
-        number.foreach(cleanTs.remove)
-        info += "number"
-      }
-      if (integer.subsetOf(cleanTs)) {
-        integer.foreach(cleanTs.remove)
-        info += "integer"
-      }
-      if (temporal.subsetOf(cleanTs)) {
-        temporal.foreach(cleanTs.remove)
-        info += "temporal"
-      }
-      cleanTs.foreach(t => info += toDoc(t))
-      if (info.length == 1) info.head
-      else "either" <+> folddoc(info.to, { case (x, y) => x <+> "or" <+> y })
-    case i: CommonIdnNode => idnToDoc(i)
+    case n: CommonNode => commonNode(n)
     case n: Rql2Node => rql2Node(n)
     case _ => super.toDoc(n)
   }
@@ -282,6 +258,53 @@ trait SourcePrettyPrinter
     case i: IfThenElse => parens(i)
     case exp: Exp => toDoc(exp)
   }
+
+  private def commonType(t: CommonType): Doc = t match {
+    case _: ErrorType => "error"
+    case _: AnyType => "any"
+    case _: NothingType => "nothing"
+    case t: CommonTypeConstraint => commonTypeConstraint(t)
+  }
+
+  private def commonTypeConstraint(t: CommonTypeConstraint): Doc = t match {
+    case ExpectedRecordType(idns) =>
+      if (idns.size == 0) "record"
+      else if (idns.size == 1) "record" <+> "with" <+> "field" <+> idns.head
+      else s"record" <+> "with" <+> "fields" <+> ssep(idns.map(text).to, ",")
+    case OneOfType(ts) =>
+      val info = mutable.ArrayBuffer[Doc]()
+      val cleanTs: mutable.HashSet[Type] =
+        ts.map(t => removeProps(t, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))).to
+      if (number.subsetOf(cleanTs)) {
+        number.foreach(cleanTs.remove)
+        info += "number"
+      }
+      if (integer.subsetOf(cleanTs)) {
+        integer.foreach(cleanTs.remove)
+        info += "integer"
+      }
+      if (temporal.subsetOf(cleanTs)) {
+        temporal.foreach(cleanTs.remove)
+        info += "temporal"
+      }
+      cleanTs.foreach(t => info += toDoc(t))
+      if (info.length == 1) info.head
+      else "either" <+> folddoc(info.to, { case (x, y) => x <+> "or" <+> y })
+  }
+
+  private def commonExp(e: CommonExp): Doc = e match {
+    case IdnExp(idn) => toDoc(idn)
+    case ErrorExp() => "$error"
+  }
+
+  private def commonNode(n: CommonNode): Doc = n match {
+    case t: CommonType => commonType(t)
+    case e: CommonExp => commonExp(e)
+    case i: CommonIdnNode => idnToDoc(i)
+    case SourceProgramParam(i, t) => toDoc(i) <> ":" <+> t
+    case Bind(e, i) => toDoc(i) <+> ":=" <+> toDoc(e)
+  }
+
 }
 
 object SourcePrettyPrinter extends SourcePrettyPrinter

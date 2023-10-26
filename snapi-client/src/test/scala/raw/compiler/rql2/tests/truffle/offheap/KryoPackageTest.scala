@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.offheap
 
 import org.scalatest.prop.TableDrivenPropertyChecks
-import raw.compiler.rql2.tests.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests

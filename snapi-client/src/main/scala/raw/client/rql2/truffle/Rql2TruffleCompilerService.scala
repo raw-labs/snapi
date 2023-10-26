@@ -16,6 +16,7 @@ import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
 import raw.client.api._
+import raw.client.rql2.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
 import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.runtime._
@@ -25,7 +26,7 @@ import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
-import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
+import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, Rql2ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
 import raw.compiler.rql2.source._
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
@@ -38,7 +39,7 @@ import scala.collection.mutable
 import scala.util.control.NonFatal
 
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
-    extends CompilerService {
+    extends Rql2CompilerService {
 
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 
@@ -81,15 +82,15 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {
     val compilerContext = getCompilerContext(user)
     val runtimeContext = new RuntimeContext(compilerContext.sourceContext, settings, environment)
-    new ProgramContext(runtimeContext)(compilerContext)
+    new Rql2ProgramContext(runtimeContext, compilerContext)
   }
 
-  def prettyPrint(node: BaseNode, user: AuthenticatedUser): String = {
+  override def prettyPrint(node: BaseNode, user: AuthenticatedUser): String = {
     SourcePrettyPrinter.format(node)
   }
 
   // TODO (msb): Change signature to include position of the parsing error.
-  def parseType(tipe: String, user: AuthenticatedUser, internal: Boolean = false): ParseTypeResponse = {
+  override def parseType(tipe: String, user: AuthenticatedUser, internal: Boolean = false): ParseTypeResponse = {
     val positions = new Positions()
     val parser = if (!internal) new FrontendSyntaxAnalyzer(positions) else new SyntaxAnalyzer(positions)
     parser.parseType(tipe) match {
@@ -98,7 +99,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     }
   }
 
-  def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
+  override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
     val programContext = getProgramContext(environment.user, environment)
     try {
       val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
@@ -110,7 +111,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     }
   }
 
-  def getType(
+  override def getType(
       source: String,
       environment: ProgramEnvironment
   ): GetTypeResponse = {
@@ -862,15 +863,3 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   }
 
 }
-
-sealed trait ParseResponse
-final case class ParseSuccess(program: SourceProgram) extends ParseResponse
-final case class ParseFailure(error: String, pos: ErrorPosition) extends ParseResponse
-
-sealed trait ParseTypeResponse
-final case class ParseTypeSuccess(tipe: Type) extends ParseTypeResponse
-final case class ParseTypeFailure(error: String) extends ParseTypeResponse
-
-sealed trait GetTypeResponse
-final case class GetTypeFailure(errors: List[ErrorMessage]) extends GetTypeResponse
-final case class GetTypeSuccess(tipe: Option[Type]) extends GetTypeResponse

@@ -10,9 +10,10 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests
+package raw.compiler.rql2.truffle
 
-import raw.compiler.rql2.Rql2OutputTestContext
+import raw.compiler.rql2.api.Rql2OutputTestContext
+import raw.compiler.rql2.tests.CompilerTestContext
 
 class TruffleCompilerTestContext
     extends CompilerTestContext

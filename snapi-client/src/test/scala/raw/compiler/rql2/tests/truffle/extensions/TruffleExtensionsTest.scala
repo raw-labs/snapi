@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.tests.extensions
 
-import raw.compiler.rql2.tests.TruffleCompilerTestContext
 import raw.compiler.rql2.tests.builtin.credentials.AwsPackageTest
+import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests class AwsPackageTruffleTest extends TruffleCompilerTestContext with AwsPackageTest {

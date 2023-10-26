@@ -25,6 +25,7 @@ import raw.client.api.*;
 import raw.compiler.base.CompilerContext;
 import raw.compiler.base.InitPhase;
 import raw.compiler.base.Phase;
+import raw.compiler.common.PhaseDescriptor;
 import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.*;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
@@ -99,7 +100,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
             context.getSourceContext(),
             new Some<>(classLoader),
             rawSettings);
-    ProgramContext programContext = new ProgramContext(runtimeContext, compilerContext);
+    ProgramContext programContext = new Rql2ProgramContext(runtimeContext, compilerContext);
     try {
       // If we are in staged compiler mode, use the internal parser.
       boolean frontend = true;

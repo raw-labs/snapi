@@ -23,27 +23,35 @@ public class MyTest {
         }
 
         String source = """
-import ast
+def f(): return 2
 
-class FunctionVisitor(ast.NodeVisitor):
-    def visit_FunctionDef(self, node):
-        print(f"Function name: {node.name}")
-        for arg in node.args.args:
-            arg_name = arg.arg
-            arg_type = ast.unparse(arg.annotation) if arg.annotation else "No annotation"
-            print(f"Argument: {arg_name}, Type annotation: {arg_type}")
-
-        # If you want to parse nested functions as well
-        self.generic_visit(node)
-
-def get_function_annotations(filename):
-    with open(filename, "r") as source:
-        tree = ast.parse(source.read(), filename=filename)
-        FunctionVisitor().visit(tree)
-
-# Test the function with the path to a Python file
-get_function_annotations("/Users/miguel/path_to_your_python_file.py")
+def g(a=1, b=2): return v                
+                
+                
                 """;
+
+//        String source = """
+//import ast
+//
+//class FunctionVisitor(ast.NodeVisitor):
+//    def visit_FunctionDef(self, node):
+//        print(f"Function name: {node.name}")
+//        for arg in node.args.args:
+//            arg_name = arg.arg
+//            arg_type = ast.unparse(arg.annotation) if arg.annotation else "No annotation"
+//            print(f"Argument: {arg_name}, Type annotation: {arg_type}")
+//
+//        # If you want to parse nested functions as well
+//        self.generic_visit(node)
+//
+//def get_function_annotations(filename):
+//    with open(filename, "r") as source:
+//        tree = ast.parse(source.read(), filename=filename)
+//        FunctionVisitor().visit(tree)
+//
+//# Test the function with the path to a Python file
+//get_function_annotations("/Users/miguel/path_to_your_python_file.py")
+//                """;
 
         Source sourcePython = null;
         try {
@@ -64,10 +72,12 @@ get_function_annotations("/Users/miguel/path_to_your_python_file.py")
         context.enter();
         try {
             Value v = context.eval(sourcePython);
-            assert ();
-            int a = (int) v.asInt();
-            System.out.println(a);
-            assert(a == 3);
+            v.getMember("g").
+
+            System.out.println("**** " + v.getMember("g").execute(4));
+//            int a = (int) v.asInt();
+//            System.out.println(a);
+//            assert(a == 3);
         } finally {
             context.leave();
             context.close();

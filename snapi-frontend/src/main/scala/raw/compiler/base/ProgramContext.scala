@@ -18,10 +18,11 @@ import raw.utils.RawSettings
 /**
  * Contains state that is shared between compilation phases of a single program.
  */
-class ProgramContext(
-    val runtimeContext: RuntimeContext,
-    val compilerContext: CompilerContext
-) {
+trait ProgramContext {
+
+  def runtimeContext: RuntimeContext
+
+  def compilerContext: CompilerContext
 
   def settings: RawSettings = runtimeContext.settings
 

@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2
+package raw.compiler.rql2.api
 
 import com.fasterxml.jackson.core.JsonParser
 import com.fasterxml.jackson.core.json.JsonReadFeature
@@ -19,19 +19,17 @@ import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModul
 import com.google.common.collect.HashMultiset
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.source.Type
+import raw.compiler.rql2.FrontendSyntaxAnalyzer
 import raw.compiler.rql2.source._
 import raw.utils.{RawTestSuite, SettingsTestContext}
 
 import java.nio.file.Path
+import scala.collection.JavaConverters._
 import scala.math.BigDecimal.RoundingMode
 import scala.util.control.NonFatal
 
-import scala.collection.JavaConverters._
-
 trait Rql2OutputTestContext {
   this: RawTestSuite with SettingsTestContext =>
-
-  property("output-format", "json")
 
   def outputParser(
       queryResultPath: Path,

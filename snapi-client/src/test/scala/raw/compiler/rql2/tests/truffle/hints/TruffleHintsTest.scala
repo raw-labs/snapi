@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.hints
 
-import raw.compiler.rql2.tests.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests class SemanticAnalyzerHintsTruffleTest extends TruffleCompilerTestContext with SemanticAnalyzerHintsTest

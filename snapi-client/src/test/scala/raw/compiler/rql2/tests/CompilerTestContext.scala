@@ -17,16 +17,9 @@ import org.scalatest.exceptions.TestFailedException
 import org.scalatest.matchers.should.Matchers
 import org.scalatest.matchers.{MatchResult, Matcher}
 import raw.client.api._
-import raw.client.rql2.truffle.{
-  GetTypeFailure,
-  GetTypeSuccess,
-  ParseFailure,
-  ParseSuccess,
-  ParseTypeFailure,
-  ParseTypeSuccess
-}
+import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.rql2.api.CompilerServiceTestContext
+import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.utils._
 
@@ -41,7 +34,7 @@ trait CompilerTestContext
     with Matchers
     with SettingsTestContext
     with TrainingWheelsContext
-    with CompilerServiceTestContext
+    with Rql2CompilerServiceTestContext
 
     // Simple inferrer
     with LocalInferrerTestContext {

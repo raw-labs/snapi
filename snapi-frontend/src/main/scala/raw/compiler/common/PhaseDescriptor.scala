@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2
+package raw.compiler.common
 
 import raw.compiler.common.source._
 
