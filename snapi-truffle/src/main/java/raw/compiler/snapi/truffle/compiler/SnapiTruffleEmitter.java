@@ -265,7 +265,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
 
         RootCallTarget rootCallTarget = functionRootBody.getCallTarget();
         Function f = new Function(rootCallTarget, new String[]{"x"});
-        return new ClosureNode(f, new ExpressionNode[]{});
+        return new ClosureNode(f, new ExpressionNode[]{null});
     }
 
 
