@@ -317,6 +317,18 @@ public class SnapiBaseListener implements SnapiListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOrTypeType(SnapiParser.OrTypeTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOrTypeType(SnapiParser.OrTypeTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterPrimitiveTypeType(SnapiParser.PrimitiveTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -348,6 +360,18 @@ public class SnapiBaseListener implements SnapiListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitFunTypeType(SnapiParser.FunTypeTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterOr_type(SnapiParser.Or_typeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOr_type(SnapiParser.Or_typeContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *
@@ -552,6 +576,18 @@ public class SnapiBaseListener implements SnapiListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitMinusExpr(SnapiParser.MinusExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterIdentExpr(SnapiParser.IdentExprContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitIdentExpr(SnapiParser.IdentExprContext ctx) { }
 	/**
 	 * {@inheritDoc}
 	 *

@@ -298,6 +298,18 @@ public interface SnapiListener extends ParseTreeListener {
 	 */
 	void exitListTypeType(SnapiParser.ListTypeTypeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code OrTypeType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrTypeType(SnapiParser.OrTypeTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code OrTypeType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrTypeType(SnapiParser.OrTypeTypeContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code PrimitiveTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
@@ -333,6 +345,16 @@ public interface SnapiListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitFunTypeType(SnapiParser.FunTypeTypeContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SnapiParser#or_type}.
+	 * @param ctx the parse tree
+	 */
+	void enterOr_type(SnapiParser.Or_typeContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SnapiParser#or_type}.
+	 * @param ctx the parse tree
+	 */
+	void exitOr_type(SnapiParser.Or_typeContext ctx);
 	/**
 	 * Enter a parse tree produced by {@link SnapiParser#record_type}.
 	 * @param ctx the parse tree
@@ -529,6 +551,18 @@ public interface SnapiListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitMinusExpr(SnapiParser.MinusExprContext ctx);
+	/**
+	 * Enter a parse tree produced by the {@code IdentExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void enterIdentExpr(SnapiParser.IdentExprContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code IdentExpr}
+	 * labeled alternative in {@link SnapiParser#expr}.
+	 * @param ctx the parse tree
+	 */
+	void exitIdentExpr(SnapiParser.IdentExprContext ctx);
 	/**
 	 * Enter a parse tree produced by the {@code BoolConstExpr}
 	 * labeled alternative in {@link SnapiParser#expr}.

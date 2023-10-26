@@ -15,7 +15,7 @@ public class ListPackageBuilder {
   public static Exp build(List<Exp> es) {
     VectorBuilder<FunAppArg> vb = new VectorBuilder<>();
     for (Exp e : es) {
-      vb.$plus$eq(new FunAppArg(e, Option.empty()));
+      vb.$plus$eq(new FunAppArg(e, Option.<String>empty()));
     }
     return new FunApp(new Proj(new PackageIdnExp("List"), "Build"), vb.result());
   }

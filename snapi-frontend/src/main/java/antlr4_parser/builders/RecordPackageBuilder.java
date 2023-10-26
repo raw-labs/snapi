@@ -15,7 +15,7 @@ public class RecordPackageBuilder {
   public static Exp build(List<Tuple2<String, Exp>> tuples) {
     VectorBuilder<FunAppArg> vb = new VectorBuilder<>();
     for (Tuple2<String, Exp> t : tuples) {
-      vb.$plus$eq(new FunAppArg(t._2, Option.apply(t._1)));
+      vb.$plus$eq(new FunAppArg(t._2, Option.<String>apply(t._1)));
     }
     return new FunApp(new Proj(new PackageIdnExp("Record"), "Build"), vb.result());
   }

@@ -15,7 +15,7 @@ method_dec: IDENT fun_proto '=' expr                         # MethodDec
 
 
 fun_dec: IDENT fun_proto '=' expr                           # NormalFun
-       | REC_TOKEN IDENT fun_proto   '=' expr               # RecFun
+       | REC_TOKEN IDENT fun_proto '=' expr                 # RecFun
        ;
 
 fun_proto: '(' (fun_param (',' fun_param)*)? ')'            # FunProtoWithoutType
@@ -46,6 +46,7 @@ fun_abs: fun_proto '->' expr                                # FunAbs
 
 // ============= types =================
 type: '(' type ')'                                          # TypeWithParenType
+    | type (OR_TOKEN or_type)+                              # OrTypeType
     | primitive_types                                       # PrimitiveTypeType
     | UNDEFINED_TOKEN                                       # UndefinedTypeType
     | IDENT                                                 # TypeAliasType
@@ -56,6 +57,8 @@ type: '(' type ')'                                          # TypeWithParenType
     | type '->' type                                        # FunTypeType
     | expr_type                                             # ExprTypeType
     ;
+
+or_type: type OR_TOKEN or_type;
 
 record_type: RECORD_TOKEN '(' type_attr (',' type_attr)* ')';
 iterable_type: COLLECTION_TOKEN '(' type ')';
@@ -72,7 +75,7 @@ expr: '(' expr ')'                                          # ParenExpr
     | NULL_TOKEN                                            # NullExpr
     | TRIPPLE_STRING                                        # TrippleStringExpr
     | STRING                                                # StringExpr
-//    | IDENT                                # IdentExpr // probably will be deleted
+    | IDENT                                                 # IdentExpr
     | NOT_TOKEN expr                                        # NotExpr
     | expr AND_TOKEN expr                                   # AndExpr
     | expr OR_TOKEN expr                                    # OrExpr
@@ -85,8 +88,8 @@ expr: '(' expr ')'                                          # ParenExpr
     | expr PLUS_TOKEN expr                                  # PlusExpr
     | expr MINUS_TOKEN expr                                 # MinusExpr
     | expr fun_ar                                           # FunAppExpr
-    | fun_abs                                               # FunAbsExpr
     | let                                                   # LetExpr
+    | fun_abs                                               # FunAbsExpr
     | expr_type                                             # ExprTypeExpr  // to check if this works correctly with recor(a:int)
     | <assoc=right> expr '.' IDENT fun_ar?                  # ProjectionExpr  // projection
     // | expr '.'  {notifyErrorListeners("Incomplete projection");}
