@@ -393,18 +393,26 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val funType = atts.find(_.idn == decl).get.tipe.asInstanceOf[FunType]
           // Some typechecking
           val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
-          environment.maybeArguments match {
+          val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
             case Some(args) =>
-              // mandatory arguments are those that are not named in the FunType. They should all be provided,
-              // 
-              val mandatoryArgs = args.filterNot(arg => namedArgs.contains(arg._1))
-              if (mandatoryArgs.length != funType.ms.size) {
-                return ExecutionRuntimeFailure("missing mandatory arguments")
-              }
+              val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
+              (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
+            case None => (Map.empty[String, ParamValue], Array.empty[ParamValue])
           }
-          val polyglotArguments =
-            environment.maybeArguments.map(_.map(_._2).map(v => javaValueOf(v, ctx))).getOrElse(Array.empty)
-          val result = f.execute(polyglotArguments: _*)
+          if (mandatoryArgs.length != funType.ms.size) {
+            return ExecutionRuntimeFailure("missing mandatory arguments")
+          }
+          val mandatoryPolyglotArguments = mandatoryArgs.map(arg => javaValueOf(arg, ctx))
+          // by order of the optional arguments in the FunType:
+          val optionalPolyglotArguments = funType.os.map { arg =>
+            optionalArgs.get(arg.i) match {
+              // if the argument is provided, use it
+              case Some(paramValue) => javaValueOf(paramValue, ctx)
+              // else, the argument has a default value stored in `f`. Use it.
+              case None => f.invokeMember("default_" + arg.i)
+            }
+          }
+          val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
           val tipe = funType.r
           (result, tipe)
         case None =>
