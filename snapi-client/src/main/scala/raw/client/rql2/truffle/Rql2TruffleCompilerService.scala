@@ -476,7 +476,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           }
         case Some("binary") =>
           if (!BinaryPackage.outputWriteSupport(tipe)) {
-            return ExecutionRuntimeFailure("unsupported type");
+            return ExecutionRuntimeFailure("unsupported type")
           }
           val w = new PolyglotBinaryWriter(outputStream)
           try {
