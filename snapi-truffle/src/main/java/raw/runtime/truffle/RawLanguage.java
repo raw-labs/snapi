@@ -232,6 +232,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return cur;
   }
 
+  // This method returns what is available in the bindings of the context.
+  // We return the function registry as a polyglot 'hasMembers' object (members
+  // are the function names, that resolve to the function objects).
   @Override
   protected Object getScope(RawContext context) {
     return context.getFunctionRegistry().asPolyglot();

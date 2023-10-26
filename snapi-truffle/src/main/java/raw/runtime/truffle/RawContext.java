@@ -120,6 +120,10 @@ public final class RawContext {
 
     // Initialize inferrer
     this.inferrer = InferrerServiceProvider.apply(classLoader, this.sourceContext);
+
+    // The function registry holds snapi methods (top level functions). It is the data
+    // structure that is used to extract a ref to a function from a piece of execute snapi.
+    // Functions appear as polyglot bindings after the execution of the source code.
     this.functionRegistry = new RawFunctionRegistry();
   }
 

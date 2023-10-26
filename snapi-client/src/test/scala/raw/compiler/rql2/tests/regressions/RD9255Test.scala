@@ -122,6 +122,7 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
     }
     check(Array.empty, "\"tralala!!\"")
     check(Array(("x", ParamString("boum"))), "\"boum!!\"")
+    check(Array(("x", ParamString("\""))), "\"\\\"!!\"")
     check(Array(("x", ParamString("BOUM")), ("y", ParamInt(3))), "\"BOUM!!!\"")
     check(Array(("x", ParamString("What")), ("y", ParamInt(1)), ("z", ParamString("?"))), "\"What?\"")
     check(Array(("y", ParamInt(1)), ("z", ParamString("?"))), "\"tralala?\"")

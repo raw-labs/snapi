@@ -32,7 +32,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
 import raw.sources.api.SourceContext
-import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
+import raw.utils.{descape, withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
@@ -805,8 +805,8 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       case ParamFloat(v) => s"let x: float = ${v}f in x"
       case ParamDouble(v) => s"let x: double = $v in x"
       case ParamBool(v) => s"let x: bool = $v in x"
-      case ParamString(v) => s"""let x: string = "$v" in x"""
-      case ParamDecimal(v) => s"""let x: decimal = Decimal.From("$v") in x"""
+      case ParamString(v) => s"""let x: string = "${descape(v)}" in x"""
+      case ParamDecimal(v) => s"""let x: decimal = ${v}q in x"""
       case ParamDate(v) => s"""let x: date = Date.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}) in x"""
       case ParamTime(v) =>
         s"""let x: time = Time.Build(${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
