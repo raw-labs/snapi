@@ -40,7 +40,7 @@ import raw.compiler.rql2.source.{
 }
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
-import raw.utils.RecordFieldsNaming
+import raw.compiler.RecordFieldsNaming
 
 import java.io.IOException
 import java.io.OutputStream

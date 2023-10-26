@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.utils;
+package raw.compiler;
 
 import java.util.HashMap;
 import java.util.Map;
