@@ -26,7 +26,7 @@ import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
 
 @ExportLibrary(InteropLibrary.class)
-public class LocationObject implements TruffleObject {
+final public class LocationObject implements TruffleObject {
   private final LocationDescription locationDescription;
 
   @CompilerDirectives.TruffleBoundary

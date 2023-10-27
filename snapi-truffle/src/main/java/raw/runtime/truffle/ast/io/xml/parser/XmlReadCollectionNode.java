@@ -12,12 +12,12 @@
 
 package raw.runtime.truffle.ast.io.xml.parser;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.iterable.sources.XmlReadCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.SourceContext;
@@ -30,8 +30,7 @@ public class XmlReadCollectionNode extends ExpressionNode {
   @Child private ExpressionNode dateFormatExp;
   @Child private ExpressionNode timeFormatExp;
   @Child private ExpressionNode datetimeFormatExp;
-
-  @Child private DirectCallNode childDirectCall;
+  private final RootCallTarget parseRootCallTarget;
 
   public XmlReadCollectionNode(
       ExpressionNode locationExp,
@@ -39,13 +38,13 @@ public class XmlReadCollectionNode extends ExpressionNode {
       ExpressionNode dateFormatExp,
       ExpressionNode timeFormatExp,
       ExpressionNode datetimeFormatExp,
-      RootNode readerNode) {
+      ProgramExpressionNode readerNode) {
     this.locationExp = locationExp;
     this.encodingExp = encodingExp;
     this.dateFormatExp = dateFormatExp;
     this.timeFormatExp = timeFormatExp;
     this.datetimeFormatExp = datetimeFormatExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+    this.parseRootCallTarget = readerNode.getCallTarget();
   }
 
   @Override
@@ -58,6 +57,6 @@ public class XmlReadCollectionNode extends ExpressionNode {
     RawTruffleXmlParserSettings settings =
         new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
     SourceContext context = RawContext.get(this).getSourceContext();
-    return new XmlReadCollection(locationObject, encoding, context, childDirectCall, settings);
+    return new XmlReadCollection(locationObject, encoding, context, parseRootCallTarget, settings);
   }
 }

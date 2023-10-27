@@ -15,12 +15,16 @@ package raw.runtime.truffle.ast.expressions.iterable.list;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.handlers.NullableTryableHandler;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
@@ -36,8 +40,9 @@ public abstract class ListExistsNode extends ExpressionNode {
   @Specialization(limit = "3")
   protected boolean doList(
       Object list,
-      Closure function,
+      Object closure,
       @CachedLibrary("list") ListLibrary lists,
+      @CachedLibrary("closure") InteropLibrary interops,
       @CachedLibrary(limit = "2") IterableLibrary iterables,
       @CachedLibrary(limit = "2") GeneratorLibrary generators) {
     Object iterable = lists.toIterable(list);
@@ -49,12 +54,14 @@ public abstract class ListExistsNode extends ExpressionNode {
         argumentValues[0] = generators.next(generator);
         Boolean predicate =
             NullableTryableHandler.handleOptionTriablePredicate(
-                function.call(argumentValues), getPredicateType(), false);
+                interops.execute(closure, argumentValues), getPredicateType(), false);
         if (predicate) {
           return true;
         }
       }
       return false;
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
       generators.close(generator);
     }

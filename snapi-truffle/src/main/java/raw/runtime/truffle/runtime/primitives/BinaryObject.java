@@ -21,7 +21,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.nio.ByteOrder;
 
 @ExportLibrary(InteropLibrary.class)
-public class BinaryObject implements TruffleObject {
+public final class BinaryObject implements TruffleObject {
 
   private final byte[] byteArray;
 
@@ -39,22 +39,22 @@ public class BinaryObject implements TruffleObject {
   }
 
   @ExportMessage
-  long getArraySize() {
+  final long getArraySize() {
     return byteArray.length;
   }
 
   @ExportMessage
-  byte readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
+  final byte readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
     return byteArray[(int) index];
   }
 
   @ExportMessage
-  boolean isArrayElementReadable(long index) {
+  final boolean isArrayElementReadable(long index) {
     return index >= 0 && index < byteArray.length;
   }
 
   @ExportMessage
-  public boolean hasBufferElements() {
+  final boolean hasBufferElements() {
     return true;
   }
 

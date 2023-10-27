@@ -14,25 +14,25 @@ package raw.client.rql2.truffle
 
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
-import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
+import org.graalvm.polyglot.{Value, _}
 import raw.client.api._
 import raw.client.rql2.api._
-import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
-import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
-import raw.runtime._
+import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import raw.compiler.base
-import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
+import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.compiler.base.source.{BaseNode, Type}
+import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
+import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
-import raw.compiler.rql2.{FrontendSyntaxAnalyzer, ProgramContext, Rql2ProgramContext, SemanticAnalyzer, SyntaxAnalyzer, TreeWithPositions}
 import raw.compiler.rql2.source._
+import raw.compiler.rql2._
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
-import raw.runtime.truffle.runtime.primitives.{DateObject, DecimalObject, IntervalObject, TimeObject, TimestampObject}
+import raw.runtime._
 import raw.sources.api.SourceContext
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, withSuppressNonFatalException}
+import raw.utils.{descape, withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
@@ -51,6 +51,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     if (settings.onTrainingWheels) {
       options.put("engine.CompileImmediately", "true")
       options.put("engine.TraceCompilation", "true")
+      options.put("engine.BackgroundCompilation", "false")
+//      options.put("engine.CompilationFailureAction", "Throw")
+//      options.put("engine.CompilationFailureAction", "Diagnose")
+//      options.put("compiler.LogInlinedTargets", "true")
       //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
       //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
       //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
@@ -60,6 +64,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       //  "-Dgraal.Dump=Truffle:2",
       //  "-Dgraal.DumpPath=/tmp/graal_dumps",
       //  "-Dgraal.PrintGraph=Network",
+      // https://www.graalvm.org/latest/graalvm-as-a-platform/language-implementation-framework/Options/
     }
     Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
   }
@@ -189,7 +194,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val polyglotValue = ctx.eval(truffleSource)
           val internal = environment.options.get("staged-compiler") match {
             case Some("true") => true
-            case None => false
+            case _ => false
           }
           val rawType = parseType(tipe, environment.user, internal).asInstanceOf[ParseTypeSuccess].tipe
           val rawValue = convertPolyglotValueToRawValue(polyglotValue, rawType)
@@ -262,20 +267,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         raw.client.api.DecimalValue(bg)
       case _: Rql2DateType =>
         val date = v.asDate()
-//        if (v.isTimeZone) {
-//          val zonedDateTime = date.atStartOfDay(v.asTimeZone())
-//          raw.client.api.DateValue(zonedDateTime.toLocalDate)
-//        } else {
         raw.client.api.DateValue(date)
-//        }
       case _: Rql2TimeType =>
         val time = v.asTime()
-//        if (v.isTimeZone) {
-//          val zonedDateTime = time.atDate(LocalDate.ofEpochDay(0)).atZone(v.asTimeZone())
-//          raw.client.api.TimeValue(zonedDateTime.toLocalTime)
-//        } else {
         raw.client.api.TimeValue(time)
-//        }
       case _: Rql2TimestampType =>
         val localDate = v.asDate()
         val localTime = v.asTime()
@@ -384,101 +379,98 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     ctx.initialize("rql")
     ctx.enter()
     try {
-      val v = maybeDecl match {
+      val (v, tipe) = maybeDecl match {
         case Some(decl) =>
-          //          ctx.eval("rql", source)
-          //          val f = ctx.getBindings("rql").getMember(decl)
-          //          f.execute(maybeArguments)
-
-          /*
-
-        override def parseAndValidate(source: String, maybeDecl: Option[String])(
-            implicit programContext: base.ProgramContext
-        ): Either[List[ErrorMessage], SourceProgram] = {
-          buildInputTree(source).right.flatMap { tree =>
-            val Rql2Program(methods, me) = tree.root
-
-            maybeDecl match {
-              case None =>
-                if (programContext.runtimeContext.maybeArguments.nonEmpty) {
-                  // arguments are given while no method to execute is
-                  // provided.
-                  throw new CompilerException("arguments found")
-                }
-
-                if (me.isEmpty) {
-                  // no method, but also no bottom expression. This isn't
-                  // executable.
-                  throw new CompilerException("no expression found")
-                }
-
-                val e = me.get
-                Right(Rql2Program(methods, Some(e)))
-              case Some(decl) => tree.description.expDecls.get(decl) match {
-                  case Some(descriptions) =>
-                    if (descriptions.size > 1) throw new CompilerException("multiple declarations found")
-                    val description = descriptions.head
-                    val params = description.params.get
-                    val mandatory = params.collect { case p if p.required => p.idn }.toSet
-                    val args = programContext.runtimeContext.maybeArguments.get
-                    val programArgs = args.map {
-                      case (k, v) =>
-                        val e = v match {
-                          case _: ParamNull => NullConst()
-                          case _: ParamByte => EnvironmentPackageBuilder.Parameter(Rql2ByteType(), StringConst(k))
-                          case _: ParamShort => EnvironmentPackageBuilder.Parameter(Rql2ShortType(), StringConst(k))
-                          case _: ParamInt => EnvironmentPackageBuilder.Parameter(Rql2IntType(), StringConst(k))
-                          case _: ParamLong => EnvironmentPackageBuilder.Parameter(Rql2LongType(), StringConst(k))
-                          case _: ParamFloat => EnvironmentPackageBuilder.Parameter(Rql2FloatType(), StringConst(k))
-                          case _: ParamDouble => EnvironmentPackageBuilder.Parameter(Rql2DoubleType(), StringConst(k))
-                          case _: ParamDecimal => EnvironmentPackageBuilder.Parameter(Rql2DecimalType(), StringConst(k))
-                          case _: ParamBool => EnvironmentPackageBuilder.Parameter(Rql2BoolType(), StringConst(k))
-                          case _: ParamString => EnvironmentPackageBuilder.Parameter(Rql2StringType(), StringConst(k))
-                          case _: ParamDate => EnvironmentPackageBuilder.Parameter(Rql2DateType(), StringConst(k))
-                          case _: ParamTime => EnvironmentPackageBuilder.Parameter(Rql2TimeType(), StringConst(k))
-                          case _: ParamTimestamp => EnvironmentPackageBuilder.Parameter(Rql2TimestampType(), StringConst(k))
-                          case _: ParamInterval => EnvironmentPackageBuilder.Parameter(Rql2IntervalType(), StringConst(k))
-                        }
-                        // Build the argument node.
-                        // If argument is mandatory, then according to RQL2's language definition, the argument is not named.
-                        // However, if the argument os optional, the name is added.
-                        FunAppArg(e, if (mandatory.contains(k)) None else Some(k))
-                    }
-                    Right(Rql2Program(methods, Some(FunApp(IdnExp(IdnUse(decl)), programArgs.toVector))))
-                  case None => throw new CompilerException("declaration not found")
-                }
-            }
-          }
-        }
-
-           */
-
-          ???
-        case None =>
+          // Eval the code and extract the function referred to by 'decl'
           val truffleSource = Source
             .newBuilder("rql", source, "unnamed")
             .cached(false) // Disable code caching because of the inferrer.
             .build()
           ctx.eval(truffleSource)
+          // 'decl' is found in the context bindings (by its name)
+          val bindings = ctx.getBindings("rql")
+          val f = bindings.getMember(decl)
+          // its type is found in the polyglot bindings as '@type:<name>'
+          val funType = {
+            val rawType = ctx.getPolyglotBindings.getMember("@type:" + decl).asString()
+            val ParseTypeSuccess(tipe: FunType) = parseType(rawType, environment.user, internal = true)
+            tipe
+          }
+          // Prior to .execute, some checks on parameters since we may have
+          // to fill optional parameters with their default value
+
+          // mandatory arguments are those that don't have a matching 'name' in optional parameters
+          val namedArgs = funType.os.map(arg => arg.i -> arg.t).toMap
+
+          // split the provided parameters in two (mandatory/optional)
+          val (optionalArgs, mandatoryArgs) = environment.maybeArguments match {
+            case Some(args) =>
+              val (optional, mandatory) = args.partition { case (idn, _) => namedArgs.contains(idn) }
+              (optional.map(arg => arg._1 -> arg._2).toMap, mandatory.map(_._2))
+            case None => (Map.empty[String, ParamValue], Array.empty[ParamValue])
+          }
+
+          // mandatory args have to be all provided
+          if (mandatoryArgs.length != funType.ms.size) {
+            return ExecutionRuntimeFailure("missing mandatory arguments")
+          }
+          val mandatoryPolyglotArguments = mandatoryArgs.map(arg => javaValueOf(arg, ctx))
+          // optional arguments can be missing from the provided arguments.
+          // we replace the missing ones by their default value.
+          val optionalPolyglotArguments = funType.os.map { arg =>
+            optionalArgs.get(arg.i) match {
+              // if the argument is provided, use it
+              case Some(paramValue) => javaValueOf(paramValue, ctx)
+              // else, the argument has a default value that can be obtained from `f`.
+              case None => f.invokeMember("default_" + arg.i)
+            }
+          }
+          // all arguments are there. Call .execute.
+          val result = f.execute(mandatoryPolyglotArguments ++ optionalPolyglotArguments: _*)
+          val tipe = funType.r
+          // return the result and its type
+          (result, tipe)
+        case None =>
+          val truffleSource = Source
+            .newBuilder("rql", source, "unnamed")
+            .cached(false) // Disable code caching because of the inferrer.
+            .build()
+          val result = ctx.eval(truffleSource)
+          // the value type is found in polyglot bindings after calling eval().
+          val rawType = ctx.getPolyglotBindings.getMember("@type").asString()
+          val ParseTypeSuccess(tipe) = parseType(rawType, environment.user, internal = true)
+          (result, tipe)
       }
 
       environment.options
         .get("output-format")
         .map(_.toLowerCase) match {
         case Some("csv") =>
-          val w = new PolyglotCsvWriter(outputStream)
+          if (!CsvPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type")
+          }
+          val programContext = getProgramContext(environment.user, environment)
+          val windowsLineEnding = environment.options.get("windows-line-ending") match {
+            case Some("true") => true
+            case _ => programContext.settings.config.getBoolean("raw.compiler.windows-line-ending")
+          }
+          val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
+          val csvWriter = new Rql2CsvWriter(outputStream, lineSeparator)
           try {
-            w.writeValue(v)
+            csvWriter.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            withSuppressNonFatalException(w.close())
+            withSuppressNonFatalException(csvWriter.close())
           }
         case Some("json") =>
-          val w = new PolyglotJsonWriter(outputStream)
+          if (!JsonPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type")
+          }
+          val w = new Rql2JsonWriter(outputStream)
           try {
-            w.write(v)
+            w.write(v, tipe.asInstanceOf[Rql2TypeWithProperties])
             ExecutionSuccess
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
@@ -486,6 +478,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             withSuppressNonFatalException(w.close())
           }
         case Some("text") =>
+          if (!StringPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type")
+          }
           val w = new PolyglotTextWriter(outputStream)
           try {
             w.writeValue(v)
@@ -494,6 +489,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
         case Some("binary") =>
+          if (!BinaryPackage.outputWriteSupport(tipe)) {
+            return ExecutionRuntimeFailure("unsupported type")
+          }
           val w = new PolyglotBinaryWriter(outputStream)
           try {
             w.writeValue(v)
@@ -501,7 +499,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           }
-        case None => ExecutionRuntimeFailure("unknown output format")
+        case _ => ExecutionRuntimeFailure("unknown output format")
       }
     } catch {
       case ex: PolyglotException =>
@@ -797,23 +795,28 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     engine.close(true)
   }
 
-  private def javaValueOf(value: ParamValue) = {
-    value match {
-      case ParamNull() => null
-      case ParamByte(v) => v
-      case ParamShort(v) => v
-      case ParamInt(v) => v
-      case ParamLong(v) => v
-      case ParamFloat(v) => v
-      case ParamDouble(v) => v
-      case ParamBool(v) => v
-      case ParamString(v) => v
-      case ParamDecimal(v) => new DecimalObject(v)
-      case ParamDate(v) => new DateObject(v)
-      case ParamTime(v) => new TimeObject(v)
-      case ParamTimestamp(v) => new TimestampObject(v)
-      case ParamInterval(v) => IntervalObject.fromDuration(v)
+  private def javaValueOf(paramValue: ParamValue, ctx: Context) = {
+    val code: String = paramValue match {
+      case ParamNull() => "let x: undefined = null in x"
+      case ParamByte(v) => s"let x: byte = ${v}b in x"
+      case ParamShort(v) => s"let x: short = ${v}s in x"
+      case ParamInt(v) => s"let x: int = $v in x"
+      case ParamLong(v) => s"let x: long = ${v}L in x"
+      case ParamFloat(v) => s"let x: float = ${v}f in x"
+      case ParamDouble(v) => s"let x: double = $v in x"
+      case ParamBool(v) => s"let x: bool = $v in x"
+      case ParamString(v) => s"""let x: string = "${descape(v)}" in x"""
+      case ParamDecimal(v) => s"""let x: decimal = ${v}q in x"""
+      case ParamDate(v) => s"""let x: date = Date.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}) in x"""
+      case ParamTime(v) =>
+        s"""let x: time = Time.Build(${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
+      case ParamTimestamp(v) =>
+        s"""let x: timestamp = Timestamp.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}, ${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
+      case ParamInterval(v) =>
+        s"""let x: interval = Interval.Build(days=${v.toDaysPart}, hours=${v.toHoursPart}, minutes=${v.toMinutesPart}, seconds=${v.toSecondsPart}, millis=${v.toNanosPart / 1000000}) in x"""
     }
+    val value = ctx.eval("rql", code)
+    ctx.asValue(value)
   }
 
   private def buildTruffleContext(
@@ -834,16 +837,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       ctxBuilder.option("rql.staged-compiler", stagedCompiler)
     }
     maybeOutputStream.foreach(os => ctxBuilder.out(os))
-    // Add arguments as polyglot bindings.
     val ctx = ctxBuilder.build()
-    environment.maybeArguments.foreach { args =>
-      args.foreach(arg =>
-        ctx.getPolyglotBindings.putMember(
-          arg._1,
-          javaValueOf(arg._2)
-        )
-      )
-    }
     ctx
   }
 

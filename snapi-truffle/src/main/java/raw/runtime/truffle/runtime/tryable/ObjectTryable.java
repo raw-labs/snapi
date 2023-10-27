@@ -243,6 +243,18 @@ public final class ObjectTryable implements TruffleObject {
   }
 
   @ExportMessage
+  boolean isMemberInvocable(String member) {
+    return interops.isMemberInvocable(successValue, member);
+  }
+
+  @ExportMessage
+  Object invokeMember(String member, Object[] arguments)
+      throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException,
+          ArityException {
+    return interops.invokeMember(successValue, member, arguments);
+  }
+
+  @ExportMessage
   boolean hasIterator() {
     return isSuccess() && interops.hasIterator(successValue);
   }

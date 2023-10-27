@@ -17,6 +17,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -62,6 +63,7 @@ class OffHeapGroupByKey {
 
   private final GroupByRecordShaper reshape;
 
+  @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKey(
       Comparator<Object> keyCompare,
       Rql2TypeWithProperties kType,

@@ -26,6 +26,7 @@ import raw.creds.api.Secret;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
 import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
 import raw.utils.InteractiveUser;
@@ -51,6 +52,7 @@ public final class RawContext {
   private RawSettings rawSettings;
   private ProgramEnvironment programEnvironment;
   private InferrerService inferrer;
+  private final RawFunctionRegistry functionRegistry;
 
   public RawContext(RawLanguage language, Env env) {
     this.language = language;
@@ -118,6 +120,15 @@ public final class RawContext {
 
     // Initialize inferrer
     this.inferrer = InferrerServiceProvider.apply(classLoader, this.sourceContext);
+
+    // The function registry holds snapi methods (top level functions). It is the data
+    // structure that is used to extract a ref to a function from a piece of execute snapi.
+    // Functions appear as polyglot bindings after the execution of the source code.
+    this.functionRegistry = new RawFunctionRegistry();
+  }
+
+  public RawFunctionRegistry getFunctionRegistry() {
+    return functionRegistry;
   }
 
   public RawLanguage getLanguage() {

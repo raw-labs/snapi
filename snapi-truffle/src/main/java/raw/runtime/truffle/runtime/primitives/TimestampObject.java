@@ -22,7 +22,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.time.*;
 
 @ExportLibrary(InteropLibrary.class)
-public class TimestampObject implements TruffleObject {
+public final class TimestampObject implements TruffleObject {
 
   private final LocalDateTime timestamp;
 

@@ -22,7 +22,7 @@ import java.math.BigDecimal;
 import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
-public class DecimalObject implements TruffleObject {
+public final class DecimalObject implements TruffleObject {
   private final BigDecimal bigDecimal;
 
   public DecimalObject(BigDecimal bigDecimal) {
@@ -34,29 +34,29 @@ public class DecimalObject implements TruffleObject {
   }
 
   @ExportMessage
-  boolean hasLanguage() {
+  final boolean hasLanguage() {
     return true;
   }
 
   @ExportMessage
-  Class<? extends TruffleLanguage<?>> getLanguage() {
+  final Class<? extends TruffleLanguage<?>> getLanguage() {
     return RawLanguage.class;
   }
 
   @ExportMessage
   @CompilerDirectives.TruffleBoundary
-  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+  final Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
     return "Decimal";
   }
 
   @ExportMessage
-  boolean isString() {
+  final boolean isString() {
     return true;
   }
 
   @ExportMessage
   @CompilerDirectives.TruffleBoundary
-  String asString() {
+  final String asString() {
     return bigDecimal.toString();
   }
 }

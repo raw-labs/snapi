@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.aggregation;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -22,9 +21,9 @@ import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 
 @ExportLibrary(AggregationLibrary.class)
-public class SingleAggregation {
+public final class SingleAggregation {
 
-  Object aggregator;
+  final Object aggregator;
 
   public SingleAggregation(Object aggregator) {
     this.aggregator = aggregator;
@@ -36,7 +35,6 @@ public class SingleAggregation {
   }
 
   @ExportMessage(limit = "3")
-  @TruffleBoundary // Otherwise the inlining fails, maybe try to convert it into nodes
   public Object aggregate(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
