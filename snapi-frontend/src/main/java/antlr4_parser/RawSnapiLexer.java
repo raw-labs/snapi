@@ -1,10 +1,21 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package antlr4_parser;
 
 import antlr4_parser.generated.SnapiLexer;
 import org.antlr.v4.runtime.ANTLRErrorListener;
 import org.antlr.v4.runtime.CharStream;
 import org.antlr.v4.runtime.Token;
-import raw.compiler.rql2.Keywords;
 
 public class RawSnapiLexer extends SnapiLexer implements SnapiKeywords {
 
@@ -23,11 +34,13 @@ public class RawSnapiLexer extends SnapiLexer implements SnapiKeywords {
 
   @Override
   public Token emit() {
-    if (getType() == NON_ESC_IDENTIFIER) {
-      handleNonEscIdentifier();
-    }
-    if (getType() == ESC_IDENTIFIER) {
-      setText(getText().replace("`", ""));
+    if (getType() == IDENT) {
+      if (getText().startsWith("`") && getText().endsWith("`")) {
+        // Escaped identifier
+        setText(getText().replace("`", ""));
+      } else {
+        handleNonEscIdentifier();
+      }
     }
     return super.emit();
   }
