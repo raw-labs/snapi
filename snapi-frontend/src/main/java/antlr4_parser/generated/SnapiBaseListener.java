@@ -317,6 +317,18 @@ public class SnapiBaseListener implements SnapiListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterOrTypeType(SnapiParser.OrTypeTypeContext ctx) { }
 	/**
 	 * {@inheritDoc}
@@ -888,6 +900,18 @@ public class SnapiBaseListener implements SnapiListener {
 	 * <p>The default implementation does nothing.</p>
 	 */
 	@Override public void exitCompare_tokens(SnapiParser.Compare_tokensContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void enterBool_const(SnapiParser.Bool_constContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitBool_const(SnapiParser.Bool_constContext ctx) { }
 
 	/**
 	 * {@inheritDoc}

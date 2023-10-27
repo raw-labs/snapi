@@ -4,18 +4,30 @@ import antlr4_parser.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.{
   FunOptTypeParam,
   FunType,
+  Rql2AttrType,
   Rql2BoolType,
+  Rql2ByteType,
+  Rql2DecimalType,
+  Rql2DoubleType,
   Rql2FloatType,
   Rql2IntType,
   Rql2IsNullableTypeProperty,
   Rql2IsTryableTypeProperty,
+  Rql2IterableType,
+  Rql2ListType,
+  Rql2LongType,
   Rql2OrType,
+  Rql2RecordType,
+  Rql2ShortType,
   Rql2StringType,
-  Rql2TypeProperty
+  Rql2TypeProperty,
+  Rql2UndefinedType
 }
 import raw.utils.RawTestSuite
 
 class Antlr4TypeTests extends RawTestSuite {
+
+  def props: Set[Rql2TypeProperty] = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
 
   def parseType(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
@@ -23,127 +35,240 @@ class Antlr4TypeTests extends RawTestSuite {
     parser.parseType(s).right.get
   }
 
+  // Single types
+  test("""int type""")(_ => assert(parseType("int") == Rql2IntType(props)))
+
+  test("""Record""") { _ =>
+    assert(
+      parseType(
+        "record(a: byte, b: short, c: int, e: long, f: float, g: double, h: decimal, i: bool, j: string, k: undefined)"
+      ) == Rql2RecordType(
+        Vector(
+          Rql2AttrType("a", Rql2ByteType(props)),
+          Rql2AttrType("b", Rql2ShortType(props)),
+          Rql2AttrType("c", Rql2IntType(props)),
+          Rql2AttrType("e", Rql2LongType(props)),
+          Rql2AttrType("f", Rql2FloatType(props)),
+          Rql2AttrType("g", Rql2DoubleType(props)),
+          Rql2AttrType("h", Rql2DecimalType(props)),
+          Rql2AttrType("i", Rql2BoolType(props)),
+          Rql2AttrType("j", Rql2StringType(props)),
+          Rql2AttrType("k", Rql2UndefinedType(props))
+        ),
+        props
+      )
+    )
+  }
+
+  test("""Collection of records""") { _ =>
+    assert(
+      parseType(
+        "collection(record(a: byte, b: short, c: int, e: long, f: float, g: double, h: decimal, i: bool, j: string, k: undefined))"
+      ) == Rql2IterableType(
+        Rql2RecordType(
+          Vector(
+            Rql2AttrType("a", Rql2ByteType(props)),
+            Rql2AttrType("b", Rql2ShortType(props)),
+            Rql2AttrType("c", Rql2IntType(props)),
+            Rql2AttrType("e", Rql2LongType(props)),
+            Rql2AttrType("f", Rql2FloatType(props)),
+            Rql2AttrType("g", Rql2DoubleType(props)),
+            Rql2AttrType("h", Rql2DecimalType(props)),
+            Rql2AttrType("i", Rql2BoolType(props)),
+            Rql2AttrType("j", Rql2StringType(props)),
+            Rql2AttrType("k", Rql2UndefinedType(props))
+          ),
+          props
+        ),
+        props
+      )
+    )
+  }
+
+  test("""List of records""") { _ =>
+    assert(
+      parseType(
+        "list(record(a: byte, b: short, c: int, e: long, f: float, g: double, h: decimal, i: bool, j: string, k: undefined))"
+      ) == Rql2ListType(
+        Rql2RecordType(
+          Vector(
+            Rql2AttrType("a", Rql2ByteType(props)),
+            Rql2AttrType("b", Rql2ShortType(props)),
+            Rql2AttrType("c", Rql2IntType(props)),
+            Rql2AttrType("e", Rql2LongType(props)),
+            Rql2AttrType("f", Rql2FloatType(props)),
+            Rql2AttrType("g", Rql2DoubleType(props)),
+            Rql2AttrType("h", Rql2DecimalType(props)),
+            Rql2AttrType("i", Rql2BoolType(props)),
+            Rql2AttrType("j", Rql2StringType(props)),
+            Rql2AttrType("k", Rql2UndefinedType(props))
+          ),
+          props
+        ),
+        props
+      )
+    )
+  }
+
   // Or type tests
-  test("""type priority tests""") { _ =>
-    val props = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
-//    assert(parseType("int or string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props))
+  test("""2 types or""") { _ =>
+    assert(parseType("int or string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props))
+  }
+
+  test("""Not nested 3 types or""") { _ =>
     assert(
       parseType("int or string or float") == Rql2OrType(
         Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
         props
       )
     )
-//    assert(
-//      parseType("(int or string) or float") == Rql2OrType(
-//        Vector(Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props))), Rql2FloatType(props)),
-//        props
-//      )
-//    )
-//    assert(
-//      parseType("int or (string or float)") == Rql2OrType(
-//        Vector(Rql2IntType(props), Rql2OrType(Vector(Rql2StringType(props), Rql2FloatType(props)))),
-//        props
-//      )
-//    )
-//    assert(
-//      parseType("int -> string") == FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
-//    )
-//    assert(
-//      parseType("int or string -> float") ==
-//        FunType(
-//          Vector(
-//            Rql2OrType(
-//              Vector(Rql2IntType(props), Rql2StringType(props)),
-//              props
-//            )
-//          ),
-//          Vector.empty,
-//          Rql2FloatType(props),
-//          props
-//        )
-//    )
-//    assert(
-//      parseType("int or (string -> float)") == Rql2OrType(
-//        Vector(Rql2IntType(props), FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props)),
-//        props
-//      )
-//    )
-//    assert(
-//      parseType("(int or string) -> float") ==
-//        FunType(
-//          Vector(
-//            Rql2OrType(
-//              Vector(Rql2IntType(props), Rql2StringType(props)),
-//              props
-//            )
-//          ),
-//          Vector.empty,
-//          Rql2FloatType(props),
-//          props
-//        )
-//    )
-//    assert(
-//      parseType("(x: int) -> float") ==
-//        FunType(
-//          Vector.empty,
-//          Vector(FunOptTypeParam("x", Rql2IntType(props))),
-//          Rql2FloatType(props),
-//          props
-//        )
-//    )
-//    assert(
-//      parseType("(int, b: string) -> float") ==
-//        FunType(
-//          Vector(Rql2IntType(props)),
-//          Vector(FunOptTypeParam("b", Rql2StringType(props))),
-//          Rql2FloatType(props),
-//          props
-//        )
-//    )
-//    assert(
-//      parseType("(int or string, c: float or bool) -> float") ==
-//        FunType(
-//          Vector(
-//            Rql2OrType(
-//              Vector(Rql2IntType(props), Rql2StringType(props)),
-//              props
-//            )
-//          ),
-//          Vector(FunOptTypeParam("c", Rql2OrType(Vector(Rql2FloatType(props), Rql2BoolType(props)), props))),
-//          Rql2FloatType(props),
-//          props
-//        )
-//    )
-//    assert(
-//      parseType("int -> string -> float") ==
-//        FunType(
-//          Vector(
-//            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
-//          ),
-//          Vector.empty,
-//          Rql2FloatType(props),
-//          props
-//        )
-//    )
-//    assert(
-//      parseType("(int -> string) -> float") ==
-//        FunType(
-//          Vector(
-//            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
-//          ),
-//          Vector.empty,
-//          Rql2FloatType(props),
-//          props
-//        )
-//    )
-//    assert(
-//      parseType("int -> (string -> float)") ==
-//        FunType(
-//          Vector(Rql2IntType(props)),
-//          Vector.empty,
-//          FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props),
-//          props
-//        )
-//    )
+  }
+
+  test("""Left nested 3 type or""") { _ =>
+    assert(
+      parseType("(int or string) or float") == Rql2OrType(
+        Vector(Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props), Rql2FloatType(props)),
+        props
+      )
+    )
+  }
+
+  test("""Right nested 3 type or""") { _ =>
+    assert(
+      parseType("(int or string) or float") == Rql2OrType(
+        Vector(Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props), Rql2FloatType(props)),
+        props
+      )
+    )
+  }
+
+  test("""Function type test""") { _ =>
+    assert(
+      parseType("int -> string") == FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+    )
+  }
+
+  test("""Function with or domain type test""") { _ =>
+    assert(
+      parseType("int or string -> float") ==
+        FunType(
+          Vector(
+            Rql2OrType(
+              Vector(Rql2IntType(props), Rql2StringType(props)),
+              props
+            )
+          ),
+          Vector.empty,
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Or type with function alternative test""") { _ =>
+    assert(
+      parseType("int or (string -> float)") == Rql2OrType(
+        Vector(Rql2IntType(props), FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props)),
+        props
+      )
+    )
+  }
+
+  test("""Function type with with or domain parenthesis test""") { _ =>
+    assert(
+      parseType("(int or string) -> float") ==
+        FunType(
+          Vector(
+            Rql2OrType(
+              Vector(Rql2IntType(props), Rql2StringType(props)),
+              props
+            )
+          ),
+          Vector.empty,
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function type with one param test""") { _ =>
+    assert(
+      parseType("(x: int) -> float") ==
+        FunType(
+          Vector.empty,
+          Vector(FunOptTypeParam("x", Rql2IntType(props))),
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function type with params (optional and mandatory) test""") { _ =>
+    assert(
+      parseType("(int, b: string) -> float") ==
+        FunType(
+          Vector(Rql2IntType(props)),
+          Vector(FunOptTypeParam("b", Rql2StringType(props))),
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function type with params (optional and mandatory and or) test""") { _ =>
+    assert(
+      parseType("(int or string, c: float or bool) -> float") ==
+        FunType(
+          Vector(
+            Rql2OrType(
+              Vector(Rql2IntType(props), Rql2StringType(props)),
+              props
+            )
+          ),
+          Vector(FunOptTypeParam("c", Rql2OrType(Vector(Rql2FloatType(props), Rql2BoolType(props)), props))),
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function that returns a function test""") { _ =>
+    assert(
+      parseType("int -> string -> float") ==
+        FunType(
+          Vector(
+            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+          ),
+          Vector.empty,
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function that returns a function paren left test""") { _ =>
+    assert(
+      parseType("(int -> string) -> float") ==
+        FunType(
+          Vector(
+            FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
+          ),
+          Vector.empty,
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function that returns a function paren right test""") { _ =>
+    assert(
+      parseType("int -> (string -> float)") ==
+        FunType(
+          Vector(Rql2IntType(props)),
+          Vector.empty,
+          FunType(Vector(Rql2StringType(props)), Vector.empty, Rql2FloatType(props), props),
+          props
+        )
+    )
   }
 }

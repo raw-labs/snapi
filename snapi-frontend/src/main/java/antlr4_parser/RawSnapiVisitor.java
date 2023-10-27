@@ -1,7 +1,5 @@
 package antlr4_parser;
 
-import static antlr4_parser.generated.SnapiParser.TRUE_TOKEN;
-
 import antlr4_parser.builders.ListPackageBuilder;
 import antlr4_parser.builders.RecordPackageBuilder;
 import antlr4_parser.generated.SnapiBaseVisitor;
@@ -17,10 +15,8 @@ import raw.compiler.common.source.*;
 import raw.compiler.rql2.source.*;
 import scala.Option;
 import scala.Tuple2;
-import scala.collection.TraversableOnce;
 import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Set;
-import scala.collection.immutable.Vector;
 import scala.collection.immutable.VectorBuilder;
 
 public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
@@ -79,8 +75,10 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitMethodDec(SnapiParser.MethodDecContext ctx) {
-    Rql2Method result =
-        new Rql2Method((FunProto) visit(ctx.fun_proto()), new IdnDef(ctx.IDENT().getText()));
+    FunProto funProto = (FunProto) visit(ctx.fun_proto());
+    FunProto newFunProto =
+        funProto.copy(funProto.ps(), funProto.r(), new FunBody((Exp) visit(ctx.expr())));
+    Rql2Method result = new Rql2Method(newFunProto, new IdnDef(ctx.IDENT().getText()));
     setPosition(ctx, result);
     return result;
   }
@@ -143,6 +141,13 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   }
 
   @Override
+  public SourceNode visitType_attr(SnapiParser.Type_attrContext ctx) {
+    Rql2AttrType result = new Rql2AttrType(ctx.IDENT().getText(), (Type) visit(ctx.type()));
+    setPosition(ctx, result);
+    return result;
+  }
+
+  @Override
   public SourceNode visitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx) {
     VectorBuilder<FunParam> vb = new VectorBuilder<>();
     for (int i = 0; i < ctx.fun_param().size(); i++) {
@@ -154,25 +159,10 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   }
 
   @Override
-  public SourceNode visitFun_ar(SnapiParser.Fun_arContext ctx) {
-    throw new AssertionError(assertionMessage);
-  }
-
-  @Override
-  public SourceNode visitFun_args(SnapiParser.Fun_argsContext ctx) {
-    throw new AssertionError(assertionMessage);
-  }
-
-  @Override
   public SourceNode visitFunArgExpr(SnapiParser.FunArgExprContext ctx) {
     FunAppArg result = new FunAppArg((Exp) visit(ctx.expr()), Option.<String>empty());
     setPosition(ctx, result);
     return result;
-  }
-
-  @Override
-  public SourceNode visitType_attr(SnapiParser.Type_attrContext ctx) {
-    throw new AssertionError(assertionMessage);
   }
 
   @Override
@@ -181,11 +171,6 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
         new FunAppArg((Exp) visit(ctx.expr()), Option.<String>apply(ctx.IDENT().getText()));
     setPosition(ctx, result);
     return result;
-  }
-
-  @Override
-  public SourceNode visitAttr(SnapiParser.AttrContext ctx) {
-    throw new AssertionError(assertionMessage);
   }
 
   @Override
@@ -230,17 +215,42 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitOrTypeType(SnapiParser.OrTypeTypeContext ctx) {
-    VectorBuilder<Type> types = new VectorBuilder<>();
-    types.$plus$eq((Type) visit(ctx.type()));
-    for (int i = 0; i < ctx.or_type().size(); i++) {
-      types.$plus$eq((Type) visit(ctx.or_type().get(i)));
+    VectorBuilder<Type> vb = new VectorBuilder<>();
+    vb.$plus$eq((Type) visit(ctx.type()));
+    Rql2OrType orType = (Rql2OrType) visit(ctx.or_type());
+    vb.$plus$plus$eq(orType.tipes());
+    Rql2OrType result = new Rql2OrType(vb.result(), defaultProps);
+    setPosition(ctx, result);
+    return result;
+  }
+
+  // this one is helper, it doesn't need to set position
+  @Override
+  public SourceNode visitOr_type(SnapiParser.Or_typeContext ctx) {
+    VectorBuilder<Type> vb = new VectorBuilder<>();
+    vb.$plus$eq((Type) visit(ctx.type()));
+    if (ctx.or_type() != null) {
+      Rql2OrType orType = (Rql2OrType) visit(ctx.or_type());
+      vb.$plus$plus$eq(orType.tipes());
     }
-    return new Rql2OrType(types.result(), defaultProps);
+    return new Rql2OrType(vb.result(), defaultProps);
   }
 
   @Override
-  public SourceNode visitOr_type(SnapiParser.Or_typeContext ctx) {
-    return super.visitOr_type(ctx);
+  public SourceNode visitOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx) {
+    VectorBuilder<Type> types = new VectorBuilder<>();
+    types.$plus$eq((Type) visit(ctx.type(0)));
+    Rql2OrType orType = (Rql2OrType) visit(ctx.or_type());
+    types.$plus$plus$eq(orType.tipes());
+    Rql2OrType domainOrType = new Rql2OrType(types.result(), defaultProps);
+
+    VectorBuilder<Type> vb = new VectorBuilder<>();
+    VectorBuilder<FunOptTypeParam> vbe = new VectorBuilder<>();
+    vb.$plus$eq(domainOrType);
+    FunType funType =
+        new FunType(vb.result(), vbe.result(), (Type) visit(ctx.type(1)), defaultProps);
+    setPosition(ctx, funType);
+    return funType;
   }
 
   @Override
@@ -340,40 +350,42 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitRecord_type(SnapiParser.Record_typeContext ctx) {
-    VectorBuilder<AttrType> vb = new VectorBuilder<>();
+    VectorBuilder<Rql2AttrType> vb = new VectorBuilder<>();
     List<SnapiParser.Type_attrContext> attrs = ctx.type_attr();
     for (SnapiParser.Type_attrContext attr : attrs) {
-      vb.$plus$eq((AttrType) visit(attr));
+      vb.$plus$eq((Rql2AttrType) visit(attr));
     }
-    RecordType result = new RecordType(vb.result());
+    Rql2RecordType result = new Rql2RecordType(vb.result(), defaultProps);
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitIterable_type(SnapiParser.Iterable_typeContext ctx) {
-    IterableType result = new IterableType((Type) visit(ctx.type()));
+    Rql2IterableType result = new Rql2IterableType((Type) visit(ctx.type()), defaultProps);
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitList_type(SnapiParser.List_typeContext ctx) {
-    ListType result = new ListType((Type) visit(ctx.type()));
+    Rql2ListType result = new Rql2ListType((Type) visit(ctx.type()), defaultProps);
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitExpr_type(SnapiParser.Expr_typeContext ctx) {
-    ExpType result = new ExpType((Type) visit(ctx.type()));
+    TypeExp result = new TypeExp((Type) visit(ctx.type()));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitIdentExpr(SnapiParser.IdentExprContext ctx) {
-    return new IdnExp(new IdnUse(ctx.IDENT().getText()));
+    IdnExp result = new IdnExp(new IdnUse(ctx.IDENT().getText()));
+    setPosition(ctx, result);
+    return result;
   }
 
   @Override
@@ -383,9 +395,11 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     Proj proj = new Proj((Exp) visit(ctx.expr()), ctx.IDENT().getText());
 
     if (ctx.fun_ar() != null) {
-      List<SnapiParser.Fun_argContext> args = ctx.fun_ar().fun_args().fun_arg();
-      for (SnapiParser.Fun_argContext arg : args) {
-        vb.$plus$eq((FunAppArg) visit(arg));
+      if (ctx.fun_ar().fun_args() != null) {
+        List<SnapiParser.Fun_argContext> args = ctx.fun_ar().fun_args().fun_arg();
+        for (SnapiParser.Fun_argContext arg : args) {
+          vb.$plus$eq((FunAppArg) visit(arg));
+        }
       }
       result = new FunApp(proj, vb.result());
     } else {
@@ -572,11 +586,6 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   }
 
   @Override
-  public SourceNode visitLet_left(SnapiParser.Let_leftContext ctx) {
-    throw new AssertionError(assertionMessage);
-  }
-
-  @Override
   public SourceNode visitLet_decl(SnapiParser.Let_declContext ctx) {
     return ctx.fun_dec() == null ? visit(ctx.let_bind()) : visit(ctx.fun_dec());
   }
@@ -639,11 +648,6 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     return result;
   }
 
-  @Override
-  public SourceNode visitRecord_element(SnapiParser.Record_elementContext ctx) {
-    throw new AssertionError(assertionMessage);
-  }
-
   // Constants
   @Override
   public SourceNode visitTrippleStringExpr(SnapiParser.TrippleStringExprContext ctx) {
@@ -666,7 +670,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitBoolConstExpr(SnapiParser.BoolConstExprContext ctx) {
-    BoolConst result = new BoolConst(ctx.BOOL_CONST().getSymbol().getType() == TRUE_TOKEN);
+    BoolConst result = new BoolConst(ctx.bool_const().FALSE_TOKEN() == null);
     setPosition(ctx, result);
     return result;
   }
@@ -694,15 +698,46 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
       result = new LongConst(ctx.LONG().getText().toLowerCase().replace("l", ""));
     }
     if (ctx.FLOAT() != null) {
-      result = new LongConst(ctx.FLOAT().getText().toLowerCase().replace("f", ""));
+      result = new FloatConst(ctx.FLOAT().getText().toLowerCase().replace("f", ""));
     }
     if (ctx.DOUBLE() != null) {
-      result = new LongConst(ctx.DOUBLE().getText().toLowerCase().replace("d", ""));
+      result = new DoubleConst(ctx.DOUBLE().getText().toLowerCase().replace("d", ""));
     }
     if (ctx.DECIMAL() != null) {
-      result = new LongConst(ctx.DECIMAL().getText().toLowerCase().replace("q", ""));
+      result = new DecimalConst(ctx.DECIMAL().getText().toLowerCase().replace("q", ""));
     }
     setPosition(ctx, result);
     return result;
+  }
+
+  // Nodes to ignore, they are not part of the AST and should never be visited
+  @Override
+  public SourceNode visitBool_const(SnapiParser.Bool_constContext ctx) {
+    throw new AssertionError(assertionMessage);
+  }
+
+  @Override
+  public SourceNode visitRecord_element(SnapiParser.Record_elementContext ctx) {
+    throw new AssertionError(assertionMessage);
+  }
+
+  @Override
+  public SourceNode visitLet_left(SnapiParser.Let_leftContext ctx) {
+    throw new AssertionError(assertionMessage);
+  }
+
+  @Override
+  public SourceNode visitAttr(SnapiParser.AttrContext ctx) {
+    throw new AssertionError(assertionMessage);
+  }
+
+  @Override
+  public SourceNode visitFun_ar(SnapiParser.Fun_arContext ctx) {
+    throw new AssertionError(assertionMessage);
+  }
+
+  @Override
+  public SourceNode visitFun_args(SnapiParser.Fun_argsContext ctx) {
+    throw new AssertionError(assertionMessage);
   }
 }

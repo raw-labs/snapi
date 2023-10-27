@@ -181,6 +181,13 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitListTypeType(SnapiParser.ListTypeTypeContext ctx);
 	/**
+	 * Visit a parse tree produced by the {@code OrTypeFunType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx);
+	/**
 	 * Visit a parse tree produced by the {@code OrTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
@@ -498,4 +505,10 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
 	 * @return the visitor result
 	 */
 	T visitCompare_tokens(SnapiParser.Compare_tokensContext ctx);
+	/**
+	 * Visit a parse tree produced by {@link SnapiParser#bool_const}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitBool_const(SnapiParser.Bool_constContext ctx);
 }

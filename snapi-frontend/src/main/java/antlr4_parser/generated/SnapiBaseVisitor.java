@@ -193,6 +193,13 @@ public class SnapiBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitOrTypeType(SnapiParser.OrTypeTypeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}
@@ -523,4 +530,11 @@ public class SnapiBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
 	@Override public T visitCompare_tokens(SnapiParser.Compare_tokensContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
+	@Override public T visitBool_const(SnapiParser.Bool_constContext ctx) { return visitChildren(ctx); }
 }

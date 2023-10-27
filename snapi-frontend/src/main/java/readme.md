@@ -27,7 +27,7 @@ WS : [ \t\r\n]+ -> skip ; // skip spaces, tabs, newlines, \r (Windows)
 
 
 # General terminal test usage
-`antlr4 Snapi.g4 && javac *.java && grun Snapi -prog -gui`
+`antlr4 Snapi.g4 && javac *.java && grun Snapi prog -gui`
 It generates files, compiles them and runs the `-prog` rule with gui tree result.
 
 # Usage in Intellij

@@ -41,14 +41,14 @@ ELSE_TOKEN: 'else';
 NULL_TOKEN: 'null';
 
 // Numbers
-INTEGER: INTEGER_FR;
-BYTE: INTEGER_FR B;
-SHORT: INTEGER_FR S;
-LONG: INTEGER_FR L;
 
-FLOAT: FLOAT_FR F;
-DOUBLE: FLOAT_FR  D?;
-DECIMAL: FLOAT_FR  Q;
+BYTE: MINUS_TOKEN? INTEGER_FR B;
+SHORT: MINUS_TOKEN? INTEGER_FR S;
+INTEGER: MINUS_TOKEN? INTEGER_FR;
+LONG: MINUS_TOKEN? INTEGER_FR L;
+FLOAT: MINUS_TOKEN? (FLOAT_FR | INTEGER_FR) F;
+DOUBLE: MINUS_TOKEN? (FLOAT_FR | INTEGER_FR) D?;
+DECIMAL: MINUS_TOKEN? (FLOAT_FR | INTEGER_FR) Q;
 
 // Binary Exp
 
@@ -72,9 +72,6 @@ OR_TOKEN:  'or';
 NOT_TOKEN: 'not';
 
 // Boolean
-BOOL_CONST: TRUE_TOKEN
-          | FALSE_TOKEN
-          ;
 TRUE_TOKEN: 'true';
 FALSE_TOKEN: 'false';
 
@@ -84,10 +81,10 @@ TRIPPLE_STRING: '"""' .*? '"""';
 
 // Identifiers
 IDENT: NON_ESC_IDENTIFIER | ESC_IDENTIFIER;
-NON_ESC_IDENTIFIER: [_a-zA-Z]+;
+NON_ESC_IDENTIFIER: [_a-zA-Z] [_a-zA-Z0-9]*;
 ESC_IDENTIFIER: '`' .*? '`';
 WS : [ \t\r\n]+ -> skip;
-LINE_COMMENT : '//' .*? '\n' -> channel(HIDDEN) ;
+LINE_COMMENT : '//' ~('\n'|'\r')* ('\r'? '\n' | EOF) -> channel(HIDDEN) ;
 
 fragment DIGIT: [0-9];
 fragment EXPONENT: E [+-]? DIGIT+;

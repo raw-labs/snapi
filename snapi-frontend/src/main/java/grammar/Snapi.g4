@@ -46,7 +46,8 @@ fun_abs: fun_proto '->' expr                                # FunAbs
 
 // ============= types =================
 type: '(' type ')'                                          # TypeWithParenType
-    | type (OR_TOKEN or_type)+                              # OrTypeType
+    | type OR_TOKEN or_type '->' type                       # OrTypeFunType
+    | type OR_TOKEN or_type                                 # OrTypeType
     | primitive_types                                       # PrimitiveTypeType
     | UNDEFINED_TOKEN                                       # UndefinedTypeType
     | IDENT                                                 # TypeAliasType
@@ -58,7 +59,9 @@ type: '(' type ')'                                          # TypeWithParenType
     | expr_type                                             # ExprTypeType
     ;
 
-or_type: type OR_TOKEN or_type;
+or_type: type OR_TOKEN or_type
+       | type
+       ;
 
 record_type: RECORD_TOKEN '(' type_attr (',' type_attr)* ')';
 iterable_type: COLLECTION_TOKEN '(' type ')';
@@ -71,11 +74,12 @@ expr: '(' expr ')'                                          # ParenExpr
     | if_then_else                                          # IfThenElseExpr
     | lists                                                 # ListExpr
     | records                                               # RecordExpr
-    | BOOL_CONST                                            # BoolConstExpr
+    | bool_const                                            # BoolConstExpr
     | NULL_TOKEN                                            # NullExpr
     | TRIPPLE_STRING                                        # TrippleStringExpr
     | STRING                                                # StringExpr
     | IDENT                                                 # IdentExpr
+    | expr fun_ar                                           # FunAppExpr
     | NOT_TOKEN expr                                        # NotExpr
     | expr AND_TOKEN expr                                   # AndExpr
     | expr OR_TOKEN expr                                    # OrExpr
@@ -128,8 +132,8 @@ number: BYTE
       | INTEGER
       | LONG
       | FLOAT
-      | DOUBLE
       | DECIMAL
+      | DOUBLE
       ;
 
 primitive_types : BOOL_TOKEN
@@ -156,5 +160,9 @@ compare_tokens: EQ_TOKEN
               | GE_TOKEN
               | GT_TOKEN
               ;
+
+bool_const: TRUE_TOKEN
+          | FALSE_TOKEN
+          ;
 
 

@@ -298,6 +298,18 @@ public interface SnapiListener extends ParseTreeListener {
 	 */
 	void exitListTypeType(SnapiParser.ListTypeTypeContext ctx);
 	/**
+	 * Enter a parse tree produced by the {@code OrTypeFunType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void enterOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx);
+	/**
+	 * Exit a parse tree produced by the {@code OrTypeFunType}
+	 * labeled alternative in {@link SnapiParser#type}.
+	 * @param ctx the parse tree
+	 */
+	void exitOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx);
+	/**
 	 * Enter a parse tree produced by the {@code OrTypeType}
 	 * labeled alternative in {@link SnapiParser#type}.
 	 * @param ctx the parse tree
@@ -837,4 +849,14 @@ public interface SnapiListener extends ParseTreeListener {
 	 * @param ctx the parse tree
 	 */
 	void exitCompare_tokens(SnapiParser.Compare_tokensContext ctx);
+	/**
+	 * Enter a parse tree produced by {@link SnapiParser#bool_const}.
+	 * @param ctx the parse tree
+	 */
+	void enterBool_const(SnapiParser.Bool_constContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SnapiParser#bool_const}.
+	 * @param ctx the parse tree
+	 */
+	void exitBool_const(SnapiParser.Bool_constContext ctx);
 }
