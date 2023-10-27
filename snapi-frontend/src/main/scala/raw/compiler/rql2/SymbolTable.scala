@@ -13,11 +13,21 @@
 package raw.compiler.rql2
 
 import org.bitbucket.inkytonik.kiama.util.Entity
-import raw.compiler.common
+import raw.compiler.base
+import raw.compiler.common.source._
 import raw.compiler.rql2.api.PackageExtension
 import raw.compiler.rql2.source._
 
-trait SymbolTable extends common.SymbolTable
+/** Entity for a program parameter. */
+final class ProgramParamEntity(val p: SourceProgramParam) extends Entity
+
+/**
+ *  Entity for a bound identifier.
+ *  TODO (msb): Move out of common onto L4 + core.
+ */
+final class BindEntity(val b: Bind) extends Entity
+
+trait SymbolTable extends base.SymbolTable
 
 object SymbolTable extends SymbolTable
 

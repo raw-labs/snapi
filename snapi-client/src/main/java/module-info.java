@@ -21,7 +21,6 @@ module raw.snapi.client {
   requires com.fasterxml.jackson.core;
   requires raw.client;
   requires raw.snapi.frontend;
-  requires raw.snapi.truffle;
 
   provides raw.client.api.CompilerServiceBuilder with
       raw.client.rql2.truffle.Rql2TruffleCompilerServiceBuilder;

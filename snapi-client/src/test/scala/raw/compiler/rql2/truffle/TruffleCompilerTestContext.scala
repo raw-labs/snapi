@@ -10,9 +10,15 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.common.errors
+package raw.compiler.rql2.truffle
 
-import raw.compiler.base
-import raw.compiler.common
+import raw.compiler.rql2.api.Rql2OutputTestContext
+import raw.compiler.rql2.tests.CompilerTestContext
 
-trait ErrorsPrettyPrinter extends base.errors.ErrorsPrettyPrinter with common.source.SourcePrettyPrinter
+class TruffleCompilerTestContext
+    extends CompilerTestContext
+    with Rql2OutputTestContext
+    with Rql2TruffleCompilerServiceTestContext {
+  override def language: String = "rql2-truffle"
+
+}

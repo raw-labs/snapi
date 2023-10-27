@@ -159,7 +159,6 @@ libraryDependencies ++= Seq(
   springCore,
   kryo
 ) ++
-  poiDeps ++
-  scalaCompiler
+  poiDeps
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.frontend")

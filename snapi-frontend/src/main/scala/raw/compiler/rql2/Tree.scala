@@ -12,12 +12,11 @@
 
 package raw.compiler.rql2
 
-import raw.compiler._
-import raw.compiler.common.source.SourceProgram
+import raw.compiler.common.source._
 
 class Tree(originalRoot: SourceProgram, ensureTree: Boolean = true)(
     implicit programContext: ProgramContext
-) extends common.Tree(originalRoot, ensureTree)
+) extends raw.compiler.base.Tree[SourceNode, SourceProgram, Exp](originalRoot, ensureTree)
     with source.SourcePrettyPrinter
     with errors.ErrorsPrettyPrinter {
 

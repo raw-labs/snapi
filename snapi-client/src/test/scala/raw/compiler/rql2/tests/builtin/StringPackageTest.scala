@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.builtin
 
 import java.util.Base64
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 import raw.compiler.rql2.tests.{CompilerTestContext, FailAfterNServer}
 
 import java.nio.file.Path

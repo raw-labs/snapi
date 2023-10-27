@@ -16,9 +16,9 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.==>
 import org.bitbucket.inkytonik.kiama.attribution.Decorators
 import org.bitbucket.inkytonik.kiama.util.{Entity, Environments}
-import raw.compiler.{Attribution, ExtraRewriters}
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
+import raw.compiler.utils.{Attribution, ExtraRewriters}
 
 /** Used by some methods as a helper to avoid returning Either. */
 class UnsupportedTypeException(val t: Type) extends Throwable {

@@ -14,7 +14,7 @@ package raw.compiler.rql2.api
 
 import raw.compiler.base.errors.{BaseError, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
-import raw.compiler.common.source.{Exp, OneOfType}
+import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, LocationPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2.{PackageEntity, ProgramContext, Rql2TypeUtils}

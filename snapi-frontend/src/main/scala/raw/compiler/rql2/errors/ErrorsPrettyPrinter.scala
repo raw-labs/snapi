@@ -14,10 +14,10 @@ package raw.compiler.rql2.errors
 
 import raw.compiler.base.errors.UnexpectedType
 import raw.compiler.base.source.BaseNode
-import raw.compiler.{common, rql2}
+import raw.compiler.{base, rql2}
 import raw.compiler.rql2.source.{ExpectedProjType, PackageType}
 
-trait ErrorsPrettyPrinter extends common.errors.ErrorsPrettyPrinter with rql2.source.SourcePrettyPrinter {
+trait ErrorsPrettyPrinter extends base.errors.ErrorsPrettyPrinter with rql2.source.SourcePrettyPrinter {
 
   override def toDoc(n: BaseNode): Doc = n match {
     case _: KeyNotComparable => KeyNotComparable.message

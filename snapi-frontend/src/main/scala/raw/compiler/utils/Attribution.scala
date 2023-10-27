@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler
+package raw.compiler.utils
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.attribution.Attribute

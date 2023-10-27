@@ -12,39 +12,19 @@
 
 package raw.compiler.base
 
-import raw.compiler.base.errors.{BaseError, ExternalError}
-import raw.compiler.base.source.{BaseProgram, Type}
-
 import raw.runtime.RuntimeContext
 import raw.utils.RawSettings
-
-import scala.collection.mutable
 
 /**
  * Contains state that is shared between compilation phases of a single program.
  */
-class ProgramContext(
-    val runtimeContext: RuntimeContext,
-    val compilerContext: CompilerContext
-) {
+trait ProgramContext {
+
+  def runtimeContext: RuntimeContext
+
+  def compilerContext: CompilerContext
 
   def settings: RawSettings = runtimeContext.settings
-
-  ///////////////////////////////////////////////////////////////////////////
-  // Validate program cache
-  ///////////////////////////////////////////////////////////////////////////
-
-  private val validateProgramCache = mutable.HashMap[(String, BaseProgram), Either[Seq[BaseError], Option[Type]]]()
-
-  def validateProgram(language: String, program: BaseProgram): Either[Seq[BaseError], Option[Type]] = {
-    validateProgramCache.getOrElseUpdate(
-      (language, program),
-      CompilerProvider
-        .validate(language, program)(this)
-        .left
-        .map(errors => Seq(ExternalError(program, language, errors)))
-    )
-  }
 
   def dumpDebugInfo: List[(String, String)] = {
     List(

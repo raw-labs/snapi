@@ -2,19 +2,11 @@ import sbt._
 
 object Dependencies {
 
-  val scalacVersion =
-    "2.12.18" // In a common place to be used when importing scalac and setting the project Scala version.
-
   val rawUtilsVersion = IO.read(new File("../utils/version")).trim
   val rawUtils = "com.raw-labs" %% "raw-utils" % rawUtilsVersion
 
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
-
-  val scalaCompiler = Seq(
-    "org.scala-lang" % "scala-compiler" % scalacVersion,
-    "org.scala-lang" % "scala-reflect" % scalacVersion
-  )
 
   val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim

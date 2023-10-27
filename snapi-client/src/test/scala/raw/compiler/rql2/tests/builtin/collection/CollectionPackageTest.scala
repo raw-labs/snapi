@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 import raw.compiler.rql2.errors.ItemsNotComparable
 import raw.compiler.rql2.tests.CompilerTestContext
 

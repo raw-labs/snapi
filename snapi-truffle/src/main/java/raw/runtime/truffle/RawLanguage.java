@@ -26,7 +26,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
-import raw.compiler.InitPhase;
+import raw.compiler.base.CompilerContext;
+import raw.compiler.base.InitPhase;
 import raw.compiler.base.Phase;
 import raw.compiler.base.source.Type;
 import raw.compiler.common.PhaseDescriptor;
@@ -34,7 +35,6 @@ import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.*;
 import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
 import raw.compiler.rql2.source.Rql2Program;
-import raw.compiler.scala2.Scala2CompilerContext;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
@@ -101,29 +101,26 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     // Parse and validate
     RuntimeContext runtimeContext =
         new RuntimeContext(context.getSourceContext(), rawSettings, programEnvironment);
-    Scala2CompilerContext compilerContext =
-        new Scala2CompilerContext(
+    CompilerContext compilerContext =
+        new CompilerContext(
             "rql2-truffle",
             context.getUser(),
-            context.getSourceContext(),
             context.getInferrer(),
+            context.getSourceContext(),
             new Some<>(classLoader),
-            null,
             rawSettings);
-    ProgramContext programContext = new ProgramContext(runtimeContext, compilerContext);
+    ProgramContext programContext = new Rql2ProgramContext(runtimeContext, compilerContext);
     try {
       // If we are in staged compiler mode, use the internal parser.
       boolean frontend = true;
-      boolean ensureTree = false;
       if (context
           .getEnv()
           .getOptions()
           .get(RawOptions.STAGED_COMPILER_KEY)
           .equalsIgnoreCase("true")) {
         frontend = false;
-        ensureTree = true;
       }
-      TreeWithPositions tree = new TreeWithPositions(source, ensureTree, frontend, programContext);
+      TreeWithPositions tree = new TreeWithPositions(source, false, frontend, programContext);
       if (tree.valid()) {
         Rql2Program inputProgram = (Rql2Program) tree.root();
         SourceProgram outputProgram = transpile(inputProgram, programContext);

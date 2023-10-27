@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.regressions
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 
 trait RD5784Test extends CompilerTestContext {
 

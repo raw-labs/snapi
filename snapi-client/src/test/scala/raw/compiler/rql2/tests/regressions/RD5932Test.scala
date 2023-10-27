@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 import raw.creds.s3.S3TestCreds
 import raw.compiler.rql2.tests.CompilerTestContext
 

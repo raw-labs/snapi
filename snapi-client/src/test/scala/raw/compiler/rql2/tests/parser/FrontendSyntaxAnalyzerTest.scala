@@ -12,15 +12,6 @@
 
 package raw.compiler.rql2.tests.parser
 
-import raw.compiler.rql2.source.{
-  Rql2FloatType,
-  Rql2IntType,
-  Rql2IsNullableTypeProperty,
-  Rql2IsTryableTypeProperty,
-  Rql2OrType,
-  Rql2StringType,
-  Rql2TypeProperty
-}
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {

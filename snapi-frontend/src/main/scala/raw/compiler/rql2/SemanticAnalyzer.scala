@@ -20,8 +20,6 @@ import raw.client.api._
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
-import raw.compiler.common
-import raw.compiler.common.ProgramParamEntity
 import raw.compiler.common.source._
 import raw.compiler.rql2.api.{
   Arg,
@@ -456,7 +454,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
 }
 
 class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext: ProgramContext)
-    extends common.SemanticAnalyzer(tree)
+    extends CommonSemanticAnalyzer(tree)
     with ExpectedTypes
     with Rql2TypeUtils {
 
@@ -1569,10 +1567,13 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
         val prettyPrinterType = InternalSourcePrettyPrinter.format(expected)
         val stagedCompilerEnvironment = programContext.runtimeContext.environment
-          .copy(options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"))
+          .copy(
+            options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
+            maybeArguments = None
+          )
 
-        logger.debug("Pretty printed program is:\n" + prettyPrinterProgram)
-        logger.debug("Pretty printed type is:\n" + prettyPrinterType)
+        logger.trace("Pretty printed staged compiler program is:\n" + prettyPrinterProgram)
+        logger.trace("Pretty printed staged compiler type is:\n" + prettyPrinterType)
 
         try {
           CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(programContext.settings).eval(

@@ -10,8 +10,12 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.common.errors
+package raw.compiler.rql2
 
-import raw.compiler.base.errors.BaseError
+import raw.compiler.base.CompilerContext
+import raw.runtime.RuntimeContext
 
-trait SourceError extends BaseError
+class Rql2ProgramContext(
+    override val runtimeContext: RuntimeContext,
+    override val compilerContext: CompilerContext
+) extends ProgramContext

@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.benchmark
 
-import raw.compiler.rql2.tests.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests class BenchmarkTruffleTests extends TruffleCompilerTestContext with BenchmarkTests

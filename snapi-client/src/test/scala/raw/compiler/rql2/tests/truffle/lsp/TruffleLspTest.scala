@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.compiler.rql2.tests.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests class LspBrokenCodeTruffleTest extends TruffleCompilerTestContext with LspBrokenCodeTest

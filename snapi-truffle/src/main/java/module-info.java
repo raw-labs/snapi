@@ -47,8 +47,6 @@ module raw.snapi.truffle {
   requires raw.snapi.frontend;
 
   uses raw.auth.api.AuthServiceBuilder;
-  uses raw.compiler.base.CompilerBuilder;
-  uses raw.compiler.common.CommonCompilerBuilder;
   uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.compiler.rql2.api.EntryExtension;
   uses raw.sources.jdbc.api.JdbcTableLocationBuilder;

@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait StagedCompilerTest extends CompilerTestContext {

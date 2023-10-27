@@ -12,9 +12,9 @@
 
 package raw.compiler.rql2
 
-import raw.compiler.common
+import raw.compiler.base
 
-trait Keywords extends common.Keywords {
+trait Keywords extends base.Keywords {
 
   private val reservedIdns: Seq[String] = Seq(
     "let", // Let declaration.
