@@ -14,7 +14,7 @@ package raw.compiler.rql2.truffle
 
 import raw.client.rql2.truffle.Rql2TruffleCompilerService
 import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
-import raw.utils.{RawTestSuite, SettingsTestContext, withSuppressNonFatalException}
+import raw.utils.{withSuppressNonFatalException, RawTestSuite, SettingsTestContext}
 
 trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>

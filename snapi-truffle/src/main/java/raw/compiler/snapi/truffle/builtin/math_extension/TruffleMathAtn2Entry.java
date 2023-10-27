@@ -14,8 +14,8 @@ package raw.compiler.snapi.truffle.builtin.math_extension;
 
 import java.util.List;
 import raw.compiler.base.source.Type;
-import raw.compiler.rql2.builtin.MathAtn2Entry;
 import raw.compiler.common.source.Exp;
+import raw.compiler.rql2.builtin.MathAtn2Entry;
 import raw.compiler.snapi.truffle.TruffleShortEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.builtin.math_package.MathAtn2NodeGen;

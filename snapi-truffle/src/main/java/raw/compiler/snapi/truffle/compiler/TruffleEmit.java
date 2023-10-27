@@ -14,12 +14,12 @@ package raw.compiler.snapi.truffle.compiler;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.nodes.RootNode;
+import raw.client.api.Entrypoint;
 import raw.compiler.common.source.Exp;
 import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.ProgramContext;
 import raw.compiler.rql2.Tree;
 import raw.compiler.rql2.source.*;
-import raw.client.api.Entrypoint;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
