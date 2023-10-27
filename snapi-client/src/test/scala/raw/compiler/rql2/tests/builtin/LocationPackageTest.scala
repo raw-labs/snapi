@@ -19,7 +19,7 @@ import raw.sources.filesystem.local.LocalLocationsTestContext
 
 import java.nio.file.Path
 
-trait LocationPackageTest extends CompilerTestContext with S3TestCreds with LocalLocationsTestContext {
+trait LocationPackageTest extends CompilerTestContext with LocalLocationsTestContext {
 
   test(s"""
     |let
@@ -61,54 +61,6 @@ trait LocationPackageTest extends CompilerTestContext with S3TestCreds with Loca
       s""" "collection(record(`type`: string, name: string, age: int, category: string))" """.stripMargin
     )
   )
-
-  // reading a public s3 bucket without registering or passing credentials
-  test(s"""let
-    |  data = Csv.InferAndRead("s3://${UnitTestPublicBucket.name}/students.csv")
-    |in
-    |  Collection.Count(data)
-    |""".stripMargin)(it => it should evaluateTo("7"))
-
-  test(s"""Location.Ls("s3://${UnitTestPublicBucket.name}/publications/")""") { it =>
-    it should evaluateTo("""Collection.Build(
-      |  "s3://rawlabs-public-test-data/publications/authors.parquet",
-      |  "s3://rawlabs-public-test-data/publications/authors.hjson",
-      |  "s3://rawlabs-public-test-data/publications/authors.json",
-      |  "s3://rawlabs-public-test-data/publications/authorsSmall.hjson",
-      |  "s3://rawlabs-public-test-data/publications/authorsSmall.json",
-      |  "s3://rawlabs-public-test-data/publications/publications.hjson",
-      |  "s3://rawlabs-public-test-data/publications/publications.json",
-      |  "s3://rawlabs-public-test-data/publications/publicationsLarge.hjson",
-      |  "s3://rawlabs-public-test-data/publications/publicationsLarge.json",
-      |  "s3://rawlabs-public-test-data/publications/publicationsSmall.hjson",
-      |  "s3://rawlabs-public-test-data/publications/publicationsSmall.json",
-      |  "s3://rawlabs-public-test-data/publications/publicationsSmallWithDups.json"
-      |)
-      |""".stripMargin)
-  }
-
-  test(s"""Location.Ll("s3://${UnitTestPublicBucket.name}/publications/authors.hjson")
-    |""".stripMargin) { it =>
-    it should evaluateTo("""Collection.Build(
-      |  Record.Build(
-      |    url="s3://rawlabs-public-test-data/publications/authors.hjson",
-      |    metadata=Record.Build(
-      |       modified="2016-08-23T04:17:45.000",
-      |       size=3036,
-      |       blocks=[]
-      |    )
-      |  )
-      |)
-      |""".stripMargin)
-  }
-
-  // Cannot count lists
-  test(s"""
-    |let
-    |  data = Location.Ll("s3://${UnitTestPublicBucket.name}/publications")
-    |in
-    |  List.Count(data)
-    |""".stripMargin)(it => it should evaluateTo("""12L""".stripMargin))
 
   // Error handling
   test(s"""
