@@ -19,6 +19,7 @@ import antlr4_parser.generated.SnapiParser;
 import java.util.LinkedList;
 import java.util.List;
 import org.antlr.v4.runtime.ParserRuleContext;
+import org.antlr.v4.runtime.Token;
 import org.bitbucket.inkytonik.kiama.util.Position;
 import org.bitbucket.inkytonik.kiama.util.Positions;
 import org.bitbucket.inkytonik.kiama.util.Source;
@@ -53,22 +54,23 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   private void setPosition(ParserRuleContext ctx, SourceNode node) {
     positions.setStart(
-        node,
-        new Position(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), source));
+        node, new Position(ctx.getStart().getLine(), ctx.getStart().getStartIndex() + 1, source));
 
     positions.setFinish(
-        node, new Position(ctx.getStop().getLine(), ctx.getStop().getCharPositionInLine(), source));
+        node, new Position(ctx.getStop().getLine(), ctx.getStop().getStopIndex() + 2, source));
+  }
+
+  private void setPosition(Token token, SourceNode node) {
+    positions.setStart(node, new Position(token.getLine(), token.getStartIndex() + 1, source));
+    positions.setFinish(node, new Position(token.getLine(), token.getStopIndex() + 2, source));
   }
 
   private void setPosition(ParserRuleContext ctx, int offset, SourceNode node) {
     positions.setStart(
-        node,
-        new Position(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), source));
+        node, new Position(ctx.getStart().getLine(), ctx.getStart().getStartIndex() + 1, source));
 
     positions.setFinish(
-        node,
-        new Position(
-            ctx.getStop().getLine(), ctx.getStop().getCharPositionInLine() + offset, source));
+        node, new Position(ctx.getStop().getLine(), ctx.getStop().getStopIndex() + offset, source));
   }
 
   @Override
@@ -109,7 +111,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     setPosition(ctx, newFunProto);
 
     IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+    setPosition(ctx.IDENT().getSymbol(), idnDef);
 
     Rql2Method result = new Rql2Method(newFunProto, idnDef);
     setPosition(ctx, result);
@@ -126,7 +128,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
 
     IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+    setPosition(ctx.IDENT().getSymbol(), idnDef);
 
     LetFun result = new LetFun(newFunProto, idnDef);
     setPosition(ctx, result);
@@ -144,7 +146,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     setPosition(ctx, newFunProto);
 
     IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+    setPosition(ctx.IDENT().getSymbol(), idnDef);
 
     LetFunRec result = new LetFunRec(idnDef, newFunProto);
     setPosition(ctx, result);
@@ -154,7 +156,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitFunParamAttr(SnapiParser.FunParamAttrContext ctx) {
     IdnDef idnDef = new IdnDef(ctx.attr().IDENT().getText());
-    setPosition(ctx, ctx.attr().IDENT().getText().length(), idnDef);
+    setPosition(ctx.attr().IDENT().getSymbol(), idnDef);
 
     FunParam result =
         new FunParam(
@@ -170,7 +172,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx) {
     IdnDef idnDef = new IdnDef(ctx.attr().IDENT().getText());
-    setPosition(ctx, ctx.attr().IDENT().getText().length(), idnDef);
+    setPosition(ctx.attr().IDENT().getSymbol(), idnDef);
 
     FunParam result =
         new FunParam(
@@ -244,7 +246,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   public SourceNode visitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx) {
     VectorBuilder<FunParam> vb = new VectorBuilder<>();
     IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+    setPosition(ctx.IDENT().getSymbol(), idnDef);
 
     FunParam funParam = new FunParam(idnDef, Option.<Type>empty(), Option.<Exp>empty());
     setPosition(ctx, ctx.IDENT().getText().length(), funParam);
@@ -270,7 +272,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
       FunOptTypeParam funOptTypeParam =
           new FunOptTypeParam(
               ctx.attr().get(i).IDENT().getText(), (Type) visit(ctx.attr().get(i).type()));
-setPosition(ctx.attr().get(i), funOptTypeParam);
+      setPosition(ctx.attr().get(i), funOptTypeParam);
       vbo.$plus$eq(funOptTypeParam);
     }
     for (int i = 0; i < ctx.type().size() - 1; i++) {
@@ -668,9 +670,10 @@ setPosition(ctx.attr().get(i), funOptTypeParam);
     Option<Type> type =
         ctx.type() == null ? Option.<Type>empty() : Option.<Type>apply((Type) visit(ctx.type()));
     IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
+    setPosition(ctx.IDENT().getSymbol(), idnDef);
+
     LetBind result = new LetBind((Exp) visit(ctx.expr()), idnDef, type);
 
-    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
     setPosition(ctx, result);
 
     return result;

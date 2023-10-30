@@ -41,9 +41,9 @@ public class Antlr4SyntaxAnalyzer extends Parsers {
     SnapiParser parser = new SnapiParser(new CommonTokenStream(lexer));
     ParseTree tree = parser.prog();
 
-    //    System.out.println(tree.toStringTree(parser));
+    System.out.println(tree.toStringTree(parser));
 
-    RawSnapiVisitor visitor = new RawSnapiVisitor(new StringSource(s, "Snapi Program"), positions);
+    RawSnapiVisitor visitor = new RawSnapiVisitor(new StringSource(s, ""), positions);
     Rql2Program result = (Rql2Program) visitor.visit(tree);
     return new Right<>(result);
   }
@@ -52,7 +52,7 @@ public class Antlr4SyntaxAnalyzer extends Parsers {
     RawSnapiLexer lexer = new RawSnapiLexer(CharStreams.fromString(s));
     SnapiParser parser = new SnapiParser(new CommonTokenStream(lexer));
     ParseTree tree = parser.type();
-    RawSnapiVisitor visitor = new RawSnapiVisitor(new StringSource(s, "Snapi Type"), positions);
+    RawSnapiVisitor visitor = new RawSnapiVisitor(new StringSource(s, ""), positions);
     Type result = (Type) visitor.visit(tree);
     return new Right<>(result);
   }

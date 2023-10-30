@@ -13,7 +13,8 @@
 package raw.compiler.rql2
 
 import antlr4_parser.Antlr4SyntaxAnalyzer
-import org.bitbucket.inkytonik.kiama.util.Positions
+import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
+import raw.compiler.common.source.SourceNode
 import raw.utils.RawTestSuite
 
 class ParserCompareTest extends RawTestSuite {
@@ -30,24 +31,37 @@ class ParserCompareTest extends RawTestSuite {
     parser.parse(s).right.get
   }
 
-  private def parseWithAntlr4Postions(s: String) = {
-    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new Antlr4SyntaxAnalyzer(positions)
-    parser.parse(s)
-    parser.getPositions
-  }
+  private def comparePositions(s: String) = {
+    val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
+    val kiamaRoot = kiamaParser.parse(s)
 
-  private def parseWithKiamaPositions(s: String) = {
-    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new FrontendSyntaxAnalyzer(positions)
-    parser.parse(s)
-    parser.positions
+    val antlr4Positions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val antlr4Parser = new Antlr4SyntaxAnalyzer(antlr4Positions)
+    val antlr4Root = antlr4Parser.parse(s)
+
+    val kiamaNodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
+    val antlr4Nodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
+
+    everywhere(query[Any] { case n: SourceNode => kiamaNodes += n })(kiamaRoot)
+
+    everywhere(query[Any] { case n: SourceNode => antlr4Nodes += n })(antlr4Root)
+
+    assert(kiamaNodes.size == antlr4Nodes.size, s"Kiama nodes: ${kiamaNodes.size}, Antlr4 nodes: ${antlr4Nodes.size}")
+
+    kiamaNodes.zip(antlr4Nodes).foreach {
+      case (kiamaNode, antlr4Node) =>
+        assert(kiamaPositions.getStart(kiamaNode) == antlr4Positions.getStart(antlr4Node))
+        assert(kiamaPositions.getFinish(kiamaNode) == antlr4Positions.getFinish(antlr4Node))
+    }
+
   }
 
   // =============== Hello world ==================
   test("""Hello world with string""") { _ =>
     val prog = """let hello = "hello" in hello"""
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Constants ==================
