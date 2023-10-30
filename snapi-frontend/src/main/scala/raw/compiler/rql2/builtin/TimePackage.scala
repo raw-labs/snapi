@@ -13,7 +13,6 @@
 package raw.compiler.rql2.builtin
 
 import raw.client.api._
-import raw.compiler.common.source._
 import raw.compiler.rql2.api.{PackageExtension, ShortEntryExtension}
 import raw.compiler.rql2.source._
 

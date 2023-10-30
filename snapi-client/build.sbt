@@ -69,12 +69,14 @@ scalacOptions ++= Seq(
   "-Xmax-classfile-name",
   "140",
   "-deprecation",
-  "-Xlint:-stars-align,_",
+  "-Xlint:-stars-align,-missing-interpolator,_",
   "-Ywarn-dead-code",
   // Fix for false warning of unused implicit arguments in traits/interfaces.
   "-Ywarn-macros:after",
   "-Ypatmat-exhaust-depth",
-  "160"
+  "160",
+  // Warnings as errors.
+  "-Xfatal-warnings"
 )
 
 // Use cached resolution of dependencies

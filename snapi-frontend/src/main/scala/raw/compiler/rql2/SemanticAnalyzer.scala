@@ -29,6 +29,7 @@ import raw.compiler.rql2.api.{
   PackageExtensionProvider,
   TypeArg,
   TypeParam,
+  Value,
   ValueArg,
   ValueParam
 }
@@ -1565,7 +1566,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       program, {
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
-        val prettyPrinterType = InternalSourcePrettyPrinter.format(expected)
+        val rawType = rql2TypeToRawType(expected)
         val stagedCompilerEnvironment = programContext.runtimeContext.environment
           .copy(
             options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
@@ -1573,33 +1574,38 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
           )
 
         logger.trace("Pretty printed staged compiler program is:\n" + prettyPrinterProgram)
-        logger.trace("Pretty printed staged compiler type is:\n" + prettyPrinterType)
+        logger.trace("Pretty printed staged compiler type is:\n" + rawType)
 
         try {
-          CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(programContext.settings).eval(
+          CompilerServiceProvider(
+            programContext.compilerContext.language,
+            programContext.compilerContext.maybeClassLoader
+          )(programContext.settings).eval(
             prettyPrinterProgram,
-            prettyPrinterType,
+            rawType,
             stagedCompilerEnvironment
           ) match {
-            case EvalSuccess(v) =>
-              var stagedCompilerResult = v
-
-              // Remove extraProps
-              if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
-                val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
-                if (tryValue.isLeft) {
-                  return Left(FailedToEvaluate(e, tryValue.left.toOption))
-                }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryValue].v.right.get
+            case EvalSuccess(v) => v match {
+                case RawError(v) => Left(FailedToEvaluate(e, Some(v)))
+                case _ => Right(rawValueToRql2Value(v, rawType))
               }
-              if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
-                val optionValue = stagedCompilerResult.asInstanceOf[OptionValue].v
-                if (optionValue.isEmpty) {
-                  return Left(FailedToEvaluate(e, Some("unexpected null value found")))
-                }
-                stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
-              }
-              Right(stagedCompilerResult)
+//              var stagedCompilerResult = v
+//              // Remove extraProps
+//              if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
+//                val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
+//                if (tryValue.isLeft) {
+//                  return Left(FailedToEvaluate(e, tryValue.left.toOption))
+//                }
+//                stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryValue].v.right.get
+//              }
+//              if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
+//                val optionValue = stagedCompilerResult.asInstanceOf[OptionValue].v
+//                if (optionValue.isEmpty) {
+//                  return Left(FailedToEvaluate(e, Some("unexpected null value found")))
+//                }
+//                stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
+//              }
+//              Right(stagedCompilerResult)
             case EvalValidationFailure(errs) =>
               logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
 -                |Expected type: $expected

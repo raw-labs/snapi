@@ -14,7 +14,7 @@ package raw.compiler.rql2.source
 
 import org.bitbucket.inkytonik.kiama.output._
 import raw.compiler.base
-import raw.compiler.base.source.{AnythingType, BaseNode, RawBridgeImpl, RawBridgeRef, Type}
+import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}

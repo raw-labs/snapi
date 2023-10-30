@@ -17,19 +17,7 @@ import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.source._
 import raw.compiler.rql2._
-import raw.compiler.rql2.api.{
-  Arg,
-  EntryExtension,
-  ExpArg,
-  ExpParam,
-  PackageExtension,
-  Param,
-  SugarEntryExtension,
-  TypeArg,
-  TypeParam,
-  ValueArg,
-  ValueParam
-}
+import raw.compiler.rql2.api.{Arg, EntryExtension, ExpArg, ExpParam, ListValue, OptionValue, PackageExtension, Param, RecordValue, StringValue, SugarEntryExtension, TypeArg, TypeParam, ValueArg, ValueParam}
 import raw.client.api._
 import raw.inferrer.api.{SqlQueryInputFormatDescriptor, SqlTableInputFormatDescriptor}
 

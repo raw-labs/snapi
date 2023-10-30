@@ -17,8 +17,15 @@ import raw.utils.{RawException, RawService}
 import java.io.OutputStream
 
 // Exception that wraps the underlying error so that it includes the extra debug info.
-final class CompilerServiceException(val t: Throwable, val debugInfo: List[(String, String)])
-    extends RawException(t.getMessage, cause = t)
+final class CompilerServiceException(
+    message: String,
+    val debugInfo: List[(String, String)] = List.empty,
+    cause: Throwable = null
+) extends RawException(message, cause) {
+
+  def this(t: Throwable, debugInfo: List[(String, String)]) = this(t.getMessage, debugInfo, t)
+
+}
 
 trait CompilerService extends RawService {
 
@@ -29,11 +36,11 @@ trait CompilerService extends RawService {
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse
 
-  // Evaluate a source program and return the result as a Value.
+  // Evaluate a source program and return the result as a RawValue.
   @throws[CompilerServiceException]
   def eval(
       source: String,
-      tipe: String,
+      tipe: RawType,
       environment: ProgramEnvironment
   ): EvalResponse
 
@@ -102,7 +109,7 @@ final case class GetProgramDescriptionSuccess(programDescription: ProgramDescrip
     extends GetProgramDescriptionResponse
 
 sealed trait EvalResponse
-final case class EvalSuccess(v: Value) extends EvalResponse
+final case class EvalSuccess(v: RawValue) extends EvalResponse
 final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
 final case class EvalRuntimeFailure(error: String) extends EvalResponse
 
@@ -116,12 +123,12 @@ final case class FormatCodeResponse(code: Option[String], errors: List[ErrorMess
 final case class AutoCompleteResponse(completions: Array[Completion], errors: List[ErrorMessage])
 
 sealed trait Completion
-final case class TypeCompletion(name: String, tipe: String) extends Completion
-final case class FieldCompletion(name: String, tipe: String) extends Completion
-final case class LetBindCompletion(name: String, tipe: String) extends Completion
-final case class LetFunCompletion(name: String, tipe: String) extends Completion
-final case class LetFunRecCompletion(name: String, tipe: String) extends Completion
-final case class FunParamCompletion(name: String, tipe: String) extends Completion
+final case class TypeCompletion(name: String, tipe: RawType) extends Completion
+final case class FieldCompletion(name: String, tipe: RawType) extends Completion
+final case class LetBindCompletion(name: String, tipe: RawType) extends Completion
+final case class LetFunCompletion(name: String, tipe: RawType) extends Completion
+final case class LetFunRecCompletion(name: String, tipe: RawType) extends Completion
+final case class FunParamCompletion(name: String, tipe: RawType) extends Completion
 final case class PackageCompletion(name: String, doc: PackageDoc) extends Completion
 final case class PackageEntryCompletion(name: String, doc: EntryDoc) extends Completion
 

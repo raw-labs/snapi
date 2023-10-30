@@ -100,21 +100,8 @@ public final class RawContext {
 
     Option<String> maybeTraceId = traceId != null ? Some.apply(traceId) : Option.empty();
 
-    // Read back arguments
-    //    TruffleObject polyglotBindings = (TruffleObject) env.getPolyglotBindings();
-    //    InteropLibrary interop = LibraryFactory.resolve(InteropLibrary.class).getUncached();
-    //    Object keys = interop.getMembers(polyglotBindings);
-    //    long size = interop.getArraySize(keys);
-    //
-    //    for (long i = 0; i < size; i++) {
-    //      Object key = interop.readArrayElement(keys, i);
-    //      Object value = interop.readMember(polyglotBindings, key.toString());
-    //      ParamValue v = paramValueOf(value);
-    //
-    //      System.out.println("Key: " + key + ", Value: " + value);
-    //    }
-    Option<Tuple2<String, ParamValue>[]> maybeArguments = Option.empty();
-
+    // Arguments are unused by the runtime in case of Truffle.
+    Option<Tuple2<String, RawValue>[]> maybeArguments = Option.empty();
     this.programEnvironment =
         new ProgramEnvironment(this.user, maybeArguments, scalaScopes, scalaOptions, maybeTraceId);
 

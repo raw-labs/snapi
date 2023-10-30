@@ -35,7 +35,6 @@ import raw.compiler.rql2.source.{
   Rql2StringType,
   Rql2TimeType,
   Rql2TimestampType,
-  Rql2TypeProperty,
   Rql2TypeWithProperties
 }
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}

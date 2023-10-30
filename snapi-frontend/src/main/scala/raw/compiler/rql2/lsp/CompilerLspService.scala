@@ -26,10 +26,10 @@ import scala.util.Try
 
 class CompilerLspService(
     analyzer: SemanticAnalyzer,
-    positions: Positions,
-    prettyPrint: BaseNode => String
+    positions: Positions
 )(implicit programContext: ProgramContext)
-    extends StrictLogging {
+    extends Rql2TypeUtils
+    with StrictLogging {
 
   private def getNodesAtPosition(
       position: Position
@@ -37,13 +37,8 @@ class CompilerLspService(
     positions.findNodesContaining(analyzer.tree.nodes, position)
   }
 
-  private def getFunctionSignature(i: IdnDef, funProto: FunProto): String = {
-    s"${i.idn}(${funProto.ps
-      .map(par =>
-        s"${prettyPrint(par.i)}${if (par.t.isDefined) ": " + prettyPrint(par.t.get) else ""}${if (par.e.isDefined) "= " + prettyPrint(par.e.get)
-        else ""}"
-      )
-      .mkString(", ")})${if (funProto.r.isDefined) " => " + prettyPrint(funProto.r.get) else ""}"
+  private def getFunctionSignature(i: IdnDef, funProto: FunProto): RawType = {
+    rql2TypeToRawType(analyzer.idnType(i))
   }
 
   def wordAutoComplete(
@@ -117,15 +112,15 @@ class CompilerLspService(
           .map {
             case (idn, e) => e match {
                 case l: LetBindEntity =>
-                  LetBindCompletion(SourcePrettyPrinter.ident(idn), prettyPrint(analyzer.idnType(l.b.i)))
+                  LetBindCompletion(SourcePrettyPrinter.ident(idn), rql2TypeToRawType(analyzer.idnType(l.b.i)))
                 case f: LetFunEntity =>
-                  LetFunCompletion(SourcePrettyPrinter.ident(idn), prettyPrint(analyzer.idnType(f.f.i)))
+                  LetFunCompletion(SourcePrettyPrinter.ident(idn), rql2TypeToRawType(analyzer.idnType(f.f.i)))
                 case m: MethodEntity =>
-                  LetFunCompletion(SourcePrettyPrinter.ident(idn), prettyPrint(analyzer.idnType(m.d.i)))
+                  LetFunCompletion(SourcePrettyPrinter.ident(idn), rql2TypeToRawType(analyzer.idnType(m.d.i)))
                 case f: LetFunRecEntity =>
-                  LetFunRecCompletion(SourcePrettyPrinter.ident(idn), prettyPrint(analyzer.idnType(f.f.i)))
+                  LetFunRecCompletion(SourcePrettyPrinter.ident(idn), rql2TypeToRawType(analyzer.idnType(f.f.i)))
                 case p: FunParamEntity =>
-                  FunParamCompletion(SourcePrettyPrinter.ident(idn), prettyPrint(analyzer.idnType(p.f.i)))
+                  FunParamCompletion(SourcePrettyPrinter.ident(idn), rql2TypeToRawType(analyzer.idnType(p.f.i)))
                 case p: PackageEntity =>
                   val docs = p.p.docs
                   PackageCompletion(SourcePrettyPrinter.ident(idn), docs)
@@ -154,7 +149,7 @@ class CompilerLspService(
             case Rql2RecordType(atts, _) => atts.map { a =>
                 FieldCompletion(
                   SourcePrettyPrinter.ident(a.idn),
-                  prettyPrint(a.tipe)
+                  rql2TypeToRawType(a.tipe)
                 )
               }
             case PackageType(name) if programContext.getPackage(name).isDefined =>
@@ -173,13 +168,13 @@ class CompilerLspService(
             case Rql2ListType(Rql2RecordType(atts, _), _) => atts.map(a =>
                 FieldCompletion(
                   SourcePrettyPrinter.ident(a.idn),
-                  prettyPrint(Rql2ListType(a.tipe))
+                  rql2TypeToRawType(Rql2ListType(a.tipe))
                 )
               )
             case Rql2IterableType(Rql2RecordType(atts, _), _) => atts.map { a =>
                 FieldCompletion(
                   SourcePrettyPrinter.ident(a.idn),
-                  prettyPrint(Rql2IterableType(a.tipe))
+                  rql2TypeToRawType(Rql2IterableType(a.tipe))
                 )
               }
             case _ => Seq.empty[Completion]
@@ -203,7 +198,7 @@ class CompilerLspService(
           analyzer.idnType(idn) match {
             case PackageType(name: String) if programContext.getPackage(name).isDefined =>
               HoverResponse(Some(PackageCompletion(idn.idn, programContext.getPackage(name).get.docs)), errors)
-            case _ => HoverResponse(Some(TypeCompletion(idn.idn, prettyPrint(analyzer.idnType(idn)))), errors)
+            case _ => HoverResponse(Some(TypeCompletion(idn.idn, rql2TypeToRawType(analyzer.idnType(idn)))), errors)
           }
         case idnDef: IdnDef => //gets here
           val ent = analyzer.entity(idnDef)
@@ -212,25 +207,25 @@ class CompilerLspService(
               val LetBind(e, i, t) = letBindEntity.b
               e match {
                 case FunAbs(funProto: FunProto) => HoverResponse(
-                    Some(TypeCompletion(i.idn, s"${getFunctionSignature(i, funProto)}")),
+                    Some(TypeCompletion(i.idn, getFunctionSignature(i, funProto))),
                     errors
                   ) //gets here
                 case _ =>
-                  HoverResponse(Some(TypeCompletion(i.idn, prettyPrint(analyzer.idnType(i)))), errors) //gets here
+                  HoverResponse(Some(TypeCompletion(i.idn, rql2TypeToRawType(analyzer.idnType(i)))), errors) //gets here
               }
             case funParamEntity: FunParamEntity => //gets here
               val FunParam(i, t, e) = funParamEntity.f
-              HoverResponse(Some(TypeCompletion(i.idn, prettyPrint(analyzer.idnType(i)))), errors)
+              HoverResponse(Some(TypeCompletion(i.idn, rql2TypeToRawType(analyzer.idnType(i)))), errors)
             case letFunEntity: LetFunEntity => //gets here
               val LetFun(p, i) = letFunEntity.f
-              HoverResponse(Some(TypeCompletion(i.idn, s"${getFunctionSignature(i, p)}")), errors)
+              HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))), errors)
             case methodEntity: MethodEntity => //gets here
               val Rql2Method(p, i) = methodEntity.d
-              HoverResponse(Some(TypeCompletion(i.idn, s"${getFunctionSignature(i, p)}")), errors)
+              HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))), errors)
             case letFunRecEntity: LetFunRecEntity => //gets here
               val LetFunRec(i, p) = letFunRecEntity.f
               HoverResponse(
-                Some(TypeCompletion(i.idn, s"recursive function: ${getFunctionSignature(i, p)}")),
+                Some(TypeCompletion(i.idn, getFunctionSignature(i, p))),
                 errors
               )
             case p: PackageEntity => HoverResponse(Some(PackageCompletion(p.p.name, p.p.docs)), errors)
@@ -239,8 +234,8 @@ class CompilerLspService(
         case Proj(e, i) => analyzer.actualType(e) match { //gets here
             case Rql2RecordType(atts, _) =>
               val att = atts.find(a => a.idn == i)
-              val tipe = if (att.isDefined) prettyPrint(att.get.tipe) else ""
-              HoverResponse(Some(TypeCompletion(i, tipe)), errors)
+              if (att.isDefined) HoverResponse(Some(TypeCompletion(i, rql2TypeToRawType(att.get.tipe))), errors)
+              else HoverResponse(None, errors)
             case PackageType(name: String) if programContext.getPackage(name).isDefined =>
               val pkg = programContext
                 .getPackage(name)
