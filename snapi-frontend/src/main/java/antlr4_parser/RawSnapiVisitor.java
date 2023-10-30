@@ -57,21 +57,30 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
         node, new Position(ctx.getStart().getLine(), ctx.getStart().getStartIndex() + 1, source));
 
     positions.setFinish(
-        node, new Position(ctx.getStop().getLine(), ctx.getStop().getStopIndex() + 2, source));
+        node,
+        new Position(
+            ctx.getStop().getLine(),
+            ctx.getStop().getCharPositionInLine() + ctx.getStop().getText().length() + 1,
+            source));
   }
 
   private void setPosition(Token token, SourceNode node) {
     positions.setStart(node, new Position(token.getLine(), token.getStartIndex() + 1, source));
-    positions.setFinish(node, new Position(token.getLine(), token.getStopIndex() + 2, source));
-  }
-
-  private void setPosition(ParserRuleContext ctx, int offset, SourceNode node) {
-    positions.setStart(
-        node, new Position(ctx.getStart().getLine(), ctx.getStart().getStartIndex() + 1, source));
-
     positions.setFinish(
-        node, new Position(ctx.getStop().getLine(), ctx.getStop().getStopIndex() + offset, source));
+        node,
+        new Position(
+            token.getLine(), token.getCharPositionInLine() + token.getText().length() + 1, source));
   }
+
+  //  private void setPosition(ParserRuleContext ctx, int offset, SourceNode node) {
+  //    positions.setStart(
+  //        node, new Position(ctx.getStart().getLine(), ctx.getStart().getStartIndex() + 1,
+  // source));
+  //
+  //    positions.setFinish(
+  //        node, new Position(ctx.getStop().getLine(), ctx.getStop().getStopIndex() + offset,
+  // source));
+  //  }
 
   @Override
   public SourceNode visitProg(SnapiParser.ProgContext ctx) {
@@ -249,7 +258,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     setPosition(ctx.IDENT().getSymbol(), idnDef);
 
     FunParam funParam = new FunParam(idnDef, Option.<Type>empty(), Option.<Exp>empty());
-    setPosition(ctx, ctx.IDENT().getText().length(), funParam);
+    setPosition(ctx.IDENT().getSymbol(), funParam);
 
     vb.$plus$eq(funParam);
 

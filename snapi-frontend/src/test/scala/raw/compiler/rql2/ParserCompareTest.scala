@@ -31,7 +31,7 @@ class ParserCompareTest extends RawTestSuite {
     parser.parse(s).right.get
   }
 
-  private def comparePositions(s: String) = {
+  private def comparePositions(s: String): Unit = {
     val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
     val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
     val kiamaRoot = kiamaParser.parse(s)
@@ -80,77 +80,92 @@ class ParserCompareTest extends RawTestSuite {
       |k = 1.0
       |in 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Binary expressions ==================
   test("""Add binary expression""") { _ =>
     val prog = """1 + 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Subtract binary expression""") { _ =>
     val prog = """1 - 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Multiply binary expression""") { _ =>
     val prog = """1 * 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Divide binary expression""") { _ =>
     val prog = """1 / 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Mod binary expression""") { _ =>
     val prog = """1 % 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Priority of binary expressions""") { _ =>
     val prog = """1 + 1 * 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Priority of binary expressions with parenthesis""") { _ =>
     val prog = """(1 + 1) * 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Or binary expression""") { _ =>
     val prog = """true or false""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""And binary expression""") { _ =>
     val prog = """true and false""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Logical binary expressions (or and)""") { _ =>
     val prog = """true and false or true""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Logical binary expression (or and) with paren""") { _ =>
     val prog = """(true and false) or true""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Logical binary expression with ident""") { _ =>
     val prog = """(true and false) or a""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Comparison binary expression""") { _ =>
     val prog = """1 > 2""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Comparison binary expression with ident""") { _ =>
     val prog = """1 < a""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Geq binary expression""") { _ =>
@@ -161,11 +176,13 @@ class ParserCompareTest extends RawTestSuite {
   test("""Leq binary expression""") { _ =>
     val prog = """1 <= 2""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Eq binary expression""") { _ =>
     val prog = """1 == 2""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Unary expressions ==================
@@ -173,42 +190,50 @@ class ParserCompareTest extends RawTestSuite {
   test("""Not unary expression """) { _ =>
     val prog = """not true""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Not unary expression with priority""") { _ =>
     val prog = """not true and false""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Not unary expression with priority and paren""") { _ =>
     val prog = """not (true and false)""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Minus unary expression""") { _ =>
     val prog = """-5""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Plus unary expression""") { _ =>
     val prog = """+5""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Projections ==================
   test("""Projection with package test""") { _ =>
     val prog = """Collection.Build(1,2,3)""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Projection without params package test""") { _ =>
     val prog = """Collection.Build()""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Record projection test""") { _ =>
     val prog = """a.b""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Functions ===================
@@ -216,6 +241,7 @@ class ParserCompareTest extends RawTestSuite {
   test("""Method (top level function) declaration""") { _ =>
     val prog = """a(x: int) = 1""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Normal function declaration""") { _ =>
@@ -224,6 +250,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  a(1)""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Recursive function declaration""") { _ =>
@@ -232,6 +259,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  a(1)""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Function with type declaration""") { _ =>
@@ -240,6 +268,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  a(1)""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Function with or type declaration""") { _ =>
@@ -248,11 +277,13 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  a(1)""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Lambda test""") { _ =>
     val prog = """Collection.Transform(col, x -> x + 1)""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Lambda test with let""") { _ =>
@@ -262,6 +293,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  col2""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Function with let and app""") { _ =>
@@ -271,6 +303,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |    a + f(1) // Result is 3""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Test with main""") { _ =>
@@ -284,6 +317,7 @@ class ParserCompareTest extends RawTestSuite {
       |
       |  main("jane")""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Function with params and types and arrows""") { _ =>
@@ -292,6 +326,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |    say("John", s -> String.Upper(s)) // Result is "Hi JOHN!"""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Alternative builds =================
@@ -299,17 +334,20 @@ class ParserCompareTest extends RawTestSuite {
   test("""Record build""") { _ =>
     val prog = """{ a , 2 , "str" }""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""List build""") { _ =>
     val prog = """[ 1, 2, 3 ]""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Type aliases =================
   test("""Type expressions""") { _ =>
     val prog = """Json.Read("url", type collection(int))""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Type alias""") { _ =>
@@ -319,6 +357,7 @@ class ParserCompareTest extends RawTestSuite {
       |in a
       |""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Comments =================
@@ -330,6 +369,7 @@ class ParserCompareTest extends RawTestSuite {
       |  in a
       |""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== If-then-else =================
@@ -340,6 +380,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  res""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // =============== Identifiers =================
@@ -350,6 +391,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  `let`""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   // ================== Random code ======================
@@ -364,6 +406,7 @@ class ParserCompareTest extends RawTestSuite {
       |in
       |  z""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
   test("""Complex code""") { _ =>
@@ -380,6 +423,7 @@ class ParserCompareTest extends RawTestSuite {
       |    , height_over_175_cm: height_over_175_cm
       |  }""".stripMargin
     assert(parseWithAntlr4(prog) == parseWithKiama(prog))
+    comparePositions(prog)
   }
 
 }
