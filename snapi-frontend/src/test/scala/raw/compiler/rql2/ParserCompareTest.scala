@@ -13,6 +13,7 @@
 package raw.compiler.rql2
 
 import antlr4_parser.Antlr4SyntaxAnalyzer
+import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.utils.RawTestSuite
 
 class ParserCompareTest extends RawTestSuite {
@@ -27,6 +28,20 @@ class ParserCompareTest extends RawTestSuite {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new FrontendSyntaxAnalyzer(positions)
     parser.parse(s).right.get
+  }
+
+  private def parseWithAntlr4Postions(s: String) = {
+    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val parser = new Antlr4SyntaxAnalyzer(positions)
+    parser.parse(s)
+    parser.getPositions
+  }
+
+  private def parseWithKiamaPositions(s: String) = {
+    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val parser = new FrontendSyntaxAnalyzer(positions)
+    parser.parse(s)
+    parser.positions
   }
 
   // =============== Hello world ==================

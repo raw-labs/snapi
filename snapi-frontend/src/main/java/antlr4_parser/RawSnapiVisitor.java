@@ -27,6 +27,7 @@ import raw.compiler.common.source.*;
 import raw.compiler.rql2.source.*;
 import scala.Option;
 import scala.Tuple2;
+import scala.collection.TraversableOnce;
 import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Set;
 import scala.collection.immutable.VectorBuilder;
@@ -34,14 +35,15 @@ import scala.collection.immutable.VectorBuilder;
 public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   private final String assertionMessage =
       "This is a helper (better grammar readability)  node, should never visit it";
-  private final Positions positions = new Positions();
+  private final Positions positions;
   private final Source source;
   private final Set<Rql2TypeProperty> defaultProps =
       new HashSet<Rql2TypeProperty>()
           .$plus(Rql2IsNullableTypeProperty.apply())
           .$plus(Rql2IsTryableTypeProperty.apply());
 
-  public RawSnapiVisitor(Source source) {
+  public RawSnapiVisitor(Source source, Positions positions) {
+    this.positions = positions;
     this.source = source;
   }
 
@@ -56,6 +58,17 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
     positions.setFinish(
         node, new Position(ctx.getStop().getLine(), ctx.getStop().getCharPositionInLine(), source));
+  }
+
+  private void setPosition(ParserRuleContext ctx, int offset, SourceNode node) {
+    positions.setStart(
+        node,
+        new Position(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine(), source));
+
+    positions.setFinish(
+        node,
+        new Position(
+            ctx.getStop().getLine(), ctx.getStop().getCharPositionInLine() + offset, source));
   }
 
   @Override
@@ -88,9 +101,17 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitMethodDec(SnapiParser.MethodDecContext ctx) {
     FunProto funProto = (FunProto) visit(ctx.fun_proto());
-    FunProto newFunProto =
-        funProto.copy(funProto.ps(), funProto.r(), new FunBody((Exp) visit(ctx.expr())));
-    Rql2Method result = new Rql2Method(newFunProto, new IdnDef(ctx.IDENT().getText()));
+
+    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
+    setPosition(ctx.expr(), funBody);
+
+    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
+    setPosition(ctx, newFunProto);
+
+    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
+    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+
+    Rql2Method result = new Rql2Method(newFunProto, idnDef);
     setPosition(ctx, result);
     return result;
   }
@@ -98,9 +119,16 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitNormalFun(SnapiParser.NormalFunContext ctx) {
     FunProto funProto = (FunProto) visit(ctx.fun_proto());
-    FunProto newFunProto =
-        funProto.copy(funProto.ps(), funProto.r(), new FunBody((Exp) visit(ctx.expr())));
-    LetFun result = new LetFun(newFunProto, new IdnDef(ctx.IDENT().getText()));
+
+    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
+    setPosition(ctx.expr(), funBody);
+
+    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
+
+    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
+    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+
+    LetFun result = new LetFun(newFunProto, idnDef);
     setPosition(ctx, result);
     return result;
   }
@@ -108,29 +136,29 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitRecFun(SnapiParser.RecFunContext ctx) {
     FunProto funProto = (FunProto) visit(ctx.fun_proto());
-    FunProto newFunProto =
-        funProto.copy(funProto.ps(), funProto.r(), new FunBody((Exp) visit(ctx.expr())));
-    LetFunRec result = new LetFunRec(new IdnDef(ctx.IDENT().getText()), newFunProto);
-    setPosition(ctx, result);
-    return result;
-  }
 
-  @Override
-  public SourceNode visitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx) {
-    VectorBuilder<FunParam> vb = new VectorBuilder<>();
-    for (int i = 0; i < ctx.fun_param().size(); i++) {
-      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
-    }
-    FunProto result = new FunProto(vb.result(), Option.<Type>empty(), null);
+    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
+    setPosition(ctx.expr(), funBody);
+
+    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
+    setPosition(ctx, newFunProto);
+
+    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
+    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+
+    LetFunRec result = new LetFunRec(idnDef, newFunProto);
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitFunParamAttr(SnapiParser.FunParamAttrContext ctx) {
+    IdnDef idnDef = new IdnDef(ctx.attr().IDENT().getText());
+    setPosition(ctx, ctx.attr().IDENT().getText().length(), idnDef);
+
     FunParam result =
         new FunParam(
-            new IdnDef(ctx.attr().IDENT().getText()),
+            idnDef,
             ctx.attr().type() == null
                 ? Option.<Type>empty()
                 : Option.<Type>apply((Type) visit(ctx.attr().type())),
@@ -141,9 +169,12 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx) {
+    IdnDef idnDef = new IdnDef(ctx.attr().IDENT().getText());
+    setPosition(ctx, ctx.attr().IDENT().getText().length(), idnDef);
+
     FunParam result =
         new FunParam(
-            new IdnDef(ctx.attr().IDENT().getText()),
+            idnDef,
             ctx.attr().type() == null
                 ? Option.<Type>empty()
                 : Option.<Type>apply((Type) visit(ctx.attr().type())),
@@ -160,14 +191,23 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   }
 
   @Override
+  public SourceNode visitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx) {
+    VectorBuilder<FunParam> vb = new VectorBuilder<>();
+    for (int i = 0; i < ctx.fun_param().size(); i++) {
+      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
+    }
+    // not setting the position because its parent has the body, so it will set it
+    return new FunProto(vb.result(), Option.<Type>empty(), null);
+  }
+
+  @Override
   public SourceNode visitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx) {
     VectorBuilder<FunParam> vb = new VectorBuilder<>();
     for (int i = 0; i < ctx.fun_param().size(); i++) {
       vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
     }
-    FunProto result = new FunProto(vb.result(), Option.<Type>apply((Type) visit(ctx.type())), null);
-    setPosition(ctx, result);
-    return result;
+    // not setting the position because its parent has the body, so it will set it
+    return new FunProto(vb.result(), Option.<Type>apply((Type) visit(ctx.type())), null);
   }
 
   @Override
@@ -188,8 +228,13 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitFunAbs(SnapiParser.FunAbsContext ctx) {
     FunProto funProto = (FunProto) visit(ctx.fun_proto());
-    FunProto newFunProto =
-        funProto.copy(funProto.ps(), funProto.r(), new FunBody((Exp) visit(ctx.expr())));
+
+    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
+    setPosition(ctx.expr(), funBody);
+
+    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
+    setPosition(ctx, newFunProto);
+
     FunAbs result = new FunAbs(newFunProto);
     setPosition(ctx, result);
     return result;
@@ -198,11 +243,21 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx) {
     VectorBuilder<FunParam> vb = new VectorBuilder<>();
-    vb.$plus$eq(
-        new FunParam(new IdnDef(ctx.IDENT().getText()), Option.<Type>empty(), Option.<Exp>empty()));
-    FunAbs result =
-        new FunAbs(
-            new FunProto(vb.result(), Option.<Type>empty(), new FunBody((Exp) visit(ctx.expr()))));
+    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
+    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
+
+    FunParam funParam = new FunParam(idnDef, Option.<Type>empty(), Option.<Exp>empty());
+    setPosition(ctx, ctx.IDENT().getText().length(), funParam);
+
+    vb.$plus$eq(funParam);
+
+    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
+    setPosition(ctx.expr(), funBody);
+
+    FunProto funProto = new FunProto(vb.result(), Option.<Type>empty(), funBody);
+    setPosition(ctx, funProto);
+
+    FunAbs result = new FunAbs(funProto);
     setPosition(ctx, result);
     return result;
   }
@@ -212,9 +267,11 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     VectorBuilder<Type> vb = new VectorBuilder<>();
     VectorBuilder<FunOptTypeParam> vbo = new VectorBuilder<>();
     for (int i = 0; i < ctx.attr().size(); i++) {
-      vbo.$plus$eq(
+      FunOptTypeParam funOptTypeParam =
           new FunOptTypeParam(
-              ctx.attr().get(i).IDENT().getText(), (Type) visit(ctx.attr().get(i).type())));
+              ctx.attr().get(i).IDENT().getText(), (Type) visit(ctx.attr().get(i).type()));
+setPosition(ctx.attr().get(i), funOptTypeParam);
+      vbo.$plus$eq(funOptTypeParam);
     }
     for (int i = 0; i < ctx.type().size() - 1; i++) {
       vb.$plus$eq((Type) visit(ctx.type().get(i)));
@@ -230,7 +287,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     VectorBuilder<Type> vb = new VectorBuilder<>();
     vb.$plus$eq((Type) visit(ctx.type()));
     Rql2OrType orType = (Rql2OrType) visit(ctx.or_type());
-    vb.$plus$plus$eq(orType.tipes());
+    vb.$plus$plus$eq((TraversableOnce<Type>) orType.tipes().toTraversable());
     Rql2OrType result = new Rql2OrType(vb.result(), defaultProps);
     setPosition(ctx, result);
     return result;
@@ -243,7 +300,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     vb.$plus$eq((Type) visit(ctx.type()));
     if (ctx.or_type() != null) {
       Rql2OrType orType = (Rql2OrType) visit(ctx.or_type());
-      vb.$plus$plus$eq(orType.tipes());
+      vb.$plus$plus$eq((TraversableOnce<Type>) orType.tipes().toTraversable());
     }
     return new Rql2OrType(vb.result(), defaultProps);
   }
@@ -253,7 +310,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     VectorBuilder<Type> types = new VectorBuilder<>();
     types.$plus$eq((Type) visit(ctx.type(0)));
     Rql2OrType orType = (Rql2OrType) visit(ctx.or_type());
-    types.$plus$plus$eq(orType.tipes());
+    types.$plus$plus$eq((TraversableOnce<Type>) orType.tipes().toTraversable());
     Rql2OrType domainOrType = new Rql2OrType(types.result(), defaultProps);
 
     VectorBuilder<Type> vb = new VectorBuilder<>();
@@ -339,7 +396,9 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitTypeAliasType(SnapiParser.TypeAliasTypeContext ctx) {
-    TypeAliasType result = new TypeAliasType(new IdnUse(ctx.IDENT().getText()));
+    IdnUse idnUse = new IdnUse(ctx.IDENT().getText());
+    TypeAliasType result = new TypeAliasType(idnUse);
+    setPosition(ctx, idnUse);
     setPosition(ctx, result);
     return result;
   }
@@ -395,7 +454,9 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitIdentExpr(SnapiParser.IdentExprContext ctx) {
-    IdnExp result = new IdnExp(new IdnUse(ctx.IDENT().getText()));
+    IdnUse idnUse = new IdnUse(ctx.IDENT().getText());
+    IdnExp result = new IdnExp(idnUse);
+    setPosition(ctx, idnUse);
     setPosition(ctx, result);
     return result;
   }
@@ -606,8 +667,12 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   public SourceNode visitLet_bind(SnapiParser.Let_bindContext ctx) {
     Option<Type> type =
         ctx.type() == null ? Option.<Type>empty() : Option.<Type>apply((Type) visit(ctx.type()));
-    LetBind result = new LetBind((Exp) visit(ctx.expr()), new IdnDef(ctx.IDENT().getText()), type);
+    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
+    LetBind result = new LetBind((Exp) visit(ctx.expr()), idnDef, type);
+
+    setPosition(ctx, ctx.IDENT().getText().length(), idnDef);
     setPosition(ctx, result);
+
     return result;
   }
 
