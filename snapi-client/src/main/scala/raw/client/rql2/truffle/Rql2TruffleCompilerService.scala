@@ -797,8 +797,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         s"""let x: timestamp = Timestamp.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}, ${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
       case RawInterval(v) =>
         s"""let x: interval = Interval.Build(days=${v.toDaysPart}, hours=${v.toHoursPart}, minutes=${v.toMinutesPart}, seconds=${v.toSecondsPart}, millis=${v.toNanosPart / 1000000}) in x"""
-      case _ =>
-        throw new CompilerServiceException("type not supported")
+      case _ => throw new CompilerServiceException("type not supported")
     }
     val value = ctx.eval("rql", code)
     ctx.asValue(value)
