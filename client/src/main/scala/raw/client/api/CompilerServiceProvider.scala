@@ -16,11 +16,12 @@ import raw.utils.RawSettings
 
 import java.util.ServiceLoader
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 object CompilerServiceProvider {
 
-  private var instance: CompilerService = _
   private val instanceLock = new Object
+  private val instanceMap = new mutable.HashMap[Set[String], CompilerService]
 
   def apply(language: String, maybeClassLoader: Option[ClassLoader] = None)(
       implicit settings: RawSettings
@@ -33,25 +34,36 @@ object CompilerServiceProvider {
 
   def apply(language: String)(implicit settings: RawSettings): CompilerService = {
     instanceLock.synchronized {
-      if (instance == null) {
-        instance = build(language)
+      instanceMap.collectFirst { case (l, i) if l.contains(language) => i } match {
+        case Some(instance) => instance
+        case None =>
+          val instance = build(language)
+          instanceMap.put(instance.language, instance)
+          instance
       }
-      return instance
     }
   }
 
   def apply(language: String, classLoader: ClassLoader)(implicit settings: RawSettings): CompilerService = {
     instanceLock.synchronized {
-      if (instance == null) {
-        instance = build(language, Some(classLoader))
+      instanceMap.collectFirst { case (l, i) if l.contains(language) => i } match {
+        case Some(instance) => instance
+        case None =>
+          val instance = build(language, Some(classLoader))
+          instanceMap.put(instance.language, instance)
+          instance
       }
-      return instance
     }
   }
 
-  private[raw] def set(instance: CompilerService): Unit = {
+  // This method is only used by the test framework.
+  private[raw] def set(language: Set[String], instance: CompilerService): Unit = {
     instanceLock.synchronized {
-      this.instance = instance
+      if (instance == null) {
+        instanceMap.remove(language)
+      } else {
+        instanceMap.put(language, instance)
+      }
     }
   }
 

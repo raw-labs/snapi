@@ -29,6 +29,8 @@ final class CompilerServiceException(
 
 trait CompilerService extends RawService {
 
+  def language: Set[String]
+
   // Get the description of a source program.
   @throws[CompilerServiceException]
   def getProgramDescription(
@@ -123,12 +125,12 @@ final case class FormatCodeResponse(code: Option[String], errors: List[ErrorMess
 final case class AutoCompleteResponse(completions: Array[Completion], errors: List[ErrorMessage])
 
 sealed trait Completion
-final case class TypeCompletion(name: String, tipe: RawType) extends Completion
-final case class FieldCompletion(name: String, tipe: RawType) extends Completion
-final case class LetBindCompletion(name: String, tipe: RawType) extends Completion
-final case class LetFunCompletion(name: String, tipe: RawType) extends Completion
-final case class LetFunRecCompletion(name: String, tipe: RawType) extends Completion
-final case class FunParamCompletion(name: String, tipe: RawType) extends Completion
+final case class TypeCompletion(name: String, tipe: String) extends Completion
+final case class FieldCompletion(name: String, tipe: String) extends Completion
+final case class LetBindCompletion(name: String, tipe: String) extends Completion
+final case class LetFunCompletion(name: String, tipe: String) extends Completion
+final case class LetFunRecCompletion(name: String, tipe: String) extends Completion
+final case class FunParamCompletion(name: String, tipe: String) extends Completion
 final case class PackageCompletion(name: String, doc: PackageDoc) extends Completion
 final case class PackageEntryCompletion(name: String, doc: EntryDoc) extends Completion
 

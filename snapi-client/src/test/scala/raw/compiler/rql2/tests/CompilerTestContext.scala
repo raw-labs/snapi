@@ -41,8 +41,6 @@ trait CompilerTestContext
 
   def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
 
-  def language: String
-
   def runnerScopes: Set[String] = Set.empty
 
   def options: Map[String, String] = Map("output-format" -> "json")

@@ -38,8 +38,14 @@ import java.io.{IOException, OutputStream}
 import scala.collection.mutable
 import scala.util.control.NonFatal
 
+object Rql2TruffleCompilerService {
+  val language: Set[String] = Set("rql2", "rql2-truffle", "snapi")
+}
+
 class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings)
     extends Rql2CompilerService {
+
+  override def language: Set[String] = Rql2TruffleCompilerService.language
 
   private val credentials = CredentialsServiceProvider(maybeClassLoader)
 

@@ -17,7 +17,7 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait LspDotAutoCompleteTest extends CompilerTestContext {
 
-  private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, RawType)]): Unit = {
+  private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
     val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(line, col))
     assert(entries.toSeq == expectedFields.map(ef => FieldCompletion(ef._1, ef._2)))
   }
@@ -28,7 +28,7 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
       |in
       |x
       |""".stripMargin
-    dotAutoCompleteTest(code, 4, 1, Seq(("a", RawIntType(true, true)), ("B", RawStringType(true, true))))
+    dotAutoCompleteTest(code, 4, 1, Seq(("a", "int"), ("B", "string")))
   }
 
   test("harder auto-complete record test") { _ =>
@@ -41,18 +41,7 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
       code,
       4,
       3,
-      Seq(
-        (
-          "a",
-          RawRecordType(
-            Vector(RawAttrType("g", RawIntType(true, true)), RawAttrType("k", RawIntType(true, true))),
-            true,
-            true
-          )
-        ),
-        ("B", RawStringType(true, true)),
-        ("c", RawDoubleType(true, true))
-      )
+      Seq(("a", "record(g: int, k: int"), ("B", "string"), ("c", "double"))
     )
   }
 
