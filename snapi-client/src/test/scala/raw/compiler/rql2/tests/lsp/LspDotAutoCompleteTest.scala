@@ -41,7 +41,7 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
       code,
       4,
       3,
-      Seq(("a", "record(g: int, k: int"), ("B", "string"), ("c", "double"))
+      Seq(("a", "record(g: int, k: int)"), ("B", "string"), ("c", "double"))
     )
   }
 

@@ -37,7 +37,13 @@ class CompilerLspService(
   }
 
   private def getFunctionSignature(i: IdnDef, funProto: FunProto): String = {
-    SourcePrettyPrinter.format(analyzer.idnType(i))
+    s"${i.idn}(${funProto.ps
+      .map(par =>
+        s"${SourcePrettyPrinter.format(par.i)}${if (par.t.isDefined) ": " + SourcePrettyPrinter.format(par.t.get)
+        else ""}${if (par.e.isDefined) "= " + SourcePrettyPrinter.format(par.e.get)
+        else ""}"
+      )
+      .mkString(", ")})${if (funProto.r.isDefined) " -> " + SourcePrettyPrinter.format(funProto.r.get) else ""}"
   }
 
   def wordAutoComplete(
@@ -231,7 +237,7 @@ class CompilerLspService(
             case letFunRecEntity: LetFunRecEntity => //gets here
               val LetFunRec(i, p) = letFunRecEntity.f
               HoverResponse(
-                Some(TypeCompletion(i.idn, getFunctionSignature(i, p))),
+                Some(TypeCompletion(i.idn, s"recursive function: ${getFunctionSignature(i, p)}")),
                 errors
               )
             case p: PackageEntity => HoverResponse(Some(PackageCompletion(p.p.name, p.p.docs)), errors)
