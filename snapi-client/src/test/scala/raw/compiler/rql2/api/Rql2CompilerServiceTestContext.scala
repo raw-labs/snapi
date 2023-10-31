@@ -22,11 +22,17 @@ trait Rql2CompilerServiceTestContext extends BeforeAndAfterAll {
 
   private var instance: Rql2CompilerService = _
 
+  private var language: Set[String] = _
+
   def compilerService: Rql2CompilerService = instance
 
   def setCompilerService(compilerService: Rql2CompilerService): Unit = {
+    // Remember the language we have set.
+    if (compilerService != null) {
+      language = compilerService.language
+    }
     instance = compilerService
-    CompilerServiceProvider.set(compilerService)
+    CompilerServiceProvider.set(language, compilerService)
   }
 
   override def afterAll(): Unit = {

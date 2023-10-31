@@ -41,8 +41,6 @@ trait CompilerTestContext
 
   def authorizedUser: InteractiveUser = InteractiveUser(Uid("janeUid"), "Jane Smith", "jane@example.com")
 
-  def language: String
-
   def runnerScopes: Set[String] = Set.empty
 
   def options: Map[String, String] = Map("output-format" -> "json")
@@ -466,7 +464,7 @@ trait CompilerTestContext
   /////////////////////////////////////////////////////////////////////////
 
   private def getQueryEnvironment(
-      maybeArguments: Option[Array[(String, ParamValue)]] = None,
+      maybeArguments: Option[Array[(String, RawValue)]] = None,
       scopes: Set[String] = Set.empty,
       options: Map[String, String] = Map.empty
   ): ProgramEnvironment = ProgramEnvironment(
@@ -627,7 +625,7 @@ trait CompilerTestContext
   def fastExecute(
       query: String,
       maybeDecl: Option[String] = None,
-      maybeArgs: Option[Array[(String, ParamValue)]] = None,
+      maybeArgs: Option[Array[(String, RawValue)]] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
   ): Either[String, Path] = {
@@ -650,7 +648,7 @@ trait CompilerTestContext
 
   def doValidate(
       query: String,
-      maybeArgs: Option[Array[(String, ParamValue)]] = None,
+      maybeArgs: Option[Array[(String, RawValue)]] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty
   ): Either[String, Option[String]] = {
@@ -672,7 +670,7 @@ trait CompilerTestContext
   def doExecute(
       query: String,
       maybeDecl: Option[String] = None,
-      maybeArgs: Option[Array[(String, ParamValue)]] = None,
+      maybeArgs: Option[Array[(String, RawValue)]] = None,
       options: Map[String, String] = Map.empty,
       scopes: Set[String] = Set.empty,
       savePath: Option[Path] = None

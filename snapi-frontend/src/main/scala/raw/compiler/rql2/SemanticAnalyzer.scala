@@ -26,9 +26,12 @@ import raw.compiler.rql2.api.{
   EntryExtension,
   ExpArg,
   ExpParam,
+  OptionValue,
   PackageExtensionProvider,
+  TryValue,
   TypeArg,
   TypeParam,
+  Value,
   ValueArg,
   ValueParam
 }
@@ -1565,7 +1568,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       program, {
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
-        val prettyPrinterType = InternalSourcePrettyPrinter.format(expected)
+        var rawType = rql2TypeToRawType(expected)
         val stagedCompilerEnvironment = programContext.runtimeContext.environment
           .copy(
             options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
@@ -1573,17 +1576,19 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
           )
 
         logger.trace("Pretty printed staged compiler program is:\n" + prettyPrinterProgram)
-        logger.trace("Pretty printed staged compiler type is:\n" + prettyPrinterType)
+        logger.trace("Pretty printed staged compiler type is:\n" + rawType)
 
         try {
-          CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(programContext.settings).eval(
+          CompilerServiceProvider(
+            programContext.compilerContext.language,
+            programContext.compilerContext.maybeClassLoader
+          )(programContext.settings).eval(
             prettyPrinterProgram,
-            prettyPrinterType,
+            rawType,
             stagedCompilerEnvironment
           ) match {
             case EvalSuccess(v) =>
-              var stagedCompilerResult = v
-
+              var stagedCompilerResult = rawValueToRql2Value(v, rawType)
               // Remove extraProps
               if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
                 val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v

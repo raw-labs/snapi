@@ -16,46 +16,60 @@ import raw.utils.RawSettings
 
 import java.util.ServiceLoader
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 
 object CompilerServiceProvider {
 
-  private val COMPILER_IMPL = "raw.compiler.impl"
-
-  private var instance: CompilerService = _
   private val instanceLock = new Object
+  private val instanceMap = new mutable.HashMap[Set[String], CompilerService]
 
-  def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): CompilerService = {
+  def apply(language: String, maybeClassLoader: Option[ClassLoader] = None)(
+      implicit settings: RawSettings
+  ): CompilerService = {
     maybeClassLoader match {
-      case Some(cl) => apply(cl)
-      case None => apply()
+      case Some(cl) => apply(language, cl)
+      case None => apply(language)
     }
   }
 
-  def apply()(implicit settings: RawSettings): CompilerService = {
+  def apply(language: String)(implicit settings: RawSettings): CompilerService = {
+    instanceLock.synchronized {
+      instanceMap.collectFirst { case (l, i) if l.contains(language) => i } match {
+        case Some(instance) => instance
+        case None =>
+          val instance = build(language)
+          instanceMap.put(instance.language, instance)
+          instance
+      }
+    }
+  }
+
+  def apply(language: String, classLoader: ClassLoader)(implicit settings: RawSettings): CompilerService = {
+    instanceLock.synchronized {
+      instanceMap.collectFirst { case (l, i) if l.contains(language) => i } match {
+        case Some(instance) => instance
+        case None =>
+          val instance = build(language, Some(classLoader))
+          instanceMap.put(instance.language, instance)
+          instance
+      }
+    }
+  }
+
+  // This method is only used by the test framework.
+  private[raw] def set(language: Set[String], instance: CompilerService): Unit = {
     instanceLock.synchronized {
       if (instance == null) {
-        instance = build()
+        instanceMap.remove(language)
+      } else {
+        instanceMap.put(language, instance)
       }
-      return instance
     }
   }
 
-  def apply(classLoader: ClassLoader)(implicit settings: RawSettings): CompilerService = {
-    instanceLock.synchronized {
-      if (instance == null) {
-        instance = build(Some(classLoader))
-      }
-      return instance
-    }
-  }
-
-  private[raw] def set(instance: CompilerService): Unit = {
-    instanceLock.synchronized {
-      this.instance = instance
-    }
-  }
-
-  private def build(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): CompilerService = {
+  private def build(language: String, maybeClassLoader: Option[ClassLoader] = None)(
+      implicit settings: RawSettings
+  ): CompilerService = {
     val services = maybeClassLoader match {
       case Some(cl) => ServiceLoader.load(classOf[CompilerServiceBuilder], cl).asScala.toArray
       case None => ServiceLoader.load(classOf[CompilerServiceBuilder]).asScala.toArray
@@ -63,10 +77,9 @@ object CompilerServiceProvider {
     if (services.isEmpty) {
       throw new CompilerException("no compiler service available")
     } else if (services.size > 1) {
-      val implClassName = settings.getString(COMPILER_IMPL)
-      services.find(p => p.name == implClassName) match {
+      services.find(p => p.language.contains(language)) match {
         case Some(builder) => builder.build(maybeClassLoader)
-        case None => throw new CompilerException(s"cannot find compiler service: $implClassName")
+        case None => throw new CompilerException(s"cannot find compiler service: $language")
       }
     } else {
       services.head.build(maybeClassLoader)

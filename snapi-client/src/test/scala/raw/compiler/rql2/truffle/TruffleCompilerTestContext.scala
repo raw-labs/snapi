@@ -18,7 +18,4 @@ import raw.compiler.rql2.tests.CompilerTestContext
 class TruffleCompilerTestContext
     extends CompilerTestContext
     with Rql2OutputTestContext
-    with Rql2TruffleCompilerServiceTestContext {
-  override def language: String = "rql2-truffle"
-
-}
+    with Rql2TruffleCompilerServiceTestContext

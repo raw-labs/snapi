@@ -32,11 +32,11 @@ class RuntimeContext(
 
   final val currentTimestamp: LocalDateTime = LocalDateTime.now(zoneID)
 
-  final val paramsFromTemplating: mutable.Map[String, ParamValue] = mutable.HashMap[String, ParamValue]()
+  final val paramsFromTemplating: mutable.Map[String, RawValue] = mutable.HashMap[String, RawValue]()
 
   final val programsFromTemplating: mutable.Map[String, Entrypoint] = mutable.HashMap[String, Entrypoint]()
 
-  final def maybeArguments: Option[Array[(String, ParamValue)]] = environment.maybeArguments
+  final def maybeArguments: Option[Array[(String, RawValue)]] = environment.maybeArguments
 
   final def scopes: Set[String] = environment.scopes
 
@@ -52,15 +52,15 @@ class RuntimeContext(
     )
   }
 
-  final def params: List[ParamValue] = maybeArguments.map(_.map(_._2).toList).getOrElse(List.empty)
+  final def params: List[RawValue] = maybeArguments.map(_.map(_._2).toList).getOrElse(List.empty)
 
-  final def params(i: String): Option[ParamValue] = {
+  final def params(i: String): Option[RawValue] = {
     maybeArguments.flatMap(_.collectFirst { case (idn, v) if i == idn => v }).orElse {
       paramsFromTemplating.get(i)
     }
   }
 
-  final def addParam(i: String, v: ParamValue): Unit = paramsFromTemplating.put(i, v)
+  final def addParam(i: String, v: RawValue): Unit = paramsFromTemplating.put(i, v)
 
   final def programs(i: String): Entrypoint = programsFromTemplating(i)
 

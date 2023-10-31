@@ -15,7 +15,9 @@ package raw.client.api
 import raw.utils.RawSettings
 
 trait CompilerServiceBuilder {
-  def name: String
+
+  // A compiler service can respond to more than one name.
+  def language: Set[String]
 
   def build(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): CompilerService
 }

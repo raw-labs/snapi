@@ -112,7 +112,7 @@ trait LspHoverTest extends CompilerTestContext {
       |b(2)""".stripMargin
     val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 7))
     assertResult("b")(name)
-    assertResult("recursive function: b(v: int) => int")(tipe)
+    assertResult("recursive function: b(v: int) -> int")(tipe)
   }
 
   test("hover let function entity function at definition test") { _ =>
@@ -122,7 +122,7 @@ trait LspHoverTest extends CompilerTestContext {
       |b(2)""".stripMargin
     val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 3))
     assertResult("b")(name)
-    assertResult("b(v: int) => int")(tipe)
+    assertResult("b(v: int) -> int")(tipe)
   }
 
   test("hover function identifier at usage test") { _ =>

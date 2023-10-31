@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.rql2.api.{Arg, ValueArg}
+import raw.compiler.rql2.api.{Arg, LocationValue, StringValue, ValueArg}
 import raw.sources.bytestream.in_memory.InMemoryByteStreamLocation
 import raw.client.api._
 import raw.compiler.rql2.source.Rql2LocationType

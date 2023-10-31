@@ -72,7 +72,9 @@ scalacOptions ++= Seq(
   // Fix for false warning of unused implicit arguments in traits/interfaces.
   "-Ywarn-macros:after",
   "-Ypatmat-exhaust-depth",
-  "160"
+  "160",
+  // Warnings as errors.
+  "-Xfatal-warnings"
 )
 
 // Use cached resolution of dependencies

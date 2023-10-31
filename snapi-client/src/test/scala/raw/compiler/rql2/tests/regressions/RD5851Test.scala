@@ -26,6 +26,7 @@ trait RD5851Test extends CompilerTestContext {
       case FunParamCompletion(n, _) => n
       case PackageCompletion(n, _) => n
       case PackageEntryCompletion(n, _) => n
+      case TypeCompletion(n, _) => n
     }
   }
 

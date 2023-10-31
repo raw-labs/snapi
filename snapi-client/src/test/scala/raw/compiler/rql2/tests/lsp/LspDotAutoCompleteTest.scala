@@ -37,7 +37,12 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
       |in
       |f()
       |""".stripMargin
-    dotAutoCompleteTest(code, 4, 3, Seq(("a", "record(g: int, k: int)"), ("B", "string"), ("c", "double")))
+    dotAutoCompleteTest(
+      code,
+      4,
+      3,
+      Seq(("a", "record(g: int, k: int)"), ("B", "string"), ("c", "double"))
+    )
   }
 
   test("package autocomplete for string package test") { _ =>

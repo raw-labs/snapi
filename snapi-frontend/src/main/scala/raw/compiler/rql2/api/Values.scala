@@ -10,7 +10,9 @@
  * licenses/APL.txt.
  */
 
-package raw.client.api
+package raw.compiler.rql2.api
+
+import raw.client.api.LocationDescription
 
 sealed trait Value
 final case class StringValue(v: String) extends Value

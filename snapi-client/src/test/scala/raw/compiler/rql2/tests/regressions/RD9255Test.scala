@@ -40,20 +40,21 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
 
   private def exec(f: String, value: Any, t: String) = {
     val x = value match {
-      case null => ParamNull()
-      case v: String => ParamString(v)
-      case v: Boolean => ParamBool(v)
-      case v: Byte => ParamByte(v)
-      case v: Short => ParamShort(v)
-      case v: Int => ParamInt(v)
-      case v: Long => ParamLong(v)
-      case v: Float => ParamFloat(v)
-      case v: Double => ParamDouble(v)
-      case v: java.math.BigDecimal => ParamDecimal(v)
-      case v: LocalDate => ParamDate(v)
-      case v: LocalTime => ParamTime(v)
-      case v: LocalDateTime => ParamTimestamp(v)
-      case v: Duration => ParamInterval(v)
+      case null => RawNull()
+      case v: String => RawString(v)
+      case v: Boolean => RawBool(v)
+      case v: Byte => RawByte(v)
+      case v: Short => RawShort(v)
+      case v: Int => RawInt(v)
+      case v: Long => RawLong(v)
+      case v: Float => RawFloat(v)
+      case v: Double => RawDouble(v)
+      case v: java.math.BigDecimal => RawDecimal(v)
+      case v: LocalDate => RawDate(v)
+      case v: LocalTime => RawTime(v)
+      case v: LocalDateTime => RawTimestamp(v)
+      case v: Duration =>
+        RawInterval(0, 0, 0, v.toDaysPart.toInt, v.toHoursPart, v.toMinutesPart, v.toSecondsPart, v.toMillisPart)
     }
     callDecl(declarations, f, Array(("x", x)), t)
   }
@@ -93,7 +94,7 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
     callDecl(
       declarations,
       "three_param_func",
-      Array(("x", ParamString("U")), ("y", ParamInt(2)), ("z", ParamString("?"))),
+      Array(("x", RawString("U")), ("y", RawInt(2)), ("z", RawString("?"))),
       "string"
     ) should evalTo("\"U2?\"")
   )
@@ -101,7 +102,7 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
     callDecl(
       declarations,
       "three_param_func",
-      Array(("x", ParamString("U")), ("y", ParamInt(2))),
+      Array(("x", RawString("U")), ("y", RawInt(2))),
       "string"
     ) should evalTo(
       "\"U2!\""
@@ -110,7 +111,7 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
 
   test("three parameters (all optional)")(_ => {
     // a helper to try several combinations of parameters
-    def check(args: Array[(String, ParamValue)], expected: String) = {
+    def check(args: Array[(String, RawValue)], expected: String) = {
       callDecl(
         declarations,
         "three_param_func_all_opt",
@@ -121,12 +122,12 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
       )
     }
     check(Array.empty, "\"tralala!!\"")
-    check(Array(("x", ParamString("boum"))), "\"boum!!\"")
-    check(Array(("x", ParamString("\""))), "\"\\\"!!\"")
-    check(Array(("x", ParamString("BOUM")), ("y", ParamInt(3))), "\"BOUM!!!\"")
-    check(Array(("x", ParamString("What")), ("y", ParamInt(1)), ("z", ParamString("?"))), "\"What?\"")
-    check(Array(("y", ParamInt(1)), ("z", ParamString("?"))), "\"tralala?\"")
-    check(Array(("y", ParamInt(1))), "\"tralala!\"")
+    check(Array(("x", RawString("boum"))), "\"boum!!\"")
+    check(Array(("x", RawString("\""))), "\"\\\"!!\"")
+    check(Array(("x", RawString("BOUM")), ("y", RawInt(3))), "\"BOUM!!!\"")
+    check(Array(("x", RawString("What")), ("y", RawInt(1)), ("z", RawString("?"))), "\"What?\"")
+    check(Array(("y", RawInt(1)), ("z", RawString("?"))), "\"tralala?\"")
+    check(Array(("y", RawInt(1))), "\"tralala!\"")
 
   })
 
@@ -135,8 +136,8 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
     exec("byte_func", "tralala", "byte").left.value should include("expected byte but got string")
   )
   test("missing mandatory arguments") { _ =>
-    assume(language == "rql2-truffle")
-    callDecl(declarations, "three_param_func", Array(("x", ParamString("U"))), "string").left.value should include(
+    assume(compilerService.language.contains("rql2-truffle"))
+    callDecl(declarations, "three_param_func", Array(("x", RawString("U"))), "string").left.value should include(
       "missing mandatory arguments"
     )
   }
@@ -145,7 +146,7 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
   def callDecl(
       code: String,
       decl: String,
-      args: Array[(String, ParamValue)] = Array.empty,
+      args: Array[(String, RawValue)] = Array.empty,
       t: String
   ): Either[String, Any] = {
     doExecute(code, maybeDecl = Some(decl), maybeArgs = Some(args)).right.map(path => outputParser(path, t))

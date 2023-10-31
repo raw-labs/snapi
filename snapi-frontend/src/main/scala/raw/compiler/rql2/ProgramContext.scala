@@ -13,10 +13,9 @@
 package raw.compiler.rql2
 
 import raw.compiler.base.errors.BaseError
-import raw.compiler.rql2.api.{PackageExtension, PackageExtensionProvider}
+import raw.compiler.rql2.api.{PackageExtension, PackageExtensionProvider, Value}
 import raw.compiler.rql2.source.Rql2Program
 import raw.inferrer.api.{InferrerProperties, InputFormatDescriptor}
-import raw.client.api._
 
 import scala.collection.mutable
 

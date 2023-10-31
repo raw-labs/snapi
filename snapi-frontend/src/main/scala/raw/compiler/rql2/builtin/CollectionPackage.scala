@@ -24,6 +24,7 @@ import raw.compiler.rql2.api.{
   ExpParam,
   PackageExtension,
   Param,
+  StringValue,
   SugarEntryExtension,
   TypeArg,
   TypeParam,

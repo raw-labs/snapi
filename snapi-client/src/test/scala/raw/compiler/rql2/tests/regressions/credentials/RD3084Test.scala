@@ -50,13 +50,13 @@ trait RD3084Test extends CompilerTestContext with CredentialsTestContext with RD
   }
 
   test("""Oracle.InferAndQuery("oracle-test", "select * from rawtest.test_types")""") { it =>
-    assume(language != "rql2-truffle")
+    assume(!compilerService.language.contains("rql2-truffle"))
     it should run
   }
 
   test("""Oracle.Query("oracle-test", "select * from rawtest.test_types",
     |       type collection(record(integer1: int, char1: string)))""".stripMargin) { it =>
-    assume(language != "rql2-truffle")
+    assume(!compilerService.language.contains("rql2-truffle"))
     it should run
   }
 
