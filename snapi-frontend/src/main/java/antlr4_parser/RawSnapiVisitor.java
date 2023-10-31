@@ -33,7 +33,12 @@ import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Set;
 import scala.collection.immutable.VectorBuilder;
 
-public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
+// (AZ) Important!
+// Only access ctx.ident() through extractIdent(ctx.ident()) method!
+// The reason is that we need a string but ident() visitor must return SourceNode.
+// And if we put it in lexer, then the text for escaped identifier will be without backticks
+
+public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> implements SnapiKeywords {
   private final String assertionMessage =
       "This is a helper (better grammar readability)  node, should never visit it";
   private final Positions positions;
@@ -52,9 +57,17 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     return positions;
   }
 
+  /**
+   * * Sets the position of the node in the position map based on start and end of a
+   * ParserRuleContext object
+   *
+   * @param ctx the context to get the position from
+   * @param node the node to store in the positions map
+   */
   private void setPosition(ParserRuleContext ctx, SourceNode node) {
     positions.setStart(
-        node, new Position(ctx.getStart().getLine(), ctx.getStart().getStartIndex() + 1, source));
+        node,
+        new Position(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine() + 1, source));
 
     positions.setFinish(
         node,
@@ -64,23 +77,51 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
             source));
   }
 
+  /**
+   * * Sets the position of the node in the position map based on start and end of a Token object
+   *
+   * @param token the token to get the position from
+   * @param node the node to store in the positions map
+   */
   private void setPosition(Token token, SourceNode node) {
-    positions.setStart(node, new Position(token.getLine(), token.getStartIndex() + 1, source));
+    positions.setStart(
+        node, new Position(token.getLine(), token.getCharPositionInLine() + 1, source));
     positions.setFinish(
         node,
         new Position(
             token.getLine(), token.getCharPositionInLine() + token.getText().length() + 1, source));
   }
 
+  /**
+   * * Sets the position of the node in the position map based on start token and end token object
+   *
+   * @param startToken start of the position
+   * @param endToken end of the position
+   * @param node the node to store in the positions map
+   */
+  private void setPosition(Token startToken, Token endToken, SourceNode node) {
+    positions.setStart(
+        node, new Position(startToken.getLine(), startToken.getCharPositionInLine() + 1, source));
+
+    positions.setFinish(
+        node, new Position(endToken.getLine(), endToken.getCharPositionInLine() + 1, source));
+  }
+
   //  private void setPosition(ParserRuleContext ctx, int offset, SourceNode node) {
   //    positions.setStart(
-  //        node, new Position(ctx.getStart().getLine(), ctx.getStart().getStartIndex() + 1,
+  //        node, new Position(ctx.getStart().getLine(), ctx.getStart().getCharPositionInLine() + 1,
   // source));
   //
   //    positions.setFinish(
-  //        node, new Position(ctx.getStop().getLine(), ctx.getStop().getStopIndex() + offset,
+  //        node, new Position(ctx.getStop().getLine(), ctx.getStop().getCharPositionInLine() +
+  // offset,
   // source));
   //  }
+
+  private String extractIdent(SnapiParser.IdentContext ctx) {
+    StringConst identConst = (StringConst) visit(ctx);
+    return identConst.value();
+  }
 
   @Override
   public SourceNode visitProg(SnapiParser.ProgContext ctx) {
@@ -110,19 +151,46 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   }
 
   @Override
-  public SourceNode visitMethodDec(SnapiParser.MethodDecContext ctx) {
-    FunProto funProto = (FunProto) visit(ctx.fun_proto());
+  public SourceNode visitFun_proto(SnapiParser.Fun_protoContext ctx) {
+    VectorBuilder<FunParam> vb = new VectorBuilder<>();
+    for (int i = 0; i < ctx.fun_param().size(); i++) {
+      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
+    }
 
     FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
     setPosition(ctx.expr(), funBody);
+    FunProto result =
+        ctx.type() == null
+            ? new FunProto(vb.result(), Option.<Type>empty(), funBody)
+            : new FunProto(vb.result(), Option.apply((Type) visit(ctx.type())), funBody);
+    setPosition(ctx, result);
+    return result;
+  }
 
-    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
-    setPosition(ctx, newFunProto);
+  @Override
+  public SourceNode visitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx) {
+    VectorBuilder<FunParam> vb = new VectorBuilder<>();
+    for (int i = 0; i < ctx.fun_param().size(); i++) {
+      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
+    }
 
-    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx.IDENT().getSymbol(), idnDef);
+    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
+    setPosition(ctx.expr(), funBody);
+    FunProto result =
+        ctx.type() == null
+            ? new FunProto(vb.result(), Option.<Type>empty(), funBody)
+            : new FunProto(vb.result(), Option.apply((Type) visit(ctx.type())), funBody);
+    setPosition(ctx, result);
+    return result;
+  }
 
-    Rql2Method result = new Rql2Method(newFunProto, idnDef);
+  @Override
+  public SourceNode visitMethodDec(SnapiParser.MethodDecContext ctx) {
+    FunProto funProto = (FunProto) visit(ctx.fun_proto());
+    IdnDef idnDef = new IdnDef(extractIdent(ctx.ident()));
+    setPosition(ctx.ident(), idnDef);
+
+    Rql2Method result = new Rql2Method(funProto, idnDef);
     setPosition(ctx, result);
     return result;
   }
@@ -131,15 +199,10 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   public SourceNode visitNormalFun(SnapiParser.NormalFunContext ctx) {
     FunProto funProto = (FunProto) visit(ctx.fun_proto());
 
-    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
-    setPosition(ctx.expr(), funBody);
+    IdnDef idnDef = new IdnDef(extractIdent(ctx.ident()));
+    setPosition(ctx.ident(), idnDef);
 
-    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
-
-    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx.IDENT().getSymbol(), idnDef);
-
-    LetFun result = new LetFun(newFunProto, idnDef);
+    LetFun result = new LetFun(funProto, idnDef);
     setPosition(ctx, result);
     return result;
   }
@@ -148,24 +211,18 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   public SourceNode visitRecFun(SnapiParser.RecFunContext ctx) {
     FunProto funProto = (FunProto) visit(ctx.fun_proto());
 
-    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
-    setPosition(ctx.expr(), funBody);
+    IdnDef idnDef = new IdnDef(extractIdent(ctx.ident()));
+    setPosition(ctx.ident(), idnDef);
 
-    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
-    setPosition(ctx, newFunProto);
-
-    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx.IDENT().getSymbol(), idnDef);
-
-    LetFunRec result = new LetFunRec(idnDef, newFunProto);
+    LetFunRec result = new LetFunRec(idnDef, funProto);
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitFunParamAttr(SnapiParser.FunParamAttrContext ctx) {
-    IdnDef idnDef = new IdnDef(ctx.attr().IDENT().getText());
-    setPosition(ctx.attr().IDENT().getSymbol(), idnDef);
+    IdnDef idnDef = new IdnDef(ctx.attr().ident().getText());
+    setPosition(ctx.attr().ident(), idnDef);
 
     FunParam result =
         new FunParam(
@@ -180,8 +237,8 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitFunParamAttrExpr(SnapiParser.FunParamAttrExprContext ctx) {
-    IdnDef idnDef = new IdnDef(ctx.attr().IDENT().getText());
-    setPosition(ctx.attr().IDENT().getSymbol(), idnDef);
+    IdnDef idnDef = new IdnDef(ctx.attr().ident().getText());
+    setPosition(ctx.attr().ident(), idnDef);
 
     FunParam result =
         new FunParam(
@@ -196,30 +253,30 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitType_attr(SnapiParser.Type_attrContext ctx) {
-    Rql2AttrType result = new Rql2AttrType(ctx.IDENT().getText(), (Type) visit(ctx.type()));
+    Rql2AttrType result = new Rql2AttrType(extractIdent(ctx.ident()), (Type) visit(ctx.type()));
     setPosition(ctx, result);
     return result;
   }
 
-  @Override
-  public SourceNode visitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx) {
-    VectorBuilder<FunParam> vb = new VectorBuilder<>();
-    for (int i = 0; i < ctx.fun_param().size(); i++) {
-      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
-    }
-    // not setting the position because its parent has the body, so it will set it
-    return new FunProto(vb.result(), Option.<Type>empty(), null);
-  }
-
-  @Override
-  public SourceNode visitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx) {
-    VectorBuilder<FunParam> vb = new VectorBuilder<>();
-    for (int i = 0; i < ctx.fun_param().size(); i++) {
-      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
-    }
-    // not setting the position because its parent has the body, so it will set it
-    return new FunProto(vb.result(), Option.<Type>apply((Type) visit(ctx.type())), null);
-  }
+  //  @Override
+  //  public SourceNode visitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx) {
+  //    VectorBuilder<FunParam> vb = new VectorBuilder<>();
+  //    for (int i = 0; i < ctx.fun_param().size(); i++) {
+  //      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
+  //    }
+  //    // not setting the position because its parent has the body, so it will set it
+  //    return new FunProto(vb.result(), Option.<Type>empty(), null);
+  //  }
+  //
+  //  @Override
+  //  public SourceNode visitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx) {
+  //    VectorBuilder<FunParam> vb = new VectorBuilder<>();
+  //    for (int i = 0; i < ctx.fun_param().size(); i++) {
+  //      vb.$plus$eq((FunParam) visit(ctx.fun_param(i)));
+  //    }
+  //    // not setting the position because its parent has the body, so it will set it
+  //    return new FunProto(vb.result(), Option.<Type>apply((Type) visit(ctx.type())), null);
+  //  }
 
   @Override
   public SourceNode visitFunArgExpr(SnapiParser.FunArgExprContext ctx) {
@@ -231,22 +288,15 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitNamedFunArgExpr(SnapiParser.NamedFunArgExprContext ctx) {
     FunAppArg result =
-        new FunAppArg((Exp) visit(ctx.expr()), Option.<String>apply(ctx.IDENT().getText()));
+        new FunAppArg((Exp) visit(ctx.expr()), Option.<String>apply(extractIdent(ctx.ident())));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitFunAbs(SnapiParser.FunAbsContext ctx) {
-    FunProto funProto = (FunProto) visit(ctx.fun_proto());
-
-    FunBody funBody = new FunBody((Exp) visit(ctx.expr()));
-    setPosition(ctx.expr(), funBody);
-
-    FunProto newFunProto = funProto.copy(funProto.ps(), funProto.r(), funBody);
-    setPosition(ctx, newFunProto);
-
-    FunAbs result = new FunAbs(newFunProto);
+    FunProto funProto = (FunProto) visit(ctx.fun_proto_lambda());
+    FunAbs result = new FunAbs(funProto);
     setPosition(ctx, result);
     return result;
   }
@@ -254,11 +304,11 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   @Override
   public SourceNode visitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx) {
     VectorBuilder<FunParam> vb = new VectorBuilder<>();
-    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx.IDENT().getSymbol(), idnDef);
+    IdnDef idnDef = new IdnDef(extractIdent(ctx.ident()));
+    setPosition(ctx.ident(), idnDef);
 
     FunParam funParam = new FunParam(idnDef, Option.<Type>empty(), Option.<Exp>empty());
-    setPosition(ctx.IDENT().getSymbol(), funParam);
+    setPosition(ctx.ident(), funParam);
 
     vb.$plus$eq(funParam);
 
@@ -280,7 +330,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     for (int i = 0; i < ctx.attr().size(); i++) {
       FunOptTypeParam funOptTypeParam =
           new FunOptTypeParam(
-              ctx.attr().get(i).IDENT().getText(), (Type) visit(ctx.attr().get(i).type()));
+              ctx.attr().get(i).ident().getText(), (Type) visit(ctx.attr().get(i).type()));
       setPosition(ctx.attr().get(i), funOptTypeParam);
       vbo.$plus$eq(funOptTypeParam);
     }
@@ -407,7 +457,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitTypeAliasType(SnapiParser.TypeAliasTypeContext ctx) {
-    IdnUse idnUse = new IdnUse(ctx.IDENT().getText());
+    IdnUse idnUse = new IdnUse(extractIdent(ctx.ident()));
     TypeAliasType result = new TypeAliasType(idnUse);
     setPosition(ctx, idnUse);
     setPosition(ctx, result);
@@ -465,7 +515,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitIdentExpr(SnapiParser.IdentExprContext ctx) {
-    IdnUse idnUse = new IdnUse(ctx.IDENT().getText());
+    IdnUse idnUse = new IdnUse(extractIdent(ctx.ident()));
     IdnExp result = new IdnExp(idnUse);
     setPosition(ctx, idnUse);
     setPosition(ctx, result);
@@ -476,7 +526,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   public SourceNode visitProjectionExpr(SnapiParser.ProjectionExprContext ctx) {
     SourceNode result;
     VectorBuilder<FunAppArg> vb = new VectorBuilder<>();
-    Proj proj = new Proj((Exp) visit(ctx.expr()), ctx.IDENT().getText());
+    Proj proj = new Proj((Exp) visit(ctx.expr()), extractIdent(ctx.ident()));
 
     if (ctx.fun_ar() != null) {
       if (ctx.fun_ar().fun_args() != null) {
@@ -485,6 +535,8 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
           vb.$plus$eq((FunAppArg) visit(arg));
         }
       }
+      // The projection without the function call
+      setPosition(ctx.getStart(), ctx.fun_ar().getStart(), proj);
       result = new FunApp(proj, vb.result());
     } else {
       result = proj;
@@ -540,14 +592,18 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   // Unary expressions
   @Override
   public SourceNode visitNotExpr(SnapiParser.NotExprContext ctx) {
-    UnaryExp result = UnaryExp.apply(Not.apply(), (Exp) visit(ctx.expr()));
+    Not not = Not.apply();
+    setPosition(ctx.NOT_TOKEN().getSymbol(), not);
+    UnaryExp result = UnaryExp.apply(not, (Exp) visit(ctx.expr()));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitMinusUnaryExpr(SnapiParser.MinusUnaryExprContext ctx) {
-    UnaryExp result = new UnaryExp(Neg.apply(), (Exp) visit(ctx.expr()));
+    Neg neg = Neg.apply();
+    setPosition(ctx.MINUS_TOKEN().getSymbol(), neg);
+    UnaryExp result = new UnaryExp(neg, (Exp) visit(ctx.expr()));
     setPosition(ctx, result);
     return result;
   }
@@ -593,56 +649,63 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
 
   @Override
   public SourceNode visitOrExpr(SnapiParser.OrExprContext ctx) {
-    BinaryExp result =
-        new BinaryExp(Or.apply(), (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
+    Or or = Or.apply();
+    setPosition(ctx.OR_TOKEN().getSymbol(), or);
+    BinaryExp result = new BinaryExp(or, (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitAndExpr(SnapiParser.AndExprContext ctx) {
-    BinaryExp result =
-        new BinaryExp(And.apply(), (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
+    And and = And.apply();
+    setPosition(ctx.AND_TOKEN().getSymbol(), and);
+    BinaryExp result = new BinaryExp(and, (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitMulExpr(SnapiParser.MulExprContext ctx) {
-    BinaryExp result =
-        new BinaryExp(Mult.apply(), (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
+    Mult mult = Mult.apply();
+    setPosition(ctx.MUL_TOKEN().getSymbol(), mult);
+    BinaryExp result = new BinaryExp(mult, (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitDivExpr(SnapiParser.DivExprContext ctx) {
-    BinaryExp result =
-        new BinaryExp(Div.apply(), (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
+    Div div = Div.apply();
+    setPosition(ctx.DIV_TOKEN().getSymbol(), div);
+    BinaryExp result = new BinaryExp(div, (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitModExpr(SnapiParser.ModExprContext ctx) {
-    BinaryExp result =
-        new BinaryExp(Mod.apply(), (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
+    Mod mod = Mod.apply();
+    setPosition(ctx.MOD_TOKEN().getSymbol(), mod);
+    BinaryExp result = new BinaryExp(mod, (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitPlusExpr(SnapiParser.PlusExprContext ctx) {
-    BinaryExp result =
-        new BinaryExp(Plus.apply(), (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
+    Plus plus = Plus.apply();
+    setPosition(ctx.PLUS_TOKEN().getSymbol(), plus);
+    BinaryExp result = new BinaryExp(plus, (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
     setPosition(ctx, result);
     return result;
   }
 
   @Override
   public SourceNode visitMinusExpr(SnapiParser.MinusExprContext ctx) {
-    BinaryExp result =
-        new BinaryExp(Sub.apply(), (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
+    Sub sub = Sub.apply();
+    setPosition(ctx.MINUS_TOKEN().getSymbol(), sub);
+    BinaryExp result = new BinaryExp(sub, (Exp) visit(ctx.expr(0)), (Exp) visit(ctx.expr(1)));
     setPosition(ctx, result);
     return result;
   }
@@ -678,8 +741,8 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
   public SourceNode visitLet_bind(SnapiParser.Let_bindContext ctx) {
     Option<Type> type =
         ctx.type() == null ? Option.<Type>empty() : Option.<Type>apply((Type) visit(ctx.type()));
-    IdnDef idnDef = new IdnDef(ctx.IDENT().getText());
-    setPosition(ctx.IDENT().getSymbol(), idnDef);
+    IdnDef idnDef = new IdnDef(extractIdent(ctx.ident()));
+    setPosition(ctx.ident(), idnDef);
 
     LetBind result = new LetBind((Exp) visit(ctx.expr()), idnDef, type);
 
@@ -710,7 +773,7 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
       exps.add((Exp) visit(element));
     }
     Exp result = ListPackageBuilder.build(exps);
-    setPosition(ctx, result);
+    setPosition((ParserRuleContext) ctx.parent, result);
     return result;
   }
 
@@ -724,16 +787,16 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     LinkedList<Tuple2<String, Exp>> tuples = new LinkedList<>();
     List<SnapiParser.Record_elementContext> elements = ctx.record_element();
     for (int i = 0; i < elements.size(); i++) {
-      if (elements.get(i).IDENT() != null) {
+      if (elements.get(i).ident() != null) {
         tuples.add(
             Tuple2.<String, Exp>apply(
-                elements.get(i).IDENT().getText(), (Exp) visit(elements.get(i).expr())));
+                elements.get(i).ident().getText(), (Exp) visit(elements.get(i).expr())));
       } else {
         tuples.add(Tuple2.<String, Exp>apply("_" + (i + 1), (Exp) visit(elements.get(i).expr())));
       }
     }
     Exp result = RecordPackageBuilder.build(tuples);
-    setPosition(ctx, result);
+    setPosition((ParserRuleContext) ctx.parent, result);
     return result;
   }
 
@@ -797,6 +860,26 @@ public class RawSnapiVisitor extends SnapiBaseVisitor<SourceNode> {
     }
     setPosition(ctx, result);
     return result;
+  }
+
+  @Override
+  public SourceNode visitIdent(SnapiParser.IdentContext ctx) {
+    if (ctx.ESC_IDENTIFIER() != null) {
+      // Escaped identifier
+      return new StringConst(ctx.getText().replace("`", ""));
+    } else {
+      // todo (az) throw error if reserved keyword
+
+      //      if (isReserved(ctx.getText())) {
+      //
+      //        ANTLRErrorListener listener = getErrorListenerDispatch();
+      //        int line = ctx.getStart().getLine();
+      //        int charPositionInLine = ctx.getStart().getCharPositionInLine();
+      //        listener.syntaxError(this, null, line, charPositionInLine, "reserved keyword",
+      // null);
+      //      }
+      return new StringConst(ctx.getText());
+    }
   }
 
   // Nodes to ignore, they are not part of the AST and should never be visited

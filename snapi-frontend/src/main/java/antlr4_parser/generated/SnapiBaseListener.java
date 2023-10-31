@@ -113,28 +113,14 @@ public class SnapiBaseListener implements SnapiListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx) {}
+  public void enterFun_proto(SnapiParser.Fun_protoContext ctx) {}
   /**
    * {@inheritDoc}
    *
    * <p>The default implementation does nothing.
    */
   @Override
-  public void exitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void enterFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void exitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx) {}
+  public void exitFun_proto(SnapiParser.Fun_protoContext ctx) {}
   /**
    * {@inheritDoc}
    *
@@ -275,6 +261,20 @@ public class SnapiBaseListener implements SnapiListener {
    */
   @Override
   public void exitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx) {}
   /**
    * {@inheritDoc}
    *
@@ -1073,6 +1073,20 @@ public class SnapiBaseListener implements SnapiListener {
    */
   @Override
   public void exitBool_const(SnapiParser.Bool_constContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterIdent(SnapiParser.IdentContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitIdent(SnapiParser.IdentContext ctx) {}
 
   /**
    * {@inheritDoc}

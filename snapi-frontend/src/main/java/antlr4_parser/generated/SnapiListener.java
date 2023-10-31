@@ -100,33 +100,17 @@ public interface SnapiListener extends ParseTreeListener {
    */
   void exitRecFun(SnapiParser.RecFunContext ctx);
   /**
-   * Enter a parse tree produced by the {@code FunProtoWithoutType} labeled alternative in {@link
-   * SnapiParser#fun_proto}.
+   * Enter a parse tree produced by {@link SnapiParser#fun_proto}.
    *
    * @param ctx the parse tree
    */
-  void enterFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx);
+  void enterFun_proto(SnapiParser.Fun_protoContext ctx);
   /**
-   * Exit a parse tree produced by the {@code FunProtoWithoutType} labeled alternative in {@link
-   * SnapiParser#fun_proto}.
+   * Exit a parse tree produced by {@link SnapiParser#fun_proto}.
    *
    * @param ctx the parse tree
    */
-  void exitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx);
-  /**
-   * Enter a parse tree produced by the {@code FunProtoWithType} labeled alternative in {@link
-   * SnapiParser#fun_proto}.
-   *
-   * @param ctx the parse tree
-   */
-  void enterFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx);
-  /**
-   * Exit a parse tree produced by the {@code FunProtoWithType} labeled alternative in {@link
-   * SnapiParser#fun_proto}.
-   *
-   * @param ctx the parse tree
-   */
-  void exitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx);
+  void exitFun_proto(SnapiParser.Fun_protoContext ctx);
   /**
    * Enter a parse tree produced by the {@code FunParamAttr} labeled alternative in {@link
    * SnapiParser#fun_param}.
@@ -259,6 +243,18 @@ public interface SnapiListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx);
+  /**
+   * Enter a parse tree produced by {@link SnapiParser#fun_proto_lambda}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx);
+  /**
+   * Exit a parse tree produced by {@link SnapiParser#fun_proto_lambda}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx);
   /**
    * Enter a parse tree produced by the {@code FunTypeWithParamsType} labeled alternative in {@link
    * SnapiParser#type}.
@@ -1019,4 +1015,16 @@ public interface SnapiListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitBool_const(SnapiParser.Bool_constContext ctx);
+  /**
+   * Enter a parse tree produced by {@link SnapiParser#ident}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterIdent(SnapiParser.IdentContext ctx);
+  /**
+   * Exit a parse tree produced by {@link SnapiParser#ident}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitIdent(SnapiParser.IdentContext ctx);
 }

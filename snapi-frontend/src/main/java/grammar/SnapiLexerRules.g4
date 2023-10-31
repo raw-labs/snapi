@@ -80,7 +80,6 @@ STRING: '"' (ESC | ~["\\])* '"';
 TRIPPLE_STRING: '"""' .*? '"""';
 
 // Identifiers
-IDENT: NON_ESC_IDENTIFIER | ESC_IDENTIFIER;
 NON_ESC_IDENTIFIER: [_a-zA-Z] [_a-zA-Z0-9]*;
 ESC_IDENTIFIER: '`' .*? '`';
 WS : [ \t\r\n]+ -> skip;

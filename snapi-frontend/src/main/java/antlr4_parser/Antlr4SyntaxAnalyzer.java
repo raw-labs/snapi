@@ -12,6 +12,7 @@
 
 package antlr4_parser;
 
+import antlr4_parser.generated.SnapiLexer;
 import antlr4_parser.generated.SnapiParser;
 import org.antlr.v4.runtime.CharStreams;
 import org.antlr.v4.runtime.CommonTokenStream;
@@ -37,7 +38,7 @@ public class Antlr4SyntaxAnalyzer extends Parsers {
   }
 
   public Either<Tuple2<String, Position>, BaseProgram> parse(String s) {
-    RawSnapiLexer lexer = new RawSnapiLexer(CharStreams.fromString(s));
+    SnapiLexer lexer = new SnapiLexer(CharStreams.fromString(s));
     SnapiParser parser = new SnapiParser(new CommonTokenStream(lexer));
     ParseTree tree = parser.prog();
 
@@ -49,7 +50,7 @@ public class Antlr4SyntaxAnalyzer extends Parsers {
   }
 
   public Either<Tuple2<String, Position>, Type> parseType(String s) {
-    RawSnapiLexer lexer = new RawSnapiLexer(CharStreams.fromString(s));
+    SnapiLexer lexer = new SnapiLexer(CharStreams.fromString(s));
     SnapiParser parser = new SnapiParser(new CommonTokenStream(lexer));
     ParseTree tree = parser.type();
     RawSnapiVisitor visitor = new RawSnapiVisitor(new StringSource(s, ""), positions);

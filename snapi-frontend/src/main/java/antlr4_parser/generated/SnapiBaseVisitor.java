@@ -91,17 +91,7 @@ public class SnapiBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
    * ctx}.
    */
   @Override
-  public T visitFunProtoWithoutType(SnapiParser.FunProtoWithoutTypeContext ctx) {
-    return visitChildren(ctx);
-  }
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
-   * ctx}.
-   */
-  @Override
-  public T visitFunProtoWithType(SnapiParser.FunProtoWithTypeContext ctx) {
+  public T visitFun_proto(SnapiParser.Fun_protoContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -202,6 +192,16 @@ public class SnapiBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
    */
   @Override
   public T visitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -772,6 +772,16 @@ public class SnapiBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements 
    */
   @Override
   public T visitBool_const(SnapiParser.Bool_constContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitIdent(SnapiParser.IdentContext ctx) {
     return visitChildren(ctx);
   }
 }
