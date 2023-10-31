@@ -58,7 +58,16 @@ final case class RawLocation(v: LocationDescription) extends RawValue
 final case class RawDate(v: java.time.LocalDate) extends RawValue
 final case class RawTime(v: java.time.LocalTime) extends RawValue
 final case class RawTimestamp(v: java.time.LocalDateTime) extends RawValue
-final case class RawInterval(v: java.time.Duration) extends RawValue
+final case class RawInterval(
+    years: Int,
+    months: Int,
+    weeks: Int,
+    days: Int,
+    hours: Int,
+    minutes: Int,
+    seconds: Int,
+    millis: Int
+) extends RawValue
 final case class RawRecord(v: Seq[RawValue]) extends RawValue
 final case class RawList(v: Seq[RawValue]) extends RawValue
 final case class RawIterable(v: Seq[RawValue]) extends RawValue // Data has been ready is now materialized.

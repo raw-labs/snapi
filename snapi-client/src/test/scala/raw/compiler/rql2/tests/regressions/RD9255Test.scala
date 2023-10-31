@@ -53,7 +53,8 @@ trait RD9255Test extends CompilerTestContext with EitherValues {
       case v: LocalDate => RawDate(v)
       case v: LocalTime => RawTime(v)
       case v: LocalDateTime => RawTimestamp(v)
-      case v: Duration => RawInterval(v)
+      case v: Duration =>
+        RawInterval(0, 0, 0, v.toDaysPart.toInt, v.toHoursPart, v.toMinutesPart, v.toSecondsPart, v.toMillisPart)
     }
     callDecl(declarations, f, Array(("x", x)), t)
   }

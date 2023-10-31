@@ -277,8 +277,8 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           val localTime = v.asTime()
           RawTimestamp(localDate.atTime(localTime))
         case _: RawIntervalType =>
-          val duration = v.asDuration()
-          RawInterval(duration)
+          val d = v.asDuration()
+          RawInterval(0, 0, 0, d.toDaysPart.toInt, d.toHoursPart, d.toMinutesPart, d.toSecondsPart, d.toMillisPart)
         case _: RawBinaryType =>
           val bufferSize = v.getBufferSize.toInt
           val byteArray = new Array[Byte](bufferSize)
@@ -801,8 +801,8 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
         s"""let x: time = Time.Build(${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
       case RawTimestamp(v) =>
         s"""let x: timestamp = Timestamp.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}, ${v.getHour}, ${v.getMinute}, millis=${v.getNano / 1000000}) in x"""
-      case RawInterval(v) =>
-        s"""let x: interval = Interval.Build(days=${v.toDaysPart}, hours=${v.toHoursPart}, minutes=${v.toMinutesPart}, seconds=${v.toSecondsPart}, millis=${v.toNanosPart / 1000000}) in x"""
+      case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) =>
+        s"""let x: interval = Interval.Build(years=$years, months=$months, weeks=$weeks, days=$days, hours=$hours, minutes=$minutes, seconds=$seconds, millis=$millis) in x"""
       case _ => throw new CompilerServiceException("type not supported")
     }
     val value = ctx.eval("rql", code)

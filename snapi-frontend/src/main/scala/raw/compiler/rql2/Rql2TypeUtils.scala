@@ -194,13 +194,8 @@ trait Rql2TypeUtils {
       case RawDate(v) => wrap(t, DateValue(v))
       case RawTime(v) => wrap(t, TimeValue(v))
       case RawTimestamp(v) => wrap(t, TimestampValue(v))
-      case RawInterval(v) =>
-        val days = v.toDays.toInt
-        val hours = v.toHoursPart
-        val minutes = v.toMinutesPart
-        val seconds = v.toSecondsPart
-        val millis = v.toMillisPart
-        wrap(t, IntervalValue(0, 0, 0, days, hours, minutes, seconds, millis))
+      case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) =>
+        wrap(t, IntervalValue(years, months, weeks, days, hours, minutes, seconds, millis))
       case RawRecord(vs) =>
         val recordType = t.asInstanceOf[RawRecordType]
         val atts = vs.zipWithIndex.map { case (v, idx) => rawValueToRql2Value(v, recordType.atts(idx).tipe) }
