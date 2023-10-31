@@ -26,6 +26,7 @@ import raw.compiler.rql2.api.{
   EntryExtension,
   ExpArg,
   ExpParam,
+  OptionValue,
   PackageExtensionProvider,
   TypeArg,
   TypeParam,
@@ -1566,7 +1567,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       program, {
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
-        val rawType = rql2TypeToRawType(expected)
+        var rawType = rql2TypeToRawType(expected)
         val stagedCompilerEnvironment = programContext.runtimeContext.environment
           .copy(
             options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
@@ -1585,27 +1586,20 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             rawType,
             stagedCompilerEnvironment
           ) match {
-            case EvalSuccess(v) => v match {
-                case RawError(v) => Left(FailedToEvaluate(e, Some(v)))
-                case _ => Right(rawValueToRql2Value(v, rawType))
+            case EvalSuccess(v) =>
+              if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
+                v match {
+                  case RawError(err) => return Left(FailedToEvaluate(e, Some(err)))
+                  case _ => rawType = rawType.cloneNotTriable
+                }
               }
-//              var stagedCompilerResult = v
-//              // Remove extraProps
-//              if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
-//                val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
-//                if (tryValue.isLeft) {
-//                  return Left(FailedToEvaluate(e, tryValue.left.toOption))
-//                }
-//                stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryValue].v.right.get
-//              }
-//              if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
-//                val optionValue = stagedCompilerResult.asInstanceOf[OptionValue].v
-//                if (optionValue.isEmpty) {
-//                  return Left(FailedToEvaluate(e, Some("unexpected null value found")))
-//                }
-//                stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
-//              }
-//              Right(stagedCompilerResult)
+              if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
+                v match {
+                  case RawNull() => return Right(OptionValue(None))
+                  case _ => rawType = rawType.cloneNotNullable
+                }
+              }
+              Right(rawValueToRql2Value(v, rawType))
             case EvalValidationFailure(errs) =>
               logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
 -                |Expected type: $expected
