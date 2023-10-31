@@ -130,7 +130,7 @@ trait Rql2TypeUtils {
     }
     // Convert type.
     t match {
-      case _: Rql2UndefinedType => RawNullType()
+      case _: Rql2UndefinedType => RawUndefinedType(nullable, triable)
       case _: Rql2ByteType => RawByteType(nullable, triable)
       case _: Rql2ShortType => RawShortType(nullable, triable)
       case _: Rql2IntType => RawIntType(nullable, triable)
@@ -147,13 +147,13 @@ trait Rql2TypeUtils {
       case _: Rql2TimestampType => RawTimestampType(nullable, triable)
       case _: Rql2IntervalType => RawIntervalType(nullable, triable)
       case Rql2RecordType(atts, _) => RawRecordType(
-          atts.map { case Rql2AttrType(idn, t) => RawAttrType(idn, rql2TypeToRawType(t)) },
+          atts.map { case Rql2AttrType(idn, t1) => RawAttrType(idn, rql2TypeToRawType(t1)) },
           nullable,
           triable
         )
-      case Rql2ListType(t, _) => RawListType(rql2TypeToRawType(t), nullable, triable)
-      case Rql2IterableType(t, _) => RawIterableType(rql2TypeToRawType(t), nullable, triable)
-      case Rql2OrType(options, _) => RawOrType(options.map(rql2TypeToRawType), nullable, triable)
+      case Rql2ListType(inner, _) => RawListType(rql2TypeToRawType(inner), nullable, triable)
+      case Rql2IterableType(inner, _) => RawIterableType(rql2TypeToRawType(inner), nullable, triable)
+      case Rql2OrType(ors, _) => RawOrType(ors.map(rql2TypeToRawType), nullable, triable)
     }
   }
 
@@ -180,7 +180,6 @@ trait Rql2TypeUtils {
         } else {
           OptionValue(None)
         }
-      case RawNull() => OptionValue(None)
       case RawByte(v) => wrap(t, ByteValue(v))
       case RawShort(v) => wrap(t, ShortValue(v))
       case RawInt(v) => wrap(t, IntValue(v))
@@ -202,16 +201,16 @@ trait Rql2TypeUtils {
         val seconds = v.toSecondsPart
         val millis = v.toMillisPart
         wrap(t, IntervalValue(0, 0, 0, days, hours, minutes, seconds, millis))
-      case RawRecord(v) =>
+      case RawRecord(vs) =>
         val recordType = t.asInstanceOf[RawRecordType]
-        val atts = v.zipWithIndex.map { case (v, idx) => rawValueToRql2Value(v, recordType.atts(idx).tipe) }
+        val atts = vs.zipWithIndex.map { case (v, idx) => rawValueToRql2Value(v, recordType.atts(idx).tipe) }
         wrap(t, RecordValue(atts))
-      case RawList(v) => wrap(t, ListValue(v.map(rawValueToRql2Value(_, t.asInstanceOf[RawListType].innerType))))
-      case RawIterable(v) =>
-        wrap(t, IterableValue(v.map(rawValueToRql2Value(_, t.asInstanceOf[RawIterableType].innerType))))
-      case RawOr(v) =>
+      case RawList(vs) => wrap(t, ListValue(vs.map(rawValueToRql2Value(_, t.asInstanceOf[RawListType].innerType))))
+      case RawIterable(vs) =>
+        wrap(t, IterableValue(vs.map(rawValueToRql2Value(_, t.asInstanceOf[RawIterableType].innerType))))
+      case RawOr(ors) =>
         val orType = t.asInstanceOf[RawOrType]
-        val options = v.zipWithIndex.map { case (v, idx) => rawValueToRql2Value(v, orType.ors(idx)) }
+        val options = ors.zipWithIndex.map { case (v1, idx) => rawValueToRql2Value(v1, orType.ors(idx)) }
         wrap(t, OrValue(options))
     }
   }

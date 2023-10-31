@@ -28,6 +28,7 @@ import raw.compiler.rql2.api.{
   ExpParam,
   OptionValue,
   PackageExtensionProvider,
+  TryValue,
   TypeArg,
   TypeParam,
   Value,
@@ -1587,19 +1588,23 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
             stagedCompilerEnvironment
           ) match {
             case EvalSuccess(v) =>
+              var stagedCompilerResult = rawValueToRql2Value(v, rawType)
+              // Remove extraProps
               if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
-                v match {
-                  case RawError(err) => return Left(FailedToEvaluate(e, Some(err)))
-                  case _ => rawType = rawType.cloneNotTriable
+                val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
+                if (tryValue.isLeft) {
+                  return Left(FailedToEvaluate(e, tryValue.left.toOption))
                 }
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[TryValue].v.right.get
               }
               if (report.extraProps.contains(Rql2IsNullableTypeProperty())) {
-                v match {
-                  case RawNull() => return Right(OptionValue(None))
-                  case _ => rawType = rawType.cloneNotNullable
+                val optionValue = stagedCompilerResult.asInstanceOf[OptionValue].v
+                if (optionValue.isEmpty) {
+                  return Left(FailedToEvaluate(e, Some("unexpected null value found")))
                 }
+                stagedCompilerResult = stagedCompilerResult.asInstanceOf[OptionValue].v.get
               }
-              Right(rawValueToRql2Value(v, rawType))
+              Right(stagedCompilerResult)
             case EvalValidationFailure(errs) =>
               logger.warn(s"""Staged compilation of expression failed to validate with semantic errors:
 -                |Expected type: $expected

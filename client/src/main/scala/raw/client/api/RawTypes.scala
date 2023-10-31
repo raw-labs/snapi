@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[RawNullType], name = "null"),
+    new JsonType(value = classOf[RawUndefinedType], name = "null"),
     new JsonType(value = classOf[RawByteType], name = "byte"),
     new JsonType(value = classOf[RawShortType], name = "short"),
     new JsonType(value = classOf[RawIntType], name = "int"),
@@ -47,12 +47,10 @@ sealed abstract class RawType {
   def cloneNotTriable: RawType
 }
 
-final case class RawNullType() extends RawType {
-  val nullable = true
-  val triable = false
+final case class RawUndefinedType(nullable: Boolean, triable: Boolean) extends RawType {
+  override def cloneNotNullable: RawType = RawUndefinedType(nullable = false, triable = triable)
 
-  override def cloneNotNullable: RawType = throw new AssertionError("cannot clone RawNull as not nullable")
-  override def cloneNotTriable: RawType = throw new AssertionError("cannot clone RawNull as not triable")
+  override def cloneNotTriable: RawType = RawUndefinedType(nullable = nullable, triable = false)
 }
 
 sealed abstract class RawPrimitiveType extends RawType

@@ -254,7 +254,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       }
     } else {
       t match {
-        case _: RawNullType => RawNull()
+        case _: RawUndefinedType => throw new AssertionError("RawUndefined is not triable and is not nullable.")
         case _: RawBoolType => RawBool(v.asBoolean())
         case _: RawStringType => RawString(v.asString())
         case _: RawByteType => RawByte(v.asByte())
@@ -815,7 +815,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   ): Context = {
     // Add environment settings as hardcoded environment variables.
     val ctxBuilder = Context
-      .newBuilder("rql", "python")
+      .newBuilder("rql")
       .engine(engine)
       .environment("RAW_SETTINGS", settings.renderAsString)
       .environment("RAW_USER", environment.user.uid.toString)
