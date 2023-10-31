@@ -11,7 +11,7 @@
  */
 
 // Generated from Snapi.g4 by ANTLR 4.13.0
-package antlr4_parser.generated;
+package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
 
@@ -162,7 +162,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx);
   /**
    * Visit a parse tree produced by the {@code FunTypeWithParamsType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -170,7 +170,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code ExprTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -178,7 +178,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitExprTypeType(SnapiParser.ExprTypeTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code UndefinedTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -186,7 +186,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitUndefinedTypeType(SnapiParser.UndefinedTypeTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code RecordTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -194,7 +194,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitRecordTypeType(SnapiParser.RecordTypeTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code IterableTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -202,7 +202,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitIterableTypeType(SnapiParser.IterableTypeTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code TypeWithParenType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -210,7 +210,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitTypeWithParenType(SnapiParser.TypeWithParenTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code ListTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -218,7 +218,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitListTypeType(SnapiParser.ListTypeTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code OrTypeFunType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -226,7 +226,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitOrTypeFunType(SnapiParser.OrTypeFunTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code OrTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -234,7 +234,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitOrTypeType(SnapiParser.OrTypeTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code PrimitiveTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -242,7 +242,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitPrimitiveTypeType(SnapiParser.PrimitiveTypeTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code TypeAliasType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result
@@ -250,7 +250,7 @@ public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
   T visitTypeAliasType(SnapiParser.TypeAliasTypeContext ctx);
   /**
    * Visit a parse tree produced by the {@code FunTypeType} labeled alternative in {@link
-   * SnapiParser#type}.
+   * SnapiParser#tipe}.
    *
    * @param ctx the parse tree
    * @return the visitor result

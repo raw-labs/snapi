@@ -18,7 +18,7 @@ fun_dec: ident fun_proto                                    # NormalFun
        | REC_TOKEN ident fun_proto                          # RecFun
        ;
 
-fun_proto: '(' (fun_param (',' fun_param)*)? ')' (':' type)? '=' expr
+fun_proto: '(' (fun_param (',' fun_param)*)? ')' (':' tipe)? '=' expr
          ;
 
 
@@ -26,11 +26,11 @@ fun_param: attr                                             # FunParamAttr
          | attr '=' expr                                    # FunParamAttrExpr
          ;
 
-attr: ident ':' type
+attr: ident ':' tipe
     | ident
     ;
 
-type_attr: ident ':' type;
+type_attr: ident ':' tipe;
 
 // the input parameters of a function
 fun_ar: '(' fun_args? ')';
@@ -44,32 +44,32 @@ fun_abs: fun_proto_lambda                                   # FunAbs
        | ident '->' expr                                    # FunAbsUnnamed
        ;
 
-fun_proto_lambda: '(' (fun_param (',' fun_param)*)? ')' (':' type)? '->' expr
+fun_proto_lambda: '(' (fun_param (',' fun_param)*)? ')' (':' tipe)? '->' expr
          ;
 
 // ============= types =================
-type: '(' type ')'                                          # TypeWithParenType
-    | type OR_TOKEN or_type '->' type                       # OrTypeFunType
-    | type OR_TOKEN or_type                                 # OrTypeType
+tipe: '(' tipe ')'                                          # TypeWithParenType
+    | tipe OR_TOKEN or_type '->' tipe                       # OrTypeFunType
+    | tipe OR_TOKEN or_type                                 # OrTypeType
     | primitive_types                                       # PrimitiveTypeType
     | UNDEFINED_TOKEN                                       # UndefinedTypeType
     | ident                                                 # TypeAliasType
     | record_type                                           # RecordTypeType
     | iterable_type                                         # IterableTypeType
     | list_type                                             # ListTypeType
-    | '(' (type | attr) (',' (type | attr))* ')' '->' type  # FunTypeWithParamsType
-    | type '->' type                                        # FunTypeType
+    | '(' (tipe | attr) (',' (tipe | attr))* ')' '->' tipe  # FunTypeWithParamsType
+    | tipe '->' tipe                                        # FunTypeType
     | expr_type                                             # ExprTypeType
     ;
 
-or_type: type OR_TOKEN or_type
-       | type
+or_type: tipe OR_TOKEN or_type
+       | tipe
        ;
 
 record_type: RECORD_TOKEN '(' type_attr (',' type_attr)* ')';
-iterable_type: COLLECTION_TOKEN '(' type ')';
-list_type: LIST_TOKEN '(' type ')';
-expr_type: TYPE_TOKEN type;
+iterable_type: COLLECTION_TOKEN '(' tipe ')';
+list_type: LIST_TOKEN '(' tipe ')';
+expr_type: TYPE_TOKEN tipe;
 
 // ========== expressions ============
 expr: '(' expr ')'                                          # ParenExpr
@@ -113,7 +113,7 @@ let_decl: let_bind
         ;
 
 let_bind: ident '=' expr
-        | ident ':' type '=' expr
+        | ident ':' tipe '=' expr
         ;
 
 if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr

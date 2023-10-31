@@ -156,7 +156,7 @@ fun_args
 fun_arg
 fun_abs
 fun_proto_lambda
-type
+tipe
 or_type
 record_type
 iterable_type

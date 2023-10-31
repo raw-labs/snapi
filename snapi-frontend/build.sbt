@@ -79,7 +79,7 @@ scalacOptions ++= Seq(
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
 // Needed for JPMS to work.
-compileOrder := CompileOrder.ScalaThenJava
+compileOrder := CompileOrder.JavaThenScala
 
 // Doc generation breaks with Java files
 Compile / doc / sources := {

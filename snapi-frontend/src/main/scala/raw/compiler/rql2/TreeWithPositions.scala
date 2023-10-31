@@ -12,8 +12,10 @@
 
 package raw.compiler.rql2
 
+import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api.{CompilerParserException, ErrorPosition}
 import raw.compiler.common.source.SourceProgram
+import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 
 class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, frontend: Boolean = false)(
     implicit programContext: ProgramContext
@@ -25,6 +27,11 @@ class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, fron
 
   @throws[CompilerParserException]
   override def doParse(): SourceProgram = {
+
+    if (frontend) {
+      val test = new Antlr4SyntaxAnalyzer(new Positions)
+    }
+
     val parser =
       // We have both a frontend parser and an internal parser, which gives access to internal nodes.
       if (frontend) {

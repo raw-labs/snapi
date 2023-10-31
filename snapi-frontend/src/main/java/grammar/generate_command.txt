@@ -1,1 +1,0 @@
-antlr4 -visitor -listener -o ../antlr4_parser/generated -package antlr4_parser.generated Snapi.g4

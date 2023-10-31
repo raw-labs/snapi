@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2
 
-import antlr4_parser.Antlr4SyntaxAnalyzer
+import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.{
   FunOptTypeParam,
   FunType,

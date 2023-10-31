@@ -11,7 +11,7 @@
  */
 
 // Generated from Snapi.g4 by ANTLR 4.13.0
-package antlr4_parser.generated;
+package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.*;
 import org.antlr.v4.runtime.CharStream;

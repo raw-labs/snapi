@@ -11,7 +11,7 @@
  */
 
 // Generated from Snapi.g4 by ANTLR 4.13.0
-package antlr4_parser.generated;
+package raw.compiler.rql2.generated;
 
 import java.util.List;
 import org.antlr.v4.runtime.*;
@@ -110,7 +110,7 @@ public class SnapiParser extends Parser {
       RULE_fun_arg = 10,
       RULE_fun_abs = 11,
       RULE_fun_proto_lambda = 12,
-      RULE_type = 13,
+      RULE_tipe = 13,
       RULE_or_type = 14,
       RULE_record_type = 15,
       RULE_iterable_type = 16,
@@ -148,7 +148,7 @@ public class SnapiParser extends Parser {
       "fun_arg",
       "fun_abs",
       "fun_proto_lambda",
-      "type",
+      "tipe",
       "or_type",
       "record_type",
       "iterable_type",
@@ -800,8 +800,8 @@ public class SnapiParser extends Parser {
       return getRuleContext(Fun_paramContext.class, i);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public Fun_protoContext(ParserRuleContext parent, int invokingState) {
@@ -876,7 +876,7 @@ public class SnapiParser extends Parser {
             setState(112);
             match(T__3);
             setState(113);
-            type(0);
+            tipe(0);
           }
         }
 
@@ -1017,8 +1017,8 @@ public class SnapiParser extends Parser {
       return getRuleContext(IdentContext.class, 0);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public AttrContext(ParserRuleContext parent, int invokingState) {
@@ -1063,7 +1063,7 @@ public class SnapiParser extends Parser {
             setState(127);
             match(T__3);
             setState(128);
-            type(0);
+            tipe(0);
           }
           break;
         case 2:
@@ -1090,8 +1090,8 @@ public class SnapiParser extends Parser {
       return getRuleContext(IdentContext.class, 0);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public Type_attrContext(ParserRuleContext parent, int invokingState) {
@@ -1132,7 +1132,7 @@ public class SnapiParser extends Parser {
         setState(134);
         match(T__3);
         setState(135);
-        type(0);
+        tipe(0);
       }
     } catch (RecognitionException re) {
       _localctx.exception = re;
@@ -1532,8 +1532,8 @@ public class SnapiParser extends Parser {
       return getRuleContext(Fun_paramContext.class, i);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public Fun_proto_lambdaContext(ParserRuleContext parent, int invokingState) {
@@ -1608,7 +1608,7 @@ public class SnapiParser extends Parser {
             setState(177);
             match(T__3);
             setState(178);
-            type(0);
+            tipe(0);
           }
         }
 
@@ -1628,31 +1628,31 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class TypeContext extends ParserRuleContext {
-    public TypeContext(ParserRuleContext parent, int invokingState) {
+  public static class TipeContext extends ParserRuleContext {
+    public TipeContext(ParserRuleContext parent, int invokingState) {
       super(parent, invokingState);
     }
 
     @Override
     public int getRuleIndex() {
-      return RULE_type;
+      return RULE_tipe;
     }
 
-    public TypeContext() {}
+    public TipeContext() {}
 
-    public void copyFrom(TypeContext ctx) {
+    public void copyFrom(TipeContext ctx) {
       super.copyFrom(ctx);
     }
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class FunTypeWithParamsTypeContext extends TypeContext {
-    public List<TypeContext> type() {
-      return getRuleContexts(TypeContext.class);
+  public static class FunTypeWithParamsTypeContext extends TipeContext {
+    public List<TipeContext> tipe() {
+      return getRuleContexts(TipeContext.class);
     }
 
-    public TypeContext type(int i) {
-      return getRuleContext(TypeContext.class, i);
+    public TipeContext tipe(int i) {
+      return getRuleContext(TipeContext.class, i);
     }
 
     public List<AttrContext> attr() {
@@ -1663,7 +1663,7 @@ public class SnapiParser extends Parser {
       return getRuleContext(AttrContext.class, i);
     }
 
-    public FunTypeWithParamsTypeContext(TypeContext ctx) {
+    public FunTypeWithParamsTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1688,12 +1688,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class ExprTypeTypeContext extends TypeContext {
+  public static class ExprTypeTypeContext extends TipeContext {
     public Expr_typeContext expr_type() {
       return getRuleContext(Expr_typeContext.class, 0);
     }
 
-    public ExprTypeTypeContext(TypeContext ctx) {
+    public ExprTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1716,12 +1716,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class UndefinedTypeTypeContext extends TypeContext {
+  public static class UndefinedTypeTypeContext extends TipeContext {
     public TerminalNode UNDEFINED_TOKEN() {
       return getToken(SnapiParser.UNDEFINED_TOKEN, 0);
     }
 
-    public UndefinedTypeTypeContext(TypeContext ctx) {
+    public UndefinedTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1745,12 +1745,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class RecordTypeTypeContext extends TypeContext {
+  public static class RecordTypeTypeContext extends TipeContext {
     public Record_typeContext record_type() {
       return getRuleContext(Record_typeContext.class, 0);
     }
 
-    public RecordTypeTypeContext(TypeContext ctx) {
+    public RecordTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1773,12 +1773,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class IterableTypeTypeContext extends TypeContext {
+  public static class IterableTypeTypeContext extends TipeContext {
     public Iterable_typeContext iterable_type() {
       return getRuleContext(Iterable_typeContext.class, 0);
     }
 
-    public IterableTypeTypeContext(TypeContext ctx) {
+    public IterableTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1801,12 +1801,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class TypeWithParenTypeContext extends TypeContext {
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+  public static class TypeWithParenTypeContext extends TipeContext {
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
-    public TypeWithParenTypeContext(TypeContext ctx) {
+    public TypeWithParenTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1830,12 +1830,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class ListTypeTypeContext extends TypeContext {
+  public static class ListTypeTypeContext extends TipeContext {
     public List_typeContext list_type() {
       return getRuleContext(List_typeContext.class, 0);
     }
 
-    public ListTypeTypeContext(TypeContext ctx) {
+    public ListTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1858,13 +1858,13 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class OrTypeFunTypeContext extends TypeContext {
-    public List<TypeContext> type() {
-      return getRuleContexts(TypeContext.class);
+  public static class OrTypeFunTypeContext extends TipeContext {
+    public List<TipeContext> tipe() {
+      return getRuleContexts(TipeContext.class);
     }
 
-    public TypeContext type(int i) {
-      return getRuleContext(TypeContext.class, i);
+    public TipeContext tipe(int i) {
+      return getRuleContext(TipeContext.class, i);
     }
 
     public TerminalNode OR_TOKEN() {
@@ -1875,7 +1875,7 @@ public class SnapiParser extends Parser {
       return getRuleContext(Or_typeContext.class, 0);
     }
 
-    public OrTypeFunTypeContext(TypeContext ctx) {
+    public OrTypeFunTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1898,9 +1898,9 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class OrTypeTypeContext extends TypeContext {
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+  public static class OrTypeTypeContext extends TipeContext {
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public TerminalNode OR_TOKEN() {
@@ -1911,7 +1911,7 @@ public class SnapiParser extends Parser {
       return getRuleContext(Or_typeContext.class, 0);
     }
 
-    public OrTypeTypeContext(TypeContext ctx) {
+    public OrTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1934,12 +1934,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class PrimitiveTypeTypeContext extends TypeContext {
+  public static class PrimitiveTypeTypeContext extends TipeContext {
     public Primitive_typesContext primitive_types() {
       return getRuleContext(Primitive_typesContext.class, 0);
     }
 
-    public PrimitiveTypeTypeContext(TypeContext ctx) {
+    public PrimitiveTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1963,12 +1963,12 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class TypeAliasTypeContext extends TypeContext {
+  public static class TypeAliasTypeContext extends TipeContext {
     public IdentContext ident() {
       return getRuleContext(IdentContext.class, 0);
     }
 
-    public TypeAliasTypeContext(TypeContext ctx) {
+    public TypeAliasTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -1991,16 +1991,16 @@ public class SnapiParser extends Parser {
   }
 
   @SuppressWarnings("CheckReturnValue")
-  public static class FunTypeTypeContext extends TypeContext {
-    public List<TypeContext> type() {
-      return getRuleContexts(TypeContext.class);
+  public static class FunTypeTypeContext extends TipeContext {
+    public List<TipeContext> tipe() {
+      return getRuleContexts(TipeContext.class);
     }
 
-    public TypeContext type(int i) {
-      return getRuleContext(TypeContext.class, i);
+    public TipeContext tipe(int i) {
+      return getRuleContext(TipeContext.class, i);
     }
 
-    public FunTypeTypeContext(TypeContext ctx) {
+    public FunTypeTypeContext(TipeContext ctx) {
       copyFrom(ctx);
     }
 
@@ -2022,17 +2022,17 @@ public class SnapiParser extends Parser {
     }
   }
 
-  public final TypeContext type() throws RecognitionException {
-    return type(0);
+  public final TipeContext tipe() throws RecognitionException {
+    return tipe(0);
   }
 
-  private TypeContext type(int _p) throws RecognitionException {
+  private TipeContext tipe(int _p) throws RecognitionException {
     ParserRuleContext _parentctx = _ctx;
     int _parentState = getState();
-    TypeContext _localctx = new TypeContext(_ctx, _parentState);
-    TypeContext _prevctx = _localctx;
+    TipeContext _localctx = new TipeContext(_ctx, _parentState);
+    TipeContext _prevctx = _localctx;
     int _startState = 26;
-    enterRecursionRule(_localctx, 26, RULE_type, _p);
+    enterRecursionRule(_localctx, 26, RULE_tipe, _p);
     int _la;
     try {
       int _alt;
@@ -2050,7 +2050,7 @@ public class SnapiParser extends Parser {
               setState(185);
               match(T__0);
               setState(186);
-              type(0);
+              tipe(0);
               setState(187);
               match(T__2);
             }
@@ -2122,7 +2122,7 @@ public class SnapiParser extends Parser {
                 case 1:
                   {
                     setState(196);
-                    type(0);
+                    tipe(0);
                   }
                   break;
                 case 2:
@@ -2146,7 +2146,7 @@ public class SnapiParser extends Parser {
                       case 1:
                         {
                           setState(201);
-                          type(0);
+                          tipe(0);
                         }
                         break;
                       case 2:
@@ -2167,7 +2167,7 @@ public class SnapiParser extends Parser {
               setState(211);
               match(T__5);
               setState(212);
-              type(3);
+              tipe(3);
             }
             break;
           case 9:
@@ -2194,8 +2194,8 @@ public class SnapiParser extends Parser {
               switch (getInterpreter().adaptivePredict(_input, 20, _ctx)) {
                 case 1:
                   {
-                    _localctx = new OrTypeFunTypeContext(new TypeContext(_parentctx, _parentState));
-                    pushNewRecursionContext(_localctx, _startState, RULE_type);
+                    _localctx = new OrTypeFunTypeContext(new TipeContext(_parentctx, _parentState));
+                    pushNewRecursionContext(_localctx, _startState, RULE_tipe);
                     setState(217);
                     if (!(precpred(_ctx, 11)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 11)");
@@ -2206,26 +2206,26 @@ public class SnapiParser extends Parser {
                     setState(220);
                     match(T__5);
                     setState(221);
-                    type(12);
+                    tipe(12);
                   }
                   break;
                 case 2:
                   {
-                    _localctx = new FunTypeTypeContext(new TypeContext(_parentctx, _parentState));
-                    pushNewRecursionContext(_localctx, _startState, RULE_type);
+                    _localctx = new FunTypeTypeContext(new TipeContext(_parentctx, _parentState));
+                    pushNewRecursionContext(_localctx, _startState, RULE_tipe);
                     setState(223);
                     if (!(precpred(_ctx, 2)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 2)");
                     setState(224);
                     match(T__5);
                     setState(225);
-                    type(3);
+                    tipe(3);
                   }
                   break;
                 case 3:
                   {
-                    _localctx = new OrTypeTypeContext(new TypeContext(_parentctx, _parentState));
-                    pushNewRecursionContext(_localctx, _startState, RULE_type);
+                    _localctx = new OrTypeTypeContext(new TipeContext(_parentctx, _parentState));
+                    pushNewRecursionContext(_localctx, _startState, RULE_tipe);
                     setState(226);
                     if (!(precpred(_ctx, 10)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 10)");
@@ -2255,8 +2255,8 @@ public class SnapiParser extends Parser {
 
   @SuppressWarnings("CheckReturnValue")
   public static class Or_typeContext extends ParserRuleContext {
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public TerminalNode OR_TOKEN() {
@@ -2305,7 +2305,7 @@ public class SnapiParser extends Parser {
           enterOuterAlt(_localctx, 1);
           {
             setState(234);
-            type(0);
+            tipe(0);
             setState(235);
             match(OR_TOKEN);
             setState(236);
@@ -2316,7 +2316,7 @@ public class SnapiParser extends Parser {
           enterOuterAlt(_localctx, 2);
           {
             setState(238);
-            type(0);
+            tipe(0);
           }
           break;
       }
@@ -2419,8 +2419,8 @@ public class SnapiParser extends Parser {
       return getToken(SnapiParser.COLLECTION_TOKEN, 0);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public Iterable_typeContext(ParserRuleContext parent, int invokingState) {
@@ -2461,7 +2461,7 @@ public class SnapiParser extends Parser {
         setState(254);
         match(T__0);
         setState(255);
-        type(0);
+        tipe(0);
         setState(256);
         match(T__2);
       }
@@ -2481,8 +2481,8 @@ public class SnapiParser extends Parser {
       return getToken(SnapiParser.LIST_TOKEN, 0);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public List_typeContext(ParserRuleContext parent, int invokingState) {
@@ -2523,7 +2523,7 @@ public class SnapiParser extends Parser {
         setState(259);
         match(T__0);
         setState(260);
-        type(0);
+        tipe(0);
         setState(261);
         match(T__2);
       }
@@ -2543,8 +2543,8 @@ public class SnapiParser extends Parser {
       return getToken(SnapiParser.TYPE_TOKEN, 0);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public Expr_typeContext(ParserRuleContext parent, int invokingState) {
@@ -2583,7 +2583,7 @@ public class SnapiParser extends Parser {
         setState(263);
         match(TYPE_TOKEN);
         setState(264);
-        type(0);
+        tipe(0);
       }
     } catch (RecognitionException re) {
       _localctx.exception = re;
@@ -4006,8 +4006,8 @@ public class SnapiParser extends Parser {
       return getRuleContext(ExprContext.class, 0);
     }
 
-    public TypeContext type() {
-      return getRuleContext(TypeContext.class, 0);
+    public TipeContext tipe() {
+      return getRuleContext(TipeContext.class, 0);
     }
 
     public Let_bindContext(ParserRuleContext parent, int invokingState) {
@@ -4063,7 +4063,7 @@ public class SnapiParser extends Parser {
             setState(353);
             match(T__3);
             setState(354);
-            type(0);
+            tipe(0);
             setState(355);
             match(T__4);
             setState(356);
@@ -4921,14 +4921,14 @@ public class SnapiParser extends Parser {
   public boolean sempred(RuleContext _localctx, int ruleIndex, int predIndex) {
     switch (ruleIndex) {
       case 13:
-        return type_sempred((TypeContext) _localctx, predIndex);
+        return tipe_sempred((TipeContext) _localctx, predIndex);
       case 19:
         return expr_sempred((ExprContext) _localctx, predIndex);
     }
     return true;
   }
 
-  private boolean type_sempred(TypeContext _localctx, int predIndex) {
+  private boolean tipe_sempred(TipeContext _localctx, int predIndex) {
     switch (predIndex) {
       case 0:
         return precpred(_ctx, 11);
