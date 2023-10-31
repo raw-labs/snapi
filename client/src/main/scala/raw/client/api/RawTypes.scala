@@ -18,7 +18,7 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[RawUndefinedType], name = "null"),
+    new JsonType(value = classOf[RawUndefinedType], name = "undefined"),
     new JsonType(value = classOf[RawByteType], name = "byte"),
     new JsonType(value = classOf[RawShortType], name = "short"),
     new JsonType(value = classOf[RawIntType], name = "int"),
