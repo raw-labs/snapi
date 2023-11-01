@@ -16,18 +16,25 @@ import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
-import raw.compiler.InitPhase;
+import raw.compiler.base.CompilerContext;
+import raw.compiler.base.InitPhase;
 import raw.compiler.base.Phase;
+import raw.compiler.base.source.Type;
 import raw.compiler.common.PhaseDescriptor;
 import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.*;
-import raw.compiler.scala2.Scala2CompilerContext;
+import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
+import raw.compiler.rql2.source.Rql2Program;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
@@ -69,6 +76,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return REFERENCE.get(node);
   }
 
+  private final InteropLibrary bindings = InteropLibrary.getFactory().createDispatched(1);
+
   // FIXME (msb): Why is this here?
   public RecordObject createRecord() {
     return new RecordObject();
@@ -92,34 +101,55 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     // Parse and validate
     RuntimeContext runtimeContext =
         new RuntimeContext(context.getSourceContext(), rawSettings, programEnvironment);
-    Scala2CompilerContext compilerContext =
-        new Scala2CompilerContext(
+    CompilerContext compilerContext =
+        new CompilerContext(
             "rql2-truffle",
             context.getUser(),
-            context.getSourceContext(),
             context.getInferrer(),
+            context.getSourceContext(),
             new Some<>(classLoader),
-            null,
             rawSettings);
-    ProgramContext programContext = new ProgramContext(runtimeContext, compilerContext);
+    ProgramContext programContext = new Rql2ProgramContext(runtimeContext, compilerContext);
     try {
       // If we are in staged compiler mode, use the internal parser.
       boolean frontend = true;
-      boolean ensureTree = false;
       if (context
           .getEnv()
           .getOptions()
           .get(RawOptions.STAGED_COMPILER_KEY)
           .equalsIgnoreCase("true")) {
         frontend = false;
-        ensureTree = true;
       }
-      TreeWithPositions tree = new TreeWithPositions(source, ensureTree, frontend, programContext);
+      TreeWithPositions tree = new TreeWithPositions(source, false, frontend, programContext);
       if (tree.valid()) {
-        SourceProgram inputProgram = tree.root();
+        Rql2Program inputProgram = (Rql2Program) tree.root();
         SourceProgram outputProgram = transpile(inputProgram, programContext);
         Entrypoint entrypoint = TruffleEmit.doEmit(outputProgram, this, programContext);
         RootNode rootNode = (RootNode) entrypoint.target();
+        JavaConverters.asJavaCollection(inputProgram.methods())
+            .forEach(
+                m -> {
+                  try {
+                    bindings.writeMember(
+                        context.getPolyglotBindings(),
+                        "@type:" + m.i().idn(),
+                        InternalSourcePrettyPrinter.format(tree.analyzer().idnType(m.i())));
+                  } catch (UnsupportedMessageException
+                      | UnknownIdentifierException
+                      | UnsupportedTypeException e) {
+                    throw new RuntimeException(e);
+                  }
+                });
+        if (tree.rootType().isDefined()) {
+          Type outputType = tree.rootType().get();
+          bindings.writeMember(
+              context.getPolyglotBindings(),
+              "@type",
+              InternalSourcePrettyPrinter.format(outputType));
+        } else {
+          if (bindings.isMemberExisting(context.getPolyglotBindings(), "@type"))
+            bindings.removeMember(context.getPolyglotBindings(), "@type");
+        }
         return rootNode.getCallTarget();
       } else {
         throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
@@ -199,8 +229,11 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return cur;
   }
 
+  // This method returns what is available in the bindings of the context.
+  // We return the function registry as a polyglot 'hasMembers' object (members
+  // are the function names, that resolve to the function objects).
   @Override
   protected Object getScope(RawContext context) {
-    return super.getScope(context);
+    return context.getFunctionRegistry().asPolyglot();
   }
 }

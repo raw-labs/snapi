@@ -14,14 +14,17 @@ package raw.runtime.truffle.runtime.primitives;
 
 import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.DATE_FORMATTER;
 
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.time.LocalDate;
+import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
-public class DateObject implements TruffleObject {
+public final class DateObject implements TruffleObject {
 
   private final LocalDate date;
 
@@ -38,12 +41,28 @@ public class DateObject implements TruffleObject {
   }
 
   @ExportMessage
-  public final boolean isDate() {
+  boolean isDate() {
     return true;
   }
 
   @ExportMessage
-  public final LocalDate asDate() {
+  LocalDate asDate() {
     return date;
+  }
+
+  @ExportMessage
+  boolean hasLanguage() {
+    return true;
+  }
+
+  @ExportMessage
+  Class<? extends TruffleLanguage<?>> getLanguage() {
+    return RawLanguage.class;
+  }
+
+  @ExportMessage
+  @CompilerDirectives.TruffleBoundary
+  Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
+    return "Date";
   }
 }

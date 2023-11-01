@@ -69,12 +69,14 @@ scalacOptions ++= Seq(
   "-Xmax-classfile-name",
   "140",
   "-deprecation",
-  "-Xlint:-stars-align,_",
+  "-Xlint:-stars-align,-missing-interpolator,_",
   "-Ywarn-dead-code",
   // Fix for false warning of unused implicit arguments in traits/interfaces.
   "-Ywarn-macros:after",
   "-Ypatmat-exhaust-depth",
-  "160"
+  "160",
+  // Warnings as errors.
+  "-Xfatal-warnings"
 )
 
 // Use cached resolution of dependencies
@@ -148,7 +150,7 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
   rawSnapiFrontend % "compile->compile;test->test",
-  rawSnapiTruffle
+  rawSnapiTruffle % "test->test"
 )
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.client")

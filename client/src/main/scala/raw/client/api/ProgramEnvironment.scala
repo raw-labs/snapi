@@ -16,7 +16,7 @@ import raw.utils.AuthenticatedUser
 
 final case class ProgramEnvironment(
     user: AuthenticatedUser,
-    maybeArguments: Option[Array[(String, ParamValue)]],
+    maybeArguments: Option[Array[(String, RawValue)]],
     scopes: Set[String],
     options: Map[String, String],
     maybeTraceId: Option[String] = None

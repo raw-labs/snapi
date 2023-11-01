@@ -14,19 +14,25 @@ package raw.compiler.rql2.api
 
 import org.scalatest.BeforeAndAfterAll
 import raw.client.api.CompilerServiceProvider
-import raw.client.rql2.truffle.Rql2TruffleCompilerService
+import raw.client.rql2.api.Rql2CompilerService
 import raw.utils.RawTestSuite
 
-trait CompilerServiceTestContext extends BeforeAndAfterAll {
+trait Rql2CompilerServiceTestContext extends BeforeAndAfterAll {
   this: RawTestSuite =>
 
-  private var instance: Rql2TruffleCompilerService = _
+  private var instance: Rql2CompilerService = _
 
-  def compilerService: Rql2TruffleCompilerService = instance
+  private var language: Set[String] = _
 
-  def setCompilerService(compilerService: Rql2TruffleCompilerService): Unit = {
+  def compilerService: Rql2CompilerService = instance
+
+  def setCompilerService(compilerService: Rql2CompilerService): Unit = {
+    // Remember the language we have set.
+    if (compilerService != null) {
+      language = compilerService.language
+    }
     instance = compilerService
-    CompilerServiceProvider.set(compilerService)
+    CompilerServiceProvider.set(language, compilerService)
   }
 
   override def afterAll(): Unit = {

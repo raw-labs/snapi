@@ -17,10 +17,19 @@ import raw.utils.{RawException, RawService}
 import java.io.OutputStream
 
 // Exception that wraps the underlying error so that it includes the extra debug info.
-final class CompilerServiceException(val t: Throwable, val debugInfo: List[(String, String)])
-    extends RawException(t.getMessage, cause = t)
+final class CompilerServiceException(
+    message: String,
+    val debugInfo: List[(String, String)] = List.empty,
+    cause: Throwable = null
+) extends RawException(message, cause) {
+
+  def this(t: Throwable, debugInfo: List[(String, String)]) = this(t.getMessage, debugInfo, t)
+
+}
 
 trait CompilerService extends RawService {
+
+  def language: Set[String]
 
   // Get the description of a source program.
   @throws[CompilerServiceException]
@@ -29,11 +38,11 @@ trait CompilerService extends RawService {
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse
 
-  // Evaluate a source program and return the result as a Value.
+  // Evaluate a source program and return the result as a RawValue.
   @throws[CompilerServiceException]
   def eval(
       source: String,
-      tipe: String,
+      tipe: RawType,
       environment: ProgramEnvironment
   ): EvalResponse
 
@@ -102,7 +111,7 @@ final case class GetProgramDescriptionSuccess(programDescription: ProgramDescrip
     extends GetProgramDescriptionResponse
 
 sealed trait EvalResponse
-final case class EvalSuccess(v: Value) extends EvalResponse
+final case class EvalSuccess(v: RawValue) extends EvalResponse
 final case class EvalValidationFailure(errors: List[ErrorMessage]) extends EvalResponse
 final case class EvalRuntimeFailure(error: String) extends EvalResponse
 

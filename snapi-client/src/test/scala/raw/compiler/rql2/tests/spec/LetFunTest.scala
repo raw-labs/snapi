@@ -142,6 +142,13 @@ trait LetFunTest extends CompilerTestContext {
     it should evaluateTo("6")
   }
 
+  test("""let f(x: int, y: int = 1, z: int = 2): int = (x + y) * z
+    |in f(1, z = 3, y = 2)
+    |""".stripMargin) { it =>
+    it should typeAs("int")
+    it should evaluateTo("9")
+  }
+
   test("""let f(x: int, y: int = 1, z: int = 2): int = x + y + z
     |in f(1, y = 2, 3)
     |""".stripMargin)(it => it should typeErrorAs("mandatory arguments must be before optional arguments"))
@@ -241,7 +248,7 @@ trait LetFunTest extends CompilerTestContext {
     |    functions = List.Transform(numbers, n -> let f(x: int, v: int = n) = x * v in f)
     |in List.Transform(functions, f -> f(10))
     |""".stripMargin) { it =>
-    assume(language == "rql2-truffle") // The scala executor fails to turn this code to L0
+    assume(compilerService.language.contains("rql2-truffle")) // The scala executor fails to turn this code to L0
     it should evaluateTo("[10, 20, 30, 40]")
   }
 

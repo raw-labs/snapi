@@ -26,6 +26,7 @@ import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import java.util.*;
+import raw.compiler.RecordFieldsNaming;
 import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
@@ -49,26 +50,7 @@ public final class RecordObject implements TruffleObject {
   @TruffleBoundary
   public void refreshDistinctKeys() {
     distinctKeys.clear();
-    // populate with all official keys (duplicates will appear once)
-    Map<String, Boolean> keySet = new HashMap<>();
-    keys.forEach(k -> keySet.put(k, false));
-    // add all keys in the order they appear in the keys vector
-    for (String key : keys) {
-      String newKey = key;
-      if (keySet.get(newKey)) {
-        // the key was seen already, find a new key by enumerating other keys.
-        int n = 1;
-        do {
-          newKey = key + '_' + n++;
-        } while (keySet.containsKey(newKey));
-        keySet.put(newKey, true);
-      } else {
-        // else, keep the original name
-        // but keep track of the fact that we saw it
-        keySet.put(newKey, true);
-      }
-      distinctKeys.add(newKey);
-    }
+    distinctKeys.addAll(RecordFieldsNaming.makeDistinct(keys));
   }
 
   @ExportMessage

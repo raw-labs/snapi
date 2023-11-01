@@ -10,11 +10,11 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler
+package raw.compiler.utils
 
 import org.bitbucket.inkytonik.kiama.==>
-import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.id
+import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import org.bitbucket.inkytonik.kiama.util.Collections.Factory
 
 import scala.language.higherKinds

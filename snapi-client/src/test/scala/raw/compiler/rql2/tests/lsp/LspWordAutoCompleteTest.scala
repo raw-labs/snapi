@@ -33,6 +33,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
       case FunParamCompletion(n, t) => (n, Some(t))
       case PackageCompletion(n, d) => (n, Some(d.description))
       case PackageEntryCompletion(n, d) => (n, Some(d.description))
+      case TypeCompletion(name, tipe) => (name, Some(tipe))
     }
     // Check that all expected are in actual.
     // actual can have more though - e.g. built-in packages.

@@ -10,13 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.tests
+package raw.compiler.rql2.truffle
 
 import raw.client.rql2.truffle.Rql2TruffleCompilerService
-import raw.compiler.rql2.api.CompilerServiceTestContext
+import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
 import raw.utils.{withSuppressNonFatalException, RawTestSuite, SettingsTestContext}
 
-trait Rql2TruffleCompilerServiceTestContext extends CompilerServiceTestContext {
+trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>
 
   var rql2TruffleCompilerService: Rql2TruffleCompilerService = _
@@ -24,6 +24,7 @@ trait Rql2TruffleCompilerServiceTestContext extends CompilerServiceTestContext {
   override def beforeAll(): Unit = {
     super.beforeAll()
     property("raw.compiler.impl", "rql2-truffle")
+
     rql2TruffleCompilerService = new Rql2TruffleCompilerService
     setCompilerService(rql2TruffleCompilerService)
   }

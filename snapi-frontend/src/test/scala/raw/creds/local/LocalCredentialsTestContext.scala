@@ -12,12 +12,13 @@
 
 package raw.creds.local
 
+import org.scalatest.BeforeAndAfterAll
 import raw.utils.{RawTestSuite, SettingsTestContext}
 import raw.creds.api.CredentialsTestContext
 import raw.utils._
 
-trait LocalCredentialsTestContext extends CredentialsTestContext {
-  this: RawTestSuite with SettingsTestContext =>
+trait LocalCredentialsTestContext extends BeforeAndAfterAll {
+  this: RawTestSuite with SettingsTestContext with CredentialsTestContext =>
 
   protected var localCredentialsService: LocalCredentialsService = _
 

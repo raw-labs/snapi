@@ -13,8 +13,8 @@
 package raw.compiler.rql2.source
 
 import org.bitbucket.inkytonik.kiama.output._
+import raw.compiler.base
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
-import raw.compiler.common
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}
@@ -23,10 +23,17 @@ import raw.utils._
 import scala.collection.mutable
 
 trait SourcePrettyPrinter
-    extends common.source.SourcePrettyPrinter
+    extends base.source.SourcePrettyPrinter
     with Keywords
     with Rql2TypeUtils
     with ParenPrettyPrinter {
+
+  protected def args(n: Vector[SourceNode]): Doc = sepArgs(comma, n.map(toDoc): _*)
+
+  protected def idnToDoc(i: CommonIdnNode): Doc = i match {
+    case IdnDef(idn) => ident(idn)
+    case IdnUse(idn) => ident(idn)
+  }
 
   protected def internal: Boolean = false
 
@@ -40,37 +47,13 @@ trait SourcePrettyPrinter
   }
 
   protected def rql2TypeWithProperties(t: Rql2TypeWithProperties): Doc = {
-    val d: Doc = t match {
-      case _: Rql2BoolType => "bool"
-      case _: Rql2StringType => "string"
-      case _: Rql2LocationType => "location"
-      case _: Rql2BinaryType => "binary"
-      case _: Rql2ByteType => "byte"
-      case _: Rql2ShortType => "short"
-      case _: Rql2IntType => "int"
-      case _: Rql2LongType => "long"
-      case _: Rql2FloatType => "float"
-      case _: Rql2DoubleType => "double"
-      case _: Rql2DecimalType => "decimal"
-      case _: Rql2DateType => "date"
-      case _: Rql2TimeType => "time"
-      case _: Rql2IntervalType => "interval"
-      case _: Rql2TimestampType => "timestamp"
-      case Rql2RecordType(atts, _) => method("record", atts.map(att => ident(att.idn) <> ":" <+> att.tipe): _*)
-      case Rql2IterableType(innerType, _) => innerType match {
-          case _: AnythingType => "collection"
-          case _ => method("collection", innerType)
-        }
-      case Rql2ListType(innerType, _) => innerType match {
-          case _: AnythingType => "list"
-          case _ => method("list", innerType)
-        }
+    t match {
       case Rql2OrType(ts, props) =>
         val d = folddoc(ts.map(toDoc), _ <+> "or" <+> _)
         if (internal && props.nonEmpty) {
           // Wrap in parenthesis to disambiguate the type property annotations.
           // Refer to the parser for details.
-          parens(d)
+          parens(showProperties(t, d, parenthesis = false))
         } else {
           d
         }
@@ -80,23 +63,56 @@ trait SourcePrettyPrinter
         if (internal && props.nonEmpty) {
           // Wrap in parenthesis to disambiguate the type property annotations.
           // Refer to the parser for details.
-          parens(d)
+          parens(showProperties(t, d, parenthesis = true))
         } else {
           d
         }
-      case _: Rql2UndefinedType => "undefined"
+      case other =>
+        val d: Doc = other match {
+          case _: Rql2BoolType => "bool"
+          case _: Rql2StringType => "string"
+          case _: Rql2LocationType => "location"
+          case _: Rql2BinaryType => "binary"
+          case _: Rql2ByteType => "byte"
+          case _: Rql2ShortType => "short"
+          case _: Rql2IntType => "int"
+          case _: Rql2LongType => "long"
+          case _: Rql2FloatType => "float"
+          case _: Rql2DoubleType => "double"
+          case _: Rql2DecimalType => "decimal"
+          case _: Rql2DateType => "date"
+          case _: Rql2TimeType => "time"
+          case _: Rql2IntervalType => "interval"
+          case _: Rql2TimestampType => "timestamp"
+          case Rql2RecordType(atts, _) => method("record", atts.map(att => ident(att.idn) <> ":" <+> att.tipe): _*)
+          case Rql2IterableType(innerType, _) => innerType match {
+              case _: AnythingType => "collection"
+              case _ => method("collection", innerType)
+            }
+          case Rql2ListType(innerType, _) => innerType match {
+              case _: AnythingType => "list"
+              case _ => method("list", innerType)
+            }
+          case _: Rql2UndefinedType => "undefined"
+        }
+        if (internal) {
+          showProperties(t, d)
+        } else {
+          d
+        }
     }
+  }
 
-    if (internal) {
-      val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
-      val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
-
-      if (isTryable && isNullable) d <+> "@try" <+> "@null"
-      else if (isTryable) d <+> "@try"
-      else if (isNullable) d <+> "@null"
-      else d
-    } else {
-      d
+  private def showProperties(t: Rql2TypeWithProperties, d: Doc, parenthesis: Boolean = false): Doc = {
+    val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
+    val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
+    if (!isTryable && !isNullable) d
+    else {
+      val props: Doc =
+        if (isTryable && isNullable) "@try" <+> "@null"
+        else if (isTryable) "@try"
+        else "@null"
+      if (parenthesis) d <+> parens(props) else d <+> props
     }
   }
 
@@ -171,7 +187,7 @@ trait SourcePrettyPrinter
     case PackageIdnExp(name) => method("$package", s""""$name"""")
   }
 
-  protected def enclosedList(ls: Seq[Doc], sep: Doc = comma) = group(nest(lsep(ls.to, sep)) <> linebreak)
+  protected def enclosedList(ls: Seq[Doc], sep: Doc = comma): Doc = group(nest(lsep(ls.to, sep)) <> linebreak)
 
   protected def funAppArg(a: FunAppArg): Doc = {
     val FunAppArg(e, maybeIdn) = a
@@ -212,7 +228,6 @@ trait SourcePrettyPrinter
   protected def rql2Node(n: Rql2Node): Doc = n match {
     case e: Rql2Exp => rql2Exp(e)
     case t: Rql2Type => rql2Type(t)
-
     case Rql2Program(methods, me) =>
       val methodsDoc = methods.map { case Rql2Method(p, idn) => idn <> funProto(p) }
       ssep(methodsDoc ++ me.toSeq.map(toDoc), line)
@@ -224,25 +239,7 @@ trait SourcePrettyPrinter
   private val temporal: Set[Type] = Set(Rql2DateType(), Rql2TimeType(), Rql2TimestampType(), Rql2IntervalType())
 
   override def toDoc(n: BaseNode): Doc = n match {
-    case OneOfType(ts) =>
-      val info = mutable.ArrayBuffer[Doc]()
-      val cleanTs: mutable.HashSet[Type] =
-        ts.map(t => removeProps(t, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))).to
-      if (number.subsetOf(cleanTs)) {
-        number.foreach(cleanTs.remove)
-        info += "number"
-      }
-      if (integer.subsetOf(cleanTs)) {
-        integer.foreach(cleanTs.remove)
-        info += "integer"
-      }
-      if (temporal.subsetOf(cleanTs)) {
-        temporal.foreach(cleanTs.remove)
-        info += "temporal"
-      }
-      cleanTs.foreach(t => info += toDoc(t))
-      if (info.length == 1) info.head
-      else "either" <+> folddoc(info.to, { case (x, y) => x <+> "or" <+> y })
+    case n: CommonNode => commonNode(n)
     case n: Rql2Node => rql2Node(n)
     case _ => super.toDoc(n)
   }
@@ -270,6 +267,53 @@ trait SourcePrettyPrinter
     case i: IfThenElse => parens(i)
     case exp: Exp => toDoc(exp)
   }
+
+  private def commonType(t: CommonType): Doc = t match {
+    case _: ErrorType => "error"
+    case _: AnyType => "any"
+    case _: NothingType => "nothing"
+    case t: CommonTypeConstraint => commonTypeConstraint(t)
+  }
+
+  private def commonTypeConstraint(t: CommonTypeConstraint): Doc = t match {
+    case ExpectedRecordType(idns) =>
+      if (idns.size == 0) "record"
+      else if (idns.size == 1) "record" <+> "with" <+> "field" <+> idns.head
+      else s"record" <+> "with" <+> "fields" <+> ssep(idns.map(text).to, ",")
+    case OneOfType(ts) =>
+      val info = mutable.ArrayBuffer[Doc]()
+      val cleanTs: mutable.HashSet[Type] =
+        ts.map(t => removeProps(t, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))).to
+      if (number.subsetOf(cleanTs)) {
+        number.foreach(cleanTs.remove)
+        info += "number"
+      }
+      if (integer.subsetOf(cleanTs)) {
+        integer.foreach(cleanTs.remove)
+        info += "integer"
+      }
+      if (temporal.subsetOf(cleanTs)) {
+        temporal.foreach(cleanTs.remove)
+        info += "temporal"
+      }
+      cleanTs.foreach(t => info += toDoc(t))
+      if (info.length == 1) info.head
+      else "either" <+> folddoc(info.to, { case (x, y) => x <+> "or" <+> y })
+  }
+
+  private def commonExp(e: CommonExp): Doc = e match {
+    case IdnExp(idn) => toDoc(idn)
+    case ErrorExp() => "$error"
+  }
+
+  private def commonNode(n: CommonNode): Doc = n match {
+    case t: CommonType => commonType(t)
+    case e: CommonExp => commonExp(e)
+    case i: CommonIdnNode => idnToDoc(i)
+    case SourceProgramParam(i, t) => toDoc(i) <> ":" <+> t
+    case Bind(e, i) => toDoc(i) <+> ":=" <+> toDoc(e)
+  }
+
 }
 
 object SourcePrettyPrinter extends SourcePrettyPrinter

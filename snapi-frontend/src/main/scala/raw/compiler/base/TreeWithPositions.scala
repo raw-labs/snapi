@@ -186,6 +186,4 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
     collectLogs(root).mkString("\n")
   }
 
-  override def normalize: P = throw new AssertionError("normalize not supported for TreeWithPositions")
-
 }

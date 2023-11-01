@@ -13,8 +13,10 @@
 package raw.compiler.rql2
 
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
+import raw.client.api._
 import raw.compiler.base.source.{AnythingType, Type}
 import raw.compiler.common.source._
+import raw.compiler.rql2.api._
 import raw.compiler.rql2.source._
 import raw.inferrer.api._
 
@@ -110,6 +112,102 @@ trait Rql2TypeUtils {
   def isComparable(t: Type): Boolean = {
     everywhere(query[Type] { case _: FunType => return false })(t)
     true
+  }
+
+  def rql2TypeToRawType(t: Type): RawType = {
+    // Read nullable and triable properties.
+    var nullable = false
+    var triable = false
+    t match {
+      case tp: Rql2TypeWithProperties =>
+        if (tp.props.contains(Rql2IsNullableTypeProperty())) {
+          nullable = true
+        }
+        if (tp.props.contains(Rql2IsTryableTypeProperty())) {
+          triable = true
+        }
+      case _ =>
+    }
+    // Convert type.
+    t match {
+      case _: Rql2UndefinedType => RawUndefinedType(nullable, triable)
+      case _: Rql2ByteType => RawByteType(nullable, triable)
+      case _: Rql2ShortType => RawShortType(nullable, triable)
+      case _: Rql2IntType => RawIntType(nullable, triable)
+      case _: Rql2LongType => RawLongType(nullable, triable)
+      case _: Rql2FloatType => RawFloatType(nullable, triable)
+      case _: Rql2DoubleType => RawDoubleType(nullable, triable)
+      case _: Rql2DecimalType => RawDecimalType(nullable, triable)
+      case _: Rql2BoolType => RawBoolType(nullable, triable)
+      case _: Rql2StringType => RawStringType(nullable, triable)
+      case _: Rql2BinaryType => RawBinaryType(nullable, triable)
+      case _: Rql2LocationType => RawLocationType(nullable, triable)
+      case _: Rql2DateType => RawDateType(nullable, triable)
+      case _: Rql2TimeType => RawTimeType(nullable, triable)
+      case _: Rql2TimestampType => RawTimestampType(nullable, triable)
+      case _: Rql2IntervalType => RawIntervalType(nullable, triable)
+      case Rql2RecordType(atts, _) => RawRecordType(
+          atts.map { case Rql2AttrType(idn, t1) => RawAttrType(idn, rql2TypeToRawType(t1)) },
+          nullable,
+          triable
+        )
+      case Rql2ListType(inner, _) => RawListType(rql2TypeToRawType(inner), nullable, triable)
+      case Rql2IterableType(inner, _) => RawIterableType(rql2TypeToRawType(inner), nullable, triable)
+      case Rql2OrType(ors, _) => RawOrType(ors.map(rql2TypeToRawType), nullable, triable)
+    }
+  }
+
+  def rawValueToRql2Value(v: RawValue, t: RawType): Value = {
+    def wrap(t: RawType, v: Value): Value = {
+      assert(!v.isInstanceOf[TryValue] || !v.isInstanceOf[OptionValue])
+      if (t.triable && t.nullable) {
+        TryValue(Right(OptionValue(Some(v))))
+      } else if (t.triable) {
+        TryValue(Right(v))
+      } else if (t.nullable) {
+        OptionValue(Some(v))
+      } else {
+        v
+      }
+    }
+
+    // Convert type.
+    v match {
+      case RawError(v) => TryValue(Left(v))
+      case RawNull() =>
+        if (t.triable) {
+          TryValue(Right(OptionValue(None)))
+        } else {
+          OptionValue(None)
+        }
+      case RawByte(v) => wrap(t, ByteValue(v))
+      case RawShort(v) => wrap(t, ShortValue(v))
+      case RawInt(v) => wrap(t, IntValue(v))
+      case RawLong(v) => wrap(t, LongValue(v))
+      case RawFloat(v) => wrap(t, FloatValue(v))
+      case RawDouble(v) => wrap(t, DoubleValue(v))
+      case RawDecimal(v) => wrap(t, DecimalValue(v))
+      case RawBool(v) => wrap(t, BoolValue(v))
+      case RawString(v) => wrap(t, StringValue(v))
+      case RawBinary(v) => wrap(t, BinaryValue(v))
+      case RawLocation(v) => wrap(t, LocationValue(v))
+      case RawDate(v) => wrap(t, DateValue(v))
+      case RawTime(v) => wrap(t, TimeValue(v))
+      case RawTimestamp(v) => wrap(t, TimestampValue(v))
+      case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) =>
+        wrap(t, IntervalValue(years, months, weeks, days, hours, minutes, seconds, millis))
+      case RawRecord(vs) =>
+        val recordType = t.asInstanceOf[RawRecordType]
+        val atts = vs.zipWithIndex.map { case (v, idx) => rawValueToRql2Value(v, recordType.atts(idx).tipe) }
+        wrap(t, RecordValue(atts))
+      case RawList(vs) => wrap(t, ListValue(vs.map(rawValueToRql2Value(_, t.asInstanceOf[RawListType].innerType))))
+      case RawIterable(vs) =>
+        wrap(t, IterableValue(vs.map(rawValueToRql2Value(_, t.asInstanceOf[RawIterableType].innerType))))
+      case RawOr(ors) =>
+        val orType = t.asInstanceOf[RawOrType]
+        val options = ors.zipWithIndex.map { case (v1, idx) => rawValueToRql2Value(v1, orType.ors(idx)) }
+        wrap(t, OrValue(options))
+    }
   }
 
 }

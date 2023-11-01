@@ -15,8 +15,8 @@ package raw.compiler.base
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.relation.{EnsureTree, LeaveAlone, TreeRelation}
 import raw.client.api.ErrorMessage
-import raw.compiler.ExtraRewriters
 import raw.compiler.base.source._
+import raw.compiler.utils.ExtraRewriters
 
 abstract class BaseTree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](ensureTree: Boolean)(
     implicit val programContext: ProgramContext
@@ -67,7 +67,5 @@ abstract class BaseTree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
   }
 
   protected def messageTooBig(str: String): Boolean = str.lines().count() > 1000
-
-  def normalize: P
 
 }

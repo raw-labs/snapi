@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait CsvPackageTest extends CompilerTestContext {
@@ -38,7 +38,7 @@ trait CsvPackageTest extends CompilerTestContext {
     """Csv.Parse("1;tralala\n12;ploum\n3;ploum;\n4;NULL", type collection(record(a: int, b: string, c: string, d: string, e: string)),
       |skip = 0, delimiter = ";", nulls=["NULL", "12"])""".stripMargin
   )(it =>
-    if (language == "rql2-truffle") {
+    if (compilerService.language.contains("rql2-truffle")) {
       it should runErrorAs(
         "failed to read CSV (line 1 column 10): not enough columns found"
       )
@@ -56,7 +56,7 @@ trait CsvPackageTest extends CompilerTestContext {
     |3|30|300|3.14""".stripMargin)
 
   test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter="|")""")(it =>
-    if (language == "rql2-truffle") {
+    if (compilerService.language.contains("rql2-truffle")) {
       it should runErrorAs(
         snapi"failed to read CSV (line 2 column 9) (url: $badData): not enough columns found"
       )
@@ -70,7 +70,7 @@ trait CsvPackageTest extends CompilerTestContext {
   )
 
   test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter=";")""")(it =>
-    if (language == "rql2-truffle") {
+    if (compilerService.language.contains("rql2-truffle")) {
       it should runErrorAs(
         snapi"failed to read CSV (line 1 column 14) (url: $badData): not enough columns found"
       )
@@ -237,7 +237,7 @@ trait CsvPackageTest extends CompilerTestContext {
     |  data = Csv.InferAndRead("$csvWithNulls", sampleSize = 100, preferNulls = false)
     |in
     |  Collection.Filter(data, row -> Try.IsError(row.a))""".stripMargin)(it =>
-    if (language == "rql2-truffle") {
+    if (compilerService.language.contains("rql2-truffle")) {
       it should evaluateTo(
         snapi"""[{
           |  a : Error.Build("failed to parse CSV (url: $csvWithNulls: line 1002, col 1), cannot parse 'NA' as an int"),
@@ -269,7 +269,7 @@ trait CsvPackageTest extends CompilerTestContext {
     |  data = Csv.InferAndRead("$csvWithTypeChange", sampleSize = 100)
     |in
     |  Collection.Filter(data, row -> Try.IsError(row.a))""".stripMargin)(it =>
-    if (language == "rql2-truffle") {
+    if (compilerService.language.contains("rql2-truffle")) {
       it should evaluateTo(
         snapi"""[{
           |  a : Error.Build("failed to parse CSV (url: $csvWithTypeChange: line 1002, col 1), cannot parse 'hello' as an int"),
@@ -424,7 +424,7 @@ trait CsvPackageTest extends CompilerTestContext {
     |        timestampCol: timestamp
     |    )
     |), delimiter = ";", skip = 0)""".stripMargin)(it =>
-    if (language == "rql2-truffle") {
+    if (compilerService.language.contains("rql2-truffle")) {
       it should evaluateTo(snapi"""[
         |{byteCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte"),
         | shortCol:Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short"),

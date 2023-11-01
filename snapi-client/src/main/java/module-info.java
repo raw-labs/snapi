@@ -17,9 +17,10 @@ module raw.snapi.client {
   //    requires org.graalvm.truffle;
 
   requires raw.utils;
+  requires com.fasterxml.jackson.dataformat.csv;
+  requires com.fasterxml.jackson.core;
   requires raw.client;
   requires raw.snapi.frontend;
-  requires raw.snapi.truffle;
 
   provides raw.client.api.CompilerServiceBuilder with
       raw.client.rql2.truffle.Rql2TruffleCompilerServiceBuilder;

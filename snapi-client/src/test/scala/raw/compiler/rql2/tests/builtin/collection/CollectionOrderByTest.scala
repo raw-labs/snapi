@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin.collection
 
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 import raw.compiler.rql2.errors.{InvalidOrderSpec, KeyNotComparable, OrderSpecMustFollowOrderingFunction}
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext

@@ -32,7 +32,7 @@ object CompilerContext {
 /**
  * Contains state that is shared between different programs.
  */
-abstract class CompilerContext(
+class CompilerContext(
     val language: String,
     val user: AuthenticatedUser,
     val inferrer: InferrerService,

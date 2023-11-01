@@ -10,9 +10,12 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.common.errors
+package raw.compiler.rql2
 
-import raw.compiler.base
-import raw.compiler.common
+import raw.compiler.base.CompilerContext
+import raw.runtime.RuntimeContext
 
-trait ErrorsPrettyPrinter extends base.errors.ErrorsPrettyPrinter with common.source.SourcePrettyPrinter
+class Rql2ProgramContext(
+    override val runtimeContext: RuntimeContext,
+    override val compilerContext: CompilerContext
+) extends ProgramContext

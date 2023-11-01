@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.spec
 
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 
 trait JoinWithTryRowsTest extends CompilerTestContext with LocalLocationsTestContext {
 

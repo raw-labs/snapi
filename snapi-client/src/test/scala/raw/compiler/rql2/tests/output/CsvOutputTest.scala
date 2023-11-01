@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.output
 
 import raw.compiler.rql2.tests.CompilerTestContext
-import raw.compiler.SnapiInterpolator
+import raw.compiler.utils._
 import raw.utils._
 
 import java.nio.file.Files
@@ -114,7 +114,7 @@ trait CsvOutputTest extends CompilerTestContext {
     val path = Files.createTempFile("", "")
     try {
       it should saveToInFormat(path, "csv")
-      if (language == "rql2-truffle") {
+      if (compilerService.language.contains("rql2-truffle")) {
         path should contain(
           snapi"""byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol
             |"failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte","failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short","failed to parse CSV (url: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int","failed to parse CSV (url: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long","failed to parse CSV (url: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float","failed to parse CSV (url: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double","failed to parse CSV (url: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal","failed to parse CSV (url: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool","failed to parse CSV (url: $csvWithAllTypes: line 1, col 71), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 79), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 87), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'"

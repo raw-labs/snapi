@@ -16,8 +16,8 @@ import org.bitbucket.inkytonik.kiama.parsing._
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.SyntaxAnalyzer.identRegex
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.common
-import raw.compiler.common.source.{Exp, IdnUse}
+import raw.compiler.base
+import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.source._
 
@@ -72,6 +72,8 @@ object FrontendSyntaxAnalyzerTokens {
   val tokFalse = "false\\b".r
 
   val unsignedNumericLit: Regex = """(?i)(\d+(\.\d*)?|\d*\.\d+)(e[+-]?\d+)?[fdlsbq]?""".r
+
+  val kwError: Regex = "(?i)error\\b".r
 }
 
 /**
@@ -83,10 +85,26 @@ object FrontendSyntaxAnalyzerTokens {
  */
 class FrontendSyntaxAnalyzer(val positions: Positions)
     extends Parsers(positions)
-    with common.SyntaxAnalyzer
+    with base.SyntaxAnalyzer
     with Keywords {
 
   import FrontendSyntaxAnalyzerTokens._
+
+  final protected lazy val bind: Parser[Bind] = idnDef ~ (":=" ~> exp) ^^ { case i ~ e => Bind(e, i) }
+
+  final protected lazy val idnDef: Parser[IdnDef] = identDef ^^ { i => IdnDef(i) }
+
+  final protected lazy val programParam: Parser[SourceProgramParam] = idnDef ~ (":" ~> tipe) ^^ {
+    case i ~ t => SourceProgramParam(i, t)
+  }
+
+  final protected lazy val identDef: Parser[String] = ident
+
+  final protected lazy val errorType: Parser[ErrorType] = kwError ^^^ ErrorType()
+
+  final protected lazy val idnExp: Parser[IdnExp] = idnUse ^^ { idn => IdnExp(idn) }
+
+  final protected lazy val idnUse: Parser[IdnUse] = ident ^^ { idn => IdnUse(idn) }
 
   ///////////////////////////////////////////////////////////////////////////
   // Program vs Package
@@ -102,15 +120,27 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final override protected lazy val tipe: Parser[Type] = tipe1
 
-  final private lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> tipe2) ~ typeProps ^^ {
+  protected lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> rql2Type0) ~ typeProps ^^ {
     case t ~ r ~ props => FunType(Vector(t), Vector.empty, r, props)
   } |
-    tipe2
+    rql2Type0
 
-  final private lazy val tipe2: PackratParser[Type] = tipe2 ~ (tokOr ~> baseType) ~ typeProps ^^ {
-    case t1 ~ t2 ~ props => Rql2OrType(t1, t2, props)
-  } |
-    baseType
+  protected lazy val rql2Type0: Parser[Type] = baseType ~ rep(tokOr ~> baseType) ~ typeProps ^^ {
+    case t1 ~ t2s ~ props =>
+      if (t2s.isEmpty) t1
+      else {
+        val ts = (t1 +: t2s).flatMap {
+          case Rql2OrType(tipes, props) => tipes
+          case t => Vector(t)
+        }
+        Rql2OrType(ts, props)
+      }
+  }
+
+//  protected lazy val tipe2: PackratParser[Type] = tipe2 ~ (tokOr ~> baseType) ~ typeProps ^^ {
+//    case t1 ~ t2 ~ props => Rql2OrType(t1, t2, props)
+//  } |
+//    baseType
 
   protected def baseType: PackratParser[Type] = baseTypeAttr
 
@@ -218,7 +248,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   // Expressions
   ///////////////////////////////////////////////////////////////////////////
 
-  final override protected lazy val exp: PackratParser[Exp] = exp1
+  final protected lazy val exp: PackratParser[Exp] = exp1
 
   final private lazy val exp1: PackratParser[Exp] = exp1 ~ orOp ~ exp2 ^^ {
     case e1 ~ op ~ e2 => BinaryExp(op, e1, e2)
@@ -277,7 +307,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val funAppArg: Parser[FunAppArg] = opt(ident <~ "=") ~ exp ^^ { case i ~ e => FunAppArg(e, i) }
 
-  override protected def baseExp: PackratParser[Exp] = baseExpAttr
+  protected def baseExp: PackratParser[Exp] = baseExpAttr
 
   final private lazy val baseExpAttr: PackratParser[Exp] = {
     let |

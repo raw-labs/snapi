@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.spec
 
-import raw.compiler.rql2.tests.TruffleCompilerTestContext
+import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
 @TruffleTests class PropagationTruffleTest extends TruffleCompilerTestContext with PropagationTest

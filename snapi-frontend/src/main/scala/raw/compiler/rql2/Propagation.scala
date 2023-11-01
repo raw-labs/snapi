@@ -16,11 +16,29 @@ import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import raw.compiler.base.Phase
 import raw.compiler.base.source.Type
-import raw.compiler.common.source.{Exp, IdnDef, IdnExp, SourceProgram}
-import raw.compiler.rql2.api.{Arg, ValueArg}
+import raw.compiler.common.source._
+import raw.compiler.rql2.api.{
+  Arg,
+  BoolValue,
+  ByteValue,
+  DateValue,
+  DoubleValue,
+  FloatValue,
+  IntValue,
+  IntervalValue,
+  ListValue,
+  LongValue,
+  OptionValue,
+  RecordValue,
+  ShortValue,
+  StringValue,
+  TimeValue,
+  TimestampValue,
+  Value,
+  ValueArg
+}
 import raw.compiler.rql2.builtin._
 import raw.compiler.rql2.source._
-import raw.client.api._
 
 /**
  * Rewrites the tree in order to propagate nullables and errors.

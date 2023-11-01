@@ -10,8 +10,12 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.common.errors
+package raw.compiler.rql2.truffle
 
-import raw.compiler.base.errors.BaseError
+import raw.compiler.rql2.api.Rql2OutputTestContext
+import raw.compiler.rql2.tests.CompilerTestContext
 
-trait SourceError extends BaseError
+class TruffleCompilerTestContext
+    extends CompilerTestContext
+    with Rql2OutputTestContext
+    with Rql2TruffleCompilerServiceTestContext

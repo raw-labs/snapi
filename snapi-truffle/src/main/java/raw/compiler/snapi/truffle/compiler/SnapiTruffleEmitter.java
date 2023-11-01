@@ -28,6 +28,7 @@ import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
@@ -40,6 +41,7 @@ import raw.runtime.truffle.ast.expressions.binary.MultNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.SubNodeGen;
 import raw.runtime.truffle.ast.expressions.function.ClosureNode;
 import raw.runtime.truffle.ast.expressions.function.InvokeNode;
+import raw.runtime.truffle.ast.expressions.function.MethodNode;
 import raw.runtime.truffle.ast.expressions.literals.*;
 import raw.runtime.truffle.ast.expressions.option.OptionNoneNode;
 import raw.runtime.truffle.ast.expressions.record.RecordProjNodeGen;
@@ -126,7 +128,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fp.ps()).stream()
                 .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                 .toArray(ExpressionNode[]::new);
-        ClosureNode functionLiteralNode = new ClosureNode(f, defaultArgs);
+        ClosureNode functionLiteralNode = new MethodNode(m.i().idn(), f, defaultArgs);
         int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
         addSlot(entity, Integer.toString(slot));
         return WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
@@ -263,7 +265,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
 
         RootCallTarget rootCallTarget = functionRootBody.getCallTarget();
         Function f = new Function(rootCallTarget, new String[]{"x"});
-        return new ClosureNode(f, new ExpressionNode[]{});
+        return new ClosureNode(f, new ExpressionNode[]{null});
     }
 
 

@@ -77,3 +77,27 @@ trait PipelinedPhase[P] extends Phase[P] {
   protected def checkPhaseTypeStability(input: P, output: P): Unit = {}
 
 }
+
+final class InitPhase[P](program: P) extends Phase[P] {
+  private var done = false
+
+  protected val phaseName = "InitPhase"
+
+  override def hasNext: Boolean = !done
+
+  override def doNext(): P = {
+    try {
+      program
+    } finally {
+      done = true
+    }
+  }
+}
+
+trait PhaseDescriptor[P] {
+  def name: String
+
+  def phase: Class[PipelinedPhase[P]]
+
+  def instance(cur: Phase[P], programContext: ProgramContext): PipelinedPhase[P]
+}

@@ -20,17 +20,18 @@ import raw.client.api._
 import raw.compiler.base._
 import raw.compiler.base.errors._
 import raw.compiler.base.source._
-import raw.compiler.common
-import raw.compiler.common.ProgramParamEntity
 import raw.compiler.common.source._
 import raw.compiler.rql2.api.{
   Arg,
   EntryExtension,
   ExpArg,
   ExpParam,
+  OptionValue,
   PackageExtensionProvider,
+  TryValue,
   TypeArg,
   TypeParam,
+  Value,
   ValueArg,
   ValueParam
 }
@@ -456,7 +457,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
 }
 
 class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext: ProgramContext)
-    extends common.SemanticAnalyzer(tree)
+    extends CommonSemanticAnalyzer(tree)
     with ExpectedTypes
     with Rql2TypeUtils {
 
@@ -1567,22 +1568,27 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       program, {
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
-        val prettyPrinterType = InternalSourcePrettyPrinter.format(expected)
+        var rawType = rql2TypeToRawType(expected)
         val stagedCompilerEnvironment = programContext.runtimeContext.environment
-          .copy(options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"))
+          .copy(
+            options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
+            maybeArguments = None
+          )
 
-        logger.debug("Pretty printed program is:\n" + prettyPrinterProgram)
-        logger.debug("Pretty printed type is:\n" + prettyPrinterType)
+        logger.trace("Pretty printed staged compiler program is:\n" + prettyPrinterProgram)
+        logger.trace("Pretty printed staged compiler type is:\n" + rawType)
 
         try {
-          CompilerServiceProvider(programContext.compilerContext.maybeClassLoader)(programContext.settings).eval(
+          CompilerServiceProvider(
+            programContext.compilerContext.language,
+            programContext.compilerContext.maybeClassLoader
+          )(programContext.settings).eval(
             prettyPrinterProgram,
-            prettyPrinterType,
+            rawType,
             stagedCompilerEnvironment
           ) match {
             case EvalSuccess(v) =>
-              var stagedCompilerResult = v
-
+              var stagedCompilerResult = rawValueToRql2Value(v, rawType)
               // Remove extraProps
               if (report.extraProps.contains(Rql2IsTryableTypeProperty())) {
                 val tryValue = stagedCompilerResult.asInstanceOf[TryValue].v
