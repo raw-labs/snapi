@@ -155,15 +155,15 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
         throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
       }
     } catch (CompilerParserException ex) {
-        throw new RawTruffleValidationException(
-            java.util.Collections.singletonList(
-                new ErrorMessage(
-                    ex.getMessage(),
-                    JavaConverters.asScalaBufferConverter(
-                            java.util.Collections.singletonList(
-                                new ErrorRange(ex.position(), ex.position())))
-                        .asScala()
-                        .toList())));
+      throw new RawTruffleValidationException(
+          java.util.Collections.singletonList(
+              new ErrorMessage(
+                  ex.getMessage(),
+                  JavaConverters.asScalaBufferConverter(
+                          java.util.Collections.singletonList(
+                              new ErrorRange(ex.position(), ex.position())))
+                      .asScala()
+                      .toList())));
     }
   }
 
