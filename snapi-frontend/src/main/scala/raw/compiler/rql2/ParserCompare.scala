@@ -30,13 +30,19 @@ object ParserCompare {
     parser.parse(s).right.get
   }
 
-  def compareTrees(s: String): Unit = {
+  def compareTrees(s: String, shouldThrow: Boolean = false): Unit = {
     val kiamaTree = parseWithKiama(s)
     val antlr4Tree = parseWithAntlr4(s)
-    assert(antlr4Tree == kiamaTree, s"=+=+=+=+=+=+=+=+=+=+=+=+ Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree")
+    val areEqual = antlr4Tree == kiamaTree
+    val errorMessage = s"=+=+=+=+=+=+=+=+=+=+=+=+ Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree";
+    if (shouldThrow && !areEqual) throw new AssertionError(errorMessage)
+    assert(
+      areEqual,
+      errorMessage
+    )
   }
 
-  def comparePositions(s: String, onlyExp: Boolean = false): Unit = {
+  def comparePositions(s: String, onlyExp: Boolean = false, shouldThrow: Boolean = false): Unit = {
     val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
     val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
     val kiamaRoot = kiamaParser.parse(s)
@@ -60,8 +66,27 @@ object ParserCompare {
 
     kiamaNodes.zip(antlr4Nodes).foreach {
       case (kiamaNode, antlr4Node) =>
-        assert(kiamaPositions.getStart(kiamaNode) == antlr4Positions.getStart(antlr4Node), s"=+=+=+=+=+=+=+=+=+=+=+=+ Different start position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
-        assert(kiamaPositions.getFinish(kiamaNode) == antlr4Positions.getFinish(antlr4Node), s"=+=+=+=+=+=+=+=+=+=+=+ Different end position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
+        val startErrorMessage =
+          s"=+=+=+=+=+=+=+=+=+=+=+=+ Different start position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node"
+        val isStartEqual = kiamaPositions.getStart(kiamaNode) == antlr4Positions.getStart(antlr4Node)
+
+        if (shouldThrow && !isStartEqual) throw new AssertionError(startErrorMessage)
+
+        assert(
+          isStartEqual,
+          startErrorMessage
+        )
+
+        val endErrorMessage =
+          s"=+=+=+=+=+=+=+=+=+=+=+ Different end position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node"
+        val isEndEqual = kiamaPositions.getFinish(kiamaNode) == antlr4Positions.getFinish(antlr4Node)
+
+        if (shouldThrow && !isEndEqual) throw new AssertionError(endErrorMessage)
+
+        assert(
+          isEndEqual,
+          endErrorMessage
+        )
     }
 
   }
