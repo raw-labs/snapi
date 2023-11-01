@@ -154,9 +154,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
       } else {
         throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
       }
-    } catch (RuntimeException e) {
-      if (e.getCause() instanceof CompilerParserException) {
-        CompilerParserException ex = (CompilerParserException) e.getCause();
+    } catch (CompilerParserException ex) {
         throw new RawTruffleValidationException(
             java.util.Collections.singletonList(
                 new ErrorMessage(
@@ -166,9 +164,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
                                 new ErrorRange(ex.position(), ex.position())))
                         .asScala()
                         .toList())));
-      } else {
-        throw e;
-      }
     }
   }
 

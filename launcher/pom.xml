@@ -8,13 +8,13 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <raw-launcher.version>1.0-SNAPSHOT</raw-launcher.version>
-        <raw-client.version>0.24.31+81-ef5df6cf+20231101-1322-SNAPSHOT</raw-client.version>
-        <raw-snapi-client.version>0.24.31+81-ef5df6cf+20231101-1118-SNAPSHOT</raw-snapi-client.version>
+        <raw-client.version>0.24.31+82-dd5d279b+20231101-1641-SNAPSHOT</raw-client.version>
+        <raw-snapi-client.version>0.24.31+82-dd5d279b+20231101-1642-SNAPSHOT</raw-snapi-client.version>
     </properties>
 
     <groupId>com.raw-labs.com</groupId>
     <artifactId>raw-launcher</artifactId>
-    <version>0.24.31+81-ef5df6cf+20231101-1118-SNAPSHOT</version>
+    <version>0.24.31+82-dd5d279b+20231101-1642-SNAPSHOT</version>
 
     <dependencies>
         <!-- GraalVM Polyglot Dependency -->
