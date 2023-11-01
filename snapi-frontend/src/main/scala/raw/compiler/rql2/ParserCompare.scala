@@ -31,7 +31,9 @@ object ParserCompare {
   }
 
   def compareTrees(s: String): Unit = {
-    assert(parseWithAntlr4(s) == parseWithKiama(s))
+    val kiamaTree = parseWithKiama(s)
+    val antlr4Tree = parseWithAntlr4(s)
+    assert(antlr4Tree == kiamaTree, s"=+=+=+=+=+=+=+=+=+=+=+=+ Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree")
   }
 
   def comparePositions(s: String, onlyExp: Boolean = false): Unit = {
@@ -58,8 +60,8 @@ object ParserCompare {
 
     kiamaNodes.zip(antlr4Nodes).foreach {
       case (kiamaNode, antlr4Node) =>
-        assert(kiamaPositions.getStart(kiamaNode) == antlr4Positions.getStart(antlr4Node))
-        assert(kiamaPositions.getFinish(kiamaNode) == antlr4Positions.getFinish(antlr4Node))
+        assert(kiamaPositions.getStart(kiamaNode) == antlr4Positions.getStart(antlr4Node), s"=+=+=+=+=+=+=+=+=+=+=+=+ Different start position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
+        assert(kiamaPositions.getFinish(kiamaNode) == antlr4Positions.getFinish(antlr4Node), s"=+=+=+=+=+=+=+=+=+=+=+ Different end position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
     }
 
   }

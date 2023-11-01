@@ -89,6 +89,9 @@ Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
 
+// Skipping javadoc generation for antlr4 broken links
+Compile / doc := { file("/dev/null") } // for Unix-like systems
+
 // The tests are run in a forked JVM.
 // System properties given to sbt are not automatically passed to the forked VM
 // Here we copy any "raw." system properties to the java options passed to the forked JVMs.

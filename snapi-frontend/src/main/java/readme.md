@@ -1,11 +1,11 @@
 # Installation
 
-- Download the latest version from http://www.antlr.org/download/antlr-4.13.0-complete.jar
+- Download the latest version from http://www.antlr.org/download/antlr-4.13.1-complete.jar
 
-- Move it to a directory of your choice, e.g. `/usr/local/lib/antlr-4.13.0-complete.jar`
+- Move it to a directory of your choice, e.g. `/usr/local/lib/antlr-4.13.1-complete.jar`
 - Add the jar file to your classpath: `export CLASSPATH=".:/usr/local/lib/antlr-4.13.0-complete.jar:$CLASSPATH"`
   The `.` is important, as it adds the current directory to the classpath.
-- Create an alias for the jar file, e.g. `alias antlr4='java -jar /usr/local/lib/antlr-4.13.0-complete.jar'`
+- Create an alias for the jar file, e.g. `alias antlr4='java -jar /usr/local/lib/antlr-4.13.1-complete.jar'`
 - Create an alias for the ANTLR tool, e.g. `alias grun='java org.antlr.v4.gui.TestRig'`
 
 # Usage in terminal
