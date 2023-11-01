@@ -33,7 +33,9 @@ object ParserCompare {
   def compareTrees(s: String): Unit = {
     val kiamaTree = parseWithKiama(s)
     val antlr4Tree = parseWithAntlr4(s)
-    throw new AssertionError(s"=+=+= Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree")
+    if (kiamaTree != antlr4Tree) {
+      throw new AssertionError(s"=+=+= Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree")
+    }
   }
 
   def comparePositions(s: String): Unit = {
