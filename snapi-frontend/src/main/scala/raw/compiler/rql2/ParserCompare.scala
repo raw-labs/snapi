@@ -30,19 +30,13 @@ object ParserCompare {
     parser.parse(s).right.get
   }
 
-  def compareTrees(s: String, shouldThrow: Boolean = false): Unit = {
+  def compareTrees(s: String): Unit = {
     val kiamaTree = parseWithKiama(s)
     val antlr4Tree = parseWithAntlr4(s)
-    val areEqual = antlr4Tree == kiamaTree
-    val errorMessage = s"=+=+=+=+=+=+=+=+=+=+=+=+ Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree";
-    if (shouldThrow && !areEqual) throw new AssertionError(errorMessage)
-    assert(
-      areEqual,
-      errorMessage
-    )
+    throw new AssertionError(s"=+=+= Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree")
   }
 
-  def comparePositions(s: String, onlyExp: Boolean = false, shouldThrow: Boolean = false): Unit = {
+  def comparePositions(s: String): Unit = {
     val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
     val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
     val kiamaRoot = kiamaParser.parse(s)
@@ -54,39 +48,22 @@ object ParserCompare {
     val kiamaNodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
     val antlr4Nodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
 
-    if (onlyExp) {
-      everywhere(query[Any] { case n: Exp => kiamaNodes += n })(kiamaRoot)
-      everywhere(query[Any] { case n: Exp => antlr4Nodes += n })(antlr4Root)
-    } else {
-      everywhere(query[Any] { case n: SourceNode => kiamaNodes += n })(kiamaRoot)
-      everywhere(query[Any] { case n: SourceNode => antlr4Nodes += n })(antlr4Root)
-    }
+    everywhere(query[Any] { case n: Exp => kiamaNodes += n })(kiamaRoot)
+    everywhere(query[Any] { case n: Exp => antlr4Nodes += n })(antlr4Root)
 
-    assert(kiamaNodes.size == antlr4Nodes.size, s"Kiama nodes: ${kiamaNodes.size}, Antlr4 nodes: ${antlr4Nodes.size}")
+    if (kiamaNodes.size == antlr4Nodes.size) {
+      throw new AssertionError(
+        s"=+=+= Different number of nodes Kiama: ${kiamaNodes.size}, Antlr4: ${antlr4Nodes.size}"
+      )
+    }
 
     kiamaNodes.zip(antlr4Nodes).foreach {
       case (kiamaNode, antlr4Node) =>
-        val startErrorMessage =
-          s"=+=+=+=+=+=+=+=+=+=+=+=+ Different start position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node"
-        val isStartEqual = kiamaPositions.getStart(kiamaNode) == antlr4Positions.getStart(antlr4Node)
+        if (kiamaPositions.getStart(kiamaNode) != antlr4Positions.getStart(antlr4Node))
+          throw new AssertionError(s"=+=+= Different start position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
 
-        if (shouldThrow && !isStartEqual) throw new AssertionError(startErrorMessage)
-
-        assert(
-          isStartEqual,
-          startErrorMessage
-        )
-
-        val endErrorMessage =
-          s"=+=+=+=+=+=+=+=+=+=+=+ Different end position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node"
-        val isEndEqual = kiamaPositions.getFinish(kiamaNode) == antlr4Positions.getFinish(antlr4Node)
-
-        if (shouldThrow && !isEndEqual) throw new AssertionError(endErrorMessage)
-
-        assert(
-          isEndEqual,
-          endErrorMessage
-        )
+        if (kiamaPositions.getFinish(kiamaNode) != antlr4Positions.getFinish(antlr4Node))
+          throw new AssertionError(s"=+=+= Different end position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
     }
 
   }

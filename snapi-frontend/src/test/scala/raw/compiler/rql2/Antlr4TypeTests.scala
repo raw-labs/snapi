@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2
 
+import raw.compiler.base.source.Type
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.{
   FunOptTypeParam,
@@ -41,7 +42,7 @@ class Antlr4TypeTests extends RawTestSuite {
 
   def props: Set[Rql2TypeProperty] = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
 
-  def parseType(s: String) = {
+  def parseType(s: String): Type = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new Antlr4SyntaxAnalyzer(positions)
     parser.parseType(s).right.get

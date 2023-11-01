@@ -29,7 +29,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
 
   private val assertionMessage = "This is a helper (better grammar readability)  node, should never visit it"
 
-  private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
+  private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
 
   /**
    * * Sets the position of the node in the position map based on start and end of a
@@ -547,7 +547,17 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
   }
 
   override def visitStringExpr(ctx: SnapiParser.StringExprContext): SourceNode = {
-    val result = StringConst(ctx.STRING.getText.substring(1, ctx.STRING.getText.length - 1))
+    val result = StringConst(
+      ctx.STRING.getText
+        .substring(1, ctx.STRING.getText.length - 1)
+        .replace("\\b", "\b")
+        .replace("\\n", "\n")
+        .replace("\\f", "\f")
+        .replace("\\r", "\r")
+        .replace("\\t", "\t")
+        .replace("\\\\", "\\")
+        .replace("\\\"", "\"")
+    )
     setPosition(ctx, result)
     result
   }

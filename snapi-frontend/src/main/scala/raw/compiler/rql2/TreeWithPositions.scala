@@ -27,8 +27,8 @@ class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, fron
   override def doParse(): SourceProgram = {
 
     if (frontend) {
-      ParserCompare.compareTrees(originalSource, shouldThrow = true)
-      ParserCompare.comparePositions(originalSource, onlyExp = true, shouldThrow = true)
+      ParserCompare.compareTrees(originalSource)
+      ParserCompare.comparePositions(originalSource)
     }
 
     val parser =
