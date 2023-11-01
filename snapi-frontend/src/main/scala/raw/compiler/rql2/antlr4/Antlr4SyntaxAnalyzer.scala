@@ -17,7 +17,7 @@ import org.antlr.v4.runtime.tree.ParseTree
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import raw.compiler.base.source.{BaseProgram, Type}
-import raw.compiler.rql2.antlr4_parser.generated.{SnapiLexer, SnapiParser}
+import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
 import raw.compiler.rql2.source.Rql2Program
 
 class Antlr4SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) {
