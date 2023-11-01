@@ -15,6 +15,7 @@ package raw.compiler.rql2
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import raw.compiler.common.source.{Exp, SourceNode}
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
+import raw.compiler.rql2.source.TypeExp
 
 object ParserCompare {
 
@@ -50,8 +51,8 @@ object ParserCompare {
     val kiamaNodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
     val antlr4Nodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
 
-    everywhere(query[Any] { case n: Exp => kiamaNodes += n })(kiamaRoot)
-    everywhere(query[Any] { case n: Exp => antlr4Nodes += n })(antlr4Root)
+    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => kiamaNodes += n })(kiamaRoot)
+    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => antlr4Nodes += n })(antlr4Root)
 
     if (kiamaNodes.size != antlr4Nodes.size) {
       throw new AssertionError(

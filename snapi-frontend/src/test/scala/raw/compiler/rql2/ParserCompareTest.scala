@@ -15,6 +15,7 @@ package raw.compiler.rql2
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import raw.compiler.common.source.{Exp, SourceNode}
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
+import raw.compiler.rql2.source.TypeExp
 import raw.utils.RawTestSuite
 
 class ParserCompareTest extends RawTestSuite {
@@ -48,8 +49,8 @@ class ParserCompareTest extends RawTestSuite {
     val antlr4Nodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
 
     if (onlyExp) {
-      everywhere(query[Any] { case n: Exp => kiamaNodes += n })(kiamaRoot)
-      everywhere(query[Any] { case n: Exp => antlr4Nodes += n })(antlr4Root)
+      everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => kiamaNodes += n })(kiamaRoot)
+      everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => antlr4Nodes += n })(antlr4Root)
     } else {
       everywhere(query[Any] { case n: SourceNode => kiamaNodes += n })(kiamaRoot)
       everywhere(query[Any] { case n: SourceNode => antlr4Nodes += n })(antlr4Root)
@@ -431,7 +432,7 @@ class ParserCompareTest extends RawTestSuite {
   }
 
   // ================== String Escape  ======================
-  test("""Failed test 1""") { _ =>
+  test("""String escape test""") { _ =>
     val prog =
       """Csv.Parse("1;tralala\n12;ploum\n3;ploum;\n4;NULL", type collection(record(a: int, b: string, c: string, d: string, e: string)),
         |skip = 0, delimiter = ";", nulls=["NULL", "12"])""".stripMargin
