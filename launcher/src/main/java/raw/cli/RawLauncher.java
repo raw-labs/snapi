@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.cli;
 
 import com.typesafe.config.ConfigFactory;
@@ -66,16 +78,8 @@ public class RawLauncher implements Closeable {
                 }
                 case null, default -> throw new AssertionError("unknown response type: " + response.getClass());
             }
-//        } catch (CompilerParserException ex) {
-//            printError("-->" +ex.getMessage());
-//        } catch (CompilerServiceException ex) {
-//            printError("-->" +ex.getMessage());
-//        } catch (CompilerException ex) {
-//            printError("-->" +ex.getMessage());
         } catch (RawException ex) {
             printError(ex.getMessage());
-//        } catch (RuntimeException ex) {
-//            printError("-->" +ex.getMessage());
         }
     }
 
