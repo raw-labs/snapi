@@ -53,6 +53,4 @@ object Dependencies {
 
   val springCore = "org.springframework" % "spring-core" % "5.3.13"
 
-  val antlr4 = "org.antlr" % "antlr4" % "4.13.1"
-
 }
