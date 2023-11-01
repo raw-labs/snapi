@@ -430,7 +430,7 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  // ================== Tests from CI ======================
+  // ================== String Escape  ======================
   test("""Failed test 1""") { _ =>
     val prog =
       """Csv.Parse("1;tralala\n12;ploum\n3;ploum;\n4;NULL", type collection(record(a: int, b: string, c: string, d: string, e: string)),
