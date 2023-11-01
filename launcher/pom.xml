@@ -4,16 +4,17 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>org.example</groupId>
-    <artifactId>raw-launcher</artifactId>
-    <version>1.0-SNAPSHOT</version>
-
     <properties>
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
-        <language.version>0.24.29+5-4b4243df-SNAPSHOT</language.version>
-        <extensions.version>0.24.29+5-4b4243df-SNAPSHOT</extensions.version>
+        <raw-launcher.version>1.0-SNAPSHOT</raw-launcher.version>
+        <raw-client.version>0.24.31+81-ef5df6cf+20231101-1322-SNAPSHOT</raw-client.version>
+        <raw-snapi-client.version>0.24.31+81-ef5df6cf+20231101-1118-SNAPSHOT</raw-snapi-client.version>
     </properties>
+
+    <groupId>com.raw-labs.com</groupId>
+    <artifactId>raw-launcher</artifactId>
+    <version>0.24.31+81-ef5df6cf+20231101-1118-SNAPSHOT</version>
 
     <dependencies>
         <!-- GraalVM Polyglot Dependency -->
@@ -29,17 +30,16 @@
             <scope>runtime</scope>
             <type>pom</type>
         </dependency>
-        <!-- Raw Language Dependencies -->
         <dependency>
             <groupId>com.raw-labs</groupId>
-            <artifactId>raw-language_2.12</artifactId>
-            <version>${language.version}</version>
-            <scope>runtime</scope>
+            <artifactId>raw-client_2.12</artifactId>
+            <version>${raw-client.version}</version>
         </dependency>
+        <!-- Language Dependencies -->
         <dependency>
             <groupId>com.raw-labs</groupId>
-            <artifactId>raw-language-extensions_2.12</artifactId>
-            <version>${extensions.version}</version>
+            <artifactId>raw-snapi-client_2.12</artifactId>
+            <version>${raw-snapi-client.version}</version>
             <scope>runtime</scope>
         </dependency>
         <!-- JLine Dependency -->

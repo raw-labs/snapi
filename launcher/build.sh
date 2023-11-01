@@ -3,19 +3,22 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 [ "$CI" == "true" ] && { export HOME=/home/sbtuser; }
 . ~/.sdkman/bin/sdkman-init.sh
 
+set -e
+
 yes | sdk install java 21-graalce || true
 sdk use java 21-graalce
 
-language_version=$(awk '{$1=$1};1' $SCRIPT_HOME/../language/version)
+client_version=$(cat $SCRIPT_HOME/../client/version)
+snapi_client_version=$(cat $SCRIPT_HOME/../snapi-client/version)
 
-# we correlate raw cli version with launcher version
-rawcli_version=$language_version
-extensions_version=$(awk '{$1=$1};1' $SCRIPT_HOME/../extensions/version)
+# we correlate raw cli version with snapi client version
+rawcli_version=$snapi_client_version
 
-echo $language_version
-echo $extensions_version
+echo $client_version
+echo $snapi_client_version
+echo $rawcli_version
 
 mvn versions:set -DnewVersion=${rawcli_version} -B -DgenerateBackupPoms=false
-mvn versions:set-property -Dproperty=language.version -DnewVersion=${language_version} -B -DgenerateBackupPoms=false
-mvn versions:set-property -Dproperty=extensions.version -DnewVersion=${extensions_version} -B -DgenerateBackupPoms=false
+mvn versions:set-property -Dproperty=raw-client.version -DnewVersion=${client_version} -B -DgenerateBackupPoms=false
+mvn versions:set-property -Dproperty=raw-snapi-client.version -DnewVersion=${snapi_client_version} -B -DgenerateBackupPoms=false
 mvn clean install
