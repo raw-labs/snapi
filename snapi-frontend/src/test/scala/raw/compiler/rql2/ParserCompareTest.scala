@@ -432,10 +432,18 @@ class ParserCompareTest extends RawTestSuite {
   }
 
   // ================== String Escape  ======================
-  test("""String escape test""") { _ =>
+  test("""String escape test linebreak""") { _ =>
     val prog =
       """Csv.Parse("1;tralala\n12;ploum\n3;ploum;\n4;NULL", type collection(record(a: int, b: string, c: string, d: string, e: string)),
         |skip = 0, delimiter = ";", nulls=["NULL", "12"])""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""String escape test quotes""") { _ =>
+    val ttt = "\"\"\""
+    val prog =
+      s"""Csv.InferAndParse(${ttt}1;2\n3;hello$ttt, delimiters=[";","\\n"])""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
