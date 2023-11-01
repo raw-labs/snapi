@@ -53,7 +53,7 @@ object ParserCompare {
     everywhere(query[Any] { case n: Exp => kiamaNodes += n })(kiamaRoot)
     everywhere(query[Any] { case n: Exp => antlr4Nodes += n })(antlr4Root)
 
-    if (kiamaNodes.size == antlr4Nodes.size) {
+    if (kiamaNodes.size != antlr4Nodes.size) {
       throw new AssertionError(
         s"=+=+= Different number of nodes Kiama: ${kiamaNodes.size}, Antlr4: ${antlr4Nodes.size}"
       )
