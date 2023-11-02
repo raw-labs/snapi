@@ -145,7 +145,7 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 // Dependencies
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
-  "org.graalvm.polyglot" % "python" % "23.1.0" % "runtime"
+  "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
 )
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client")

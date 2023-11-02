@@ -119,7 +119,6 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
 //        }
 //      }
 //    )
-    ???
   }
 
   override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {

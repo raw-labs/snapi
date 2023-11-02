@@ -8,13 +8,14 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <raw-launcher.version>1.0-SNAPSHOT</raw-launcher.version>
-        <raw-client.version>0.24.31+82-dd5d279b+20231101-1641-SNAPSHOT</raw-client.version>
-        <raw-snapi-client.version>0.24.31+82-dd5d279b+20231101-1642-SNAPSHOT</raw-snapi-client.version>
+        <raw-client.version>0.24.31+85-4b38dec9+20231102-1347-SNAPSHOT</raw-client.version>
+        <raw-snapi-client.version>0.24.31+85-4b38dec9+20231102-1350-SNAPSHOT</raw-snapi-client.version>
+        <raw-python-client.version>0.24.31+88-3ee33c80+20231102-1658-SNAPSHOT</raw-python-client.version>
     </properties>
 
     <groupId>com.raw-labs.com</groupId>
     <artifactId>raw-launcher</artifactId>
-    <version>0.24.31+82-dd5d279b+20231101-1642-SNAPSHOT</version>
+    <version>0.24.31+85-4b38dec9+20231102-1350-SNAPSHOT</version>
 
     <dependencies>
         <!-- GraalVM Polyglot Dependency -->
@@ -22,13 +23,6 @@
             <groupId>org.graalvm.polyglot</groupId>
             <artifactId>polyglot</artifactId>
             <version>23.1.0</version>
-        </dependency>
-        <dependency>
-            <groupId>org.graalvm.polyglot</groupId>
-            <artifactId>python</artifactId>
-            <version>23.1.0</version>
-            <scope>runtime</scope>
-            <type>pom</type>
         </dependency>
         <dependency>
             <groupId>com.raw-labs</groupId>
@@ -40,6 +34,19 @@
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-snapi-client_2.12</artifactId>
             <version>${raw-snapi-client.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.raw-labs</groupId>
+            <artifactId>raw-python-client_2.12</artifactId>
+            <version>${raw-python-client.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.graalvm.polyglot</groupId>
+            <artifactId>python</artifactId>
+            <version>23.1.0</version>
+            <type>pom</type>
             <scope>runtime</scope>
         </dependency>
         <!-- JLine Dependency -->
