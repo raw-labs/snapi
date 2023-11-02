@@ -350,6 +350,18 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""Empty list build""") { _ =>
+    val prog = """[]""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""Empty record build""") { _ =>
+    val prog = """{}""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
   // =============== Type aliases =================
   test("""Type expressions""") { _ =>
     val prog = """Json.Read("url", type collection(int))""".stripMargin
@@ -455,6 +467,14 @@ class ParserCompareTest extends RawTestSuite {
       |    r2 = {f1: g, f2: f},
       |    min = Collection.Min(Collection.Build(r1, r2))
       |in min.f2(10) * min.f2(10)""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""String escape test quotes with list""") { _ =>
+    val ttt = "\"\"\""
+    val prog =
+      s"""Csv.InferAndParse(${ttt}1;2\n3;hello;5;;;;;;;$ttt, delimiters=[";","\\n"])""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }

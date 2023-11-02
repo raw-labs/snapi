@@ -514,7 +514,13 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
     result
   }
 
-  override def visitLists(ctx: SnapiParser.ListsContext): SourceNode = visit(ctx.lists_element)
+  override def visitLists(ctx: SnapiParser.ListsContext): SourceNode = {
+    if (ctx.lists_element == null) {
+      val result = ListPackageBuilder.Build()
+      setPosition(ctx, result)
+      result
+    } else visit(ctx.lists_element)
+  }
 
   override def visitLists_element(ctx: SnapiParser.Lists_elementContext): SourceNode = {
     val exps = ctx.expr.asScala.map(e => visit(e).asInstanceOf[Exp])
@@ -523,7 +529,13 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
     result
   }
 
-  override def visitRecords(ctx: SnapiParser.RecordsContext): SourceNode = visit(ctx.record_elements)
+  override def visitRecords(ctx: SnapiParser.RecordsContext): SourceNode = {
+    if (ctx.record_elements == null) {
+      val result = RecordPackageBuilder.Build()
+      setPosition(ctx, result)
+      result
+    } else visit(ctx.record_elements)
+  }
 
   override def visitRecord_elements(ctx: SnapiParser.Record_elementsContext): SourceNode = {
     val tuples = ctx.record_element.asScala.zipWithIndex.map {
