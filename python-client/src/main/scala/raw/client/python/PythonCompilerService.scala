@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.client.python
 
 import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
@@ -48,9 +60,7 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
 
   override def getProgramDescription(source: String, environment: ProgramEnvironment): GetProgramDescriptionResponse = {
 
-
-
-            val source = """
+    val source = """
 import ast
 
 class FunctionVisitor(ast.NodeVisitor):
@@ -72,7 +82,6 @@ def get_function_annotations(filename):
 # Test the function with the path to a Python file
 get_function_annotations("/Users/miguel/path_to_your_python_file.py")
                     """;
-
 
     //    withTruffleContext(
 //      environment,
@@ -231,12 +240,9 @@ get_function_annotations("/Users/miguel/path_to_your_python_file.py")
       case RawString(v) => s""""${descape(v)}""""
       case RawDecimal(v) => ???
       case RawDate(v) => ???
-      case RawTime(v) =>
-       ???
-      case RawTimestamp(v) =>
-        ???
-      case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) =>
-       ???
+      case RawTime(v) => ???
+      case RawTimestamp(v) => ???
+      case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) => ???
       case _ => throw new CompilerServiceException("type not supported")
     }
     val value = ctx.eval("python", code)
