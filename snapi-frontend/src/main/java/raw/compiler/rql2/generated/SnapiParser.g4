@@ -85,6 +85,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | NOT_TOKEN expr                                        # NotExpr
     | expr AND_TOKEN expr                                   # AndExpr
     | expr OR_TOKEN expr                                    # OrExpr
+    | <assoc=right> expr DOT ident fun_ar?                  # ProjectionExpr  // projection
     | expr compare_tokens expr                              # CompareExpr
     | MINUS_TOKEN expr                                      # MinusUnaryExpr
     | PLUS_TOKEN expr                                       # PlusUnaryExpr
@@ -97,7 +98,6 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | let                                                   # LetExpr
     | fun_abs                                               # FunAbsExpr
     | expr_type                                             # ExprTypeExpr  // to check if this works correctly with recor(a:int)
-    | <assoc=right> expr DOT ident fun_ar?                  # ProjectionExpr  // projection
     // | expr DOT  {notifyErrorListeners("Incomplete projection");}
     ;
 

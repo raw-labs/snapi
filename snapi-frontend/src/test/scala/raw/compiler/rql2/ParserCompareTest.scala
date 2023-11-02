@@ -447,4 +447,15 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""String escape test quotes with broken rule""") { _ =>
+    val prog = s"""
+      |let f(x: int) = x + 1,
+      |    g(x: int) = x + 2,
+      |    r1 = {f1: f, f2: g},
+      |    r2 = {f1: g, f2: f},
+      |    min = Collection.Min(Collection.Build(r1, r2))
+      |in min.f2(10) * min.f2(10)""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
 }

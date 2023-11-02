@@ -26,7 +26,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     val lexer = new SnapiLexer(CharStreams.fromString(s))
     val parser = new SnapiParser(new CommonTokenStream(lexer))
     val tree: ParseTree = parser.prog
-    print(tree.toStringTree(parser))
+//    print(tree.toStringTree(parser))
     val visitor = new RawSnapiVisitor(positions, StringSource(s))
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
     Right(result)
