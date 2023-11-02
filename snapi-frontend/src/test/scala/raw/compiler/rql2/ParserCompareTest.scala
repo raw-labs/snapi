@@ -442,8 +442,7 @@ class ParserCompareTest extends RawTestSuite {
 
   test("""String escape test quotes""") { _ =>
     val ttt = "\"\"\""
-    val prog =
-      s"""Csv.InferAndParse(${ttt}1;2\n3;hello$ttt, delimiters=[";","\\n"])""".stripMargin
+    val prog = s"""Csv.InferAndParse(${ttt}1;2\n3;hello$ttt, delimiters=[";","\\n"])""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }

@@ -10,13 +10,13 @@
  * licenses/APL.txt.
  */
 
-// Generated from Snapi.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
 
 /** This interface defines a complete listener for a parse tree produced by {@link SnapiParser}. */
-public interface SnapiListener extends ParseTreeListener {
+public interface SnapiParserListener extends ParseTreeListener {
   /**
    * Enter a parse tree produced by {@link SnapiParser#prog}.
    *

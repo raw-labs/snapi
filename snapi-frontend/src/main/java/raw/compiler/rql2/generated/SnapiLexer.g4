@@ -1,4 +1,4 @@
-lexer grammar SnapiLexerRules;
+lexer grammar SnapiLexer;
 
 // Types
 
@@ -77,7 +77,7 @@ FALSE_TOKEN: 'false';
 
 // Strings
 STRING: '"' (ESC | ~["\\])* '"';
-TRIPPLE_STRING: '"""' .*? '"""';
+START_TRIPLE_QUOTE: '"""' -> pushMode(INSIDE_TRIPLE_QUOTE);
 
 // Identifiers
 NON_ESC_IDENTIFIER: [_a-zA-Z] [_a-zA-Z0-9]*;
@@ -121,3 +121,21 @@ fragment Z:[zZ];
 //fragment NUMERIC_TYPE_SUFFIX: [fdlsbq];
 //fragment UNICODE: 'u' HEX HEX HEX HEX ;
 //fragment HEX: [0-9a-fA-F] ;
+
+LEFT_PAREN: '(';
+RIGHT_PAREN: ')';
+COLON: ':';
+COMMA: ',';
+EQUALS: '=';
+RIGHT_ARROW: '->';
+DOT: '.';
+LEFT_CUR_BR: '{';
+RIGHT_CUR_BR: '}';
+LEFT_SQ_BR: '[';
+RIGHT_SQ_BR: ']';
+
+// Switching context to triple quotes, will be usefull for string interpolation too
+mode INSIDE_TRIPLE_QUOTE;
+ANYTHING: (ESC | ~["\\])+;
+END_TRIPLE_QUOTE: '"""' -> popMode;
+WS_TRIPLE_QUOTE : [ \t\r\n]+ -> skip;

@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from Snapi.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
@@ -22,7 +22,7 @@ import org.antlr.v4.runtime.tree.ParseTreeVisitor;
  * @param <T> The return type of the visit operation. Use {@link Void} for operations with no return
  *     type.
  */
-public interface SnapiVisitor<T> extends ParseTreeVisitor<T> {
+public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
   /**
    * Visit a parse tree produced by {@link SnapiParser#prog}.
    *

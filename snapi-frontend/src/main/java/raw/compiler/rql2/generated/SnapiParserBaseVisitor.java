@@ -10,20 +10,21 @@
  * licenses/APL.txt.
  */
 
-// Generated from Snapi.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
 
 /**
- * This class provides an empty implementation of {@link SnapiVisitor}, which can be extended to
- * create a visitor which only needs to handle a subset of the available methods.
+ * This class provides an empty implementation of {@link SnapiParserVisitor}, which can be extended
+ * to create a visitor which only needs to handle a subset of the available methods.
  *
  * @param <T> The return type of the visit operation. Use {@link Void} for operations with no return
  *     type.
  */
 @SuppressWarnings("CheckReturnValue")
-public class SnapiBaseVisitor<T> extends AbstractParseTreeVisitor<T> implements SnapiVisitor<T> {
+public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
+    implements SnapiParserVisitor<T> {
   /**
    * {@inheritDoc}
    *

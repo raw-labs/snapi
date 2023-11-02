@@ -1,1 +1,0 @@
-antlr4 -visitor -listener -o ../generated -package raw.compiler.rql2.generated Snapi.g4

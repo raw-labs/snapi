@@ -1,0 +1,2 @@
+antlr4 -visitor -listener -package raw.compiler.rql2.generated SnapiLexer.g4
+antlr4 -visitor -listener -package raw.compiler.rql2.generated SnapiParser.g4

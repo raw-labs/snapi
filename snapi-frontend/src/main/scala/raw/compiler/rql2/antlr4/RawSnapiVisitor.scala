@@ -17,14 +17,14 @@ import org.bitbucket.inkytonik.kiama.util.{Position, Positions, Source}
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.Keywords
-import raw.compiler.rql2.generated.{SnapiBaseVisitor, SnapiParser}
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
+import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
 import raw.compiler.rql2.source._
 
 import scala.collection.JavaConverters._
 
 class RawSnapiVisitor(val positions: Positions, private val source: Source)
-    extends SnapiBaseVisitor[SourceNode]
+    extends SnapiParserBaseVisitor[SourceNode]
     with Keywords {
 
   private val assertionMessage = "This is a helper (better grammar readability)  node, should never visit it"
@@ -541,7 +541,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
 
   // Constants
   override def visitTrippleStringExpr(ctx: SnapiParser.TrippleStringExprContext): SourceNode = {
-    val result = TripleQuotedStringConst(ctx.TRIPPLE_STRING.getText.substring(3, ctx.TRIPPLE_STRING.getText.length - 3))
+    val result = TripleQuotedStringConst(ctx.getText.drop(3).dropRight(3))
     setPosition(ctx, result)
     result
   }

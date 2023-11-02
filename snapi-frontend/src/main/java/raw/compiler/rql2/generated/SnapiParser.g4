@@ -1,6 +1,5 @@
-grammar Snapi;
-import SnapiLexerRules;
-
+parser grammar SnapiParser;
+options { tokenVocab=SnapiLexer; }
 // ============= program =================
 prog: stat EOF
     ;
@@ -18,38 +17,38 @@ fun_dec: ident fun_proto                                    # NormalFun
        | REC_TOKEN ident fun_proto                          # RecFun
        ;
 
-fun_proto: '(' (fun_param (',' fun_param)*)? ')' (':' tipe)? '=' expr
+fun_proto: LEFT_PAREN (fun_param (COMMA fun_param)*)? RIGHT_PAREN (COLON tipe)? EQUALS expr
          ;
 
 
 fun_param: attr                                             # FunParamAttr
-         | attr '=' expr                                    # FunParamAttrExpr
+         | attr EQUALS expr                                    # FunParamAttrExpr
          ;
 
-attr: ident ':' tipe
+attr: ident COLON tipe
     | ident
     ;
 
-type_attr: ident ':' tipe;
+type_attr: ident COLON tipe;
 
 // the input parameters of a function
-fun_ar: '(' fun_args? ')';
-fun_args: fun_arg (',' fun_arg)*;
+fun_ar: LEFT_PAREN fun_args? RIGHT_PAREN;
+fun_args: fun_arg (COMMA fun_arg)*;
 fun_arg: expr                                               # FunArgExpr
-       | ident '=' expr                                     # NamedFunArgExpr
+       | ident EQUALS expr                                     # NamedFunArgExpr
        ;
 
 // lambda expression
 fun_abs: fun_proto_lambda                                   # FunAbs
-       | ident '->' expr                                    # FunAbsUnnamed
+       | ident RIGHT_ARROW expr                                    # FunAbsUnnamed
        ;
 
-fun_proto_lambda: '(' (fun_param (',' fun_param)*)? ')' (':' tipe)? '->' expr
+fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)? RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr
          ;
 
 // ============= types =================
-tipe: '(' tipe ')'                                          # TypeWithParenType
-    | tipe OR_TOKEN or_type '->' tipe                       # OrTypeFunType
+tipe: LEFT_PAREN tipe RIGHT_PAREN                                          # TypeWithParenType
+    | tipe OR_TOKEN or_type RIGHT_ARROW tipe                       # OrTypeFunType
     | tipe OR_TOKEN or_type                                 # OrTypeType
     | primitive_types                                       # PrimitiveTypeType
     | UNDEFINED_TOKEN                                       # UndefinedTypeType
@@ -57,8 +56,8 @@ tipe: '(' tipe ')'                                          # TypeWithParenType
     | record_type                                           # RecordTypeType
     | iterable_type                                         # IterableTypeType
     | list_type                                             # ListTypeType
-    | '(' (tipe | attr) (',' (tipe | attr))* ')' '->' tipe  # FunTypeWithParamsType
-    | tipe '->' tipe                                        # FunTypeType
+    | LEFT_PAREN (tipe | attr) (COMMA (tipe | attr))* RIGHT_PAREN RIGHT_ARROW tipe  # FunTypeWithParamsType
+    | tipe RIGHT_ARROW tipe                                        # FunTypeType
     | expr_type                                             # ExprTypeType
     ;
 
@@ -66,20 +65,20 @@ or_type: tipe OR_TOKEN or_type
        | tipe
        ;
 
-record_type: RECORD_TOKEN '(' type_attr (',' type_attr)* ')';
-iterable_type: COLLECTION_TOKEN '(' tipe ')';
-list_type: LIST_TOKEN '(' tipe ')';
+record_type: RECORD_TOKEN LEFT_PAREN type_attr (COMMA type_attr)* RIGHT_PAREN;
+iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
+list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 expr_type: TYPE_TOKEN tipe;
 
 // ========== expressions ============
-expr: '(' expr ')'                                          # ParenExpr
+expr: LEFT_PAREN expr RIGHT_PAREN                                          # ParenExpr
     | number                                                # NumberExpr
     | if_then_else                                          # IfThenElseExpr
     | lists                                                 # ListExpr
     | records                                               # RecordExpr
     | bool_const                                            # BoolConstExpr
     | NULL_TOKEN                                            # NullExpr
-    | TRIPPLE_STRING                                        # TrippleStringExpr
+    | START_TRIPLE_QUOTE .*? END_TRIPLE_QUOTE               # TrippleStringExpr
     | STRING                                                # StringExpr
     | ident                                                 # IdentExpr
     | expr fun_ar                                           # FunAppExpr
@@ -98,22 +97,22 @@ expr: '(' expr ')'                                          # ParenExpr
     | let                                                   # LetExpr
     | fun_abs                                               # FunAbsExpr
     | expr_type                                             # ExprTypeExpr  // to check if this works correctly with recor(a:int)
-    | <assoc=right> expr '.' ident fun_ar?                  # ProjectionExpr  // projection
-    // | expr '.'  {notifyErrorListeners("Incomplete projection");}
+    | <assoc=right> expr DOT ident fun_ar?                  # ProjectionExpr  // projection
+    // | expr DOT  {notifyErrorListeners("Incomplete projection");}
     ;
 
 let: LET_TOKEN let_left IN_TOKEN expr;
 
-let_left: let_decl (',' let_decl)*
-        // | let_decl (let_decl)* {notifyErrorListeners("Missing ','");}
+let_left: let_decl (COMMA let_decl)*
+        // | let_decl (let_decl)* {notifyErrorListeners("Missing COMMA");}
         ;
 
 let_decl: let_bind
         | fun_dec
         ;
 
-let_bind: ident '=' expr
-        | ident ':' tipe '=' expr
+let_bind: ident EQUALS expr
+        | ident COLON tipe EQUALS expr
         ;
 
 if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
@@ -121,12 +120,12 @@ if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
             // | IF_TOKEN expr {notifyErrorListeners("Missing then body");}
             ;
 
-lists: '[' (lists_element)? ']';
-lists_element: expr (',' expr)*;
+lists: LEFT_SQ_BR (lists_element)? RIGHT_SQ_BR;
+lists_element: expr (COMMA expr)*;
 
-records: '{' (record_elements)? '}';
-record_elements: record_element (',' record_element)* ;
-record_element: ident ':' expr
+records: LEFT_CUR_BR (record_elements)? RIGHT_CUR_BR;
+record_elements: record_element (COMMA record_element)* ;
+record_element: ident COLON expr
               | expr
               ;
 
