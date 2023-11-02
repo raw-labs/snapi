@@ -43,14 +43,15 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 sealed abstract class RawType {
   def nullable: Boolean
   def triable: Boolean
-  def cloneNotNullable: RawType
-  def cloneNotTriable: RawType
+  def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType
+  def cloneNullable: RawType = cloneWithFlags(nullable = true, triable = triable)
+  def cloneNotNullable: RawType = cloneWithFlags(nullable = false, triable = triable)
+  def cloneTriable: RawType = cloneWithFlags(nullable = nullable, triable = true)
+  def cloneNotTriable: RawType = cloneWithFlags(nullable = nullable, triable = false)
 }
 
 final case class RawUndefinedType(nullable: Boolean, triable: Boolean) extends RawType {
-  override def cloneNotNullable: RawType = RawUndefinedType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawUndefinedType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawUndefinedType(nullable, triable)
 }
 
 sealed abstract class RawPrimitiveType extends RawType
@@ -58,104 +59,67 @@ sealed abstract class RawPrimitiveType extends RawType
 sealed abstract class RawNumberType extends RawPrimitiveType
 
 final case class RawByteType(nullable: Boolean, triable: Boolean) extends RawNumberType {
-  override def cloneNotNullable: RawType = RawByteType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawByteType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawByteType(nullable, triable)
 }
 final case class RawShortType(nullable: Boolean, triable: Boolean) extends RawNumberType {
-  override def cloneNotNullable: RawType = RawShortType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawShortType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawShortType(nullable, triable)
 }
 final case class RawIntType(nullable: Boolean, triable: Boolean) extends RawNumberType {
-  override def cloneNotNullable: RawType = RawIntType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawIntType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawIntType(nullable, triable)
 }
 final case class RawLongType(nullable: Boolean, triable: Boolean) extends RawNumberType {
-  override def cloneNotNullable: RawType = RawLongType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawLongType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawLongType(nullable, triable)
 }
 final case class RawFloatType(nullable: Boolean, triable: Boolean) extends RawNumberType {
-  override def cloneNotNullable: RawType = RawFloatType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawFloatType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawFloatType(nullable, triable)
 }
 final case class RawDoubleType(nullable: Boolean, triable: Boolean) extends RawNumberType {
-  override def cloneNotNullable: RawType = RawDoubleType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawDoubleType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawDoubleType(nullable, triable)
 }
 final case class RawDecimalType(nullable: Boolean, triable: Boolean) extends RawNumberType {
-  override def cloneNotNullable: RawType = RawDecimalType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawDecimalType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawDecimalType(nullable, triable)
 }
 
 final case class RawBoolType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawBoolType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawBoolType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawBoolType(nullable, triable)
 }
 final case class RawStringType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawStringType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawStringType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawStringType(nullable, triable)
 }
 final case class RawBinaryType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawBinaryType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawBinaryType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawBinaryType(nullable, triable)
 }
 final case class RawLocationType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawLocationType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawLocationType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawLocationType(nullable, triable)
 }
 
 final case class RawDateType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawDateType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawDateType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawDateType(nullable, triable)
 }
 final case class RawTimeType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawTimeType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawTimeType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawTimeType(nullable, triable)
 }
 final case class RawTimestampType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawTimestampType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawTimestampType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawTimestampType(nullable, triable)
 }
 final case class RawIntervalType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
-  override def cloneNotNullable: RawType = RawIntervalType(nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawIntervalType(nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawIntervalType(nullable, triable)
 }
 
 final case class RawAttrType(idn: String, tipe: RawType)
 final case class RawRecordType(atts: Vector[RawAttrType], nullable: Boolean, triable: Boolean) extends RawType {
-  override def cloneNotNullable: RawType = RawRecordType(atts, nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawRecordType(atts, nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawRecordType(atts, nullable, triable)
 }
 
 final case class RawListType(innerType: RawType, nullable: Boolean, triable: Boolean) extends RawType {
-  override def cloneNotNullable: RawType = RawListType(innerType, nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawListType(innerType, nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawListType(innerType, nullable, triable)
 }
 
 final case class RawIterableType(innerType: RawType, nullable: Boolean, triable: Boolean) extends RawType {
-  override def cloneNotNullable: RawType = RawIterableType(innerType, nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawIterableType(innerType, nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType =
+    RawIterableType(innerType, nullable, triable)
 }
 
 final case class RawOrType(ors: Seq[RawType], nullable: Boolean, triable: Boolean) extends RawType {
-  override def cloneNotNullable: RawType = RawOrType(ors, nullable = false, triable = triable)
-
-  override def cloneNotTriable: RawType = RawOrType(ors, nullable = nullable, triable = false)
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawOrType(ors, nullable, triable)
 }

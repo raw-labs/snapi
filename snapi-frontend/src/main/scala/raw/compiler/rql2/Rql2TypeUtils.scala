@@ -20,6 +20,8 @@ import raw.compiler.rql2.api._
 import raw.compiler.rql2.source._
 import raw.inferrer.api._
 
+import scala.collection.mutable
+
 trait Rql2TypeUtils {
 
   final def hasTypeConstraint(t: Type): Boolean = {
@@ -154,6 +156,47 @@ trait Rql2TypeUtils {
       case Rql2ListType(inner, _) => RawListType(rql2TypeToRawType(inner), nullable, triable)
       case Rql2IterableType(inner, _) => RawIterableType(rql2TypeToRawType(inner), nullable, triable)
       case Rql2OrType(ors, _) => RawOrType(ors.map(rql2TypeToRawType), nullable, triable)
+    }
+  }
+
+  def rawTypeToRql2Type(t: RawType): Type = {
+    def flags(nullable: Boolean, triable: Boolean): Set[Rql2TypeProperty] = {
+      val props = mutable.HashSet.empty[Rql2TypeProperty]
+      if (nullable) {
+        props.add(Rql2IsNullableTypeProperty())
+      }
+      if (triable) {
+        props.add(Rql2IsTryableTypeProperty())
+      }
+      props.toSet
+    }
+
+    t match {
+      case RawUndefinedType(nullable, triable) => Rql2UndefinedType(flags(nullable, triable))
+      case RawByteType(nullable, triable) => Rql2ByteType(flags(nullable, triable))
+      case RawShortType(nullable, triable) => Rql2ShortType(flags(nullable, triable))
+      case RawIntType(nullable, triable) => Rql2IntType(flags(nullable, triable))
+      case RawLongType(nullable, triable) => Rql2LongType(flags(nullable, triable))
+      case RawFloatType(nullable, triable) => Rql2FloatType(flags(nullable, triable))
+      case RawDoubleType(nullable, triable) => Rql2DoubleType(flags(nullable, triable))
+      case RawDecimalType(nullable, triable) => Rql2DecimalType(flags(nullable, triable))
+      case RawBoolType(nullable, triable) => Rql2BoolType(flags(nullable, triable))
+      case RawStringType(nullable, triable) => Rql2StringType(flags(nullable, triable))
+      case RawBinaryType(nullable, triable) => Rql2BinaryType(flags(nullable, triable))
+      case RawLocationType(nullable, triable) => Rql2LocationType(flags(nullable, triable))
+      case RawDateType(nullable, triable) => Rql2DateType(flags(nullable, triable))
+      case RawTimeType(nullable, triable) => Rql2TimeType(flags(nullable, triable))
+      case RawTimestampType(nullable, triable) => Rql2TimestampType(flags(nullable, triable))
+      case RawIntervalType(nullable, triable) => Rql2IntervalType(flags(nullable, triable))
+      case RawRecordType(atts, nullable, triable) => Rql2RecordType(
+          atts.map { case RawAttrType(idn, t) => Rql2AttrType(idn, rawTypeToRql2Type(t)) },
+          flags(nullable, triable)
+        )
+      case RawListType(innerType, nullable, triable) =>
+        Rql2ListType(rawTypeToRql2Type(innerType), flags(nullable, triable))
+      case RawIterableType(innerType, nullable, triable) =>
+        Rql2IterableType(rawTypeToRql2Type(innerType), flags(nullable, triable))
+      case RawOrType(ors, nullable, triable) => Rql2OrType(ors.map(rawTypeToRql2Type).to, flags(nullable, triable))
     }
   }
 

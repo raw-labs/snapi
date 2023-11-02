@@ -23,12 +23,17 @@ import java.io.PrintWriter;
 public class RawCli {
 
     public static void main(String[] args) {
-
+        String language;
+        if (args.length > 0 && args[0].equals("--python")) {
+            language = "python";
+        } else {
+            language = "snapi";
+        }
         try {
             Terminal terminal = TerminalBuilder.terminal();
             PrintWriter writer = terminal.writer();
 
-            RawLauncher rawLauncher = new RawLauncher(writer);
+            RawLauncher rawLauncher = new RawLauncher(language, writer);
 
             LineReader reader = LineReaderBuilder.builder()
                     .terminal(terminal)

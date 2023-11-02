@@ -1,10 +1,7 @@
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.*
 import sbt.Keys.*
-import sbt.Tests.{Group, SubProcess}
 import sbt.*
 
-import java.io.*
 import java.time.Year
 import Dependencies.*
 

@@ -16,18 +16,14 @@ import com.fasterxml.jackson.annotation.JsonProperty
 
 final case class ProgramDescription(
     @JsonProperty("declarations") decls: Map[String, List[DeclDescription]],
-    @JsonProperty("type") maybeType: Option[String],
-    comment: Option[String]
-)
+    @JsonProperty("type") maybeType: Option[RawType])
 
 final case class DeclDescription(
     @JsonProperty("parameters") params: Option[Vector[ParamDescription]],
-    @JsonProperty("outputType") outType: String,
-    comment: Option[String]
-)
+    @JsonProperty("outputType") outType: RawType)
 
 final case class ParamDescription(
     @JsonProperty("identifier") idn: String,
-    @JsonProperty("type") tipe: String,
+    @JsonProperty("type") tipe: RawType,
     required: Boolean
 )

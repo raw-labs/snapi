@@ -38,12 +38,12 @@ public class RawLauncher implements Closeable {
     private CompilerService compilerService;
     private final ProgramEnvironment env;
 
-    public RawLauncher(PrintWriter writer) {
+    public RawLauncher(String language, PrintWriter writer) {
         this.writer = writer;
 
         RawSettings rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
 
-        this.compilerService = CompilerServiceProvider.apply("snapi", rawSettings);
+        this.compilerService = CompilerServiceProvider.apply(language, rawSettings);
         AuthenticatedUser user = new InteractiveUser("uid", "name", "email", (Seq<String>) Seq$.MODULE$.empty());
 
         HashMap<String, String> javaOptions = new HashMap<String, String>();
