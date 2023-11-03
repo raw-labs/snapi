@@ -255,12 +255,6 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
     funType
   }
 
-  override def visitUndefinedTypeType(ctx: SnapiParser.UndefinedTypeTypeContext): SourceNode = {
-    val result = Rql2UndefinedType(defaultProps)
-    setPosition(ctx, result)
-    result
-  }
-
   override def visitRecordTypeType(ctx: SnapiParser.RecordTypeTypeContext): SourceNode = visit(ctx.record_type)
 
   override def visitIterableTypeType(ctx: SnapiParser.IterableTypeTypeContext): SourceNode = visit(ctx.iterable_type)
@@ -289,6 +283,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
       else if (ctx.FLOAT_TOKEN != null) Rql2FloatType(defaultProps)
       else if (ctx.DOUBLE_TOKEN != null) Rql2DoubleType(defaultProps)
       else if (ctx.DECIMAL_TOKEN != null) Rql2DecimalType(defaultProps)
+      else if (ctx.UNDEFINED_TOKEN != null) Rql2UndefinedType(defaultProps)
       else throw new AssertionError("Unknown primitive type")
     setPosition(ctx, result)
     result

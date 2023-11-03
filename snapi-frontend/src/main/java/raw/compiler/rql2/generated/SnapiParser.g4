@@ -51,7 +51,6 @@ tipe: LEFT_PAREN tipe RIGHT_PAREN                                          # Typ
     | tipe OR_TOKEN or_type RIGHT_ARROW tipe                       # OrTypeFunType
     | tipe OR_TOKEN or_type                                 # OrTypeType
     | primitive_types                                       # PrimitiveTypeType
-    | UNDEFINED_TOKEN                                       # UndefinedTypeType
     | ident                                                 # TypeAliasType
     | record_type                                           # RecordTypeType
     | iterable_type                                         # IterableTypeType
@@ -72,20 +71,23 @@ expr_type: TYPE_TOKEN tipe;
 
 // ========== expressions ============
 expr: LEFT_PAREN expr RIGHT_PAREN                                          # ParenExpr
-    | number                                                # NumberExpr
+    | let                                                   # LetExpr
+    | fun_abs                                               # FunAbsExpr
+    | expr_type                                             # ExprTypeExpr
     | if_then_else                                          # IfThenElseExpr
-    | lists                                                 # ListExpr
-    | records                                               # RecordExpr
+    | number                                                # NumberExpr
     | bool_const                                            # BoolConstExpr
     | NULL_TOKEN                                            # NullExpr
     | START_TRIPLE_QUOTE TRIPLE_QUOTED_STRING_CONTENT* END_TRIPLE_QUOTE               # TrippleStringExpr
     | STRING                                                # StringExpr
     | ident                                                 # IdentExpr
     | expr fun_ar                                           # FunAppExpr
+    | lists                                                 # ListExpr
+    | records                                               # RecordExpr
+    | <assoc=right> expr DOT ident fun_ar?                  # ProjectionExpr  // projection
     | NOT_TOKEN expr                                        # NotExpr
     | expr AND_TOKEN expr                                   # AndExpr
     | expr OR_TOKEN expr                                    # OrExpr
-    | <assoc=right> expr DOT ident fun_ar?                  # ProjectionExpr  // projection
     | expr compare_tokens expr                              # CompareExpr
     | MINUS_TOKEN expr                                      # MinusUnaryExpr
     | PLUS_TOKEN expr                                       # PlusUnaryExpr
@@ -94,10 +96,6 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | expr MOD_TOKEN expr                                   # ModExpr
     | expr PLUS_TOKEN expr                                  # PlusExpr
     | expr MINUS_TOKEN expr                                 # MinusExpr
-    | expr fun_ar                                           # FunAppExpr
-    | let                                                   # LetExpr
-    | fun_abs                                               # FunAbsExpr
-    | expr_type                                             # ExprTypeExpr  // to check if this works correctly with recor(a:int)
     // | expr DOT  {notifyErrorListeners("Incomplete projection");}
     ;
 
@@ -153,6 +151,7 @@ primitive_types : BOOL_TOKEN
                 | FLOAT_TOKEN
                 | DOUBLE_TOKEN
                 | DECIMAL_TOKEN
+                | UNDEFINED_TOKEN
                 ;
 // Compare
 compare_tokens: EQ_TOKEN
@@ -169,6 +168,7 @@ bool_const: TRUE_TOKEN
 
 ident: NON_ESC_IDENTIFIER
      | ESC_IDENTIFIER
+     | primitive_types
      ;
 
 

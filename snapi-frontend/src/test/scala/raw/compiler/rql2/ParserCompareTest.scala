@@ -503,4 +503,17 @@ class ParserCompareTest extends RawTestSuite {
     compareTrees(prog)
     comparePositions(prog)
   }
+
+  test("""Filed test 2""") { _ =>
+    val prog = s"""let
+      |  lines = String.ReadLines("asdf"),
+      |  parsed = Collection.Transform(lines, x -> {
+      |    timestamp: Timestamp.Parse(String.SubString(x, 1, 23), "yyyy-M-d H:m:s.SSS"),
+      |    message: String.SubString(x, 30, -1)
+      |  })
+      |in
+      |  Collection.Filter(parsed, x -> x.timestamp > Timestamp.Build(2022, 09, 14, 15, 9, seconds = 49, millis = 925))""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
 }
