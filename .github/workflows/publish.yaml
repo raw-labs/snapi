@@ -34,6 +34,8 @@ jobs:
       run: |
         deps/kiama/build.sh
         deps/scala-logging/build.sh
+    - name: build all
+      run: ./rebuild.sh
     - name: sbt ci-release utils
       run: sbt ci-release
       working-directory: utils
