@@ -143,7 +143,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
   }
 
   override def visitFunParamAttr(ctx: SnapiParser.FunParamAttrContext): SourceNode = {
-    val idnDef = IdnDef(ctx.attr.ident.getText)
+    val idnDef = IdnDef(ctx.attr.ident.getValue)
     setPosition(ctx.attr.ident, idnDef)
     val result = FunParam(
       idnDef,
@@ -155,7 +155,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
   }
 
   override def visitFunParamAttrExpr(ctx: SnapiParser.FunParamAttrExprContext): SourceNode = {
-    val idnDef = IdnDef(ctx.attr.ident.getText)
+    val idnDef = IdnDef(ctx.attr.ident.getValue)
     setPosition(ctx.attr.ident, idnDef)
     val result = FunParam(
       idnDef,
@@ -210,7 +210,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
 
     val os = ctx.attr.asScala
       .map(a => {
-        val funOptTypeParam = FunOptTypeParam(a.ident.getText, visit(a.tipe).asInstanceOf[Type])
+        val funOptTypeParam = FunOptTypeParam(a.ident.getValue, visit(a.tipe).asInstanceOf[Type])
         setPosition(a, funOptTypeParam)
         funOptTypeParam
       })
@@ -536,7 +536,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
     val tuples = ctx.record_element.asScala.zipWithIndex.map {
       case (e, idx) =>
         if (e.ident() != null) {
-          (e.ident().getText, visit(e.expr()).asInstanceOf[Exp])
+          (e.ident().getValue, visit(e.expr()).asInstanceOf[Exp])
         } else {
           ("_" + (idx + 1), visit(e.expr()).asInstanceOf[Exp])
         }

@@ -516,4 +516,10 @@ class ParserCompareTest extends RawTestSuite {
     compareTrees(prog)
     comparePositions(prog)
   }
+
+  test("""Filed test 3""") { _ =>
+    val prog = "{`@name`: \"jane\", `@age`: 32, name: \"jane\", last: \"doe\"}"
+    compareTrees(prog)
+    comparePositions(prog)
+  }
 }
