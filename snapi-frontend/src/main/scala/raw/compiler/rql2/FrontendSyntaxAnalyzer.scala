@@ -124,23 +124,13 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     failure("illegal type")
 
   final protected lazy val rql2Type0: Parser[Rql2Type] = {
-    // Wrap in parenthesis to disambiguate the type property annotations
-    // e.g. (int or string) @null @try
-    ("(" ~> rql2Type1) ~ (rep(tokOr ~> rql2Type1) <~ ")") ^^ {
-      case t1 ~ t2s =>
-        if (t2s.isEmpty) t1
-        else {
-          val ts = t1 +: t2s
-          Rql2OrType(ts, defaultProps)
-        }
-    } |
       // int or string
       rql2Type1 ~ rep(tokOr ~> rql2Type1) ^^ {
         case t1 ~ t2s =>
           if (t2s.isEmpty) t1
           else {
             val ts = t1 +: t2s
-            Rql2OrType(ts, Set.empty)
+            Rql2OrType(ts, defaultProps)
           }
       }
   }

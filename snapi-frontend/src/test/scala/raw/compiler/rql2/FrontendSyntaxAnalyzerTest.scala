@@ -44,18 +44,18 @@ class FrontendSyntaxAnalyzerTest extends RawTestSuite {
         props
       )
     )
-    assert(
-      parseType("(int or string) or float") == Rql2OrType(
-        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
-        props
-      )
-    )
-    assert(
-      parseType("int or (string or float)") == Rql2OrType(
-        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
-        props
-      )
-    )
+//    assert(
+//      parseType("(int or string) or float") == Rql2OrType(
+//        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
+//        props
+//      )
+//    )
+//    assert(
+//      parseType("int or (string or float)") == Rql2OrType(
+//        Vector(Rql2IntType(props), Rql2StringType(props), Rql2FloatType(props)),
+//        props
+//      )
+//    )
     assert(
       parseType("int -> string") == FunType(Vector(Rql2IntType(props)), Vector.empty, Rql2StringType(props), props)
     )

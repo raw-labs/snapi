@@ -125,7 +125,7 @@ class SyntaxAnalyzer(val positions: Positions)
   } | tipe1 ~ ("->" ~> rql2Type0) ^^ { case t ~ r => FunType(Vector(t), Vector.empty, r, Set.empty) } |
     rql2Type0
 
-  final protected lazy val rql2Type0: Parser[Rql2Type] = {
+  final protected lazy val rql2Type0: Parser[Type] = {
     // Wrap in parenthesis to disambiguate the type property annotations
     // e.g. (int or string) @null @try
     ("(" ~> rql2Type1) ~ (rep(tokOr ~> rql2Type1) <~ ")") ~ typeProps ^^ {
@@ -147,7 +147,7 @@ class SyntaxAnalyzer(val positions: Positions)
       }
   }
 
-  private lazy val rql2Type1: Parser[Rql2Type] = primitiveType |
+  private lazy val rql2Type1: Parser[Type] = primitiveType |
     recordType |
     iterableType |
     listType |
@@ -156,6 +156,7 @@ class SyntaxAnalyzer(val positions: Positions)
     packageEntryType |
     expType |
     undefinedType |
+    errorType |
     typeAliasType
 
   final protected lazy val primitiveType: Parser[Rql2PrimitiveType] =
@@ -324,15 +325,12 @@ class SyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val funAppArg: Parser[FunAppArg] = opt(ident <~ "=") ~ exp ^^ { case i ~ e => FunAppArg(e, i) }
 
-  final protected lazy val baseExp: PackratParser[Exp] = {
-    packageIdnExp | baseExpAttr
-  }
-
   final private lazy val packageIdnExp: Parser[PackageIdnExp] =
     "\\$package\\b".r ~> "(" ~> stringLit <~ ")" ^^ PackageIdnExp
 
-  final private lazy val baseExpAttr: PackratParser[Exp] = {
-    let |
+  final private lazy val baseExp: PackratParser[Exp] = {
+    packageIdnExp |
+      let |
       funAbs |
       typeExp |
       ifThenElse |
