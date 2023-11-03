@@ -90,8 +90,8 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | expr OR_TOKEN expr                                    # OrExpr
     | MINUS_TOKEN expr                                      # MinusUnaryExpr
     | PLUS_TOKEN expr                                       # PlusUnaryExpr
-    | expr MUL_TOKEN expr                                   # MulExpr
     | expr DIV_TOKEN expr                                   # DivExpr
+    | expr MUL_TOKEN expr                                   # MulExpr
     | expr MOD_TOKEN expr                                   # ModExpr
     | expr PLUS_TOKEN expr                                  # PlusExpr
     | expr MINUS_TOKEN expr                                 # MinusExpr

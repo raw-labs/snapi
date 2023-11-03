@@ -19,6 +19,7 @@ import raw.compiler.rql2.source.TypeExp
 import raw.utils.RawTestSuite
 
 class ParserCompareTest extends RawTestSuite {
+  val triple = "\"\"\""
 
   private def parseWithAntlr4(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
@@ -448,8 +449,7 @@ class ParserCompareTest extends RawTestSuite {
   }
 
   test("""String escape test quotes""") { _ =>
-    val ttt = "\"\"\""
-    val prog = s"""Csv.InferAndParse(${ttt}1;2\n3;hello$ttt, delimiters=[";","\\n"])""".stripMargin
+    val prog = s"""Csv.InferAndParse(${triple}1;2\n3;hello$triple, delimiters=[";","\\n"])""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
@@ -467,17 +467,15 @@ class ParserCompareTest extends RawTestSuite {
   }
 
   test("""String escape test quotes with list""") { _ =>
-    val ttt = "\"\"\""
-    val prog = s"""Csv.InferAndParse(${ttt}1;2\n3;hello;5;;;;;;;$ttt, delimiters=[";","\\n"])""".stripMargin
+    val prog = s"""Csv.InferAndParse(${triple}1;2\n3;hello;5;;;;;;;$triple, delimiters=[";","\\n"])""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
 
   // ================== Failed tests  ======================
   test("""Filed test 1""") { _ =>
-    val ttt = "\"\"\""
     val prog = s"""let
-      |  query = $ttt SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code
+      |  query = $triple SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code
       |    WHERE
       |    {
       |        ?country wdt:P31 wd:Q3624078 .
@@ -489,7 +487,7 @@ class ParserCompareTest extends RawTestSuite {
       |
       |       SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
       |    }
-      |  $ttt,
+      |  $triple,
       |  data = Csv.Read(
       |    Http.Get(
       |        "https://query.wikidata.org/bigdata/namespace/wdq/sparql",
@@ -552,6 +550,17 @@ class ParserCompareTest extends RawTestSuite {
       |    olympics = $olympics,
       |    join = Collection.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
       |    in Collection.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""Filed test 6""") { _ =>
+    val prog = s"""let
+      |   a = $triple"$triple,
+      |   b = ${triple}Hello
+      |world!$triple
+      |in
+      |   [a, b]""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
