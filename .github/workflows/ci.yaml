@@ -3,8 +3,11 @@ on:
   pull_request:
     paths:
       - deps/**
-      - language/**
-      - extensions/**
+      - utils/**
+      - client/**
+      - snapi-frontend/**
+      - snapi-truffle/**
+      - snapi-client/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
@@ -22,24 +25,6 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
-      - name: language headers
-        run: sbt headerCheckAll
-        working-directory: language
-      - name: extensions headers
-        run: sbt headerCheckAll
-        working-directory: extensions
-      - name: language scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: language
-      - name: extensions scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: extensions
-      - name: language java fmt
-        run: sbt javafmtCheckAll
-        working-directory: language
-      - name: extensions java fmt
-        run: sbt javafmtCheckAll
-        working-directory: extensions
 
   tests:
     needs: code-checks
@@ -62,17 +47,80 @@ jobs:
         run: |
           deps/kiama/build.sh
           deps/scala-logging/build.sh
-      - name: build language
-        working-directory: language
+      - name: utils headers
+        run: sbt headerCheckAll
+        working-directory: utils
+      - name: utils scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: utils
+      - name: utils java fmt
+        run: sbt javafmtCheckAll
+        working-directory: utils
+      - name: build utils
+        working-directory: utils
         run: ./build.sh
-      - name: build extensions
-        working-directory: extensions
+      - name: client headers
+        run: sbt headerCheckAll
+        working-directory: client
+      - name: client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: client
+      - name: client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: client
+      - name: build client
+        working-directory: client
         run: ./build.sh
-      - name: language doc
-        working-directory: language
+      - name: snapi-frontend headers
+        run: sbt headerCheckAll
+        working-directory: snapi-frontend
+      - name: snapi-frontend scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-frontend
+      - name: snapi-frontend java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-frontend
+      - name: build snapi-frontend
+        working-directory: snapi-frontend
+        run: ./build.sh
+      - name: snapi-truffle headers
+        run: sbt headerCheckAll
+        working-directory: snapi-truffle
+      - name: snapi-truffle scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-truffle
+      - name: snapi-truffle java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-truffle
+      - name: build snapi-truffle
+        working-directory: snapi-truffle
+        run: ./build.sh
+      - name: snapi-client headers
+        run: sbt headerCheckAll
+        working-directory: snapi-client
+      - name: snapi-client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-client
+      - name: snapi-client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-client
+      - name: build snapi-client
+        working-directory: snapi-client
+        run: ./build.sh
+      - name: utils doc
+        working-directory: utils
         run: sbt doc
-      - name: extensions doc
-        working-directory: extensions
+      - name: client doc
+        working-directory: client
+        run: sbt doc
+      - name: snapi-frontend doc
+        working-directory: snapi-frontend
+        run: sbt doc
+      - name: snapi-truffle doc
+        working-directory: snapi-truffle
+        run: sbt doc
+      - name: snapi-client doc
+        working-directory: snapi-client
         run: sbt doc
       - run: ./tests.sh
       - uses: mikepenz/action-junit-report@v3
