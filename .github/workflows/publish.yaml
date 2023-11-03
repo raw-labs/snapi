@@ -20,12 +20,12 @@ jobs:
       JVM_OPTS:  -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
     steps:
     - if: github.event_name != 'repository_dispatch'
-      name: Checkout caller ref
+      name: checkout caller ref
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - if: github.event_name == 'repository_dispatch'
-      name: Checkout for PR comment
+      name: checkout for PR comment
       uses: actions/checkout@v3
       with:
         ref: ${{ github.event.client_payload.pull_request.head.sha }}
@@ -34,8 +34,48 @@ jobs:
       run: |
         deps/kiama/build.sh
         deps/scala-logging/build.sh
-    - run: sbt ci-release
-      working-directory: language
+    - run: sbt ci-release utils
+      working-directory: utils
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - run: sbt ci-release client
+      working-directory: client
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - run: sbt ci-release snapi-frontend
+      working-directory: snapi-frontend
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - run: sbt ci-release snapi-truffle
+      working-directory: snapi-truffle
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - run: sbt ci-release snapi-client
+      working-directory: snapi-client
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -46,7 +86,7 @@ jobs:
         CI_SNAPSHOT_RELEASE: publish
     - name: evaluate produced version
       shell: bash
-      working-directory: language
+      working-directory: 
       run: echo "DYNVER=$(cat version)" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
