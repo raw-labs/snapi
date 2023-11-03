@@ -535,10 +535,12 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
   override def visitRecord_elements(ctx: SnapiParser.Record_elementsContext): SourceNode = {
     val tuples = ctx.record_element.asScala.zipWithIndex.map {
       case (e, idx) =>
+        val exp = visit(e.expr()).asInstanceOf[Exp]
         if (e.ident() != null) {
-          (e.ident().getValue, visit(e.expr()).asInstanceOf[Exp])
-        } else {
-          ("_" + (idx + 1), visit(e.expr()).asInstanceOf[Exp])
+          (e.ident().getValue, exp)
+        } else exp match {
+          case proj: Proj => (proj.i, exp)
+          case _ => ("_" + (idx + 1), exp)
         }
     }.toVector
     val result: Exp = RecordPackageBuilder.Build(tuples)

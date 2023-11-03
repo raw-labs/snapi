@@ -530,4 +530,30 @@ class ParserCompareTest extends RawTestSuite {
     compareTrees(prog)
     comparePositions(prog)
   }
+
+  test("""Filed test 5""") { _ =>
+    val olympics = s"""Collection.Build(
+      |   {year: 2016, city: "Rio de Janeiro"},
+      |   {year: 2012, city: "London"}
+      |)""".stripMargin
+    val onceTheBandMembers = s"""String.ReadLines("asdf")"""
+
+    val bandMembers: String = s"""
+      |let tokens = Collection.Transform($onceTheBandMembers, l -> String.Split(l, "|"))
+      |in Collection.Transform(tokens, i -> {
+      |     band: List.Get(i, 0),
+      |     firstName: List.Get(i, 1),
+      |     lastName: List.Get(i, 2),
+      |     birthYear: Int.From(List.Get(i, 3))
+      |})""".stripMargin
+
+    val prog = s"""// equi-join
+      |let bands = $bandMembers,
+      |    olympics = $olympics,
+      |    join = Collection.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
+      |    in Collection.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }
