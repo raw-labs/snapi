@@ -476,31 +476,30 @@ class ParserCompareTest extends RawTestSuite {
   // ================== Failed tests  ======================
   test("""Filed test 1""") { _ =>
     val ttt = "\"\"\""
-    val prog =
-      s"""let
-         |  query = $ttt SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code
-         |    WHERE
-         |    {
-         |        ?country wdt:P31 wd:Q3624078 .
-         |        # part of the G20
-         |        FILTER EXISTS {?country wdt:P463 wd:Q19771}
-         |        #not a former country
-         |        FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
-         |       OPTIONAL { ?country wdt:P901 ?code } .
-         |
-         |       SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
-         |    }
-         |  $ttt,
-         |  data = Csv.Read(
-         |    Http.Get(
-         |        "https://query.wikidata.org/bigdata/namespace/wdq/sparql",
-         |        args = [{"query", query}],
-         |        headers = [{"Accept", "text/csv"}]
-         |    ),
-         |    type collection(record(wikidata_country: string, countryLabel: string, code: string))
-         |  )
-         |in
-         |  Collection.Filter(data, x -> x.code == "UK")""".stripMargin
+    val prog = s"""let
+      |  query = $ttt SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code
+      |    WHERE
+      |    {
+      |        ?country wdt:P31 wd:Q3624078 .
+      |        # part of the G20
+      |        FILTER EXISTS {?country wdt:P463 wd:Q19771}
+      |        #not a former country
+      |        FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
+      |       OPTIONAL { ?country wdt:P901 ?code } .
+      |
+      |       SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+      |    }
+      |  $ttt,
+      |  data = Csv.Read(
+      |    Http.Get(
+      |        "https://query.wikidata.org/bigdata/namespace/wdq/sparql",
+      |        args = [{"query", query}],
+      |        headers = [{"Accept", "text/csv"}]
+      |    ),
+      |    type collection(record(wikidata_country: string, countryLabel: string, code: string))
+      |  )
+      |in
+      |  Collection.Filter(data, x -> x.code == "UK")""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
