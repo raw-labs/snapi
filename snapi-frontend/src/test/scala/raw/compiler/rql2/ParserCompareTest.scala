@@ -33,10 +33,10 @@ class ParserCompareTest extends RawTestSuite {
   }
 
   def compareTrees(s: String): Unit = {
-    assert(parseWithKiama(s) == parseWithAntlr4(s))
+    assert(parseWithAntlr4(s) == parseWithKiama(s))
   }
 
-  def comparePositions(s: String, onlyExp: Boolean = false): Unit = {
+  def comparePositions(s: String): Unit = {
     val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
     val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
     val kiamaRoot = kiamaParser.parse(s)
@@ -48,20 +48,15 @@ class ParserCompareTest extends RawTestSuite {
     val kiamaNodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
     val antlr4Nodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
 
-    if (onlyExp) {
-      everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => kiamaNodes += n })(kiamaRoot)
-      everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => antlr4Nodes += n })(antlr4Root)
-    } else {
-      everywhere(query[Any] { case n: SourceNode => kiamaNodes += n })(kiamaRoot)
-      everywhere(query[Any] { case n: SourceNode => antlr4Nodes += n })(antlr4Root)
-    }
+    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => kiamaNodes += n })(kiamaRoot)
+    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => antlr4Nodes += n })(antlr4Root)
 
     assert(kiamaNodes.size == antlr4Nodes.size, s"Kiama nodes: ${kiamaNodes.size}, Antlr4 nodes: ${antlr4Nodes.size}")
 
     kiamaNodes.zip(antlr4Nodes).foreach {
       case (kiamaNode, antlr4Node) =>
-        assert(kiamaPositions.getStart(kiamaNode) == antlr4Positions.getStart(antlr4Node))
-        assert(kiamaPositions.getFinish(kiamaNode) == antlr4Positions.getFinish(antlr4Node))
+        assert(antlr4Positions.getStart(antlr4Node) == kiamaPositions.getStart(kiamaNode))
+        assert(antlr4Positions.getFinish(antlr4Node) == kiamaPositions.getFinish(kiamaNode))
     }
 
   }
@@ -474,6 +469,38 @@ class ParserCompareTest extends RawTestSuite {
   test("""String escape test quotes with list""") { _ =>
     val ttt = "\"\"\""
     val prog = s"""Csv.InferAndParse(${ttt}1;2\n3;hello;5;;;;;;;$ttt, delimiters=[";","\\n"])""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  // ================== Failed tests  ======================
+  test("""Filed test 1""") { _ =>
+    val ttt = "\"\"\""
+    val prog =
+      s"""let
+         |  query = $ttt SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code
+         |    WHERE
+         |    {
+         |        ?country wdt:P31 wd:Q3624078 .
+         |        # part of the G20
+         |        FILTER EXISTS {?country wdt:P463 wd:Q19771}
+         |        #not a former country
+         |        FILTER NOT EXISTS {?country wdt:P31 wd:Q3024240}
+         |       OPTIONAL { ?country wdt:P901 ?code } .
+         |
+         |       SERVICE wikibase:label { bd:serviceParam wikibase:language "en" }
+         |    }
+         |  $ttt,
+         |  data = Csv.Read(
+         |    Http.Get(
+         |        "https://query.wikidata.org/bigdata/namespace/wdq/sparql",
+         |        args = [{"query", query}],
+         |        headers = [{"Accept", "text/csv"}]
+         |    ),
+         |    type collection(record(wikidata_country: string, countryLabel: string, code: string))
+         |  )
+         |in
+         |  Collection.Filter(data, x -> x.code == "UK")""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }

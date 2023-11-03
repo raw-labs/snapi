@@ -78,7 +78,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | records                                               # RecordExpr
     | bool_const                                            # BoolConstExpr
     | NULL_TOKEN                                            # NullExpr
-    | START_TRIPLE_QUOTE .*? END_TRIPLE_QUOTE               # TrippleStringExpr
+    | START_TRIPLE_QUOTE TRIPLE_QUOTED_STRING_CONTENT* END_TRIPLE_QUOTE               # TrippleStringExpr
     | STRING                                                # StringExpr
     | ident                                                 # IdentExpr
     | expr fun_ar                                           # FunAppExpr

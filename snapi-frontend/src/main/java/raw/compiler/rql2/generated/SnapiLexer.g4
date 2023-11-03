@@ -136,6 +136,8 @@ RIGHT_SQ_BR: ']';
 
 // Switching context to triple quotes, will be usefull for string interpolation too
 mode INSIDE_TRIPLE_QUOTE;
-ANYTHING: (ESC | ~["\\])+;
+TRIPLE_QUOTED_STRING_CONTENT : '"' '"'? ~["]  // Match one or two quotes followed by a non-quote
+                             | ~["]           // Match any character that is not a quote
+                             ;
 END_TRIPLE_QUOTE: '"""' -> popMode;
-WS_TRIPLE_QUOTE : [ \t\r\n]+ -> skip;
+WS_TRIPLE_QUOTE : [\t\r]+ -> skip;
