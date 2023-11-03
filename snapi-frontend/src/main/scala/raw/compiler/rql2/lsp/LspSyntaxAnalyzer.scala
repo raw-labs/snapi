@@ -49,7 +49,7 @@ class LspSyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(pos
 
   // Always succeed on types: last case is ErrorType() instead of failure
 
-  final override lazy val tipe1: Parser[Type] = rql2Type0 |
+  final override lazy val baseType: Parser[Type] = baseTypeAttr |
     success(ErrorType())
 
   // Always succeed on expressions: last case is ErrorExp() instead of failure

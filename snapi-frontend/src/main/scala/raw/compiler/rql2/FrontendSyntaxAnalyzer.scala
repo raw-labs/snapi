@@ -90,17 +90,9 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   import FrontendSyntaxAnalyzerTokens._
 
-  final protected lazy val bind: Parser[Bind] = idnDef ~ (":=" ~> exp) ^^ { case i ~ e => Bind(e, i) }
-
   final protected lazy val idnDef: Parser[IdnDef] = identDef ^^ { i => IdnDef(i) }
 
-  final protected lazy val programParam: Parser[SourceProgramParam] = idnDef ~ (":" ~> tipe) ^^ {
-    case i ~ t => SourceProgramParam(i, t)
-  }
-
   final protected lazy val identDef: Parser[String] = ident
-
-  final protected lazy val errorType: Parser[ErrorType] = kwError ^^^ ErrorType()
 
   final protected lazy val idnExp: Parser[IdnExp] = idnUse ^^ { idn => IdnExp(idn) }
 
@@ -120,22 +112,17 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final override protected lazy val tipe: Parser[Type] = tipe1
 
-  protected lazy val tipe1: Parser[Type] = rql2Type0 |
-    failure("illegal type")
+  protected lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> tipe2) ^^ {
+    case t ~ r => FunType(Vector(t), Vector.empty, r, defaultProps)
+  } | tipe2
 
-  final protected lazy val rql2Type0: Parser[Rql2Type] = {
-      // int or string
-      rql2Type1 ~ rep(tokOr ~> rql2Type1) ^^ {
-        case t1 ~ t2s =>
-          if (t2s.isEmpty) t1
-          else {
-            val ts = t1 +: t2s
-            Rql2OrType(ts, defaultProps)
-          }
-      }
-  }
+  protected lazy val tipe2: PackratParser[Type] = tipe2 ~ (tokOr ~> baseType) ^^ {
+    case t1 ~ t2 => Rql2OrType(t1, t2, defaultProps)
+  } | baseType
 
-  private lazy val rql2Type1: Parser[Rql2Type] = primitiveType |
+  protected def baseType: Parser[Type] = baseTypeAttr
+
+  final protected lazy val baseTypeAttr: Parser[Type] = primitiveType |
     recordType |
     iterableType |
     listType |
@@ -144,7 +131,8 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     packageEntryType |
     expType |
     undefinedType |
-    typeAliasType
+    typeAliasType |
+    "(" ~> tipe <~ ")"
 
   final protected lazy val primitiveType: Parser[Rql2PrimitiveType] =
     boolType | stringType | locationType | binaryType | numberType | temporalType
@@ -202,22 +190,10 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     // So if we had "tipe | funOptTypeParam" and we had as input "x: int", then "x" would parse successfully as a typealias.
     // So that repsep case was handled. We'd then expect "," and since none found, we'd require ")".
     // By trying "funOptTypeParam" case first - the "longest case first" - we handle that issue.
-    //
-    // Wrap in parenthesis to disambiguate the type property annotations
-    // e.g. ((int) -> string) @null @try
-    ("(" ~> "(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe <~ ")") ^^ {
+    ("(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe) ^^ {
       case ts ~ r =>
         FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, defaultProps)
-    } |
-      // e.g. (int) -> string
-      ("(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe) ^^ {
-        case ts ~ r => FunType(
-            ts.collect { case t: Type => t },
-            ts.collect { case p: FunOptTypeParam => p },
-            r,
-            Set.empty
-          )
-      }
+    }
   }
 
   final private lazy val funOptTypeParam: Parser[FunOptTypeParam] = ident ~ (":" ~> tipe) ^^ FunOptTypeParam
@@ -340,9 +316,14 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     case i ~ p => LetFunRec(i, p)
   }
 
-  final private lazy val funProto: Parser[FunProto] = ("(" ~> repsep(funParam, ",") <~ ")") ~ opt(
-    ":" ~> tipe
-  ) ~ ("=" ~> funBody) ^^ { case ps ~ t ~ b => FunProto(ps, t, b) }
+  final private lazy val funProto: Parser[FunProto] =
+    // Parse the short type first (primitiveType rule), and only if that fails, try the long type (tipe rule)
+    ("(" ~> repsep(funParam, ",") <~ ")") ~ opt(
+      ":" ~> primitiveType
+    ) ~ ("=" ~> funBody) ^^ { case ps ~ t ~ b => FunProto(ps, t, b) } |
+      ("(" ~> repsep(funParam, ",") <~ ")") ~ opt(
+        ":" ~> tipe
+      ) ~ ("=" ~> funBody) ^^ { case ps ~ t ~ b => FunProto(ps, t, b) }
 
   final private lazy val funParam: Parser[FunParam] = idnDef ~ opt(":" ~> (tipe ~ opt("=" ~> exp))) ^^ {
     case i ~ mt => mt match {
@@ -355,14 +336,20 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final private lazy val funAbsMultiParams: Parser[FunAbs] = funProtoForFunAbsMultiParams ^^ FunAbs
 
-  final private lazy val funProtoForFunAbsMultiParams: Parser[FunProto] = ("(" ~> repsep(funParam, ",") <~ ")") ~ opt(
-    ":" ~> tipe
-  ) ~ ("->" ~> funBody) ^^ {
-    case ps ~ t ~ b => FunProto(ps, t, b)
-  } |
-    (("(" ~> repsep(funParam, ",") <~ ")") <~ opt(
-      ":" <~ tipe
-    ) <~ "=>" flatMap { _ => failure("use '->' instead of '=>', e.g. '(x: int) -> x + 1'") })
+  final private lazy val funProtoForFunAbsMultiParams: Parser[FunProto] = {
+    // Parse the short type first (primitiveType rule), and only if that fails, try the long type (tipe rule)
+    ("(" ~> repsep(funParam, ",") <~ ")") ~ opt(
+      ":" ~> primitiveType
+    ) ~ ("->" ~> funBody) ^^ { case ps ~ t ~ b => FunProto(ps, t, b) } |
+      ("(" ~> repsep(funParam, ",") <~ ")") ~ opt(
+        ":" ~> tipe
+      ) ~ ("->" ~> funBody) ^^ {
+        case ps ~ t ~ b => FunProto(ps, t, b)
+      } |
+      (("(" ~> repsep(funParam, ",") <~ ")") <~ opt(
+        ":" <~ tipe
+      ) <~ "=>" flatMap { _ => failure("use '->' instead of '=>', e.g. '(x: int) -> x + 1'") })
+  }
 
   final private lazy val funAbsSingleParam: Parser[FunAbs] = funProtoForFunAbsSingleParam ^^ FunAbs
 
