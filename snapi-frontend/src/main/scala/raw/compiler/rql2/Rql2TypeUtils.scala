@@ -20,8 +20,11 @@ import raw.compiler.rql2.api._
 import raw.compiler.rql2.source._
 import raw.inferrer.api._
 
+<<<<<<< HEAD
 import scala.collection.mutable
 
+=======
+>>>>>>> origin/main
 trait Rql2TypeUtils {
 
   final def hasTypeConstraint(t: Type): Boolean = {
@@ -159,6 +162,7 @@ trait Rql2TypeUtils {
     }
   }
 
+<<<<<<< HEAD
   def rawTypeToRql2Type(t: RawType): Type = {
     def flags(nullable: Boolean, triable: Boolean): Set[Rql2TypeProperty] = {
       val props = mutable.HashSet.empty[Rql2TypeProperty]
@@ -200,6 +204,8 @@ trait Rql2TypeUtils {
     }
   }
 
+=======
+>>>>>>> origin/main
   def rawValueToRql2Value(v: RawValue, t: RawType): Value = {
     def wrap(t: RawType, v: Value): Value = {
       assert(!v.isInstanceOf[TryValue] || !v.isInstanceOf[OptionValue])

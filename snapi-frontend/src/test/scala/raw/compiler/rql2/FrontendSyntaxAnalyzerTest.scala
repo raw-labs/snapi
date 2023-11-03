@@ -12,9 +12,29 @@
 
 package raw.compiler.rql2
 
+<<<<<<< HEAD
 import raw.compiler.rql2.source.{
   FunOptTypeParam,
   FunType,
+=======
+import raw.compiler.base.source.{BaseProgram, Type}
+import raw.compiler.common.source.{IdnDef, IdnExp, IdnUse}
+import raw.compiler.rql2.source.{
+  BinaryExp,
+  FunAbs,
+  FunApp,
+  FunAppArg,
+  FunBody,
+  FunOptTypeParam,
+  FunParam,
+  FunProto,
+  FunType,
+  Gt,
+  IntConst,
+  Let,
+  LetBind,
+  LetFun,
+>>>>>>> origin/main
   Rql2BoolType,
   Rql2FloatType,
   Rql2IntType,
@@ -22,6 +42,10 @@ import raw.compiler.rql2.source.{
   Rql2IsTryableTypeProperty,
   Rql2ListType,
   Rql2OrType,
+<<<<<<< HEAD
+=======
+  Rql2Program,
+>>>>>>> origin/main
   Rql2StringType,
   Rql2TypeProperty
 }
@@ -29,12 +53,25 @@ import raw.utils.RawTestSuite
 
 class FrontendSyntaxAnalyzerTest extends RawTestSuite {
 
+<<<<<<< HEAD
   def parseType(s: String) = {
+=======
+  def parseType(s: String): Type = {
+>>>>>>> origin/main
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new FrontendSyntaxAnalyzer(positions)
     parser.parseType(s).right.get
   }
 
+<<<<<<< HEAD
+=======
+  def parse(s: String): BaseProgram = {
+    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val parser = new FrontendSyntaxAnalyzer(positions)
+    parser.parse(s).right.get
+  }
+
+>>>>>>> origin/main
   test("""type priority tests""") { _ =>
     val props = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
     assert(parseType("int or string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props))
@@ -164,4 +201,140 @@ class FrontendSyntaxAnalyzerTest extends RawTestSuite {
         )
     )
   }
+<<<<<<< HEAD
+=======
+
+  test("funabs test")(_ =>
+    assert(
+      parse("""
+        | let f = (v: int): string -> v
+        | in f (1)
+        | """.stripMargin) ==
+        Rql2Program(
+          Vector(),
+          Some(
+            Let(
+              Vector(
+                LetBind(
+                  FunAbs(
+                    FunProto(
+                      Vector(
+                        FunParam(
+                          IdnDef("v"),
+                          Some(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                          None
+                        )
+                      ),
+                      Some(Rql2StringType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                      FunBody(IdnExp(IdnUse("v")))
+                    )
+                  ),
+                  IdnDef("f"),
+                  None
+                )
+              ),
+              FunApp(IdnExp(IdnUse("f")), Vector(FunAppArg(IntConst("1"), None)))
+            )
+          )
+        )
+    )
+  )
+
+  test("complex funabs test")(_ =>
+    assert(
+      parse("""
+        |let apply(boolFunc: (int -> bool) -> bool) = boolFunc((x: int) -> x > 10)
+        |in apply((f: int -> bool) -> f(14))
+        |""".stripMargin) ==
+        Rql2Program(
+          Vector(),
+          Some(
+            Let(
+              Vector(
+                LetFun(
+                  FunProto(
+                    Vector(
+                      FunParam(
+                        IdnDef("boolFunc"),
+                        Some(
+                          FunType(
+                            Vector(
+                              FunType(
+                                Vector(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                                Vector(),
+                                Rql2BoolType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())),
+                                Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+                              )
+                            ),
+                            Vector(),
+                            Rql2BoolType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())),
+                            Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+                          )
+                        ),
+                        None
+                      )
+                    ),
+                    None,
+                    FunBody(
+                      FunApp(
+                        IdnExp(IdnUse("boolFunc")),
+                        Vector(
+                          FunAppArg(
+                            FunAbs(
+                              FunProto(
+                                Vector(
+                                  FunParam(
+                                    IdnDef("x"),
+                                    Some(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                                    None
+                                  )
+                                ),
+                                None,
+                                FunBody(BinaryExp(Gt(), IdnExp(IdnUse("x")), IntConst("10")))
+                              )
+                            ),
+                            None
+                          )
+                        )
+                      )
+                    )
+                  ),
+                  IdnDef("apply")
+                )
+              ),
+              FunApp(
+                IdnExp(IdnUse("apply")),
+                Vector(
+                  FunAppArg(
+                    FunAbs(
+                      FunProto(
+                        Vector(
+                          FunParam(
+                            IdnDef("f"),
+                            Some(
+                              FunType(
+                                Vector(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                                Vector(),
+                                Rql2BoolType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())),
+                                Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+                              )
+                            ),
+                            None
+                          )
+                        ),
+                        None,
+                        FunBody(FunApp(IdnExp(IdnUse("f")), Vector(FunAppArg(IntConst("14"), None))))
+                      )
+                    ),
+                    None
+                  )
+                )
+              )
+            )
+          )
+        )
+    )
+  )
+
+>>>>>>> origin/main
 }

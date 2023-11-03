@@ -38,7 +38,11 @@ trait CsvPackageTest extends CompilerTestContext {
     """Csv.Parse("1;tralala\n12;ploum\n3;ploum;\n4;NULL", type collection(record(a: int, b: string, c: string, d: string, e: string)),
       |skip = 0, delimiter = ";", nulls=["NULL", "12"])""".stripMargin
   )(it =>
+<<<<<<< HEAD
     if (compilerService.language.contains("rql2-truffle")) {
+=======
+    if (isTruffle) {
+>>>>>>> origin/main
       it should runErrorAs(
         "failed to read CSV (line 1 column 10): not enough columns found"
       )
@@ -56,7 +60,11 @@ trait CsvPackageTest extends CompilerTestContext {
     |3|30|300|3.14""".stripMargin)
 
   test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter="|")""")(it =>
+<<<<<<< HEAD
     if (compilerService.language.contains("rql2-truffle")) {
+=======
+    if (isTruffle) {
+>>>>>>> origin/main
       it should runErrorAs(
         snapi"failed to read CSV (line 2 column 9) (url: $badData): not enough columns found"
       )
@@ -70,7 +78,11 @@ trait CsvPackageTest extends CompilerTestContext {
   )
 
   test(snapi"""Csv.Read("$badData", type collection(record(a: int, b: int, c: int, d: double)), delimiter=";")""")(it =>
+<<<<<<< HEAD
     if (compilerService.language.contains("rql2-truffle")) {
+=======
+    if (isTruffle) {
+>>>>>>> origin/main
       it should runErrorAs(
         snapi"failed to read CSV (line 1 column 14) (url: $badData): not enough columns found"
       )
@@ -237,7 +249,11 @@ trait CsvPackageTest extends CompilerTestContext {
     |  data = Csv.InferAndRead("$csvWithNulls", sampleSize = 100, preferNulls = false)
     |in
     |  Collection.Filter(data, row -> Try.IsError(row.a))""".stripMargin)(it =>
+<<<<<<< HEAD
     if (compilerService.language.contains("rql2-truffle")) {
+=======
+    if (isTruffle) {
+>>>>>>> origin/main
       it should evaluateTo(
         snapi"""[{
           |  a : Error.Build("failed to parse CSV (url: $csvWithNulls: line 1002, col 1), cannot parse 'NA' as an int"),
@@ -269,7 +285,11 @@ trait CsvPackageTest extends CompilerTestContext {
     |  data = Csv.InferAndRead("$csvWithTypeChange", sampleSize = 100)
     |in
     |  Collection.Filter(data, row -> Try.IsError(row.a))""".stripMargin)(it =>
+<<<<<<< HEAD
     if (compilerService.language.contains("rql2-truffle")) {
+=======
+    if (isTruffle) {
+>>>>>>> origin/main
       it should evaluateTo(
         snapi"""[{
           |  a : Error.Build("failed to parse CSV (url: $csvWithTypeChange: line 1002, col 1), cannot parse 'hello' as an int"),
@@ -291,11 +311,26 @@ trait CsvPackageTest extends CompilerTestContext {
     }
   )
 
+<<<<<<< HEAD
   test(snapi"""Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
     _ should runErrorAs(
       snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
     )
   )
+=======
+  test(snapi"""Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""") { it =>
+    // ideally it would be line 11, column 30 (end of line 11)
+    if (isTruffle) {
+      it should runErrorAs(
+        snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+      )
+    } else {
+      it should runErrorAs(
+        snapi"failed to read CSV (line 10 column 2) (url: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
+      )
+    }
+  }
+>>>>>>> origin/main
 
   test(
     snapi"""Collection.Take(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9)"""
@@ -315,6 +350,7 @@ trait CsvPackageTest extends CompilerTestContext {
 
   test(
     snapi"""Collection.Take(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
+<<<<<<< HEAD
   )(
     _ should runErrorAs(
       snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
@@ -328,6 +364,35 @@ trait CsvPackageTest extends CompilerTestContext {
       snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
     )
   )
+=======
+  ) { it =>
+    // ideally it would be line 11, column 30 (end of line 11)
+    if (isTruffle) {
+      it should runErrorAs(
+        snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+      )
+    } else {
+      it should runErrorAs(
+        snapi"failed to read CSV (line 10 column 2) (url: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
+      )
+    }
+  }
+
+  test(
+    snapi"""Collection.Count(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
+  ) { it =>
+    // ideally it would be line 11, column 30 (end of line 11)
+    if (isTruffle) {
+      it should runErrorAs(
+        snapi"failed to read CSV (line 11 column 173) (url: $junkAfter10Items): not enough columns found"
+      )
+    } else {
+      it should runErrorAs(
+        snapi"failed to read CSV (line 10 column 2) (url: $junkAfter10Items): failed to parse CSV (line 10, col 2), not enough columns found"
+      )
+    }
+  }
+>>>>>>> origin/main
 
   test(
     snapi"""Try.IsError(Collection.Count(Csv.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
@@ -424,7 +489,11 @@ trait CsvPackageTest extends CompilerTestContext {
     |        timestampCol: timestamp
     |    )
     |), delimiter = ";", skip = 0)""".stripMargin)(it =>
+<<<<<<< HEAD
     if (compilerService.language.contains("rql2-truffle")) {
+=======
+    if (isTruffle) {
+>>>>>>> origin/main
       it should evaluateTo(snapi"""[
         |{byteCol: Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte"),
         | shortCol:Error.Build("failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short"),
@@ -569,4 +638,5 @@ trait CsvPackageTest extends CompilerTestContext {
     |{a: 1, b: 10, c: "N"}
     |]""".stripMargin))
 
+  private def isTruffle = compilerService.language.contains("rql2-truffle")
 }

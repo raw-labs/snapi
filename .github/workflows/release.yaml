@@ -21,10 +21,10 @@ jobs:
         with:
           ref: ${{ github.event.client_payload.ref }}
           fetch-depth: 0
-      - uses: stCarolas/setup-maven@v4.5
-        with:
-          maven-version: 3.8.2
-      - run: ./rebuild.sh
+      #- uses: stCarolas/setup-maven@v4.5
+      #  with:
+      #    maven-version: 3.8.2
+      #- run: ./rebuild.sh
       - uses: softprops/action-gh-release@v1
         with:
           token: "${{ secrets.RAW_CI_PAT }}"
@@ -33,9 +33,9 @@ jobs:
           draft: false
           prerelease: false
           tag_name: ${{ github.event.client_payload.tag }}
-          files: |
-            ./licenses/BSL.txt
-            ./launcher/target/raw-cli-*.jar
+          #files: |
+          #  ./licenses/BSL.txt
+          #  ./launcher/target/raw-cli-*.jar
   notify-main-repo:
     if: github.event == 'repository_dispatch'
     runs-on: self-hosted

@@ -46,6 +46,7 @@
             <groupId>org.graalvm.polyglot</groupId>
             <artifactId>python</artifactId>
             <version>23.1.0</version>
+            <scope>runtime</scope>
             <type>pom</type>
             <scope>runtime</scope>
         </dependency>
