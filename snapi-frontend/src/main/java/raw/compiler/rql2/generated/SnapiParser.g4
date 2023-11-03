@@ -88,7 +88,6 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | NOT_TOKEN expr                                        # NotExpr
     | expr AND_TOKEN expr                                   # AndExpr
     | expr OR_TOKEN expr                                    # OrExpr
-    | expr compare_tokens expr                              # CompareExpr
     | MINUS_TOKEN expr                                      # MinusUnaryExpr
     | PLUS_TOKEN expr                                       # PlusUnaryExpr
     | expr MUL_TOKEN expr                                   # MulExpr
@@ -96,6 +95,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | expr MOD_TOKEN expr                                   # ModExpr
     | expr PLUS_TOKEN expr                                  # PlusExpr
     | expr MINUS_TOKEN expr                                 # MinusExpr
+    | expr compare_tokens expr                              # CompareExpr
     // | expr DOT  {notifyErrorListeners("Incomplete projection");}
     ;
 

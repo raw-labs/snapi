@@ -3900,7 +3900,7 @@ public class SnapiParser extends Parser {
               setState(291);
               match(MINUS_TOKEN);
               setState(292);
-              expr(7);
+              expr(8);
             }
             break;
           case 16:
@@ -3911,7 +3911,7 @@ public class SnapiParser extends Parser {
               setState(293);
               match(PLUS_TOKEN);
               setState(294);
-              expr(6);
+              expr(7);
             }
             break;
         }
@@ -3955,79 +3955,79 @@ public class SnapiParser extends Parser {
                   break;
                 case 3:
                   {
-                    _localctx = new CompareExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new MulExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
                     setState(303);
-                    if (!(precpred(_ctx, 8)))
-                      throw new FailedPredicateException(this, "precpred(_ctx, 8)");
+                    if (!(precpred(_ctx, 6)))
+                      throw new FailedPredicateException(this, "precpred(_ctx, 6)");
                     setState(304);
-                    compare_tokens();
+                    match(MUL_TOKEN);
                     setState(305);
-                    expr(9);
+                    expr(7);
                   }
                   break;
                 case 4:
                   {
-                    _localctx = new MulExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new DivExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
-                    setState(307);
+                    setState(306);
                     if (!(precpred(_ctx, 5)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 5)");
+                    setState(307);
+                    match(DIV_TOKEN);
                     setState(308);
-                    match(MUL_TOKEN);
-                    setState(309);
                     expr(6);
                   }
                   break;
                 case 5:
                   {
-                    _localctx = new DivExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new ModExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
-                    setState(310);
+                    setState(309);
                     if (!(precpred(_ctx, 4)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 4)");
+                    setState(310);
+                    match(MOD_TOKEN);
                     setState(311);
-                    match(DIV_TOKEN);
-                    setState(312);
                     expr(5);
                   }
                   break;
                 case 6:
                   {
-                    _localctx = new ModExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new PlusExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
-                    setState(313);
+                    setState(312);
                     if (!(precpred(_ctx, 3)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 3)");
+                    setState(313);
+                    match(PLUS_TOKEN);
                     setState(314);
-                    match(MOD_TOKEN);
-                    setState(315);
                     expr(4);
                   }
                   break;
                 case 7:
                   {
-                    _localctx = new PlusExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new MinusExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
-                    setState(316);
+                    setState(315);
                     if (!(precpred(_ctx, 2)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 2)");
+                    setState(316);
+                    match(MINUS_TOKEN);
                     setState(317);
-                    match(PLUS_TOKEN);
-                    setState(318);
                     expr(3);
                   }
                   break;
                 case 8:
                   {
-                    _localctx = new MinusExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new CompareExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
-                    setState(319);
+                    setState(318);
                     if (!(precpred(_ctx, 1)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 1)");
+                    setState(319);
+                    compare_tokens();
                     setState(320);
-                    match(MINUS_TOKEN);
-                    setState(321);
                     expr(2);
                   }
                   break;
@@ -5364,7 +5364,7 @@ public class SnapiParser extends Parser {
       case 4:
         return precpred(_ctx, 9);
       case 5:
-        return precpred(_ctx, 8);
+        return precpred(_ctx, 6);
       case 6:
         return precpred(_ctx, 5);
       case 7:
@@ -5577,7 +5577,7 @@ public class SnapiParser extends Parser {
           + "\u0000\u011e\u0128\u0003D\"\u0000\u011f\u0128\u00032\u0019\u0000\u0120"
           + "\u0128\u00036\u001b\u0000\u0121\u0122\u00052\u0000\u0000\u0122\u0128\u0003"
           + "&\u0013\u000b\u0123\u0124\u0005,\u0000\u0000\u0124\u0128\u0003&\u0013"
-          + "\u0007\u0125\u0126\u0005+\u0000\u0000\u0126\u0128\u0003&\u0013\u0006\u0127"
+          + "\b\u0125\u0126\u0005+\u0000\u0000\u0126\u0128\u0003&\u0013\u0007\u0127"
           + "\u0109\u0001\u0000\u0000\u0000\u0127\u010e\u0001\u0000\u0000\u0000\u0127"
           + "\u010f\u0001\u0000\u0000\u0000\u0127\u0110\u0001\u0000\u0000\u0000\u0127"
           + "\u0111\u0001\u0000\u0000\u0000\u0127\u0112\u0001\u0000\u0000\u0000\u0127"
@@ -5589,72 +5589,72 @@ public class SnapiParser extends Parser {
           + "\u014c\u0001\u0000\u0000\u0000\u0129\u012a\n\n\u0000\u0000\u012a\u012b"
           + "\u00050\u0000\u0000\u012b\u014b\u0003&\u0013\u000b\u012c\u012d\n\t\u0000"
           + "\u0000\u012d\u012e\u00051\u0000\u0000\u012e\u014b\u0003&\u0013\n\u012f"
-          + "\u0130\n\b\u0000\u0000\u0130\u0131\u0003@ \u0000\u0131\u0132\u0003&\u0013"
-          + "\t\u0132\u014b\u0001\u0000\u0000\u0000\u0133\u0134\n\u0005\u0000\u0000"
-          + "\u0134\u0135\u0005-\u0000\u0000\u0135\u014b\u0003&\u0013\u0006\u0136\u0137"
-          + "\n\u0004\u0000\u0000\u0137\u0138\u0005.\u0000\u0000\u0138\u014b\u0003"
-          + "&\u0013\u0005\u0139\u013a\n\u0003\u0000\u0000\u013a\u013b\u0005/\u0000"
-          + "\u0000\u013b\u014b\u0003&\u0013\u0004\u013c\u013d\n\u0002\u0000\u0000"
-          + "\u013d\u013e\u0005+\u0000\u0000\u013e\u014b\u0003&\u0013\u0003\u013f\u0140"
-          + "\n\u0001\u0000\u0000\u0140\u0141\u0005,\u0000\u0000\u0141\u014b\u0003"
-          + "&\u0013\u0002\u0142\u0143\n\u000f\u0000\u0000\u0143\u014b\u0003\u0010"
-          + "\b\u0000\u0144\u0145\n\f\u0000\u0000\u0145\u0146\u0005A\u0000\u0000\u0146"
-          + "\u0148\u0003D\"\u0000\u0147\u0149\u0003\u0010\b\u0000\u0148\u0147\u0001"
-          + "\u0000\u0000\u0000\u0148\u0149\u0001\u0000\u0000\u0000\u0149\u014b\u0001"
-          + "\u0000\u0000\u0000\u014a\u0129\u0001\u0000\u0000\u0000\u014a\u012c\u0001"
-          + "\u0000\u0000\u0000\u014a\u012f\u0001\u0000\u0000\u0000\u014a\u0133\u0001"
-          + "\u0000\u0000\u0000\u014a\u0136\u0001\u0000\u0000\u0000\u014a\u0139\u0001"
-          + "\u0000\u0000\u0000\u014a\u013c\u0001\u0000\u0000\u0000\u014a\u013f\u0001"
-          + "\u0000\u0000\u0000\u014a\u0142\u0001\u0000\u0000\u0000\u014a\u0144\u0001"
-          + "\u0000\u0000\u0000\u014b\u014e\u0001\u0000\u0000\u0000\u014c\u014a\u0001"
-          + "\u0000\u0000\u0000\u014c\u014d\u0001\u0000\u0000\u0000\u014d\'\u0001\u0000"
-          + "\u0000\u0000\u014e\u014c\u0001\u0000\u0000\u0000\u014f\u0150\u0005\u0016"
-          + "\u0000\u0000\u0150\u0151\u0003*\u0015\u0000\u0151\u0152\u0005\u0017\u0000"
-          + "\u0000\u0152\u0153\u0003&\u0013\u0000\u0153)\u0001\u0000\u0000\u0000\u0154"
-          + "\u0159\u0003,\u0016\u0000\u0155\u0156\u0005>\u0000\u0000\u0156\u0158\u0003"
-          + ",\u0016\u0000\u0157\u0155\u0001\u0000\u0000\u0000\u0158\u015b\u0001\u0000"
-          + "\u0000\u0000\u0159\u0157\u0001\u0000\u0000\u0000\u0159\u015a\u0001\u0000"
-          + "\u0000\u0000\u015a+\u0001\u0000\u0000\u0000\u015b\u0159\u0001\u0000\u0000"
-          + "\u0000\u015c\u015f\u0003.\u0017\u0000\u015d\u015f\u0003\u0006\u0003\u0000"
-          + "\u015e\u015c\u0001\u0000\u0000\u0000\u015e\u015d\u0001\u0000\u0000\u0000"
-          + "\u015f-\u0001\u0000\u0000\u0000\u0160\u0161\u0003D\"\u0000\u0161\u0162"
-          + "\u0005?\u0000\u0000\u0162\u0163\u0003&\u0013\u0000\u0163\u016b\u0001\u0000"
-          + "\u0000\u0000\u0164\u0165\u0003D\"\u0000\u0165\u0166\u0005=\u0000\u0000"
-          + "\u0166\u0167\u0003\u001a\r\u0000\u0167\u0168\u0005?\u0000\u0000\u0168"
-          + "\u0169\u0003&\u0013\u0000\u0169\u016b\u0001\u0000\u0000\u0000\u016a\u0160"
-          + "\u0001\u0000\u0000\u0000\u016a\u0164\u0001\u0000\u0000\u0000\u016b/\u0001"
-          + "\u0000\u0000\u0000\u016c\u016d\u0005\u001a\u0000\u0000\u016d\u016e\u0003"
-          + "&\u0013\u0000\u016e\u016f\u0005\u001b\u0000\u0000\u016f\u0170\u0003&\u0013"
-          + "\u0000\u0170\u0171\u0005\u001c\u0000\u0000\u0171\u0172\u0003&\u0013\u0000"
-          + "\u01721\u0001\u0000\u0000\u0000\u0173\u0175\u0005D\u0000\u0000\u0174\u0176"
-          + "\u00034\u001a\u0000\u0175\u0174\u0001\u0000\u0000\u0000\u0175\u0176\u0001"
-          + "\u0000\u0000\u0000\u0176\u0177\u0001\u0000\u0000\u0000\u0177\u0178\u0005"
-          + "E\u0000\u0000\u01783\u0001\u0000\u0000\u0000\u0179\u017e\u0003&\u0013"
-          + "\u0000\u017a\u017b\u0005>\u0000\u0000\u017b\u017d\u0003&\u0013\u0000\u017c"
-          + "\u017a\u0001\u0000\u0000\u0000\u017d\u0180\u0001\u0000\u0000\u0000\u017e"
-          + "\u017c\u0001\u0000\u0000\u0000\u017e\u017f\u0001\u0000\u0000\u0000\u017f"
-          + "5\u0001\u0000\u0000\u0000\u0180\u017e\u0001\u0000\u0000\u0000\u0181\u0183"
-          + "\u0005B\u0000\u0000\u0182\u0184\u00038\u001c\u0000\u0183\u0182\u0001\u0000"
-          + "\u0000\u0000\u0183\u0184\u0001\u0000\u0000\u0000\u0184\u0185\u0001\u0000"
-          + "\u0000\u0000\u0185\u0186\u0005C\u0000\u0000\u01867\u0001\u0000\u0000\u0000"
-          + "\u0187\u018c\u0003:\u001d\u0000\u0188\u0189\u0005>\u0000\u0000\u0189\u018b"
-          + "\u0003:\u001d\u0000\u018a\u0188\u0001\u0000\u0000\u0000\u018b\u018e\u0001"
-          + "\u0000\u0000\u0000\u018c\u018a\u0001\u0000\u0000\u0000\u018c\u018d\u0001"
-          + "\u0000\u0000\u0000\u018d9\u0001\u0000\u0000\u0000\u018e\u018c\u0001\u0000"
-          + "\u0000\u0000\u018f\u0190\u0003D\"\u0000\u0190\u0191\u0005=\u0000\u0000"
-          + "\u0191\u0192\u0003&\u0013\u0000\u0192\u0195\u0001\u0000\u0000\u0000\u0193"
-          + "\u0195\u0003&\u0013\u0000\u0194\u018f\u0001\u0000\u0000\u0000\u0194\u0193"
-          + "\u0001\u0000\u0000\u0000\u0195;\u0001\u0000\u0000\u0000\u0196\u0197\u0007"
-          + "\u0000\u0000\u0000\u0197=\u0001\u0000\u0000\u0000\u0198\u0199\u0007\u0001"
-          + "\u0000\u0000\u0199?\u0001\u0000\u0000\u0000\u019a\u019b\u0007\u0002\u0000"
-          + "\u0000\u019bA\u0001\u0000\u0000\u0000\u019c\u019d\u0007\u0003\u0000\u0000"
-          + "\u019dC\u0001\u0000\u0000\u0000\u019e\u01a2\u00057\u0000\u0000\u019f\u01a2"
-          + "\u00058\u0000\u0000\u01a0\u01a2\u0003>\u001f\u0000\u01a1\u019e\u0001\u0000"
-          + "\u0000\u0000\u01a1\u019f\u0001\u0000\u0000\u0000\u01a1\u01a0\u0001\u0000"
-          + "\u0000\u0000\u01a2E\u0001\u0000\u0000\u0000&LRVbjmr|\u0083\u008b\u0094"
-          + "\u009c\u00a3\u00ab\u00ae\u00b3\u00c5\u00ca\u00ce\u00d6\u00e4\u00e6\u00ee"
-          + "\u00f7\u0119\u0127\u0148\u014a\u014c\u0159\u015e\u016a\u0175\u017e\u0183"
-          + "\u018c\u0194\u01a1";
+          + "\u0130\n\u0006\u0000\u0000\u0130\u0131\u0005-\u0000\u0000\u0131\u014b"
+          + "\u0003&\u0013\u0007\u0132\u0133\n\u0005\u0000\u0000\u0133\u0134\u0005"
+          + ".\u0000\u0000\u0134\u014b\u0003&\u0013\u0006\u0135\u0136\n\u0004\u0000"
+          + "\u0000\u0136\u0137\u0005/\u0000\u0000\u0137\u014b\u0003&\u0013\u0005\u0138"
+          + "\u0139\n\u0003\u0000\u0000\u0139\u013a\u0005+\u0000\u0000\u013a\u014b"
+          + "\u0003&\u0013\u0004\u013b\u013c\n\u0002\u0000\u0000\u013c\u013d\u0005"
+          + ",\u0000\u0000\u013d\u014b\u0003&\u0013\u0003\u013e\u013f\n\u0001\u0000"
+          + "\u0000\u013f\u0140\u0003@ \u0000\u0140\u0141\u0003&\u0013\u0002\u0141"
+          + "\u014b\u0001\u0000\u0000\u0000\u0142\u0143\n\u000f\u0000\u0000\u0143\u014b"
+          + "\u0003\u0010\b\u0000\u0144\u0145\n\f\u0000\u0000\u0145\u0146\u0005A\u0000"
+          + "\u0000\u0146\u0148\u0003D\"\u0000\u0147\u0149\u0003\u0010\b\u0000\u0148"
+          + "\u0147\u0001\u0000\u0000\u0000\u0148\u0149\u0001\u0000\u0000\u0000\u0149"
+          + "\u014b\u0001\u0000\u0000\u0000\u014a\u0129\u0001\u0000\u0000\u0000\u014a"
+          + "\u012c\u0001\u0000\u0000\u0000\u014a\u012f\u0001\u0000\u0000\u0000\u014a"
+          + "\u0132\u0001\u0000\u0000\u0000\u014a\u0135\u0001\u0000\u0000\u0000\u014a"
+          + "\u0138\u0001\u0000\u0000\u0000\u014a\u013b\u0001\u0000\u0000\u0000\u014a"
+          + "\u013e\u0001\u0000\u0000\u0000\u014a\u0142\u0001\u0000\u0000\u0000\u014a"
+          + "\u0144\u0001\u0000\u0000\u0000\u014b\u014e\u0001\u0000\u0000\u0000\u014c"
+          + "\u014a\u0001\u0000\u0000\u0000\u014c\u014d\u0001\u0000\u0000\u0000\u014d"
+          + "\'\u0001\u0000\u0000\u0000\u014e\u014c\u0001\u0000\u0000\u0000\u014f\u0150"
+          + "\u0005\u0016\u0000\u0000\u0150\u0151\u0003*\u0015\u0000\u0151\u0152\u0005"
+          + "\u0017\u0000\u0000\u0152\u0153\u0003&\u0013\u0000\u0153)\u0001\u0000\u0000"
+          + "\u0000\u0154\u0159\u0003,\u0016\u0000\u0155\u0156\u0005>\u0000\u0000\u0156"
+          + "\u0158\u0003,\u0016\u0000\u0157\u0155\u0001\u0000\u0000\u0000\u0158\u015b"
+          + "\u0001\u0000\u0000\u0000\u0159\u0157\u0001\u0000\u0000\u0000\u0159\u015a"
+          + "\u0001\u0000\u0000\u0000\u015a+\u0001\u0000\u0000\u0000\u015b\u0159\u0001"
+          + "\u0000\u0000\u0000\u015c\u015f\u0003.\u0017\u0000\u015d\u015f\u0003\u0006"
+          + "\u0003\u0000\u015e\u015c\u0001\u0000\u0000\u0000\u015e\u015d\u0001\u0000"
+          + "\u0000\u0000\u015f-\u0001\u0000\u0000\u0000\u0160\u0161\u0003D\"\u0000"
+          + "\u0161\u0162\u0005?\u0000\u0000\u0162\u0163\u0003&\u0013\u0000\u0163\u016b"
+          + "\u0001\u0000\u0000\u0000\u0164\u0165\u0003D\"\u0000\u0165\u0166\u0005"
+          + "=\u0000\u0000\u0166\u0167\u0003\u001a\r\u0000\u0167\u0168\u0005?\u0000"
+          + "\u0000\u0168\u0169\u0003&\u0013\u0000\u0169\u016b\u0001\u0000\u0000\u0000"
+          + "\u016a\u0160\u0001\u0000\u0000\u0000\u016a\u0164\u0001\u0000\u0000\u0000"
+          + "\u016b/\u0001\u0000\u0000\u0000\u016c\u016d\u0005\u001a\u0000\u0000\u016d"
+          + "\u016e\u0003&\u0013\u0000\u016e\u016f\u0005\u001b\u0000\u0000\u016f\u0170"
+          + "\u0003&\u0013\u0000\u0170\u0171\u0005\u001c\u0000\u0000\u0171\u0172\u0003"
+          + "&\u0013\u0000\u01721\u0001\u0000\u0000\u0000\u0173\u0175\u0005D\u0000"
+          + "\u0000\u0174\u0176\u00034\u001a\u0000\u0175\u0174\u0001\u0000\u0000\u0000"
+          + "\u0175\u0176\u0001\u0000\u0000\u0000\u0176\u0177\u0001\u0000\u0000\u0000"
+          + "\u0177\u0178\u0005E\u0000\u0000\u01783\u0001\u0000\u0000\u0000\u0179\u017e"
+          + "\u0003&\u0013\u0000\u017a\u017b\u0005>\u0000\u0000\u017b\u017d\u0003&"
+          + "\u0013\u0000\u017c\u017a\u0001\u0000\u0000\u0000\u017d\u0180\u0001\u0000"
+          + "\u0000\u0000\u017e\u017c\u0001\u0000\u0000\u0000\u017e\u017f\u0001\u0000"
+          + "\u0000\u0000\u017f5\u0001\u0000\u0000\u0000\u0180\u017e\u0001\u0000\u0000"
+          + "\u0000\u0181\u0183\u0005B\u0000\u0000\u0182\u0184\u00038\u001c\u0000\u0183"
+          + "\u0182\u0001\u0000\u0000\u0000\u0183\u0184\u0001\u0000\u0000\u0000\u0184"
+          + "\u0185\u0001\u0000\u0000\u0000\u0185\u0186\u0005C\u0000\u0000\u01867\u0001"
+          + "\u0000\u0000\u0000\u0187\u018c\u0003:\u001d\u0000\u0188\u0189\u0005>\u0000"
+          + "\u0000\u0189\u018b\u0003:\u001d\u0000\u018a\u0188\u0001\u0000\u0000\u0000"
+          + "\u018b\u018e\u0001\u0000\u0000\u0000\u018c\u018a\u0001\u0000\u0000\u0000"
+          + "\u018c\u018d\u0001\u0000\u0000\u0000\u018d9\u0001\u0000\u0000\u0000\u018e"
+          + "\u018c\u0001\u0000\u0000\u0000\u018f\u0190\u0003D\"\u0000\u0190\u0191"
+          + "\u0005=\u0000\u0000\u0191\u0192\u0003&\u0013\u0000\u0192\u0195\u0001\u0000"
+          + "\u0000\u0000\u0193\u0195\u0003&\u0013\u0000\u0194\u018f\u0001\u0000\u0000"
+          + "\u0000\u0194\u0193\u0001\u0000\u0000\u0000\u0195;\u0001\u0000\u0000\u0000"
+          + "\u0196\u0197\u0007\u0000\u0000\u0000\u0197=\u0001\u0000\u0000\u0000\u0198"
+          + "\u0199\u0007\u0001\u0000\u0000\u0199?\u0001\u0000\u0000\u0000\u019a\u019b"
+          + "\u0007\u0002\u0000\u0000\u019bA\u0001\u0000\u0000\u0000\u019c\u019d\u0007"
+          + "\u0003\u0000\u0000\u019dC\u0001\u0000\u0000\u0000\u019e\u01a2\u00057\u0000"
+          + "\u0000\u019f\u01a2\u00058\u0000\u0000\u01a0\u01a2\u0003>\u001f\u0000\u01a1"
+          + "\u019e\u0001\u0000\u0000\u0000\u01a1\u019f\u0001\u0000\u0000\u0000\u01a1"
+          + "\u01a0\u0001\u0000\u0000\u0000\u01a2E\u0001\u0000\u0000\u0000&LRVbjmr"
+          + "|\u0083\u008b\u0094\u009c\u00a3\u00ab\u00ae\u00b3\u00c5\u00ca\u00ce\u00d6"
+          + "\u00e4\u00e6\u00ee\u00f7\u0119\u0127\u0148\u014a\u014c\u0159\u015e\u016a"
+          + "\u0175\u017e\u0183\u018c\u0194\u01a1";
   public static final ATN _ATN = new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 
   static {

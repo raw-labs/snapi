@@ -522,4 +522,12 @@ class ParserCompareTest extends RawTestSuite {
     compareTrees(prog)
     comparePositions(prog)
   }
+
+  test("""Filed test 4""") { _ =>
+    val prog = s"""let keys = Collection.From([0, 2, 4])
+      |in Collection.Join(keys, keys, row -> row._1 == row._2 + 2)
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
 }
