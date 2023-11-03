@@ -34,7 +34,8 @@ jobs:
       run: |
         deps/kiama/build.sh
         deps/scala-logging/build.sh
-    - run: sbt ci-release utils
+    - name: sbt ci-release utils
+      run: sbt ci-release
       working-directory: utils
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -44,7 +45,8 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
-    - run: sbt ci-release client
+    - name: sbt ci-release client
+      run: sbt ci-release
       working-directory: client
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -54,7 +56,8 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
-    - run: sbt ci-release snapi-frontend
+    - name: sbt ci-release snapi-frontend
+      run: sbt ci-release
       working-directory: snapi-frontend
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -64,7 +67,8 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
-    - run: sbt ci-release snapi-truffle
+    - name: sbt ci-release snapi-truffle
+      run: sbt ci-release
       working-directory: snapi-truffle
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -74,7 +78,8 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
-    - run: sbt ci-release snapi-client
+    - name: sbt ci-release snapi-client
+      run: sbt ci-release
       working-directory: snapi-client
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -99,7 +104,7 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > will publish utils version: ${{ env.UTILS_VER }}
+          > will publish utils version: ${{ env.UTILS_VER  }}
           > will publish client version: ${{ env.CLIENT_VER }}
           > will publish snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
           > will publish snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}
