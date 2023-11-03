@@ -126,12 +126,12 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   final protected lazy val rql2Type0: Parser[Rql2Type] = {
     // Wrap in parenthesis to disambiguate the type property annotations
     // e.g. (int or string) @null @try
-    ("(" ~> rql2Type1) ~ (rep(tokOr ~> rql2Type1) <~ ")") ~ typeProps ^^ {
-      case t1 ~ t2s ~ props =>
+    ("(" ~> rql2Type1) ~ (rep(tokOr ~> rql2Type1) <~ ")") ^^ {
+      case t1 ~ t2s =>
         if (t2s.isEmpty) t1
         else {
           val ts = t1 +: t2s
-          Rql2OrType(ts, props)
+          Rql2OrType(ts, defaultProps)
         }
     } |
       // int or string
@@ -159,53 +159,51 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   final protected lazy val primitiveType: Parser[Rql2PrimitiveType] =
     boolType | stringType | locationType | binaryType | numberType | temporalType
 
-  final protected lazy val boolType: Parser[Rql2BoolType] = tokBool ~> typeProps ^^ Rql2BoolType
+  final protected lazy val boolType: Parser[Rql2BoolType] = tokBool ^^^ Rql2BoolType(defaultProps)
 
-  final protected lazy val stringType: Parser[Rql2StringType] = tokString ~> typeProps ^^ Rql2StringType
+  final protected lazy val stringType: Parser[Rql2StringType] = tokString ^^^ Rql2StringType(defaultProps)
 
-  final protected lazy val locationType: Parser[Rql2LocationType] = tokLocation ~> typeProps ^^ Rql2LocationType
+  final protected lazy val locationType: Parser[Rql2LocationType] = tokLocation ^^^ Rql2LocationType(defaultProps)
 
-  final protected lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ~> typeProps ^^ Rql2BinaryType
+  final protected lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ^^^ Rql2BinaryType(defaultProps)
 
   final protected lazy val numberType: Parser[Rql2NumberType] =
     byteType | shortType | intType | longType | floatType | doubleType | decimalType
 
-  final protected lazy val byteType: Parser[Rql2ByteType] = tokByte ~> typeProps ^^ Rql2ByteType
+  final protected lazy val byteType: Parser[Rql2ByteType] = tokByte ^^^ Rql2ByteType(defaultProps)
 
-  final protected lazy val shortType: Parser[Rql2ShortType] = tokShort ~> typeProps ^^ Rql2ShortType
+  final protected lazy val shortType: Parser[Rql2ShortType] = tokShort ^^^ Rql2ShortType(defaultProps)
 
-  final protected lazy val intType: Parser[Rql2IntType] = tokInt ~> typeProps ^^ Rql2IntType
+  final protected lazy val intType: Parser[Rql2IntType] = tokInt ^^^ Rql2IntType(defaultProps)
 
-  final protected lazy val longType: Parser[Rql2LongType] = tokLong ~> typeProps ^^ Rql2LongType
+  final protected lazy val longType: Parser[Rql2LongType] = tokLong ^^^ Rql2LongType(defaultProps)
 
-  final protected lazy val floatType: Parser[Rql2FloatType] = tokFloat ~> typeProps ^^ Rql2FloatType
+  final protected lazy val floatType: Parser[Rql2FloatType] = tokFloat ^^^ Rql2FloatType(defaultProps)
 
-  final protected lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ~> typeProps ^^ Rql2DoubleType
+  final protected lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ^^^ Rql2DoubleType(defaultProps)
 
-  final protected lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ~> typeProps ^^ Rql2DecimalType
+  final protected lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ^^^ Rql2DecimalType(defaultProps)
 
   final protected lazy val temporalType: Parser[Rql2TemporalType] = dateType | timeType | intervalType | timestampType
 
-  final protected lazy val dateType: Parser[Rql2DateType] = tokDate ~> typeProps ^^ Rql2DateType
+  final protected lazy val dateType: Parser[Rql2DateType] = tokDate ^^^ Rql2DateType(defaultProps)
 
-  final protected lazy val timeType: Parser[Rql2TimeType] = tokTime ~> typeProps ^^ Rql2TimeType
+  final protected lazy val timeType: Parser[Rql2TimeType] = tokTime ^^^ Rql2TimeType(defaultProps)
 
-  final protected lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ~> typeProps ^^ Rql2IntervalType
+  final protected lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ^^^ Rql2IntervalType(defaultProps)
 
-  final protected lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ~> typeProps ^^ Rql2TimestampType
+  final protected lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ^^^ Rql2TimestampType(defaultProps)
 
   final protected lazy val recordType: Parser[Rql2RecordType] =
-    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ~ typeProps ^^ {
-      case atts ~ props => Rql2RecordType(atts, props)
-    }
+    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ (atts => Rql2RecordType(atts, defaultProps))
 
   final protected lazy val attrType: Parser[Rql2AttrType] = (ident <~ ":") ~ tipe ^^ Rql2AttrType
 
   final protected lazy val iterableType: Parser[Rql2IterableType] =
-    tokCollection ~> ("(" ~> tipe <~ ")") ~ typeProps ^^ { case t ~ props => Rql2IterableType(t, props) }
+    tokCollection ~> ("(" ~> tipe <~ ")") ^^ (t => Rql2IterableType(t, defaultProps))
 
-  final protected lazy val listType: Parser[Rql2ListType] = tokList ~> ("(" ~> tipe <~ ")") ~ typeProps ^^ {
-    case t ~ props => Rql2ListType(t, props)
+  final protected lazy val listType: Parser[Rql2ListType] = tokList ~> ("(" ~> tipe <~ ")") ^^ {
+    case t => Rql2ListType(t, defaultProps)
   }
 
   final protected lazy val funType: PackratParser[FunType] = {
@@ -217,9 +215,9 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     //
     // Wrap in parenthesis to disambiguate the type property annotations
     // e.g. ((int) -> string) @null @try
-    ("(" ~> "(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe <~ ")") ~ typeProps ^^ {
-      case ts ~ r ~ props =>
-        FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, props)
+    ("(" ~> "(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe <~ ")") ^^ {
+      case ts ~ r =>
+        FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, defaultProps)
     } |
       // e.g. (int) -> string
       ("(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe) ^^ {
@@ -241,7 +239,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
 
   final protected lazy val expType: Parser[ExpType] = tokType ~> tipe ^^ ExpType
 
-  final protected lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ~> typeProps ^^ Rql2UndefinedType
+  final protected lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ^^^ Rql2UndefinedType(defaultProps)
 
   final protected lazy val typeAliasType: Parser[TypeAliasType] = typeIdnUse ^^ TypeAliasType
 
@@ -251,10 +249,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     if (isReservedType(idn)) failure("reserved type keyword") else success(idn)
   }
 
-  // By default, all user types are tryable and nullable.
-  // The internal parser overrides this: refer to SyntaxAnalyzer.scala
-  protected def typeProps: Parser[Set[Rql2TypeProperty]] =
-    success(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))
+  private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
 
   ///////////////////////////////////////////////////////////////////////////
   // Expressions
@@ -459,7 +454,3 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
   }
 
 }
-
-sealed trait ParsedAttributed
-final case class ParsedNamedAttribute(idn: String, e: Exp) extends ParsedAttributed
-final case class ParsedUnnamedAttribute(e: Exp) extends ParsedAttributed
