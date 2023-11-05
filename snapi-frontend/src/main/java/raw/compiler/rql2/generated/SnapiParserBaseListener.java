@@ -267,14 +267,28 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx) {}
+  public void enterFunProtoLambdaMultiParam(SnapiParser.FunProtoLambdaMultiParamContext ctx) {}
   /**
    * {@inheritDoc}
    *
    * <p>The default implementation does nothing.
    */
   @Override
-  public void exitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx) {}
+  public void exitFunProtoLambdaMultiParam(SnapiParser.FunProtoLambdaMultiParamContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterFunProtoLambdaSingleParam(SnapiParser.FunProtoLambdaSingleParamContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitFunProtoLambdaSingleParam(SnapiParser.FunProtoLambdaSingleParamContext ctx) {}
   /**
    * {@inheritDoc}
    *

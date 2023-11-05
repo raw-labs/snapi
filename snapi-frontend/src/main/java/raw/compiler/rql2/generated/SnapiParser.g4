@@ -43,8 +43,9 @@ fun_abs: fun_proto_lambda                                   # FunAbs
        | ident RIGHT_ARROW expr                                    # FunAbsUnnamed
        ;
 
-fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)? RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr
-         ;
+fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)? RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaMultiParam
+                | fun_param (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaSingleParam
+                ;
 
 // ============= types =================
 tipe: LEFT_PAREN tipe RIGHT_PAREN                           # TypeWithParenType

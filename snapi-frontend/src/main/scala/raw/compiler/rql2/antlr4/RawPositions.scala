@@ -26,11 +26,17 @@ class RawPositions(positions: Positions, source: Source) {
    * @param node the node to store in the positions map
    */
   def setPosition(ctx: ParserRuleContext, node: SourceNode): Unit = {
-    positions.setStart(node, Position(ctx.getStart.getLine, ctx.getStart.getCharPositionInLine + 1, source))
-    positions.setFinish(
-      node,
-      Position(ctx.getStop.getLine, ctx.getStop.getCharPositionInLine + ctx.getStop.getText.length + 1, source)
-    )
+    if (ctx != null) {
+      if (ctx.getStart != null) {
+        positions.setStart(node, Position(ctx.getStart.getLine, ctx.getStart.getCharPositionInLine + 1, source))
+      }
+      if (ctx.getStop != null) {
+        positions.setFinish(
+          node,
+          Position(ctx.getStop.getLine, ctx.getStop.getCharPositionInLine + ctx.getStop.getText.length + 1, source)
+        )
+      }
+    }
   }
 
   /**
@@ -40,11 +46,13 @@ class RawPositions(positions: Positions, source: Source) {
    * @param node  the node to store in the positions map
    */
   def setPosition(token: Token, node: SourceNode): Unit = {
-    positions.setStart(node, Position(token.getLine, token.getCharPositionInLine + 1, source))
-    positions.setFinish(
-      node,
-      Position(token.getLine, token.getCharPositionInLine + token.getText.length + 1, source)
-    )
+    if (token != null) {
+      positions.setStart(node, Position(token.getLine, token.getCharPositionInLine + 1, source))
+      positions.setFinish(
+        node,
+        Position(token.getLine, token.getCharPositionInLine + token.getText.length + 1, source)
+      )
+    }
   }
 
   /**
@@ -55,8 +63,15 @@ class RawPositions(positions: Positions, source: Source) {
    * @param node       the node to store in the positions map
    */
   def setPosition(startToken: Token, endToken: Token, node: SourceNode): Unit = {
-    positions.setStart(node, Position(startToken.getLine, startToken.getCharPositionInLine + 1, source))
-    positions.setFinish(node, Position(endToken.getLine, endToken.getCharPositionInLine + 1, source))
+    if (startToken != null) {
+      positions.setStart(node, Position(startToken.getLine, startToken.getCharPositionInLine + 1, source))
+    }
+    if (endToken != null) {
+      positions.setFinish(
+        node,
+        Position(endToken.getLine, endToken.getCharPositionInLine + endToken.getText.length + 1, source)
+      )
+    }
   }
 
 }

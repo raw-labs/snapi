@@ -202,7 +202,17 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx) {
+  public T visitFunProtoLambdaMultiParam(SnapiParser.FunProtoLambdaMultiParamContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitFunProtoLambdaSingleParam(SnapiParser.FunProtoLambdaSingleParamContext ctx) {
     return visitChildren(ctx);
   }
   /**

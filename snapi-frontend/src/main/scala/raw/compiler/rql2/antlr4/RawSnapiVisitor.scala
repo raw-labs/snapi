@@ -83,9 +83,19 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
     } else null
   }
 
-  override def visitFun_proto_lambda(ctx: SnapiParser.Fun_proto_lambdaContext): SourceNode = {
+  override def visitFunProtoLambdaMultiParam(ctx: SnapiParser.FunProtoLambdaMultiParamContext): SourceNode = {
     if (ctx != null) {
       val ps = ctx.fun_param.asScala.map(fp => visitWithNullCheck(fp).asInstanceOf[FunParam]).toVector
+      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
+      positionsWrapper.setPosition(ctx.expr, funBody)
+      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
+      positionsWrapper.setPosition(ctx, result)
+      result
+    } else null
+  }
+  override def visitFunProtoLambdaSingleParam(ctx: SnapiParser.FunProtoLambdaSingleParamContext): SourceNode = {
+    if (ctx != null) {
+      val ps = visitWithNullCheck(ctx.fun_param).asInstanceOf[FunParam] +: Vector.empty
       val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx.expr, funBody)
       val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
@@ -387,7 +397,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
           val args = Option(ctx.fun_ar.fun_args).map(ar =>
             ar.fun_arg.asScala.map(a => visitWithNullCheck(a).asInstanceOf[FunAppArg]).toVector
           )
-          positionsWrapper.setPosition(ctx.getStart, ctx.fun_ar.getStart, proj)
+          positionsWrapper.setPosition(ctx.getStart, ctx.ident().getStop, proj)
           FunApp(proj, args.getOrElse(Vector.empty))
         } else proj
       positionsWrapper.setPosition(ctx, result)

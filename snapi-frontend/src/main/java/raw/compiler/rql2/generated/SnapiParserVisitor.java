@@ -154,12 +154,21 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitFunAbsUnnamed(SnapiParser.FunAbsUnnamedContext ctx);
   /**
-   * Visit a parse tree produced by {@link SnapiParser#fun_proto_lambda}.
+   * Visit a parse tree produced by the {@code FunProtoLambdaMultiParam} labeled alternative in
+   * {@link SnapiParser#fun_proto_lambda}.
    *
    * @param ctx the parse tree
    * @return the visitor result
    */
-  T visitFun_proto_lambda(SnapiParser.Fun_proto_lambdaContext ctx);
+  T visitFunProtoLambdaMultiParam(SnapiParser.FunProtoLambdaMultiParamContext ctx);
+  /**
+   * Visit a parse tree produced by the {@code FunProtoLambdaSingleParam} labeled alternative in
+   * {@link SnapiParser#fun_proto_lambda}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitFunProtoLambdaSingleParam(SnapiParser.FunProtoLambdaSingleParamContext ctx);
   /**
    * Visit a parse tree produced by the {@code FunTypeWithParamsType} labeled alternative in {@link
    * SnapiParser#tipe}.

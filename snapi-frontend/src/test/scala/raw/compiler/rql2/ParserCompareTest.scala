@@ -626,6 +626,77 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  // ================== Frontend syntax analyzer test =============
+
+  test("""FE test 1""") { _ =>
+    val prog = s"""$$package("Collection")""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 2""") { _ =>
+    val prog = """
+      |let $$package(v: int) = 1
+      |in $$package(1)
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 3""") { _ =>
+    val prog = """
+      |let f(v: int) = v + 1
+      |in f(#)
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 4""") { _ =>
+    val prog = """{a = 1}"""
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 5""") { _ =>
+    val prog = """let f = (v: int) => 1
+      |in f(1)
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 6""") { _ =>
+    val prog = """let f = (v: int,) -> 1
+      |in f(1)
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 7""") { _ =>
+    val prog = """{ #: 1 }""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 8""") { _ =>
+    val prog = """{ : 1 }""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 9""") { _ =>
+    val prog = """
+      |let
+      |  hello = type recor(a: int)
+      |in
+      |  hello
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
   // ================== Failed tests  ======================
 
   test("""list type not type alias""") { _ =>
@@ -641,10 +712,17 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""parse error""") { _ =>
-    val prog = """let f(v: int) = v + 1
-      |in f(#)""".stripMargin
+  test("""string trim func""") { _ =>
+    val prog = """String.Trim(x: string -> "1+1")""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
+
+  test("""fun application test""") { _ =>
+    val prog = """apply(f: (int) -> double) = f(1)
+      |apply(x: int -> 12.3)""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }
