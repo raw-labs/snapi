@@ -24,17 +24,30 @@ class ParserCompareTest extends RawTestSuite {
   private def parseWithAntlr4(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new Antlr4SyntaxAnalyzer(positions)
-    parser.parse(s).right.get
+    parser.parse(s)
   }
 
   private def parseWithKiama(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new FrontendSyntaxAnalyzer(positions)
-    parser.parse(s).right.get
+    parser.parse(s)
   }
 
   def compareTrees(s: String): Unit = {
-    assert(parseWithAntlr4(s) == parseWithKiama(s))
+    val antlr4Result = parseWithAntlr4(s)
+    val kiamaResult = parseWithKiama(s)
+
+    if (antlr4Result.isLeft && kiamaResult.isLeft) {
+      assert(true)
+      // todo Compare errors
+    } else if (antlr4Result.isRight && kiamaResult.isRight) {
+      assert(antlr4Result == kiamaResult)
+    } else {
+      assert(
+        false,
+        s"""Antlr4: succeeded: ${antlr4Result.isRight}, Kiama succeeded: ${kiamaResult.isRight}"""
+      )
+    }
   }
 
   def comparePositions(s: String): Unit = {
@@ -561,6 +574,12 @@ class ParserCompareTest extends RawTestSuite {
       |world!$triple
       |in
       |   [a, b]""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""Filed test 7""") { _ =>
+    val prog = "1,"
     compareTrees(prog)
     comparePositions(prog)
   }
