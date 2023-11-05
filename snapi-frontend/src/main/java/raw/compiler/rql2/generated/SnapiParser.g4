@@ -92,8 +92,8 @@ expr: LEFT_PAREN expr RIGHT_PAREN                           # ParenExpr
     | expr DIV_TOKEN expr                                   # DivExpr
     | expr MUL_TOKEN expr                                   # MulExpr
     | expr MOD_TOKEN expr                                   # ModExpr
-    | expr PLUS_TOKEN expr                                  # PlusExpr
     | expr MINUS_TOKEN expr                                 # MinusExpr
+    | expr PLUS_TOKEN expr                                  # PlusExpr
     | expr compare_tokens expr                              # CompareExpr
     | NOT_TOKEN expr                                        # NotExpr
     | expr AND_TOKEN expr                                   # AndExpr

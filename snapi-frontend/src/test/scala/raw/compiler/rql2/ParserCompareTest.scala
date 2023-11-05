@@ -733,4 +733,10 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""propagation test""") { _ =>
+    val prog = """5 - 500 + 3.0f""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }

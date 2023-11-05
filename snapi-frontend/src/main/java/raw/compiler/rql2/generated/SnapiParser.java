@@ -4086,26 +4086,26 @@ public class SnapiParser extends Parser {
                   break;
                 case 4:
                   {
-                    _localctx = new PlusExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new MinusExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
                     setState(317);
                     if (!(precpred(_ctx, 6)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 6)");
                     setState(318);
-                    match(PLUS_TOKEN);
+                    match(MINUS_TOKEN);
                     setState(319);
                     expr(7);
                   }
                   break;
                 case 5:
                   {
-                    _localctx = new MinusExprContext(new ExprContext(_parentctx, _parentState));
+                    _localctx = new PlusExprContext(new ExprContext(_parentctx, _parentState));
                     pushNewRecursionContext(_localctx, _startState, RULE_expr);
                     setState(320);
                     if (!(precpred(_ctx, 5)))
                       throw new FailedPredicateException(this, "precpred(_ctx, 5)");
                     setState(321);
-                    match(MINUS_TOKEN);
+                    match(PLUS_TOKEN);
                     setState(322);
                     expr(6);
                   }
@@ -5830,8 +5830,8 @@ public class SnapiParser extends Parser {
           + "\n\u0137\u0138\n\b\u0000\u0000\u0138\u0139\u0005-\u0000\u0000\u0139\u0156"
           + "\u0003&\u0013\t\u013a\u013b\n\u0007\u0000\u0000\u013b\u013c\u0005/\u0000"
           + "\u0000\u013c\u0156\u0003&\u0013\b\u013d\u013e\n\u0006\u0000\u0000\u013e"
-          + "\u013f\u0005+\u0000\u0000\u013f\u0156\u0003&\u0013\u0007\u0140\u0141\n"
-          + "\u0005\u0000\u0000\u0141\u0142\u0005,\u0000\u0000\u0142\u0156\u0003&\u0013"
+          + "\u013f\u0005,\u0000\u0000\u013f\u0156\u0003&\u0013\u0007\u0140\u0141\n"
+          + "\u0005\u0000\u0000\u0141\u0142\u0005+\u0000\u0000\u0142\u0156\u0003&\u0013"
           + "\u0006\u0143\u0144\n\u0004\u0000\u0000\u0144\u0145\u0003B!\u0000\u0145"
           + "\u0146\u0003&\u0013\u0005\u0146\u0156\u0001\u0000\u0000\u0000\u0147\u0148"
           + "\n\u0002\u0000\u0000\u0148\u0149\u00050\u0000\u0000\u0149\u0156\u0003"
