@@ -342,8 +342,12 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   }
 
   override def visitExprTypeExpr(ctx: SnapiParser.ExprTypeExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.expr_type) }
-    else null
+    if (ctx != null) {
+      val exp = visitWithNullCheck(ctx.expr_type).asInstanceOf[Type]
+      val result = TypeExp(exp)
+      positionsWrapper.setPosition(ctx, result)
+      result
+    } else null
 
   override def visitRecord_type(ctx: SnapiParser.Record_typeContext): SourceNode = {
     if (ctx != null) {
@@ -372,9 +376,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitExpr_type(ctx: SnapiParser.Expr_typeContext): SourceNode = {
     if (ctx != null) {
-      val result = TypeExp(visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
-      positionsWrapper.setPosition(ctx, result)
-      result
+      visitWithNullCheck(ctx.tipe)
     } else null
   }
 
@@ -430,8 +432,11 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
     else null
 
   override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.expr_type) }
-    else null
+    if (ctx != null) {
+      val reslut = ExpType(visitWithNullCheck(ctx.expr_type()).asInstanceOf[Type])
+      positionsWrapper.setPosition(ctx, reslut)
+      reslut
+    } else null
 
   override def visitListExpr(ctx: SnapiParser.ListExprContext): SourceNode =
     if (ctx != null) { visitWithNullCheck(ctx.lists) }

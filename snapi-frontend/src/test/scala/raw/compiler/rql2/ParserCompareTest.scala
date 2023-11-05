@@ -725,4 +725,12 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""type package test""") { _ =>
+    val prog = """let t: type int = type int,
+      |    x: t = 1
+      |in x""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }
