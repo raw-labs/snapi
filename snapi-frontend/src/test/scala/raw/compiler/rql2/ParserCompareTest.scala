@@ -578,8 +578,17 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""Filed test 7""") { _ =>
+  test("""Failure Test""") { _ =>
     val prog = "1,"
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""Filed test 7""") { _ =>
+    val prog = """
+      |let # = 1
+      |in x
+      |""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }

@@ -27,7 +27,7 @@ class RawErrorListener(private val source: Source) extends BaseErrorListener {
       msg: String,
       e: RecognitionException
   ): Unit = {
-    errors = errors :+ (msg, Position(line + 1, charPositionInLine + 1, source))
+    errors = errors :+ (msg, Position(line, charPositionInLine + 1, source))
   }
 
   def getErrors: List[(String, Position)] = errors
