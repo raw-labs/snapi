@@ -23,12 +23,16 @@ import raw.compiler.rql2.source.Rql2Program
 class Antlr4SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) {
 
   def parse(s: String): Either[(String, Position), BaseProgram] = {
-    val lexer = new SnapiLexer(CharStreams.fromString(s))
-    val parser = new SnapiParser(new CommonTokenStream(lexer))
     val source = StringSource(s)
+    val rawErrorListener = new RawErrorListener(source)
+
+    val lexer = new SnapiLexer(CharStreams.fromString(s))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(rawErrorListener)
+
+    val parser = new SnapiParser(new CommonTokenStream(lexer))
 
     parser.removeErrorListeners()
-    val rawErrorListener = new RawErrorListener(source)
     parser.addErrorListener(rawErrorListener)
 
     val tree: ParseTree = parser.prog
@@ -41,12 +45,16 @@ class Antlr4SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
   }
 
   def parseType(s: String): Either[(String, Position), Type] = {
-    val lexer = new SnapiLexer(CharStreams.fromString(s))
-    val parser = new SnapiParser(new CommonTokenStream(lexer))
     val source = StringSource(s)
+    val rawErrorListener = new RawErrorListener(source)
+
+    val lexer = new SnapiLexer(CharStreams.fromString(s))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(rawErrorListener)
+
+    val parser = new SnapiParser(new CommonTokenStream(lexer))
 
     parser.removeErrorListeners()
-    val rawErrorListener = new RawErrorListener(source)
     parser.addErrorListener(rawErrorListener)
 
     val tree: ParseTree = parser.tipe

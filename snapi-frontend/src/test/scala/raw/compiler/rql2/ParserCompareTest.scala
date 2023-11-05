@@ -634,9 +634,16 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""string test trim test""") { _ =>
+  test("""no params function call""") { _ =>
     val prog = """let f() = 3.14
       |in f()""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""parse error""") { _ =>
+    val prog = """let f(v: int) = v + 1
+      |in f(#)""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
