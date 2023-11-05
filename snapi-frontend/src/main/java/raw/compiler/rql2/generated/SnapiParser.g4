@@ -170,4 +170,7 @@ bool_const: TRUE_TOKEN
 ident: NON_ESC_IDENTIFIER
      | ESC_IDENTIFIER
      | primitive_types
+     | LIST_TOKEN
+     | RECORD_TOKEN
+     | COLLECTION_TOKEN
      ;

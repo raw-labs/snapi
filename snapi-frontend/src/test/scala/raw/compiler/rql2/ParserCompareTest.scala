@@ -224,6 +224,14 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""Priority test""") { _ =>
+    val prog = s"""let keys = Collection.From([0, 2, 4])
+      |in Collection.Join(keys, keys, row -> row._1 == row._2 + 2)
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
   test("""Minus unary expression""") { _ =>
     val prog = """-5""".stripMargin
     compareTrees(prog)
@@ -251,6 +259,31 @@ class ParserCompareTest extends RawTestSuite {
 
   test("""Record projection test""") { _ =>
     val prog = """a.b""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""Filed test 3""") { _ =>
+    val olympics = s"""Collection.Build(
+      |   {year: 2016, city: "Rio de Janeiro"},
+      |   {year: 2012, city: "London"}
+      |)""".stripMargin
+    val onceTheBandMembers = s"""String.ReadLines("asdf")"""
+
+    val bandMembers: String = s"""
+      |let tokens = Collection.Transform($onceTheBandMembers, l -> String.Split(l, "|"))
+      |in Collection.Transform(tokens, i -> {
+      |     band: List.Get(i, 0),
+      |     firstName: List.Get(i, 1),
+      |     lastName: List.Get(i, 2),
+      |     birthYear: Int.From(List.Get(i, 3))
+      |})""".stripMargin
+
+    val prog = s"""// equi-join
+      |let bands = $bandMembers,
+      |    olympics = $olympics,
+      |    join = Collection.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
+      |    in Collection.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
@@ -422,6 +455,12 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""Escaped identifiers test""") { _ =>
+    val prog = "{`@name`: \"jane\", `@age`: 32, name: \"jane\", last: \"doe\"}"
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
   // ================== Random code ======================
   test("""Random code""") { _ =>
     val prog = """let
@@ -467,26 +506,17 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""String escape test quotes with broken rule""") { _ =>
-    val prog = s"""
-      |let f(x: int) = x + 1,
-      |    g(x: int) = x + 2,
-      |    r1 = {f1: f, f2: g},
-      |    r2 = {f1: g, f2: f},
-      |    min = Collection.Min(Collection.Build(r1, r2))
-      |in min.f2(10) * min.f2(10)""".stripMargin
+  test("""Triple quotes test""") { _ =>
+    val prog = s"""let
+      |   a = $triple"$triple,
+      |   b = ${triple}Hello
+      |world!$triple
+      |in
+      |   [a, b]""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
-
-  test("""String escape test quotes with list""") { _ =>
-    val prog = s"""Csv.InferAndParse(${triple}1;2\n3;hello;5;;;;;;;$triple, delimiters=[";","\\n"])""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
-  }
-
-  // ================== Failed tests  ======================
-  test("""Filed test 1""") { _ =>
+  test("""Triple quotes test with line breaks""") { _ =>
     val prog = s"""let
       |  query = $triple SELECT DISTINCT (?country as ?wikidata_country) ?countryLabel ?code
       |    WHERE
@@ -515,68 +545,25 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""Filed test 2""") { _ =>
-    val prog = s"""let
-      |  lines = String.ReadLines("asdf"),
-      |  parsed = Collection.Transform(lines, x -> {
-      |    timestamp: Timestamp.Parse(String.SubString(x, 1, 23), "yyyy-M-d H:m:s.SSS"),
-      |    message: String.SubString(x, 30, -1)
-      |  })
-      |in
-      |  Collection.Filter(parsed, x -> x.timestamp > Timestamp.Build(2022, 09, 14, 15, 9, seconds = 49, millis = 925))""".stripMargin
+  test("""String escape test quotes with broken rule""") { _ =>
+    val prog = s"""
+      |let f(x: int) = x + 1,
+      |    g(x: int) = x + 2,
+      |    r1 = {f1: f, f2: g},
+      |    r2 = {f1: g, f2: f},
+      |    min = Collection.Min(Collection.Build(r1, r2))
+      |in min.f2(10) * min.f2(10)""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
 
-  test("""Filed test 3""") { _ =>
-    val prog = "{`@name`: \"jane\", `@age`: 32, name: \"jane\", last: \"doe\"}"
+  test("""String escape test quotes with list""") { _ =>
+    val prog = s"""Csv.InferAndParse(${triple}1;2\n3;hello;5;;;;;;;$triple, delimiters=[";","\\n"])""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
 
-  test("""Filed test 4""") { _ =>
-    val prog = s"""let keys = Collection.From([0, 2, 4])
-      |in Collection.Join(keys, keys, row -> row._1 == row._2 + 2)
-      |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
-  }
-
-  test("""Filed test 5""") { _ =>
-    val olympics = s"""Collection.Build(
-      |   {year: 2016, city: "Rio de Janeiro"},
-      |   {year: 2012, city: "London"}
-      |)""".stripMargin
-    val onceTheBandMembers = s"""String.ReadLines("asdf")"""
-
-    val bandMembers: String = s"""
-      |let tokens = Collection.Transform($onceTheBandMembers, l -> String.Split(l, "|"))
-      |in Collection.Transform(tokens, i -> {
-      |     band: List.Get(i, 0),
-      |     firstName: List.Get(i, 1),
-      |     lastName: List.Get(i, 2),
-      |     birthYear: Int.From(List.Get(i, 3))
-      |})""".stripMargin
-
-    val prog = s"""// equi-join
-      |let bands = $bandMembers,
-      |    olympics = $olympics,
-      |    join = Collection.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
-      |    in Collection.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
-  }
-
-  test("""Filed test 6""") { _ =>
-    val prog = s"""let
-      |   a = $triple"$triple,
-      |   b = ${triple}Hello
-      |world!$triple
-      |in
-      |   [a, b]""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
-  }
+  // ============== Parse failing tests ========================
 
   test("""Failure Test""") { _ =>
     val prog = "1,"
@@ -589,6 +576,37 @@ class ParserCompareTest extends RawTestSuite {
       |let # = 1
       |in x
       |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  // ============== Keywords tests ========================
+
+  test("""Keywords should not fail test""") { _ =>
+    val prog = s"""let
+      |  lines = String.ReadLines("asdf"),
+      |  parsed = Collection.Transform(lines, x -> {
+      |    timestamp: Timestamp.Parse(String.SubString(x, 1, 23), "yyyy-M-d H:m:s.SSS"),
+      |    message: String.SubString(x, 30, -1)
+      |  })
+      |in
+      |  Collection.Filter(parsed, x -> x.timestamp > Timestamp.Build(2022, 09, 14, 15, 9, seconds = 49, millis = 925))""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""Or type fail test""") { _ =>
+    val prog = s"""Xml.Read("asdf",
+      |type record(list: collection(record(a: int, b: int) or record(c: string, d: bool)))
+      |)""".stripMargin.stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  // ================== Failed tests  ======================
+
+  test("""Int max values""") { _ =>
+    val prog = s"""-+2147483648""".stripMargin.stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }

@@ -558,7 +558,7 @@ public class SnapiParser extends Parser {
             setState(76);
             _errHandler.sync(this);
             _la = _input.LA(1);
-            while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 108086391090577404L) != 0)) {
+            while ((((_la) & ~0x3f) == 0 && ((1L << _la) & 108086391091101692L) != 0)) {
               {
                 {
                   setState(73);
@@ -792,6 +792,7 @@ public class SnapiParser extends Parser {
         case TIME_TOKEN:
         case INTERVAL_TOKEN:
         case TIMESTAMP_TOKEN:
+        case LIST_TOKEN:
         case UNDEFINED_TOKEN:
         case NON_ESC_IDENTIFIER:
         case ESC_IDENTIFIER:
@@ -912,7 +913,7 @@ public class SnapiParser extends Parser {
         setState(109);
         _errHandler.sync(this);
         _la = _input.LA(1);
-        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 108086391090577404L) != 0)) {
+        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 108086391091101692L) != 0)) {
           {
             setState(101);
             fun_param();
@@ -1286,7 +1287,7 @@ public class SnapiParser extends Parser {
         setState(139);
         _errHandler.sync(this);
         _la = _input.LA(1);
-        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 719476565758574590L) != 0)
+        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 719476565759098878L) != 0)
             || _la == LEFT_CUR_BR
             || _la == LEFT_SQ_BR) {
           {
@@ -1631,6 +1632,7 @@ public class SnapiParser extends Parser {
         case TIME_TOKEN:
         case INTERVAL_TOKEN:
         case TIMESTAMP_TOKEN:
+        case LIST_TOKEN:
         case UNDEFINED_TOKEN:
         case NON_ESC_IDENTIFIER:
         case ESC_IDENTIFIER:
@@ -1741,7 +1743,7 @@ public class SnapiParser extends Parser {
         setState(174);
         _errHandler.sync(this);
         _la = _input.LA(1);
-        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 108086391090577404L) != 0)) {
+        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 108086391091101692L) != 0)) {
           {
             setState(166);
             fun_param();
@@ -4557,7 +4559,7 @@ public class SnapiParser extends Parser {
         setState(373);
         _errHandler.sync(this);
         _la = _input.LA(1);
-        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 719476565758574590L) != 0)
+        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 719476565759098878L) != 0)
             || _la == LEFT_CUR_BR
             || _la == LEFT_SQ_BR) {
           {
@@ -4717,7 +4719,7 @@ public class SnapiParser extends Parser {
         setState(387);
         _errHandler.sync(this);
         _la = _input.LA(1);
-        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 719476565758574590L) != 0)
+        if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 719476565759098878L) != 0)
             || _la == LEFT_CUR_BR
             || _la == LEFT_SQ_BR) {
           {
@@ -5271,6 +5273,10 @@ public class SnapiParser extends Parser {
       return getRuleContext(Primitive_typesContext.class, 0);
     }
 
+    public TerminalNode LIST_TOKEN() {
+      return getToken(SnapiParser.LIST_TOKEN, 0);
+    }
+
     public IdentContext(ParserRuleContext parent, int invokingState) {
       super(parent, invokingState);
     }
@@ -5303,7 +5309,7 @@ public class SnapiParser extends Parser {
     IdentContext _localctx = new IdentContext(_ctx, getState());
     enterRule(_localctx, 68, RULE_ident);
     try {
-      setState(417);
+      setState(418);
       _errHandler.sync(this);
       switch (_input.LA(1)) {
         case NON_ESC_IDENTIFIER:
@@ -5340,6 +5346,13 @@ public class SnapiParser extends Parser {
           {
             setState(416);
             primitive_types();
+          }
+          break;
+        case LIST_TOKEN:
+          enterOuterAlt(_localctx, 4);
+          {
+            setState(417);
+            match(LIST_TOKEN);
           }
           break;
         default:
@@ -5404,7 +5417,7 @@ public class SnapiParser extends Parser {
   }
 
   public static final String _serializedATN =
-      "\u0004\u0001I\u01a4\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"
+      "\u0004\u0001I\u01a5\u0002\u0000\u0007\u0000\u0002\u0001\u0007\u0001\u0002"
           + "\u0002\u0007\u0002\u0002\u0003\u0007\u0003\u0002\u0004\u0007\u0004\u0002"
           + "\u0005\u0007\u0005\u0002\u0006\u0007\u0006\u0002\u0007\u0007\u0007\u0002"
           + "\b\u0007\b\u0002\t\u0007\t\u0002\n\u0007\n\u0002\u000b\u0007\u000b\u0002"
@@ -5466,13 +5479,13 @@ public class SnapiParser extends Parser {
           + "\u001c\u0005\u001c\u018b\b\u001c\n\u001c\f\u001c\u018e\t\u001c\u0001\u001d"
           + "\u0001\u001d\u0001\u001d\u0001\u001d\u0001\u001d\u0003\u001d\u0195\b\u001d"
           + "\u0001\u001e\u0001\u001e\u0001\u001f\u0001\u001f\u0001 \u0001 \u0001!"
-          + "\u0001!\u0001\"\u0001\"\u0001\"\u0003\"\u01a2\b\"\u0001\"\u0000\u0002"
-          + "\u001a&#\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016\u0018"
-          + "\u001a\u001c\u001e \"$&(*,.02468:<>@BD\u0000\u0005\u0001\u0000GI\u0001"
-          + "\u0000\u001e$\u0002\u0000\u0002\u0010\u0019\u0019\u0001\u0000%*\u0001"
-          + "\u000034\u01c4\u0000F\u0001\u0000\u0000\u0000\u0002V\u0001\u0000\u0000"
-          + "\u0000\u0004X\u0001\u0000\u0000\u0000\u0006b\u0001\u0000\u0000\u0000\b"
-          + "d\u0001\u0000\u0000\u0000\n|\u0001\u0000\u0000\u0000\f\u0083\u0001\u0000"
+          + "\u0001!\u0001\"\u0001\"\u0001\"\u0001\"\u0003\"\u01a3\b\"\u0001\"\u0000"
+          + "\u0002\u001a&#\u0000\u0002\u0004\u0006\b\n\f\u000e\u0010\u0012\u0014\u0016"
+          + "\u0018\u001a\u001c\u001e \"$&(*,.02468:<>@BD\u0000\u0005\u0001\u0000G"
+          + "I\u0001\u0000\u001e$\u0002\u0000\u0002\u0010\u0019\u0019\u0001\u0000%"
+          + "*\u0001\u000034\u01c6\u0000F\u0001\u0000\u0000\u0000\u0002V\u0001\u0000"
+          + "\u0000\u0000\u0004X\u0001\u0000\u0000\u0000\u0006b\u0001\u0000\u0000\u0000"
+          + "\bd\u0001\u0000\u0000\u0000\n|\u0001\u0000\u0000\u0000\f\u0083\u0001\u0000"
           + "\u0000\u0000\u000e\u0085\u0001\u0000\u0000\u0000\u0010\u0089\u0001\u0000"
           + "\u0000\u0000\u0012\u008f\u0001\u0000\u0000\u0000\u0014\u009c\u0001\u0000"
           + "\u0000\u0000\u0016\u00a3\u0001\u0000\u0000\u0000\u0018\u00a5\u0001\u0000"
@@ -5485,7 +5498,7 @@ public class SnapiParser extends Parser {
           + "4\u0179\u0001\u0000\u0000\u00006\u0181\u0001\u0000\u0000\u00008\u0187"
           + "\u0001\u0000\u0000\u0000:\u0194\u0001\u0000\u0000\u0000<\u0196\u0001\u0000"
           + "\u0000\u0000>\u0198\u0001\u0000\u0000\u0000@\u019a\u0001\u0000\u0000\u0000"
-          + "B\u019c\u0001\u0000\u0000\u0000D\u01a1\u0001\u0000\u0000\u0000FG\u0003"
+          + "B\u019c\u0001\u0000\u0000\u0000D\u01a2\u0001\u0000\u0000\u0000FG\u0003"
           + "\u0002\u0001\u0000GH\u0005\u0000\u0000\u0001H\u0001\u0001\u0000\u0000"
           + "\u0000IK\u0003\u0004\u0002\u0000JI\u0001\u0000\u0000\u0000KN\u0001\u0000"
           + "\u0000\u0000LJ\u0001\u0000\u0000\u0000LM\u0001\u0000\u0000\u0000MW\u0001"
@@ -5668,13 +5681,14 @@ public class SnapiParser extends Parser {
           + "\u0196\u0197\u0007\u0001\u0000\u0000\u0197=\u0001\u0000\u0000\u0000\u0198"
           + "\u0199\u0007\u0002\u0000\u0000\u0199?\u0001\u0000\u0000\u0000\u019a\u019b"
           + "\u0007\u0003\u0000\u0000\u019bA\u0001\u0000\u0000\u0000\u019c\u019d\u0007"
-          + "\u0004\u0000\u0000\u019dC\u0001\u0000\u0000\u0000\u019e\u01a2\u00057\u0000"
-          + "\u0000\u019f\u01a2\u00058\u0000\u0000\u01a0\u01a2\u0003>\u001f\u0000\u01a1"
-          + "\u019e\u0001\u0000\u0000\u0000\u01a1\u019f\u0001\u0000\u0000\u0000\u01a1"
-          + "\u01a0\u0001\u0000\u0000\u0000\u01a2E\u0001\u0000\u0000\u0000&LRVbjmr"
+          + "\u0004\u0000\u0000\u019dC\u0001\u0000\u0000\u0000\u019e\u01a3\u00057\u0000"
+          + "\u0000\u019f\u01a3\u00058\u0000\u0000\u01a0\u01a3\u0003>\u001f\u0000\u01a1"
+          + "\u01a3\u0005\u0013\u0000\u0000\u01a2\u019e\u0001\u0000\u0000\u0000\u01a2"
+          + "\u019f\u0001\u0000\u0000\u0000\u01a2\u01a0\u0001\u0000\u0000\u0000\u01a2"
+          + "\u01a1\u0001\u0000\u0000\u0000\u01a3E\u0001\u0000\u0000\u0000&LRVbjmr"
           + "|\u0083\u008b\u0094\u009c\u00a3\u00ab\u00ae\u00b3\u00c5\u00ca\u00ce\u00d6"
           + "\u00e4\u00e6\u00ee\u00f7\u0119\u0127\u0148\u014a\u014c\u0159\u015e\u016a"
-          + "\u0175\u017e\u0183\u018c\u0194\u01a1";
+          + "\u0175\u017e\u0183\u018c\u0194\u01a2";
   public static final ATN _ATN = new ATNDeserializer().deserialize(_serializedATN.toCharArray());
 
   static {
