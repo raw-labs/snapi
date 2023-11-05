@@ -101,6 +101,12 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""Int max values""") { _ =>
+    val prog = s"""-+2147483648""".stripMargin.stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
   // =============== Binary expressions ==================
   test("""Add binary expression""") { _ =>
     val prog = """1 + 1""".stripMargin
@@ -605,8 +611,8 @@ class ParserCompareTest extends RawTestSuite {
 
   // ================== Failed tests  ======================
 
-  test("""Int max values""") { _ =>
-    val prog = s"""-+2147483648""".stripMargin.stripMargin
+  test("""list type not type alias""") { _ =>
+    val prog = s"""Json.Parse("[1,2,3]", type list(int))""".stripMargin.stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
