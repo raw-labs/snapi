@@ -45,7 +45,9 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
     }
   }
 
-  override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = visit(ctx.stat)
+  override def visitProg(ctx: SnapiParser.ProgContext): SourceNode =
+    if (ctx != null) { visit(ctx.stat) }
+    else null
 
   override def visitFunDecStat(ctx: SnapiParser.FunDecStatContext): SourceNode = {
     if (ctx != null) {
