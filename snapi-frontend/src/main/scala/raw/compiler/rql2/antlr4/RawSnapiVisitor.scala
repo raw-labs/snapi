@@ -39,19 +39,24 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   implicit class IdentExtension(ctx: SnapiParser.IdentContext) {
     def getValue: String = {
       if (ctx != null) {
-        val identConst = visit(ctx).asInstanceOf[StringConst]
+        val identConst = visitWithNullCheck(ctx).asInstanceOf[StringConst]
         identConst.value
       } else null
     }
   }
 
+  private def visitWithNullCheck = (ctx: ParserRuleContext) => {
+    if (ctx != null) { visit(ctx) }
+    else null
+  }
+
   override def visitProg(ctx: SnapiParser.ProgContext): SourceNode =
-    if (ctx != null) { visit(ctx.stat) }
+    if (ctx != null) { visitWithNullCheck(ctx.stat) }
     else null
 
   override def visitFunDecStat(ctx: SnapiParser.FunDecStatContext): SourceNode = {
     if (ctx != null) {
-      val methods = ctx.method_dec().asScala.map(m => visit(m).asInstanceOf[Rql2Method]).toVector
+      val methods = ctx.method_dec().asScala.map(m => visitWithNullCheck(m).asInstanceOf[Rql2Method]).toVector
       val result = Rql2Program(methods, Option.empty)
       positionsWrapper.setPosition(ctx, result)
       result
@@ -60,8 +65,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitFunDecExprStat(ctx: SnapiParser.FunDecExprStatContext): SourceNode = {
     if (ctx != null) {
-      val methods = ctx.method_dec().asScala.map(md => visit(md).asInstanceOf[Rql2Method]).toVector
-      val result = Rql2Program(methods, Option(visit(ctx.expr).asInstanceOf[Exp]))
+      val methods = ctx.method_dec().asScala.map(md => visitWithNullCheck(md).asInstanceOf[Rql2Method]).toVector
+      val result = Rql2Program(methods, Option(visitWithNullCheck(ctx.expr).asInstanceOf[Exp]))
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -69,10 +74,10 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitFun_proto(ctx: SnapiParser.Fun_protoContext): SourceNode = {
     if (ctx != null) {
-      val ps = ctx.fun_param.asScala.map(fp => visit(fp).asInstanceOf[FunParam]).toVector
-      val funBody = FunBody(visit(ctx.expr).asInstanceOf[Exp])
+      val ps = ctx.fun_param.asScala.map(fp => visitWithNullCheck(fp).asInstanceOf[FunParam]).toVector
+      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -80,10 +85,10 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitFun_proto_lambda(ctx: SnapiParser.Fun_proto_lambdaContext): SourceNode = {
     if (ctx != null) {
-      val ps = ctx.fun_param.asScala.map(fp => visit(fp).asInstanceOf[FunParam]).toVector
-      val funBody = FunBody(visit(ctx.expr).asInstanceOf[Exp])
+      val ps = ctx.fun_param.asScala.map(fp => visitWithNullCheck(fp).asInstanceOf[FunParam]).toVector
+      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -91,7 +96,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitMethodDec(ctx: SnapiParser.MethodDecContext): SourceNode = {
     if (ctx != null) {
-      val funProto = visit(ctx.fun_proto).asInstanceOf[FunProto]
+      val funProto = visitWithNullCheck(ctx.fun_proto).asInstanceOf[FunProto]
       val idnDef = IdnDef(ctx.ident.getValue)
       positionsWrapper.setPosition(ctx.ident, idnDef)
       val result = Rql2Method(funProto, idnDef)
@@ -102,7 +107,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitNormalFun(ctx: SnapiParser.NormalFunContext): SourceNode = {
     if (ctx != null) {
-      val funProto = visit(ctx.fun_proto).asInstanceOf[FunProto]
+      val funProto = visitWithNullCheck(ctx.fun_proto).asInstanceOf[FunProto]
       val idnDef = IdnDef(ctx.ident.getValue)
       positionsWrapper.setPosition(ctx.ident, idnDef)
       val result: LetFun = LetFun(funProto, idnDef)
@@ -113,7 +118,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitRecFun(ctx: SnapiParser.RecFunContext): SourceNode = {
     if (ctx != null) {
-      val funProto = visit(ctx.fun_proto).asInstanceOf[FunProto]
+      val funProto = visitWithNullCheck(ctx.fun_proto).asInstanceOf[FunProto]
       val idnDef = IdnDef(ctx.ident.getValue)
       positionsWrapper.setPosition(ctx.ident, idnDef)
       val result = LetFunRec(idnDef, funProto)
@@ -128,7 +133,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.attr.ident, idnDef)
       val result = FunParam(
         idnDef,
-        Option(ctx.attr.tipe).map(visit(_).asInstanceOf[Type]),
+        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Type]),
         Option.empty
       )
       positionsWrapper.setPosition(ctx, result)
@@ -142,8 +147,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.attr.ident, idnDef)
       val result = FunParam(
         idnDef,
-        Option(ctx.attr.tipe).map(visit(_).asInstanceOf[Type]),
-        Option(visit(ctx.expr).asInstanceOf[Exp])
+        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Type]),
+        Option(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -152,7 +157,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitType_attr(ctx: SnapiParser.Type_attrContext): SourceNode = {
     if (ctx != null) {
-      val result = Rql2AttrType(ctx.ident.getValue, visit(ctx.tipe).asInstanceOf[Type])
+      val result = Rql2AttrType(ctx.ident.getValue, visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -160,7 +165,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitFunArgExpr(ctx: SnapiParser.FunArgExprContext): SourceNode = {
     if (ctx != null) {
-      val result: FunAppArg = FunAppArg(visit(ctx.expr).asInstanceOf[Exp], Option.empty)
+      val result: FunAppArg = FunAppArg(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], Option.empty)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -168,7 +173,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitNamedFunArgExpr(ctx: SnapiParser.NamedFunArgExprContext): SourceNode = {
     if (ctx != null) {
-      val result: FunAppArg = FunAppArg(visit(ctx.expr).asInstanceOf[Exp], Option(ctx.ident.getValue))
+      val result: FunAppArg = FunAppArg(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], Option(ctx.ident.getValue))
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -176,7 +181,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitFunAbs(ctx: SnapiParser.FunAbsContext): SourceNode = {
     if (ctx != null) {
-      val funProto = visit(ctx.fun_proto_lambda).asInstanceOf[FunProto]
+      val funProto = visitWithNullCheck(ctx.fun_proto_lambda).asInstanceOf[FunProto]
       val result = FunAbs(funProto)
       positionsWrapper.setPosition(ctx, result)
       result
@@ -189,7 +194,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.ident, idnDef)
       val funParam = FunParam(idnDef, Option.empty, Option.empty)
       positionsWrapper.setPosition(ctx.ident, funParam)
-      val funBody = FunBody(visit(ctx.expr).asInstanceOf[Exp])
+      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx.expr, funBody)
       val funProto = FunProto(Vector(funParam), Option.empty, funBody)
       positionsWrapper.setPosition(ctx, funProto)
@@ -201,11 +206,11 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitFunTypeWithParamsType(ctx: SnapiParser.FunTypeWithParamsTypeContext): SourceNode = {
     if (ctx != null) {
-      val ms = ctx.tipe.asScala.dropRight(1).map(t => visit(t).asInstanceOf[Type]).toVector
+      val ms = ctx.tipe.asScala.dropRight(1).map(t => visitWithNullCheck(t).asInstanceOf[Type]).toVector
 
       val os = ctx.attr.asScala
         .map(a => {
-          val funOptTypeParam = FunOptTypeParam(a.ident.getValue, visit(a.tipe).asInstanceOf[Type])
+          val funOptTypeParam = FunOptTypeParam(a.ident.getValue, visitWithNullCheck(a.tipe).asInstanceOf[Type])
           positionsWrapper.setPosition(a, funOptTypeParam)
           funOptTypeParam
         })
@@ -214,7 +219,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       val result: FunType = FunType(
         ms,
         os,
-        visit(ctx.tipe.getLast).asInstanceOf[Type],
+        visitWithNullCheck(ctx.tipe.getLast).asInstanceOf[Type],
         defaultProps
       )
       positionsWrapper.setPosition(ctx, result)
@@ -224,8 +229,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitOrTypeType(ctx: SnapiParser.OrTypeTypeContext): SourceNode = {
     if (ctx != null) {
-      val tipes = Vector(visit(ctx.tipe).asInstanceOf[Type])
-      val orType: Rql2OrType = visit(ctx.or_type).asInstanceOf[Rql2OrType]
+      val tipes = Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
+      val orType: Rql2OrType = visitWithNullCheck(ctx.or_type).asInstanceOf[Rql2OrType]
       val combinedTypes = tipes ++ orType.tipes
       val result = Rql2OrType(combinedTypes, defaultProps)
       positionsWrapper.setPosition(ctx, result)
@@ -237,8 +242,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   override def visitOr_type(ctx: SnapiParser.Or_typeContext): SourceNode = {
     if (ctx != null) {
       Rql2OrType(
-        Vector(visit(ctx.tipe).asInstanceOf[Type]) ++ Option(ctx.or_type())
-          .map(visit(_).asInstanceOf[Rql2OrType].tipes)
+        Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Type]) ++ Option(ctx.or_type())
+          .map(visitWithNullCheck(_).asInstanceOf[Rql2OrType].tipes)
           .getOrElse(Vector.empty),
         defaultProps
       )
@@ -247,34 +252,35 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitOrTypeFunType(ctx: SnapiParser.OrTypeFunTypeContext): SourceNode = {
     if (ctx != null) {
-      val types = Vector(visit(ctx.tipe(0)).asInstanceOf[Type])
-      val orType = visit(ctx.or_type).asInstanceOf[Rql2OrType]
+      val types = Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Type])
+      val orType = visitWithNullCheck(ctx.or_type).asInstanceOf[Rql2OrType]
       val combinedTypes = types ++ orType.tipes
       val domainOrType = Rql2OrType(combinedTypes, defaultProps)
-      val funType = FunType(Vector(domainOrType), Vector.empty, visit(ctx.tipe(1)).asInstanceOf[Type], defaultProps)
+      val funType =
+        FunType(Vector(domainOrType), Vector.empty, visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Type], defaultProps)
       positionsWrapper.setPosition(ctx, funType)
       funType
     } else null
   }
 
   override def visitRecordTypeType(ctx: SnapiParser.RecordTypeTypeContext): SourceNode =
-    if (ctx != null) { visit(ctx.record_type) }
+    if (ctx != null) { visitWithNullCheck(ctx.record_type) }
     else null
 
   override def visitIterableTypeType(ctx: SnapiParser.IterableTypeTypeContext): SourceNode =
-    if (ctx != null) { visit(ctx.iterable_type) }
+    if (ctx != null) { visitWithNullCheck(ctx.iterable_type) }
     else null
 
   override def visitTypeWithParenType(ctx: SnapiParser.TypeWithParenTypeContext): SourceNode =
-    if (ctx != null) { visit(ctx.tipe) }
+    if (ctx != null) { visitWithNullCheck(ctx.tipe) }
     else null
 
   override def visitListTypeType(ctx: SnapiParser.ListTypeTypeContext): SourceNode =
-    if (ctx != null) { visit(ctx.list_type) }
+    if (ctx != null) { visitWithNullCheck(ctx.list_type) }
     else null
 
   override def visitPrimitiveTypeType(ctx: SnapiParser.PrimitiveTypeTypeContext): SourceNode =
-    if (ctx != null) { visit(ctx.primitive_types) }
+    if (ctx != null) { visitWithNullCheck(ctx.primitive_types) }
     else null
 
   override def visitPrimitive_types(ctx: SnapiParser.Primitive_typesContext): SourceNode = {
@@ -315,9 +321,9 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   override def visitFunTypeType(ctx: SnapiParser.FunTypeTypeContext): SourceNode = {
     if (ctx != null) {
       val funType = FunType(
-        Vector(visit(ctx.tipe(0)).asInstanceOf[Type]),
+        Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Type]),
         Vector.empty,
-        visit(ctx.tipe(1)).asInstanceOf[Type],
+        visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Type],
         defaultProps
       )
       positionsWrapper.setPosition(ctx, funType)
@@ -326,12 +332,12 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   }
 
   override def visitExprTypeExpr(ctx: SnapiParser.ExprTypeExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.expr_type) }
+    if (ctx != null) { visitWithNullCheck(ctx.expr_type) }
     else null
 
   override def visitRecord_type(ctx: SnapiParser.Record_typeContext): SourceNode = {
     if (ctx != null) {
-      val atts = ctx.type_attr.asScala.map(a => visit(a).asInstanceOf[Rql2AttrType]).toVector
+      val atts = ctx.type_attr.asScala.map(a => visitWithNullCheck(a).asInstanceOf[Rql2AttrType]).toVector
       val result = Rql2RecordType(atts, defaultProps)
       positionsWrapper.setPosition(ctx, result)
       result
@@ -340,7 +346,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitIterable_type(ctx: SnapiParser.Iterable_typeContext): SourceNode = {
     if (ctx != null) {
-      val result = Rql2IterableType(visit(ctx.tipe).asInstanceOf[Type], defaultProps)
+      val result = Rql2IterableType(visitWithNullCheck(ctx.tipe).asInstanceOf[Type], defaultProps)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -348,7 +354,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitList_type(ctx: SnapiParser.List_typeContext): SourceNode = {
     if (ctx != null) {
-      val result = Rql2ListType(visit(ctx.tipe).asInstanceOf[Type], defaultProps)
+      val result = Rql2ListType(visitWithNullCheck(ctx.tipe).asInstanceOf[Type], defaultProps)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -356,7 +362,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitExpr_type(ctx: SnapiParser.Expr_typeContext): SourceNode = {
     if (ctx != null) {
-      val result = TypeExp(visit(ctx.tipe).asInstanceOf[Type])
+      val result = TypeExp(visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -374,12 +380,12 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitProjectionExpr(ctx: SnapiParser.ProjectionExprContext): SourceNode = {
     if (ctx != null) {
-      val proj = Proj(visit(ctx.expr).asInstanceOf[Exp], ctx.ident.getValue)
+      val proj = Proj(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], ctx.ident.getValue)
       val result =
         if (ctx.fun_ar != null) {
           // The projection with the function call
           val args = Option(ctx.fun_ar.fun_args).map(ar =>
-            ar.fun_arg.asScala.map(a => visit(a).asInstanceOf[FunAppArg]).toVector
+            ar.fun_arg.asScala.map(a => visitWithNullCheck(a).asInstanceOf[FunAppArg]).toVector
           )
           positionsWrapper.setPosition(ctx.getStart, ctx.fun_ar.getStart, proj)
           FunApp(proj, args.getOrElse(Vector.empty))
@@ -390,36 +396,36 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   }
 
   override def visitLetExpr(ctx: SnapiParser.LetExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.let) }
+    if (ctx != null) { visitWithNullCheck(ctx.let) }
     else null
 
   override def visitFunAbsExpr(ctx: SnapiParser.FunAbsExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.fun_abs) }
+    if (ctx != null) { visitWithNullCheck(ctx.fun_abs) }
     else null
 
   override def visitFunAppExpr(ctx: SnapiParser.FunAppExprContext): SourceNode = {
     if (ctx != null) {
-      val args = ctx.fun_ar.fun_args.fun_arg.asScala.map(a => visit(a).asInstanceOf[FunAppArg]).toVector
-      val result = FunApp(visit(ctx.expr).asInstanceOf[Exp], args)
+      val args = ctx.fun_ar.fun_args.fun_arg.asScala.map(a => visitWithNullCheck(a).asInstanceOf[FunAppArg]).toVector
+      val result = FunApp(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], args)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
   }
 
   override def visitIfThenElseExpr(ctx: SnapiParser.IfThenElseExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.if_then_else) }
+    if (ctx != null) { visitWithNullCheck(ctx.if_then_else) }
     else null
 
   override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode =
-    if (ctx != null) { visit(ctx.expr_type) }
+    if (ctx != null) { visitWithNullCheck(ctx.expr_type) }
     else null
 
   override def visitNumberExpr(ctx: SnapiParser.NumberExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.number) }
+    if (ctx != null) { visitWithNullCheck(ctx.number) }
     else null
 
   override def visitListExpr(ctx: SnapiParser.ListExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.lists) }
+    if (ctx != null) { visitWithNullCheck(ctx.lists) }
     else null
 
   // Unary expressions
@@ -427,7 +433,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
     if (ctx != null) {
       val not = Not()
       positionsWrapper.setPosition(ctx.NOT_TOKEN.getSymbol, not)
-      val result = UnaryExp(not, visit(ctx.expr).asInstanceOf[Exp])
+      val result = UnaryExp(not, visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -437,23 +443,23 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
     if (ctx != null) {
       val neg = Neg()
       positionsWrapper.setPosition(ctx.MINUS_TOKEN.getSymbol, neg)
-      val result = UnaryExp(neg, visit(ctx.expr).asInstanceOf[Exp])
+      val result = UnaryExp(neg, visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
   }
 
   override def visitPlusUnaryExpr(ctx: SnapiParser.PlusUnaryExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.expr) }
+    if (ctx != null) { visitWithNullCheck(ctx.expr) }
     else null
 
   // Binary expressions
   override def visitCompareExpr(ctx: SnapiParser.CompareExprContext): SourceNode = {
     if (ctx != null) {
       val result = BinaryExp(
-        visit(ctx.compare_tokens).asInstanceOf[ComparableOp],
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.compare_tokens).asInstanceOf[ComparableOp],
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -481,8 +487,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.OR_TOKEN.getSymbol, or)
       val result = BinaryExp(
         or,
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -495,8 +501,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.AND_TOKEN.getSymbol, and)
       val result = BinaryExp(
         and,
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -509,8 +515,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.MUL_TOKEN.getSymbol, mult)
       val result = BinaryExp(
         mult,
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -523,8 +529,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.DIV_TOKEN.getSymbol, div)
       val result = BinaryExp(
         div,
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -537,8 +543,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.MOD_TOKEN.getSymbol, mod)
       val result = BinaryExp(
         mod,
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -551,8 +557,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.PLUS_TOKEN.getSymbol, plus)
       val result = BinaryExp(
         plus,
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -565,8 +571,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       positionsWrapper.setPosition(ctx.MINUS_TOKEN.getSymbol, sub)
       val result = BinaryExp(
         sub,
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -574,17 +580,17 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   }
 
   override def visitParenExpr(ctx: SnapiParser.ParenExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.expr) }
+    if (ctx != null) { visitWithNullCheck(ctx.expr) }
     else null
 
   override def visitRecordExpr(ctx: SnapiParser.RecordExprContext): SourceNode =
-    if (ctx != null) { visit(ctx.records) }
+    if (ctx != null) { visitWithNullCheck(ctx.records) }
     else null
 
   override def visitLet(ctx: SnapiParser.LetContext): SourceNode = {
     if (ctx != null) {
-      val decls = ctx.let_left.let_decl.asScala.map(d => visit(d).asInstanceOf[LetDecl]).toVector
-      val result = Let(decls, visit(ctx.expr).asInstanceOf[Exp])
+      val decls = ctx.let_left.let_decl.asScala.map(d => visitWithNullCheck(d).asInstanceOf[LetDecl]).toVector
+      val result = Let(decls, visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -592,16 +598,16 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitLet_decl(ctx: SnapiParser.Let_declContext): SourceNode =
     if (ctx != null) {
-      if (ctx.fun_dec == null) visit(ctx.let_bind)
-      else visit(ctx.fun_dec)
+      if (ctx.fun_dec == null) visitWithNullCheck(ctx.let_bind)
+      else visitWithNullCheck(ctx.fun_dec)
     } else null
 
   override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = {
     if (ctx != null) {
-      val tipe = Option(ctx.tipe).map(visit(_).asInstanceOf[Type])
+      val tipe = Option(ctx.tipe).map(visitWithNullCheck(_).asInstanceOf[Type])
       val idnDef = IdnDef(ctx.ident.getValue)
       positionsWrapper.setPosition(ctx.ident, idnDef)
-      val result = LetBind(visit(ctx.expr).asInstanceOf[Exp], idnDef, tipe)
+      val result = LetBind(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], idnDef, tipe)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -610,9 +616,9 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
   override def visitIf_then_else(ctx: SnapiParser.If_then_elseContext): SourceNode = {
     if (ctx != null) {
       val result = IfThenElse(
-        visit(ctx.expr(0)).asInstanceOf[Exp],
-        visit(ctx.expr(1)).asInstanceOf[Exp],
-        visit(ctx.expr(2)).asInstanceOf[Exp]
+        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp],
+        visitWithNullCheck(ctx.expr(2)).asInstanceOf[Exp]
       )
       positionsWrapper.setPosition(ctx, result)
       result
@@ -625,13 +631,13 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
         val result = ListPackageBuilder.Build()
         positionsWrapper.setPosition(ctx, result)
         result
-      } else visit(ctx.lists_element)
+      } else visitWithNullCheck(ctx.lists_element)
     } else null
   }
 
   override def visitLists_element(ctx: SnapiParser.Lists_elementContext): SourceNode = {
     if (ctx != null) {
-      val exps = ctx.expr.asScala.map(e => visit(e).asInstanceOf[Exp])
+      val exps = ctx.expr.asScala.map(e => visitWithNullCheck(e).asInstanceOf[Exp])
       val result: Exp = ListPackageBuilder.Build(exps: _*)
       positionsWrapper.setPosition(ctx.parent.asInstanceOf[ParserRuleContext], result)
       result
@@ -644,7 +650,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
         val result = RecordPackageBuilder.Build()
         positionsWrapper.setPosition(ctx, result)
         result
-      } else visit(ctx.record_elements)
+      } else visitWithNullCheck(ctx.record_elements)
     } else null
   }
 
@@ -652,7 +658,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
     if (ctx != null) {
       val tuples = ctx.record_element.asScala.zipWithIndex.map {
         case (e, idx) =>
-          val exp = visit(e.expr()).asInstanceOf[Exp]
+          val exp = visitWithNullCheck(e.expr()).asInstanceOf[Exp]
           if (e.ident() != null) {
             (e.ident().getValue, exp)
           } else exp match {
