@@ -540,6 +540,20 @@ public interface SnapiParserListener extends ParseTreeListener {
    */
   void exitNullExpr(SnapiParser.NullExprContext ctx);
   /**
+   * Enter a parse tree produced by the {@code SignedNumberExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterSignedNumberExpr(SnapiParser.SignedNumberExprContext ctx);
+  /**
+   * Exit a parse tree produced by the {@code SignedNumberExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitSignedNumberExpr(SnapiParser.SignedNumberExprContext ctx);
+  /**
    * Enter a parse tree produced by the {@code PlusExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *
@@ -553,20 +567,6 @@ public interface SnapiParserListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitPlusExpr(SnapiParser.PlusExprContext ctx);
-  /**
-   * Enter a parse tree produced by the {@code NumberExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   */
-  void enterNumberExpr(SnapiParser.NumberExprContext ctx);
-  /**
-   * Exit a parse tree produced by the {@code NumberExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   */
-  void exitNumberExpr(SnapiParser.NumberExprContext ctx);
   /**
    * Enter a parse tree produced by the {@code CompareExpr} labeled alternative in {@link
    * SnapiParser#expr}.
@@ -953,6 +953,18 @@ public interface SnapiParserListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitRecord_element(SnapiParser.Record_elementContext ctx);
+  /**
+   * Enter a parse tree produced by {@link SnapiParser#signed_number}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterSigned_number(SnapiParser.Signed_numberContext ctx);
+  /**
+   * Exit a parse tree produced by {@link SnapiParser#signed_number}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitSigned_number(SnapiParser.Signed_numberContext ctx);
   /**
    * Enter a parse tree produced by {@link SnapiParser#number}.
    *

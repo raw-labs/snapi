@@ -75,7 +75,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                           # ParenExpr
     | fun_abs                                               # FunAbsExpr
     | expr_type                                             # ExprTypeExpr
     | if_then_else                                          # IfThenElseExpr
-    | number                                                # NumberExpr
+    | signed_number                                         # SignedNumberExpr
     | bool_const                                            # BoolConstExpr
     | NULL_TOKEN                                            # NullExpr
     | START_TRIPLE_QUOTE (TRIPLE_QUOTED_STRING_CONTENT)*
@@ -127,6 +127,8 @@ record_elements: record_element (COMMA record_element)* ;
 record_element: ident COLON expr
               | expr
               ;
+
+signed_number: (MINUS_TOKEN | PLUS_TOKEN)? number;
 
 number: BYTE
       | SHORT

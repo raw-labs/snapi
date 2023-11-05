@@ -324,6 +324,14 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitNullExpr(SnapiParser.NullExprContext ctx);
   /**
+   * Visit a parse tree produced by the {@code SignedNumberExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitSignedNumberExpr(SnapiParser.SignedNumberExprContext ctx);
+  /**
    * Visit a parse tree produced by the {@code PlusExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *
@@ -331,14 +339,6 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    * @return the visitor result
    */
   T visitPlusExpr(SnapiParser.PlusExprContext ctx);
-  /**
-   * Visit a parse tree produced by the {@code NumberExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  T visitNumberExpr(SnapiParser.NumberExprContext ctx);
   /**
    * Visit a parse tree produced by the {@code CompareExpr} labeled alternative in {@link
    * SnapiParser#expr}.
@@ -561,6 +561,13 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    * @return the visitor result
    */
   T visitRecord_element(SnapiParser.Record_elementContext ctx);
+  /**
+   * Visit a parse tree produced by {@link SnapiParser#signed_number}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitSigned_number(SnapiParser.Signed_numberContext ctx);
   /**
    * Visit a parse tree produced by {@link SnapiParser#number}.
    *

@@ -575,6 +575,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
+  public void enterSignedNumberExpr(SnapiParser.SignedNumberExprContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitSignedNumberExpr(SnapiParser.SignedNumberExprContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
   public void enterPlusExpr(SnapiParser.PlusExprContext ctx) {}
   /**
    * {@inheritDoc}
@@ -583,20 +597,6 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitPlusExpr(SnapiParser.PlusExprContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void enterNumberExpr(SnapiParser.NumberExprContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void exitNumberExpr(SnapiParser.NumberExprContext ctx) {}
   /**
    * {@inheritDoc}
    *
@@ -1003,6 +1003,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitRecord_element(SnapiParser.Record_elementContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterSigned_number(SnapiParser.Signed_numberContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitSigned_number(SnapiParser.Signed_numberContext ctx) {}
   /**
    * {@inheritDoc}
    *

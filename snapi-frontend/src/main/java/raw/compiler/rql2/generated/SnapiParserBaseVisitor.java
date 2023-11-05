@@ -422,7 +422,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitPlusExpr(SnapiParser.PlusExprContext ctx) {
+  public T visitSignedNumberExpr(SnapiParser.SignedNumberExprContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -432,7 +432,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitNumberExpr(SnapiParser.NumberExprContext ctx) {
+  public T visitPlusExpr(SnapiParser.PlusExprContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -723,6 +723,16 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    */
   @Override
   public T visitRecord_element(SnapiParser.Record_elementContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitSigned_number(SnapiParser.Signed_numberContext ctx) {
     return visitChildren(ctx);
   }
   /**

@@ -404,8 +404,11 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
     else null
 
   override def visitFunAppExpr(ctx: SnapiParser.FunAppExprContext): SourceNode = {
-    if (ctx != null) {
-      val args = ctx.fun_ar.fun_args.fun_arg.asScala.map(a => visitWithNullCheck(a).asInstanceOf[FunAppArg]).toVector
+    if (ctx != null && ctx.fun_ar != null) {
+      val args =
+        if (ctx.fun_ar.fun_args != null)
+          ctx.fun_ar.fun_args.fun_arg.asScala.map(a => visitWithNullCheck(a).asInstanceOf[FunAppArg]).toVector
+        else Vector.empty
       val result = FunApp(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], args)
       positionsWrapper.setPosition(ctx, result)
       result
@@ -418,10 +421,6 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
 
   override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode =
     if (ctx != null) { visitWithNullCheck(ctx.expr_type) }
-    else null
-
-  override def visitNumberExpr(ctx: SnapiParser.NumberExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.number) }
     else null
 
   override def visitListExpr(ctx: SnapiParser.ListExprContext): SourceNode =
@@ -715,14 +714,18 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
       result
     } else null
   }
-
-  override def visitNumber(ctx: SnapiParser.NumberContext): SourceNode = {
-    if (ctx != null) {
-      val result = {
-        if (ctx.BYTE != null) ByteConst(ctx.BYTE.getText.toLowerCase.replace("b", ""))
-        else if (ctx.SHORT != null) ShortConst(ctx.SHORT.getText.toLowerCase.replace("s", ""))
-        else if (ctx.INTEGER != null) {
-          val intText = ctx.INTEGER.getText.toLowerCase
+  override def visitSignedNumberExpr(ctx: SnapiParser.SignedNumberExprContext): SourceNode = {
+    if (ctx != null) visitWithNullCheck(ctx.signed_number)
+    else null
+  }
+  override def visitSigned_number(ctx: SnapiParser.Signed_numberContext): SourceNode = {
+    val sign = if (ctx.MINUS_TOKEN != null) "-" else ""
+    if (ctx != null && ctx.number != null) {
+      val result =
+        if (ctx.number.BYTE != null) ByteConst(sign + ctx.number.BYTE.getText.toLowerCase.replace("b", ""))
+        else if (ctx.number.SHORT != null) ShortConst(sign + ctx.number.SHORT.getText.toLowerCase.replace("s", ""))
+        else if (ctx.number.INTEGER != null) {
+          val intText = sign + ctx.number.INTEGER.getText.toLowerCase
           val intTry = Try(intText.toInt)
           if (intTry.isSuccess) IntConst(intText)
           else {
@@ -730,14 +733,36 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
             if (longTry.isSuccess) LongConst(intText)
             else DoubleConst(intText)
           }
-        } else if (ctx.LONG != null) LongConst(ctx.LONG.getText.toLowerCase.replace("l", ""))
-        else if (ctx.FLOAT != null) FloatConst(ctx.FLOAT.getText.toLowerCase.replace("f", ""))
-        else if (ctx.DOUBLE != null) DoubleConst(ctx.DOUBLE.getText.toLowerCase.replace("d", ""))
-        else if (ctx.DECIMAL != null) DecimalConst(ctx.DECIMAL.getText.toLowerCase.replace("q", ""))
+        } else if (ctx.number.LONG != null) LongConst(sign + ctx.number.LONG.getText.toLowerCase.replace("l", ""))
+        else if (ctx.number.FLOAT != null) FloatConst(sign + ctx.number.FLOAT.getText.toLowerCase.replace("f", ""))
+        else if (ctx.number.DOUBLE != null) DoubleConst(sign + ctx.number.DOUBLE.getText.toLowerCase.replace("d", ""))
+        else if (ctx.number.DECIMAL != null)
+          DecimalConst(sign + ctx.number.DECIMAL.getText.toLowerCase.replace("q", ""))
         else throw new AssertionError("Unknown number type")
-      }
-      positionsWrapper.setPosition(ctx, result)
+      val context = if (ctx.PLUS_TOKEN() != null) ctx.number() else ctx
+      positionsWrapper.setPosition(context, result)
       result
+    } else null
+  }
+
+  override def visitNumber(ctx: SnapiParser.NumberContext): SourceNode = {
+    if (ctx != null) {
+      if (ctx.BYTE != null) ByteConst(ctx.BYTE.getText.toLowerCase.replace("b", ""))
+      else if (ctx.SHORT != null) ShortConst(ctx.SHORT.getText.toLowerCase.replace("s", ""))
+      else if (ctx.INTEGER != null) {
+        val intText = ctx.INTEGER.getText.toLowerCase
+        val intTry = Try(intText.toInt)
+        if (intTry.isSuccess) IntConst(intText)
+        else {
+          val longTry = Try(intText.toLong)
+          if (longTry.isSuccess) LongConst(intText)
+          else DoubleConst(intText)
+        }
+      } else if (ctx.LONG != null) LongConst(ctx.LONG.getText.toLowerCase.replace("l", ""))
+      else if (ctx.FLOAT != null) FloatConst(ctx.FLOAT.getText.toLowerCase.replace("f", ""))
+      else if (ctx.DOUBLE != null) DoubleConst(ctx.DOUBLE.getText.toLowerCase.replace("d", ""))
+      else if (ctx.DECIMAL != null) DecimalConst(ctx.DECIMAL.getText.toLowerCase.replace("q", ""))
+      else throw new AssertionError("Unknown number type")
     } else null
   }
 

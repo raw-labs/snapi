@@ -107,6 +107,12 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""Int max values divided by 2""") { _ =>
+    val prog = s"""- 2147483648 / 2""".stripMargin.stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
   // =============== Binary expressions ==================
   test("""Add binary expression""") { _ =>
     val prog = """1 + 1""".stripMargin
@@ -628,4 +634,10 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""string test trim test""") { _ =>
+    val prog = """let f() = 3.14
+      |in f()""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
 }
