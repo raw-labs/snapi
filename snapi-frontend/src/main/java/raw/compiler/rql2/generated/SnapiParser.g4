@@ -70,7 +70,7 @@ list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 expr_type: TYPE_TOKEN tipe;
 
 // ========== expressions ============
-expr: LEFT_PAREN expr RIGHT_PAREN                                          # ParenExpr
+expr: LEFT_PAREN expr RIGHT_PAREN                           # ParenExpr
     | let                                                   # LetExpr
     | fun_abs                                               # FunAbsExpr
     | expr_type                                             # ExprTypeExpr
@@ -78,7 +78,8 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                          # Par
     | number                                                # NumberExpr
     | bool_const                                            # BoolConstExpr
     | NULL_TOKEN                                            # NullExpr
-    | START_TRIPLE_QUOTE TRIPLE_QUOTED_STRING_CONTENT* END_TRIPLE_QUOTE               # TrippleStringExpr
+    | START_TRIPLE_QUOTE (TRIPLE_QUOTED_STRING_CONTENT)*
+      (TRIPLE_QUOTE_END_2 | TRIPLE_QUOTE_END_1 | TRIPLE_QUOTE_END_0) # TrippleStringExpr
     | STRING                                                # StringExpr
     | ident                                                 # IdentExpr
     | expr fun_ar                                           # FunAppExpr
@@ -170,5 +171,3 @@ ident: NON_ESC_IDENTIFIER
      | ESC_IDENTIFIER
      | primitive_types
      ;
-
-

@@ -51,3 +51,6 @@ It generates files, compiles them and runs the `-prog` rule with gui tree result
 
 ## Remarks
 in ~["]
+
+## Useful docs
+https://github.com/antlr/antlr4/blob/master/doc/lexer-rules.md

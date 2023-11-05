@@ -139,5 +139,6 @@ mode INSIDE_TRIPLE_QUOTE;
 TRIPLE_QUOTED_STRING_CONTENT : '"' '"'? ~["]  // Match one or two quotes followed by a non-quote
                              | ~["]           // Match any character that is not a quote
                              ;
-END_TRIPLE_QUOTE: '"""' -> popMode;
-WS_TRIPLE_QUOTE : [\t\r]+ -> skip;
+TRIPLE_QUOTE_END_2: '"""""' -> popMode;
+TRIPLE_QUOTE_END_1: '""""' -> popMode;
+TRIPLE_QUOTE_END_0: '"""' -> popMode;

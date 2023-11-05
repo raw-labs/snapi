@@ -549,6 +549,7 @@ class RawSnapiVisitor(val positions: Positions, private val source: Source)
   }
 
   // Constants
+
   override def visitTrippleStringExpr(ctx: SnapiParser.TrippleStringExprContext): SourceNode = {
     val result = TripleQuotedStringConst(ctx.getText.drop(3).dropRight(3))
     setPosition(ctx, result)
