@@ -505,20 +505,6 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterAndExpr(SnapiParser.AndExprContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void exitAndExpr(SnapiParser.AndExprContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
   public void enterMulExpr(SnapiParser.MulExprContext ctx) {}
   /**
    * {@inheritDoc}
@@ -527,6 +513,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitMulExpr(SnapiParser.MulExprContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterAndExpr(SnapiParser.AndExprContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitAndExpr(SnapiParser.AndExprContext ctx) {}
   /**
    * {@inheritDoc}
    *

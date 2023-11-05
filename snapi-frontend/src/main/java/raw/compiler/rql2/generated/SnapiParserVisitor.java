@@ -284,14 +284,6 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitExpr_type(SnapiParser.Expr_typeContext ctx);
   /**
-   * Visit a parse tree produced by the {@code AndExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  T visitAndExpr(SnapiParser.AndExprContext ctx);
-  /**
    * Visit a parse tree produced by the {@code MulExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *
@@ -299,6 +291,14 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    * @return the visitor result
    */
   T visitMulExpr(SnapiParser.MulExprContext ctx);
+  /**
+   * Visit a parse tree produced by the {@code AndExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitAndExpr(SnapiParser.AndExprContext ctx);
   /**
    * Visit a parse tree produced by the {@code StringExpr} labeled alternative in {@link
    * SnapiParser#expr}.

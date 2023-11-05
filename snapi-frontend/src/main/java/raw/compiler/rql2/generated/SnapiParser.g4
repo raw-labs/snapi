@@ -86,9 +86,6 @@ expr: LEFT_PAREN expr RIGHT_PAREN                           # ParenExpr
     | lists                                                 # ListExpr
     | records                                               # RecordExpr
     | <assoc=right> expr DOT ident fun_ar?                  # ProjectionExpr  // projection
-    | NOT_TOKEN expr                                        # NotExpr
-    | expr AND_TOKEN expr                                   # AndExpr
-    | expr OR_TOKEN expr                                    # OrExpr
     | MINUS_TOKEN expr                                      # MinusUnaryExpr
     | PLUS_TOKEN expr                                       # PlusUnaryExpr
     | expr DIV_TOKEN expr                                   # DivExpr
@@ -97,6 +94,9 @@ expr: LEFT_PAREN expr RIGHT_PAREN                           # ParenExpr
     | expr PLUS_TOKEN expr                                  # PlusExpr
     | expr MINUS_TOKEN expr                                 # MinusExpr
     | expr compare_tokens expr                              # CompareExpr
+    | NOT_TOKEN expr                                        # NotExpr
+    | expr AND_TOKEN expr                                   # AndExpr
+    | expr OR_TOKEN expr                                    # OrExpr
     // | expr DOT  {notifyErrorListeners("Incomplete projection");}
     ;
 

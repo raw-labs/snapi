@@ -470,20 +470,6 @@ public interface SnapiParserListener extends ParseTreeListener {
    */
   void exitExpr_type(SnapiParser.Expr_typeContext ctx);
   /**
-   * Enter a parse tree produced by the {@code AndExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   */
-  void enterAndExpr(SnapiParser.AndExprContext ctx);
-  /**
-   * Exit a parse tree produced by the {@code AndExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   */
-  void exitAndExpr(SnapiParser.AndExprContext ctx);
-  /**
    * Enter a parse tree produced by the {@code MulExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *
@@ -497,6 +483,20 @@ public interface SnapiParserListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitMulExpr(SnapiParser.MulExprContext ctx);
+  /**
+   * Enter a parse tree produced by the {@code AndExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterAndExpr(SnapiParser.AndExprContext ctx);
+  /**
+   * Exit a parse tree produced by the {@code AndExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitAndExpr(SnapiParser.AndExprContext ctx);
   /**
    * Enter a parse tree produced by the {@code StringExpr} labeled alternative in {@link
    * SnapiParser#expr}.

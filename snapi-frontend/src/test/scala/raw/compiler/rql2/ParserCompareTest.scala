@@ -150,6 +150,17 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""and and comparison priority""") { _ =>
+    val prog = """let
+      |    data = Csv.InferAndRead("$airportsLocal"),
+      |    search_by_country(country: string) = Collection.Filter(data, row -> row.Country == country and row.City == "Paris")
+      |in
+      |    search_by_country("France")
+      |    """.stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
   test("""Or binary expression""") { _ =>
     val prog = """true or false""".stripMargin
     compareTrees(prog)
@@ -612,7 +623,7 @@ class ParserCompareTest extends RawTestSuite {
   // ================== Failed tests  ======================
 
   test("""list type not type alias""") { _ =>
-    val prog = s"""Json.Parse("[1,2,3]", type list(int))""".stripMargin.stripMargin
+    val prog = s"""Json.Parse("[1,2,3]", type list(int))""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }

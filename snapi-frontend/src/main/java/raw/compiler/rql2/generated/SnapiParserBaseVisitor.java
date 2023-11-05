@@ -372,7 +372,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitAndExpr(SnapiParser.AndExprContext ctx) {
+  public T visitMulExpr(SnapiParser.MulExprContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -382,7 +382,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitMulExpr(SnapiParser.MulExprContext ctx) {
+  public T visitAndExpr(SnapiParser.AndExprContext ctx) {
     return visitChildren(ctx);
   }
   /**
