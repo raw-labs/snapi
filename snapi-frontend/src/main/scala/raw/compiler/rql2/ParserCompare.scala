@@ -22,20 +22,29 @@ object ParserCompare {
   private def parseWithAntlr4(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new Antlr4SyntaxAnalyzer(positions)
-    parser.parse(s).right.get
+    parser.parse(s)
   }
 
   private def parseWithKiama(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new FrontendSyntaxAnalyzer(positions)
-    parser.parse(s).right.get
+    parser.parse(s)
   }
 
   def compareTrees(s: String): Unit = {
-    val kiamaTree = parseWithKiama(s)
-    val antlr4Tree = parseWithAntlr4(s)
-    if (kiamaTree != antlr4Tree) {
-      throw new AssertionError(s"=+=+= Different Trees Kiama node: $kiamaTree, Antlr4 node: $antlr4Tree")
+    val antlr4Result = parseWithAntlr4(s)
+    val kiamaResult = parseWithKiama(s)
+
+    if (antlr4Result.isLeft && kiamaResult.isLeft) {
+      assert(true)
+      // todo Compare errors
+    } else if (antlr4Result.isRight && kiamaResult.isRight) {
+      assert(antlr4Result == kiamaResult)
+    } else {
+      assert(
+        false,
+        s"""Antlr4: succeeded: ${antlr4Result.isRight}, Kiama succeeded: ${kiamaResult.isRight}"""
+      )
     }
   }
 
