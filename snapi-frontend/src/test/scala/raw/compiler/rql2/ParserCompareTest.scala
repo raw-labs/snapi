@@ -753,24 +753,4 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-//  test("""Extra comma test 2""") { _ =>
-//    val prog =
-//      """
-//        |let items = Json.Read("$orType", type collection(
-//        |  record(
-//        |      host: string,
-//        |      disks: collection(string) or record(partitions: collection(string))
-//        |  )
-//        |))
-//        |in Collection.Transform(
-//        |   items,
-//        |   i -> Type.Match(i.disks,
-//        |       x: collection(int) -> Collection.Count(x),
-//        |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions)
-//        |   )
-//        |)""".stripMargin
-//    compareTrees(prog)
-//    comparePositions(prog)
-//  }
-
 }

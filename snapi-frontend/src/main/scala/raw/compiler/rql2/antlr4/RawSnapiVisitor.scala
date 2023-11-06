@@ -12,12 +12,10 @@
 
 package raw.compiler.rql2.antlr4
 
-import org.antlr.v4.runtime.{ParserRuleContext, Token}
-import org.bitbucket.inkytonik.kiama.parsing.{Failure, Success}
-import org.bitbucket.inkytonik.kiama.util.{Position, Positions, Source}
+import org.antlr.v4.runtime.ParserRuleContext
+import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
-import raw.compiler.rql2.Keywords
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
 import raw.compiler.rql2.source._
@@ -25,9 +23,7 @@ import raw.compiler.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class RawSnapiVisitor(positions: Positions, private val source: Source)
-    extends SnapiParserBaseVisitor[SourceNode]
-    with Keywords {
+class RawSnapiVisitor(positions: Positions, private val source: Source) extends SnapiParserBaseVisitor[SourceNode] {
 
   private val positionsWrapper = new RawPositions(positions, source)
 
@@ -787,15 +783,6 @@ class RawSnapiVisitor(positions: Positions, private val source: Source)
         // Escaped identifier
         StringConst(ctx.getText.drop(1).dropRight(1))
       } else {
-        // todo (az) throw error if reserved keyword
-
-        //      if (isReserved(ctx.getText())) {
-        //        ANTLRErrorListener listener = getErrorListenerDispatch();
-        //        int line = ctx.getStart().getLine();
-        //        int charPositionInLine = ctx.getStart().getCharPositionInLine();
-        //        listener.syntaxError(this, null, line, charPositionInLine, "reserved keyword",
-        // null);
-        //      }
         StringConst(ctx.getText)
       }
     } else null

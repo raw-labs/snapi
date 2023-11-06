@@ -4,25 +4,26 @@ options { tokenVocab=SnapiLexer; }
 prog: stat EOF
     ;
 
-stat:  method_dec*                                          # FunDecStat
-    |  method_dec* expr                                     # FunDecExprStat
+stat:  method_dec*                                              # FunDecStat
+    |  method_dec* expr                                         # FunDecExprStat
     ;
 
 
-method_dec: ident fun_proto                                 # MethodDec
+method_dec: ident fun_proto                                     # MethodDec
           ;
 
 
-fun_dec: ident fun_proto                                    # NormalFun
-       | REC_TOKEN ident fun_proto                          # RecFun
+fun_dec: ident fun_proto                                        # NormalFun
+       | REC_TOKEN ident fun_proto                              # RecFun
        ;
 
-fun_proto: LEFT_PAREN (fun_param (COMMA fun_param)*)? COMMA? RIGHT_PAREN (COLON tipe)? EQUALS expr
+fun_proto: LEFT_PAREN (fun_param (COMMA fun_param)*)?
+             COMMA? RIGHT_PAREN (COLON tipe)? EQUALS expr
          ;
 
 
-fun_param: attr                                             # FunParamAttr
-         | attr EQUALS expr                                    # FunParamAttrExpr
+fun_param: attr                                                 # FunParamAttr
+         | attr EQUALS expr                                     # FunParamAttrExpr
          ;
 
 attr: ident COLON tipe
@@ -34,70 +35,75 @@ type_attr: ident COLON tipe;
 // the input parameters of a function
 fun_ar: LEFT_PAREN fun_args? RIGHT_PAREN;
 fun_args: fun_arg (COMMA fun_arg)* COMMA?;
-fun_arg: expr                                               # FunArgExpr
-       | ident EQUALS expr                                     # NamedFunArgExpr
+fun_arg: expr                                                   # FunArgExpr
+       | ident EQUALS expr                                      # NamedFunArgExpr
        ;
 
 // lambda expression
-fun_abs: fun_proto_lambda                                   # FunAbs
-       | ident RIGHT_ARROW expr                                    # FunAbsUnnamed
+fun_abs: fun_proto_lambda                                       # FunAbs
+       | ident RIGHT_ARROW expr                                 # FunAbsUnnamed
        ;
 
-fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)? RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaMultiParam
-                | fun_param (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaSingleParam
+fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)?
+                    RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaMultiParam
+                | fun_param (COLON tipe)? RIGHT_ARROW expr     # FunProtoLambdaSingleParam
                 ;
 
 // ============= types =================
-tipe: LEFT_PAREN tipe RIGHT_PAREN                           # TypeWithParenType
-    | tipe OR_TOKEN or_type RIGHT_ARROW tipe                # OrTypeFunType
-    | tipe OR_TOKEN or_type                                 # OrTypeType
-    | primitive_types                                       # PrimitiveTypeType
-    | record_type                                           # RecordTypeType
-    | iterable_type                                         # IterableTypeType
-    | list_type                                             # ListTypeType
-    | ident                                                 # TypeAliasType
-    | LEFT_PAREN (tipe | attr) (COMMA (tipe | attr))* COMMA? RIGHT_PAREN RIGHT_ARROW tipe  # FunTypeWithParamsType
-    | tipe RIGHT_ARROW tipe                                        # FunTypeType
-    | expr_type                                             # ExprTypeType
+tipe: LEFT_PAREN tipe RIGHT_PAREN                              # TypeWithParenType
+    | tipe OR_TOKEN or_type RIGHT_ARROW tipe                   # OrTypeFunType
+    | tipe OR_TOKEN or_type                                    # OrTypeType
+    | primitive_types                                          # PrimitiveTypeType
+    | record_type                                              # RecordTypeType
+    | iterable_type                                            # IterableTypeType
+    | list_type                                                # ListTypeType
+    | ident                                                    # TypeAliasType
+    | LEFT_PAREN (tipe | attr) (COMMA (tipe | attr))*
+        COMMA? RIGHT_PAREN RIGHT_ARROW tipe                    # FunTypeWithParamsType
+    | tipe RIGHT_ARROW tipe                                    # FunTypeType
+    | expr_type                                                # ExprTypeType
     ;
 
 or_type: tipe OR_TOKEN or_type
        | tipe
        ;
 
-record_type: RECORD_TOKEN LEFT_PAREN type_attr (COMMA type_attr)* COMMA? RIGHT_PAREN;
+record_type: RECORD_TOKEN LEFT_PAREN type_attr
+               (COMMA type_attr)* COMMA? RIGHT_PAREN;
 iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 expr_type: TYPE_TOKEN tipe;
 
 // ========== expressions ============
-expr: LEFT_PAREN expr RIGHT_PAREN                           # ParenExpr
-    | let                                                   # LetExpr
-    | fun_abs                                               # FunAbsExpr
-    | expr_type                                             # ExprTypeExpr
-    | if_then_else                                          # IfThenElseExpr
-    | signed_number                                         # SignedNumberExpr
-    | bool_const                                            # BoolConstExpr
-    | NULL_TOKEN                                            # NullExpr
+expr: LEFT_PAREN expr RIGHT_PAREN                              # ParenExpr
+    | let                                                      # LetExpr
+    | fun_abs                                                  # FunAbsExpr
+    | expr_type                                                # ExprTypeExpr
+    | if_then_else                                             # IfThenElseExpr
+    | signed_number                                            # SignedNumberExpr
+    | bool_const                                               # BoolConstExpr
+    | NULL_TOKEN                                               # NullExpr
     | START_TRIPLE_QUOTE (TRIPLE_QUOTED_STRING_CONTENT)*
-      (TRIPLE_QUOTE_END_2 | TRIPLE_QUOTE_END_1 | TRIPLE_QUOTE_END_0) # TrippleStringExpr
-    | STRING                                                # StringExpr
-    | ident                                                 # IdentExpr
-    | expr fun_ar                                           # FunAppExpr
-    | lists                                                 # ListExpr
-    | records                                               # RecordExpr
-    | <assoc=right> expr DOT ident fun_ar?                  # ProjectionExpr  // projection
-    | MINUS_TOKEN expr                                      # MinusUnaryExpr
-    | PLUS_TOKEN expr                                       # PlusUnaryExpr
-    | expr DIV_TOKEN expr                                   # DivExpr
-    | expr MUL_TOKEN expr                                   # MulExpr
-    | expr MOD_TOKEN expr                                   # ModExpr
-    | expr MINUS_TOKEN expr                                 # MinusExpr
-    | expr PLUS_TOKEN expr                                  # PlusExpr
-    | expr compare_tokens expr                              # CompareExpr
-    | NOT_TOKEN expr                                        # NotExpr
-    | expr AND_TOKEN expr                                   # AndExpr
-    | expr OR_TOKEN expr                                    # OrExpr
+       (TRIPLE_QUOTE_END_2
+       | TRIPLE_QUOTE_END_1
+       | TRIPLE_QUOTE_END_0)                                   # TrippleStringExpr
+    | STRING                                                   # StringExpr
+    | ident                                                    # IdentExpr
+    | expr fun_ar                                              # FunAppExpr
+    | lists                                                    # ListExpr
+    | records                                                  # RecordExpr
+    | <assoc=right> expr DOT ident fun_ar?                     # ProjectionExpr
+    | MINUS_TOKEN expr                                         # MinusUnaryExpr
+    | PLUS_TOKEN expr                                          # PlusUnaryExpr
+    | expr DIV_TOKEN expr                                      # DivExpr
+    | expr MUL_TOKEN expr                                      # MulExpr
+    | expr MOD_TOKEN expr                                      # ModExpr
+    | expr MINUS_TOKEN expr                                    # MinusExpr
+    | expr PLUS_TOKEN expr                                     # PlusExpr
+    | expr compare_tokens expr                                 # CompareExpr
+    | NOT_TOKEN expr                                           # NotExpr
+    | expr AND_TOKEN expr                                      # AndExpr
+    | expr OR_TOKEN expr                                       # OrExpr
     // | expr DOT  {notifyErrorListeners("Incomplete projection");}
     ;
 
