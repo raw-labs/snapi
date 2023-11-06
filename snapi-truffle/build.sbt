@@ -134,7 +134,7 @@ publishLocal := (publishLocal dependsOn publishM2).value
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawUtils % "compile->compile;test->test",
+  //rawUtils % "compile->compile;test->test",
   rawSnapiFrontend % "compile->compile;test->test",
 //  scalaLogging,
 //  logbackClassic,
