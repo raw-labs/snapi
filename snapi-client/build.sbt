@@ -152,5 +152,3 @@ libraryDependencies ++= Seq(
   rawSnapiFrontend % "compile->compile;test->test",
   rawSnapiTruffle % "test->test"
 )
-
-//Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.client")

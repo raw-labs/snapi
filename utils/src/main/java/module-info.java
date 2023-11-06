@@ -10,15 +10,16 @@
  * licenses/APL.txt.
  */
 
-module raw.snapi.client {
+module raw.utils {
   requires scala.library;
+  requires org.apache.commons.io;
+  requires typesafe.config;
+  requires typesafe.scalalogging;
+  requires org.slf4j;
+  requires ch.qos.logback.classic;
+  requires com.google.common;
+  requires jul.to.slf4j;
+  requires java.net.http;
 
-  requires raw.client;
-  requires raw.snapi.frontend;
-
-  exports raw.client.rql2.api;
-  exports raw.client.rql2.truffle;
-
-  provides raw.client.api.CompilerServiceBuilder with
-      raw.client.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
+  exports raw.utils;
 }

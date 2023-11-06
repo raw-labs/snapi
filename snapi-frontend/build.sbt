@@ -1,12 +1,8 @@
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
-
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 
 import sbt.Keys._
-import sbt.Tests.{Group, SubProcess}
 import sbt._
 
-import java.io._
 import java.time.Year
 
 import Dependencies._
@@ -89,6 +85,12 @@ Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
 
+// Add all the classpath to the module path.
+Compile / javacOptions ++= Seq(
+  "--module-path",
+  (Compile / dependencyClasspath).value.files.absString
+)
+
 // The tests are run in a forked JVM.
 // System properties given to sbt are not automatically passed to the forked VM
 // Here we copy any "raw." system properties to the java options passed to the forked JVMs.
@@ -138,7 +140,6 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawUtils % "compile->compile;test->test",
   rawClient % "compile->compile;test->test",
   commonsLang,
   commonsText,
@@ -160,5 +161,3 @@ libraryDependencies ++= Seq(
   kryo
 ) ++
   poiDeps
-
-Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.frontend")

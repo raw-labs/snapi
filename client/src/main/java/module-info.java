@@ -10,15 +10,13 @@
  * licenses/APL.txt.
  */
 
-module raw.snapi.client {
+module raw.client {
+  requires org.graalvm.polyglot;
   requires scala.library;
 
-  requires raw.client;
-  requires raw.snapi.frontend;
+  requires raw.utils;
 
-  exports raw.client.rql2.api;
-  exports raw.client.rql2.truffle;
-
-  provides raw.client.api.CompilerServiceBuilder with
-      raw.client.rql2.truffle.Rql2TruffleCompilerServiceBuilder;
+  exports raw.client.api;
+  opens raw.client.api;
+  exports raw.client.writers;
 }
