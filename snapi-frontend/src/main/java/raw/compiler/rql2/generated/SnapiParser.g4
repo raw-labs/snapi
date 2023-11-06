@@ -103,7 +103,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                           # ParenExpr
 
 let: LET_TOKEN let_left IN_TOKEN expr;
 
-let_left: let_decl (COMMA let_decl)*
+let_left: let_decl (COMMA let_decl)* COMMA?
         // | let_decl (let_decl)* {notifyErrorListeners("Missing COMMA");}
         ;
 
