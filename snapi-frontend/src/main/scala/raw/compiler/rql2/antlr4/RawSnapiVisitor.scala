@@ -16,6 +16,7 @@ import org.antlr.v4.runtime.ParserRuleContext
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
+import raw.compiler.rql2.Keywords
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
 import raw.compiler.rql2.source._
@@ -23,7 +24,8 @@ import raw.compiler.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class RawSnapiVisitor(positions: Positions, private val source: Source) extends SnapiParserBaseVisitor[SourceNode] {
+class RawSnapiVisitor(positions: Positions, private val source: Source)
+    extends SnapiParserBaseVisitor[SourceNode]{
 
   private val positionsWrapper = new RawPositions(positions, source)
 
