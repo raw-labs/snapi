@@ -144,3 +144,5 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 
 // Dependencies
 libraryDependencies ++= Seq(rawUtils % "compile->compile;test->test", trufflePolyglot)
+
+Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.client")

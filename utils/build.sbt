@@ -153,3 +153,5 @@ libraryDependencies ++= Seq(
 ) ++
   slf4j ++
   jacksonDeps
+
+Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.utils")
