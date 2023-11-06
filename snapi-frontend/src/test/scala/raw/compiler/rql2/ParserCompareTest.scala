@@ -739,4 +739,18 @@ class ParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""Extra comma test""") { _ =>
+    val prog = """let
+      |  prType = type record(
+      |    title: string,
+      |    body: string,
+      |    url: string,
+      |    // ...
+      |  ),
+      |in 1
+      |""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }

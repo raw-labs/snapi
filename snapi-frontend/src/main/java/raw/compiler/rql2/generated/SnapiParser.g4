@@ -17,7 +17,7 @@ fun_dec: ident fun_proto                                    # NormalFun
        | REC_TOKEN ident fun_proto                          # RecFun
        ;
 
-fun_proto: LEFT_PAREN (fun_param (COMMA fun_param)*)? RIGHT_PAREN (COLON tipe)? EQUALS expr
+fun_proto: LEFT_PAREN (fun_param (COMMA fun_param)*)? COMMA? RIGHT_PAREN (COLON tipe)? EQUALS expr
          ;
 
 
@@ -33,7 +33,7 @@ type_attr: ident COLON tipe;
 
 // the input parameters of a function
 fun_ar: LEFT_PAREN fun_args? RIGHT_PAREN;
-fun_args: fun_arg (COMMA fun_arg)*;
+fun_args: fun_arg (COMMA fun_arg)* COMMA?;
 fun_arg: expr                                               # FunArgExpr
        | ident EQUALS expr                                     # NamedFunArgExpr
        ;
@@ -56,7 +56,7 @@ tipe: LEFT_PAREN tipe RIGHT_PAREN                           # TypeWithParenType
     | iterable_type                                         # IterableTypeType
     | list_type                                             # ListTypeType
     | ident                                                 # TypeAliasType
-    | LEFT_PAREN (tipe | attr) (COMMA (tipe | attr))* RIGHT_PAREN RIGHT_ARROW tipe  # FunTypeWithParamsType
+    | LEFT_PAREN (tipe | attr) (COMMA (tipe | attr))* COMMA? RIGHT_PAREN RIGHT_ARROW tipe  # FunTypeWithParamsType
     | tipe RIGHT_ARROW tipe                                        # FunTypeType
     | expr_type                                             # ExprTypeType
     ;
@@ -65,7 +65,7 @@ or_type: tipe OR_TOKEN or_type
        | tipe
        ;
 
-record_type: RECORD_TOKEN LEFT_PAREN type_attr (COMMA type_attr)* RIGHT_PAREN;
+record_type: RECORD_TOKEN LEFT_PAREN type_attr (COMMA type_attr)* COMMA? RIGHT_PAREN;
 iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 expr_type: TYPE_TOKEN tipe;
@@ -121,10 +121,10 @@ if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
             ;
 
 lists: LEFT_SQ_BR (lists_element)? RIGHT_SQ_BR;
-lists_element: expr (COMMA expr)*;
+lists_element: expr (COMMA expr)* COMMA?;
 
 records: LEFT_CUR_BR (record_elements)? RIGHT_CUR_BR;
-record_elements: record_element (COMMA record_element)* ;
+record_elements: record_element (COMMA record_element)* COMMA?;
 record_element: ident COLON expr
               | expr
               ;
