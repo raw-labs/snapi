@@ -105,9 +105,7 @@ object Dependencies {
 
   val truffleCompiler = Seq(
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
-    // Not necessary as snapi-frontend depends on it directly to use the same Antlr4 as Truffle does.
-    // Refer to snapi-frontend/build.sbt
-    // "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided,
+    "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided,
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",

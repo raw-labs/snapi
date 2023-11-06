@@ -404,9 +404,16 @@ trait JsonPackageTest extends CompilerTestContext {
     )
   }
 
-  test(snapi"""Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""")(
-    _ should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
-  )
+  test(snapi"""Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""") { it =>
+    if (isTruffle) {
+      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+    } else {
+      it should runErrorAs(
+        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+          | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
+      )
+    }
+  }
 
   test(
     snapi"""Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 9)"""
@@ -426,15 +433,29 @@ trait JsonPackageTest extends CompilerTestContext {
 
   test(
     snapi"""Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
-  )(
-    _ should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
-  )
+  ) { it =>
+    if (isTruffle) {
+      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+    } else {
+      it should runErrorAs(
+        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+          | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
+      )
+    }
+  }
 
   test(
     snapi"""Collection.Count(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
-  )(
-    _ should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
-  )
+  ) { it =>
+    if (isTruffle) {
+      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+    } else {
+      it should runErrorAs(
+        snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
+          | at [Source: (InputStreamReader); line: 11, column: 37]""".stripMargin
+      )
+    }
+  }
 
   test(
     snapi"""Try.IsError(Collection.Count(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))) ) """
@@ -668,5 +689,7 @@ trait JsonPackageTest extends CompilerTestContext {
   // RD-5986
   test("""Json.Parse("[10, 9, 8]", type string)""")(_ should runErrorAs("unexpected token: START_ARRAY"))
   test("""Json.Parse("{\"a\": 12}", type string)""")(_ should runErrorAs("unexpected token: START_OBJECT"))
+
+  private def isTruffle = compilerService.language.contains("rql2-truffle")
 
 }

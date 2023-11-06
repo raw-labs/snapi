@@ -11,11 +11,17 @@ cd "${SCRIPT_HOME}/deps/kiama"
 cd "${SCRIPT_HOME}/deps/scala-logging"
 ./build.sh
 
-cd "${SCRIPT_HOME}/language"
+cd "${SCRIPT_HOME}/utils"
 ./build.sh
 
-cd "${SCRIPT_HOME}/extensions"
+cd "${SCRIPT_HOME}/client"
 ./build.sh
 
-cd "${SCRIPT_HOME}/launcher"
+cd "${SCRIPT_HOME}/snapi-frontend"
+./build.sh
+
+cd "${SCRIPT_HOME}/snapi-truffle"
+./build.sh
+
+cd "${SCRIPT_HOME}/snapi-client"
 ./build.sh

@@ -94,7 +94,8 @@ class CommentsSyntaxAnalyzer(positions: Positions, nodeComments: IdentityHashMap
   def assignComments(program: BaseProgram): Unit = {
     val collectNodes = org.bitbucket.inkytonik.kiama.rewriting.Rewriter.collect {
       case f @ FunParam(i, mt, me) =>
-        val end = Set(me, mt, Some(i)).collectFirst { case Some(e) => positions.getFinish(e) }.get
+        val end: Option[Position] =
+          Vector(me, mt, Some(i)).map(n => positions.getFinish(n)).maxBy(p => p.map(_.optOffset))
         (f, positions.getStart(f), end)
       case n: BaseNode => (n, positions.getStart(n), positions.getFinish(n))
     }

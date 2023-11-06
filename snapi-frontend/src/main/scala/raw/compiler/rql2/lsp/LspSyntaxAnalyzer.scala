@@ -48,18 +48,8 @@ class LspSyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(pos
   }
 
   // Always succeed on types: last case is ErrorType() instead of failure
-  final override protected def baseType: PackratParser[Type] = baseTypeAttr
 
-  final private lazy val baseTypeAttr: PackratParser[Type] = primitiveType |
-    recordType |
-    iterableType |
-    listType |
-    funType |
-    packageType |
-    packageEntryType |
-    expType |
-    undefinedType |
-    typeAliasType |
+  final override lazy val baseType: Parser[Type] = baseTypeAttr |
     success(ErrorType())
 
   // Always succeed on expressions: last case is ErrorExp() instead of failure
