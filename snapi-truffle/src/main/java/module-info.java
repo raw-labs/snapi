@@ -29,9 +29,9 @@ module raw.snapi.truffle {
   requires org.apache.commons.text;
   requires com.ctc.wstx;
   requires com.ibm.icu;
-  requires typesafe.config;
-  requires typesafe.scalalogging;
-  requires kiama;
+  //requires typesafe.config;
+  //requires typesafe.scalalogging;
+  //requires kiama;
   requires org.apache.commons.lang3;
   requires org.slf4j;
   requires ch.qos.logback.classic;

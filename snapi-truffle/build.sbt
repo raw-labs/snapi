@@ -136,37 +136,37 @@ publishLocal := (publishLocal dependsOn publishM2).value
 libraryDependencies ++= Seq(
   rawUtils % "compile->compile;test->test",
   rawSnapiFrontend % "compile->compile;test->test",
-  scalaLogging,
-  logbackClassic,
-  guava,
-  scalaJava8Compat,
-  typesafeConfig,
-  loki4jAppender,
-  commonsIO,
-  commonsLang,
-  commonsText,
-  apacheHttpClient,
-  icuDeps,
-  woodstox,
-  kiama,
-  dropboxSDK,
-  aws,
-  jwtApi,
-  jwtImpl,
-  jwtCore,
-  postgresqlDeps,
-  mysqlDeps,
-  mssqlDeps,
-  snowflakeDeps,
-  commonsCodec,
-  springCore,
-  kryo,
-  scalatest % Test
+//  scalaLogging,
+//  logbackClassic,
+//  guava,
+//  scalaJava8Compat,
+//  typesafeConfig,
+//  loki4jAppender,
+//  commonsIO,
+//  commonsLang,
+//  commonsText,
+//  apacheHttpClient,
+//  icuDeps,
+//  woodstox,
+//  kiama,
+//  dropboxSDK,
+//  aws,
+//  jwtApi,
+//  jwtImpl,
+//  jwtCore,
+//  postgresqlDeps,
+//  mysqlDeps,
+//  mssqlDeps,
+//  snowflakeDeps,
+//  commonsCodec,
+//  springCore,
+//  kryo,
+//  scalatest % Test
 ) ++
-  slf4j ++
-  jacksonDeps ++
-  poiDeps ++
-  scalaCompiler ++
+//  slf4j ++
+//  jacksonDeps ++
+//  poiDeps ++
+//  scalaCompiler ++
   truffleCompiler
 
 // Output version to a file on compile
