@@ -24,8 +24,7 @@ import raw.compiler.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class RawSnapiVisitor(positions: Positions, private val source: Source)
-    extends SnapiParserBaseVisitor[SourceNode]{
+class RawSnapiVisitor(positions: Positions, private val source: Source) extends SnapiParserBaseVisitor[SourceNode] {
 
   private val positionsWrapper = new RawPositions(positions, source)
 
