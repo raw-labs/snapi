@@ -1,12 +1,8 @@
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
-
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 
 import sbt.Keys._
-import sbt.Tests.{Group, SubProcess}
 import sbt._
 
-import java.io._
 import java.time.Year
 
 import Dependencies._
@@ -141,7 +137,6 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawUtils % "compile->compile;test->test",
   rawClient % "compile->compile;test->test",
   commonsLang,
   commonsText,

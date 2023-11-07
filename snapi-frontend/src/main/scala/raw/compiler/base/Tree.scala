@@ -39,7 +39,7 @@ abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest]
         |Parsed AST:   ${newTree.root}
         |Difference:   ${StringUtils.difference(root.toString, newTree.root.toString)}""".stripMargin
       if (messageTooBig(msg)) {
-        val p = saveToTemporaryFileNoDeleteOnExit(msg, "deepcheck-", ".log")
+        val p = RawUtils.saveToTemporaryFileNoDeleteOnExit(msg, "deepcheck-", ".log")
         throw new AssertionError(s"""Tree parsed differently!
           |Details in ${p.toAbsolutePath.toString}""".stripMargin)
       } else {

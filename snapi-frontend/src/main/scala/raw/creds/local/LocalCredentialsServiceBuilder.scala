@@ -19,7 +19,9 @@ class LocalCredentialsServiceBuilder extends raw.creds.api.CredentialsServiceBui
 
   override val name: String = "local"
 
-  override def build(implicit settings: RawSettings): CredentialsService = {
+  override def build(
+      maybeClassLoader: Option[ClassLoader] = None
+  )(implicit settings: RawSettings): CredentialsService = {
     new LocalCredentialsService
   }
 

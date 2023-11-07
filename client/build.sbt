@@ -1,12 +1,11 @@
-import java.nio.file.{Files, Path, Paths, StandardOpenOption}
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.*
-import sbt.Keys.*
-import sbt.Tests.{Group, SubProcess}
-import sbt.*
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 
-import java.io.*
+import sbt.Keys._
+import sbt._
+
 import java.time.Year
-import Dependencies.*
+
+import Dependencies._
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -53,8 +52,10 @@ headerSources / excludeFilter := HiddenFileFilter
 scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
-  "-source", "21",
-  "-target", "21"
+  "-source",
+  "21",
+  "-target",
+  "21"
 )
 
 scalacOptions ++= Seq(
@@ -78,7 +79,7 @@ scalacOptions ++= Seq(
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
 // Needed for JPMS to work.
-compileOrder := CompileOrder.JavaThenScala
+compileOrder := CompileOrder.ScalaThenJava
 
 // Doc generation breaks with Java files
 Compile / doc / sources := {

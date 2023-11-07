@@ -13,9 +13,8 @@
 package raw.creds.local
 
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 import raw.creds.api.CredentialsTestContext
-import raw.utils._
 
 trait LocalCredentialsTestContext extends BeforeAndAfterAll {
   this: RawTestSuite with SettingsTestContext with CredentialsTestContext =>
@@ -33,7 +32,7 @@ trait LocalCredentialsTestContext extends BeforeAndAfterAll {
 
   override def afterAll(): Unit = {
     if (localCredentialsService != null) {
-      withSuppressNonFatalException(localCredentialsService.stop())
+      RawUtils.withSuppressNonFatalException(localCredentialsService.stop())
       localCredentialsService = null
     }
     super.afterAll()

@@ -49,17 +49,17 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
           inferrer.infer(AutoInferrerProperties(LocationDescription(l1.rawUri), None))
         assert(detectedEncoding == encoding)
       } finally {
-        withSuppressNonFatalException(inferrer.stop())
-        withSuppressNonFatalException(f.delete())
+        RawUtils.withSuppressNonFatalException(inferrer.stop())
+        RawUtils.withSuppressNonFatalException(f.delete())
       }
     }
   }
 
   test("Can call inferrer in parallel") { _ =>
     val files = Array(
-      new LocalPath(getResource("data/publications/authors.json")),
-      new LocalPath(getResource("data/publications/publications.json")),
-      new LocalPath(getResource("data/publications/publications.hjson"))
+      new LocalPath(RawUtils.getResource("data/publications/authors.json")),
+      new LocalPath(RawUtils.getResource("data/publications/publications.json")),
+      new LocalPath(RawUtils.getResource("data/publications/publications.hjson"))
     )
 
     val ex = new ThreadPoolExecutor(3, 3, 0L, TimeUnit.MILLISECONDS, new SynchronousQueue[Runnable]())
@@ -78,8 +78,8 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
         })
       }
     } finally {
-      withSuppressNonFatalException(inferrer.stop())
-      withSuppressNonFatalException(ex.shutdownNow())
+      RawUtils.withSuppressNonFatalException(inferrer.stop())
+      RawUtils.withSuppressNonFatalException(ex.shutdownNow())
     }
   }
 
@@ -207,7 +207,7 @@ class LocalInferrerTest extends RawTestSuite with SettingsTestContext with Stric
             |      `record_timestamp`: string)))""".stripMargin
       )
     } finally {
-      withSuppressNonFatalException(inferrer.stop())
+      RawUtils.withSuppressNonFatalException(inferrer.stop())
     }
   }
 }

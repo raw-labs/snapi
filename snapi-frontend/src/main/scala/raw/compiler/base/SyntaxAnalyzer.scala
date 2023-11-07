@@ -181,14 +181,14 @@ trait SyntaxAnalyzer extends Keywords with StrictLogging {
   final protected lazy val escapedIdent: Parser[String] = escapedIdentRegex ^^ { s => s.drop(1).dropRight(1) }
 
   final protected lazy val stringLitEscaped: Parser[String] = stringLitTripleRegex ^^ { s =>
-    escape(s.drop(3).dropRight(3))
+    RawUtils.escape(s.drop(3).dropRight(3))
   } |
-    stringLitRegex ^^ { s => escape(s.drop(1).dropRight(1)) }
+    stringLitRegex ^^ { s => RawUtils.escape(s.drop(1).dropRight(1)) }
 
   final protected lazy val stringLit: Parser[String] = tripleQuoteStringLit | singleQuoteStringLit
 
   final protected lazy val singleQuoteStringLit: Parser[String] = stringLitRegex ^^ { s =>
-    escape(s).drop(1).dropRight(1)
+    RawUtils.escape(s).drop(1).dropRight(1)
   }
 
   final protected lazy val tripleQuoteStringLit: Parser[String] = stringLitTripleRegex ^^ { s =>

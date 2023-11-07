@@ -32,7 +32,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
 import raw.sources.api.SourceContext
-import raw.utils.{descape, withSuppressNonFatalException, AuthenticatedUser, RawConcurrentHashMap, RawSettings}
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 import scala.collection.mutable
@@ -455,7 +455,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            withSuppressNonFatalException(csvWriter.close())
+            RawUtils.withSuppressNonFatalException(csvWriter.close())
           }
         case Some("json") =>
           if (!JsonPackage.outputWriteSupport(tipe)) {
@@ -468,7 +468,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            withSuppressNonFatalException(w.close())
+            RawUtils.withSuppressNonFatalException(w.close())
           }
         case Some("text") =>
           if (!StringPackage.outputWriteSupport(tipe)) {
@@ -794,7 +794,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       case RawFloat(v) => s"let x: float = ${v}f in x"
       case RawDouble(v) => s"let x: double = $v in x"
       case RawBool(v) => s"let x: bool = $v in x"
-      case RawString(v) => s"""let x: string = "${descape(v)}" in x"""
+      case RawString(v) => s"""let x: string = "${RawUtils.descape(v)}" in x"""
       case RawDecimal(v) => s"""let x: decimal = ${v}q in x"""
       case RawDate(v) => s"""let x: date = Date.Build(${v.getYear}, ${v.getMonthValue}, ${v.getDayOfMonth}) in x"""
       case RawTime(v) =>

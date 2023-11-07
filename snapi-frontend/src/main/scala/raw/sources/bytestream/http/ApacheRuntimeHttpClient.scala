@@ -78,7 +78,7 @@ object ApacheRuntimeHttpClient {
         apacheHttpClient = new ApacheHttpClientHolder(client, pool)
 
         Executors
-          .newSingleThreadScheduledExecutor(newThreadFactory("http-client-idle-connections-cleanup"))
+          .newSingleThreadScheduledExecutor(RawUtils.newThreadFactory("http-client-idle-connections-cleanup"))
           .scheduleAtFixedRate(() => { apacheHttpClient.closeIdleConnections() }, 1, 1, TimeUnit.MINUTES)
       }
     }
