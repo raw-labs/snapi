@@ -25,15 +25,17 @@ object ParserCompare {
     parser.parse(s)
   }
 
-  private def parseWithKiama(s: String) = {
+  private def parseWithKiama(s: String, isFrontend: Boolean) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new FrontendSyntaxAnalyzer(positions)
+    val parser =
+      if (isFrontend) new FrontendSyntaxAnalyzer(positions)
+      else new SyntaxAnalyzer(positions)
     parser.parse(s)
   }
 
   def compareTrees(s: String, isFrontend: Boolean): Unit = {
     val antlr4Result = parseWithAntlr4(s, isFrontend)
-    val kiamaResult = parseWithKiama(s)
+    val kiamaResult = parseWithKiama(s, isFrontend)
 
     if (antlr4Result.isLeft && kiamaResult.isLeft) {
       assert(true)
@@ -50,7 +52,9 @@ object ParserCompare {
 
   def comparePositions(s: String, isFrontend: Boolean): Unit = {
     val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
+    val kiamaParser =
+      if (isFrontend) new FrontendSyntaxAnalyzer(kiamaPositions)
+      else new SyntaxAnalyzer(kiamaPositions)
     val kiamaRoot = kiamaParser.parse(s)
 
     val antlr4Positions = new org.bitbucket.inkytonik.kiama.util.Positions
