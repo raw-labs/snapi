@@ -310,7 +310,11 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case IdnExp ie -> {
                 Entity entity = analyzer.entity().apply(ie.idn());
                 yield switch (entity) {
-                    case MethodEntity b -> ReadLocalVariableNodeGen.create(findSlot(b).slot(), null);
+                    case MethodEntity b -> {
+                        SlotLocation slotLocation = findSlot(b);
+                        yield slotLocation.depth() == 0 ? ReadLocalVariableNodeGen.create(slotLocation.slot(), null) :
+                            ReadClosureVariableNodeGen.create(slotLocation.depth(), slotLocation.slot(), null);
+                    }
                     case LetBindEntity b -> {
                         SlotLocation slotLocation = findSlot(b);
                         yield slotLocation.depth() == 0 ? ReadLocalVariableNodeGen.create(slotLocation.slot(), (Rql2Type) tipe(b.b().e())) :
