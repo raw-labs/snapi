@@ -16,7 +16,10 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.hc.client5.http.classic.methods._
 import org.apache.hc.client5.http.config.RequestConfig
 import org.apache.hc.client5.http.impl.classic.{CloseableHttpClient, CloseableHttpResponse, HttpClients}
-import org.apache.hc.client5.http.impl.io.{PoolingHttpClientConnectionManager, PoolingHttpClientConnectionManagerBuilder}
+import org.apache.hc.client5.http.impl.io.{
+  PoolingHttpClientConnectionManager,
+  PoolingHttpClientConnectionManagerBuilder
+}
 import org.apache.hc.core5.http.ContentType
 import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.http.io.entity.ByteArrayEntity

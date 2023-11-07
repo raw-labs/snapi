@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{AuthenticatedUser, RawTestSuite, SettingsTestContext, RawUtils}
+import raw.utils.{AuthenticatedUser, RawTestSuite, RawUtils, SettingsTestContext}
 
 import java.time.temporal.ChronoUnit
 import scala.collection.mutable
@@ -73,9 +73,12 @@ trait CredentialsTestContext extends BeforeAndAfterAll {
       case ((user, name), _) => RawUtils.withSuppressNonFatalException(credentials.unregisterRDBMSServer(user, name))
     }
     newHttpCreds.foreach {
-      case (user, (name, _)) => RawUtils.withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
+      case (user, (name, _)) =>
+        RawUtils.withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
     }
-    dropboxTokens.foreach { case (user, _) => RawUtils.withSuppressNonFatalException(credentials.unregisterDropboxToken(user)) }
+    dropboxTokens.foreach {
+      case (user, _) => RawUtils.withSuppressNonFatalException(credentials.unregisterDropboxToken(user))
+    }
     secrets.foreach {
       case (user, secret) => RawUtils.withSuppressNonFatalException(credentials.unregisterSecret(user, secret.name))
     }
