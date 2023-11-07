@@ -23,7 +23,7 @@ class ParserCompareTest extends RawTestSuite {
 
   private def parseWithAntlr4(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new Antlr4SyntaxAnalyzer(positions)
+    val parser = new Antlr4SyntaxAnalyzer(positions, true)
     parser.parse(s)
   }
 
@@ -56,7 +56,7 @@ class ParserCompareTest extends RawTestSuite {
     val kiamaRoot = kiamaParser.parse(s)
 
     val antlr4Positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val antlr4Parser = new Antlr4SyntaxAnalyzer(antlr4Positions)
+    val antlr4Parser = new Antlr4SyntaxAnalyzer(antlr4Positions, true)
     val antlr4Root = antlr4Parser.parse(s)
 
     val kiamaNodes = scala.collection.mutable.ArrayBuffer[SourceNode]()

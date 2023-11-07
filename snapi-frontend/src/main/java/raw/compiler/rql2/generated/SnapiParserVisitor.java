@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.0
+// Generated from SnapiParser.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
@@ -178,6 +178,14 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx);
   /**
+   * Visit a parse tree produced by the {@code NullableTryableType} labeled alternative in {@link
+   * SnapiParser#tipe}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitNullableTryableType(SnapiParser.NullableTryableTypeContext ctx);
+  /**
    * Visit a parse tree produced by the {@code ExprTypeType} labeled alternative in {@link
    * SnapiParser#tipe}.
    *
@@ -309,14 +317,6 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitAndExpr(SnapiParser.AndExprContext ctx);
   /**
-   * Visit a parse tree produced by the {@code StringExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  T visitStringExpr(SnapiParser.StringExprContext ctx);
-  /**
    * Visit a parse tree produced by the {@code MinusUnaryExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *
@@ -324,6 +324,14 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    * @return the visitor result
    */
   T visitMinusUnaryExpr(SnapiParser.MinusUnaryExprContext ctx);
+  /**
+   * Visit a parse tree produced by the {@code StringLiteralExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitStringLiteralExpr(SnapiParser.StringLiteralExprContext ctx);
   /**
    * Visit a parse tree produced by the {@code NullExpr} labeled alternative in {@link
    * SnapiParser#expr}.
@@ -477,14 +485,6 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitDivExpr(SnapiParser.DivExprContext ctx);
   /**
-   * Visit a parse tree produced by the {@code TrippleStringExpr} labeled alternative in {@link
-   * SnapiParser#expr}.
-   *
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  T visitTrippleStringExpr(SnapiParser.TrippleStringExprContext ctx);
-  /**
    * Visit a parse tree produced by the {@code ModExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *
@@ -592,6 +592,20 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitPrimitive_types(SnapiParser.Primitive_typesContext ctx);
   /**
+   * Visit a parse tree produced by {@link SnapiParser#string_literal}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitString_literal(SnapiParser.String_literalContext ctx);
+  /**
+   * Visit a parse tree produced by {@link SnapiParser#triple_string_literal}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitTriple_string_literal(SnapiParser.Triple_string_literalContext ctx);
+  /**
    * Visit a parse tree produced by {@link SnapiParser#compare_tokens}.
    *
    * @param ctx the parse tree
@@ -612,4 +626,18 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    * @return the visitor result
    */
   T visitIdent(SnapiParser.IdentContext ctx);
+  /**
+   * Visit a parse tree produced by {@link SnapiParser#package_idn_exp}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitPackage_idn_exp(SnapiParser.Package_idn_expContext ctx);
+  /**
+   * Visit a parse tree produced by {@link SnapiParser#nullable_tryable}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitNullable_tryable(SnapiParser.Nullable_tryableContext ctx);
 }

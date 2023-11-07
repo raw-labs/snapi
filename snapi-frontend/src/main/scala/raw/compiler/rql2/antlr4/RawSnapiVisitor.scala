@@ -24,7 +24,8 @@ import raw.compiler.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class RawSnapiVisitor(positions: Positions, private val source: Source) extends SnapiParserBaseVisitor[SourceNode] {
+class RawSnapiVisitor(positions: Positions, private val source: Source, isFrontend: Boolean)
+    extends SnapiParserBaseVisitor[SourceNode] {
 
   private val positionsWrapper = new RawPositions(positions, source)
 
@@ -74,7 +75,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
       val ps = ctx.fun_param.asScala.map(fp => visitWithNullCheck(fp).asInstanceOf[FunParam]).toVector
       val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
+      val result =
+        FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Rql2TypeWithProperties]), funBody)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -85,7 +87,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
       val ps = ctx.fun_param.asScala.map(fp => visitWithNullCheck(fp).asInstanceOf[FunParam]).toVector
       val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
+      val result =
+        FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Rql2TypeWithProperties]), funBody)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -95,7 +98,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
       val ps = visitWithNullCheck(ctx.fun_param).asInstanceOf[FunParam] +: Vector.empty
       val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
+      val result =
+        FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Rql2TypeWithProperties]), funBody)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -140,7 +144,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
       positionsWrapper.setPosition(ctx.attr.ident, idnDef)
       val result = FunParam(
         idnDef,
-        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Type]),
+        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Rql2TypeWithProperties]),
         Option.empty
       )
       positionsWrapper.setPosition(ctx, result)
@@ -154,7 +158,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
       positionsWrapper.setPosition(ctx.attr.ident, idnDef)
       val result = FunParam(
         idnDef,
-        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Type]),
+        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Rql2TypeWithProperties]),
         Option(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
       )
       positionsWrapper.setPosition(ctx, result)
@@ -164,7 +168,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitType_attr(ctx: SnapiParser.Type_attrContext): SourceNode = {
     if (ctx != null) {
-      val result = Rql2AttrType(ctx.ident.getValue, visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
+      val result = Rql2AttrType(ctx.ident.getValue, visitWithNullCheck(ctx.tipe).asInstanceOf[Rql2TypeWithProperties])
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -213,11 +217,13 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitFunTypeWithParamsType(ctx: SnapiParser.FunTypeWithParamsTypeContext): SourceNode = {
     if (ctx != null) {
-      val ms = ctx.tipe.asScala.dropRight(1).map(t => visitWithNullCheck(t).asInstanceOf[Type]).toVector
+      val ms =
+        ctx.tipe.asScala.dropRight(1).map(t => visitWithNullCheck(t).asInstanceOf[Rql2TypeWithProperties]).toVector
 
       val os = ctx.attr.asScala
         .map(a => {
-          val funOptTypeParam = FunOptTypeParam(a.ident.getValue, visitWithNullCheck(a.tipe).asInstanceOf[Type])
+          val funOptTypeParam =
+            FunOptTypeParam(a.ident.getValue, visitWithNullCheck(a.tipe).asInstanceOf[Rql2TypeWithProperties])
           positionsWrapper.setPosition(a, funOptTypeParam)
           funOptTypeParam
         })
@@ -226,7 +232,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
       val result: FunType = FunType(
         ms,
         os,
-        visitWithNullCheck(ctx.tipe.getLast).asInstanceOf[Type],
+        visitWithNullCheck(ctx.tipe.getLast).asInstanceOf[Rql2TypeWithProperties],
         defaultProps
       )
       positionsWrapper.setPosition(ctx, result)
@@ -236,7 +242,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitOrTypeType(ctx: SnapiParser.OrTypeTypeContext): SourceNode = {
     if (ctx != null) {
-      val tipes = Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
+      val tipes = Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Rql2TypeWithProperties])
       val orType: Rql2OrType = visitWithNullCheck(ctx.or_type).asInstanceOf[Rql2OrType]
       val combinedTypes = tipes ++ orType.tipes
       val result = Rql2OrType(combinedTypes, defaultProps)
@@ -249,7 +255,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
   override def visitOr_type(ctx: SnapiParser.Or_typeContext): SourceNode = {
     if (ctx != null) {
       Rql2OrType(
-        Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Type]) ++ Option(ctx.or_type())
+        Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Rql2TypeWithProperties]) ++ Option(ctx.or_type())
           .map(visitWithNullCheck(_).asInstanceOf[Rql2OrType].tipes)
           .getOrElse(Vector.empty),
         defaultProps
@@ -259,12 +265,16 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitOrTypeFunType(ctx: SnapiParser.OrTypeFunTypeContext): SourceNode = {
     if (ctx != null) {
-      val types = Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Type])
+      val types = Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Rql2TypeWithProperties])
       val orType = visitWithNullCheck(ctx.or_type).asInstanceOf[Rql2OrType]
       val combinedTypes = types ++ orType.tipes
       val domainOrType = Rql2OrType(combinedTypes, defaultProps)
-      val funType =
-        FunType(Vector(domainOrType), Vector.empty, visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Type], defaultProps)
+      val funType = FunType(
+        Vector(domainOrType),
+        Vector.empty,
+        visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Rql2TypeWithProperties],
+        defaultProps
+      )
       positionsWrapper.setPosition(ctx, funType)
       funType
     } else null
@@ -328,9 +338,9 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
   override def visitFunTypeType(ctx: SnapiParser.FunTypeTypeContext): SourceNode = {
     if (ctx != null) {
       val funType = FunType(
-        Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Type]),
+        Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Rql2TypeWithProperties]),
         Vector.empty,
-        visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Type],
+        visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Rql2TypeWithProperties],
         defaultProps
       )
       positionsWrapper.setPosition(ctx, funType)
@@ -340,7 +350,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitExprTypeExpr(ctx: SnapiParser.ExprTypeExprContext): SourceNode =
     if (ctx != null) {
-      val exp = visitWithNullCheck(ctx.expr_type).asInstanceOf[Type]
+      val exp = visitWithNullCheck(ctx.expr_type).asInstanceOf[Rql2TypeWithProperties]
       val result = TypeExp(exp)
       positionsWrapper.setPosition(ctx, result)
       result
@@ -357,7 +367,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitIterable_type(ctx: SnapiParser.Iterable_typeContext): SourceNode = {
     if (ctx != null) {
-      val result = Rql2IterableType(visitWithNullCheck(ctx.tipe).asInstanceOf[Type], defaultProps)
+      val result = Rql2IterableType(visitWithNullCheck(ctx.tipe).asInstanceOf[Rql2TypeWithProperties], defaultProps)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -365,7 +375,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitList_type(ctx: SnapiParser.List_typeContext): SourceNode = {
     if (ctx != null) {
-      val result = Rql2ListType(visitWithNullCheck(ctx.tipe).asInstanceOf[Type], defaultProps)
+      val result = Rql2ListType(visitWithNullCheck(ctx.tipe).asInstanceOf[Rql2TypeWithProperties], defaultProps)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
@@ -430,7 +440,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode =
     if (ctx != null) {
-      val reslut = ExpType(visitWithNullCheck(ctx.expr_type()).asInstanceOf[Type])
+      val reslut = ExpType(visitWithNullCheck(ctx.expr_type()).asInstanceOf[Rql2TypeWithProperties])
       positionsWrapper.setPosition(ctx, reslut)
       reslut
     } else null
@@ -615,7 +625,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = {
     if (ctx != null) {
-      val tipe = Option(ctx.tipe).map(visitWithNullCheck(_).asInstanceOf[Type])
+      val tipe = Option(ctx.tipe).map(visitWithNullCheck(_).asInstanceOf[Rql2TypeWithProperties])
       val idnDef = IdnDef(ctx.ident.getValue)
       positionsWrapper.setPosition(ctx.ident, idnDef)
       val result = LetBind(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], idnDef, tipe)
@@ -685,32 +695,38 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   // Constants
 
-  override def visitTrippleStringExpr(ctx: SnapiParser.TrippleStringExprContext): SourceNode = {
+  override def visitStringLiteralExpr(ctx: SnapiParser.StringLiteralExprContext): SourceNode =
+    visitWithNullCheck(ctx.string_literal)
+
+  override def visitString_literal(ctx: SnapiParser.String_literalContext): SourceNode = {
+    if (ctx != null) {
+      if (ctx.STRING() != null) {
+        val result = StringConst(
+          ctx.STRING.getText
+            .substring(1, ctx.STRING.getText.length - 1)
+            .replace("\\b", "\b")
+            .replace("\\n", "\n")
+            .replace("\\f", "\f")
+            .replace("\\r", "\r")
+            .replace("\\t", "\t")
+            .replace("\\\\", "\\")
+            .replace("\\\"", "\"")
+        )
+        positionsWrapper.setPosition(ctx, result)
+        result
+      } else {
+        visitWithNullCheck(ctx.triple_string_literal())
+      }
+    } else null
+  }
+
+  override def visitTriple_string_literal(ctx: SnapiParser.Triple_string_literalContext): SourceNode = {
     if (ctx != null) {
       val result = TripleQuotedStringConst(ctx.getText.drop(3).dropRight(3))
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
   }
-
-  override def visitStringExpr(ctx: SnapiParser.StringExprContext): SourceNode = {
-    if (ctx != null) {
-      val result = StringConst(
-        ctx.STRING.getText
-          .substring(1, ctx.STRING.getText.length - 1)
-          .replace("\\b", "\b")
-          .replace("\\n", "\n")
-          .replace("\\f", "\f")
-          .replace("\\r", "\r")
-          .replace("\\t", "\t")
-          .replace("\\\\", "\\")
-          .replace("\\\"", "\"")
-      )
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
   override def visitBoolConstExpr(ctx: SnapiParser.BoolConstExprContext): SourceNode = {
     if (ctx != null) {
       val result = BoolConst(ctx.bool_const.FALSE_TOKEN == null)
@@ -788,6 +804,43 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
       }
     } else null
 
+  // Nullable tryable
+  override def visitNullableTryableType(ctx: SnapiParser.NullableTryableTypeContext): SourceNode = {
+    if (isFrontend) throw new RuntimeException("Nullable tryable types are not supported in frontend")
+
+    Option(ctx).map { context =>
+      val tipe = visitWithNullCheck(context.tipe).asInstanceOf[Rql2TypeWithProperties]
+
+      Option(context.nullable_tryable())
+        .map { nullableTryable =>
+          val isNullable = Option(nullableTryable.NULLABLE_TOKEN()).isDefined
+          val isTryable = Option(nullableTryable.TRYABLE_TOKEN()).isDefined
+
+          val withoutNullable =
+            if (isNullable) tipe
+            else tipe.cloneAndRemoveProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+          if (isTryable) withoutNullable
+          else withoutNullable.cloneAndRemoveProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+        }
+        .getOrElse(tipe)
+    }.orNull
+  }
+
+  override def visitPackage_idn_exp(ctx: SnapiParser.Package_idn_expContext): SourceNode = {
+    if (isFrontend) throw new RuntimeException("Package syntax is not supported in frontend")
+    if (ctx != null) {
+      val stringLiteral = visitWithNullCheck(ctx.string_literal())
+      val str = stringLiteral match {
+        case StringConst(s) => s
+        case TripleQuotedStringConst(s) => s
+        case _ => throw new AssertionError("Unexpected string literal")
+      }
+      val result = PackageIdnExp(str)
+      positionsWrapper.setPosition(ctx, result)
+      result
+    } else null
+  }
+
   // Nodes to ignore, they are not part of the AST and should never be visited
   override def visitBool_const(ctx: SnapiParser.Bool_constContext): SourceNode =
     throw new AssertionError(assertionMessage)
@@ -803,4 +856,6 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitFun_args(ctx: SnapiParser.Fun_argsContext): SourceNode = throw new AssertionError(assertionMessage)
 
+  override def visitNullable_tryable(ctx: SnapiParser.Nullable_tryableContext): SourceNode =
+    throw new AssertionError(assertionMessage)
 }

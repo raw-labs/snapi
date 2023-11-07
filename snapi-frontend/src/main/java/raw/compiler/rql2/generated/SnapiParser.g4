@@ -51,6 +51,7 @@ fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)?
 
 // ============= types =================
 tipe: LEFT_PAREN tipe RIGHT_PAREN                              # TypeWithParenType
+    | tipe nullable_tryable                                    # NullableTryableType
     | tipe OR_TOKEN or_type RIGHT_ARROW tipe                   # OrTypeFunType
     | tipe OR_TOKEN or_type                                    # OrTypeType
     | primitive_types                                          # PrimitiveTypeType
@@ -83,11 +84,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                              # ParenExpr
     | signed_number                                            # SignedNumberExpr
     | bool_const                                               # BoolConstExpr
     | NULL_TOKEN                                               # NullExpr
-    | START_TRIPLE_QUOTE (TRIPLE_QUOTED_STRING_CONTENT)*
-       (TRIPLE_QUOTE_END_2
-       | TRIPLE_QUOTE_END_1
-       | TRIPLE_QUOTE_END_0)                                   # TrippleStringExpr
-    | STRING                                                   # StringExpr
+    | string_literal                                           # StringLiteralExpr
     | ident                                                    # IdentExpr
     | expr fun_ar                                              # FunAppExpr
     | lists                                                    # ListExpr
@@ -163,7 +160,17 @@ primitive_types : BOOL_TOKEN
                 | DECIMAL_TOKEN
                 | UNDEFINED_TOKEN
                 ;
-// Compare
+
+// ============= string =================
+string_literal: STRING
+              | triple_string_literal;
+
+triple_string_literal: START_TRIPLE_QUOTE (TRIPLE_QUOTED_STRING_CONTENT)*
+                              (TRIPLE_QUOTE_END_2
+                              | TRIPLE_QUOTE_END_1
+                              | TRIPLE_QUOTE_END_0);
+
+// ============= compare =================
 compare_tokens: EQ_TOKEN
               | NEQ_TOKEN
               | LE_TOKEN
@@ -183,3 +190,12 @@ ident: NON_ESC_IDENTIFIER
      | RECORD_TOKEN
      | COLLECTION_TOKEN
      ;
+
+// =============== Internal parser ==================
+package_idn_exp: DOLLAR_TOKEN PACKAGE_TOKEN LEFT_PAREN string_literal RIGHT_PAREN;
+
+nullable_tryable: NULLABLE_TOKEN
+                | TRYABLE_TOKEN
+                | TRYABLE_TOKEN NULLABLE_TOKEN
+                | NULLABLE_TOKEN TRYABLE_TOKEN
+                ;
