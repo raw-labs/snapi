@@ -27,9 +27,14 @@ class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, fron
   override def doParse(): SourceProgram = {
 
 //    if (frontend) {
-//      ParserCompare.compareTrees(originalSource)
-//      ParserCompare.comparePositions(originalSource)
+//      ParserCompare.compareTrees(originalSource, true)
+//      ParserCompare.comparePositions(originalSource, true)
 //    }
+
+    if (!frontend) {
+      ParserCompare.compareTrees(originalSource, false)
+      ParserCompare.comparePositions(originalSource, false)
+    }
 
     val parser =
       // We have both a frontend parser and an internal parser, which gives access to internal nodes.

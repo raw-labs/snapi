@@ -822,6 +822,20 @@ public interface SnapiParserListener extends ParseTreeListener {
    */
   void exitDivExpr(SnapiParser.DivExprContext ctx);
   /**
+   * Enter a parse tree produced by the {@code PackageIdnExp} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterPackageIdnExp(SnapiParser.PackageIdnExpContext ctx);
+  /**
+   * Exit a parse tree produced by the {@code PackageIdnExp} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx);
+  /**
    * Enter a parse tree produced by the {@code ModExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *

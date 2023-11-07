@@ -622,6 +622,16 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
+  public T visitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
   public T visitModExpr(SnapiParser.ModExprContext ctx) {
     return visitChildren(ctx);
   }

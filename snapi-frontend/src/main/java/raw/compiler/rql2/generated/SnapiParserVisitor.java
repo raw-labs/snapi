@@ -485,6 +485,14 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitDivExpr(SnapiParser.DivExprContext ctx);
   /**
+   * Visit a parse tree produced by the {@code PackageIdnExp} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx);
+  /**
    * Visit a parse tree produced by the {@code ModExpr} labeled alternative in {@link
    * SnapiParser#expr}.
    *

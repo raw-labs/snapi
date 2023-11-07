@@ -855,6 +855,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
+  public void enterPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
   public void enterModExpr(SnapiParser.ModExprContext ctx) {}
   /**
    * {@inheritDoc}

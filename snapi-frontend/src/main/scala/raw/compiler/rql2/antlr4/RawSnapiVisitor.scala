@@ -31,7 +31,9 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   private val assertionMessage = "This is a helper (better grammar readability)  node, should never visit it"
 
-  private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+  private val defaultProps: Set[Rql2TypeProperty] =
+    if (isFrontend) Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+    else Set.empty
 
   // An extension method to extract the identifier from a token (removes the backticks)
   implicit class IdentExtension(ctx: SnapiParser.IdentContext) {
@@ -350,7 +352,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitExprTypeExpr(ctx: SnapiParser.ExprTypeExprContext): SourceNode =
     if (ctx != null) {
-      val exp = visitWithNullCheck(ctx.expr_type).asInstanceOf[Rql2TypeWithProperties]
+      val exp = visitWithNullCheck(ctx.expr_type).asInstanceOf[Type]
       val result = TypeExp(exp)
       positionsWrapper.setPosition(ctx, result)
       result
@@ -625,7 +627,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = {
     if (ctx != null) {
-      val tipe = Option(ctx.tipe).map(visitWithNullCheck(_).asInstanceOf[Rql2TypeWithProperties])
+      val tipe = Option(ctx.tipe).map(visitWithNullCheck(_).asInstanceOf[Type])
       val idnDef = IdnDef(ctx.ident.getValue)
       positionsWrapper.setPosition(ctx.ident, idnDef)
       val result = LetBind(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], idnDef, tipe)
@@ -817,10 +819,11 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
           val isTryable = Option(nullableTryable.TRYABLE_TOKEN()).isDefined
 
           val withoutNullable =
-            if (isNullable) tipe
-            else tipe.cloneAndRemoveProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
-          if (isTryable) withoutNullable
-          else withoutNullable.cloneAndRemoveProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+            if (isNullable) tipe.cloneAndAddProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+            else tipe
+          if (isTryable)
+            withoutNullable.cloneAndAddProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+          else withoutNullable
         }
         .getOrElse(tipe)
     }.orNull
@@ -840,6 +843,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
       result
     } else null
   }
+  override def visitPackageIdnExp(ctx: SnapiParser.PackageIdnExpContext): SourceNode =
+    visitWithNullCheck(ctx.package_idn_exp())
 
   // Nodes to ignore, they are not part of the AST and should never be visited
   override def visitBool_const(ctx: SnapiParser.Bool_constContext): SourceNode =

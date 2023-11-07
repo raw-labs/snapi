@@ -18,7 +18,7 @@ import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.TypeExp
 import raw.utils.RawTestSuite
 
-class ParserCompareTest extends RawTestSuite {
+class FrontendParserCompareTest extends RawTestSuite {
   val triple = "\"\"\""
 
   private def parseWithAntlr4(s: String) = {
