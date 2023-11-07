@@ -85,4 +85,10 @@ class SyntaxAnalyzerCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""FE test 1""") { _ =>
+    val prog = s"""$$package("Collection")""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }

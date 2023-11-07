@@ -629,12 +629,6 @@ class FrontendParserCompareTest extends RawTestSuite {
   // ================== Frontend syntax analyzer test =============
 
   test("""FE test 1""") { _ =>
-    val prog = s"""$$package("Collection")""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
-  }
-
-  test("""FE test 2""") { _ =>
     val prog = """
       |let $$package(v: int) = 1
       |in $$package(1)
@@ -643,7 +637,7 @@ class FrontendParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""FE test 3""") { _ =>
+  test("""FE test 2""") { _ =>
     val prog = """
       |let f(v: int) = v + 1
       |in f(#)
@@ -652,13 +646,13 @@ class FrontendParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""FE test 4""") { _ =>
+  test("""FE test 3""") { _ =>
     val prog = """{a = 1}"""
     compareTrees(prog)
     comparePositions(prog)
   }
 
-  test("""FE test 5""") { _ =>
+  test("""FE test 4""") { _ =>
     val prog = """let f = (v: int) => 1
       |in f(1)
       |""".stripMargin
@@ -666,7 +660,7 @@ class FrontendParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""FE test 6""") { _ =>
+  test("""FE test 5""") { _ =>
     val prog = """let f = (v: int,) -> 1
       |in f(1)
       |""".stripMargin
@@ -674,19 +668,19 @@ class FrontendParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""FE test 7""") { _ =>
+  test("""FE test 6""") { _ =>
     val prog = """{ #: 1 }""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
 
-  test("""FE test 8""") { _ =>
+  test("""FE test 7""") { _ =>
     val prog = """{ : 1 }""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }
 
-  test("""FE test 9""") { _ =>
+  test("""FE test 8""") { _ =>
     val prog = """
       |let
       |  hello = type recor(a: int)
