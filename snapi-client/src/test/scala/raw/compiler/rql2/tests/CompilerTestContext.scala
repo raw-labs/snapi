@@ -60,7 +60,7 @@ trait CompilerTestContext
 
   override def afterAll(): Unit = {
     for (f <- dataFiles) {
-      deleteTestPath(f.path)
+      RawUtils.deleteTestPath(f.path)
     }
     super.afterAll()
   }
@@ -73,7 +73,7 @@ trait CompilerTestContext
     dataFiles.append(ViewFileContent(content, charset, path))
   }
   def tempFile(data: String, extension: String = "data", charset: Charset = StandardCharsets.UTF_8): Path = {
-    val path = saveToTemporaryFileNoDeleteOnExit(data, "tempFile", s".$extension", charset)
+    val path = RawUtils.saveToTemporaryFileNoDeleteOnExit(data, "tempFile", s".$extension", charset)
     dataFile(data, charset, path)
     path
   }

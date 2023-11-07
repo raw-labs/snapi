@@ -14,7 +14,7 @@ package raw.compiler.rql2.truffle
 
 import raw.client.rql2.truffle.Rql2TruffleCompilerService
 import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
-import raw.utils.{withSuppressNonFatalException, RawTestSuite, SettingsTestContext}
+import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 
 trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>
@@ -31,7 +31,7 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 
   override def afterAll(): Unit = {
     if (rql2TruffleCompilerService != null) {
-      withSuppressNonFatalException(rql2TruffleCompilerService.stop())
+      RawUtils.withSuppressNonFatalException(rql2TruffleCompilerService.stop())
       rql2TruffleCompilerService = null
     }
     super.afterAll()

@@ -50,7 +50,7 @@ class CompilerContext(
 
   private val inferrerThreadPoolSize = settings.getInt(INFERRER_THREAD_POOL_SIZE)
   private val inferrerThreadPool =
-    Executors.newFixedThreadPool(inferrerThreadPoolSize, newThreadFactory("compiler-context-inferrer"))
+    Executors.newFixedThreadPool(inferrerThreadPoolSize, RawUtils.newThreadFactory("compiler-context-inferrer"))
 
   def infer(
       properties: InferrerProperties

@@ -31,7 +31,7 @@ trait SourcePrettyPrinter extends PrettyPrinter with Keywords with StrictLogging
     else name
   }
 
-  protected def dquoted(s: String): Doc = dquotes(descape(s))
+  protected def dquoted(s: String): Doc = dquotes(RawUtils.descape(s))
 
   def ident(idn: String): String = {
     if (SyntaxAnalyzer.identRegex.unapplySeq(idn).isDefined && !isReserved(idn)) {
