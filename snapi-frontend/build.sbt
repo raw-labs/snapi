@@ -85,12 +85,6 @@ Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
 
-// Add all the classpath to the module path.
-Compile / javacOptions ++= Seq(
-  "--module-path",
-  (Compile / dependencyClasspath).value.files.absString
-)
-
 // The tests are run in a forked JVM.
 // System properties given to sbt are not automatically passed to the forked VM
 // Here we copy any "raw." system properties to the java options passed to the forked JVMs.
