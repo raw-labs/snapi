@@ -80,7 +80,7 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
         |======
         |$prettyErrors""".stripMargin
       if (messageTooBig(msg)) {
-        val p = saveToTemporaryFileNoDeleteOnExit(msg, "deepcheck-", ".log")
+        val p = RawUtils.saveToTemporaryFileNoDeleteOnExit(msg, "deepcheck-", ".log")
         logger.debug(s"""Tree has semantic errors!
           |Details in ${p.toAbsolutePath.toString}""".stripMargin)
       } else {

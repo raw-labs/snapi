@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw
+package raw.utils
 
 import com.google.common.io.Resources
 import com.google.common.util.concurrent.ThreadFactoryBuilder
@@ -29,7 +29,7 @@ import java.util.zip.ZipFile
 import scala.util.control.NonFatal
 import scala.collection.JavaConverters._
 
-package object utils extends StrictLogging {
+object RawUtils extends StrictLogging {
 
   /**
    * Convert a user string back to its original "intended" representation.

@@ -41,7 +41,7 @@ trait JsonOutputTest extends CompilerTestContext {
           """"dateCol":"2023-02-05","timeCol":"11:12:13.000","timestampCol":"2023-02-05T11:12:13.000","binaryCol":"T2xhbGEh"}]""".stripMargin
       )
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
@@ -53,7 +53,7 @@ trait JsonOutputTest extends CompilerTestContext {
       // fields 'a' are renamed as 'a', 'a_1' and 'a_2'
       path should contain("""{"a":1,"b":2,"a_1":3,"c":4,"a_2":5}""")
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
@@ -65,7 +65,7 @@ trait JsonOutputTest extends CompilerTestContext {
       // fields 'a' are renamed as 'a', 'a_2' because 'a_1' exists already
       path should contain("""{"a":1,"b":2,"a_2":3,"c":4,"a_1":5}""")
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
@@ -77,7 +77,7 @@ trait JsonOutputTest extends CompilerTestContext {
       // fields 'a' are renamed as 'a', 'a_2' because 'a_1' exists already
       path should contain("""{"a_1":1,"b":2,"a":3,"c":4,"a_2":5}""")
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
@@ -88,7 +88,7 @@ trait JsonOutputTest extends CompilerTestContext {
       it should saveToInFormat(path, "json")
       path should contain("""{"a":1,"b":2,"a_3":3,"c":4,"a_2":5,"a_1":6}""")
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 }

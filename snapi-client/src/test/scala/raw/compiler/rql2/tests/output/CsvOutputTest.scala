@@ -48,7 +48,7 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
@@ -63,7 +63,7 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
@@ -92,7 +92,7 @@ trait CsvOutputTest extends CompilerTestContext {
           |""".stripMargin
       )
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
@@ -132,7 +132,7 @@ trait CsvOutputTest extends CompilerTestContext {
         )
       }
     } finally {
-      deleteTestPath(path)
+      RawUtils.deleteTestPath(path)
     }
   }
 
