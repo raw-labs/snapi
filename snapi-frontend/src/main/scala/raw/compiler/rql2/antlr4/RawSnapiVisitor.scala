@@ -813,7 +813,13 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     Option(ctx).map { context =>
       val tipe = visitWithNullCheck(context.tipe).asInstanceOf[Rql2TypeWithProperties]
 
-      Option(context.nullable_tryable())
+      // this is needed for the case of parenthesis around nullable_tryable rule
+      val contextToUse =
+        if (context.nullable_tryable() != null && context.nullable_tryable().nullable_tryable() != null)
+          context.nullable_tryable().nullable_tryable()
+        else context.nullable_tryable()
+
+      Option(contextToUse)
         .map { nullableTryable =>
           val isNullable = Option(nullableTryable.NULLABLE_TOKEN()).isDefined
           val isTryable = Option(nullableTryable.TRYABLE_TOKEN()).isDefined

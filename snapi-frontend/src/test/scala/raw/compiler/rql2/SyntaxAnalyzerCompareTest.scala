@@ -91,4 +91,12 @@ class SyntaxAnalyzerCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""FE test 2""") { _ =>
+    val prog = s"""(int @try @null) -> list(int @try @null) @try @null (@try @null)""".stripMargin
+    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val parser = new Antlr4SyntaxAnalyzer(positions, false)
+    parser.parseType(prog)
+    assert(true)
+  }
+
 }
