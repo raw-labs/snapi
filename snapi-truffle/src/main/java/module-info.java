@@ -11,6 +11,7 @@
  */
 
 module raw.snapi.truffle {
+  // Direct dependencies
   requires java.base;
   requires java.logging;
   requires jdk.unsupported;
@@ -25,6 +26,26 @@ module raw.snapi.truffle {
   requires raw.utils;
   requires raw.client;
   requires raw.snapi.frontend;
+
+  // Indirect dependencies
+  requires kiama;
+  requires org.apache.commons.io;
+  requires org.apache.commons.lang3;
+  requires org.apache.commons.text;
+  requires org.apache.httpcomponents.core5.httpcore5;
+  requires java.net.http;
+  requires com.ibm.icu;
+  requires spring.core;
+  requires spring.jcl;
+  requires com.esotericsoftware.kryo;
+  requires com.esotericsoftware.minlog;
+  requires com.esotericsoftware.reflectasm;
+  requires typesafe.config;
+  requires typesafe.scalalogging;
+  requires org.slf4j;
+  requires ch.qos.logback.classic;
+  requires com.google.common;
+  requires jul.to.slf4j;
 
   uses raw.auth.api.AuthServiceBuilder;
   uses raw.creds.api.CredentialsServiceBuilder;
