@@ -10,8 +10,6 @@
  * licenses/APL.txt.
  */
 
-import raw.compiler.snapi.truffle.builtin.aws_extension.TruffleAwsV4SignedRequestEntry;
-
 module raw.snapi.truffle {
   // Direct dependencies
   requires java.base;
@@ -64,7 +62,7 @@ module raw.snapi.truffle {
   provides com.oracle.truffle.api.provider.TruffleLanguageProvider with
       raw.runtime.truffle.RawLanguageProvider;
   provides raw.compiler.rql2.api.EntryExtension with
-      TruffleAwsV4SignedRequestEntry,
+      raw.compiler.snapi.truffle.builtin.aws_extension.TruffleAwsV4SignedRequestEntry,
       raw.compiler.snapi.truffle.builtin.byte_extension.TruffleByteFromEntry,
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleEmptyCollectionEntry,
       raw.compiler.snapi.truffle.builtin.collection_extension.TruffleBuildCollectionEntry,
