@@ -13,6 +13,7 @@
 package raw.compiler.rql2
 
 import raw.compiler.common.source._
+import raw.compiler.rql2.source.InternalSourcePrettyPrinter
 
 class Tree(originalRoot: SourceProgram, ensureTree: Boolean = true)(
     implicit programContext: ProgramContext
@@ -23,7 +24,25 @@ class Tree(originalRoot: SourceProgram, ensureTree: Boolean = true)(
   override lazy val analyzer = new SemanticAnalyzer(sourceTree)
 
   override def cloneWithPositions(): TreeWithPositions = {
-    new TreeWithPositions(pretty, ensureTree)
+    val internal = InternalSourcePrettyPrinter.format(root)
+    new TreeWithPositions(internal, ensureTree)
+  }
+
+  override def checkSyntaxAnalyzer(): Boolean = {
+    // Ensure it re-parses properly.
+    val newTree = cloneWithPositions()
+
+    // Ensure new tree looks like the current one
+    val sameAST = newTree.root == root
+    if (!sameAST) {
+      val msg = s"""Original pretty printed: ${InternalSourcePrettyPrinter.format(root)}
+        |Parsed pretty printed:   ${InternalSourcePrettyPrinter.format(newTree.root)}""".stripMargin
+      throw new AssertionError(s"""Tree parsed differently!
+        |original=$root
+        |new     =${newTree.root}
+        |$msg""".stripMargin)
+    }
+    sameAST
   }
 
   override def checkSemanticAnalyzer(): Boolean = {

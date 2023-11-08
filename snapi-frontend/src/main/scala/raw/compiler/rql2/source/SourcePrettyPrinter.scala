@@ -151,7 +151,9 @@ trait SourcePrettyPrinter
 
   protected def rql2Exp(e: Rql2Exp): Doc = e match {
     case Let(stmts, e) =>
-      "let" <> nest(line <> ssep(stmts.map(toDoc), comma <> line)) <> line <> "in" <> nest(line <> e)
+      val doc = "let" <> nest(line <> ssep(stmts.map(toDoc), comma <> line)) <> line <> "in" <> nest(line <> e)
+      if (internal) parens(doc)
+      else doc
     case TypeExp(t) => "type" <+> t
     case c: Const => c match {
         case _: NullConst => "null"
