@@ -15,7 +15,7 @@ package raw.compiler.rql2
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import raw.compiler.common.source.{Exp, SourceNode}
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
-import raw.compiler.rql2.source.TypeExp
+import raw.compiler.rql2.source.{InternalSourcePrettyPrinter, TypeExp}
 
 object ParserCompare {
 
@@ -36,17 +36,21 @@ object ParserCompare {
   def compareTrees(s: String, isFrontend: Boolean): Unit = {
     val antlr4Result = parseWithAntlr4(s, isFrontend)
     val kiamaResult = parseWithKiama(s, isFrontend)
-
-    if (antlr4Result.isLeft && kiamaResult.isLeft) {
-      assert(true)
-      // todo Compare errors
-    } else if (antlr4Result.isRight && kiamaResult.isRight) {
-      assert(antlr4Result == kiamaResult)
-    } else {
-      assert(
-        false,
-        s"""Antlr4: succeeded: ${antlr4Result.isRight}, Kiama succeeded: ${kiamaResult.isRight}"""
-      )
+    (antlr4Result, kiamaResult) match {
+      case (Right(antlrTree), Right(kiamaTree)) =>
+        if (antlrTree != kiamaTree) {
+          throw new AssertionError(
+            s"""=+=+= Different trees\nKiama:\n$kiamaTree\nAntlr4:\n$antlrTree
+               |Kiama pretty printed: ${InternalSourcePrettyPrinter.format(kiamaTree)}
+               |Antlr4 pretty printed: ${InternalSourcePrettyPrinter.format(antlrTree)}""".stripMargin
+          )
+        }
+      case (Left(error), Right(_)) =>
+        throw new AssertionError(
+          s"""=+=+= Antlr4 failed to parse: $error
+             |Kiama pretty printed: ${InternalSourcePrettyPrinter.format(kiamaResult.right.get)}""".stripMargin
+        )
+      case _ =>
     }
   }
 

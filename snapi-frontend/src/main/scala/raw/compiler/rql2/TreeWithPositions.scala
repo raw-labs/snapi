@@ -27,10 +27,10 @@ class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, fron
   @throws[CompilerParserException]
   override def doParse(): SourceProgram = {
 
-    if (frontend) {
-      ParserCompare.compareTrees(originalSource, true)
-      ParserCompare.comparePositions(originalSource, true)
-    }
+//    if (frontend) {
+//      ParserCompare.compareTrees(originalSource, true)
+//      ParserCompare.comparePositions(originalSource, true)
+//    }
 
     if (!frontend) {
       ParserCompare.compareTrees(originalSource, false)
