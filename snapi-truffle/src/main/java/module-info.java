@@ -47,7 +47,6 @@ module raw.snapi.truffle {
   requires com.google.common;
   requires jul.to.slf4j;
 
-  uses raw.auth.api.AuthServiceBuilder;
   uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.compiler.rql2.api.EntryExtension;
   uses raw.sources.jdbc.api.JdbcTableLocationBuilder;
