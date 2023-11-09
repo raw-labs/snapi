@@ -30,7 +30,8 @@ import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import scala.collection.immutable.HashSet;
 import scala.collection.immutable.Vector;
 
-public class AwsV4SignedRequestEntry extends AwsV4SignedRequest implements TruffleEntryExtension {
+public class TruffleAwsV4SignedRequestEntry extends AwsV4SignedRequest
+    implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     ExpressionNode key = args.get(0).exprNode();
