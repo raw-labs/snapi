@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -925,14 +925,28 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterLet_decl(SnapiParser.Let_declContext ctx) {}
+  public void enterLetBind(SnapiParser.LetBindContext ctx) {}
   /**
    * {@inheritDoc}
    *
    * <p>The default implementation does nothing.
    */
   @Override
-  public void exitLet_decl(SnapiParser.Let_declContext ctx) {}
+  public void exitLetBind(SnapiParser.LetBindContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterLetFunDec(SnapiParser.LetFunDecContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitLetFunDec(SnapiParser.LetFunDecContext ctx) {}
   /**
    * {@inheritDoc}
    *

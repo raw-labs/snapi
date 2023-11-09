@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
@@ -523,12 +523,21 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitLet_left(SnapiParser.Let_leftContext ctx);
   /**
-   * Visit a parse tree produced by {@link SnapiParser#let_decl}.
+   * Visit a parse tree produced by the {@code LetBind} labeled alternative in {@link
+   * SnapiParser#let_decl}.
    *
    * @param ctx the parse tree
    * @return the visitor result
    */
-  T visitLet_decl(SnapiParser.Let_declContext ctx);
+  T visitLetBind(SnapiParser.LetBindContext ctx);
+  /**
+   * Visit a parse tree produced by the {@code LetFunDec} labeled alternative in {@link
+   * SnapiParser#let_decl}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitLetFunDec(SnapiParser.LetFunDecContext ctx);
   /**
    * Visit a parse tree produced by {@link SnapiParser#let_bind}.
    *

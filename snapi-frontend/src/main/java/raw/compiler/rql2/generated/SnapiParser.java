@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.tree.*;
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class SnapiParser extends Parser {
   static {
-    RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION);
+    RuntimeMetaData.checkVersion("4.13.0", RuntimeMetaData.VERSION);
   }
 
   protected static final DFA[] _decisionToDFA;
@@ -4437,14 +4437,6 @@ public class SnapiParser extends Parser {
 
   @SuppressWarnings("CheckReturnValue")
   public static class Let_declContext extends ParserRuleContext {
-    public Let_bindContext let_bind() {
-      return getRuleContext(Let_bindContext.class, 0);
-    }
-
-    public Fun_decContext fun_dec() {
-      return getRuleContext(Fun_decContext.class, 0);
-    }
-
     public Let_declContext(ParserRuleContext parent, int invokingState) {
       super(parent, invokingState);
     }
@@ -4454,22 +4446,69 @@ public class SnapiParser extends Parser {
       return RULE_let_decl;
     }
 
+    public Let_declContext() {}
+
+    public void copyFrom(Let_declContext ctx) {
+      super.copyFrom(ctx);
+    }
+  }
+
+  @SuppressWarnings("CheckReturnValue")
+  public static class LetBindContext extends Let_declContext {
+    public Let_bindContext let_bind() {
+      return getRuleContext(Let_bindContext.class, 0);
+    }
+
+    public LetBindContext(Let_declContext ctx) {
+      copyFrom(ctx);
+    }
+
     @Override
     public void enterRule(ParseTreeListener listener) {
       if (listener instanceof SnapiParserListener)
-        ((SnapiParserListener) listener).enterLet_decl(this);
+        ((SnapiParserListener) listener).enterLetBind(this);
     }
 
     @Override
     public void exitRule(ParseTreeListener listener) {
       if (listener instanceof SnapiParserListener)
-        ((SnapiParserListener) listener).exitLet_decl(this);
+        ((SnapiParserListener) listener).exitLetBind(this);
     }
 
     @Override
     public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
       if (visitor instanceof SnapiParserVisitor)
-        return ((SnapiParserVisitor<? extends T>) visitor).visitLet_decl(this);
+        return ((SnapiParserVisitor<? extends T>) visitor).visitLetBind(this);
+      else return visitor.visitChildren(this);
+    }
+  }
+
+  @SuppressWarnings("CheckReturnValue")
+  public static class LetFunDecContext extends Let_declContext {
+    public Fun_decContext fun_dec() {
+      return getRuleContext(Fun_decContext.class, 0);
+    }
+
+    public LetFunDecContext(Let_declContext ctx) {
+      copyFrom(ctx);
+    }
+
+    @Override
+    public void enterRule(ParseTreeListener listener) {
+      if (listener instanceof SnapiParserListener)
+        ((SnapiParserListener) listener).enterLetFunDec(this);
+    }
+
+    @Override
+    public void exitRule(ParseTreeListener listener) {
+      if (listener instanceof SnapiParserListener)
+        ((SnapiParserListener) listener).exitLetFunDec(this);
+    }
+
+    @Override
+    public <T> T accept(ParseTreeVisitor<? extends T> visitor) {
+      if (visitor instanceof SnapiParserVisitor)
+        return ((SnapiParserVisitor<? extends T>) visitor).visitLetFunDec(this);
       else return visitor.visitChildren(this);
     }
   }
@@ -4482,6 +4521,7 @@ public class SnapiParser extends Parser {
       _errHandler.sync(this);
       switch (getInterpreter().adaptivePredict(_input, 36, _ctx)) {
         case 1:
+          _localctx = new LetBindContext(_localctx);
           enterOuterAlt(_localctx, 1);
           {
             setState(377);
@@ -4489,6 +4529,7 @@ public class SnapiParser extends Parser {
           }
           break;
         case 2:
+          _localctx = new LetFunDecContext(_localctx);
           enterOuterAlt(_localctx, 2);
           {
             setState(378);

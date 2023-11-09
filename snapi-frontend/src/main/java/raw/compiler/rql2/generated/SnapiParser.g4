@@ -111,8 +111,8 @@ let_left: let_decl (COMMA let_decl)* COMMA?
         // | let_decl (let_decl)* {notifyErrorListeners("Missing COMMA");}
         ;
 
-let_decl: let_bind
-        | fun_dec
+let_decl: let_bind                                             # LetBind
+        | fun_dec                                              # LetFunDec
         ;
 
 let_bind: ident EQUALS expr

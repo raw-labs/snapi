@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
@@ -888,17 +888,33 @@ public interface SnapiParserListener extends ParseTreeListener {
    */
   void exitLet_left(SnapiParser.Let_leftContext ctx);
   /**
-   * Enter a parse tree produced by {@link SnapiParser#let_decl}.
+   * Enter a parse tree produced by the {@code LetBind} labeled alternative in {@link
+   * SnapiParser#let_decl}.
    *
    * @param ctx the parse tree
    */
-  void enterLet_decl(SnapiParser.Let_declContext ctx);
+  void enterLetBind(SnapiParser.LetBindContext ctx);
   /**
-   * Exit a parse tree produced by {@link SnapiParser#let_decl}.
+   * Exit a parse tree produced by the {@code LetBind} labeled alternative in {@link
+   * SnapiParser#let_decl}.
    *
    * @param ctx the parse tree
    */
-  void exitLet_decl(SnapiParser.Let_declContext ctx);
+  void exitLetBind(SnapiParser.LetBindContext ctx);
+  /**
+   * Enter a parse tree produced by the {@code LetFunDec} labeled alternative in {@link
+   * SnapiParser#let_decl}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterLetFunDec(SnapiParser.LetFunDecContext ctx);
+  /**
+   * Exit a parse tree produced by the {@code LetFunDec} labeled alternative in {@link
+   * SnapiParser#let_decl}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitLetFunDec(SnapiParser.LetFunDecContext ctx);
   /**
    * Enter a parse tree produced by {@link SnapiParser#let_bind}.
    *
