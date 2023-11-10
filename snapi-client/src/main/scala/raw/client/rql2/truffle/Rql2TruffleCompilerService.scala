@@ -28,6 +28,7 @@ import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
 import raw.compiler.rql2.source._
 import raw.compiler.rql2._
+import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseTypeResult}
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
@@ -103,10 +104,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   // TODO (msb): Change signature to include position of the parsing error.
   override def parseType(tipe: String, user: AuthenticatedUser, internal: Boolean = false): ParseTypeResponse = {
     val positions = new Positions()
-    val parser = if (!internal) new FrontendSyntaxAnalyzer(positions) else new SyntaxAnalyzer(positions)
+    val parser = new Antlr4SyntaxAnalyzer(positions, !internal)
     parser.parseType(tipe) match {
-      case Right(t) => ParseTypeSuccess(t)
-      case Left((err, pos)) => ParseTypeFailure(err)
+      case ParseTypeResult(errors, tipe) if errors.isEmpty => ParseTypeSuccess(tipe)
+      case ParseTypeResult(errors, _) => ParseTypeFailure(errors)
     }
   }
 
@@ -154,35 +155,28 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
       environment,
       _ => {
         val programContext = getProgramContext(environment.user, environment)
-        try {
-          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-          if (tree.valid) {
-            val TreeDescription(decls, maybeType, comment) = tree.description
-            val formattedDecls = decls.map {
-              case (idn, programDecls) =>
-                val formattedDecls = programDecls.map {
-                  case TreeDeclDescription(None, outType, comment) =>
-                    DeclDescription(None, SourcePrettyPrinter.format(outType), comment)
-                  case TreeDeclDescription(Some(params), outType, comment) =>
-                    val formattedParams = params.map {
-                      case TreeParamDescription(idn, tipe, required) =>
-                        ParamDescription(idn, SourcePrettyPrinter.format(tipe), required)
-                    }
-                    DeclDescription(Some(formattedParams), SourcePrettyPrinter.format(outType), comment)
-                }
-                (idn, formattedDecls)
-            }
-            val programDescription =
-              ProgramDescription(formattedDecls, maybeType.map(t => SourcePrettyPrinter.format(t)), comment)
-            GetProgramDescriptionSuccess(programDescription)
-          } else {
-            GetProgramDescriptionFailure(tree.errors)
+        val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+        if (tree.valid) {
+          val TreeDescription(decls, maybeType, comment) = tree.description
+          val formattedDecls = decls.map {
+            case (idn, programDecls) =>
+              val formattedDecls = programDecls.map {
+                case TreeDeclDescription(None, outType, comment) =>
+                  DeclDescription(None, SourcePrettyPrinter.format(outType), comment)
+                case TreeDeclDescription(Some(params), outType, comment) =>
+                  val formattedParams = params.map {
+                    case TreeParamDescription(idn, tipe, required) =>
+                      ParamDescription(idn, SourcePrettyPrinter.format(tipe), required)
+                  }
+                  DeclDescription(Some(formattedParams), SourcePrettyPrinter.format(outType), comment)
+              }
+              (idn, formattedDecls)
           }
-        } catch {
-          case ex: CompilerParserException => GetProgramDescriptionFailure(
-              List(ErrorMessage(ex.getMessage, List(raw.client.api.ErrorRange(ex.position, ex.position))))
-            )
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+          val programDescription =
+            ProgramDescription(formattedDecls, maybeType.map(t => SourcePrettyPrinter.format(t)), comment)
+          GetProgramDescriptionSuccess(programDescription)
+        } else {
+          GetProgramDescriptionFailure(tree.errors)
         }
       }
     )

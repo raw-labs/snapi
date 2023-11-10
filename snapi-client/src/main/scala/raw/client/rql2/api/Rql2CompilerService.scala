@@ -38,7 +38,7 @@ final case class ParseFailure(error: String, pos: ErrorPosition) extends ParseRe
 
 sealed trait ParseTypeResponse
 final case class ParseTypeSuccess(tipe: Type) extends ParseTypeResponse
-final case class ParseTypeFailure(error: String) extends ParseTypeResponse
+final case class ParseTypeFailure(errorMessages: List[ErrorMessage]) extends ParseTypeResponse
 
 sealed trait GetTypeResponse
 final case class GetTypeFailure(errors: List[ErrorMessage]) extends GetTypeResponse

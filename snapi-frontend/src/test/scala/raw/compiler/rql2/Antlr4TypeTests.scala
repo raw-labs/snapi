@@ -45,7 +45,7 @@ class Antlr4TypeTests extends RawTestSuite {
   def parseType(s: String): Type = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new Antlr4SyntaxAnalyzer(positions, true)
-    parser.parseType(s).right.get
+    parser.parseType(s).tipe
   }
 
   // Single types

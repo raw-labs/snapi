@@ -16,13 +16,23 @@ import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.antlr.v4.runtime.tree.ParseTree
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
+import raw.client.api.ErrorMessage
 import raw.compiler.base.source.{BaseProgram, Type}
+import raw.compiler.common.source.SourceProgram
 import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
 import raw.compiler.rql2.source.Rql2Program
 
+abstract class ParseResult(errors: List[ErrorMessage]) {
+  def hasErrors: Boolean = errors.nonEmpty
+
+  def isSuccess: Boolean = errors.isEmpty
+}
+final case class ParseProgramResult[P](errors: List[ErrorMessage], tree: P) extends ParseResult(errors)
+final case class ParseTypeResult(errors: List[ErrorMessage], tipe: Type) extends ParseResult(errors)
+
 class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extends Parsers(positions) {
 
-  def parse(s: String): Either[(String, Position), BaseProgram] = {
+  def parse(s: String): ParseProgramResult[SourceProgram] = {
     val source = StringSource(s)
     val rawErrorListener = new RawErrorListener(source)
 
@@ -40,11 +50,10 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     val visitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend)
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
-    if (rawErrorListener.hasErrors) Left(rawErrorListener.getErrors.head)
-    else Right(result)
+    ParseProgramResult(rawErrorListener.getErrors, result)
   }
 
-  def parseType(s: String): Either[(String, Position), Type] = {
+  def parseType(s: String): ParseTypeResult = {
     val source = StringSource(s)
     val rawErrorListener = new RawErrorListener(source)
 
@@ -61,8 +70,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend)
     val result: Type = visitor.visit(tree).asInstanceOf[Type]
 
-    if (rawErrorListener.hasErrors) Left(rawErrorListener.getErrors.head)
-    else Right(result)
+    ParseTypeResult(rawErrorListener.getErrors, result)
   }
 
 }

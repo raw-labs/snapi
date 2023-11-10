@@ -37,15 +37,15 @@ object ParserCompare {
     val antlr4Result = parseWithAntlr4(s, isFrontend)
     val kiamaResult = parseWithKiama(s, isFrontend)
 
-    if (antlr4Result.isLeft && kiamaResult.isLeft) {
+    if (antlr4Result.hasErrors && kiamaResult.isLeft) {
       assert(true)
       // todo Compare errors
-    } else if (antlr4Result.isRight && kiamaResult.isRight) {
-      assert(antlr4Result == kiamaResult)
+    } else if (antlr4Result.isSuccess && kiamaResult.isRight) {
+      assert(antlr4Result.tree == kiamaResult.right.get)
     } else {
       assert(
         false,
-        s"""Antlr4: succeeded: ${antlr4Result.isRight}, Kiama succeeded: ${kiamaResult.isRight}"""
+        s"""Antlr4: succeeded: ${antlr4Result.isSuccess}, Kiama succeeded: ${kiamaResult.isRight}"""
       )
     }
   }

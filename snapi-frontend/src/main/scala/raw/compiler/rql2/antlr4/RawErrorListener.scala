@@ -12,12 +12,13 @@
 
 package raw.compiler.rql2.antlr4
 
-import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer}
+import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
 import org.bitbucket.inkytonik.kiama.util.{Position, Source}
+import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 
 class RawErrorListener(private val source: Source) extends BaseErrorListener {
 
-  private var errors = List[(String, Position)]()
+  private var errors = List[ErrorMessage]()
 
   override def syntaxError(
       recognizer: Recognizer[_, _],
@@ -27,9 +28,15 @@ class RawErrorListener(private val source: Source) extends BaseErrorListener {
       msg: String,
       e: RecognitionException
   ): Unit = {
-    errors = errors :+ (msg, Position(line, charPositionInLine + 1, source))
+    val positions = Option(offendingSymbol).map(_.asInstanceOf[Token]).map { token =>
+      ErrorRange(ErrorPosition(token.getLine, token.getCharPositionInLine + 1),
+        ErrorPosition(token.getLine, token.getCharPositionInLine + token.getText.length + 1))
+    }.getOrElse{
+      ErrorRange(ErrorPosition(line, charPositionInLine + 1),ErrorPosition(line, charPositionInLine + 1))
+    }
+    errors = errors :+ ErrorMessage(msg, List(positions))
   }
 
-  def getErrors: List[(String, Position)] = errors
+  def getErrors: List[ErrorMessage] = errors
   def hasErrors: Boolean = errors.nonEmpty
 }
