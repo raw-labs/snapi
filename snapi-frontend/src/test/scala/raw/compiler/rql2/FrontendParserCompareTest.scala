@@ -747,4 +747,14 @@ class FrontendParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("""New failing test""") { _ =>
+    val prog = """let itemType = type int,
+      |    listType = type list(itemType),
+      |    f(l: listType): itemType = List.First(l),
+      |    myList: listType = [1,2,3,4,5]
+      |in f(myList)""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }

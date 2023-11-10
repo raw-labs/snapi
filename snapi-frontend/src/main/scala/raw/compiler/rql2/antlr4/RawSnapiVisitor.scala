@@ -103,7 +103,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
           funBody
         }
         .getOrElse(FunBody(ErrorExp()))
-      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]), funBody)
+      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
       positionsWrapper.setPosition(context, result)
       result
     }
@@ -224,7 +224,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
             }
             .getOrElse(IdnDef(""))
           val tipe = Option(attrContext.tipe)
-            .map(visit(_).asInstanceOf[Rql2TypeWithProperties])
+            .map(visit(_).asInstanceOf[Type])
           FunParam(
             idnDef,
             tipe,
@@ -541,7 +541,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitList_type(ctx: SnapiParser.List_typeContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType())
+      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
       val result = Rql2ListType(tipe, defaultProps)
       positionsWrapper.setPosition(context, result)
       result
