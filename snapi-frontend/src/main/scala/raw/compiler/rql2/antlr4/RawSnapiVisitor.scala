@@ -131,7 +131,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
           funBody
         }
         .getOrElse(FunBody(ErrorExp()))
-      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]), funBody)
+      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
       positionsWrapper.setPosition(context, result)
       result
     }
@@ -149,7 +149,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
             funBody
           }
           .getOrElse(FunBody(ErrorExp()))
-        val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]), funBody)
+        val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
         positionsWrapper.setPosition(context, result)
         result
       }
@@ -249,7 +249,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
             }
             .getOrElse(IdnDef(""))
           val tipe = Option(attrContext.tipe)
-            .map(visit(_).asInstanceOf[Rql2TypeWithProperties])
+            .map(visit(_).asInstanceOf[Type])
           (idnDef, tipe)
         }
         .getOrElse((IdnDef(""), Option.empty))
@@ -270,7 +270,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     .map { context =>
       val ident = Option(context.ident()).map(identContext => identContext.getValue).getOrElse("")
       val tipe = Option(context.tipe())
-        .map(tipeContext => visit(tipeContext).asInstanceOf[Rql2TypeWithProperties])
+        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
         .getOrElse(ErrorType())
       val result = Rql2AttrType(ident, tipe)
       positionsWrapper.setPosition(context, result)
@@ -341,7 +341,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
         .map { tipeContext =>
           tipeContext.asScala
             .dropRight(1)
-            .map(tctx => Option(tctx).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType()))
+            .map(tctx => Option(tctx).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType()))
             .toVector
         }
         .getOrElse(Vector.empty)
@@ -352,7 +352,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
             Option(attrCtx)
               .map { a =>
                 val ident = Option(a.ident()).map(_.getValue).getOrElse("")
-                val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType())
+                val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
                 val funOptTypeParam = FunOptTypeParam(ident, tipe)
                 positionsWrapper.setPosition(a, funOptTypeParam)
                 funOptTypeParam
@@ -365,7 +365,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
       val rType = Option(context.tipe())
         .map { tipeContext =>
           if (tipeContext.size() > 0)
-            Option(tipeContext.getLast).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType())
+            Option(tipeContext.getLast).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
           else ErrorType()
         }
         .getOrElse(ErrorType())
@@ -384,7 +384,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   override def visitOrTypeType(ctx: SnapiParser.OrTypeTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val tipes = Option(context.tipe())
-        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Rql2TypeWithProperties]))
+        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Type]))
         .getOrElse(Vector.empty)
       val orType =
         Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector(ErrorType())))
@@ -398,7 +398,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   // this one is helper, it doesn't need to set position (basically an accumulator for or_type)
   override def visitOr_type(ctx: SnapiParser.Or_typeContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType())
+      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
       val orType = Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector.empty))
       Rql2OrType(Vector(tipe) ++ orType.tipes, defaultProps)
     }
@@ -407,13 +407,13 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   override def visitOrTypeFunType(ctx: SnapiParser.OrTypeFunTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val types = Option(context.tipe(0))
-        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Rql2TypeWithProperties]))
+        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Type]))
         .getOrElse(Vector.empty)
 
       val orType = Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector.empty))
       val combinedTypes = types ++ orType.tipes
       val domainOrType = Rql2OrType(combinedTypes, defaultProps)
-      val rType = Option(context.tipe(1)).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType())
+      val rType = Option(context.tipe(1)).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
       val funType = FunType(
         Vector(domainOrType),
         Vector.empty,
@@ -485,11 +485,11 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   override def visitFunTypeType(ctx: SnapiParser.FunTypeTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val ms = Option(context.tipe(0))
-        .map(tipeContext => visit(tipeContext).asInstanceOf[Rql2TypeWithProperties])
+        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
         .getOrElse(ErrorType())
 
       val r = Option(context.tipe(1))
-        .map(tipeContext => visit(tipeContext).asInstanceOf[Rql2TypeWithProperties])
+        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
         .getOrElse(ErrorType())
 
       val funType = FunType(
@@ -634,8 +634,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode = Option(ctx)
     .map { context =>
-      val expType =
-        Option(context.expr_type()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType())
+      val expType = Option(context.expr_type()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
       val result = ExpType(expType)
       positionsWrapper.setPosition(context, result)
       result
