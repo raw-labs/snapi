@@ -1,0 +1,245 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+package raw.creds.client
+
+import raw.utils.AuthenticatedUser
+import raw.utils.RawSettings
+import raw.creds.api._
+import raw.rest.client.APIException
+
+import java.net.URI
+
+class ClientCredentialsService(implicit settings: RawSettings) extends CredentialsService {
+
+  private val serverAddress = new URI(settings.getString("raw.creds.client.server-address"))
+
+  private val client = new ClientCredentials(serverAddress)
+
+  /** S3 buckets */
+
+  override protected def doRegisterS3Bucket(user: AuthenticatedUser, bucket: S3Bucket): Boolean = {
+    try {
+      client.registerS3Bucket(user, bucket)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getS3Bucket(user: AuthenticatedUser, name: String): Option[S3Bucket] = {
+    try {
+      client.getS3Bucket(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def listS3Buckets(user: AuthenticatedUser): List[String] = {
+    try {
+      client.listS3Buckets(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterS3Bucket(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      client.unregisterS3Bucket(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  /** Dropbox tokens */
+
+  override def registerDropboxToken(user: AuthenticatedUser, dropboxToken: DropboxToken): Boolean = {
+    try {
+      client.registerDropboxToken(user, dropboxToken)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getDropboxToken(user: AuthenticatedUser): Option[DropboxToken] = {
+    try {
+      client.getDropboxToken(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterDropboxToken(user: AuthenticatedUser): Boolean = {
+    try {
+      client.unregisterDropboxToken(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  /** Named Dropbox Tokens * */
+
+  /** Http Credentials */
+
+  override protected def doRegisterNewHttpCredential(
+      user: AuthenticatedUser,
+      name: String,
+      token: NewHttpCredential
+  ): Boolean = {
+    try {
+      client.registerHttpCredential(user, name, token)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getNewHttpCredential(user: AuthenticatedUser, name: String): Option[NewHttpCredential] = {
+    try {
+      client.getHttpCredential(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterNewHttpCredential(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      client.unregisterHttpCredential(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def listNewHttpCredentials(user: AuthenticatedUser): List[HttpCredentialId] = {
+    try {
+      client.listHttpCredentials(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getNewHttpAuth(user: AuthenticatedUser, name: String): Option[NewHttpAuth] = {
+    try {
+      client.getHttpAuth(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  /** RDBMS servers */
+
+  override protected def doRegisterRDBMSServer(
+      user: AuthenticatedUser,
+      name: String,
+      db: RelationalDatabaseCredential
+  ): Boolean = {
+    try {
+      client.registerRDBMSServer(user, name, db)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getRDBMSServer(user: AuthenticatedUser, name: String): Option[RelationalDatabaseCredential] = {
+    try {
+      client.getRDBMSServer(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def listRDBMSServers(user: AuthenticatedUser): List[String] = {
+    try {
+      client.listRDBMSServers(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterRDBMSServer(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      client.unregisterRDBMSServer(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  /** HTTP credentials */
+
+  override protected def doRegisterHTTPCred(user: AuthenticatedUser, cred: HttpCredential): Boolean = {
+    try {
+      client.registerHTTPCred(user, cred)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getHTTPCred(user: AuthenticatedUser, url: String): Option[HttpCredential] = {
+    try {
+      client.getHTTPCred(user, url)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def listHTTPCreds(user: AuthenticatedUser): List[String] = {
+    try {
+      client.listHTTPCreds(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterHTTPCred(user: AuthenticatedUser, url: String): Boolean = {
+    try {
+      client.unregisterHTTPCred(user, url)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  /** Secret credentials */
+
+  override def doRegisterSecret(user: AuthenticatedUser, secret: Secret): Boolean = {
+    try {
+      client.registerSecret(user, secret)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getSecret(user: AuthenticatedUser, name: String): Option[Secret] = {
+    try {
+      client.getSecret(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def listSecrets(user: AuthenticatedUser): List[String] = {
+    try {
+      client.listSecrets(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterSecret(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      client.unregisterSecret(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def doStop(): Unit = {
+    client.close()
+  }
+}

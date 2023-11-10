@@ -35,7 +35,7 @@ object Dependencies {
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-cbor" % "2.15.2",
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-csv" % "2.15.2",
     "com.fasterxml.jackson.dataformat" % "jackson-dataformat-yaml" % "2.15.2",
-    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2",
+    "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.16.0-rc1+3-e3deeb4c+20231110-2050-SNAPSHOT", // "2.15.2",
     "com.fasterxml.jackson.jakarta.rs" % "jackson-jakarta-rs-json-provider" % "2.15.2"
   )
 

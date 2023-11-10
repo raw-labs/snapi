@@ -29,10 +29,12 @@ module raw.snapi.truffle {
 
   // Indirect dependencies
   requires kiama;
+  requires com.fasterxml.jackson.scala;
   requires org.apache.commons.io;
   requires org.apache.commons.lang3;
   requires org.apache.commons.text;
   requires org.apache.httpcomponents.core5.httpcore5;
+  requires org.apache.httpcomponents.client5.httpclient5;
   requires java.net.http;
   requires com.ibm.icu;
   requires spring.core;

@@ -48,11 +48,11 @@ object CredentialsServiceProvider {
     } else if (services.size > 1) {
       val implClassName = settings.getString(CREDS_IMPL)
       services.find(p => p.name == implClassName) match {
-        case Some(builder) => builder.build(maybeClassLoader)
+        case Some(builder) => builder.build
         case None => throw new CredentialsException(s"cannot find credentials service: $implClassName")
       }
     } else {
-      services.head.build(maybeClassLoader)
+      services.head.build
     }
   }
 
