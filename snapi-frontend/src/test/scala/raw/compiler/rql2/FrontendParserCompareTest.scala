@@ -747,12 +747,36 @@ class FrontendParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
-  test("""New failing test""") { _ =>
+  test("""Type alias test""") { _ =>
     val prog = """let itemType = type int,
       |    listType = type list(itemType),
       |    f(l: listType): itemType = List.First(l),
       |    myList: listType = [1,2,3,4,5]
       |in f(myList)""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""New failing test 2""") { _ =>
+    val prog = """let
+      |  query = \"\"\"SELECT (?item as ?cat) ?itemLabel
+      |WHERE
+      |{
+      |  ?item wdt:P31 wd:Q146. # Must be of a cat
+      |  SERVICE wikibase:label { bd:serviceParam wikibase:language "[AUTO_LANGUAGE],en". }
+      |}\"\"\",
+      |
+      |  data = Csv.Read(
+      |    Http.Get(
+      |        "https://query.wikidata.org/bigdata/namespace/wdq/sparql",
+      |        args = [{"query", query}],
+      |        headers = [{"Accept", "text/csv"}]
+      |    ),
+      |    type collection(record(cat: string, itemLabel: String)),
+      |    skip = 1
+      |  )
+      |in
+      |  data""".stripMargin
     compareTrees(prog)
     comparePositions(prog)
   }

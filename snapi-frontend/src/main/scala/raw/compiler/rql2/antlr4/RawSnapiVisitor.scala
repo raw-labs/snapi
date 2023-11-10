@@ -532,7 +532,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitIterable_type(ctx: SnapiParser.Iterable_typeContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]).getOrElse(ErrorType())
+      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
       val result = Rql2IterableType(tipe, defaultProps)
       positionsWrapper.setPosition(context, result)
       result
