@@ -47,13 +47,13 @@ trait SourcePrettyPrinter
   }
 
   protected def rql2TypeWithProperties(t: Rql2TypeWithProperties): Doc = {
-    t match {
+    val d: Doc = t match {
       case Rql2OrType(ts, props) =>
         val d = folddoc(ts.map(toDoc), _ <+> "or" <+> _)
-        if (internal && props.nonEmpty) {
+        if (internal) {
           // Wrap in parenthesis to disambiguate the type property annotations.
           // Refer to the parser for details.
-          parens(showProperties(t, d, parenthesis = false))
+          parens(d)
         } else {
           d
         }
@@ -63,12 +63,11 @@ trait SourcePrettyPrinter
         if (internal && props.nonEmpty) {
           // Wrap in parenthesis to disambiguate the type property annotations.
           // Refer to the parser for details.
-          parens(showProperties(t, d, parenthesis = true))
+          parens(d)
         } else {
           d
         }
-      case other =>
-        val d: Doc = other match {
+      case other => other match {
           case _: Rql2BoolType => "bool"
           case _: Rql2StringType => "string"
           case _: Rql2LocationType => "location"
@@ -95,25 +94,22 @@ trait SourcePrettyPrinter
             }
           case _: Rql2UndefinedType => "undefined"
         }
-        if (internal) {
-          showProperties(t, d)
-        } else {
-          d
-        }
     }
-  }
+    if (internal) {
+      val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
+      val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
+      if (!isTryable && !isNullable) d
+      else {
+        val props: Doc =
+          if (isTryable && isNullable) "@try" <+> "@null"
+          else if (isTryable) "@try"
+          else "@null"
+        d <+> props
+      }
+    } else {
+      d
+    }
 
-  private def showProperties(t: Rql2TypeWithProperties, d: Doc, parenthesis: Boolean = false): Doc = {
-    val isNullable = t.props.contains(Rql2IsNullableTypeProperty())
-    val isTryable = t.props.contains(Rql2IsTryableTypeProperty())
-    if (!isTryable && !isNullable) d
-    else {
-      val props: Doc =
-        if (isTryable && isNullable) "@try" <+> "@null"
-        else if (isTryable) "@try"
-        else "@null"
-      if (parenthesis) d <+> parens(props) else d <+> props
-    }
   }
 
   private def rql2TypeConstraints(t: Rql2TypeConstraint): Doc = t match {
@@ -177,7 +173,11 @@ trait SourcePrettyPrinter
         // The following must be handled before FunApp.
         case ListPackageBuilder.Build(es) => brackets(enclosedList(es.map(toDoc).to))
         case RecordPackageBuilder.Build(as) => braces(enclosedList(as.map(a => ident(a._1) <> ":" <+> toDoc(a._2))))
-        case FunApp(f, as) => method(f, as.map(funAppArg): _*)
+        case FunApp(f, as) =>
+          val fDoc: Doc =
+            if (internal && f.isInstanceOf[Let] || f.isInstanceOf[IfThenElse] || f.isInstanceOf[FunAbs]) parens(f)
+            else f
+          method(fDoc, as.map(funAppArg): _*)
       }
     case FunAbs(FunProto(ps, mr, FunBody(e))) => mr match {
         case Some(r) => group(parens(enclosedList(ps.map(funParam))) <> ":" <+> r <+> "->" <> nest(line <> e))
