@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.0
+// Generated from SnapiParser.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import java.util.List;
@@ -23,7 +23,7 @@ import org.antlr.v4.runtime.tree.*;
 @SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
 public class SnapiParser extends Parser {
   static {
-    RuntimeMetaData.checkVersion("4.13.0", RuntimeMetaData.VERSION);
+    RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION);
   }
 
   protected static final DFA[] _decisionToDFA;
