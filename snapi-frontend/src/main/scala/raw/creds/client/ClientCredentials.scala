@@ -72,7 +72,11 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
 
   def registerDropboxToken(user: AuthenticatedUser, dropboxToken: DropboxToken): Boolean = {
     try {
-      restClient.doJsonPostWithEmptyResponse("2/dropbox/register", dropboxToken, withAuth = false)
+      restClient.doJsonPostWithEmptyResponse(
+        "2/dropbox/register",
+        RegisterDropboxCredential(user, dropboxToken),
+        withAuth = false
+      )
       true
     } catch {
       case ex: ClientAPIException if ex.errorCode == "dropboxTokenAlreadyExists" => false
