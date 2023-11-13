@@ -217,6 +217,18 @@ class Antlr4TypeTests extends RawTestSuite {
     )
   }
 
+  test("""Function type with zero param test""") { _ =>
+    assert(
+      parseType("() -> float") ==
+        FunType(
+          Vector.empty,
+          Vector.empty,
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
   test("""Function type with params (optional and mandatory) test""") { _ =>
     assert(
       parseType("(int, b: string) -> float") ==
