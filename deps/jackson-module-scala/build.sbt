@@ -147,6 +147,18 @@ ThisBuild / githubWorkflowPublish := Seq(
   )
 )
 
+val sbtDevLocal = "Artifactory Realm" at "https://artifactory.raw-labs.com/artifactory/sbt-dev-local/"
+
+// publish to RAW Labs artifactory
+publishTo := Some(sbtDevLocal)
+credentials += {
+  (sys.env.get("ARTIFACTORY_USER"), sys.env.get("ARTIFACTORY_PASSWORD")) match {
+    case (Some(user), Some(password)) =>
+      Credentials("Artifactory Realm", "artifactory.raw-labs.com", user, password)
+    case _ => Credentials(sbt.io.Path.userHome / ".sbt" / ".credentials")
+  }
+}
+
 // site
 enablePlugins(SiteScaladocPlugin)
 enablePlugins(GhpagesPlugin)
