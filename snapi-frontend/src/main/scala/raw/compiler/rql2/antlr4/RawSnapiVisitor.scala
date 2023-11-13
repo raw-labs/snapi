@@ -338,33 +338,36 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   override def visitFunTypeWithParamsType(ctx: SnapiParser.FunTypeWithParamsTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val ms = Option(context.param_list())
-        .map { tipeContext =>
-          tipeContext
-            .tipe()
-            .asScala
-            .dropRight(1)
-            .map(tctx => Option(tctx).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType()))
-            .toVector
+        .flatMap { tipeContext =>
+          Option(tipeContext).map(context =>
+            context
+              .tipe()
+              .asScala
+              .map(tctx => Option(tctx).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType()))
+              .toVector
+          )
         }
         .getOrElse(Vector.empty)
 
       val os = Option(context.param_list())
-        .map { attrContext =>
-          attrContext
-            .attr()
-            .asScala
-            .map { attrCtx =>
-              Option(attrCtx)
-                .map { a =>
-                  val ident = Option(a.ident()).map(_.getValue).getOrElse("")
-                  val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
-                  val funOptTypeParam = FunOptTypeParam(ident, tipe)
-                  positionsWrapper.setPosition(a, funOptTypeParam)
-                  funOptTypeParam
-                }
-                .getOrElse(FunOptTypeParam("", ErrorType()))
-            }
-            .toVector
+        .flatMap { attrContext =>
+          Option(attrContext).map(context =>
+            context
+              .attr()
+              .asScala
+              .map { attrCtx =>
+                Option(attrCtx)
+                  .map { a =>
+                    val ident = Option(a.ident()).map(_.getValue).getOrElse("")
+                    val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+                    val funOptTypeParam = FunOptTypeParam(ident, tipe)
+                    positionsWrapper.setPosition(a, funOptTypeParam)
+                    funOptTypeParam
+                  }
+                  .getOrElse(FunOptTypeParam("", ErrorType()))
+              }
+              .toVector
+          )
         }
         .getOrElse(Vector.empty)
 
@@ -518,12 +521,12 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     Option(ctx)
       .map { context =>
         val atts = Option(context.record_attr_list())
-          .map { attrContext =>
-            attrContext
-              .type_attr()
-              .asScala
-              .map(a => Option(a).map(visit(_).asInstanceOf[Rql2AttrType]).getOrElse(Rql2AttrType("", ErrorType())))
-              .toVector
+          .flatMap { attrContext =>
+            Option(attrContext).map(
+              _.type_attr().asScala
+                .map(a => Option(a).map(visit(_).asInstanceOf[Rql2AttrType]).getOrElse(Rql2AttrType("", ErrorType())))
+                .toVector
+            )
           }
           .getOrElse(Vector.empty)
 
