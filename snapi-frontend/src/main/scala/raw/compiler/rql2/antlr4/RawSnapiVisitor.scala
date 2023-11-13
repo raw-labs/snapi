@@ -434,7 +434,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     .getOrElse(ErrorType())
 
   override def visitTypeWithParenType(ctx: SnapiParser.TypeWithParenTypeContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]))
+    .flatMap(context => Option(context.tipe()).map(visit(_)))
     .getOrElse(ErrorType())
 
   override def visitListTypeType(ctx: SnapiParser.ListTypeTypeContext): SourceNode = Option(ctx)
@@ -442,7 +442,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     .getOrElse(ErrorType())
 
   override def visitPrimitiveTypeType(ctx: SnapiParser.PrimitiveTypeTypeContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.primitive_types).map(visit(_).asInstanceOf[Rql2TypeWithProperties]))
+    .flatMap(context => Option(context.primitive_types).map(visit(_)))
     .getOrElse(ErrorType())
 
   override def visitPrimitive_types(ctx: SnapiParser.Primitive_typesContext): SourceNode = Option(ctx)
