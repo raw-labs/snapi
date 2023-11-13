@@ -134,7 +134,6 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawUtils % "compile->compile;test->test",
   rawClient % "compile->compile;test->test",
   commonsLang,
   commonsText,

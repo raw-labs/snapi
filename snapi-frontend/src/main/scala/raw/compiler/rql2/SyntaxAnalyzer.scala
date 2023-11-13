@@ -12,20 +12,6 @@
 
 package raw.compiler.rql2
 
-<<<<<<< HEAD
-import org.bitbucket.inkytonik.kiama.util.Positions
-import raw.compiler.base.source.Type
-import raw.compiler.common.source._
-import raw.compiler.rql2.source._
-
-/**
- * Internal SyntaxAnalyzer.
- *
- * Unlike FrontendSyntaxAnalyzer, it can be slow and must contain internal nodes & types.
- * This parser is optional and only used if "training wheels" is on, and we pretty print/reparse trees.
- */
-class SyntaxAnalyzer(positions: Positions) extends FrontendSyntaxAnalyzer(positions) {
-=======
 import org.bitbucket.inkytonik.kiama.parsing._
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.compiler.base.SyntaxAnalyzer.identRegex
@@ -118,15 +104,11 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   override lazy val program: Parser[BaseProgram] = rep(rql2Method) ~ opt(exp) ^^ { case ms ~ me => Rql2Program(ms, me) }
 
   final protected lazy val rql2Method: Parser[Rql2Method] = idnDef ~ funProto ^^ { case i ~ p => Rql2Method(p, i) }
->>>>>>> origin/main
 
   ///////////////////////////////////////////////////////////////////////////
   // Types
   ///////////////////////////////////////////////////////////////////////////
 
-<<<<<<< HEAD
-  override protected lazy val typeProps: Parser[Set[Rql2TypeProperty]] = {
-=======
   final override protected lazy val tipe: Parser[Type] = tipe1
 
   final lazy val tipe1: PackratParser[Type] = {
@@ -249,7 +231,6 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   }
 
   final protected lazy val typeProps: Parser[Set[Rql2TypeProperty]] = {
->>>>>>> origin/main
     ("@try" ~ "@null" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |
       ("@null" ~ "@try" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |
       ("@try" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty())) |
@@ -261,11 +242,6 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   // Expressions
   ///////////////////////////////////////////////////////////////////////////
 
-<<<<<<< HEAD
-  final override protected lazy val baseExp: PackratParser[Exp] = {
-    packageIdnExp | super.baseExp
-  }
-=======
   final protected lazy val exp: PackratParser[Exp] = exp1
 
   final private lazy val exp1: PackratParser[Exp] = exp1 ~ orOp ~ exp2 ^^ {
@@ -324,19 +300,10 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   } | exp8Attr ~ ("." ~> identDef) ^^ { case e ~ idn => Proj(e, idn) } | baseExp
 
   final protected lazy val funAppArg: Parser[FunAppArg] = opt(ident <~ "=") ~ exp ^^ { case i ~ e => FunAppArg(e, i) }
->>>>>>> origin/main
 
   final private lazy val packageIdnExp: Parser[PackageIdnExp] =
     "\\$package\\b".r ~> "(" ~> stringLit <~ ")" ^^ PackageIdnExp
 
-<<<<<<< HEAD
-  final override lazy val tipe1: PackratParser[Type] = tipe1 ~ ("->" ~> rql2Type0) ~ ("(" ~> typeProps <~ ")") ^^ {
-    case t ~ r ~ props => FunType(Vector(t), Vector.empty, r, props)
-  } | tipe1 ~ ("->" ~> rql2Type0) ^^ { case t ~ r => FunType(Vector(t), Vector.empty, r, Set.empty) } |
-    rql2Type0
-
-}
-=======
   final private lazy val baseExp: PackratParser[Exp] = {
     packageIdnExp |
       let |
@@ -491,4 +458,3 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
 sealed trait ParsedAttributed
 final case class ParsedNamedAttribute(idn: String, e: Exp) extends ParsedAttributed
 final case class ParsedUnnamedAttribute(e: Exp) extends ParsedAttributed
->>>>>>> origin/main

@@ -12,12 +12,6 @@
 
 package raw.compiler.rql2
 
-<<<<<<< HEAD
-import raw.compiler.rql2.source.{
-  FunOptTypeParam,
-  FunType,
-=======
-import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.common.source.{IdnDef, IdnExp, IdnUse}
 import raw.compiler.rql2.source.{
   BinaryExp,
@@ -34,7 +28,6 @@ import raw.compiler.rql2.source.{
   Let,
   LetBind,
   LetFun,
->>>>>>> origin/main
   Rql2BoolType,
   Rql2FloatType,
   Rql2IntType,
@@ -42,10 +35,7 @@ import raw.compiler.rql2.source.{
   Rql2IsTryableTypeProperty,
   Rql2ListType,
   Rql2OrType,
-<<<<<<< HEAD
-=======
   Rql2Program,
->>>>>>> origin/main
   Rql2StringType,
   Rql2TypeProperty
 }
@@ -53,25 +43,18 @@ import raw.utils.RawTestSuite
 
 class FrontendSyntaxAnalyzerTest extends RawTestSuite {
 
-<<<<<<< HEAD
-  def parseType(s: String) = {
-=======
   def parseType(s: String): Type = {
->>>>>>> origin/main
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new FrontendSyntaxAnalyzer(positions)
     parser.parseType(s).right.get
   }
 
-<<<<<<< HEAD
-=======
   def parse(s: String): BaseProgram = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
     val parser = new FrontendSyntaxAnalyzer(positions)
     parser.parse(s).right.get
   }
 
->>>>>>> origin/main
   test("""type priority tests""") { _ =>
     val props = Set[Rql2TypeProperty](Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty())
     assert(parseType("int or string") == Rql2OrType(Vector(Rql2IntType(props), Rql2StringType(props)), props))
@@ -201,8 +184,6 @@ class FrontendSyntaxAnalyzerTest extends RawTestSuite {
         )
     )
   }
-<<<<<<< HEAD
-=======
 
   test("funabs test")(_ =>
     assert(
@@ -336,5 +317,4 @@ class FrontendSyntaxAnalyzerTest extends RawTestSuite {
     )
   )
 
->>>>>>> origin/main
 }

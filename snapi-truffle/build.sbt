@@ -49,11 +49,13 @@ headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 
 headerSources / excludeFilter := HiddenFileFilter
 
-scalaVersion := Dependencies.scalacVersion
+scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
-  "-source", "21",
-  "-target", "21"
+  "-source",
+  "21",
+  "-target",
+  "21"
 )
 
 scalacOptions ++= Seq(
@@ -75,7 +77,7 @@ scalacOptions ++= Seq(
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
 // Needed for JPMS to work.
-compileOrder := CompileOrder.ScalaThenJava
+compileOrder := CompileOrder.JavaThenScala
 
 // Doc generation breaks with Java files
 Compile / doc / sources := {
@@ -131,39 +133,8 @@ publishLocal := (publishLocal dependsOn publishM2).value
 // Dependencies
 libraryDependencies ++= Seq(
   rawUtils % "compile->compile;test->test",
-  rawSnapiFrontend % "compile->compile;test->test",
-  scalaLogging,
-  logbackClassic,
-  guava,
-  scalaJava8Compat,
-  typesafeConfig,
-  loki4jAppender,
-  commonsIO,
-  commonsLang,
-  commonsText,
-  apacheHttpClient,
-  icuDeps,
-  woodstox,
-  kiama,
-  dropboxSDK,
-  aws,
-  jwtApi,
-  jwtImpl,
-  jwtCore,
-  postgresqlDeps,
-  mysqlDeps,
-  mssqlDeps,
-  snowflakeDeps,
-  commonsCodec,
-  springCore,
-  kryo,
-  scalatest % Test
-) ++
-  slf4j ++
-  jacksonDeps ++
-  poiDeps ++
-  scalaCompiler ++
-  truffleCompiler
+  rawSnapiFrontend % "compile->compile;test->test"
+) ++ truffleCompiler ++ scalaCompiler // Add the scala compiler explicitly to the classpath so that above we copy it to the modulepath.
 
 // Output version to a file on compile
 val initializeVersion = taskKey[Unit]("Initialize the version number early")

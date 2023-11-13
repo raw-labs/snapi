@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{withSuppressNonFatalException, AuthenticatedUser, RawTestSuite, SettingsTestContext}
+import raw.utils.{AuthenticatedUser, RawTestSuite, RawUtils, SettingsTestContext}
 
 import java.time.temporal.ChronoUnit
 import scala.collection.mutable
@@ -53,7 +53,6 @@ trait CredentialsTestContext extends BeforeAndAfterAll {
 
   def setCredentials(credentials: CredentialsService): Unit = {
     instance = credentials
-    CredentialsServiceProvider.set(credentials)
   }
 
   override def beforeAll(): Unit = {
@@ -67,17 +66,20 @@ trait CredentialsTestContext extends BeforeAndAfterAll {
 
   override def afterAll(): Unit = {
     s3Buckets.foreach {
-      case (user, bucket) => withSuppressNonFatalException(credentials.unregisterS3Bucket(user, bucket.name))
+      case (user, bucket) => RawUtils.withSuppressNonFatalException(credentials.unregisterS3Bucket(user, bucket.name))
     }
     rdbmsServers.foreach {
-      case ((user, name), _) => withSuppressNonFatalException(credentials.unregisterRDBMSServer(user, name))
+      case ((user, name), _) => RawUtils.withSuppressNonFatalException(credentials.unregisterRDBMSServer(user, name))
     }
     newHttpCreds.foreach {
-      case (user, (name, _)) => withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
+      case (user, (name, _)) =>
+        RawUtils.withSuppressNonFatalException(credentials.unregisterNewHttpCredential(user, name))
     }
-    dropboxTokens.foreach { case (user, _) => withSuppressNonFatalException(credentials.unregisterDropboxToken(user)) }
+    dropboxTokens.foreach {
+      case (user, _) => RawUtils.withSuppressNonFatalException(credentials.unregisterDropboxToken(user))
+    }
     secrets.foreach {
-      case (user, secret) => withSuppressNonFatalException(credentials.unregisterSecret(user, secret.name))
+      case (user, secret) => RawUtils.withSuppressNonFatalException(credentials.unregisterSecret(user, secret.name))
     }
     setCredentials(null)
     super.afterAll()

@@ -26,14 +26,14 @@ class LocalFileSystem extends BaseFileSystem {
 
   private[sources] val fileSeparator: String = File.separator
 
-  private val fileSeparatorRegex: String = descape(fileSeparator)
+  private val fileSeparatorRegex: String = RawUtils.descape(fileSeparator)
 
   // TODO (msb): This should fail to create if not on developer mode?
   // TODO (msb): And if so, should require all paths to be under some certain base path?
 
   private def sanitizePath(path: String): String = {
     // Currently there's no need to sanitize path because the Java APIs handle it for us.
-    if (isWindows) path.replaceFirst("^/(.:/)", "$1")
+    if (RawUtils.isWindows) path.replaceFirst("^/(.:/)", "$1")
     else path
   }
 

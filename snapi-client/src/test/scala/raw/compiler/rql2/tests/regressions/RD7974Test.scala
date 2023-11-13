@@ -24,7 +24,7 @@ trait RD7974Test extends CompilerTestContext with BeforeAndAfterEach {
 
   override def afterEach(): Unit = {
     super.afterEach()
-    deleteTestPath(tmpFile)
+    RawUtils.deleteTestPath(tmpFile)
   }
 
   test("""let l = [3,2,1,0,-1,-2,-3]

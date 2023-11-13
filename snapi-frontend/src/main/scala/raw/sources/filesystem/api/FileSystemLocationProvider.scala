@@ -14,40 +14,21 @@ package raw.sources.filesystem.api
 
 import raw.utils.RawException
 
-import java.util.ServiceLoader
-import scala.collection.JavaConverters._
 import raw.sources.api.{LocationProvider, SourceContext}
 import raw.client.api.LocationDescription
 
 object FileSystemLocationProvider extends LocationProvider {
 
-  private var services: Array[FileSystemLocationBuilder] = _
-  private val servicesLock = new Object
-
-  private val lock = new Object
-
-  private def loadServices()(implicit sourceContext: SourceContext): Unit = {
-    servicesLock.synchronized {
-      services = sourceContext.maybeClassLoader match {
-        case Some(cl) => ServiceLoader.load(classOf[FileSystemLocationBuilder], cl).asScala.toArray
-        case None => ServiceLoader.load(classOf[FileSystemLocationBuilder]).asScala.toArray
-      }
-    }
-  }
-
   @throws[RawException]
   override def build(location: LocationDescription)(implicit sourceContext: SourceContext): FileSystemLocation = {
-    loadServices()
-    lock.synchronized {
-      getScheme(location.url) match {
-        case Some(scheme) =>
-          val impls = services.filter(_.schemes.contains(scheme))
-          if (impls.isEmpty) throw new FileSystemException(s"no file system location implementation found for $scheme")
-          else if (impls.length > 1)
-            throw new FileSystemException(s"more than one file system location implementation found for $scheme")
-          else impls.head.build(location)
-        case None => throw new FileSystemException(s"invalid url: '${location.url}'")
-      }
+    getScheme(location.url) match {
+      case Some(scheme) =>
+        val impls = sourceContext.fileSystemLocationBuilderServices.filter(_.schemes.contains(scheme))
+        if (impls.isEmpty) throw new FileSystemException(s"no file system location implementation found for $scheme")
+        else if (impls.length > 1)
+          throw new FileSystemException(s"more than one file system location implementation found for $scheme")
+        else impls.head.build(location)
+      case None => throw new FileSystemException(s"invalid url: '${location.url}'")
     }
   }
 

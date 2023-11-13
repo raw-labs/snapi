@@ -25,6 +25,7 @@ import java.util.ServiceLoader
 import scala.annotation.nowarn
 import scala.collection.JavaConverters._
 import scala.collection.immutable.ListMap
+import scala.collection.mutable
 
 abstract class PackageExtension {
 
@@ -339,18 +340,19 @@ abstract class SugarEntryExtension extends EntryExtension {
 
 object PackageExtensionProvider {
 
-  private var packageExtensions: Array[PackageExtension] = _
+  // (msb) This probably should move to the CompilerContext, but we cannot do so while we have the legacy compiler.
+  private val packageExtensions = new mutable.HashMap[Option[ClassLoader], Array[PackageExtension]]
   private val packageExtensionsLock = new Object
 
   private def build(maybeClassLoader: Option[ClassLoader]): Unit = {
     packageExtensionsLock.synchronized {
-      if (packageExtensions == null) {
-        packageExtensions = maybeClassLoader match {
+      if (!packageExtensions.contains(maybeClassLoader) || packageExtensions.get(maybeClassLoader) == null) {
+        packageExtensions(maybeClassLoader) = maybeClassLoader match {
           case Some(cl) => ServiceLoader.load(classOf[PackageExtension], cl).asScala.toArray
           case None => ServiceLoader.load(classOf[PackageExtension]).asScala.toArray
         }
-        packageExtensions.foreach(_.init(maybeClassLoader))
-        val names = packageExtensions.map(_.name)
+        packageExtensions(maybeClassLoader).foreach(_.init(maybeClassLoader))
+        val names = packageExtensions(maybeClassLoader).map(_.name)
         assert(names.toSet.size == names.length, "Duplicate package names found!")
       }
     }
@@ -358,22 +360,22 @@ object PackageExtensionProvider {
 
   def services(maybeClassLoader: Option[ClassLoader]): Array[PackageExtension] = {
     build(maybeClassLoader)
-    packageExtensions
+    packageExtensions(maybeClassLoader)
   }
 
   def names(maybeClassLoader: Option[ClassLoader]): Array[String] = {
     build(maybeClassLoader)
-    packageExtensions.map(_.name)
+    packageExtensions(maybeClassLoader).map(_.name)
   }
 
   def packages(maybeClassLoader: Option[ClassLoader]): Array[PackageEntity] = {
     build(maybeClassLoader)
-    packageExtensions.map(s => new PackageEntity(s))
+    packageExtensions(maybeClassLoader).map(s => new PackageEntity(s))
   }
 
   def getPackage(name: String, maybeClassLoader: Option[ClassLoader]): Option[PackageExtension] = {
     build(maybeClassLoader)
-    packageExtensions.collectFirst { case p if p.name == name => p }
+    packageExtensions(maybeClassLoader).collectFirst { case p if p.name == name => p }
   }
 
 }

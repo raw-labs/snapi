@@ -30,4 +30,13 @@ trait ClosureTest extends CompilerTestContext {
     | f2 = mkFun(2)
     |in f0(22) + f1(10) + f2(33)""".stripMargin)(it => it should evaluateTo("""76"""))
 
+  test("""
+    |f(v: int) = v * 10
+    |
+    |g(s: string) =
+    |  let i = String.Length(s)
+    |  in f(i)
+    |
+    |g("tralala")""".stripMargin)(_ should evaluateTo("70"))
+
 }
