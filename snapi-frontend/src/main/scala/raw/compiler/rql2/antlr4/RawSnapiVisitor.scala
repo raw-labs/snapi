@@ -515,11 +515,13 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   override def visitRecord_type(ctx: SnapiParser.Record_typeContext): SourceNode = {
     Option(ctx)
       .map { context =>
-        val atts = Option(context.type_attr())
+        val atts = Option(context.record_attr_list())
           .map { attrContext =>
-            attrContext.asScala.map { a =>
-              Option(a).map(visit(_).asInstanceOf[Rql2AttrType]).getOrElse(Rql2AttrType("", ErrorType()))
-            }.toVector
+            attrContext
+              .type_attr()
+              .asScala
+              .map(a => Option(a).map(visit(_).asInstanceOf[Rql2AttrType]).getOrElse(Rql2AttrType("", ErrorType())))
+              .toVector
           }
           .getOrElse(Vector.empty)
 

@@ -69,8 +69,8 @@ or_type: tipe OR_TOKEN or_type
        | tipe
        ;
 
-record_type: RECORD_TOKEN LEFT_PAREN type_attr
-               (COMMA type_attr)* COMMA? RIGHT_PAREN;
+record_type: RECORD_TOKEN LEFT_PAREN record_attr_list? RIGHT_PAREN;
+record_attr_list: type_attr (COMMA type_attr)* COMMA?;
 iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 expr_type: TYPE_TOKEN tipe;

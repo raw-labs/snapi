@@ -413,6 +413,18 @@ public class SnapiParserBaseListener implements SnapiParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterRecord_attr_list(SnapiParser.Record_attr_listContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitRecord_attr_list(SnapiParser.Record_attr_listContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterIterable_type(SnapiParser.Iterable_typeContext ctx) { }
 	/**
 	 * {@inheritDoc}

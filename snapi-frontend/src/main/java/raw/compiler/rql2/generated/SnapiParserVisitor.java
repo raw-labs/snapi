@@ -234,6 +234,12 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
 	 */
 	T visitRecord_type(SnapiParser.Record_typeContext ctx);
 	/**
+	 * Visit a parse tree produced by {@link SnapiParser#record_attr_list}.
+	 * @param ctx the parse tree
+	 * @return the visitor result
+	 */
+	T visitRecord_attr_list(SnapiParser.Record_attr_listContext ctx);
+	/**
 	 * Visit a parse tree produced by {@link SnapiParser#iterable_type}.
 	 * @param ctx the parse tree
 	 * @return the visitor result

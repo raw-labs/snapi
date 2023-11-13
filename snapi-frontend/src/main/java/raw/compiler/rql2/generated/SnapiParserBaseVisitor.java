@@ -249,6 +249,13 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T> imple
 	 * <p>The default implementation returns the result of calling
 	 * {@link #visitChildren} on {@code ctx}.</p>
 	 */
+	@Override public T visitRecord_attr_list(SnapiParser.Record_attr_listContext ctx) { return visitChildren(ctx); }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation returns the result of calling
+	 * {@link #visitChildren} on {@code ctx}.</p>
+	 */
 	@Override public T visitIterable_type(SnapiParser.Iterable_typeContext ctx) { return visitChildren(ctx); }
 	/**
 	 * {@inheritDoc}

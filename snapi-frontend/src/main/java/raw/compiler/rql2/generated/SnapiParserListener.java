@@ -388,6 +388,16 @@ public interface SnapiParserListener extends ParseTreeListener {
 	 */
 	void exitRecord_type(SnapiParser.Record_typeContext ctx);
 	/**
+	 * Enter a parse tree produced by {@link SnapiParser#record_attr_list}.
+	 * @param ctx the parse tree
+	 */
+	void enterRecord_attr_list(SnapiParser.Record_attr_listContext ctx);
+	/**
+	 * Exit a parse tree produced by {@link SnapiParser#record_attr_list}.
+	 * @param ctx the parse tree
+	 */
+	void exitRecord_attr_list(SnapiParser.Record_attr_listContext ctx);
+	/**
 	 * Enter a parse tree produced by {@link SnapiParser#iterable_type}.
 	 * @param ctx the parse tree
 	 */
