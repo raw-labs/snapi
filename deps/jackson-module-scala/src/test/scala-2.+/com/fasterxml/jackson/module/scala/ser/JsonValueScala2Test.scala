@@ -6,13 +6,12 @@ import com.fasterxml.jackson.module.scala.DefaultScalaModule
 
 import scala.annotation.meta.getter
 
-object JsonValueTest {
+object JsonValueScala2Test {
   case class ValueClass(@(JsonValue @getter) value: String)
 }
 
-// does not work with Scala3 prior to 3.3.0
-class JsonValueTest extends SerializerTest {
-  import JsonValueTest._
+class JsonValueScala2Test extends SerializerTest {
+  import JsonValueScala2Test._
 
   override def module: Module = DefaultScalaModule
 

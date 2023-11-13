@@ -1,4 +1,4 @@
-![Build Status](https://github.com/FasterXML/jackson-module-scala/actions/workflows/ci.yml/badge.svg?branch=2.16)
+![Build Status](https://github.com/FasterXML/jackson-module-scala/actions/workflows/ci.yml/badge.svg?branch=2.15)
 [![Maven Central](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.module/jackson-module-scala_2.13/badge.svg)](https://maven-badges.herokuapp.com/maven-central/com.fasterxml.jackson.module/jackson-module-scala_2.13)
 [![Tidelift](https://tidelift.com/badges/package/maven/com.fasterxml.jackson.core:jackson-databind)](https://tidelift.com/subscription/pkg/maven-com.fasterxml.jackson.module.jackson-module-scala.2.13?utm_source=maven-com.fasterxml.jackson.module.jackson-module-scala.2.13&utm_medium=github_sponsor_button&utm_campaign=readme)
 
@@ -72,8 +72,8 @@ val mapper = JsonMapper.builder()
 
 One Scala module that isn't part of `DefaultScalaModule` is `ScalaObjectDeserializerModule`. This module is used to
 ensure that deserialization to a Scala object does not create a new instance of the object.
-This latter module is not yet included in `DefaultScalaModule` but will be included in v2.16.0.
-It is already included in v3.0.0, which is still under development.
+This latter module is not yet included in `DefaultScalaModule` for backward compatibility reasons.
+It is included in the v3.0.0, which is still under development.
 
 ## DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES
 
@@ -114,7 +114,7 @@ Consult the [Scaladoc](https://fasterxml.github.io/jackson-module-scala/latest/a
 
 To import in sbt:
 ```scala
-libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.3"
+libraryDependencies += "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.1"
 ```
 
 ## Java/Kotlin users

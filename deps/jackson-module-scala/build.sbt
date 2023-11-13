@@ -1,18 +1,20 @@
 import com.typesafe.tools.mima.core._
-import sbtghactions.JavaSpec.Distribution.Zulu
+import org.typelevel.sbt.gha.JavaSpec.Distribution.Zulu
+
+ThisBuild/version := IO.read(new File("version")).trim
 
 // Basic facts
 name := "jackson-module-scala"
 
 organization := "com.fasterxml.jackson.module"
 
-ThisBuild / scalaVersion := "2.12.18"
+ThisBuild / scalaVersion := "2.13.10"
 
-ThisBuild / crossScalaVersions := Seq("2.12.18")
+ThisBuild / crossScalaVersions := Seq("2.11.12", "2.12.17", "2.13.10", "3.2.2")
 
-resolvers ++= Resolver.sonatypeOssRepos("snapshots")
+//resolvers ++= Resolver.sonatypeOssRepos("snapshots")
 
-val jacksonVersion = "2.16.0-rc1"
+val jacksonVersion = "2.15.2"
 
 autoAPIMappings := true
 
@@ -49,8 +51,6 @@ scalaMajorVersion := {
   }
 }
 
-val addJava17Tests: Boolean = compareVersions(System.getProperty("java.version"), "17.0.0") >= 0
-
 mimaPreviousArtifacts := {
   if (scalaReleaseVersion.value > 2)
     Set.empty
@@ -71,8 +71,6 @@ scalacOptions ++= {
 // Temporarily disable warnings as error since SerializationFeature.WRITE_NULL_MAP_VALUES has been deprecated
 // and we use it.
 //scalacOptions in (Compile, compile) += "-Xfatal-warnings"
-
-compileOrder := CompileOrder.JavaThenScala
 
 Compile / unmanagedSourceDirectories ++= {
   if (scalaReleaseVersion.value > 2) {
@@ -101,17 +99,6 @@ Test / unmanagedSourceDirectories ++= {
   }
 }
 
-Test / unmanagedSourceDirectories ++= {
-  if (addJava17Tests) {
-    Seq(
-      (LocalRootProject / baseDirectory).value / "src" / "test" / "java-17",
-      (LocalRootProject / baseDirectory).value / "src" / "test" / "scala-jdk-17",
-    )
-  } else {
-    Seq.empty
-  }
-}
-
 libraryDependencies ++= Seq(
   "com.fasterxml.jackson.core" % "jackson-core" % jacksonVersion,
   "com.fasterxml.jackson.core" % "jackson-annotations" % jacksonVersion,
@@ -125,7 +112,7 @@ libraryDependencies ++= Seq(
   "com.fasterxml.jackson.module" % "jackson-module-jsonSchema" % jacksonVersion % Test,
   "javax.ws.rs" % "javax.ws.rs-api" % "2.1.1" % Test,
   "io.swagger" % "swagger-core" % "1.6.8" % Test,
-  "org.scalatest" %% "scalatest" % "3.2.17" % Test
+  "org.scalatest" %% "scalatest" % "3.2.15" % Test
 )
 
 // build.properties
@@ -139,10 +126,8 @@ Compile / resourceGenerators += Def.task {
 Test / parallelExecution := false
 
 ThisBuild / githubWorkflowSbtCommand := "sbt -J-Xmx2G"
-ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec(Zulu, "8"), JavaSpec(Zulu, "11"),
-  JavaSpec(Zulu, "17"), JavaSpec(Zulu, "21"))
+ThisBuild / githubWorkflowJavaVersions := Seq(JavaSpec(Zulu, "8"), JavaSpec(Zulu, "11"), JavaSpec(Zulu, "17"))
 ThisBuild / githubWorkflowBuild := Seq(WorkflowStep.Sbt(List("test", "mimaReportBinaryIssues")))
-ThisBuild / githubWorkflowTargetTags ++= Seq("v*")
 ThisBuild / githubWorkflowPublishTargetBranches := Seq(
   RefPredicate.Equals(Ref.Branch("master")),
   RefPredicate.StartsWith(Ref.Branch("2.")),
@@ -164,7 +149,7 @@ ThisBuild / githubWorkflowPublish := Seq(
 
 // site
 enablePlugins(SiteScaladocPlugin)
-//enablePlugins(GhpagesPlugin)
+enablePlugins(GhpagesPlugin)
 git.remoteRepo := "git@github.com:FasterXML/jackson-module-scala.git"
 
 mimaBinaryIssueFilters ++= Seq(
@@ -242,25 +227,6 @@ mimaBinaryIssueFilters ++= Seq(
   ProblemFilters.exclude[DirectMissingMethodProblem]("com.fasterxml.jackson.module.scala.introspect.ScalaAnnotationIntrospector.findSerializationInclusion")
 )
 
-def compareVersions(version1: String, version2: String): Int = {
-  var comparisonResult = 0
-  val version1Splits = version1.split("\\.")
-  val version2Splits = version2.split("\\.")
-  val maxLengthOfVersionSplits = Math.max(version1Splits.length, version2Splits.length)
-  var i = 0
-  while (comparisonResult == 0 && i < maxLengthOfVersionSplits) {
-    val v1 = if (i < version1Splits.length) version1Splits(i).toInt
-    else 0
-    val v2 = if (i < version2Splits.length) version2Splits(i).toInt
-    else 0
-    val compare = v1.compareTo(v2)
-    if (compare != 0) {
-      comparisonResult = compare
-    }
-    i += 1
-  }
-  comparisonResult
-}
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes( "Automatic-Module-Name" -> "com.fasterxml.jackson.scala")
 publishLocal := (publishLocal dependsOn publishM2).value

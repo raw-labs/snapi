@@ -18,7 +18,7 @@ object AnyValScala2SerializerTest {
   case class LBD(values: List[BD])
 }
 
-//see also AnyValSerializerTest
+//see AnyValSerializerTest for cases that also work with Scala3
 class AnyValScala2SerializerTest extends BaseFixture {
   import AnyValScala2SerializerTest._
 
