@@ -28,12 +28,17 @@ class RawErrorListener(private val source: Source) extends BaseErrorListener {
       msg: String,
       e: RecognitionException
   ): Unit = {
-    val positions = Option(offendingSymbol).map(_.asInstanceOf[Token]).map { token =>
-      ErrorRange(ErrorPosition(token.getLine, token.getCharPositionInLine + 1),
-        ErrorPosition(token.getLine, token.getCharPositionInLine + token.getText.length + 1))
-    }.getOrElse{
-      ErrorRange(ErrorPosition(line, charPositionInLine + 1),ErrorPosition(line, charPositionInLine + 1))
-    }
+    val positions = Option(offendingSymbol)
+      .map(_.asInstanceOf[Token])
+      .map { token =>
+        ErrorRange(
+          ErrorPosition(token.getLine, token.getCharPositionInLine + 1),
+          ErrorPosition(token.getLine, token.getCharPositionInLine + token.getText.length + 1)
+        )
+      }
+      .getOrElse {
+        ErrorRange(ErrorPosition(line, charPositionInLine + 1), ErrorPosition(line, charPositionInLine + 1))
+      }
     errors = errors :+ ErrorMessage(msg, List(positions))
   }
 
