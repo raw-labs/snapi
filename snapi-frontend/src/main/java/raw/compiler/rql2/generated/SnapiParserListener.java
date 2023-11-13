@@ -888,6 +888,18 @@ public interface SnapiParserListener extends ParseTreeListener {
    */
   void exitLet_left(SnapiParser.Let_leftContext ctx);
   /**
+   * Enter a parse tree produced by {@link SnapiParser#multiple_commas}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterMultiple_commas(SnapiParser.Multiple_commasContext ctx);
+  /**
+   * Exit a parse tree produced by {@link SnapiParser#multiple_commas}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitMultiple_commas(SnapiParser.Multiple_commasContext ctx);
+  /**
    * Enter a parse tree produced by the {@code LetBind} labeled alternative in {@link
    * SnapiParser#let_decl}.
    *

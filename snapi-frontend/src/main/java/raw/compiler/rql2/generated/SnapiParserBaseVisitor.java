@@ -672,6 +672,16 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
+  public T visitMultiple_commas(SnapiParser.Multiple_commasContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
   public T visitLetBind(SnapiParser.LetBindContext ctx) {
     return visitChildren(ctx);
   }

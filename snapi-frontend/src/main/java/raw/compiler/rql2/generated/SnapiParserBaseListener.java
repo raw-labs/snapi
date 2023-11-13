@@ -925,6 +925,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
+  public void enterMultiple_commas(SnapiParser.Multiple_commasContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitMultiple_commas(SnapiParser.Multiple_commasContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
   public void enterLetBind(SnapiParser.LetBindContext ctx) {}
   /**
    * {@inheritDoc}

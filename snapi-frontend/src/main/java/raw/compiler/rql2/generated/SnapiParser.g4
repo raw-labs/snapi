@@ -44,9 +44,9 @@ fun_abs: fun_proto_lambda                                       # FunAbs
        | ident RIGHT_ARROW expr                                 # FunAbsUnnamed
        ;
 
-fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)?
+fun_proto_lambda: LEFT_PAREN (attr (COMMA attr)*)?
                     RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaMultiParam
-                | fun_param (COLON tipe)? RIGHT_ARROW expr     # FunProtoLambdaSingleParam
+                | attr (COLON tipe)? RIGHT_ARROW expr          # FunProtoLambdaSingleParam
                 ;
 
 // ============= types =================
@@ -76,40 +76,52 @@ list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 expr_type: TYPE_TOKEN tipe;
 
 // ========== expressions ============
-expr: LEFT_PAREN expr RIGHT_PAREN                              # ParenExpr
-    | package_idn_exp                                          # PackageIdnExp
-    | let                                                      # LetExpr
-    | fun_abs                                                  # FunAbsExpr
-    | expr_type                                                # ExprTypeExpr
-    | if_then_else                                             # IfThenElseExpr
-    | signed_number                                            # SignedNumberExpr
-    | bool_const                                               # BoolConstExpr
-    | NULL_TOKEN                                               # NullExpr
-    | string_literal                                           # StringLiteralExpr
-    | ident                                                    # IdentExpr
-    | expr fun_ar                                              # FunAppExpr
-    | lists                                                    # ListExpr
-    | records                                                  # RecordExpr
-    | <assoc=right> expr DOT ident fun_ar?                     # ProjectionExpr
-    | MINUS_TOKEN expr                                         # MinusUnaryExpr
-    | PLUS_TOKEN expr                                          # PlusUnaryExpr
-    | expr DIV_TOKEN expr                                      # DivExpr
-    | expr MUL_TOKEN expr                                      # MulExpr
-    | expr MOD_TOKEN expr                                      # ModExpr
-    | expr MINUS_TOKEN expr                                    # MinusExpr
-    | expr PLUS_TOKEN expr                                     # PlusExpr
-    | expr compare_tokens expr                                 # CompareExpr
-    | NOT_TOKEN expr                                           # NotExpr
-    | expr AND_TOKEN expr                                      # AndExpr
-    | expr OR_TOKEN expr                                       # OrExpr
-    // | expr DOT  {notifyErrorListeners("Incomplete projection");}
+expr: LEFT_PAREN expr RIGHT_PAREN                                             # ParenExpr
+    | package_idn_exp                                                         # PackageIdnExp
+    | let                                                                     # LetExpr
+    | fun_abs                                                                 # FunAbsExpr
+    | expr_type                                                               # ExprTypeExpr
+    | if_then_else                                                            # IfThenElseExpr
+    | signed_number                                                           # SignedNumberExpr
+    | bool_const                                                              # BoolConstExpr
+    | NULL_TOKEN                                                              # NullExpr
+    | string_literal                                                          # StringLiteralExpr
+    | ident                                                                   # IdentExpr
+    | expr fun_ar                                                             # FunAppExpr
+    | lists                                                                   # ListExpr
+    | records                                                                 # RecordExpr
+    | <assoc=right> expr DOT ident fun_ar?                                    # ProjectionExpr
+    | MINUS_TOKEN expr                                                        # MinusUnaryExpr
+    | PLUS_TOKEN expr                                                         # PlusUnaryExpr
+    | expr DIV_TOKEN expr                                                     # DivExpr
+    | expr DIV_TOKEN {notifyErrorListeners("Missing right expression");}      # DivExpr
+    | expr MUL_TOKEN expr                                                     # MulExpr
+    | expr MUL_TOKEN {notifyErrorListeners("Missing right expression");}      # MulExpr
+    | expr MOD_TOKEN expr                                                     # ModExpr
+    | expr MOD_TOKEN {notifyErrorListeners("Missing right expression");}      # ModExpr
+    | expr MINUS_TOKEN expr                                                   # MinusExpr
+    | expr MINUS_TOKEN {notifyErrorListeners("Missing right expression");}    # MinusExpr
+    | expr PLUS_TOKEN expr                                                    # PlusExpr
+    | expr PLUS_TOKEN {notifyErrorListeners("Missing right expression");}     # PlusExpr
+    | expr compare_tokens expr                                                # CompareExpr
+    | expr compare_tokens {notifyErrorListeners("Missing right expression");} # CompareExpr
+    | NOT_TOKEN expr                                                          # NotExpr
+    | expr AND_TOKEN expr                                                     # AndExpr
+    | expr AND_TOKEN {notifyErrorListeners("Missing right expression");}      # AndExpr
+    | expr OR_TOKEN expr                                                      # OrExpr
+    | expr OR_TOKEN {notifyErrorListeners("Missing right expression");}       # OrExpr
     ;
 
-let: LET_TOKEN let_left IN_TOKEN expr;
+let: LET_TOKEN let_left IN_TOKEN expr // do not add a rule for missing expr here. it introduces ambiguity
+   ;
 
-let_left: let_decl (COMMA let_decl)* COMMA?
-        // | let_decl (let_decl)* {notifyErrorListeners("Missing COMMA");}
+let_left: let_decl (COMMA let_decl)* multiple_commas
+        | let_decl {notifyErrorListeners("Missing ','");} (let_decl)*
         ;
+
+multiple_commas: COMMA (COMMA)+ {notifyErrorListeners("Occurence of extra commas");}
+               | COMMA?
+               ;
 
 let_decl: let_bind                                             # LetBind
         | fun_dec                                              # LetFunDec
@@ -117,11 +129,13 @@ let_decl: let_bind                                             # LetBind
 
 let_bind: ident EQUALS expr
         | ident COLON tipe EQUALS expr
+        | ident EQUALS {notifyErrorListeners("Missing expression binding");}
+        | ident COLON tipe EQUALS {notifyErrorListeners("Missing expression binding");}
         ;
 
 if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
-            // | IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN {notifyErrorListeners("Missing else expr");}
-            // | IF_TOKEN expr {notifyErrorListeners("Missing then body");}
+            | IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN {notifyErrorListeners("Missing else expression");}
+            | IF_TOKEN expr {notifyErrorListeners("Missing then body");}
             ;
 
 lists: LEFT_SQ_BR (lists_element)? RIGHT_SQ_BR;

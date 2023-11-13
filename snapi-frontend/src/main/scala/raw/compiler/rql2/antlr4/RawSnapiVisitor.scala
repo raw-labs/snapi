@@ -793,7 +793,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     .map { context =>
       val decls = Option(context.let_left())
         .flatMap(letLeftExpr =>
-          Option(letLeftExpr.let_decl()).map(_.asScala.map(visit(_).asInstanceOf[LetDecl]).toVector)
+          Option(letLeftExpr.let_decl()).map(letDecl => letDecl.asScala.map(visit(_).asInstanceOf[LetDecl]).toVector)
         )
         .getOrElse(Vector.empty)
       val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
@@ -1054,6 +1054,8 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     Option(ctx).flatMap(context => Option(context.package_idn_exp())).map(visit(_)).getOrElse(ErrorExp())
 
   // Nodes to ignore, they are not part of the AST and should never be visited
+  override def visitMultiple_commas(ctx: SnapiParser.Multiple_commasContext): SourceNode =
+    throw new AssertionError(assertionMessage)
   override def visitBool_const(ctx: SnapiParser.Bool_constContext): SourceNode =
     throw new AssertionError(assertionMessage)
 

@@ -32,8 +32,8 @@ class RawErrorListener(private val source: Source) extends BaseErrorListener {
       .map(_.asInstanceOf[Token])
       .map { token =>
         ErrorRange(
-          ErrorPosition(token.getLine, token.getCharPositionInLine + 1),
-          ErrorPosition(token.getLine, token.getCharPositionInLine + token.getText.length + 1)
+          ErrorPosition(token.getLine, token.getCharPositionInLine),
+          ErrorPosition(token.getLine, token.getCharPositionInLine + token.getText.length)
         )
       }
       .getOrElse {

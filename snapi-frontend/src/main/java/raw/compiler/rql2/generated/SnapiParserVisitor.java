@@ -523,6 +523,13 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    */
   T visitLet_left(SnapiParser.Let_leftContext ctx);
   /**
+   * Visit a parse tree produced by {@link SnapiParser#multiple_commas}.
+   *
+   * @param ctx the parse tree
+   * @return the visitor result
+   */
+  T visitMultiple_commas(SnapiParser.Multiple_commasContext ctx);
+  /**
    * Visit a parse tree produced by the {@code LetBind} labeled alternative in {@link
    * SnapiParser#let_decl}.
    *

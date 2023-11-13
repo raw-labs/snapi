@@ -101,7 +101,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
     SourcePrettyPrinter.format(node)
   }
 
-  // TODO (msb): Change signature to include position of the parsing error.
   override def parseType(tipe: String, user: AuthenticatedUser, internal: Boolean = false): ParseTypeResponse = {
     val positions = new Positions()
     val parser = new Antlr4SyntaxAnalyzer(positions, !internal)
@@ -738,15 +737,14 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   private def withLspTree[T](source: String, f: CompilerLspService => T)(
       implicit programContext: base.ProgramContext
   ): Either[(String, Position), T] = {
-    // Parse tree with dedicated parser, which is more lose and tries to obtain an AST even with broken code.
     val positions = new Positions()
     val parser = new Antlr4SyntaxAnalyzer(positions, true)
     val ParseProgramResult(errors, program) = parser.parse(source)
-    val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+    val tree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
       program,
       shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
     )
-    val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+    val analyzer = new SemanticAnalyzer(tree)(programContext.asInstanceOf[ProgramContext])
     // Handle the LSP request.
     val lspService = new CompilerLspService(analyzer, positions)(programContext.asInstanceOf[ProgramContext])
     Right(f(lspService))
