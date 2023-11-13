@@ -12,7 +12,6 @@
 
 package raw.compiler.rql2
 
-import raw.client.api.{CompilerParserException, ErrorMessage, ErrorPosition}
 import raw.compiler.common.source._
 import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult}
 
