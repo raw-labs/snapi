@@ -59,8 +59,7 @@ tipe: LEFT_PAREN tipe RIGHT_PAREN                              # TypeWithParenTy
     | iterable_type                                            # IterableTypeType
     | list_type                                                # ListTypeType
     | ident                                                    # TypeAliasType
-    | LEFT_PAREN (tipe | attr) (COMMA (tipe | attr))*
-        COMMA? RIGHT_PAREN RIGHT_ARROW tipe                    # FunTypeWithParamsType
+    | LEFT_PAREN param_list? RIGHT_PAREN RIGHT_ARROW tipe      # FunTypeWithParamsType
     | tipe RIGHT_ARROW tipe                                    # FunTypeType
     | expr_type                                                # ExprTypeType
     ;
@@ -68,6 +67,8 @@ tipe: LEFT_PAREN tipe RIGHT_PAREN                              # TypeWithParenTy
 or_type: tipe OR_TOKEN or_type
        | tipe
        ;
+
+param_list: (tipe | attr) (COMMA (tipe | attr))* COMMA?;
 
 record_type: RECORD_TOKEN LEFT_PAREN record_attr_list? RIGHT_PAREN;
 record_attr_list: type_attr (COMMA type_attr)* COMMA?;

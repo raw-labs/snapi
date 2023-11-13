@@ -401,6 +401,18 @@ public class SnapiParserBaseListener implements SnapiParserListener {
 	 *
 	 * <p>The default implementation does nothing.</p>
 	 */
+	@Override public void enterParam_list(SnapiParser.Param_listContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
+	@Override public void exitParam_list(SnapiParser.Param_listContext ctx) { }
+	/**
+	 * {@inheritDoc}
+	 *
+	 * <p>The default implementation does nothing.</p>
+	 */
 	@Override public void enterRecord_type(SnapiParser.Record_typeContext ctx) { }
 	/**
 	 * {@inheritDoc}

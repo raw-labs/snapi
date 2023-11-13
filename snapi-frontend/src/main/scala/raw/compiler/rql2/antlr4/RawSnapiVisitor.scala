@@ -337,37 +337,39 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitFunTypeWithParamsType(ctx: SnapiParser.FunTypeWithParamsTypeContext): SourceNode = Option(ctx)
     .map { context =>
-      val ms = Option(context.tipe())
+      val ms = Option(context.param_list())
         .map { tipeContext =>
-          tipeContext.asScala
+          tipeContext
+            .tipe()
+            .asScala
             .dropRight(1)
             .map(tctx => Option(tctx).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType()))
             .toVector
         }
         .getOrElse(Vector.empty)
 
-      val os = Option(context.attr())
+      val os = Option(context.param_list())
         .map { attrContext =>
-          attrContext.asScala.map { attrCtx =>
-            Option(attrCtx)
-              .map { a =>
-                val ident = Option(a.ident()).map(_.getValue).getOrElse("")
-                val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
-                val funOptTypeParam = FunOptTypeParam(ident, tipe)
-                positionsWrapper.setPosition(a, funOptTypeParam)
-                funOptTypeParam
-              }
-              .getOrElse(FunOptTypeParam("", ErrorType()))
-          }.toVector
+          attrContext
+            .attr()
+            .asScala
+            .map { attrCtx =>
+              Option(attrCtx)
+                .map { a =>
+                  val ident = Option(a.ident()).map(_.getValue).getOrElse("")
+                  val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+                  val funOptTypeParam = FunOptTypeParam(ident, tipe)
+                  positionsWrapper.setPosition(a, funOptTypeParam)
+                  funOptTypeParam
+                }
+                .getOrElse(FunOptTypeParam("", ErrorType()))
+            }
+            .toVector
         }
         .getOrElse(Vector.empty)
 
       val rType = Option(context.tipe())
-        .map { tipeContext =>
-          if (tipeContext.size() > 0)
-            Option(tipeContext.getLast).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
-          else ErrorType()
-        }
+        .map(visit(_).asInstanceOf[Type])
         .getOrElse(ErrorType())
 
       val result: FunType = FunType(
