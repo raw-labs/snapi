@@ -910,6 +910,7 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
                 .replace("\\n", "\n")
                 .replace("\\f", "\f")
                 .replace("\\r", "\r")
+                .replace("\\'", "'") // should we replace all?
                 .replace("\\t", "\t")
                 .replace("\\\\", "\\")
                 .replace("\\\"", "\"")
