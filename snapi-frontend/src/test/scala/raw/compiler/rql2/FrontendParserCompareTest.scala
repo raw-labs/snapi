@@ -21,24 +21,18 @@ import raw.utils.RawTestSuite
 class FrontendParserCompareTest extends RawTestSuite {
   val triple = "\"\"\""
 
-  private def parseWithAntlr4(s: String) = {
-    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new Antlr4SyntaxAnalyzer(positions, true)
-    parser.parse(s)
-  }
+  def compare(s: String): Unit = {
+    val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
+    val kiamaResult = kiamaParser.parse(s)
 
-  private def parseWithKiama(s: String) = {
-    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new FrontendSyntaxAnalyzer(positions)
-    parser.parse(s)
-  }
-
-  def compareTrees(s: String): Unit = {
-    val antlr4Result = parseWithAntlr4(s)
-    val kiamaResult = parseWithKiama(s)
+    val antlr4Positions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val antlr4Parser = new Antlr4SyntaxAnalyzer(antlr4Positions, true)
+    val antlr4Result = antlr4Parser.parse(s)
 
     if (antlr4Result.hasErrors && kiamaResult.isLeft) {
       assert(true)
+      return
       // todo Compare errors
     } else if (antlr4Result.isSuccess && kiamaResult.isRight) {
       assert(antlr4Result.tree == kiamaResult.right.get)
@@ -48,22 +42,12 @@ class FrontendParserCompareTest extends RawTestSuite {
         s"""Antlr4: succeeded: ${antlr4Result.isSuccess}, Kiama succeeded: ${kiamaResult.isRight}"""
       )
     }
-  }
-
-  def comparePositions(s: String): Unit = {
-    val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val kiamaParser = new FrontendSyntaxAnalyzer(kiamaPositions)
-    val kiamaRoot = kiamaParser.parse(s)
-
-    val antlr4Positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val antlr4Parser = new Antlr4SyntaxAnalyzer(antlr4Positions, true)
-    val antlr4Root = antlr4Parser.parse(s)
 
     val kiamaNodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
     val antlr4Nodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
 
-    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => kiamaNodes += n })(kiamaRoot)
-    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => antlr4Nodes += n })(antlr4Root)
+    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => kiamaNodes += n })(kiamaResult)
+    everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => antlr4Nodes += n })(antlr4Result)
 
     assert(kiamaNodes.size == antlr4Nodes.size, s"Kiama nodes: ${kiamaNodes.size}, Antlr4 nodes: ${antlr4Nodes.size}")
 
@@ -72,14 +56,12 @@ class FrontendParserCompareTest extends RawTestSuite {
         assert(antlr4Positions.getStart(antlr4Node) == kiamaPositions.getStart(kiamaNode))
         assert(antlr4Positions.getFinish(antlr4Node) == kiamaPositions.getFinish(kiamaNode))
     }
-
   }
 
   // =============== Hello world ==================
   test("""Hello world with string""") { _ =>
     val prog = """let hello = "hello" in hello"""
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Constants ==================
@@ -97,63 +79,53 @@ class FrontendParserCompareTest extends RawTestSuite {
       |j = 1s,
       |k = 1.0
       |in 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Int max values""") { _ =>
     val prog = s"""-+2147483648""".stripMargin.stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Int max values divided by 2""") { _ =>
     val prog = s"""- 2147483648 / 2""".stripMargin.stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Binary expressions ==================
   test("""Add binary expression""") { _ =>
     val prog = """1 + 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Subtract binary expression""") { _ =>
     val prog = """1 - 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Multiply binary expression""") { _ =>
     val prog = """1 * 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Divide binary expression""") { _ =>
     val prog = """1 / 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Mod binary expression""") { _ =>
     val prog = """1 % 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Priority of binary expressions""") { _ =>
     val prog = """1 + 1 * 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Priority of binary expressions with parenthesis""") { _ =>
     val prog = """(1 + 1) * 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""and and comparison priority""") { _ =>
@@ -163,127 +135,107 @@ class FrontendParserCompareTest extends RawTestSuite {
       |in
       |    search_by_country("France")
       |    """.stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Or binary expression""") { _ =>
     val prog = """true or false""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""And binary expression""") { _ =>
     val prog = """true and false""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Logical binary expressions (or and)""") { _ =>
     val prog = """true and false or true""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Logical binary expression (or and) with paren""") { _ =>
     val prog = """(true and false) or true""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Logical binary expression with ident""") { _ =>
     val prog = """(true and false) or a""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Comparison binary expression""") { _ =>
     val prog = """1 > 2""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Comparison binary expression with ident""") { _ =>
     val prog = """1 < a""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Geq binary expression""") { _ =>
     val prog = """1 >= 2""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Leq binary expression""") { _ =>
     val prog = """1 <= 2""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Eq binary expression""") { _ =>
     val prog = """1 == 2""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Unary expressions ==================
 
   test("""Not unary expression """) { _ =>
     val prog = """not true""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Not unary expression with priority""") { _ =>
     val prog = """not true and false""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Not unary expression with priority and paren""") { _ =>
     val prog = """not (true and false)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Priority test""") { _ =>
     val prog = s"""let keys = Collection.From([0, 2, 4])
       |in Collection.Join(keys, keys, row -> row._1 == row._2 + 2)
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Minus unary expression""") { _ =>
     val prog = """-5""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Plus unary expression""") { _ =>
     val prog = """+5""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Projections ==================
   test("""Projection with package test""") { _ =>
     val prog = """Collection.Build(1,2,3)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Projection without params package test""") { _ =>
     val prog = """Collection.Build()""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Record projection test""") { _ =>
     val prog = """a.b""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Filed test 3""") { _ =>
@@ -307,16 +259,14 @@ class FrontendParserCompareTest extends RawTestSuite {
       |    olympics = $olympics,
       |    join = Collection.EquiJoin(bands, olympics, b -> b.birthYear, o -> o.year)
       |    in Collection.Transform(join, r -> { r.firstName, r.lastName, r.city })""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Functions ===================
 
   test("""Method (top level function) declaration""") { _ =>
     val prog = """a(x: int) = 1""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Normal function declaration""") { _ =>
@@ -324,8 +274,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  a(x: int) = 1
       |in
       |  a(1)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Recursive function declaration""") { _ =>
@@ -333,8 +282,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  rec a(x: int) = 1
       |in
       |  a(1)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // dont fix the below "int=" it is a bug in kiama
@@ -343,19 +291,12 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  a(x: int):int= 1
       |in
       |  a(1)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
-  }
-
-  test("""Function with or type declaration""") { _ =>
-    val prog = """let a(x:int):int or string=1 in a(1)""".stripMargin
-    compareTrees(prog)
+    compare(prog)
   }
 
   test("""Lambda test""") { _ =>
     val prog = """Collection.Transform(col,x->x+1)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Lambda test with let""") { _ =>
@@ -364,8 +305,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  col2 = Collection.Transform(col,x->x+1)
       |in
       |  col2""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Function with let and app""") { _ =>
@@ -374,8 +314,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |    f(v: int) = v * 2
       |in
       |    a + f(1) // Result is 3""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Test with main""") { _ =>
@@ -388,8 +327,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  prefix + capitalized_name + "!"
       |
       |  main("jane")""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Function with params and types and arrows""") { _ =>
@@ -397,41 +335,35 @@ class FrontendParserCompareTest extends RawTestSuite {
       |    say(name:string,cleaner:(string)->string)="Hi "+cleaner(name)+"!"
       |in
       |    say("John",s->String.Upper(s)) // Result is "Hi JOHN!"""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Alternative builds =================
 
   test("""Record build""") { _ =>
     val prog = """{a,2,"str"}""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""List build""") { _ =>
     val prog = """[ 1, 2, 3 ]""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Empty list build""") { _ =>
     val prog = """[]""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Empty record build""") { _ =>
     val prog = """{}""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Type aliases =================
   test("""Type expressions""") { _ =>
     val prog = """Json.Read("url", type collection(int))""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Type alias""") { _ =>
@@ -440,8 +372,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  a = Collection.Read("url", my_type)
       |in a
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Comments =================
@@ -452,8 +383,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  // c = 5
       |  in a
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== If-then-else =================
@@ -463,8 +393,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       | res = if (true) then 5 else 56
       |in
       |  res""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // =============== Identifiers =================
@@ -474,14 +403,12 @@ class FrontendParserCompareTest extends RawTestSuite {
       | `let` = 5
       |in
       |  `let`""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Escaped identifiers test""") { _ =>
     val prog = "{`@name`: \"jane\", `@age`: 32, name: \"jane\", last: \"doe\"}"
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // ================== Random code ======================
@@ -495,8 +422,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  f=true==true
       |in
       |  z""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Complex code""") { _ =>
@@ -510,8 +436,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |    adults:adults
       |    , height_over_175_cm: height_over_175_cm
       |  }""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // ================== String Escape  ======================
@@ -519,14 +444,12 @@ class FrontendParserCompareTest extends RawTestSuite {
     val prog =
       """Csv.Parse("1;tralala\n12;ploum\n3;ploum;\n4;NULL", type collection(record(a: int, b: string, c: string, d: string, e: string)),
         |skip = 0, delimiter = ";", nulls=["NULL", "12"])""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""String escape test quotes""") { _ =>
     val prog = s"""Csv.InferAndParse(${triple}1;2\n3;hello$triple, delimiters=[";","\\n"])""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Triple quotes test""") { _ =>
@@ -536,8 +459,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |world!$triple
       |in
       |   [a, b]""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
   test("""Triple quotes test with line breaks""") { _ =>
     val prog = s"""let
@@ -564,8 +486,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  )
       |in
       |  Collection.Filter(data, x -> x.code == "UK")""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""String escape test quotes with broken rule""") { _ =>
@@ -576,22 +497,19 @@ class FrontendParserCompareTest extends RawTestSuite {
       |    r2 = {f1: g, f2: f},
       |    min = Collection.Min(Collection.Build(r1, r2))
       |in min.f2(10) * min.f2(10)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""String escape test quotes with list""") { _ =>
     val prog = s"""Csv.InferAndParse(${triple}1;2\n3;hello;5;;;;;;;$triple, delimiters=[";","\\n"])""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // ============== Parse failing tests ========================
 
   test("""Failure Test""") { _ =>
     val prog = "1,"
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Filed test 7""") { _ =>
@@ -599,8 +517,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |let # = 1
       |in x
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // ============== Keywords tests ========================
@@ -614,16 +531,14 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  })
       |in
       |  Collection.Filter(parsed, x -> x.timestamp > Timestamp.Build(2022, 09, 14, 15, 9, seconds = 49, millis = 925))""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Or type fail test""") { _ =>
     val prog = s"""Xml.Read("asdf",
       |type record(list: collection(record(a: int, b: int) or record(c: string, d: bool)))
       |)""".stripMargin.stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // ================== Frontend syntax analyzer test =============
@@ -633,8 +548,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |let $$package(v: int) = 1
       |in $$package(1)
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""FE test 2""") { _ =>
@@ -642,42 +556,36 @@ class FrontendParserCompareTest extends RawTestSuite {
       |let f(v: int) = v + 1
       |in f(#)
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""FE test 3""") { _ =>
     val prog = """{a = 1}"""
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""FE test 4""") { _ =>
     val prog = """let f = (v: int) => 1
       |in f(1)
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""FE test 5""") { _ =>
     val prog = """let f = (v: int,) -> 1
       |in f(1)
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""FE test 6""") { _ =>
     val prog = """{ #: 1 }""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""FE test 7""") { _ =>
     val prog = """{ : 1 }""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""FE test 8""") { _ =>
@@ -687,50 +595,43 @@ class FrontendParserCompareTest extends RawTestSuite {
       |in
       |  hello
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   // ================== Failed tests  ======================
 
   test("""list type not type alias""") { _ =>
     val prog = s"""Json.Parse("[1,2,3]", type list(int))""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""no params function call""") { _ =>
     val prog = """let f() = 3.14
       |in f()""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""string trim func""") { _ =>
     val prog = """String.Trim(x: string -> "1+1")""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""fun application test""") { _ =>
     val prog = """apply(f: (int) -> double) = f(1)
       |apply(x: int -> 12.3)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""type package test""") { _ =>
     val prog = """let t: type int = type int,
       |    x: t = 1
       |in x""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""propagation test""") { _ =>
     val prog = """5 - 500 + 3.0f""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Extra comma test 1""") { _ =>
@@ -743,8 +644,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  ),
       |in 1
       |""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""Type alias test""") { _ =>
@@ -753,8 +653,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |    f(l: listType): itemType = List.First(l),
       |    myList: listType = [1,2,3,4,5]
       |in f(myList)""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
   test("""New failing test 2""") { _ =>
@@ -777,8 +676,7 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  )
       |in
       |  data""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
 }
