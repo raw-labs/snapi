@@ -134,6 +134,10 @@ RIGHT_CUR_BR: '}';
 LEFT_SQ_BR: '[';
 RIGHT_SQ_BR: ']';
 
+NULLABLE_TOKEN: '@null';
+TRYABLE_TOKEN: '@try';
+DOLLAR_TOKEN: '$';
+
 // Switching context to triple quotes, will be usefull for string interpolation too
 mode INSIDE_TRIPLE_QUOTE;
 TRIPLE_QUOTED_STRING_CONTENT : '"' '"'? ~["]  // Match one or two quotes followed by a non-quote

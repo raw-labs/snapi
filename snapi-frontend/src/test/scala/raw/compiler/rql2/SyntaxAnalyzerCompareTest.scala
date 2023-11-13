@@ -16,26 +16,26 @@ import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import raw.compiler.common.source.{Exp, SourceNode}
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.TypeExp
+import raw.utils.RawTestSuite
 
-object ParserCompare {
+class SyntaxAnalyzerCompareTest extends RawTestSuite {
+  val triple = "\"\"\""
 
-  private def parseWithAntlr4(s: String, isFrontend: Boolean) = {
+  private def parseWithAntlr4(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new Antlr4SyntaxAnalyzer(positions, isFrontend)
+    val parser = new Antlr4SyntaxAnalyzer(positions, false)
     parser.parse(s)
   }
 
-  private def parseWithKiama(s: String, isFrontend: Boolean) = {
+  private def parseWithKiama(s: String) = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser =
-      if (isFrontend) new FrontendSyntaxAnalyzer(positions)
-      else new SyntaxAnalyzer(positions)
+    val parser = new SyntaxAnalyzer(positions)
     parser.parse(s)
   }
 
-  def compareTrees(s: String, isFrontend: Boolean): Unit = {
-    val antlr4Result = parseWithAntlr4(s, isFrontend)
-    val kiamaResult = parseWithKiama(s, isFrontend)
+  def compareTrees(s: String): Unit = {
+    val antlr4Result = parseWithAntlr4(s)
+    val kiamaResult = parseWithKiama(s)
 
     if (antlr4Result.isLeft && kiamaResult.isLeft) {
       assert(true)
@@ -50,15 +50,13 @@ object ParserCompare {
     }
   }
 
-  def comparePositions(s: String, isFrontend: Boolean): Unit = {
+  def comparePositions(s: String): Unit = {
     val kiamaPositions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val kiamaParser =
-      if (isFrontend) new FrontendSyntaxAnalyzer(kiamaPositions)
-      else new SyntaxAnalyzer(kiamaPositions)
+    val kiamaParser = new SyntaxAnalyzer(kiamaPositions)
     val kiamaRoot = kiamaParser.parse(s)
 
     val antlr4Positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val antlr4Parser = new Antlr4SyntaxAnalyzer(antlr4Positions, isFrontend)
+    val antlr4Parser = new Antlr4SyntaxAnalyzer(antlr4Positions, false)
     val antlr4Root = antlr4Parser.parse(s)
 
     val kiamaNodes = scala.collection.mutable.ArrayBuffer[SourceNode]()
@@ -67,21 +65,38 @@ object ParserCompare {
     everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => kiamaNodes += n })(kiamaRoot)
     everywhere(query[Any] { case n: Exp if !n.isInstanceOf[TypeExp] => antlr4Nodes += n })(antlr4Root)
 
-    if (kiamaNodes.size != antlr4Nodes.size) {
-      throw new AssertionError(
-        s"=+=+= Different number of nodes Kiama: ${kiamaNodes.size}, Antlr4: ${antlr4Nodes.size}"
-      )
-    }
+    assert(kiamaNodes.size == antlr4Nodes.size, s"Kiama nodes: ${kiamaNodes.size}, Antlr4 nodes: ${antlr4Nodes.size}")
 
     kiamaNodes.zip(antlr4Nodes).foreach {
       case (kiamaNode, antlr4Node) =>
-        if (kiamaPositions.getStart(kiamaNode) != antlr4Positions.getStart(antlr4Node))
-          throw new AssertionError(s"=+=+= Different start position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
-
-        if (kiamaPositions.getFinish(kiamaNode) != antlr4Positions.getFinish(antlr4Node))
-          throw new AssertionError(s"=+=+= Different end position Kiama node: $kiamaNode, Antlr4 node: $antlr4Node")
+        assert(antlr4Positions.getStart(antlr4Node) == kiamaPositions.getStart(kiamaNode))
+        assert(antlr4Positions.getFinish(antlr4Node) == kiamaPositions.getFinish(kiamaNode))
     }
 
+  }
+
+  // =============== Hello world ==================
+  test("""Hello world with string""") { _ =>
+    val prog = """let
+      |  hello = Json.Read("a", type collection(int) @null @try)
+      |in
+      |  hello""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 1""") { _ =>
+    val prog = s"""$$package("Collection")""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
+  test("""FE test 2""") { _ =>
+    val prog = s"""(int @try @null) -> list(int @try @null) @try @null (@try @null)""".stripMargin
+    val positions = new org.bitbucket.inkytonik.kiama.util.Positions
+    val parser = new Antlr4SyntaxAnalyzer(positions, false)
+    parser.parseType(prog)
+    assert(true)
   }
 
 }

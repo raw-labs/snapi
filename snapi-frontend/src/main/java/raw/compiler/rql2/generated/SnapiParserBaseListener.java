@@ -309,6 +309,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
+  public void enterNullableTryableType(SnapiParser.NullableTryableTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitNullableTryableType(SnapiParser.NullableTryableTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
   public void enterExprTypeType(SnapiParser.ExprTypeTypeContext ctx) {}
   /**
    * {@inheritDoc}
@@ -547,20 +561,6 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterStringExpr(SnapiParser.StringExprContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void exitStringExpr(SnapiParser.StringExprContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
   public void enterMinusUnaryExpr(SnapiParser.MinusUnaryExprContext ctx) {}
   /**
    * {@inheritDoc}
@@ -569,6 +569,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitMinusUnaryExpr(SnapiParser.MinusUnaryExprContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterStringLiteralExpr(SnapiParser.StringLiteralExprContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitStringLiteralExpr(SnapiParser.StringLiteralExprContext ctx) {}
   /**
    * {@inheritDoc}
    *
@@ -841,14 +855,14 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterTrippleStringExpr(SnapiParser.TrippleStringExprContext ctx) {}
+  public void enterPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {}
   /**
    * {@inheritDoc}
    *
    * <p>The default implementation does nothing.
    */
   @Override
-  public void exitTrippleStringExpr(SnapiParser.TrippleStringExprContext ctx) {}
+  public void exitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {}
   /**
    * {@inheritDoc}
    *
@@ -911,14 +925,28 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterLet_decl(SnapiParser.Let_declContext ctx) {}
+  public void enterLetBind(SnapiParser.LetBindContext ctx) {}
   /**
    * {@inheritDoc}
    *
    * <p>The default implementation does nothing.
    */
   @Override
-  public void exitLet_decl(SnapiParser.Let_declContext ctx) {}
+  public void exitLetBind(SnapiParser.LetBindContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterLetFunDec(SnapiParser.LetFunDecContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitLetFunDec(SnapiParser.LetFunDecContext ctx) {}
   /**
    * {@inheritDoc}
    *
@@ -1065,6 +1093,34 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
+  public void enterString_literal(SnapiParser.String_literalContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitString_literal(SnapiParser.String_literalContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterTriple_string_literal(SnapiParser.Triple_string_literalContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitTriple_string_literal(SnapiParser.Triple_string_literalContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
   public void enterCompare_tokens(SnapiParser.Compare_tokensContext ctx) {}
   /**
    * {@inheritDoc}
@@ -1101,6 +1157,34 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitIdent(SnapiParser.IdentContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterPackage_idn_exp(SnapiParser.Package_idn_expContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitPackage_idn_exp(SnapiParser.Package_idn_expContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterNullable_tryable(SnapiParser.Nullable_tryableContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitNullable_tryable(SnapiParser.Nullable_tryableContext ctx) {}
 
   /**
    * {@inheritDoc}

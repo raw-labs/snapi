@@ -20,7 +20,7 @@ import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
 import raw.compiler.rql2.source.Rql2Program
 
-class Antlr4SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) {
+class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extends Parsers(positions) {
 
   def parse(s: String): Either[(String, Position), BaseProgram] = {
     val source = StringSource(s)
@@ -37,7 +37,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
 
     val tree: ParseTree = parser.prog
 //    print(tree.toStringTree(parser))
-    val visitor = new RawSnapiVisitor(positions, StringSource(s))
+    val visitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend)
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
     if (rawErrorListener.hasErrors) Left(rawErrorListener.getErrors.head)
@@ -58,7 +58,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     parser.addErrorListener(rawErrorListener)
 
     val tree: ParseTree = parser.tipe
-    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, StringSource(s))
+    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend)
     val result: Type = visitor.visit(tree).asInstanceOf[Type]
 
     if (rawErrorListener.hasErrors) Left(rawErrorListener.getErrors.head)
