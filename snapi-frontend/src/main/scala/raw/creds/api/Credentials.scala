@@ -141,7 +141,7 @@ final case class SnowflakeCredential(
   val port = None
 }
 
-final case class Secret(name: String, value: String)
+final case class Secret(name: String, value: String) extends Credential
 
 // Http credentials
 object HttpCredentialType extends Enumeration {

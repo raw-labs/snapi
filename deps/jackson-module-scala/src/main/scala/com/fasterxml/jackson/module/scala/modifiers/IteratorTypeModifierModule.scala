@@ -1,0 +1,3 @@
+package com.fasterxml.jackson.module.scala.modifiers
+
+trait IteratorTypeModifierModule extends ScalaTypeModifierModule
