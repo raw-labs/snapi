@@ -110,7 +110,7 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
   /** HTTP Credentials */
 
   def listHttpCredentials(user: AuthenticatedUser): List[HttpCredentialId] = {
-    restClient.doJsonPost[List[HttpCredentialId]]("2/http/list", List(user), withAuth = false)
+    restClient.doJsonPost[List[HttpCredentialId]]("2/http/list", ListNewHttpCredentials(user), withAuth = false)
   }
 
   def registerHttpCredential(user: AuthenticatedUser, name: String, token: NewHttpCredential): Boolean = {
@@ -211,6 +211,7 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
   }
 
   /** HTTP credentials */
+
   @deprecated("Use registerHttpCredential instead", since = "2022-06-14")
   def registerHTTPCred(user: AuthenticatedUser, auth: HttpCredential): Boolean = {
     try {
