@@ -71,6 +71,7 @@ class Antlr4TypeTests extends RawTestSuite {
         props
       )
     )
+    assert(parseType("record()") == Rql2RecordType(Vector.empty, props))
   }
 
   test("""Collection of records""") { _ =>
