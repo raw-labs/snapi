@@ -49,7 +49,7 @@ import raw.client.api.{
   ValidateResponse
 }
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
-import raw.utils.{descape, withSuppressNonFatalException, RawSettings}
+import raw.utils.{RawUtils, RawSettings}
 
 import java.io.{IOException, OutputStream}
 
@@ -183,7 +183,7 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            withSuppressNonFatalException(csvWriter.close())
+            RawUtils.withSuppressNonFatalException(csvWriter.close())
           }
         case Some("json") =>
           val w = new PolyglotJsonWriter(outputStream)
@@ -193,7 +193,7 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
           } catch {
             case ex: IOException => ExecutionRuntimeFailure(ex.getMessage)
           } finally {
-            withSuppressNonFatalException(w.close())
+            RawUtils.withSuppressNonFatalException(w.close())
           }
         case Some("text") =>
           val w = new PolyglotTextWriter(outputStream)
@@ -236,7 +236,7 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
       case RawFloat(v) => ???
       case RawDouble(v) => ???
       case RawBool(v) => if (v) "True" else "False"
-      case RawString(v) => s""""${descape(v)}""""
+      case RawString(v) => s""""${RawUtils.descape(v)}""""
       case RawDecimal(v) => ???
       case RawDate(v) => ???
       case RawTime(v) => ???
