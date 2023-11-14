@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2
 
+import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.common.source.{IdnDef, IdnExp, IdnUse}
 import raw.compiler.rql2.source.{
   BinaryExp,
