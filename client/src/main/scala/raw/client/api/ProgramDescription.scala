@@ -12,22 +12,21 @@
 
 package raw.client.api
 
-import com.fasterxml.jackson.annotation.JsonProperty
-
 final case class ProgramDescription(
-    @JsonProperty("declarations") decls: Map[String, List[DeclDescription]],
-    @JsonProperty("type") maybeType: Option[RawType],
+    decls: Map[String, List[DeclDescription]],
+    maybeType: Option[RawType],
     comment: Option[String]
 )
 
 final case class DeclDescription(
-    @JsonProperty("parameters") params: Option[Vector[ParamDescription]],
-    @JsonProperty("outputType") outType: RawType,
+    params: Option[Vector[ParamDescription]],
+    maybeOutType: Option[RawType],
     comment: Option[String]
 )
 
 final case class ParamDescription(
-    @JsonProperty("identifier") idn: String,
-    @JsonProperty("type") tipe: RawType,
+    idn: String,
+    maybeType: Option[RawType],
+    defaultValue: Option[RawValue],
     required: Boolean
 )

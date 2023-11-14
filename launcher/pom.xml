@@ -48,7 +48,6 @@
             <version>23.1.0</version>
             <scope>runtime</scope>
             <type>pom</type>
-            <scope>runtime</scope>
         </dependency>
         <!-- JLine Dependency -->
         <dependency>

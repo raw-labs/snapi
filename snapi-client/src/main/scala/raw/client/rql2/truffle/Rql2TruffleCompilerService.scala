@@ -140,13 +140,13 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
               case (idn, programDecls) =>
                 val formattedDecls = programDecls.map {
                   case TreeDeclDescription(None, outType, comment) =>
-                    DeclDescription(None, rql2TypeToRawType(outType), comment)
+                    DeclDescription(None, Some(rql2TypeToRawType(outType)), comment)
                   case TreeDeclDescription(Some(params), outType, comment) =>
                     val formattedParams = params.map {
                       case TreeParamDescription(idn, tipe, required) =>
-                        ParamDescription(idn, rql2TypeToRawType(tipe), required)
+                        ParamDescription(idn, Some(rql2TypeToRawType(tipe)), None, required)
                     }
-                    DeclDescription(Some(formattedParams), rql2TypeToRawType(outType), comment)
+                    DeclDescription(Some(formattedParams), Some(rql2TypeToRawType(outType)), comment)
                 }
                 (idn, formattedDecls)
             }
