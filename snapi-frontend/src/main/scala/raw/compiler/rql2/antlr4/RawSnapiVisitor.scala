@@ -14,6 +14,7 @@ package raw.compiler.rql2.antlr4
 
 import org.antlr.v4.runtime.ParserRuleContext
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
+import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
@@ -23,8 +24,12 @@ import raw.compiler.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class RawSnapiVisitor(positions: Positions, private val source: Source, isFrontend: Boolean)
-    extends SnapiParserBaseVisitor[SourceNode] {
+class RawSnapiVisitor(
+    positions: Positions,
+    private val source: Source,
+    isFrontend: Boolean,
+    private val errors: RawVisitorParseErrors
+) extends SnapiParserBaseVisitor[SourceNode] {
 
   private val positionsWrapper = new RawPositions(positions, source)
 
@@ -1037,48 +1042,68 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     .getOrElse(ErrorExp())
 
   // Nullable tryable
-  override def visitNullableTryableType(ctx: SnapiParser.NullableTryableTypeContext): SourceNode = {
-    if (isFrontend) throw new RuntimeException("Nullable tryable types are not supported in frontend")
 
-    Option(ctx)
-      .map { context =>
-        val tipe = Option(context.tipe)
-          .map(visit(_).asInstanceOf[Rql2TypeWithProperties])
-          .getOrElse(ErrorType().asInstanceOf[Rql2TypeWithProperties])
-        // this is needed for the case of parenthesis around nullable_tryable rule
-        Option(context.nullable_tryable())
-          .flatMap(c => Option(c.nullable_tryable()).orElse(Some(c)))
-          .map { nullableTryable =>
-            val withoutNullable = Option(nullableTryable.NULLABLE_TOKEN())
-              .map(_ => tipe.cloneAndAddProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties])
-              .getOrElse(tipe)
-            Option(nullableTryable.TRYABLE_TOKEN())
-              .map(_ =>
-                withoutNullable.cloneAndAddProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
-              )
-              .getOrElse(withoutNullable)
-          }
-          .getOrElse(tipe)
-      }
-      .getOrElse(ErrorType())
+  private def notFrontendError(ctx: ParserRuleContext): SourceNode = {
+    this.errors.addError(
+      ErrorMessage(
+        "Unknown token",
+        List(
+          ErrorRange(
+            ErrorPosition(ctx.getStart.getLine, ctx.getStart.getCharPositionInLine + 1),
+            ErrorPosition(ctx.getStop.getLine, ctx.getStop.getCharPositionInLine + 1)
+          )
+        )
+      )
+    )
+    ErrorExp()
+  }
+  override def visitNullableTryableType(ctx: SnapiParser.NullableTryableTypeContext): SourceNode = {
+    if (isFrontend) {
+      notFrontendError(ctx)
+    } else {
+      Option(ctx)
+        .map { context =>
+          val tipe = Option(context.tipe)
+            .map(visit(_).asInstanceOf[Rql2TypeWithProperties])
+            .getOrElse(ErrorType().asInstanceOf[Rql2TypeWithProperties])
+          // this is needed for the case of parenthesis around nullable_tryable rule
+          Option(context.nullable_tryable())
+            .flatMap(c => Option(c.nullable_tryable()).orElse(Some(c)))
+            .map { nullableTryable =>
+              val withoutNullable = Option(nullableTryable.NULLABLE_TOKEN())
+                .map(_ => tipe.cloneAndAddProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties])
+                .getOrElse(tipe)
+              Option(nullableTryable.TRYABLE_TOKEN())
+                .map(_ =>
+                  withoutNullable.cloneAndAddProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+                )
+                .getOrElse(withoutNullable)
+            }
+            .getOrElse(tipe)
+        }
+        .getOrElse(ErrorType())
+    }
   }
 
   override def visitPackage_idn_exp(ctx: SnapiParser.Package_idn_expContext): SourceNode = {
-    if (isFrontend) throw new RuntimeException("Package syntax is not supported in frontend")
-    Option(ctx)
-      .map { context =>
-        val stringLiteral = Option(context.string_literal()).map(visit(_)).getOrElse(ErrorExp())
-        val str = stringLiteral match {
-          case StringConst(s) => s
-          case TripleQuotedStringConst(s) => s
-          case ErrorExp() => ""
-          case _ => throw new AssertionError("Unexpected string literal")
+    if (isFrontend) {
+      notFrontendError(ctx)
+    } else {
+      Option(ctx)
+        .map { context =>
+          val stringLiteral = Option(context.string_literal()).map(visit(_)).getOrElse(ErrorExp())
+          val str = stringLiteral match {
+            case StringConst(s) => s
+            case TripleQuotedStringConst(s) => s
+            case ErrorExp() => ""
+            case _ => throw new AssertionError("Unexpected string literal")
+          }
+          val result = PackageIdnExp(str)
+          positionsWrapper.setPosition(context, result)
+          result
         }
-        val result = PackageIdnExp(str)
-        positionsWrapper.setPosition(context, result)
-        result
-      }
-      .getOrElse(ErrorExp())
+        .getOrElse(ErrorExp())
+    }
   }
 
   override def visitPackageIdnExp(ctx: SnapiParser.PackageIdnExpContext): SourceNode =

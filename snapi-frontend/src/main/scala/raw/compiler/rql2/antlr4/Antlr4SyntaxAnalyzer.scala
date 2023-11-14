@@ -46,11 +46,12 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     parser.addErrorListener(rawErrorListener)
 
     val tree: ParseTree = parser.prog
-//    print(tree.toStringTree(parser))
-    val visitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend)
+    val visitorParseErrors = RawVisitorParseErrors()
+    val visitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend, visitorParseErrors)
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
-    ParseProgramResult(rawErrorListener.getErrors, result)
+    val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
+    ParseProgramResult(totalErrors, result)
   }
 
   def parseType(s: String): ParseTypeResult = {
@@ -67,10 +68,13 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     parser.addErrorListener(rawErrorListener)
 
     val tree: ParseTree = parser.tipe
-    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend)
+    val visitorParseErrors = RawVisitorParseErrors()
+    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend, visitorParseErrors)
     val result: Type = visitor.visit(tree).asInstanceOf[Type]
 
-    ParseTypeResult(rawErrorListener.getErrors, result)
+    val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
+
+    ParseTypeResult(totalErrors, result)
   }
 
 }

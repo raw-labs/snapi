@@ -697,4 +697,9 @@ class FrontendParserCompareTest extends RawTestSuite {
     compare(prog)
   }
 
+  test("""New failing test 6""") { _ =>
+    val prog = s"""$$package("Collection")""".stripMargin
+    compare(prog)
+  }
+
 }
