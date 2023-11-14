@@ -781,4 +781,12 @@ class FrontendParserCompareTest extends RawTestSuite {
     comparePositions(prog)
   }
 
+  test("Single quote escaped in a string") { _ =>
+    val prog = """let
+      |  a = "a\'b"
+      |in a""".stripMargin
+    compareTrees(prog)
+    comparePositions(prog)
+  }
+
 }

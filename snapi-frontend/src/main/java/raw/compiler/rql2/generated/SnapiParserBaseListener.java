@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.0
+// Generated from SnapiParser.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -477,6 +477,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
+  public void enterParam_list(SnapiParser.Param_listContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitParam_list(SnapiParser.Param_listContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
   public void enterRecord_type(SnapiParser.Record_typeContext ctx) {}
   /**
    * {@inheritDoc}
@@ -485,6 +499,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitRecord_type(SnapiParser.Record_typeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterRecord_attr_list(SnapiParser.Record_attr_listContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitRecord_attr_list(SnapiParser.Record_attr_listContext ctx) {}
   /**
    * {@inheritDoc}
    *

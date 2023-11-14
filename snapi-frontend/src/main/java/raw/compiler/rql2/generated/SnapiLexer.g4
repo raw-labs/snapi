@@ -87,7 +87,7 @@ LINE_COMMENT : '//' ~('\n'|'\r')* ('\r'? '\n' | EOF) -> channel(HIDDEN) ;
 
 fragment DIGIT: [0-9];
 fragment EXPONENT: E [+-]? DIGIT+;
-fragment ESC: '\\' (["\\/bfnrt]) ;
+fragment ESC: '\\' (["\\/'bfnrt]) ;
 fragment INTEGER_FR: DIGIT+;
 fragment FLOAT_FR: DIGIT+ '.' DIGIT* EXPONENT?;
 // For cace insensitive. you can write things like fragment

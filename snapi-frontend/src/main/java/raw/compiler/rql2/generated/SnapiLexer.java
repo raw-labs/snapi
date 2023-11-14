@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiLexer.g4 by ANTLR 4.13.0
+// Generated from SnapiLexer.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.*;
@@ -20,10 +20,18 @@ import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.*;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
+@SuppressWarnings({
+  "all",
+  "warnings",
+  "unchecked",
+  "unused",
+  "cast",
+  "CheckReturnValue",
+  "this-escape"
+})
 public class SnapiLexer extends Lexer {
   static {
-    RuntimeMetaData.checkVersion("4.13.0", RuntimeMetaData.VERSION);
+    RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION);
   }
 
   protected static final DFA[] _decisionToDFA;
@@ -552,7 +560,7 @@ public class SnapiLexer extends Lexer {
           + "C\u00c6D\u00c8E\u00caF\u00ccG\u00ceH\u00d0I\u00d2J\u00d4K\u00d6L\u0002"
           + "\u0000\u0001#\u0002\u0000\"\"\\\\\u0003\u0000AZ__az\u0004\u000009AZ__"
           + "az\u0003\u0000\t\n\r\r  \u0002\u0000\n\n\r\r\u0001\u000009\u0002\u0000"
-          + "++--\b\u0000\"\"//\\\\bbffnnrrtt\u0002\u0000AAaa\u0002\u0000BBbb\u0002"
+          + "++--\t\u0000\"\"\'\'//\\\\bbffnnrrtt\u0002\u0000AAaa\u0002\u0000BBbb\u0002"
           + "\u0000CCcc\u0002\u0000DDdd\u0002\u0000EEee\u0002\u0000FFff\u0002\u0000"
           + "GGgg\u0002\u0000HHhh\u0002\u0000IIii\u0002\u0000JJjj\u0002\u0000KKkk\u0002"
           + "\u0000LLll\u0002\u0000MMmm\u0002\u0000NNnn\u0002\u0000OOoo\u0002\u0000"
