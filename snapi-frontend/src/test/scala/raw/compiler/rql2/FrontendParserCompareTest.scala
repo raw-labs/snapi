@@ -706,8 +706,7 @@ class FrontendParserCompareTest extends RawTestSuite {
     val prog = """let
       |  a = "a\'b"
       |in a""".stripMargin
-    compareTrees(prog)
-    comparePositions(prog)
+    compare(prog)
   }
 
 }
