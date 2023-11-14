@@ -688,14 +688,12 @@ class FrontendParserCompareTest extends RawTestSuite {
   }
 
   test("""New failing test 4""") { _ =>
-    val prog = """let
-      |buildCollection = (lastElement:int) -> let
-      |a = Collection.Build(1,2,3,lastElement),
-      |                                            b = Collection.Build(1,2,3,lastElement),
-      |                                            c = Collection.Build(1,2,3,lastElement)
-      |                                        in Collection.Build(a,b,c)
-      |in
-      |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
+    val prog = """Csv.InferAndParse(\"\"\"1;2\n3;hello;5;;;;;;;\"\"\", delimiters=[";","\\n"])""".stripMargin
+    compare(prog)
+  }
+
+  test("""New failing test 5""") { _ =>
+    val prog = """{}""".stripMargin
     compare(prog)
   }
 

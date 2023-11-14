@@ -111,13 +111,13 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(i
   }
 
   override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
-    val programContext = getProgramContext(environment.user, environment)
-    val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-    if (tree.valid) {
-      val root = tree.root
-      ParseSuccess(root)
+    val positions = new Positions()
+    val parser = new Antlr4SyntaxAnalyzer(positions, true)
+    val parseResult = parser.parse(source)
+    if (parseResult.isSuccess) {
+      ParseSuccess(parseResult.tree)
     } else {
-      ParseFailure(tree.errors)
+      ParseFailure(parseResult.errors)
     }
 //    try {
 //      val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
