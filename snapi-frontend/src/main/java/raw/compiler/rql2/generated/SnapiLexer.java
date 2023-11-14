@@ -560,7 +560,7 @@ public class SnapiLexer extends Lexer {
           + "C\u00c6D\u00c8E\u00caF\u00ccG\u00ceH\u00d0I\u00d2J\u00d4K\u00d6L\u0002"
           + "\u0000\u0001#\u0002\u0000\"\"\\\\\u0003\u0000AZ__az\u0004\u000009AZ__"
           + "az\u0003\u0000\t\n\r\r  \u0002\u0000\n\n\r\r\u0001\u000009\u0002\u0000"
-          + "++--\b\u0000\"\"//\\\\bbffnnrrtt\u0002\u0000AAaa\u0002\u0000BBbb\u0002"
+          + "++--\t\u0000\"\"\'\'//\\\\bbffnnrrtt\u0002\u0000AAaa\u0002\u0000BBbb\u0002"
           + "\u0000CCcc\u0002\u0000DDdd\u0002\u0000EEee\u0002\u0000FFff\u0002\u0000"
           + "GGgg\u0002\u0000HHhh\u0002\u0000IIii\u0002\u0000JJjj\u0002\u0000KKkk\u0002"
           + "\u0000LLll\u0002\u0000MMmm\u0002\u0000NNnn\u0002\u0000OOoo\u0002\u0000"

@@ -71,6 +71,7 @@ class Antlr4TypeTests extends RawTestSuite {
         props
       )
     )
+    assert(parseType("record()") == Rql2RecordType(Vector.empty, props))
   }
 
   test("""Collection of records""") { _ =>
@@ -210,6 +211,18 @@ class Antlr4TypeTests extends RawTestSuite {
         FunType(
           Vector.empty,
           Vector(FunOptTypeParam("x", Rql2IntType(props))),
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function type with zero param test""") { _ =>
+    assert(
+      parseType("() -> float") ==
+        FunType(
+          Vector.empty,
+          Vector.empty,
           Rql2FloatType(props),
           props
         )
