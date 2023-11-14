@@ -139,17 +139,19 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             val formattedDecls = decls.map {
               case (idn, programDecls) =>
                 val formattedDecls = programDecls.map {
-                  case TreeDeclDescription(None, outType, _) => DeclDescription(None, rql2TypeToRawType(outType))
-                  case TreeDeclDescription(Some(params), outType, _) =>
+                  case TreeDeclDescription(None, outType, comment) =>
+                    DeclDescription(None, rql2TypeToRawType(outType), comment)
+                  case TreeDeclDescription(Some(params), outType, comment) =>
                     val formattedParams = params.map {
                       case TreeParamDescription(idn, tipe, required) =>
                         ParamDescription(idn, rql2TypeToRawType(tipe), required)
                     }
-                    DeclDescription(Some(formattedParams), rql2TypeToRawType(outType))
+                    DeclDescription(Some(formattedParams), rql2TypeToRawType(outType), comment)
                 }
                 (idn, formattedDecls)
             }
-            val programDescription = ProgramDescription(formattedDecls, maybeType.map(t => rql2TypeToRawType(t)))
+            val programDescription =
+              ProgramDescription(formattedDecls, maybeType.map(t => rql2TypeToRawType(t)), comment)
             GetProgramDescriptionSuccess(programDescription)
           } else {
             GetProgramDescriptionFailure(tree.errors)
