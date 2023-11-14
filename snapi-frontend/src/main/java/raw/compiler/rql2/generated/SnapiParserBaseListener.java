@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.0
+// Generated from SnapiParser.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -919,20 +919,6 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitLet_left(SnapiParser.Let_leftContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void enterMultiple_commas(SnapiParser.Multiple_commasContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void exitMultiple_commas(SnapiParser.Multiple_commasContext ctx) {}
   /**
    * {@inheritDoc}
    *

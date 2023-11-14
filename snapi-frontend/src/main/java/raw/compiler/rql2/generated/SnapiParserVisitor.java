@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.0
+// Generated from SnapiParser.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeVisitor;
@@ -522,13 +522,6 @@ public interface SnapiParserVisitor<T> extends ParseTreeVisitor<T> {
    * @return the visitor result
    */
   T visitLet_left(SnapiParser.Let_leftContext ctx);
-  /**
-   * Visit a parse tree produced by {@link SnapiParser#multiple_commas}.
-   *
-   * @param ctx the parse tree
-   * @return the visitor result
-   */
-  T visitMultiple_commas(SnapiParser.Multiple_commasContext ctx);
   /**
    * Visit a parse tree produced by the {@code LetBind} labeled alternative in {@link
    * SnapiParser#let_decl}.

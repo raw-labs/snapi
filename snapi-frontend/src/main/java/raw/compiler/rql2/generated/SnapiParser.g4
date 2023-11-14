@@ -91,6 +91,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                             # 
     | lists                                                                   # ListExpr
     | records                                                                 # RecordExpr
     | <assoc=right> expr DOT ident fun_ar?                                    # ProjectionExpr
+    | <assoc=right> expr DOT {notifyErrorListeners("Missing projection");}    # ProjectionExpr
     | MINUS_TOKEN expr                                                        # MinusUnaryExpr
     | PLUS_TOKEN expr                                                         # PlusUnaryExpr
     | expr DIV_TOKEN expr                                                     # DivExpr
@@ -115,13 +116,9 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                             # 
 let: LET_TOKEN let_left IN_TOKEN expr // do not add a rule for missing expr here. it introduces ambiguity
    ;
 
-let_left: let_decl (COMMA let_decl)* multiple_commas
+let_left: let_decl (COMMA let_decl)*
         | let_decl {notifyErrorListeners("Missing ','");} (let_decl)*
         ;
-
-multiple_commas: COMMA (COMMA)+ {notifyErrorListeners("Occurence of extra commas");}
-               | COMMA?
-               ;
 
 let_decl: let_bind                                             # LetBind
         | fun_dec                                              # LetFunDec

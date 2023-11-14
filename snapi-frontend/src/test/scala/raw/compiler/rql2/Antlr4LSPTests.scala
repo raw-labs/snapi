@@ -60,4 +60,25 @@ class Antlr4LSPTests extends RawTestSuite {
     assert(result.hasErrors)
   }
 
+  test("""Very broken code lsp without projection test""") { _ =>
+    val prog = """let x = ,
+      |    f(v: int) = (v + ,
+      |    y = Record.Build(a=1), ,
+      |    z = if (true) ,
+      |    w = y.
+      |""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(result.hasErrors)
+  }
+
+  test("""Broken method code lsp test""") { _ =>
+    val prog = """
+      |x(v: int) =
+      |  let y = Record.Build(a=1)
+      |  in y.
+      |""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(result.hasErrors)
+  }
+
 }

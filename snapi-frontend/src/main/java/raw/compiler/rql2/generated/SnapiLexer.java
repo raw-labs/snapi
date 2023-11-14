@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiLexer.g4 by ANTLR 4.13.0
+// Generated from SnapiLexer.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.*;
@@ -20,10 +20,18 @@ import org.antlr.v4.runtime.atn.*;
 import org.antlr.v4.runtime.dfa.DFA;
 import org.antlr.v4.runtime.misc.*;
 
-@SuppressWarnings({"all", "warnings", "unchecked", "unused", "cast", "CheckReturnValue"})
+@SuppressWarnings({
+  "all",
+  "warnings",
+  "unchecked",
+  "unused",
+  "cast",
+  "CheckReturnValue",
+  "this-escape"
+})
 public class SnapiLexer extends Lexer {
   static {
-    RuntimeMetaData.checkVersion("4.13.0", RuntimeMetaData.VERSION);
+    RuntimeMetaData.checkVersion("4.13.1", RuntimeMetaData.VERSION);
   }
 
   protected static final DFA[] _decisionToDFA;

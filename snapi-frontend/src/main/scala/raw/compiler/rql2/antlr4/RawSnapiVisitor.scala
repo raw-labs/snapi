@@ -36,7 +36,13 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   // An extension method to extract the identifier from a token (removes the backticks)
   implicit class IdentExtension(ctx: SnapiParser.IdentContext) {
-    def getValue: String = Option(ctx).map(visit(_).asInstanceOf[StringConst].value).getOrElse("")
+    def getValue: String = Option(ctx)
+      .map { identContext =>
+        val result = visit(identContext).asInstanceOf[StringConst].value
+        positionsWrapper.setPosition(identContext, result)
+        result
+      }
+      .getOrElse("")
   }
 
   override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = Option(ctx)
@@ -111,15 +117,21 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitFunProtoLambdaMultiParam(ctx: SnapiParser.FunProtoLambdaMultiParamContext): SourceNode = Option(ctx)
     .map { context =>
-      val ps = Option(context.fun_param())
-        .map(p =>
-          p.asScala
-            .map(fp =>
-              Option(fp)
-                .map(visit(_).asInstanceOf[FunParam])
-                .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
-            )
-            .toVector
+      val ps = Option(context.attr())
+        .map(atts =>
+          atts.asScala.map { attContext =>
+            val idnDef = Option(attContext.ident())
+              .map(idnContext => {
+                val result = IdnDef(idnContext.getValue)
+                positionsWrapper.setPosition(idnContext, result)
+                result
+              })
+              .getOrElse(IdnDef(""))
+            val tipe = Option(attContext.tipe()).map(visit(_).asInstanceOf[Type])
+            val funParam = FunParam(idnDef, tipe, Option.empty)
+            positionsWrapper.setPosition(attContext, funParam)
+            funParam
+          }.toVector
         )
         .getOrElse(Vector.empty)
 
@@ -140,7 +152,21 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   override def visitFunProtoLambdaSingleParam(ctx: SnapiParser.FunProtoLambdaSingleParamContext): SourceNode =
     Option(ctx)
       .map { context =>
-        val ps = Option(context.fun_param()).map(fp => Vector(visit(fp).asInstanceOf[FunParam])).getOrElse(Vector.empty)
+        val ps = Option(context.attr())
+          .map { attContext =>
+            val idnDef = Option(attContext.ident())
+              .map(idnContext => {
+                val result = IdnDef(idnContext.getValue)
+                positionsWrapper.setPosition(idnContext, result)
+                result
+              })
+              .getOrElse(IdnDef(""))
+            val tipe = Option(attContext.tipe()).map(visit(_).asInstanceOf[Type])
+            val funParam = FunParam(idnDef, tipe, Option.empty)
+            positionsWrapper.setPosition(attContext, funParam)
+            Vector(funParam)
+          }
+          .getOrElse(Vector.empty)
         val funBody = Option(context.expr)
           .map { expContext =>
             val exp = visit(expContext).asInstanceOf[Exp]
@@ -225,11 +251,13 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
             .getOrElse(IdnDef(""))
           val tipe = Option(attrContext.tipe)
             .map(visit(_).asInstanceOf[Type])
-          FunParam(
+          val result = FunParam(
             idnDef,
             tipe,
             Option.empty
           )
+          positionsWrapper.setPosition(attrContext, result)
+          result
         }
         .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
       positionsWrapper.setPosition(context, result)
@@ -291,7 +319,11 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
   override def visitNamedFunArgExpr(ctx: SnapiParser.NamedFunArgExprContext): SourceNode = Option(ctx)
     .map { context =>
       val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val ident = Option(context.ident()).map(_.getValue)
+      val ident = Option(context.ident()).map { identContext =>
+        val result = identContext.getValue
+        positionsWrapper.setPosition(identContext, result)
+        result
+      }
       val result = FunAppArg(exp, ident)
       positionsWrapper.setPosition(context, result)
       result
@@ -563,37 +595,36 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
 
   override def visitProjectionExpr(ctx: SnapiParser.ProjectionExprContext): SourceNode = Option(ctx)
     .map { context =>
-      Option(context.ident())
-        .map(identContext => {
-          val ident = identContext.getValue
-          val proj =
-            Option(context.expr()).map(visit(_).asInstanceOf[Exp]).map(exp => Proj(exp, ident)).getOrElse(ErrorExp())
-          val result = Option(context.fun_ar())
-            .map(funArContext => {
-              // The projection with the function call
-              val args = Option(funArContext.fun_args)
-                .flatMap(ar =>
-                  Option(ar.fun_arg)
-                    .map(arg =>
-                      arg.asScala
-                        .map(a =>
-                          Option(a)
-                            .map(visit(_).asInstanceOf[FunAppArg])
-                            .getOrElse(FunAppArg(ErrorExp(), Option.empty))
-                        )
-                        .toVector
+      val ident = Option(context.ident()).map(identContext => identContext.getValue).getOrElse("")
+      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val proj = Proj(expr, ident)
+      val result = Option(context.fun_ar())
+        .map(funArContext => {
+          // The projection with the function call
+          val args = Option(funArContext.fun_args)
+            .flatMap(ar =>
+              Option(ar.fun_arg)
+                .map(arg =>
+                  arg.asScala
+                    .map(a =>
+                      Option(a)
+                        .map(visit(_).asInstanceOf[FunAppArg])
+                        .getOrElse(FunAppArg(ErrorExp(), Option.empty))
                     )
+                    .toVector
                 )
-                .getOrElse(Vector.empty)
-              positionsWrapper.setPosition(context.getStart, identContext.getStop, proj)
-              FunApp(proj, args)
-            })
-            .getOrElse(proj)
-          positionsWrapper.setPosition(context, result)
-          result
+            )
+            .getOrElse(Vector.empty)
+          positionsWrapper.setPosition(
+            context.getStart,
+            Option(context.ident()).map(identContext => identContext.getStop).getOrElse(context.getStart),
+            proj
+          )
+          FunApp(proj, args)
         })
-        .getOrElse(ErrorExp())
-
+        .getOrElse(proj)
+      positionsWrapper.setPosition(context, result)
+      result
     }
     .getOrElse(ErrorExp())
 
@@ -1054,8 +1085,6 @@ class RawSnapiVisitor(positions: Positions, private val source: Source, isFronte
     Option(ctx).flatMap(context => Option(context.package_idn_exp())).map(visit(_)).getOrElse(ErrorExp())
 
   // Nodes to ignore, they are not part of the AST and should never be visited
-  override def visitMultiple_commas(ctx: SnapiParser.Multiple_commasContext): SourceNode =
-    throw new AssertionError(assertionMessage)
   override def visitBool_const(ctx: SnapiParser.Bool_constContext): SourceNode =
     throw new AssertionError(assertionMessage)
 

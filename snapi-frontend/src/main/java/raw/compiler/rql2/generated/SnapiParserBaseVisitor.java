@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.0
+// Generated from SnapiParser.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -663,16 +663,6 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    */
   @Override
   public T visitLet_left(SnapiParser.Let_leftContext ctx) {
-    return visitChildren(ctx);
-  }
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
-   * ctx}.
-   */
-  @Override
-  public T visitMultiple_commas(SnapiParser.Multiple_commasContext ctx) {
     return visitChildren(ctx);
   }
   /**

@@ -639,9 +639,9 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  prType = type record(
       |    title: string,
       |    body: string,
-      |    url: string,
+      |    url: string
       |    // ...
-      |  ),
+      |  )
       |in 1
       |""".stripMargin
     compare(prog)
@@ -676,6 +676,26 @@ class FrontendParserCompareTest extends RawTestSuite {
       |  )
       |in
       |  data""".stripMargin
+    compare(prog)
+  }
+
+  test("""New failing test 3""") { _ =>
+    val prog = """let
+      |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
+      |in
+      |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
+    compare(prog)
+  }
+
+  test("""New failing test 4""") { _ =>
+    val prog = """let
+      |buildCollection = (lastElement:int) -> let
+      |a = Collection.Build(1,2,3,lastElement),
+      |                                            b = Collection.Build(1,2,3,lastElement),
+      |                                            c = Collection.Build(1,2,3,lastElement)
+      |                                        in Collection.Build(a,b,c)
+      |in
+      |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
     compare(prog)
   }
 

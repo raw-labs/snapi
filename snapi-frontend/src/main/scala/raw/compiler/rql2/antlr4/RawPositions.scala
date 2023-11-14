@@ -25,7 +25,7 @@ class RawPositions(positions: Positions, source: Source) {
    * @param ctx  the context to get the position from
    * @param node the node to store in the positions map
    */
-  def setPosition(ctx: ParserRuleContext, node: SourceNode): Unit = {
+  def setPosition[T](ctx: ParserRuleContext, node: T): Unit = {
     if (ctx != null) {
       if (ctx.getStart != null) {
         positions.setStart(node, Position(ctx.getStart.getLine, ctx.getStart.getCharPositionInLine + 1, source))
@@ -45,7 +45,7 @@ class RawPositions(positions: Positions, source: Source) {
    * @param token the token to get the position from
    * @param node  the node to store in the positions map
    */
-  def setPosition(token: Token, node: SourceNode): Unit = {
+  def setPosition[T](token: Token, node: T): Unit = {
     if (token != null) {
       positions.setStart(node, Position(token.getLine, token.getCharPositionInLine + 1, source))
       positions.setFinish(
@@ -62,7 +62,7 @@ class RawPositions(positions: Positions, source: Source) {
    * @param endToken   end of the position
    * @param node       the node to store in the positions map
    */
-  def setPosition(startToken: Token, endToken: Token, node: SourceNode): Unit = {
+  def setPosition[T](startToken: Token, endToken: Token, node: T): Unit = {
     if (startToken != null) {
       positions.setStart(node, Position(startToken.getLine, startToken.getCharPositionInLine + 1, source))
     }
