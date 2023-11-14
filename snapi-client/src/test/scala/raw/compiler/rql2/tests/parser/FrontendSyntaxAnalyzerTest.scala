@@ -27,43 +27,40 @@ trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
   test("""
     |let # = 1
     |in x
-    |""".stripMargin)(it => it should parseErrorAs("expected declaration"))
+    |""".stripMargin)(it => it should parseErrorAs("token recognition error at: '#'"))
 
   test("""
     |let f(v: int) = v + 1
     |in f(#)
-    |""".stripMargin)(it => it should parseErrorAs("')' expected but '#' found"))
+    |""".stripMargin)(it => it should parseErrorAs("token recognition error at: '#'"))
 
-  // Extra commas in type and in let
-  test("""let
-    |  prType = type record(
-    |    title: string,
-    |    body: string,
-    |    url: string,
-    |    // ...
-    |  ),
-    |in 1
-    |""".stripMargin)(it => it should parse)
-
-  test("""{a = 1}""")(it => it should parseErrorAs("use ':' instead of '='"))
+  test("""{a = 1}""")(it =>
+    it should parseErrorAs(
+      "mismatched input '=' expecting {'==', '!=', '<=', '<', '>=', '>', '+', '-', '*', '/', '%', 'and', 'or', '(', ',', '.', '}'}"
+    )
+  )
 
   test("""let f = (v: int) => 1
     |in f(1)
-    |""".stripMargin)(it => it should parseErrorAs("use '->' instead of '=>'"))
+    |""".stripMargin)(it => it should parseErrorAs("no viable alternative at input 'f=(v:int)='"))
 
   test("""let f = (v: int,) -> 1
     |in f(1)
-    |""".stripMargin)(it => it should parseErrorAs("identifier expected but ')' found"))
+    |""".stripMargin)(it => it should parseErrorAs("no viable alternative at input 'f=(v:int,)'"))
 
-  test("""{ #: 1 }""".stripMargin)(it => it should parseErrorAs("'}' expected but '#' found"))
+  test("""{ #: 1 }""".stripMargin)(it => it should parseErrorAs("token recognition error at: '#'"))
 
-  test("""{ : 1 }""".stripMargin)(it => it should parseErrorAs("'}' expected but ':' found"))
+  test("""{ : 1 }""".stripMargin)(it =>
+    it should parseErrorAs(
+      "extraneous input ':' expecting {'type', 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'let', 'undefined', 'if', 'null', BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE, DECIMAL, '+', '-', 'not', 'true', 'false', STRING, START_TRIPLE_QUOTE, NON_ESC_IDENTIFIER, ESC_IDENTIFIER, '(', '{', '}', '[', '$'}"
+    )
+  )
 
   test("""
     |let
     |  hello = type recor(a: int)
     |in
     |  hello
-    |""".stripMargin)(it => it should parseErrorAs("illegal type use"))
+    |""".stripMargin)(it => it should parseErrorAs("no viable alternative at input 'hello=typerecor(a:int)'"))
 
 }

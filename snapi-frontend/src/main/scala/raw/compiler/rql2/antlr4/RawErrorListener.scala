@@ -13,7 +13,7 @@
 package raw.compiler.rql2.antlr4
 
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
-import org.bitbucket.inkytonik.kiama.util.{Position, Source}
+import org.bitbucket.inkytonik.kiama.util.Source
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 
 class RawErrorListener(private val source: Source) extends BaseErrorListener {
