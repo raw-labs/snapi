@@ -11,6 +11,9 @@ cd "${SCRIPT_HOME}/deps/kiama"
 cd "${SCRIPT_HOME}/deps/scala-logging"
 ./build.sh
 
+cd "${SCRIPT_HOME}/deps/jackson-module-scala"
+./build.sh
+
 cd "${SCRIPT_HOME}/utils"
 ./build.sh
 
