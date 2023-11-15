@@ -116,46 +116,55 @@ trait Rql2TypeUtils {
     true
   }
 
-  def rql2TypeToRawType(t: Type): RawType = {
-    // Read nullable and triable properties.
-    var nullable = false
-    var triable = false
-    t match {
-      case tp: Rql2TypeWithProperties =>
-        if (tp.props.contains(Rql2IsNullableTypeProperty())) {
-          nullable = true
-        }
-        if (tp.props.contains(Rql2IsTryableTypeProperty())) {
-          triable = true
-        }
-      case _ =>
+  // Returns Option[RawType] as not all Rql2 types are representable as Raw types.
+  def rql2TypeToRawType(t: Type): Option[RawType] = {
+    def convert(t: Type): RawType = {
+      // Read nullable and triable properties.
+      var nullable = false
+      var triable = false
+      t match {
+        case tp: Rql2TypeWithProperties =>
+          if (tp.props.contains(Rql2IsNullableTypeProperty())) {
+            nullable = true
+          }
+          if (tp.props.contains(Rql2IsTryableTypeProperty())) {
+            triable = true
+          }
+        case _ =>
+      }
+      // Convert type.
+      t match {
+        case _: Rql2UndefinedType => RawUndefinedType(nullable, triable)
+        case _: Rql2ByteType => RawByteType(nullable, triable)
+        case _: Rql2ShortType => RawShortType(nullable, triable)
+        case _: Rql2IntType => RawIntType(nullable, triable)
+        case _: Rql2LongType => RawLongType(nullable, triable)
+        case _: Rql2FloatType => RawFloatType(nullable, triable)
+        case _: Rql2DoubleType => RawDoubleType(nullable, triable)
+        case _: Rql2DecimalType => RawDecimalType(nullable, triable)
+        case _: Rql2BoolType => RawBoolType(nullable, triable)
+        case _: Rql2StringType => RawStringType(nullable, triable)
+        case _: Rql2BinaryType => RawBinaryType(nullable, triable)
+        case _: Rql2LocationType => RawLocationType(nullable, triable)
+        case _: Rql2DateType => RawDateType(nullable, triable)
+        case _: Rql2TimeType => RawTimeType(nullable, triable)
+        case _: Rql2TimestampType => RawTimestampType(nullable, triable)
+        case _: Rql2IntervalType => RawIntervalType(nullable, triable)
+        case Rql2RecordType(atts, _) => RawRecordType(
+            atts.map { case Rql2AttrType(idn, t1) => RawAttrType(idn, convert(t1)) },
+            nullable,
+            triable
+          )
+        case Rql2ListType(inner, _) => RawListType(convert(inner), nullable, triable)
+        case Rql2IterableType(inner, _) => RawIterableType(convert(inner), nullable, triable)
+        case Rql2OrType(ors, _) => RawOrType(ors.map(convert), nullable, triable)
+      }
     }
-    // Convert type.
-    t match {
-      case _: Rql2UndefinedType => RawUndefinedType(nullable, triable)
-      case _: Rql2ByteType => RawByteType(nullable, triable)
-      case _: Rql2ShortType => RawShortType(nullable, triable)
-      case _: Rql2IntType => RawIntType(nullable, triable)
-      case _: Rql2LongType => RawLongType(nullable, triable)
-      case _: Rql2FloatType => RawFloatType(nullable, triable)
-      case _: Rql2DoubleType => RawDoubleType(nullable, triable)
-      case _: Rql2DecimalType => RawDecimalType(nullable, triable)
-      case _: Rql2BoolType => RawBoolType(nullable, triable)
-      case _: Rql2StringType => RawStringType(nullable, triable)
-      case _: Rql2BinaryType => RawBinaryType(nullable, triable)
-      case _: Rql2LocationType => RawLocationType(nullable, triable)
-      case _: Rql2DateType => RawDateType(nullable, triable)
-      case _: Rql2TimeType => RawTimeType(nullable, triable)
-      case _: Rql2TimestampType => RawTimestampType(nullable, triable)
-      case _: Rql2IntervalType => RawIntervalType(nullable, triable)
-      case Rql2RecordType(atts, _) => RawRecordType(
-          atts.map { case Rql2AttrType(idn, t1) => RawAttrType(idn, rql2TypeToRawType(t1)) },
-          nullable,
-          triable
-        )
-      case Rql2ListType(inner, _) => RawListType(rql2TypeToRawType(inner), nullable, triable)
-      case Rql2IterableType(inner, _) => RawIterableType(rql2TypeToRawType(inner), nullable, triable)
-      case Rql2OrType(ors, _) => RawOrType(ors.map(rql2TypeToRawType), nullable, triable)
+
+    try {
+      Some(convert(t))
+    } catch {
+      case _: IllegalArgumentException => None
     }
   }
 

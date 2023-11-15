@@ -139,19 +139,37 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             val formattedDecls = decls.map {
               case (idn, programDecls) =>
                 val formattedDecls = programDecls.map {
-                  case TreeDeclDescription(None, outType, comment) =>
-                    DeclDescription(None, rql2TypeToRawType(outType), comment)
+                  case TreeDeclDescription(None, outType, comment) => rql2TypeToRawType(outType) match {
+                      case Some(rawType) => DeclDescription(None, rawType, comment)
+                      case None =>
+                        return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                    }
                   case TreeDeclDescription(Some(params), outType, comment) =>
                     val formattedParams = params.map {
-                      case TreeParamDescription(idn, tipe, required) =>
-                        ParamDescription(idn, rql2TypeToRawType(tipe), None, required)
+                      case TreeParamDescription(idn, tipe, required) => rql2TypeToRawType(tipe) match {
+                          case Some(rawType) => ParamDescription(idn, rawType, None, required)
+                          case None =>
+                            return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                        }
                     }
-                    DeclDescription(Some(formattedParams), rql2TypeToRawType(outType), comment)
+                    rql2TypeToRawType(outType) match {
+                      case Some(rawType) => DeclDescription(Some(formattedParams), rawType, comment)
+                      case None =>
+                        return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                    }
                 }
                 (idn, formattedDecls)
             }
-            val programDescription =
-              ProgramDescription(formattedDecls, maybeType.map(t => rql2TypeToRawType(t)), comment)
+            val programDescription = ProgramDescription(
+              formattedDecls,
+              maybeType.map { t =>
+                rql2TypeToRawType(t) match {
+                  case Some(rawType) => rawType
+                  case None => return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                }
+              },
+              comment
+            )
             GetProgramDescriptionSuccess(programDescription)
           } else {
             GetProgramDescriptionFailure(tree.errors)

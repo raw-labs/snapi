@@ -1568,7 +1568,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       program, {
         // Perform compilation of expression and its dependencies.
         val prettyPrinterProgram = InternalSourcePrettyPrinter.format(program)
-        var rawType = rql2TypeToRawType(expected)
+        val rawType = rql2TypeToRawType(expected).get
         val stagedCompilerEnvironment = programContext.runtimeContext.environment
           .copy(
             options = programContext.runtimeContext.environment.options + ("staged-compiler" -> "true"),
