@@ -20,13 +20,13 @@ final case class ProgramDescription(
 
 final case class DeclDescription(
     params: Option[Vector[ParamDescription]],
-    maybeOutType: Option[RawType],
+    outType: RawType,
     comment: Option[String]
 )
 
 final case class ParamDescription(
     idn: String,
-    maybeType: Option[RawType],
+    tipe: RawType,
     defaultValue: Option[RawValue],
     required: Boolean
 )

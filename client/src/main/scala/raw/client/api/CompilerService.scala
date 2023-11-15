@@ -179,6 +179,7 @@ trait CompilerService extends RawService {
     } else {
       t match {
         case _: RawUndefinedType => throw new AssertionError("RawUndefined is not triable and is not nullable.")
+        case _: RawAnyType => RawAny(v)
         case _: RawBoolType => RawBool(v.asBoolean())
         case _: RawStringType => RawString(v.asString())
         case _: RawByteType => RawByte(v.asByte())

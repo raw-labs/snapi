@@ -18,6 +18,7 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
   Array(
+    new JsonType(value = classOf[RawAnyType], name = "any"),
     new JsonType(value = classOf[RawUndefinedType], name = "undefined"),
     new JsonType(value = classOf[RawByteType], name = "byte"),
     new JsonType(value = classOf[RawShortType], name = "short"),
@@ -48,6 +49,15 @@ sealed abstract class RawType {
   def cloneNotNullable: RawType = cloneWithFlags(nullable = false, triable = triable)
   def cloneTriable: RawType = cloneWithFlags(nullable = nullable, triable = true)
   def cloneNotTriable: RawType = cloneWithFlags(nullable = nullable, triable = false)
+}
+
+final case class RawAnyType() extends RawType {
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType =
+    throw new AssertionError("unsupported operation")
+
+  override def nullable: Boolean = false
+
+  override def triable: Boolean = false
 }
 
 final case class RawUndefinedType(nullable: Boolean, triable: Boolean) extends RawType {
@@ -93,16 +103,18 @@ final case class RawLocationType(nullable: Boolean, triable: Boolean) extends Ra
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawLocationType(nullable, triable)
 }
 
-final case class RawDateType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
+sealed abstract class RawTemporalType extends RawPrimitiveType
+
+final case class RawDateType(nullable: Boolean, triable: Boolean) extends RawTemporalType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawDateType(nullable, triable)
 }
-final case class RawTimeType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
+final case class RawTimeType(nullable: Boolean, triable: Boolean) extends RawTemporalType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawTimeType(nullable, triable)
 }
-final case class RawTimestampType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
+final case class RawTimestampType(nullable: Boolean, triable: Boolean) extends RawTemporalType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawTimestampType(nullable, triable)
 }
-final case class RawIntervalType(nullable: Boolean, triable: Boolean) extends RawPrimitiveType {
+final case class RawIntervalType(nullable: Boolean, triable: Boolean) extends RawTemporalType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawIntervalType(nullable, triable)
 }
 
@@ -120,6 +132,6 @@ final case class RawIterableType(innerType: RawType, nullable: Boolean, triable:
     RawIterableType(innerType, nullable, triable)
 }
 
-final case class RawOrType(ors: Seq[RawType], nullable: Boolean, triable: Boolean) extends RawType {
+final case class RawOrType(ors: Vector[RawType], nullable: Boolean, triable: Boolean) extends RawType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawOrType(ors, nullable, triable)
 }
