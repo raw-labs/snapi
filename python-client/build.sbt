@@ -33,7 +33,7 @@ organizationName := "RAW Labs SA"
 
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
 
-name := "raw-snapi-client"
+name := "raw-python-client"
 
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
 
@@ -145,6 +145,7 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 // Dependencies
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
-  rawSnapiFrontend % "compile->compile;test->test",
-  rawSnapiTruffle % "test->test"
+  "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
 )
+
+Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client")

@@ -17,4 +17,4 @@ package raw.utils
  * Message contains information that can be shared with the end-user.
  * TODO (msb): Add methods formalizing error codes, etc.
  */
-class RawException(message: String, cause: Throwable = null) extends Exception(message, cause)
+class RawException(message: String, cause: Throwable = null) extends RuntimeException(message, cause)
