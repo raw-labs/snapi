@@ -1725,12 +1725,12 @@ public class SnapiParser extends Parser {
       return getRuleContext(ExprContext.class, 0);
     }
 
-    public List<AttrContext> attr() {
-      return getRuleContexts(AttrContext.class);
+    public List<Fun_paramContext> fun_param() {
+      return getRuleContexts(Fun_paramContext.class);
     }
 
-    public AttrContext attr(int i) {
-      return getRuleContext(AttrContext.class, i);
+    public Fun_paramContext fun_param(int i) {
+      return getRuleContext(Fun_paramContext.class, i);
     }
 
     public TerminalNode COLON() {
@@ -1839,7 +1839,7 @@ public class SnapiParser extends Parser {
             if ((((_la) & ~0x3f) == 0 && ((1L << _la) & 108086391091494908L) != 0)) {
               {
                 setState(186);
-                attr();
+                fun_param();
                 setState(191);
                 _errHandler.sync(this);
                 _la = _input.LA(1);
@@ -1849,7 +1849,7 @@ public class SnapiParser extends Parser {
                       setState(187);
                       match(COMMA);
                       setState(188);
-                      attr();
+                      fun_param();
                     }
                   }
                   setState(193);
@@ -6607,8 +6607,8 @@ public class SnapiParser extends Parser {
           + "\u00b4\u00b5\u0005@\u0000\u0000\u00b5\u00b6\u0003*\u0015\u0000\u00b6\u00b8"
           + "\u0001\u0000\u0000\u0000\u00b7\u00b2\u0001\u0000\u0000\u0000\u00b7\u00b3"
           + "\u0001\u0000\u0000\u0000\u00b8\u0017\u0001\u0000\u0000\u0000\u00b9\u00c2"
-          + "\u0005;\u0000\u0000\u00ba\u00bf\u0003\f\u0006\u0000\u00bb\u00bc\u0005"
-          + ">\u0000\u0000\u00bc\u00be\u0003\f\u0006\u0000\u00bd\u00bb\u0001\u0000"
+          + "\u0005;\u0000\u0000\u00ba\u00bf\u0003\n\u0005\u0000\u00bb\u00bc\u0005"
+          + ">\u0000\u0000\u00bc\u00be\u0003\n\u0005\u0000\u00bd\u00bb\u0001\u0000"
           + "\u0000\u0000\u00be\u00c1\u0001\u0000\u0000\u0000\u00bf\u00bd\u0001\u0000"
           + "\u0000\u0000\u00bf\u00c0\u0001\u0000\u0000\u0000\u00c0\u00c3\u0001\u0000"
           + "\u0000\u0000\u00c1\u00bf\u0001\u0000\u0000\u0000\u00c2\u00ba\u0001\u0000"

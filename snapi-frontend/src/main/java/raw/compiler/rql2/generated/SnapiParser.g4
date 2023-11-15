@@ -44,7 +44,7 @@ fun_abs: fun_proto_lambda                                       # FunAbs
        | ident RIGHT_ARROW expr                                 # FunAbsUnnamed
        ;
 
-fun_proto_lambda: LEFT_PAREN (attr (COMMA attr)*)?
+fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)?
                     RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaMultiParam
                 | attr (COLON tipe)? RIGHT_ARROW expr          # FunProtoLambdaSingleParam
                 ;

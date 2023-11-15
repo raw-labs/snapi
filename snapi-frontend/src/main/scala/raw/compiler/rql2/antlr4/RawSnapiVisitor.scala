@@ -122,20 +122,12 @@ class RawSnapiVisitor(
 
   override def visitFunProtoLambdaMultiParam(ctx: SnapiParser.FunProtoLambdaMultiParamContext): SourceNode = Option(ctx)
     .map { context =>
-      val ps = Option(context.attr())
-        .map(atts =>
-          atts.asScala.map { attContext =>
-            val idnDef = Option(attContext.ident())
-              .map(idnContext => {
-                val result = IdnDef(idnContext.getValue)
-                positionsWrapper.setPosition(idnContext, result)
-                result
-              })
-              .getOrElse(IdnDef(""))
-            val tipe = Option(attContext.tipe()).map(visit(_).asInstanceOf[Type])
-            val funParam = FunParam(idnDef, tipe, Option.empty)
-            positionsWrapper.setPosition(attContext, funParam)
-            funParam
+      val ps = Option(context.fun_param())
+        .map(params =>
+          params.asScala.map { paramsContext =>
+            Option(paramsContext)
+              .map(visit(_).asInstanceOf[FunParam])
+              .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
           }.toVector
         )
         .getOrElse(Vector.empty)
