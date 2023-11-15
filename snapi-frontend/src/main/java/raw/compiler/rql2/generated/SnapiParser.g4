@@ -50,13 +50,16 @@ fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)?
                 ;
 
 // ============= types =================
-tipe: LEFT_PAREN tipe RIGHT_PAREN                              # TypeWithParenType
+tipe: LEFT_PAREN tipe RIGHT_PAREN                                           # TypeWithParenType
     | tipe nullable_tryable                                    # NullableTryableType
     | tipe OR_TOKEN or_type RIGHT_ARROW tipe                   # OrTypeFunType
     | tipe OR_TOKEN or_type                                    # OrTypeType
     | primitive_types                                          # PrimitiveTypeType
     | record_type                                              # RecordTypeType
     | iterable_type                                            # IterableTypeType
+    | PACKAGE_TOKEN LEFT_PAREN string_literal RIGHT_PAREN      # PackageTypeType
+    | PACKAGE_TOKEN LEFT_PAREN string_literal
+        COMMA string_literal RIGHT_PAREN                       # PackageEntryTypeType
     | list_type                                                # ListTypeType
     | ident                                                    # TypeAliasType
     | LEFT_PAREN param_list? RIGHT_PAREN RIGHT_ARROW tipe      # FunTypeWithParamsType

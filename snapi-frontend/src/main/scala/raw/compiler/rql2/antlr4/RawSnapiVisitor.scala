@@ -587,6 +587,43 @@ class RawSnapiVisitor(
   override def visitExpr_type(ctx: SnapiParser.Expr_typeContext): SourceNode =
     Option(ctx).flatMap(context => Option(context.tipe()).map(visit(_))).getOrElse(ErrorType())
 
+  override def visitPackageEntryTypeType(ctx: SnapiParser.PackageEntryTypeTypeContext): SourceNode = Option(ctx)
+    .flatMap(context =>
+      Option(context.string_literal()).map { stringLiteralContext =>
+        val packageName = {
+          val packName =
+            Option(stringLiteralContext.get(0)).map(visit(_).asInstanceOf[StringConst]).getOrElse(StringConst(""))
+          positionsWrapper.setPosition(stringLiteralContext.get(0), packName)
+          packName
+        }.value
+        val entryName = {
+          val entName =
+            Option(stringLiteralContext.get(1)).map(visit(_).asInstanceOf[StringConst]).getOrElse(StringConst(""))
+          positionsWrapper.setPosition(stringLiteralContext.get(1), entName)
+          entName
+        }.value
+        val result = PackageEntryType(packageName, entryName)
+        positionsWrapper.setPosition(context, result)
+        result
+      }
+    )
+    .getOrElse(ErrorType())
+
+  override def visitPackageTypeType(ctx: SnapiParser.PackageTypeTypeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val packageName = Option(context.string_literal())
+        .map { stringLiteralContext =>
+          val packName = visit(stringLiteralContext).asInstanceOf[StringConst]
+          positionsWrapper.setPosition(stringLiteralContext, packName)
+          packName
+        }
+        .getOrElse(StringConst(""))
+      val result = PackageType(packageName.value)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(ErrorType())
+
   override def visitIdentExpr(ctx: SnapiParser.IdentExprContext): SourceNode = Option(ctx)
     .map { context =>
       val idnUse = Option(context.ident()).map(identContext => IdnUse(identContext.getValue)).getOrElse(IdnUse(""))
@@ -1126,4 +1163,11 @@ class RawSnapiVisitor(
 
   override def visitNullable_tryable(ctx: SnapiParser.Nullable_tryableContext): SourceNode =
     throw new AssertionError(assertionMessage)
+
+  override def visitParam_list(ctx: SnapiParser.Param_listContext): SourceNode =
+    throw new AssertionError(assertionMessage)
+
+  override def visitRecord_attr_list(ctx: SnapiParser.Record_attr_listContext): SourceNode =
+    throw new AssertionError(assertionMessage)
+
 }

@@ -709,4 +709,9 @@ class FrontendParserCompareTest extends RawTestSuite {
     compare(prog)
   }
 
+  test("Package Identifier") { _ =>
+    val prog = """Collection""".stripMargin
+    compare(prog)
+  }
+
 }

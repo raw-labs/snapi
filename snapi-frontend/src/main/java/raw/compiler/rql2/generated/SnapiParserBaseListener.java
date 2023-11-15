@@ -295,6 +295,34 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
+  public void enterIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterListTypeType(SnapiParser.ListTypeTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitListTypeType(SnapiParser.ListTypeTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
   public void enterFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx) {}
   /**
    * {@inheritDoc}
@@ -351,20 +379,6 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
-  public void exitIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) {}
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation does nothing.
-   */
-  @Override
   public void enterTypeWithParenType(SnapiParser.TypeWithParenTypeContext ctx) {}
   /**
    * {@inheritDoc}
@@ -379,14 +393,14 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    * <p>The default implementation does nothing.
    */
   @Override
-  public void enterListTypeType(SnapiParser.ListTypeTypeContext ctx) {}
+  public void enterPackageEntryTypeType(SnapiParser.PackageEntryTypeTypeContext ctx) {}
   /**
    * {@inheritDoc}
    *
    * <p>The default implementation does nothing.
    */
   @Override
-  public void exitListTypeType(SnapiParser.ListTypeTypeContext ctx) {}
+  public void exitPackageEntryTypeType(SnapiParser.PackageEntryTypeTypeContext ctx) {}
   /**
    * {@inheritDoc}
    *
@@ -443,6 +457,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitTypeAliasType(SnapiParser.TypeAliasTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterPackageTypeType(SnapiParser.PackageTypeTypeContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitPackageTypeType(SnapiParser.PackageTypeTypeContext ctx) {}
   /**
    * {@inheritDoc}
    *

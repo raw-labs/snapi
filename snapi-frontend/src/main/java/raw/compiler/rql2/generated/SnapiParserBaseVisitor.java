@@ -222,6 +222,26 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
+  public T visitIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitListTypeType(SnapiParser.ListTypeTypeContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
   public T visitFunTypeWithParamsType(SnapiParser.FunTypeWithParamsTypeContext ctx) {
     return visitChildren(ctx);
   }
@@ -262,16 +282,6 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitIterableTypeType(SnapiParser.IterableTypeTypeContext ctx) {
-    return visitChildren(ctx);
-  }
-  /**
-   * {@inheritDoc}
-   *
-   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
-   * ctx}.
-   */
-  @Override
   public T visitTypeWithParenType(SnapiParser.TypeWithParenTypeContext ctx) {
     return visitChildren(ctx);
   }
@@ -282,7 +292,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitListTypeType(SnapiParser.ListTypeTypeContext ctx) {
+  public T visitPackageEntryTypeType(SnapiParser.PackageEntryTypeTypeContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -323,6 +333,16 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    */
   @Override
   public T visitTypeAliasType(SnapiParser.TypeAliasTypeContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitPackageTypeType(SnapiParser.PackageTypeTypeContext ctx) {
     return visitChildren(ctx);
   }
   /**
