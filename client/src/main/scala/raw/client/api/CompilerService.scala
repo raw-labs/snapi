@@ -83,7 +83,7 @@ trait CompilerService extends RawService {
 
   implicit protected def settings: RawSettings
 
-  protected val engine: Engine = getEngine
+  protected lazy val engine: Engine = getEngine
 
   def language: Set[String]
 
