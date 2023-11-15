@@ -1,105 +1,88 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.cli;
 
-import org.graalvm.polyglot.Context;
-import org.graalvm.polyglot.PolyglotAccess;
-import org.graalvm.polyglot.Source;
-import org.graalvm.polyglot.Value;
+import org.jline.terminal.Terminal;
+import org.jline.terminal.TerminalBuilder;
+import org.jline.reader.impl.completer.StringsCompleter;
+import org.jline.reader.*;
+
+import java.io.IOException;
+import java.io.PrintWriter;
 
 public class RawCli {
+
     public static void main(String[] args) {
-//        Source sourceSnapi = null;
-//        try {
-//            sourceSnapi = Source.newBuilder("rql", "{a: 1+1}.a", "<stdin>").build();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//            return;
-//        }
-
-
-        Source sourcePython1 = null;
-        try {
-            sourcePython1 = Source.newBuilder("python", "1", "<stdin>").build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
+        String language;
+        if (args.length > 0 && args[0].equals("--python")) {
+            language = "python";
+        } else {
+            language = "snapi";
         }
-
-        Source sourcePython = null;
         try {
-            sourcePython = Source.newBuilder("python", """
-import json
-import sys
-def f(data):
-  json.dump(data, sys.stdout, indent=4)
-""", "<stdin>").build();
-        } catch (Exception e) {
-            e.printStackTrace();
-            return;
-        }
-        Context context = Context.newBuilder("python") //, "rql")
-                .in(System.in)
-                .out(System.out)
-                .allowExperimentalOptions(true)
-//                .option("rql.output-format", "json")
-                .build();
-        context.enter();
-        try {
-            Value a = context.eval(sourcePython1);
-            context.eval(sourcePython);
-            Value w = context.getBindings("python").getMember("f");
-            long x0 = System.nanoTime();
-            w.execute(a);
-            long x1 = System.nanoTime();
-            w.execute(2);
-            long x2 = System.nanoTime();
-            w.execute(3);
-            long x3 = System.nanoTime();
-            w.execute(10);
-            long x4 = System.nanoTime();
-            System.out.println();
-            System.out.println(x1-x0);
-            System.out.println(x2-x1);
-            System.out.println(x3-x2);
-            System.out.println(x4-x3);
+            Terminal terminal = TerminalBuilder.terminal();
+            PrintWriter writer = terminal.writer();
 
-//            int a = (int) context.eval(sourceSnapi).asInt();
-//            System.out.println(a);
-//            int b = (int) context.eval(sourcePython).asInt();
-//            System.out.println(b);
-//            int c = a + b;
-//            System.out.println(c);
-        } finally {
-            context.leave();
-            context.close();
+            RawLauncher rawLauncher = new RawLauncher(language, writer);
+
+            LineReader reader = LineReaderBuilder.builder()
+                    .terminal(terminal)
+                    .completer(new StringsCompleter(".exit", ".csv", ".json", ".help"))
+//                    .parser(new MultilineParser(compilerService))
+                    .variable(LineReader.SECONDARY_PROMPT_PATTERN, "")
+                    .variable(LineReader.LIST_MAX, 100)
+                    .build();
+
+            writer.println("Welcome to the Raw REPL! Type .help for more information.");
+            writer.flush();
+
+            boolean done = false;
+            while (!done) {
+                String line = reader.readLine("raw> ");
+                if (line == null) {
+                    break;
+                }
+                line = line.trim();
+                if (line.isEmpty()) {
+                    continue;
+                }
+                switch (line) {
+                    case ".q" -> done = true;
+                    case ".quit" -> done = true;
+                    case ".exit" -> done = true;
+                    case ".help" -> {
+                        writer.println("Help is not implemented yet.");
+                        writer.flush();
+                    }
+                    case ".csv" -> {
+                        writer.println("CSV output is not implemented yet.");
+                        writer.flush();
+                    }
+                    case ".json" -> {
+                        writer.println("JSON output is not implemented yet.");
+                        writer.flush();
+                    }
+                    default -> {
+                        reader.getHistory().add(line);
+                        rawLauncher.execute(line);
+                    }
+                }
+            }
+        } catch (EndOfFileException e) {
+            // Exit gracefully and quietly.
+        } catch (IOException e) {
+            throw new RuntimeException(e);
         }
     }
 
-//    Source sourcePython = null;
-//    try {
-//      sourcePython = Source.newBuilder("python", "def f(n): return n * 2\nf(1)", "<stdin>").build();
-//    } catch (Exception e) {
-//      e.printStackTrace();
-//      return;
-//    }
-//    Context context = Context.newBuilder("python", "rql")
-//        .in(System.in)
-//        .out(System.out)
-//        .allowPolyglotAccess(PolyglotAccess.ALL)
-//        .allowExperimentalOptions(true)
-////                .option("rql.output-format", "json")
-//        .build();
-//
-////    context.getPolyglotBindings().putMember("aValue", 14);
-//
-//    try {
-//      int a = (int) context.eval(sourceSnapi).asInt();
-//      System.out.println(a);
-//      int b = (int) context.eval(sourcePython).asInt();
-//      System.out.println(b);
-//      int c = a + b;
-//      System.out.println(c);
-//    } finally {
-//      context.close();
-//    }
-//  }
 }

@@ -8,6 +8,7 @@ on:
       - snapi-frontend/**
       - snapi-truffle/**
       - snapi-client/**
+      - python-client/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
@@ -108,6 +109,18 @@ jobs:
       - name: build snapi-client
         working-directory: snapi-client
         run: ./build.sh
+      - name: python-client headers
+        run: sbt headerCheckAll
+        working-directory: python-client
+      - name: python-client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: python-client
+      - name: python-client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: python-client
+      - name: build python-client
+        working-directory: python-client
+        run: ./build.sh
       - name: utils doc
         working-directory: utils
         run: sbt doc
@@ -122,6 +135,9 @@ jobs:
         run: sbt doc
       - name: snapi-client doc
         working-directory: snapi-client
+        run: sbt doc
+      - name: python-client doc
+        working-directory: python-client
         run: sbt doc
       - run: ./tests.sh
       - uses: mikepenz/action-junit-report@v3

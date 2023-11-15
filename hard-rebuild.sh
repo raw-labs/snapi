@@ -21,3 +21,11 @@ sbt clean publishLocal
 cd ../snapi-client
 rm -rf target/
 sbt clean publishLocal
+
+cd ../python-client
+rm -rf target/
+sbt clean publishLocal
+
+cd ../launcher
+rm -rf target/
+./build.sh

@@ -76,13 +76,11 @@ object CompilerServiceProvider {
     }
     if (services.isEmpty) {
       throw new CompilerException("no compiler service available")
-    } else if (services.size > 1) {
+    } else {
       services.find(p => p.language.contains(language)) match {
         case Some(builder) => builder.build(maybeClassLoader)
         case None => throw new CompilerException(s"cannot find compiler service: $language")
       }
-    } else {
-      services.head.build(maybeClassLoader)
     }
   }
 }
