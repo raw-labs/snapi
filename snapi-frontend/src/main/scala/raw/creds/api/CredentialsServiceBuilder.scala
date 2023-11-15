@@ -18,6 +18,6 @@ trait CredentialsServiceBuilder {
 
   def name: String
 
-  def build(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): CredentialsService
+  def build(implicit settings: RawSettings): CredentialsService
 
 }

@@ -13,16 +13,13 @@
 package raw.creds.api
 
 import raw.utils.RawSettings
-import java.util.ServiceLoader
 
+import java.util.ServiceLoader
 import scala.collection.JavaConverters._
 
 object CredentialsServiceProvider {
 
   private val CREDS_IMPL = "raw.creds.impl"
-
-  private var instance: CredentialsService = _
-  private val instanceLock = new Object
 
   def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): CredentialsService = {
     maybeClassLoader match {
@@ -32,27 +29,11 @@ object CredentialsServiceProvider {
   }
 
   def apply()(implicit settings: RawSettings): CredentialsService = {
-    instanceLock.synchronized {
-      if (instance == null) {
-        instance = build()
-      }
-      return instance
-    }
+    build()
   }
 
   def apply(classLoader: ClassLoader)(implicit settings: RawSettings): CredentialsService = {
-    instanceLock.synchronized {
-      if (instance == null) {
-        instance = build(Some(classLoader))
-      }
-      return instance
-    }
-  }
-
-  private[raw] def set(instance: CredentialsService): Unit = {
-    instanceLock.synchronized {
-      this.instance = instance
-    }
+    build(Some(classLoader))
   }
 
   private def build(
@@ -67,11 +48,11 @@ object CredentialsServiceProvider {
     } else if (services.size > 1) {
       val implClassName = settings.getString(CREDS_IMPL)
       services.find(p => p.name == implClassName) match {
-        case Some(builder) => builder.build(maybeClassLoader)
+        case Some(builder) => builder.build
         case None => throw new CredentialsException(s"cannot find credentials service: $implClassName")
       }
     } else {
-      services.head.build(maybeClassLoader)
+      services.head.build
     }
   }
 
