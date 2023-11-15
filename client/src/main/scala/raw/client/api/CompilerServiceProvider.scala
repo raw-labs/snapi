@@ -21,7 +21,7 @@ import scala.collection.mutable
 object CompilerServiceProvider {
 
   private val instanceLock = new Object
-  private val instanceMap = new mutable.HashMap[Set[String], CompilerService]
+  private val instanceMap = new mutable.HashMap[(Set[String], Option[ClassLoader]), CompilerService]
 
   def apply(language: String, maybeClassLoader: Option[ClassLoader] = None)(
       implicit settings: RawSettings
@@ -34,11 +34,11 @@ object CompilerServiceProvider {
 
   def apply(language: String)(implicit settings: RawSettings): CompilerService = {
     instanceLock.synchronized {
-      instanceMap.collectFirst { case (l, i) if l.contains(language) => i } match {
+      instanceMap.collectFirst { case ((l, None), i) if l.contains(language) => i } match {
         case Some(instance) => instance
         case None =>
           val instance = build(language)
-          instanceMap.put(instance.language, instance)
+          instanceMap.put((instance.language, None), instance)
           instance
       }
     }
@@ -46,11 +46,11 @@ object CompilerServiceProvider {
 
   def apply(language: String, classLoader: ClassLoader)(implicit settings: RawSettings): CompilerService = {
     instanceLock.synchronized {
-      instanceMap.collectFirst { case (l, i) if l.contains(language) => i } match {
+      instanceMap.collectFirst { case ((l, Some(cl)), i) if cl == classLoader && l.contains(language) => i } match {
         case Some(instance) => instance
         case None =>
           val instance = build(language, Some(classLoader))
-          instanceMap.put(instance.language, instance)
+          instanceMap.put((instance.language, Some(classLoader)), instance)
           instance
       }
     }
@@ -60,9 +60,9 @@ object CompilerServiceProvider {
   private[raw] def set(language: Set[String], instance: CompilerService): Unit = {
     instanceLock.synchronized {
       if (instance == null) {
-        instanceMap.remove(language)
+        instanceMap.remove((language, None))
       } else {
-        instanceMap.put(language, instance)
+        instanceMap.put((language, None), instance)
       }
     }
   }
