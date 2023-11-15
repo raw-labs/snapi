@@ -44,7 +44,7 @@ class Antlr4TypeTests extends RawTestSuite {
 
   def parseType(s: String): Type = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions
-    val parser = new Antlr4SyntaxAnalyzer(positions)
+    val parser = new Antlr4SyntaxAnalyzer(positions, true)
     parser.parseType(s).right.get
   }
 
@@ -71,6 +71,7 @@ class Antlr4TypeTests extends RawTestSuite {
         props
       )
     )
+    assert(parseType("record()") == Rql2RecordType(Vector.empty, props))
   }
 
   test("""Collection of records""") { _ =>
@@ -210,6 +211,18 @@ class Antlr4TypeTests extends RawTestSuite {
         FunType(
           Vector.empty,
           Vector(FunOptTypeParam("x", Rql2IntType(props))),
+          Rql2FloatType(props),
+          props
+        )
+    )
+  }
+
+  test("""Function type with zero param test""") { _ =>
+    assert(
+      parseType("() -> float") ==
+        FunType(
+          Vector.empty,
+          Vector.empty,
           Rql2FloatType(props),
           props
         )

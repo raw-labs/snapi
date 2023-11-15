@@ -16,7 +16,6 @@ import org.antlr.v4.runtime.ParserRuleContext
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
-import raw.compiler.rql2.Keywords
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
 import raw.compiler.rql2.source._
@@ -24,720 +23,945 @@ import raw.compiler.rql2.source._
 import scala.collection.JavaConverters._
 import scala.util.Try
 
-class RawSnapiVisitor(positions: Positions, private val source: Source) extends SnapiParserBaseVisitor[SourceNode] {
+class RawSnapiVisitor(positions: Positions, private val source: Source, isFrontend: Boolean)
+    extends SnapiParserBaseVisitor[SourceNode] {
 
   private val positionsWrapper = new RawPositions(positions, source)
 
   private val assertionMessage = "This is a helper (better grammar readability)  node, should never visit it"
 
-  private val defaultProps: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+  private val defaultProps: Set[Rql2TypeProperty] =
+    if (isFrontend) Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+    else Set.empty
 
   // An extension method to extract the identifier from a token (removes the backticks)
   implicit class IdentExtension(ctx: SnapiParser.IdentContext) {
-    def getValue: String = {
-      if (ctx != null) {
-        val identConst = visitWithNullCheck(ctx).asInstanceOf[StringConst]
-        identConst.value
-      } else null
-    }
+    def getValue: String = Option(ctx).map(visit(_).asInstanceOf[StringConst].value).getOrElse("")
   }
 
-  private def visitWithNullCheck = (ctx: ParserRuleContext) => {
-    if (ctx != null) { visit(ctx) }
-    else null
-  }
+  override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = Option(ctx)
+    .flatMap(c => Option(c.stat))
+    .map(visit(_).asInstanceOf[Rql2Program])
+    .getOrElse(Rql2Program(Vector.empty, Option.empty))
 
-  override def visitProg(ctx: SnapiParser.ProgContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.stat) }
-    else null
-
-  override def visitFunDecStat(ctx: SnapiParser.FunDecStatContext): SourceNode = {
-    if (ctx != null) {
-      val methods = ctx.method_dec().asScala.map(m => visitWithNullCheck(m).asInstanceOf[Rql2Method]).toVector
-      val result = Rql2Program(methods, Option.empty)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunDecExprStat(ctx: SnapiParser.FunDecExprStatContext): SourceNode = {
-    if (ctx != null) {
-      val methods = ctx.method_dec().asScala.map(md => visitWithNullCheck(md).asInstanceOf[Rql2Method]).toVector
-      val result = Rql2Program(methods, Option(visitWithNullCheck(ctx.expr).asInstanceOf[Exp]))
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFun_proto(ctx: SnapiParser.Fun_protoContext): SourceNode = {
-    if (ctx != null) {
-      val ps = ctx.fun_param.asScala.map(fp => visitWithNullCheck(fp).asInstanceOf[FunParam]).toVector
-      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunProtoLambdaMultiParam(ctx: SnapiParser.FunProtoLambdaMultiParamContext): SourceNode = {
-    if (ctx != null) {
-      val ps = ctx.fun_param.asScala.map(fp => visitWithNullCheck(fp).asInstanceOf[FunParam]).toVector
-      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-  override def visitFunProtoLambdaSingleParam(ctx: SnapiParser.FunProtoLambdaSingleParamContext): SourceNode = {
-    if (ctx != null) {
-      val ps = visitWithNullCheck(ctx.fun_param).asInstanceOf[FunParam] +: Vector.empty
-      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      positionsWrapper.setPosition(ctx.expr, funBody)
-      val result = FunProto(ps, Option(ctx.tipe()).map(visitWithNullCheck(_).asInstanceOf[Type]), funBody)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitMethodDec(ctx: SnapiParser.MethodDecContext): SourceNode = {
-    if (ctx != null) {
-      val funProto = visitWithNullCheck(ctx.fun_proto).asInstanceOf[FunProto]
-      val idnDef = IdnDef(ctx.ident.getValue)
-      positionsWrapper.setPosition(ctx.ident, idnDef)
-      val result = Rql2Method(funProto, idnDef)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitNormalFun(ctx: SnapiParser.NormalFunContext): SourceNode = {
-    if (ctx != null) {
-      val funProto = visitWithNullCheck(ctx.fun_proto).asInstanceOf[FunProto]
-      val idnDef = IdnDef(ctx.ident.getValue)
-      positionsWrapper.setPosition(ctx.ident, idnDef)
-      val result: LetFun = LetFun(funProto, idnDef)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitRecFun(ctx: SnapiParser.RecFunContext): SourceNode = {
-    if (ctx != null) {
-      val funProto = visitWithNullCheck(ctx.fun_proto).asInstanceOf[FunProto]
-      val idnDef = IdnDef(ctx.ident.getValue)
-      positionsWrapper.setPosition(ctx.ident, idnDef)
-      val result = LetFunRec(idnDef, funProto)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunParamAttr(ctx: SnapiParser.FunParamAttrContext): SourceNode = {
-    if (ctx != null) {
-      val idnDef = IdnDef(ctx.attr.ident.getValue)
-      positionsWrapper.setPosition(ctx.attr.ident, idnDef)
-      val result = FunParam(
-        idnDef,
-        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Type]),
-        Option.empty
-      )
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunParamAttrExpr(ctx: SnapiParser.FunParamAttrExprContext): SourceNode = {
-    if (ctx != null) {
-      val idnDef = IdnDef(ctx.attr.ident.getValue)
-      positionsWrapper.setPosition(ctx.attr.ident, idnDef)
-      val result = FunParam(
-        idnDef,
-        Option(ctx.attr.tipe).map(visitWithNullCheck(_).asInstanceOf[Type]),
-        Option(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      )
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitType_attr(ctx: SnapiParser.Type_attrContext): SourceNode = {
-    if (ctx != null) {
-      val result = Rql2AttrType(ctx.ident.getValue, visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunArgExpr(ctx: SnapiParser.FunArgExprContext): SourceNode = {
-    if (ctx != null) {
-      val result: FunAppArg = FunAppArg(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], Option.empty)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitNamedFunArgExpr(ctx: SnapiParser.NamedFunArgExprContext): SourceNode = {
-    if (ctx != null) {
-      val result: FunAppArg = FunAppArg(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], Option(ctx.ident.getValue))
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunAbs(ctx: SnapiParser.FunAbsContext): SourceNode = {
-    if (ctx != null) {
-      val funProto = visitWithNullCheck(ctx.fun_proto_lambda).asInstanceOf[FunProto]
-      val result = FunAbs(funProto)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunAbsUnnamed(ctx: SnapiParser.FunAbsUnnamedContext): SourceNode = {
-    if (ctx != null) {
-      val idnDef = IdnDef(ctx.ident.getValue)
-      positionsWrapper.setPosition(ctx.ident, idnDef)
-      val funParam = FunParam(idnDef, Option.empty, Option.empty)
-      positionsWrapper.setPosition(ctx.ident, funParam)
-      val funBody = FunBody(visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      positionsWrapper.setPosition(ctx.expr, funBody)
-      val funProto = FunProto(Vector(funParam), Option.empty, funBody)
-      positionsWrapper.setPosition(ctx, funProto)
-      val result = FunAbs(funProto)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunTypeWithParamsType(ctx: SnapiParser.FunTypeWithParamsTypeContext): SourceNode = {
-    if (ctx != null) {
-      val ms = ctx.tipe.asScala.dropRight(1).map(t => visitWithNullCheck(t).asInstanceOf[Type]).toVector
-
-      val os = ctx.attr.asScala
-        .map(a => {
-          val funOptTypeParam = FunOptTypeParam(a.ident.getValue, visitWithNullCheck(a.tipe).asInstanceOf[Type])
-          positionsWrapper.setPosition(a, funOptTypeParam)
-          funOptTypeParam
-        })
+  override def visitFunDecStat(ctx: SnapiParser.FunDecStatContext): SourceNode = Option(ctx)
+    .map { context =>
+      val methods = Option(context.method_dec())
+        .map(m =>
+          m.asScala.map(md =>
+            Option(md)
+              .map(visit(_).asInstanceOf[Rql2Method])
+              .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+          )
+        )
+        .getOrElse(Vector.empty)
         .toVector
+      val result = Rql2Program(methods, Option.empty)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(Rql2Program(Vector.empty, Option.empty))
+
+  override def visitFunDecExprStat(ctx: SnapiParser.FunDecExprStatContext): SourceNode = Option(ctx)
+    .map { context =>
+      val methods = Option(context.method_dec())
+        .map(m =>
+          m.asScala.map(md =>
+            Option(md)
+              .map(visit(_).asInstanceOf[Rql2Method])
+              .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+          )
+        )
+        .getOrElse(Vector.empty)
+        .toVector
+      val me = Option(context.expr).map(visit(_).asInstanceOf[Exp])
+      val result = Rql2Program(methods, me)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(Rql2Program(Vector.empty, Option.empty))
+
+  override def visitFun_proto(ctx: SnapiParser.Fun_protoContext): SourceNode = Option(ctx)
+    .map { context =>
+      val ps = Option(context.fun_param())
+        .map(p =>
+          p.asScala
+            .map(pr =>
+              Option(pr)
+                .map(visit(_).asInstanceOf[FunParam])
+                .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+            )
+            .toVector
+        )
+        .getOrElse(Vector.empty)
+
+      val funBody = Option(context.expr)
+        .map { expContext =>
+          val exp = visit(expContext).asInstanceOf[Exp]
+          val funBody = FunBody(exp)
+          positionsWrapper.setPosition(expContext, funBody)
+          funBody
+        }
+        .getOrElse(FunBody(ErrorExp()))
+      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+
+  override def visitFunProtoLambdaMultiParam(ctx: SnapiParser.FunProtoLambdaMultiParamContext): SourceNode = Option(ctx)
+    .map { context =>
+      val ps = Option(context.fun_param())
+        .map(p =>
+          p.asScala
+            .map(fp =>
+              Option(fp)
+                .map(visit(_).asInstanceOf[FunParam])
+                .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+            )
+            .toVector
+        )
+        .getOrElse(Vector.empty)
+
+      val funBody = Option(context.expr)
+        .map { expContext =>
+          val exp = visit(expContext).asInstanceOf[Exp]
+          val funBody = FunBody(exp)
+          positionsWrapper.setPosition(expContext, funBody)
+          funBody
+        }
+        .getOrElse(FunBody(ErrorExp()))
+      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+
+  override def visitFunProtoLambdaSingleParam(ctx: SnapiParser.FunProtoLambdaSingleParamContext): SourceNode =
+    Option(ctx)
+      .map { context =>
+        val ps = Option(context.fun_param()).map(fp => Vector(visit(fp).asInstanceOf[FunParam])).getOrElse(Vector.empty)
+        val funBody = Option(context.expr)
+          .map { expContext =>
+            val exp = visit(expContext).asInstanceOf[Exp]
+            val funBody = FunBody(exp)
+            positionsWrapper.setPosition(expContext, funBody)
+            funBody
+          }
+          .getOrElse(FunBody(ErrorExp()))
+        val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+        positionsWrapper.setPosition(context, result)
+        result
+      }
+      .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+
+  override def visitMethodDec(ctx: SnapiParser.MethodDecContext): SourceNode = Option(ctx)
+    .map { context =>
+      val funProto = Option(context.fun_proto())
+        .map(visit(_).asInstanceOf[FunProto])
+        .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+
+      val idnDef = Option(context.ident)
+        .map { idnContext =>
+          val res = IdnDef(idnContext.getValue)
+          positionsWrapper.setPosition(idnContext, res)
+          res
+        }
+        .getOrElse(IdnDef(""))
+      val result = Rql2Method(funProto, idnDef)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+
+  override def visitNormalFun(ctx: SnapiParser.NormalFunContext): SourceNode = Option(ctx)
+    .map { context =>
+      val funProto = Option(context.fun_proto())
+        .map(visit(_).asInstanceOf[FunProto])
+        .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+
+      val idnDef = Option(context.ident)
+        .map { idnContext =>
+          val res = IdnDef(idnContext.getValue)
+          positionsWrapper.setPosition(idnContext, res)
+          res
+        }
+        .getOrElse(IdnDef(""))
+      val result: LetFun = LetFun(funProto, idnDef)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(LetFun(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+
+  override def visitRecFun(ctx: SnapiParser.RecFunContext): SourceNode = Option(ctx)
+    .map { context =>
+      val funProto = Option(context.fun_proto())
+        .map(visit(_).asInstanceOf[FunProto])
+        .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+
+      val idnDef = Option(context.ident)
+        .map { idnContext =>
+          val res = IdnDef(idnContext.getValue)
+          positionsWrapper.setPosition(idnContext, res)
+          res
+        }
+        .getOrElse(IdnDef(""))
+      val result = LetFunRec(idnDef, funProto)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(LetFunRec(IdnDef(""), FunProto(Vector.empty, Option.empty, FunBody(ErrorExp()))))
+
+  override def visitFunParamAttr(ctx: SnapiParser.FunParamAttrContext): SourceNode = Option(ctx)
+    .map { context =>
+      val result = Option(context.attr)
+        .map { attrContext =>
+          val idnDef = Option(attrContext.ident)
+            .map { idnContext =>
+              val res = IdnDef(idnContext.getValue)
+              positionsWrapper.setPosition(idnContext, res)
+              res
+            }
+            .getOrElse(IdnDef(""))
+          val tipe = Option(attrContext.tipe)
+            .map(visit(_).asInstanceOf[Type])
+          FunParam(
+            idnDef,
+            tipe,
+            Option.empty
+          )
+        }
+        .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+
+  override def visitFunParamAttrExpr(ctx: SnapiParser.FunParamAttrExprContext): SourceNode = Option(ctx)
+    .map { context =>
+      val tupple = Option(context.attr)
+        .map { attrContext =>
+          val idnDef = Option(attrContext.ident)
+            .map { idnContext =>
+              val res = IdnDef(idnContext.getValue)
+              positionsWrapper.setPosition(idnContext, res)
+              res
+            }
+            .getOrElse(IdnDef(""))
+          val tipe = Option(attrContext.tipe)
+            .map(visit(_).asInstanceOf[Type])
+          (idnDef, tipe)
+        }
+        .getOrElse((IdnDef(""), Option.empty))
+
+      val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp])
+
+      val result = FunParam(
+        tupple._1,
+        tupple._2,
+        exp
+      )
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+
+  override def visitType_attr(ctx: SnapiParser.Type_attrContext): SourceNode = Option(ctx)
+    .map { context =>
+      val ident = Option(context.ident()).map(identContext => identContext.getValue).getOrElse("")
+      val tipe = Option(context.tipe())
+        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
+        .getOrElse(ErrorType())
+      val result = Rql2AttrType(ident, tipe)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(Rql2AttrType("", ErrorType()))
+
+  override def visitFunArgExpr(ctx: SnapiParser.FunArgExprContext): SourceNode = Option(ctx)
+    .flatMap { context =>
+      Option(context.expr()).map { exprContext =>
+        val result: FunAppArg = FunAppArg(visit(exprContext).asInstanceOf[Exp], Option.empty)
+        positionsWrapper.setPosition(context, result)
+        result
+      }
+    }
+    .getOrElse(FunAppArg(ErrorExp(), Option.empty))
+
+  override def visitNamedFunArgExpr(ctx: SnapiParser.NamedFunArgExprContext): SourceNode = Option(ctx)
+    .map { context =>
+      val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val ident = Option(context.ident()).map(_.getValue)
+      val result = FunAppArg(exp, ident)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(FunAppArg(ErrorExp(), Option.empty))
+
+  override def visitFunAbs(ctx: SnapiParser.FunAbsContext): SourceNode = Option(ctx)
+    .flatMap { context =>
+      Option(context.fun_proto_lambda()).map { funProtoLambdaContext =>
+        val funProto = visit(funProtoLambdaContext).asInstanceOf[FunProto]
+        val result = FunAbs(funProto)
+        positionsWrapper.setPosition(context, result)
+        result
+      }
+    }
+    .getOrElse(FunAbs(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp()))))
+
+  override def visitFunAbsUnnamed(ctx: SnapiParser.FunAbsUnnamedContext): SourceNode = Option(ctx)
+    .map { context =>
+      val funParam = Option(context.ident())
+        .map { identContext =>
+          val idnDef = IdnDef(identContext.getValue)
+          positionsWrapper.setPosition(identContext, idnDef)
+          val funParam = FunParam(idnDef, Option.empty, Option.empty)
+          positionsWrapper.setPosition(identContext, funParam)
+          funParam
+        }
+        .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+      val funBody = Option(context.expr())
+        .map { exprContext =>
+          val funBody = FunBody(visit(exprContext).asInstanceOf[Exp])
+          positionsWrapper.setPosition(exprContext, funBody)
+          funBody
+        }
+        .getOrElse(FunBody(ErrorExp()))
+      val funProto = FunProto(Vector(funParam), Option.empty, funBody)
+      positionsWrapper.setPosition(context, funProto)
+      val result = FunAbs(funProto)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(FunAbs(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp()))))
+
+  override def visitFunTypeWithParamsType(ctx: SnapiParser.FunTypeWithParamsTypeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val ms = Option(context.param_list())
+        .flatMap { paramListContext =>
+          Option(
+            paramListContext
+              .tipe()
+          ).map(typeList =>
+            typeList.asScala
+              .map(tctx => Option(tctx).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType()))
+              .toVector
+          )
+        }
+        .getOrElse(Vector.empty)
+
+      val os = Option(context.param_list())
+        .flatMap { paramListContext =>
+          Option(
+            paramListContext
+              .attr()
+          ).map(listOfAttrs =>
+            listOfAttrs.asScala.map { attrCtx =>
+              Option(attrCtx)
+                .map { a =>
+                  val ident = Option(a.ident()).map(_.getValue).getOrElse("")
+                  val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+                  val funOptTypeParam = FunOptTypeParam(ident, tipe)
+                  positionsWrapper.setPosition(a, funOptTypeParam)
+                  funOptTypeParam
+                }
+                .getOrElse(FunOptTypeParam("", ErrorType()))
+            }.toVector
+          )
+        }
+        .getOrElse(Vector.empty)
+
+      val rType = Option(context.tipe())
+        .map(visit(_).asInstanceOf[Type])
+        .getOrElse(ErrorType())
 
       val result: FunType = FunType(
         ms,
         os,
-        visitWithNullCheck(ctx.tipe.getLast).asInstanceOf[Type],
+        rType,
         defaultProps
       )
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(FunType(Vector.empty, Vector.empty, ErrorType(), defaultProps))
 
-  override def visitOrTypeType(ctx: SnapiParser.OrTypeTypeContext): SourceNode = {
-    if (ctx != null) {
-      val tipes = Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Type])
-      val orType: Rql2OrType = visitWithNullCheck(ctx.or_type).asInstanceOf[Rql2OrType]
+  override def visitOrTypeType(ctx: SnapiParser.OrTypeTypeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val tipes = Option(context.tipe())
+        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Type]))
+        .getOrElse(Vector.empty)
+      val orType =
+        Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector(ErrorType())))
       val combinedTypes = tipes ++ orType.tipes
       val result = Rql2OrType(combinedTypes, defaultProps)
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(Rql2OrType(Vector(ErrorType())))
 
   // this one is helper, it doesn't need to set position (basically an accumulator for or_type)
-  override def visitOr_type(ctx: SnapiParser.Or_typeContext): SourceNode = {
-    if (ctx != null) {
-      Rql2OrType(
-        Vector(visitWithNullCheck(ctx.tipe).asInstanceOf[Type]) ++ Option(ctx.or_type())
-          .map(visitWithNullCheck(_).asInstanceOf[Rql2OrType].tipes)
-          .getOrElse(Vector.empty),
-        defaultProps
-      )
-    } else null
-  }
+  override def visitOr_type(ctx: SnapiParser.Or_typeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val orType = Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector.empty))
+      Rql2OrType(Vector(tipe) ++ orType.tipes, defaultProps)
+    }
+    .getOrElse(ErrorType())
 
-  override def visitOrTypeFunType(ctx: SnapiParser.OrTypeFunTypeContext): SourceNode = {
-    if (ctx != null) {
-      val types = Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Type])
-      val orType = visitWithNullCheck(ctx.or_type).asInstanceOf[Rql2OrType]
+  override def visitOrTypeFunType(ctx: SnapiParser.OrTypeFunTypeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val types = Option(context.tipe(0))
+        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Type]))
+        .getOrElse(Vector.empty)
+
+      val orType = Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector.empty))
       val combinedTypes = types ++ orType.tipes
       val domainOrType = Rql2OrType(combinedTypes, defaultProps)
-      val funType =
-        FunType(Vector(domainOrType), Vector.empty, visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Type], defaultProps)
-      positionsWrapper.setPosition(ctx, funType)
-      funType
-    } else null
-  }
-
-  override def visitRecordTypeType(ctx: SnapiParser.RecordTypeTypeContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.record_type) }
-    else null
-
-  override def visitIterableTypeType(ctx: SnapiParser.IterableTypeTypeContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.iterable_type) }
-    else null
-
-  override def visitTypeWithParenType(ctx: SnapiParser.TypeWithParenTypeContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.tipe) }
-    else null
-
-  override def visitListTypeType(ctx: SnapiParser.ListTypeTypeContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.list_type) }
-    else null
-
-  override def visitPrimitiveTypeType(ctx: SnapiParser.PrimitiveTypeTypeContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.primitive_types) }
-    else null
-
-  override def visitPrimitive_types(ctx: SnapiParser.Primitive_typesContext): SourceNode = {
-    if (ctx != null) {
-      val result =
-        if (ctx.BOOL_TOKEN != null) Rql2BoolType(defaultProps)
-        else if (ctx.STRING_TOKEN != null) Rql2StringType(defaultProps)
-        else if (ctx.LOCATION_TOKEN != null) Rql2LocationType(defaultProps)
-        else if (ctx.BINARY_TOKEN != null) Rql2BinaryType(defaultProps)
-        else if (ctx.DATE_TOKEN != null) Rql2DateType(defaultProps)
-        else if (ctx.TIME_TOKEN != null) Rql2TimeType(defaultProps)
-        else if (ctx.INTERVAL_TOKEN != null) Rql2IntervalType(defaultProps)
-        else if (ctx.TIMESTAMP_TOKEN != null) Rql2TimestampType(defaultProps)
-        else if (ctx.BYTE_TOKEN != null) Rql2ByteType(defaultProps)
-        else if (ctx.SHORT_TOKEN != null) Rql2ShortType(defaultProps)
-        else if (ctx.INT_TOKEN != null) Rql2IntType(defaultProps)
-        else if (ctx.LONG_TOKEN != null) Rql2LongType(defaultProps)
-        else if (ctx.FLOAT_TOKEN != null) Rql2FloatType(defaultProps)
-        else if (ctx.DOUBLE_TOKEN != null) Rql2DoubleType(defaultProps)
-        else if (ctx.DECIMAL_TOKEN != null) Rql2DecimalType(defaultProps)
-        else if (ctx.UNDEFINED_TOKEN != null) Rql2UndefinedType(defaultProps)
-        else throw new AssertionError("Unknown primitive type")
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitTypeAliasType(ctx: SnapiParser.TypeAliasTypeContext): SourceNode = {
-    if (ctx != null) {
-      val idnUse = IdnUse(ctx.ident.getValue)
-      val result = TypeAliasType(idnUse)
-      positionsWrapper.setPosition(ctx, idnUse)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
-
-  override def visitFunTypeType(ctx: SnapiParser.FunTypeTypeContext): SourceNode = {
-    if (ctx != null) {
+      val rType = Option(context.tipe(1)).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
       val funType = FunType(
-        Vector(visitWithNullCheck(ctx.tipe(0)).asInstanceOf[Type]),
+        Vector(domainOrType),
         Vector.empty,
-        visitWithNullCheck(ctx.tipe(1)).asInstanceOf[Type],
+        rType,
         defaultProps
       )
-      positionsWrapper.setPosition(ctx, funType)
+      positionsWrapper.setPosition(context, funType)
       funType
-    } else null
-  }
+    }
+    .getOrElse(ErrorType())
 
-  override def visitExprTypeExpr(ctx: SnapiParser.ExprTypeExprContext): SourceNode =
-    if (ctx != null) {
-      val exp = visitWithNullCheck(ctx.expr_type).asInstanceOf[Type]
-      val result = TypeExp(exp)
-      positionsWrapper.setPosition(ctx, result)
+  override def visitRecordTypeType(ctx: SnapiParser.RecordTypeTypeContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.record_type).map(visit(_).asInstanceOf[Rql2RecordType]))
+    .getOrElse(ErrorType())
+
+  override def visitIterableTypeType(ctx: SnapiParser.IterableTypeTypeContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.iterable_type).map(visit(_).asInstanceOf[Rql2IterableType]))
+    .getOrElse(ErrorType())
+
+  override def visitTypeWithParenType(ctx: SnapiParser.TypeWithParenTypeContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.tipe()).map(visit(_).asInstanceOf[Rql2TypeWithProperties]))
+    .getOrElse(ErrorType())
+
+  override def visitListTypeType(ctx: SnapiParser.ListTypeTypeContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.list_type).map(visit(_).asInstanceOf[Rql2ListType]))
+    .getOrElse(ErrorType())
+
+  override def visitPrimitiveTypeType(ctx: SnapiParser.PrimitiveTypeTypeContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.primitive_types).map(visit(_).asInstanceOf[Rql2TypeWithProperties]))
+    .getOrElse(ErrorType())
+
+  override def visitPrimitive_types(ctx: SnapiParser.Primitive_typesContext): SourceNode = Option(ctx)
+    .map { context =>
+      val result =
+        if (context.BOOL_TOKEN != null) Rql2BoolType(defaultProps)
+        else if (context.STRING_TOKEN != null) Rql2StringType(defaultProps)
+        else if (context.LOCATION_TOKEN != null) Rql2LocationType(defaultProps)
+        else if (context.BINARY_TOKEN != null) Rql2BinaryType(defaultProps)
+        else if (context.DATE_TOKEN != null) Rql2DateType(defaultProps)
+        else if (context.TIME_TOKEN != null) Rql2TimeType(defaultProps)
+        else if (context.INTERVAL_TOKEN != null) Rql2IntervalType(defaultProps)
+        else if (context.TIMESTAMP_TOKEN != null) Rql2TimestampType(defaultProps)
+        else if (context.BYTE_TOKEN != null) Rql2ByteType(defaultProps)
+        else if (context.SHORT_TOKEN != null) Rql2ShortType(defaultProps)
+        else if (context.INT_TOKEN != null) Rql2IntType(defaultProps)
+        else if (context.LONG_TOKEN != null) Rql2LongType(defaultProps)
+        else if (context.FLOAT_TOKEN != null) Rql2FloatType(defaultProps)
+        else if (context.DOUBLE_TOKEN != null) Rql2DoubleType(defaultProps)
+        else if (context.DECIMAL_TOKEN != null) Rql2DecimalType(defaultProps)
+        else if (context.UNDEFINED_TOKEN != null) Rql2UndefinedType(defaultProps)
+        else throw new AssertionError("Unknown primitive type")
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
+    }
+    .getOrElse(ErrorType())
+
+  override def visitTypeAliasType(ctx: SnapiParser.TypeAliasTypeContext): SourceNode = Option(ctx)
+    .flatMap { context =>
+      Option(context.ident()).map { ident =>
+        val idnUse = IdnUse(ident.getValue)
+        val result = TypeAliasType(idnUse)
+        positionsWrapper.setPosition(context, idnUse)
+        positionsWrapper.setPosition(context, result)
+        result
+      }
+    }
+    .getOrElse(ErrorType())
+
+  override def visitFunTypeType(ctx: SnapiParser.FunTypeTypeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val ms = Option(context.tipe(0))
+        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
+        .getOrElse(ErrorType())
+
+      val r = Option(context.tipe(1))
+        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
+        .getOrElse(ErrorType())
+
+      val funType = FunType(
+        Vector(ms),
+        Vector.empty,
+        r,
+        defaultProps
+      )
+      positionsWrapper.setPosition(context, funType)
+      funType
+    }
+    .getOrElse(ErrorType())
+
+  override def visitExprTypeExpr(ctx: SnapiParser.ExprTypeExprContext): SourceNode = Option(ctx)
+    .map { context =>
+      val exp = Option(context.expr_type()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val result = TypeExp(exp)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(ErrorExp())
 
   override def visitRecord_type(ctx: SnapiParser.Record_typeContext): SourceNode = {
-    if (ctx != null) {
-      val atts = ctx.type_attr.asScala.map(a => visitWithNullCheck(a).asInstanceOf[Rql2AttrType]).toVector
-      val result = Rql2RecordType(atts, defaultProps)
-      positionsWrapper.setPosition(ctx, result)
+    Option(ctx)
+      .map { context =>
+        val atts = Option(context.record_attr_list())
+          .flatMap { attrListContext =>
+            Option(attrListContext.type_attr()).map(listOfAttr =>
+              listOfAttr.asScala
+                .map(a => Option(a).map(visit(_).asInstanceOf[Rql2AttrType]).getOrElse(Rql2AttrType("", ErrorType())))
+                .toVector
+            )
+          }
+          .getOrElse(Vector.empty)
+
+        val result = Rql2RecordType(atts, defaultProps)
+        positionsWrapper.setPosition(context, result)
+        result
+      }
+      .getOrElse(ErrorType())
+  }
+
+  override def visitIterable_type(ctx: SnapiParser.Iterable_typeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val result = Rql2IterableType(tipe, defaultProps)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorType())
 
-  override def visitIterable_type(ctx: SnapiParser.Iterable_typeContext): SourceNode = {
-    if (ctx != null) {
-      val result = Rql2IterableType(visitWithNullCheck(ctx.tipe).asInstanceOf[Type], defaultProps)
-      positionsWrapper.setPosition(ctx, result)
+  override def visitList_type(ctx: SnapiParser.List_typeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val result = Rql2ListType(tipe, defaultProps)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorType())
 
-  override def visitList_type(ctx: SnapiParser.List_typeContext): SourceNode = {
-    if (ctx != null) {
-      val result = Rql2ListType(visitWithNullCheck(ctx.tipe).asInstanceOf[Type], defaultProps)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
+  override def visitExpr_type(ctx: SnapiParser.Expr_typeContext): SourceNode =
+    Option(ctx).flatMap(context => Option(context.tipe()).map(visit(_))).getOrElse(ErrorType())
 
-  override def visitExpr_type(ctx: SnapiParser.Expr_typeContext): SourceNode = {
-    if (ctx != null) {
-      visitWithNullCheck(ctx.tipe)
-    } else null
-  }
-
-  override def visitIdentExpr(ctx: SnapiParser.IdentExprContext): SourceNode = {
-    if (ctx != null) {
-      val idnUse = IdnUse(ctx.ident.getValue)
+  override def visitIdentExpr(ctx: SnapiParser.IdentExprContext): SourceNode = Option(ctx)
+    .map { context =>
+      val idnUse = Option(context.ident()).map(identContext => IdnUse(identContext.getValue)).getOrElse(IdnUse(""))
       val result = IdnExp(idnUse)
-      positionsWrapper.setPosition(ctx, idnUse)
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context, idnUse)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitProjectionExpr(ctx: SnapiParser.ProjectionExprContext): SourceNode = {
-    if (ctx != null) {
-      val proj = Proj(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], ctx.ident.getValue)
-      val result =
-        if (ctx.fun_ar != null) {
-          // The projection with the function call
-          val args = Option(ctx.fun_ar.fun_args).map(ar =>
-            ar.fun_arg.asScala.map(a => visitWithNullCheck(a).asInstanceOf[FunAppArg]).toVector
-          )
-          positionsWrapper.setPosition(ctx.getStart, ctx.ident().getStop, proj)
-          FunApp(proj, args.getOrElse(Vector.empty))
-        } else proj
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
-  }
+  override def visitProjectionExpr(ctx: SnapiParser.ProjectionExprContext): SourceNode = Option(ctx)
+    .map { context =>
+      Option(context.ident())
+        .map(identContext => {
+          val ident = identContext.getValue
+          val proj =
+            Option(context.expr()).map(visit(_).asInstanceOf[Exp]).map(exp => Proj(exp, ident)).getOrElse(ErrorExp())
+          val result = Option(context.fun_ar())
+            .map(funArContext => {
+              // The projection with the function call
+              val args = Option(funArContext.fun_args)
+                .flatMap(ar =>
+                  Option(ar.fun_arg)
+                    .map(arg =>
+                      arg.asScala
+                        .map(a =>
+                          Option(a)
+                            .map(visit(_).asInstanceOf[FunAppArg])
+                            .getOrElse(FunAppArg(ErrorExp(), Option.empty))
+                        )
+                        .toVector
+                    )
+                )
+                .getOrElse(Vector.empty)
+              positionsWrapper.setPosition(context.getStart, identContext.getStop, proj)
+              FunApp(proj, args)
+            })
+            .getOrElse(proj)
+          positionsWrapper.setPosition(context, result)
+          result
+        })
+        .getOrElse(ErrorExp())
+
+    }
+    .getOrElse(ErrorExp())
 
   override def visitLetExpr(ctx: SnapiParser.LetExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.let) }
-    else null
+    Option(ctx).flatMap(context => Option(context.let()).map(visit(_).asInstanceOf[Let])).getOrElse(ErrorExp())
 
   override def visitFunAbsExpr(ctx: SnapiParser.FunAbsExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.fun_abs) }
-    else null
+    Option(ctx).flatMap(context => Option(context.fun_abs()).map(visit(_).asInstanceOf[FunAbs])).getOrElse(ErrorExp())
 
   override def visitFunAppExpr(ctx: SnapiParser.FunAppExprContext): SourceNode = {
-    if (ctx != null && ctx.fun_ar != null) {
-      val args =
-        if (ctx.fun_ar.fun_args != null)
-          ctx.fun_ar.fun_args.fun_arg.asScala.map(a => visitWithNullCheck(a).asInstanceOf[FunAppArg]).toVector
-        else Vector.empty
-      val result = FunApp(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], args)
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
+    Option(ctx)
+      .map { context =>
+        val args = Option(context.fun_ar())
+          .flatMap { funArContext =>
+            Option(funArContext.fun_args()).flatMap { funArgsContext =>
+              Option(funArgsContext.fun_arg())
+                .map { funArgContext =>
+                  funArgContext.asScala
+                    .map(a =>
+                      Option(a).map(visit(_).asInstanceOf[FunAppArg]).getOrElse(FunAppArg(ErrorExp(), Option.empty))
+                    )
+                    .toVector
+                }
+            }
+          }
+          .getOrElse(Vector.empty)
+        val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+        val result = FunApp(exp, args)
+        positionsWrapper.setPosition(context, result)
+        result
+      }
+      .getOrElse(ErrorExp())
   }
 
-  override def visitIfThenElseExpr(ctx: SnapiParser.IfThenElseExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.if_then_else) }
-    else null
+  override def visitIfThenElseExpr(ctx: SnapiParser.IfThenElseExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.if_then_else()).map(visit(_).asInstanceOf[IfThenElse]))
+    .getOrElse(ErrorExp())
 
-  override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode =
-    if (ctx != null) {
-      val reslut = ExpType(visitWithNullCheck(ctx.expr_type()).asInstanceOf[Type])
-      positionsWrapper.setPosition(ctx, reslut)
-      reslut
-    } else null
+  override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode = Option(ctx)
+    .map { context =>
+      val expType = Option(context.expr_type()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val result = ExpType(expType)
+      positionsWrapper.setPosition(context, result)
+      result
+    }
+    .getOrElse(ErrorType())
 
   override def visitListExpr(ctx: SnapiParser.ListExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.lists) }
-    else null
+    Option(ctx).flatMap(context => Option(context.lists()).map(visit(_))).getOrElse(ErrorExp())
 
   // Unary expressions
-  override def visitNotExpr(ctx: SnapiParser.NotExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitNotExpr(ctx: SnapiParser.NotExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val not = Not()
-      positionsWrapper.setPosition(ctx.NOT_TOKEN.getSymbol, not)
-      val result = UnaryExp(not, visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context.NOT_TOKEN.getSymbol, not)
+      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = UnaryExp(not, expr)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitMinusUnaryExpr(ctx: SnapiParser.MinusUnaryExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitMinusUnaryExpr(ctx: SnapiParser.MinusUnaryExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val neg = Neg()
-      positionsWrapper.setPosition(ctx.MINUS_TOKEN.getSymbol, neg)
-      val result = UnaryExp(neg, visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context.MINUS_TOKEN.getSymbol, neg)
+      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = UnaryExp(neg, expr)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
   override def visitPlusUnaryExpr(ctx: SnapiParser.PlusUnaryExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.expr) }
-    else null
+    Option(ctx).flatMap(context => Option(context.expr()).map(visit(_))).getOrElse(ErrorExp())
 
   // Binary expressions
-  override def visitCompareExpr(ctx: SnapiParser.CompareExprContext): SourceNode = {
-    if (ctx != null) {
-      val result = BinaryExp(
-        visitWithNullCheck(ctx.compare_tokens).asInstanceOf[ComparableOp],
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+  override def visitCompareExpr(ctx: SnapiParser.CompareExprContext): SourceNode = Option(ctx)
+    .map { context =>
+      // arbitrarily adding eq because we don't know which token is messing
+      val compareToken = Option(context.compare_tokens).map(visit(_).asInstanceOf[ComparableOp]).getOrElse(Eq())
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(compareToken, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitCompare_tokens(ctx: SnapiParser.Compare_tokensContext): SourceNode = {
-    if (ctx != null) {
+  override def visitCompare_tokens(ctx: SnapiParser.Compare_tokensContext): SourceNode = Option(ctx)
+    .map { context =>
       val result =
-        if (ctx.EQ_TOKEN != null) Eq()
-        else if (ctx.NEQ_TOKEN != null) Neq()
-        else if (ctx.GT_TOKEN != null) Gt()
-        else if (ctx.GE_TOKEN != null) Ge()
-        else if (ctx.LT_TOKEN != null) Lt()
-        else if (ctx.LE_TOKEN != null) Le()
+        if (context.EQ_TOKEN != null) Eq()
+        else if (context.NEQ_TOKEN != null) Neq()
+        else if (context.GT_TOKEN != null) Gt()
+        else if (context.GE_TOKEN != null) Ge()
+        else if (context.LT_TOKEN != null) Lt()
+        else if (context.LE_TOKEN != null) Le()
         else throw new AssertionError("Unknown comparable operator")
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(Eq())
 
-  override def visitOrExpr(ctx: SnapiParser.OrExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitOrExpr(ctx: SnapiParser.OrExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val or = Or()
       positionsWrapper.setPosition(ctx.OR_TOKEN.getSymbol, or)
-      val result = BinaryExp(
-        or,
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(or, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
 
-  override def visitAndExpr(ctx: SnapiParser.AndExprContext): SourceNode = {
-    if (ctx != null) {
+    }
+    .getOrElse(ErrorExp())
+
+  override def visitAndExpr(ctx: SnapiParser.AndExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val and = And()
       positionsWrapper.setPosition(ctx.AND_TOKEN.getSymbol, and)
-      val result = BinaryExp(
-        and,
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(and, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitMulExpr(ctx: SnapiParser.MulExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitMulExpr(ctx: SnapiParser.MulExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val mult = Mult()
-      positionsWrapper.setPosition(ctx.MUL_TOKEN.getSymbol, mult)
-      val result = BinaryExp(
-        mult,
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(ctx.MUL_TOKEN().getSymbol, mult)
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(mult, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitDivExpr(ctx: SnapiParser.DivExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitDivExpr(ctx: SnapiParser.DivExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val div: Div = Div()
-      positionsWrapper.setPosition(ctx.DIV_TOKEN.getSymbol, div)
-      val result = BinaryExp(
-        div,
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(ctx.DIV_TOKEN().getSymbol, div)
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(div, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitModExpr(ctx: SnapiParser.ModExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitModExpr(ctx: SnapiParser.ModExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val mod: Mod = Mod()
-      positionsWrapper.setPosition(ctx.MOD_TOKEN.getSymbol, mod)
-      val result = BinaryExp(
-        mod,
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(ctx.MOD_TOKEN().getSymbol, mod)
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(mod, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitPlusExpr(ctx: SnapiParser.PlusExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitPlusExpr(ctx: SnapiParser.PlusExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val plus: Plus = Plus()
-      positionsWrapper.setPosition(ctx.PLUS_TOKEN.getSymbol, plus)
-      val result = BinaryExp(
-        plus,
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(ctx.PLUS_TOKEN().getSymbol, plus)
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(plus, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitMinusExpr(ctx: SnapiParser.MinusExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitMinusExpr(ctx: SnapiParser.MinusExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val sub: Sub = Sub()
-      positionsWrapper.setPosition(ctx.MINUS_TOKEN.getSymbol, sub)
-      val result = BinaryExp(
-        sub,
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(ctx.MINUS_TOKEN().getSymbol, sub)
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = BinaryExp(sub, expr1, expr2)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
   override def visitParenExpr(ctx: SnapiParser.ParenExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.expr) }
-    else null
+    Option(ctx).flatMap(context => Option(context.expr()).map(visit(_))).getOrElse(ErrorExp())
 
   override def visitRecordExpr(ctx: SnapiParser.RecordExprContext): SourceNode =
-    if (ctx != null) { visitWithNullCheck(ctx.records) }
-    else null
+    Option(ctx).flatMap(context => Option(context.records()).map(visit(_))).getOrElse(ErrorExp())
 
-  override def visitLet(ctx: SnapiParser.LetContext): SourceNode = {
-    if (ctx != null) {
-      val decls = ctx.let_left.let_decl.asScala.map(d => visitWithNullCheck(d).asInstanceOf[LetDecl]).toVector
-      val result = Let(decls, visitWithNullCheck(ctx.expr).asInstanceOf[Exp])
-      positionsWrapper.setPosition(ctx, result)
+  override def visitLet(ctx: SnapiParser.LetContext): SourceNode = Option(ctx)
+    .map { context =>
+      val decls = Option(context.let_left())
+        .flatMap(letLeftExpr =>
+          Option(letLeftExpr.let_decl()).map(_.asScala.map(visit(_).asInstanceOf[LetDecl]).toVector)
+        )
+        .getOrElse(Vector.empty)
+      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = Let(decls, expr)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
-
-  override def visitLet_decl(ctx: SnapiParser.Let_declContext): SourceNode =
-    if (ctx != null) {
-      if (ctx.fun_dec == null) visitWithNullCheck(ctx.let_bind)
-      else visitWithNullCheck(ctx.fun_dec)
-    } else null
+    }
+    .getOrElse(ErrorExp())
+  override def visitLetBind(ctx: SnapiParser.LetBindContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.let_bind()).map(visit(_)))
+    .getOrElse(LetBind(ErrorExp(), IdnDef(""), Option.empty))
+  override def visitLetFunDec(ctx: SnapiParser.LetFunDecContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.fun_dec()).map(visit(_)))
+    .getOrElse(LetFun(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
 
   override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = {
     if (ctx != null) {
-      val tipe = Option(ctx.tipe).map(visitWithNullCheck(_).asInstanceOf[Type])
+      val tipe = Option(ctx.tipe).map(visit(_).asInstanceOf[Type])
       val idnDef = IdnDef(ctx.ident.getValue)
       positionsWrapper.setPosition(ctx.ident, idnDef)
-      val result = LetBind(visitWithNullCheck(ctx.expr).asInstanceOf[Exp], idnDef, tipe)
+      val exp = Option(ctx.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = LetBind(exp, idnDef, tipe)
       positionsWrapper.setPosition(ctx, result)
       result
     } else null
   }
 
-  override def visitIf_then_else(ctx: SnapiParser.If_then_elseContext): SourceNode = {
-    if (ctx != null) {
-      val result = IfThenElse(
-        visitWithNullCheck(ctx.expr(0)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(1)).asInstanceOf[Exp],
-        visitWithNullCheck(ctx.expr(2)).asInstanceOf[Exp]
-      )
-      positionsWrapper.setPosition(ctx, result)
+  override def visitIf_then_else(ctx: SnapiParser.If_then_elseContext): SourceNode = Option(ctx)
+    .map { context =>
+      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr3 = Option(context.expr(2)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val result = IfThenElse(expr1, expr2, expr3)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitLists(ctx: SnapiParser.ListsContext): SourceNode = {
-    if (ctx != null) {
-      if (ctx.lists_element == null) {
+  override def visitLists(ctx: SnapiParser.ListsContext): SourceNode = Option(ctx)
+    .map { context =>
+      Option(context.lists_element()).map(visit(_)).getOrElse {
         val result = ListPackageBuilder.Build()
-        positionsWrapper.setPosition(ctx, result)
+        positionsWrapper.setPosition(context, result)
         result
-      } else visitWithNullCheck(ctx.lists_element)
-    } else null
-  }
+      }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitLists_element(ctx: SnapiParser.Lists_elementContext): SourceNode = {
-    if (ctx != null) {
-      val exps = ctx.expr.asScala.map(e => visitWithNullCheck(e).asInstanceOf[Exp])
-      val result: Exp = ListPackageBuilder.Build(exps: _*)
-      positionsWrapper.setPosition(ctx.parent.asInstanceOf[ParserRuleContext], result)
+  override def visitLists_element(ctx: SnapiParser.Lists_elementContext): SourceNode = Option(ctx)
+    .map { context =>
+      val exprs = Option(context.expr)
+        .map(exprContext =>
+          exprContext.asScala.map(e => Option(e).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())).toVector
+        )
+        .getOrElse(Vector.empty)
+      val result = ListPackageBuilder.Build(exprs: _*)
+      positionsWrapper.setPosition(context.parent.asInstanceOf[ParserRuleContext], result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitRecords(ctx: SnapiParser.RecordsContext): SourceNode = {
-    if (ctx != null) {
-      if (ctx.record_elements == null) {
+  override def visitRecords(ctx: SnapiParser.RecordsContext): SourceNode = Option(ctx)
+    .map { context =>
+      Option(context.record_elements()).map(visit(_)).getOrElse {
         val result = RecordPackageBuilder.Build()
-        positionsWrapper.setPosition(ctx, result)
+        positionsWrapper.setPosition(context, result)
         result
-      } else visitWithNullCheck(ctx.record_elements)
-    } else null
-  }
+      }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitRecord_elements(ctx: SnapiParser.Record_elementsContext): SourceNode = {
-    if (ctx != null) {
-      val tuples = ctx.record_element.asScala.zipWithIndex.map {
-        case (e, idx) =>
-          val exp = visitWithNullCheck(e.expr()).asInstanceOf[Exp]
-          if (e.ident() != null) {
-            (e.ident().getValue, exp)
-          } else exp match {
-            case proj: Proj => (proj.i, exp)
-            case _ => ("_" + (idx + 1), exp)
-          }
-      }.toVector
+  override def visitRecord_elements(ctx: SnapiParser.Record_elementsContext): SourceNode = Option(ctx)
+    .map { context =>
+      val tuples = Option(context.record_element())
+        .map(recordElemntContext =>
+          recordElemntContext.asScala.zipWithIndex.map {
+            case (e, idx) => Option(e)
+                .map { eContext =>
+                  val exp = Option(eContext.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+                  Option(eContext.ident()).map(i => (i.getValue, exp)).getOrElse {
+                    exp match {
+                      case proj: Proj => (proj.i, exp)
+                      case _ => ("_" + (idx + 1), exp)
+                    }
+                  }
+                }
+                .getOrElse(("", ErrorExp()))
+          }.toVector
+        )
+        .getOrElse(Vector.empty)
       val result: Exp = RecordPackageBuilder.Build(tuples)
       positionsWrapper.setPosition(ctx.parent.asInstanceOf[ParserRuleContext], result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
   // Constants
+  override def visitStringLiteralExpr(ctx: SnapiParser.StringLiteralExprContext): SourceNode =
+    Option(ctx).flatMap(context => Option(context.string_literal()).map(visit(_))).getOrElse(ErrorExp())
 
-  override def visitTrippleStringExpr(ctx: SnapiParser.TrippleStringExprContext): SourceNode = {
-    if (ctx != null) {
-      val result = TripleQuotedStringConst(ctx.getText.drop(3).dropRight(3))
-      positionsWrapper.setPosition(ctx, result)
-      result
-    } else null
+  override def visitString_literal(ctx: SnapiParser.String_literalContext): SourceNode = {
+    Option(ctx)
+      .map { context =>
+        Option(context.STRING())
+          .map { stringConst =>
+            val result = StringConst(
+              stringConst.getText
+                .substring(1, ctx.STRING.getText.length - 1)
+                .replace("\\b", "\b")
+                .replace("\\n", "\n")
+                .replace("\\f", "\f")
+                .replace("\\r", "\r")
+                .replace("\\'", "'") // should we replace all?
+                .replace("\\t", "\t")
+                .replace("\\\\", "\\")
+                .replace("\\\"", "\"")
+            )
+            positionsWrapper.setPosition(context, result)
+            result
+          }
+          .getOrElse {
+            Option(context.triple_string_literal()).map(visit(_)).getOrElse(ErrorExp())
+          }
+      }
+      .getOrElse(ErrorExp())
   }
 
-  override def visitStringExpr(ctx: SnapiParser.StringExprContext): SourceNode = {
-    if (ctx != null) {
-      val result = StringConst(
-        ctx.STRING.getText
-          .substring(1, ctx.STRING.getText.length - 1)
-          .replace("\\b", "\b")
-          .replace("\\n", "\n")
-          .replace("\\f", "\f")
-          .replace("\\r", "\r")
-          .replace("\\t", "\t")
-          .replace("\\\\", "\\")
-          .replace("\\\"", "\"")
-      )
-      positionsWrapper.setPosition(ctx, result)
+  override def visitTriple_string_literal(ctx: SnapiParser.Triple_string_literalContext): SourceNode = Option(ctx)
+    .map { context =>
+      val result = TripleQuotedStringConst(context.getText.drop(3).dropRight(3))
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitBoolConstExpr(ctx: SnapiParser.BoolConstExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitBoolConstExpr(ctx: SnapiParser.BoolConstExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val result = BoolConst(ctx.bool_const.FALSE_TOKEN == null)
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitNullExpr(ctx: SnapiParser.NullExprContext): SourceNode = {
-    if (ctx != null) {
+  override def visitNullExpr(ctx: SnapiParser.NullExprContext): SourceNode = Option(ctx)
+    .map { context =>
       val result = NullConst()
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
-  override def visitSignedNumberExpr(ctx: SnapiParser.SignedNumberExprContext): SourceNode = {
-    if (ctx != null) visitWithNullCheck(ctx.signed_number)
-    else null
-  }
-  override def visitSigned_number(ctx: SnapiParser.Signed_numberContext): SourceNode = {
-    val sign = if (ctx.MINUS_TOKEN != null) "-" else ""
-    if (ctx != null && ctx.number != null) {
+    }
+    .getOrElse(ErrorExp())
+  override def visitSignedNumberExpr(ctx: SnapiParser.SignedNumberExprContext): SourceNode =
+    Option(ctx).flatMap(context => Option(context.signed_number()).map(visit(_))).getOrElse(ErrorExp())
+  override def visitSigned_number(ctx: SnapiParser.Signed_numberContext): SourceNode = Option(ctx)
+    .map { context =>
+      val sign = Option(context.MINUS_TOKEN()).map(_ => "-").getOrElse("")
       val result =
-        if (ctx.number.BYTE != null) ByteConst(sign + ctx.number.BYTE.getText.toLowerCase.replace("b", ""))
-        else if (ctx.number.SHORT != null) ShortConst(sign + ctx.number.SHORT.getText.toLowerCase.replace("s", ""))
-        else if (ctx.number.INTEGER != null) {
-          val intText = sign + ctx.number.INTEGER.getText.toLowerCase
+        if (context.number.BYTE != null) ByteConst(sign + context.number.BYTE.getText.toLowerCase.replace("b", ""))
+        else if (context.number.SHORT != null)
+          ShortConst(sign + context.number.SHORT.getText.toLowerCase.replace("s", ""))
+        else if (context.number.INTEGER != null) {
+          val intText = sign + context.number.INTEGER.getText.toLowerCase
           val intTry = Try(intText.toInt)
           if (intTry.isSuccess) IntConst(intText)
           else {
@@ -745,24 +969,27 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
             if (longTry.isSuccess) LongConst(intText)
             else DoubleConst(intText)
           }
-        } else if (ctx.number.LONG != null) LongConst(sign + ctx.number.LONG.getText.toLowerCase.replace("l", ""))
-        else if (ctx.number.FLOAT != null) FloatConst(sign + ctx.number.FLOAT.getText.toLowerCase.replace("f", ""))
-        else if (ctx.number.DOUBLE != null) DoubleConst(sign + ctx.number.DOUBLE.getText.toLowerCase.replace("d", ""))
-        else if (ctx.number.DECIMAL != null)
-          DecimalConst(sign + ctx.number.DECIMAL.getText.toLowerCase.replace("q", ""))
+        } else if (context.number.LONG != null)
+          LongConst(sign + context.number.LONG.getText.toLowerCase.replace("l", ""))
+        else if (context.number.FLOAT != null)
+          FloatConst(sign + context.number.FLOAT.getText.toLowerCase.replace("f", ""))
+        else if (context.number.DOUBLE != null)
+          DoubleConst(sign + context.number.DOUBLE.getText.toLowerCase.replace("d", ""))
+        else if (context.number.DECIMAL != null)
+          DecimalConst(sign + context.number.DECIMAL.getText.toLowerCase.replace("q", ""))
         else throw new AssertionError("Unknown number type")
-      val context = if (ctx.PLUS_TOKEN() != null) ctx.number() else ctx
-      positionsWrapper.setPosition(context, result)
+      val posContext = if (context.PLUS_TOKEN() != null) context.number() else context
+      positionsWrapper.setPosition(posContext, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(ErrorExp())
 
-  override def visitNumber(ctx: SnapiParser.NumberContext): SourceNode = {
-    if (ctx != null) {
-      if (ctx.BYTE != null) ByteConst(ctx.BYTE.getText.toLowerCase.replace("b", ""))
-      else if (ctx.SHORT != null) ShortConst(ctx.SHORT.getText.toLowerCase.replace("s", ""))
-      else if (ctx.INTEGER != null) {
-        val intText = ctx.INTEGER.getText.toLowerCase
+  override def visitNumber(ctx: SnapiParser.NumberContext): SourceNode = Option(ctx)
+    .map(context => {
+      if (context.BYTE != null) ByteConst(context.BYTE.getText.toLowerCase.replace("b", ""))
+      else if (context.SHORT != null) ShortConst(context.SHORT.getText.toLowerCase.replace("s", ""))
+      else if (context.INTEGER != null) {
+        val intText = context.INTEGER.getText.toLowerCase
         val intTry = Try(intText.toInt)
         if (intTry.isSuccess) IntConst(intText)
         else {
@@ -770,23 +997,69 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
           if (longTry.isSuccess) LongConst(intText)
           else DoubleConst(intText)
         }
-      } else if (ctx.LONG != null) LongConst(ctx.LONG.getText.toLowerCase.replace("l", ""))
-      else if (ctx.FLOAT != null) FloatConst(ctx.FLOAT.getText.toLowerCase.replace("f", ""))
-      else if (ctx.DOUBLE != null) DoubleConst(ctx.DOUBLE.getText.toLowerCase.replace("d", ""))
-      else if (ctx.DECIMAL != null) DecimalConst(ctx.DECIMAL.getText.toLowerCase.replace("q", ""))
+      } else if (context.LONG != null) LongConst(context.LONG.getText.toLowerCase.replace("l", ""))
+      else if (context.FLOAT != null) FloatConst(context.FLOAT.getText.toLowerCase.replace("f", ""))
+      else if (context.DOUBLE != null) DoubleConst(context.DOUBLE.getText.toLowerCase.replace("d", ""))
+      else if (context.DECIMAL != null) DecimalConst(context.DECIMAL.getText.toLowerCase.replace("q", ""))
       else throw new AssertionError("Unknown number type")
-    } else null
+    })
+    .getOrElse(ErrorExp())
+
+  override def visitIdent(ctx: SnapiParser.IdentContext): SourceNode = Option(ctx)
+    .map { context =>
+      Option(context.ESC_IDENTIFIER)
+        .map(_ => StringConst(context.getText.drop(1).dropRight(1))) // Escaped identifier
+        .getOrElse(StringConst(context.getText)) // Regular identifier
+    }
+    .getOrElse(ErrorExp())
+
+  // Nullable tryable
+  override def visitNullableTryableType(ctx: SnapiParser.NullableTryableTypeContext): SourceNode = {
+    if (isFrontend) throw new RuntimeException("Nullable tryable types are not supported in frontend")
+
+    Option(ctx)
+      .map { context =>
+        val tipe = Option(context.tipe)
+          .map(visit(_).asInstanceOf[Rql2TypeWithProperties])
+          .getOrElse(ErrorType().asInstanceOf[Rql2TypeWithProperties])
+        // this is needed for the case of parenthesis around nullable_tryable rule
+        Option(context.nullable_tryable())
+          .flatMap(c => Option(c.nullable_tryable()).orElse(Some(c)))
+          .map { nullableTryable =>
+            val withoutNullable = Option(nullableTryable.NULLABLE_TOKEN())
+              .map(_ => tipe.cloneAndAddProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties])
+              .getOrElse(tipe)
+            Option(nullableTryable.TRYABLE_TOKEN())
+              .map(_ =>
+                withoutNullable.cloneAndAddProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+              )
+              .getOrElse(withoutNullable)
+          }
+          .getOrElse(tipe)
+      }
+      .getOrElse(ErrorType())
   }
 
-  override def visitIdent(ctx: SnapiParser.IdentContext): SourceNode =
-    if (ctx != null) {
-      if (ctx.ESC_IDENTIFIER != null) {
-        // Escaped identifier
-        StringConst(ctx.getText.drop(1).dropRight(1))
-      } else {
-        StringConst(ctx.getText)
+  override def visitPackage_idn_exp(ctx: SnapiParser.Package_idn_expContext): SourceNode = {
+    if (isFrontend) throw new RuntimeException("Package syntax is not supported in frontend")
+    Option(ctx)
+      .map { context =>
+        val stringLiteral = Option(context.string_literal()).map(visit(_)).getOrElse(ErrorExp())
+        val str = stringLiteral match {
+          case StringConst(s) => s
+          case TripleQuotedStringConst(s) => s
+          case ErrorExp() => ""
+          case _ => throw new AssertionError("Unexpected string literal")
+        }
+        val result = PackageIdnExp(str)
+        positionsWrapper.setPosition(context, result)
+        result
       }
-    } else null
+      .getOrElse(ErrorExp())
+  }
+
+  override def visitPackageIdnExp(ctx: SnapiParser.PackageIdnExpContext): SourceNode =
+    Option(ctx).flatMap(context => Option(context.package_idn_exp())).map(visit(_)).getOrElse(ErrorExp())
 
   // Nodes to ignore, they are not part of the AST and should never be visited
   override def visitBool_const(ctx: SnapiParser.Bool_constContext): SourceNode =
@@ -803,4 +1076,6 @@ class RawSnapiVisitor(positions: Positions, private val source: Source) extends 
 
   override def visitFun_args(ctx: SnapiParser.Fun_argsContext): SourceNode = throw new AssertionError(assertionMessage)
 
+  override def visitNullable_tryable(ctx: SnapiParser.Nullable_tryableContext): SourceNode =
+    throw new AssertionError(assertionMessage)
 }

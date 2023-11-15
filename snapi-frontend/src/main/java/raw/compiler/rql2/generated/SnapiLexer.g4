@@ -87,7 +87,7 @@ LINE_COMMENT : '//' ~('\n'|'\r')* ('\r'? '\n' | EOF) -> channel(HIDDEN) ;
 
 fragment DIGIT: [0-9];
 fragment EXPONENT: E [+-]? DIGIT+;
-fragment ESC: '\\' (["\\/bfnrt]) ;
+fragment ESC: '\\' (["\\/'bfnrt]) ;
 fragment INTEGER_FR: DIGIT+;
 fragment FLOAT_FR: DIGIT+ '.' DIGIT* EXPONENT?;
 // For cace insensitive. you can write things like fragment
@@ -133,6 +133,10 @@ LEFT_CUR_BR: '{';
 RIGHT_CUR_BR: '}';
 LEFT_SQ_BR: '[';
 RIGHT_SQ_BR: ']';
+
+NULLABLE_TOKEN: '@null';
+TRYABLE_TOKEN: '@try';
+DOLLAR_TOKEN: '$';
 
 // Switching context to triple quotes, will be usefull for string interpolation too
 mode INSIDE_TRIPLE_QUOTE;

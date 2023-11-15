@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.0
+// Generated from SnapiParser.g4 by ANTLR 4.13.1
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -232,6 +232,16 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
+  public T visitNullableTryableType(SnapiParser.NullableTryableTypeContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
   public T visitExprTypeType(SnapiParser.ExprTypeTypeContext ctx) {
     return visitChildren(ctx);
   }
@@ -342,7 +352,27 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
+  public T visitParam_list(SnapiParser.Param_listContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
   public T visitRecord_type(SnapiParser.Record_typeContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitRecord_attr_list(SnapiParser.Record_attr_listContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -402,7 +432,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitStringExpr(SnapiParser.StringExprContext ctx) {
+  public T visitMinusUnaryExpr(SnapiParser.MinusUnaryExprContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -412,7 +442,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitMinusUnaryExpr(SnapiParser.MinusUnaryExprContext ctx) {
+  public T visitStringLiteralExpr(SnapiParser.StringLiteralExprContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -612,7 +642,7 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitTrippleStringExpr(SnapiParser.TrippleStringExprContext ctx) {
+  public T visitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -662,7 +692,17 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
-  public T visitLet_decl(SnapiParser.Let_declContext ctx) {
+  public T visitLetBind(SnapiParser.LetBindContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitLetFunDec(SnapiParser.LetFunDecContext ctx) {
     return visitChildren(ctx);
   }
   /**
@@ -772,6 +812,26 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    * ctx}.
    */
   @Override
+  public T visitString_literal(SnapiParser.String_literalContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitTriple_string_literal(SnapiParser.Triple_string_literalContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
   public T visitCompare_tokens(SnapiParser.Compare_tokensContext ctx) {
     return visitChildren(ctx);
   }
@@ -793,6 +853,26 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    */
   @Override
   public T visitIdent(SnapiParser.IdentContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitPackage_idn_exp(SnapiParser.Package_idn_expContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitNullable_tryable(SnapiParser.Nullable_tryableContext ctx) {
     return visitChildren(ctx);
   }
 }
