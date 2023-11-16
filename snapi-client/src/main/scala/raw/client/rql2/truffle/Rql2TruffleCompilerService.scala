@@ -12,6 +12,7 @@
 
 package raw.client.rql2.truffle
 
+import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
 import raw.client.api._
@@ -23,7 +24,7 @@ import raw.compiler.base.source.BaseNode
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2._
-import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseTypeResult}
+import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult}
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.CompilerLspService
@@ -602,9 +603,15 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       implicit programContext: base.ProgramContext
   ): Either[(String, Position), T] = {
     val positions = new Positions()
-    val tree =
-      new TreeWithPositions(source, ensureTree = true, frontend = true)(programContext.asInstanceOf[ProgramContext])
-    val lspService = new CompilerLspService(tree.analyzer, positions)(programContext.asInstanceOf[ProgramContext])
+    val parser = new Antlr4SyntaxAnalyzer(positions, true)
+    val ParseProgramResult(errors, program) = parser.parse(source)
+    val tree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+      program,
+      shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
+    )
+    val analyzer = new SemanticAnalyzer(tree)(programContext.asInstanceOf[ProgramContext])
+    // Handle the LSP request.
+    val lspService = new CompilerLspService(errors, analyzer, positions)(programContext.asInstanceOf[ProgramContext])
     Right(f(lspService))
 
 //    parser.parse(source).right.map { program =>
