@@ -52,7 +52,7 @@ trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
 
   test("""{ : 1 }""".stripMargin)(it =>
     it should parseErrorAs(
-      "extraneous input ':' expecting {'type', 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'let', 'undefined', 'if', 'null', BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE, DECIMAL, '+', '-', 'not', 'true', 'false', STRING, START_TRIPLE_QUOTE, NON_ESC_IDENTIFIER, ESC_IDENTIFIER, '(', '{', '}', '[', '$'}"
+      "extraneous input ':' expecting {'type', 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'let', 'undefined', 'if', 'null', BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE, DECIMAL, '+', '-', 'not', 'true', 'false', STRING, START_TRIPLE_QUOTE, NON_ESC_IDENTIFIER, ESC_IDENTIFIER, '(', '{', '}', '[', BINARY_CONST, '$'}"
     )
   )
 
