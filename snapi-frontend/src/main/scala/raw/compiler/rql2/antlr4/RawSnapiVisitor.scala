@@ -1079,7 +1079,7 @@ class RawSnapiVisitor(
         .flatMap { context =>
           Option(context.BINARY_CONST())
             .map(bContext =>
-              Try(BinaryConst(DatatypeConverter.parseHexBinary(bContext.getText))).getOrElse {
+              Try(BinaryConst(DatatypeConverter.parseHexBinary(bContext.getText.drop(2)))).getOrElse {
                 errors.addError(
                   ErrorMessage(
                     "Invalid binary literal",
