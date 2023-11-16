@@ -42,6 +42,7 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
   )
 )
 sealed trait RawValue
+final case class RawAny(v: Any) extends RawValue
 final case class RawNull() extends RawValue
 final case class RawError(v: String) extends RawValue
 final case class RawByte(v: java.lang.Byte) extends RawValue

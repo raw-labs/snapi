@@ -196,7 +196,7 @@ class FrontendSyntaxAnalyzer(val positions: Positions)
     }
   }
 
-  final private lazy val funOptTypeParam: Parser[FunOptTypeParam] = ident ~ (":" ~> tipe) ^^ FunOptTypeParam
+  final protected lazy val funOptTypeParam: Parser[FunOptTypeParam] = ident ~ (":" ~> tipe1) ^^ FunOptTypeParam
 
   final protected lazy val packageType: Parser[PackageType] = tokPackage ~> "(" ~> stringLit <~ ")" ^^ PackageType
 
