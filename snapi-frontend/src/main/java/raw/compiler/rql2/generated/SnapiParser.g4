@@ -86,6 +86,7 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                             # 
     | fun_abs                                                                 # FunAbsExpr
     | expr_type                                                               # ExprTypeExpr
     | if_then_else                                                            # IfThenElseExpr
+    | BINARY_CONST                                                            # BinaryConstExpr
     | signed_number                                                           # SignedNumberExpr
     | bool_const                                                              # BoolConstExpr
     | NULL_TOKEN                                                              # NullExpr

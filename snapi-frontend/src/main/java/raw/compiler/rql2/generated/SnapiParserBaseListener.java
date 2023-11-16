@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.ParserRuleContext;
@@ -919,6 +919,20 @@ public class SnapiParserBaseListener implements SnapiParserListener {
    */
   @Override
   public void exitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void enterBinaryConstExpr(SnapiParser.BinaryConstExprContext ctx) {}
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation does nothing.
+   */
+  @Override
+  public void exitBinaryConstExpr(SnapiParser.BinaryConstExprContext ctx) {}
   /**
    * {@inheritDoc}
    *

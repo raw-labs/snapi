@@ -99,4 +99,10 @@ class SyntaxAnalyzerCompareTest extends RawTestSuite {
     assert(true)
   }
 
+  test("""FE test 3""") { _ =>
+    val prog = s"""let a = 0x1234 in a""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(result.isSuccess)
+  }
+
 }

@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.antlr4
 
+import jakarta.xml.bind.DatatypeConverter
 import org.antlr.v4.runtime.ParserRuleContext
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
@@ -51,7 +52,7 @@ class RawSnapiVisitor(
   }
 
   override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = Option(ctx)
-    .flatMap(c => Option(c.stat))
+    .flatMap(context => Option(context.stat))
     .map(visit(_).asInstanceOf[Rql2Program])
     .getOrElse(Rql2Program(Vector.empty, Option.empty))
 
@@ -773,7 +774,7 @@ class RawSnapiVisitor(
   override def visitOrExpr(ctx: SnapiParser.OrExprContext): SourceNode = Option(ctx)
     .map { context =>
       val or = Or()
-      positionsWrapper.setPosition(ctx.OR_TOKEN.getSymbol, or)
+      positionsWrapper.setPosition(context.OR_TOKEN.getSymbol, or)
       val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = BinaryExp(or, expr1, expr2)
@@ -786,7 +787,7 @@ class RawSnapiVisitor(
   override def visitAndExpr(ctx: SnapiParser.AndExprContext): SourceNode = Option(ctx)
     .map { context =>
       val and = And()
-      positionsWrapper.setPosition(ctx.AND_TOKEN.getSymbol, and)
+      positionsWrapper.setPosition(context.AND_TOKEN.getSymbol, and)
       val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = BinaryExp(and, expr1, expr2)
@@ -798,7 +799,7 @@ class RawSnapiVisitor(
   override def visitMulExpr(ctx: SnapiParser.MulExprContext): SourceNode = Option(ctx)
     .map { context =>
       val mult = Mult()
-      positionsWrapper.setPosition(ctx.MUL_TOKEN().getSymbol, mult)
+      positionsWrapper.setPosition(context.MUL_TOKEN().getSymbol, mult)
       val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = BinaryExp(mult, expr1, expr2)
@@ -810,7 +811,7 @@ class RawSnapiVisitor(
   override def visitDivExpr(ctx: SnapiParser.DivExprContext): SourceNode = Option(ctx)
     .map { context =>
       val div: Div = Div()
-      positionsWrapper.setPosition(ctx.DIV_TOKEN().getSymbol, div)
+      positionsWrapper.setPosition(context.DIV_TOKEN().getSymbol, div)
       val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = BinaryExp(div, expr1, expr2)
@@ -822,7 +823,7 @@ class RawSnapiVisitor(
   override def visitModExpr(ctx: SnapiParser.ModExprContext): SourceNode = Option(ctx)
     .map { context =>
       val mod: Mod = Mod()
-      positionsWrapper.setPosition(ctx.MOD_TOKEN().getSymbol, mod)
+      positionsWrapper.setPosition(context.MOD_TOKEN().getSymbol, mod)
       val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = BinaryExp(mod, expr1, expr2)
@@ -834,7 +835,7 @@ class RawSnapiVisitor(
   override def visitPlusExpr(ctx: SnapiParser.PlusExprContext): SourceNode = Option(ctx)
     .map { context =>
       val plus: Plus = Plus()
-      positionsWrapper.setPosition(ctx.PLUS_TOKEN().getSymbol, plus)
+      positionsWrapper.setPosition(context.PLUS_TOKEN().getSymbol, plus)
       val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = BinaryExp(plus, expr1, expr2)
@@ -846,7 +847,7 @@ class RawSnapiVisitor(
   override def visitMinusExpr(ctx: SnapiParser.MinusExprContext): SourceNode = Option(ctx)
     .map { context =>
       val sub: Sub = Sub()
-      positionsWrapper.setPosition(ctx.MINUS_TOKEN().getSymbol, sub)
+      positionsWrapper.setPosition(context.MINUS_TOKEN().getSymbol, sub)
       val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = BinaryExp(sub, expr1, expr2)
@@ -881,17 +882,17 @@ class RawSnapiVisitor(
     .flatMap(context => Option(context.fun_dec()).map(visit(_)))
     .getOrElse(LetFun(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
 
-  override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = {
-    if (ctx != null) {
-      val tipe = Option(ctx.tipe).map(visit(_).asInstanceOf[Type])
-      val idnDef = IdnDef(ctx.ident.getValue)
-      positionsWrapper.setPosition(ctx.ident, idnDef)
-      val exp = Option(ctx.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+  override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = Option(ctx)
+    .map { context =>
+      val tipe = Option(context.tipe).map(visit(_).asInstanceOf[Type])
+      val idnDef = IdnDef(context.ident.getValue)
+      positionsWrapper.setPosition(context.ident, idnDef)
+      val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val result = LetBind(exp, idnDef, tipe)
-      positionsWrapper.setPosition(ctx, result)
+      positionsWrapper.setPosition(context, result)
       result
-    } else null
-  }
+    }
+    .getOrElse(LetBind(ErrorExp(), IdnDef(""), Option.empty))
 
   override def visitIf_then_else(ctx: SnapiParser.If_then_elseContext): SourceNode = Option(ctx)
     .map { context =>
@@ -957,7 +958,7 @@ class RawSnapiVisitor(
         )
         .getOrElse(Vector.empty)
       val result: Exp = RecordPackageBuilder.Build(tuples)
-      positionsWrapper.setPosition(ctx.parent.asInstanceOf[ParserRuleContext], result)
+      positionsWrapper.setPosition(context.parent.asInstanceOf[ParserRuleContext], result)
       result
     }
     .getOrElse(ErrorExp())
@@ -973,7 +974,7 @@ class RawSnapiVisitor(
           .map { stringConst =>
             val result = StringConst(
               stringConst.getText
-                .substring(1, ctx.STRING.getText.length - 1)
+                .substring(1, context.STRING.getText.length - 1)
                 .replace("\\b", "\b")
                 .replace("\\n", "\n")
                 .replace("\\f", "\f")
@@ -1003,7 +1004,7 @@ class RawSnapiVisitor(
 
   override def visitBoolConstExpr(ctx: SnapiParser.BoolConstExprContext): SourceNode = Option(ctx)
     .map { context =>
-      val result = BoolConst(ctx.bool_const.FALSE_TOKEN == null)
+      val result = BoolConst(context.bool_const.FALSE_TOKEN == null)
       positionsWrapper.setPosition(context, result)
       result
     }
@@ -1070,6 +1071,34 @@ class RawSnapiVisitor(
     })
     .getOrElse(ErrorExp())
 
+  override def visitBinaryConstExpr(ctx: SnapiParser.BinaryConstExprContext): SourceNode = {
+    if (isFrontend) {
+      notFrontendError(ctx)
+    } else {
+      Option(ctx)
+        .flatMap { context =>
+          Option(context.BINARY_CONST())
+            .map(bContext =>
+              Try(BinaryConst(DatatypeConverter.parseHexBinary(bContext.getText))).getOrElse {
+                errors.addError(
+                  ErrorMessage(
+                    "Invalid binary literal",
+                    List(
+                      ErrorRange(
+                        ErrorPosition(context.getStart.getLine, context.getStart.getCharPositionInLine + 1),
+                        ErrorPosition(context.getStop.getLine, context.getStop.getCharPositionInLine + 1)
+                      )
+                    )
+                  )
+                )
+                ErrorExp()
+              }
+            )
+        }
+        .getOrElse(ErrorExp())
+    }
+  }
+
   override def visitIdent(ctx: SnapiParser.IdentContext): SourceNode = Option(ctx)
     .map { context =>
       Option(context.ESC_IDENTIFIER)
@@ -1081,17 +1110,19 @@ class RawSnapiVisitor(
   // Nullable tryable
 
   private def notFrontendError(ctx: ParserRuleContext): SourceNode = {
-    this.errors.addError(
-      ErrorMessage(
-        "Unknown token",
-        List(
-          ErrorRange(
-            ErrorPosition(ctx.getStart.getLine, ctx.getStart.getCharPositionInLine + 1),
-            ErrorPosition(ctx.getStop.getLine, ctx.getStop.getCharPositionInLine + 1)
+    Option(ctx).foreach { context =>
+      errors.addError(
+        ErrorMessage(
+          "Not supported in frontend",
+          List(
+            ErrorRange(
+              ErrorPosition(context.getStart.getLine, context.getStart.getCharPositionInLine + 1),
+              ErrorPosition(context.getStop.getLine, context.getStop.getCharPositionInLine + 1)
+            )
           )
         )
       )
-    )
+    }
     ErrorExp()
   }
   override def visitNullableTryableType(ctx: SnapiParser.NullableTryableTypeContext): SourceNode = {

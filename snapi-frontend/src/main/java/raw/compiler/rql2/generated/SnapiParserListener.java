@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.ParseTreeListener;
@@ -887,6 +887,20 @@ public interface SnapiParserListener extends ParseTreeListener {
    * @param ctx the parse tree
    */
   void exitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx);
+  /**
+   * Enter a parse tree produced by the {@code BinaryConstExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void enterBinaryConstExpr(SnapiParser.BinaryConstExprContext ctx);
+  /**
+   * Exit a parse tree produced by the {@code BinaryConstExpr} labeled alternative in {@link
+   * SnapiParser#expr}.
+   *
+   * @param ctx the parse tree
+   */
+  void exitBinaryConstExpr(SnapiParser.BinaryConstExprContext ctx);
   /**
    * Enter a parse tree produced by the {@code ModExpr} labeled alternative in {@link
    * SnapiParser#expr}.

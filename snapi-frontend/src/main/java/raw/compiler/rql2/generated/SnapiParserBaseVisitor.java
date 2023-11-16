@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-// Generated from SnapiParser.g4 by ANTLR 4.13.1
+// Generated from SnapiParser.g4 by ANTLR 4.13.0
 package raw.compiler.rql2.generated;
 
 import org.antlr.v4.runtime.tree.AbstractParseTreeVisitor;
@@ -663,6 +663,16 @@ public class SnapiParserBaseVisitor<T> extends AbstractParseTreeVisitor<T>
    */
   @Override
   public T visitPackageIdnExp(SnapiParser.PackageIdnExpContext ctx) {
+    return visitChildren(ctx);
+  }
+  /**
+   * {@inheritDoc}
+   *
+   * <p>The default implementation returns the result of calling {@link #visitChildren} on {@code
+   * ctx}.
+   */
+  @Override
+  public T visitBinaryConstExpr(SnapiParser.BinaryConstExprContext ctx) {
     return visitChildren(ctx);
   }
   /**

@@ -118,9 +118,6 @@ fragment W:[wW];
 fragment X:[xX];
 fragment Y:[yY];
 fragment Z:[zZ];
-//fragment NUMERIC_TYPE_SUFFIX: [fdlsbq];
-//fragment UNICODE: 'u' HEX HEX HEX HEX ;
-//fragment HEX: [0-9a-fA-F] ;
 
 LEFT_PAREN: '(';
 RIGHT_PAREN: ')';
@@ -133,6 +130,9 @@ LEFT_CUR_BR: '{';
 RIGHT_CUR_BR: '}';
 LEFT_SQ_BR: '[';
 RIGHT_SQ_BR: ']';
+
+BINARY_CONST: BINARY_PREFIX [0-9a-fA-F]*;
+fragment BINARY_PREFIX: '0x';
 
 NULLABLE_TOKEN: '@null';
 TRYABLE_TOKEN: '@try';
