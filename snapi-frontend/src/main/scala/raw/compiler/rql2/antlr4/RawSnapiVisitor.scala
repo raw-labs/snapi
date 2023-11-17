@@ -20,7 +20,7 @@ import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
-import raw.compiler.rql2.source._
+import raw.compiler.rql2.source.{LetDecl, _}
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -44,7 +44,7 @@ class RawSnapiVisitor(
   implicit class IdentExtension(ctx: SnapiParser.IdentContext) {
     def getValue: String = Option(ctx)
       .map { identContext =>
-        val result = visit(identContext).asInstanceOf[StringConst].value
+        val result = Option(visit(identContext)).getOrElse(StringConst("")).asInstanceOf[StringConst].value
         positionsWrapper.setPosition(identContext, result)
         result
       }
@@ -53,7 +53,7 @@ class RawSnapiVisitor(
 
   override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = Option(ctx)
     .flatMap(context => Option(context.stat))
-    .map(visit(_).asInstanceOf[Rql2Program])
+    .flatMap(statContext => Option(visit(statContext)))
     .getOrElse(Rql2Program(Vector.empty, Option.empty))
 
   override def visitFunDecStat(ctx: SnapiParser.FunDecStatContext): SourceNode = Option(ctx)
@@ -62,8 +62,9 @@ class RawSnapiVisitor(
         .map(m =>
           m.asScala.map(md =>
             Option(md)
-              .map(visit(_).asInstanceOf[Rql2Method])
+              .flatMap(mdContext => Option(visit(mdContext)))
               .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+              .asInstanceOf[Rql2Method]
           )
         )
         .getOrElse(Vector.empty)
@@ -80,13 +81,14 @@ class RawSnapiVisitor(
         .map(m =>
           m.asScala.map(md =>
             Option(md)
-              .map(visit(_).asInstanceOf[Rql2Method])
+              .flatMap(mdContext => Option(visit(mdContext)))
               .getOrElse(Rql2Method(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
+              .asInstanceOf[Rql2Method]
           )
         )
         .getOrElse(Vector.empty)
         .toVector
-      val me = Option(context.expr).map(visit(_).asInstanceOf[Exp])
+      val me = Option(context.expr).map(expContext => Option(visit(expContext)).getOrElse(ErrorExp()).asInstanceOf[Exp])
       val result = Rql2Program(methods, me)
       positionsWrapper.setPosition(context, result)
       result
@@ -100,8 +102,9 @@ class RawSnapiVisitor(
           p.asScala
             .map(pr =>
               Option(pr)
-                .map(visit(_).asInstanceOf[FunParam])
+                .flatMap(prr => Option(visit(prr)))
                 .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+                .asInstanceOf[FunParam]
             )
             .toVector
         )
@@ -109,13 +112,17 @@ class RawSnapiVisitor(
 
       val funBody = Option(context.expr)
         .map { expContext =>
-          val exp = visit(expContext).asInstanceOf[Exp]
+          val exp = Option(visit(expContext)).getOrElse(ErrorExp()).asInstanceOf[Exp]
           val funBody = FunBody(exp)
           positionsWrapper.setPosition(expContext, funBody)
           funBody
         }
         .getOrElse(FunBody(ErrorExp()))
-      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+      val result = FunProto(
+        ps,
+        Option(context.tipe()).map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type]),
+        funBody
+      )
       positionsWrapper.setPosition(context, result)
       result
     }
@@ -127,21 +134,26 @@ class RawSnapiVisitor(
         .map(params =>
           params.asScala.map { paramsContext =>
             Option(paramsContext)
-              .map(visit(_).asInstanceOf[FunParam])
+              .flatMap(paramItemContext => Option(visit(paramItemContext)))
               .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
+              .asInstanceOf[FunParam]
           }.toVector
         )
         .getOrElse(Vector.empty)
 
       val funBody = Option(context.expr)
         .map { expContext =>
-          val exp = visit(expContext).asInstanceOf[Exp]
+          val exp = Option(visit(expContext)).getOrElse(ErrorExp()).asInstanceOf[Exp]
           val funBody = FunBody(exp)
           positionsWrapper.setPosition(expContext, funBody)
           funBody
         }
         .getOrElse(FunBody(ErrorExp()))
-      val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+      val result = FunProto(
+        ps,
+        Option(context.tipe()).map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type]),
+        funBody
+      )
       positionsWrapper.setPosition(context, result)
       result
     }
@@ -159,7 +171,8 @@ class RawSnapiVisitor(
                 result
               })
               .getOrElse(IdnDef(""))
-            val tipe = Option(attContext.tipe()).map(visit(_).asInstanceOf[Type])
+            val tipe = Option(attContext.tipe())
+              .map(attTipeContext => Option(visit(attTipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
             val funParam = FunParam(idnDef, tipe, Option.empty)
             positionsWrapper.setPosition(attContext, funParam)
             Vector(funParam)
@@ -167,13 +180,18 @@ class RawSnapiVisitor(
           .getOrElse(Vector.empty)
         val funBody = Option(context.expr)
           .map { expContext =>
-            val exp = visit(expContext).asInstanceOf[Exp]
+            val exp = Option(visit(expContext)).getOrElse(ErrorExp()).asInstanceOf[Exp]
             val funBody = FunBody(exp)
             positionsWrapper.setPosition(expContext, funBody)
             funBody
           }
           .getOrElse(FunBody(ErrorExp()))
-        val result = FunProto(ps, Option(context.tipe()).map(visit(_).asInstanceOf[Type]), funBody)
+        val result = FunProto(
+          ps,
+          Option(context.tipe())
+            .map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type]),
+          funBody
+        )
         positionsWrapper.setPosition(context, result)
         result
       }
@@ -182,8 +200,9 @@ class RawSnapiVisitor(
   override def visitMethodDec(ctx: SnapiParser.MethodDecContext): SourceNode = Option(ctx)
     .map { context =>
       val funProto = Option(context.fun_proto())
-        .map(visit(_).asInstanceOf[FunProto])
+        .flatMap(funProtoContext => Option(visit(funProtoContext)))
         .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+        .asInstanceOf[FunProto]
 
       val idnDef = Option(context.ident)
         .map { idnContext =>
@@ -201,8 +220,9 @@ class RawSnapiVisitor(
   override def visitNormalFun(ctx: SnapiParser.NormalFunContext): SourceNode = Option(ctx)
     .map { context =>
       val funProto = Option(context.fun_proto())
-        .map(visit(_).asInstanceOf[FunProto])
+        .flatMap(funProtoContext => Option(visit(funProtoContext)))
         .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+        .asInstanceOf[FunProto]
 
       val idnDef = Option(context.ident)
         .map { idnContext =>
@@ -220,8 +240,9 @@ class RawSnapiVisitor(
   override def visitRecFun(ctx: SnapiParser.RecFunContext): SourceNode = Option(ctx)
     .map { context =>
       val funProto = Option(context.fun_proto())
-        .map(visit(_).asInstanceOf[FunProto])
+        .flatMap(funProtoContext => Option(visit(funProtoContext)))
         .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+        .asInstanceOf[FunProto]
 
       val idnDef = Option(context.ident)
         .map { idnContext =>
@@ -248,7 +269,7 @@ class RawSnapiVisitor(
             }
             .getOrElse(IdnDef(""))
           val tipe = Option(attrContext.tipe)
-            .map(visit(_).asInstanceOf[Type])
+            .map(attrTipeContext => Option(visit(attrTipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
           val result = FunParam(
             idnDef,
             tipe,
@@ -275,12 +296,13 @@ class RawSnapiVisitor(
             }
             .getOrElse(IdnDef(""))
           val tipe = Option(attrContext.tipe)
-            .map(visit(_).asInstanceOf[Type])
+            .map(attrTipeContext => Option(visit(attrTipeContext)).getOrElse(ErrorType).asInstanceOf[Type])
           (idnDef, tipe)
         }
         .getOrElse((IdnDef(""), Option.empty))
 
-      val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp])
+      val exp =
+        Option(context.expr()).map(exprContext => Option(visit(exprContext)).getOrElse(ErrorExp).asInstanceOf[Exp])
 
       val result = FunParam(
         tupple._1,
@@ -296,7 +318,7 @@ class RawSnapiVisitor(
     .map { context =>
       val ident = Option(context.ident()).map(identContext => identContext.getValue).getOrElse("")
       val tipe = Option(context.tipe())
-        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
+        .map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
         .getOrElse(ErrorType())
       val result = Rql2AttrType(ident, tipe)
       positionsWrapper.setPosition(context, result)
@@ -307,7 +329,8 @@ class RawSnapiVisitor(
   override def visitFunArgExpr(ctx: SnapiParser.FunArgExprContext): SourceNode = Option(ctx)
     .flatMap { context =>
       Option(context.expr()).map { exprContext =>
-        val result: FunAppArg = FunAppArg(visit(exprContext).asInstanceOf[Exp], Option.empty)
+        val result: FunAppArg =
+          FunAppArg(Option(visit(exprContext)).getOrElse(ErrorExp).asInstanceOf[Exp], Option.empty)
         positionsWrapper.setPosition(context, result)
         result
       }
@@ -316,7 +339,8 @@ class RawSnapiVisitor(
 
   override def visitNamedFunArgExpr(ctx: SnapiParser.NamedFunArgExprContext): SourceNode = Option(ctx)
     .map { context =>
-      val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val exp =
+        Option(context.expr()).map(exprContext => Option(visit(exprContext)).asInstanceOf[Exp]).getOrElse(ErrorExp())
       val ident = Option(context.ident()).map { identContext =>
         val result = identContext.getValue
         positionsWrapper.setPosition(identContext, result)
@@ -331,7 +355,7 @@ class RawSnapiVisitor(
   override def visitFunAbs(ctx: SnapiParser.FunAbsContext): SourceNode = Option(ctx)
     .flatMap { context =>
       Option(context.fun_proto_lambda()).map { funProtoLambdaContext =>
-        val funProto = visit(funProtoLambdaContext).asInstanceOf[FunProto]
+        val funProto = Option(visit(funProtoLambdaContext)).asInstanceOf[FunProto]
         val result = FunAbs(funProto)
         positionsWrapper.setPosition(context, result)
         result
@@ -352,7 +376,7 @@ class RawSnapiVisitor(
         .getOrElse(FunParam(IdnDef(""), Option.empty, Option.empty))
       val funBody = Option(context.expr())
         .map { exprContext =>
-          val funBody = FunBody(visit(exprContext).asInstanceOf[Exp])
+          val funBody = FunBody(Option(visit(exprContext)).getOrElse(ErrorExp()).asInstanceOf[Exp])
           positionsWrapper.setPosition(exprContext, funBody)
           funBody
         }
@@ -374,7 +398,12 @@ class RawSnapiVisitor(
               .tipe()
           ).map(typeList =>
             typeList.asScala
-              .map(tctx => Option(tctx).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType()))
+              .map(tctx =>
+                Option(tctx)
+                  .flatMap(tctxContext => Option(visit(tctxContext)))
+                  .getOrElse(ErrorType)
+                  .asInstanceOf[Type]
+              )
               .toVector
           )
         }
@@ -390,7 +419,10 @@ class RawSnapiVisitor(
               Option(attrCtx)
                 .map { a =>
                   val ident = Option(a.ident()).map(_.getValue).getOrElse("")
-                  val tipe = Option(a.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+                  val tipe = Option(a.tipe())
+                    .flatMap(aTipeContext => Option(visit(aTipeContext)))
+                    .getOrElse(ErrorType())
+                    .asInstanceOf[Type]
                   val funOptTypeParam = FunOptTypeParam(ident, tipe)
                   positionsWrapper.setPosition(a, funOptTypeParam)
                   funOptTypeParam
@@ -402,8 +434,9 @@ class RawSnapiVisitor(
         .getOrElse(Vector.empty)
 
       val rType = Option(context.tipe())
-        .map(visit(_).asInstanceOf[Type])
+        .flatMap(tipeContext => Option(visit(tipeContext)))
         .getOrElse(ErrorType())
+        .asInstanceOf[Type]
 
       val result: FunType = FunType(
         ms,
@@ -419,10 +452,12 @@ class RawSnapiVisitor(
   override def visitOrTypeType(ctx: SnapiParser.OrTypeTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val tipes = Option(context.tipe())
-        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Type]))
+        .map(tipeContext => Vector(Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type]))
         .getOrElse(Vector.empty)
-      val orType =
-        Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector(ErrorType())))
+      val orType = Option(context.or_type())
+        .flatMap(orTypeContext => Option(visit(orTypeContext)))
+        .getOrElse(Rql2OrType(Vector(ErrorType())))
+        .asInstanceOf[Rql2OrType]
       val combinedTypes = tipes ++ orType.tipes
       val result = Rql2OrType(combinedTypes, defaultProps)
       positionsWrapper.setPosition(context, result)
@@ -433,8 +468,14 @@ class RawSnapiVisitor(
   // this one is helper, it doesn't need to set position (basically an accumulator for or_type)
   override def visitOr_type(ctx: SnapiParser.Or_typeContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
-      val orType = Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector.empty))
+      val tipe = Option(context.tipe())
+        .flatMap(tipeContext => Option(visit(tipeContext)))
+        .getOrElse(ErrorType())
+        .asInstanceOf[Type]
+      val orType = Option(context.or_type())
+        .flatMap(orTypeContext => Option(visit(orTypeContext)))
+        .getOrElse(Rql2OrType(Vector.empty))
+        .asInstanceOf[Rql2OrType]
       Rql2OrType(Vector(tipe) ++ orType.tipes, defaultProps)
     }
     .getOrElse(ErrorType())
@@ -442,13 +483,19 @@ class RawSnapiVisitor(
   override def visitOrTypeFunType(ctx: SnapiParser.OrTypeFunTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val types = Option(context.tipe(0))
-        .map(tipeContext => Vector(visit(tipeContext).asInstanceOf[Type]))
+        .map(tipeContext => Vector(Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type]))
         .getOrElse(Vector.empty)
 
-      val orType = Option(context.or_type()).map(visit(_).asInstanceOf[Rql2OrType]).getOrElse(Rql2OrType(Vector.empty))
+      val orType = Option(context.or_type())
+        .flatMap(orTypeContext => Option(visit(orTypeContext)))
+        .getOrElse(Rql2OrType(Vector.empty))
+        .asInstanceOf[Rql2OrType]
       val combinedTypes = types ++ orType.tipes
       val domainOrType = Rql2OrType(combinedTypes, defaultProps)
-      val rType = Option(context.tipe(1)).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val rType = Option(context.tipe(1))
+        .flatMap(tipeContext => Option(visit(tipeContext)))
+        .getOrElse(ErrorType())
+        .asInstanceOf[Type]
       val funType = FunType(
         Vector(domainOrType),
         Vector.empty,
@@ -461,23 +508,27 @@ class RawSnapiVisitor(
     .getOrElse(ErrorType())
 
   override def visitRecordTypeType(ctx: SnapiParser.RecordTypeTypeContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.record_type).map(visit(_).asInstanceOf[Rql2RecordType]))
+    .flatMap(context => Option(context.record_type).flatMap(recordTypeContext => Option(visit(recordTypeContext))))
     .getOrElse(ErrorType())
+    .asInstanceOf[Rql2RecordType]
 
   override def visitIterableTypeType(ctx: SnapiParser.IterableTypeTypeContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.iterable_type).map(visit(_).asInstanceOf[Rql2IterableType]))
+    .flatMap(context =>
+      Option(context.iterable_type).flatMap(iterableTypeContext => Option(visit(iterableTypeContext)))
+    )
     .getOrElse(ErrorType())
+    .asInstanceOf[Rql2IterableType]
 
   override def visitTypeWithParenType(ctx: SnapiParser.TypeWithParenTypeContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.tipe()).map(visit(_)))
+    .flatMap(context => Option(context.tipe()).flatMap(tipeContext => Option(visit(tipeContext))))
     .getOrElse(ErrorType())
 
   override def visitListTypeType(ctx: SnapiParser.ListTypeTypeContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.list_type).map(visit(_).asInstanceOf[Rql2ListType]))
+    .flatMap(context => Option(context.list_type).flatMap(tipeContext => Option(visit(tipeContext))))
     .getOrElse(ErrorType())
 
   override def visitPrimitiveTypeType(ctx: SnapiParser.PrimitiveTypeTypeContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.primitive_types).map(visit(_)))
+    .flatMap(context => Option(context.primitive_types).flatMap(premTypesContext => Option(visit(premTypesContext))))
     .getOrElse(ErrorType())
 
   override def visitPrimitive_types(ctx: SnapiParser.Primitive_typesContext): SourceNode = Option(ctx)
@@ -520,12 +571,14 @@ class RawSnapiVisitor(
   override def visitFunTypeType(ctx: SnapiParser.FunTypeTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val ms = Option(context.tipe(0))
-        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
+        .flatMap(tipeContext => Option(visit(tipeContext)))
         .getOrElse(ErrorType())
+        .asInstanceOf[Type]
 
       val r = Option(context.tipe(1))
-        .map(tipeContext => visit(tipeContext).asInstanceOf[Type])
+        .flatMap(tipeContext => Option(visit(tipeContext)))
         .getOrElse(ErrorType())
+        .asInstanceOf[Type]
 
       val funType = FunType(
         Vector(ms),
@@ -540,7 +593,10 @@ class RawSnapiVisitor(
 
   override def visitExprTypeExpr(ctx: SnapiParser.ExprTypeExprContext): SourceNode = Option(ctx)
     .map { context =>
-      val exp = Option(context.expr_type()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val exp = Option(context.expr_type())
+        .flatMap(exprTypeContext => Option(visit(exprTypeContext)))
+        .getOrElse(ErrorType())
+        .asInstanceOf[Type]
       val result = TypeExp(exp)
       positionsWrapper.setPosition(context, result)
       result
@@ -554,7 +610,12 @@ class RawSnapiVisitor(
           .flatMap { attrListContext =>
             Option(attrListContext.type_attr()).map(listOfAttr =>
               listOfAttr.asScala
-                .map(a => Option(a).map(visit(_).asInstanceOf[Rql2AttrType]).getOrElse(Rql2AttrType("", ErrorType())))
+                .map(a =>
+                  Option(a)
+                    .flatMap(aContext => Option(visit(aContext)))
+                    .getOrElse(Rql2AttrType("", ErrorType()))
+                    .asInstanceOf[Rql2AttrType]
+                )
                 .toVector
             )
           }
@@ -569,7 +630,10 @@ class RawSnapiVisitor(
 
   override def visitIterable_type(ctx: SnapiParser.Iterable_typeContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val tipe = Option(context.tipe())
+        .flatMap(tipeContext => Option(visit(tipeContext)))
+        .getOrElse(ErrorType())
+        .asInstanceOf[Type]
       val result = Rql2IterableType(tipe, defaultProps)
       positionsWrapper.setPosition(context, result)
       result
@@ -578,28 +642,36 @@ class RawSnapiVisitor(
 
   override def visitList_type(ctx: SnapiParser.List_typeContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe = Option(context.tipe()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val tipe = Option(context.tipe())
+        .flatMap(tipeContext => Option(visit(tipeContext)))
+        .getOrElse(ErrorType())
+        .asInstanceOf[Type]
       val result = Rql2ListType(tipe, defaultProps)
       positionsWrapper.setPosition(context, result)
       result
     }
     .getOrElse(ErrorType())
 
-  override def visitExpr_type(ctx: SnapiParser.Expr_typeContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.tipe()).map(visit(_))).getOrElse(ErrorType())
+  override def visitExpr_type(ctx: SnapiParser.Expr_typeContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.tipe()).flatMap(tipeContext => Option(visit(tipeContext))))
+    .getOrElse(ErrorType())
 
   override def visitPackageEntryTypeType(ctx: SnapiParser.PackageEntryTypeTypeContext): SourceNode = Option(ctx)
     .flatMap(context =>
       Option(context.string_literal()).map { stringLiteralContext =>
         val packageName = {
-          val packName =
-            Option(stringLiteralContext.get(0)).map(visit(_).asInstanceOf[StringConst]).getOrElse(StringConst(""))
+          val packName = Option(stringLiteralContext.get(0))
+            .flatMap(strLiteralContext => Option(visit(strLiteralContext)))
+            .getOrElse(StringConst(""))
+            .asInstanceOf[StringConst]
           positionsWrapper.setPosition(stringLiteralContext.get(0), packName)
           packName
         }.value
         val entryName = {
-          val entName =
-            Option(stringLiteralContext.get(1)).map(visit(_).asInstanceOf[StringConst]).getOrElse(StringConst(""))
+          val entName = Option(stringLiteralContext.get(1))
+            .flatMap(strLiteralContext => Option(visit(strLiteralContext)))
+            .getOrElse(StringConst(""))
+            .asInstanceOf[StringConst]
           positionsWrapper.setPosition(stringLiteralContext.get(1), entName)
           entName
         }.value
@@ -613,12 +685,14 @@ class RawSnapiVisitor(
   override def visitPackageTypeType(ctx: SnapiParser.PackageTypeTypeContext): SourceNode = Option(ctx)
     .map { context =>
       val packageName = Option(context.string_literal())
-        .map { stringLiteralContext =>
-          val packName = visit(stringLiteralContext).asInstanceOf[StringConst]
-          positionsWrapper.setPosition(stringLiteralContext, packName)
-          packName
+        .flatMap { stringLiteralContext =>
+          Option(visit(stringLiteralContext)).map { stringLitNode =>
+            positionsWrapper.setPosition(stringLiteralContext, stringLitNode)
+            stringLitNode
+          }
         }
         .getOrElse(StringConst(""))
+        .asInstanceOf[StringConst]
       val result = PackageType(packageName.value)
       positionsWrapper.setPosition(context, result)
       result
@@ -638,7 +712,10 @@ class RawSnapiVisitor(
   override def visitProjectionExpr(ctx: SnapiParser.ProjectionExprContext): SourceNode = Option(ctx)
     .map { context =>
       val ident = Option(context.ident()).map(identContext => identContext.getValue).getOrElse("")
-      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr = Option(context.expr())
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val proj = Proj(expr, ident)
       val result = Option(context.fun_ar())
         .map(funArContext => {
@@ -650,8 +727,9 @@ class RawSnapiVisitor(
                   arg.asScala
                     .map(a =>
                       Option(a)
-                        .map(visit(_).asInstanceOf[FunAppArg])
+                        .flatMap(aContext => Option(visit(aContext)))
                         .getOrElse(FunAppArg(ErrorExp(), Option.empty))
+                        .asInstanceOf[FunAppArg]
                     )
                     .toVector
                 )
@@ -670,11 +748,13 @@ class RawSnapiVisitor(
     }
     .getOrElse(ErrorExp())
 
-  override def visitLetExpr(ctx: SnapiParser.LetExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.let()).map(visit(_).asInstanceOf[Let])).getOrElse(ErrorExp())
+  override def visitLetExpr(ctx: SnapiParser.LetExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.let()).flatMap(letContext => Option(visit(letContext))))
+    .getOrElse(ErrorExp())
 
-  override def visitFunAbsExpr(ctx: SnapiParser.FunAbsExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.fun_abs()).map(visit(_).asInstanceOf[FunAbs])).getOrElse(ErrorExp())
+  override def visitFunAbsExpr(ctx: SnapiParser.FunAbsExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.fun_abs()).flatMap(funAbsContext => Option(visit(funAbsContext))))
+    .getOrElse(ErrorExp())
 
   override def visitFunAppExpr(ctx: SnapiParser.FunAppExprContext): SourceNode = {
     Option(ctx)
@@ -686,14 +766,18 @@ class RawSnapiVisitor(
                 .map { funArgContext =>
                   funArgContext.asScala
                     .map(a =>
-                      Option(a).map(visit(_).asInstanceOf[FunAppArg]).getOrElse(FunAppArg(ErrorExp(), Option.empty))
+                      Option(a)
+                        .flatMap(aContext => Option(visit(aContext)))
+                        .getOrElse(FunAppArg(ErrorExp(), Option.empty))
+                        .asInstanceOf[FunAppArg]
                     )
                     .toVector
                 }
             }
           }
           .getOrElse(Vector.empty)
-        val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+        val exp =
+          Option(context.expr()).map(exprContext => Option(visit(exprContext))).getOrElse(ErrorExp()).asInstanceOf[Exp]
         val result = FunApp(exp, args)
         positionsWrapper.setPosition(context, result)
         result
@@ -702,27 +786,34 @@ class RawSnapiVisitor(
   }
 
   override def visitIfThenElseExpr(ctx: SnapiParser.IfThenElseExprContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.if_then_else()).map(visit(_).asInstanceOf[IfThenElse]))
+    .flatMap(context => Option(context.if_then_else()).flatMap(ifThenElseContext => Option(visit(ifThenElseContext))))
     .getOrElse(ErrorExp())
 
   override def visitExprTypeType(ctx: SnapiParser.ExprTypeTypeContext): SourceNode = Option(ctx)
     .map { context =>
-      val expType = Option(context.expr_type()).map(visit(_).asInstanceOf[Type]).getOrElse(ErrorType())
+      val expType = Option(context.expr_type())
+        .flatMap(exprTypeContext => Option(visit(exprTypeContext)))
+        .getOrElse(ErrorType())
+        .asInstanceOf[Type]
       val result = ExpType(expType)
       positionsWrapper.setPosition(context, result)
       result
     }
     .getOrElse(ErrorType())
 
-  override def visitListExpr(ctx: SnapiParser.ListExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.lists()).map(visit(_))).getOrElse(ErrorExp())
+  override def visitListExpr(ctx: SnapiParser.ListExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.lists()).flatMap(listContext => Option(visit(listContext))))
+    .getOrElse(ErrorExp())
 
   // Unary expressions
   override def visitNotExpr(ctx: SnapiParser.NotExprContext): SourceNode = Option(ctx)
     .map { context =>
       val not = Not()
       positionsWrapper.setPosition(context.NOT_TOKEN.getSymbol, not)
-      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr = Option(context.expr())
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = UnaryExp(not, expr)
       positionsWrapper.setPosition(context, result)
       result
@@ -733,23 +824,36 @@ class RawSnapiVisitor(
     .map { context =>
       val neg = Neg()
       positionsWrapper.setPosition(context.MINUS_TOKEN.getSymbol, neg)
-      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr = Option(context.expr())
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = UnaryExp(neg, expr)
       positionsWrapper.setPosition(context, result)
       result
     }
     .getOrElse(ErrorExp())
 
-  override def visitPlusUnaryExpr(ctx: SnapiParser.PlusUnaryExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.expr()).map(visit(_))).getOrElse(ErrorExp())
+  override def visitPlusUnaryExpr(ctx: SnapiParser.PlusUnaryExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.expr()).flatMap(exprContext => Option(visit(exprContext))))
+    .getOrElse(ErrorExp())
 
   // Binary expressions
   override def visitCompareExpr(ctx: SnapiParser.CompareExprContext): SourceNode = Option(ctx)
     .map { context =>
       // arbitrarily adding eq because we don't know which token is messing
-      val compareToken = Option(context.compare_tokens).map(visit(_).asInstanceOf[ComparableOp]).getOrElse(Eq())
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val compareToken = Option(context.compare_tokens)
+        .flatMap(compareTokenContext => Option(visit(compareTokenContext)))
+        .getOrElse(Eq())
+        .asInstanceOf[ComparableOp]
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(compareToken, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
@@ -775,8 +879,14 @@ class RawSnapiVisitor(
     .map { context =>
       val or = Or()
       positionsWrapper.setPosition(context.OR_TOKEN.getSymbol, or)
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(or, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
@@ -788,8 +898,14 @@ class RawSnapiVisitor(
     .map { context =>
       val and = And()
       positionsWrapper.setPosition(context.AND_TOKEN.getSymbol, and)
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(and, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
@@ -800,8 +916,14 @@ class RawSnapiVisitor(
     .map { context =>
       val mult = Mult()
       positionsWrapper.setPosition(context.MUL_TOKEN().getSymbol, mult)
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(mult, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
@@ -812,8 +934,14 @@ class RawSnapiVisitor(
     .map { context =>
       val div: Div = Div()
       positionsWrapper.setPosition(context.DIV_TOKEN().getSymbol, div)
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(div, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
@@ -824,8 +952,14 @@ class RawSnapiVisitor(
     .map { context =>
       val mod: Mod = Mod()
       positionsWrapper.setPosition(context.MOD_TOKEN().getSymbol, mod)
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(mod, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
@@ -836,8 +970,14 @@ class RawSnapiVisitor(
     .map { context =>
       val plus: Plus = Plus()
       positionsWrapper.setPosition(context.PLUS_TOKEN().getSymbol, plus)
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(plus, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
@@ -848,46 +988,70 @@ class RawSnapiVisitor(
     .map { context =>
       val sub: Sub = Sub()
       positionsWrapper.setPosition(context.MINUS_TOKEN().getSymbol, sub)
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = BinaryExp(sub, expr1, expr2)
       positionsWrapper.setPosition(context, result)
       result
     }
     .getOrElse(ErrorExp())
 
-  override def visitParenExpr(ctx: SnapiParser.ParenExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.expr()).map(visit(_))).getOrElse(ErrorExp())
+  override def visitParenExpr(ctx: SnapiParser.ParenExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.expr()).flatMap(exprContext => Option(visit(exprContext))))
+    .getOrElse(ErrorExp())
 
-  override def visitRecordExpr(ctx: SnapiParser.RecordExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.records()).map(visit(_))).getOrElse(ErrorExp())
+  override def visitRecordExpr(ctx: SnapiParser.RecordExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.records()).flatMap(recordsContext => Option(visit(recordsContext))))
+    .getOrElse(ErrorExp())
 
   override def visitLet(ctx: SnapiParser.LetContext): SourceNode = Option(ctx)
     .map { context =>
       val decls = Option(context.let_left())
         .flatMap(letLeftExpr =>
-          Option(letLeftExpr.let_decl()).map(letDecl => letDecl.asScala.map(visit(_).asInstanceOf[LetDecl]).toVector)
+          Option(letLeftExpr.let_decl()).map(letDecl =>
+            letDecl.asScala
+              .map(letDeclContext =>
+                Option(visit(letDeclContext))
+                  .getOrElse(LetBind(ErrorExp(), IdnDef(""), Option.empty))
+                  .asInstanceOf[LetDecl]
+              )
+              .toVector
+          )
         )
         .getOrElse(Vector.empty)
-      val expr = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr = Option(context.expr())
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = Let(decls, expr)
       positionsWrapper.setPosition(context, result)
       result
     }
     .getOrElse(ErrorExp())
   override def visitLetBind(ctx: SnapiParser.LetBindContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.let_bind()).map(visit(_)))
+    .flatMap(context => Option(context.let_bind()).flatMap(letBindContext => Option(visit(letBindContext))))
     .getOrElse(LetBind(ErrorExp(), IdnDef(""), Option.empty))
+
   override def visitLetFunDec(ctx: SnapiParser.LetFunDecContext): SourceNode = Option(ctx)
-    .flatMap(context => Option(context.fun_dec()).map(visit(_)))
+    .flatMap(context => Option(context.fun_dec()).flatMap(funDecContext => Option(visit(funDecContext))))
     .getOrElse(LetFun(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())), IdnDef("")))
 
   override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe = Option(context.tipe).map(visit(_).asInstanceOf[Type])
+      val tipe =
+        Option(context.tipe).map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
       val idnDef = IdnDef(context.ident.getValue)
       positionsWrapper.setPosition(context.ident, idnDef)
-      val exp = Option(context.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val exp = Option(context.expr())
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = LetBind(exp, idnDef, tipe)
       positionsWrapper.setPosition(context, result)
       result
@@ -896,9 +1060,18 @@ class RawSnapiVisitor(
 
   override def visitIf_then_else(ctx: SnapiParser.If_then_elseContext): SourceNode = Option(ctx)
     .map { context =>
-      val expr1 = Option(context.expr(0)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr2 = Option(context.expr(1)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
-      val expr3 = Option(context.expr(2)).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val expr1 = Option(context.expr(0))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr2 = Option(context.expr(1))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
+      val expr3 = Option(context.expr(2))
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val result = IfThenElse(expr1, expr2, expr3)
       positionsWrapper.setPosition(context, result)
       result
@@ -907,7 +1080,7 @@ class RawSnapiVisitor(
 
   override def visitLists(ctx: SnapiParser.ListsContext): SourceNode = Option(ctx)
     .map { context =>
-      Option(context.lists_element()).map(visit(_)).getOrElse {
+      Option(context.lists_element()).flatMap(listElementContext => Option(visit(listElementContext))).getOrElse {
         val result = ListPackageBuilder.Build()
         positionsWrapper.setPosition(context, result)
         result
@@ -919,7 +1092,9 @@ class RawSnapiVisitor(
     .map { context =>
       val exprs = Option(context.expr)
         .map(exprContext =>
-          exprContext.asScala.map(e => Option(e).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())).toVector
+          exprContext.asScala
+            .map(e => Option(e).flatMap(eContext => Option(visit(eContext))).getOrElse(ErrorExp()).asInstanceOf[Exp])
+            .toVector
         )
         .getOrElse(Vector.empty)
       val result = ListPackageBuilder.Build(exprs: _*)
@@ -930,11 +1105,13 @@ class RawSnapiVisitor(
 
   override def visitRecords(ctx: SnapiParser.RecordsContext): SourceNode = Option(ctx)
     .map { context =>
-      Option(context.record_elements()).map(visit(_)).getOrElse {
-        val result = RecordPackageBuilder.Build()
-        positionsWrapper.setPosition(context, result)
-        result
-      }
+      Option(context.record_elements())
+        .flatMap(recordElementsContext => Option(visit(recordElementsContext)))
+        .getOrElse {
+          val result = RecordPackageBuilder.Build()
+          positionsWrapper.setPosition(context, result)
+          result
+        }
     }
     .getOrElse(ErrorExp())
 
@@ -945,7 +1122,10 @@ class RawSnapiVisitor(
           recordElemntContext.asScala.zipWithIndex.map {
             case (e, idx) => Option(e)
                 .map { eContext =>
-                  val exp = Option(eContext.expr()).map(visit(_).asInstanceOf[Exp]).getOrElse(ErrorExp())
+                  val exp = Option(eContext.expr())
+                    .flatMap(exprContext => Option(visit(exprContext)))
+                    .getOrElse(ErrorExp())
+                    .asInstanceOf[Exp]
                   Option(eContext.ident()).map(i => (i.getValue, exp)).getOrElse {
                     exp match {
                       case proj: Proj => (proj.i, exp)
@@ -964,8 +1144,9 @@ class RawSnapiVisitor(
     .getOrElse(ErrorExp())
 
   // Constants
-  override def visitStringLiteralExpr(ctx: SnapiParser.StringLiteralExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.string_literal()).map(visit(_))).getOrElse(ErrorExp())
+  override def visitStringLiteralExpr(ctx: SnapiParser.StringLiteralExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.string_literal()).flatMap(stringLitContext => Option(visit(stringLitContext))))
+    .getOrElse(ErrorExp())
 
   override def visitString_literal(ctx: SnapiParser.String_literalContext): SourceNode = {
     Option(ctx)
@@ -988,7 +1169,9 @@ class RawSnapiVisitor(
             result
           }
           .getOrElse {
-            Option(context.triple_string_literal()).map(visit(_)).getOrElse(ErrorExp())
+            Option(context.triple_string_literal())
+              .flatMap(strLitContext => Option(visit(strLitContext)))
+              .getOrElse(ErrorExp())
           }
       }
       .getOrElse(ErrorExp())
@@ -1017,8 +1200,9 @@ class RawSnapiVisitor(
       result
     }
     .getOrElse(ErrorExp())
-  override def visitSignedNumberExpr(ctx: SnapiParser.SignedNumberExprContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.signed_number()).map(visit(_))).getOrElse(ErrorExp())
+  override def visitSignedNumberExpr(ctx: SnapiParser.SignedNumberExprContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.signed_number()).flatMap(signedNumber => Option(visit(signedNumber))))
+    .getOrElse(ErrorExp())
   override def visitSigned_number(ctx: SnapiParser.Signed_numberContext): SourceNode = Option(ctx)
     .map { context =>
       val sign = Option(context.MINUS_TOKEN()).map(_ => "-").getOrElse("")
@@ -1132,8 +1316,9 @@ class RawSnapiVisitor(
       Option(ctx)
         .map { context =>
           val tipe = Option(context.tipe)
-            .map(visit(_).asInstanceOf[Rql2TypeWithProperties])
-            .getOrElse(ErrorType().asInstanceOf[Rql2TypeWithProperties])
+            .flatMap(tipeContext => Option(visit(tipeContext)))
+            .getOrElse(ErrorType())
+            .asInstanceOf[Rql2TypeWithProperties]
           // this is needed for the case of parenthesis around nullable_tryable rule
           Option(context.nullable_tryable())
             .flatMap(c => Option(c.nullable_tryable()).orElse(Some(c)))
@@ -1159,7 +1344,9 @@ class RawSnapiVisitor(
     } else {
       Option(ctx)
         .map { context =>
-          val stringLiteral = Option(context.string_literal()).map(visit(_)).getOrElse(ErrorExp())
+          val stringLiteral = Option(context.string_literal())
+            .flatMap(stringLitContext => Option(visit(stringLitContext)))
+            .getOrElse(ErrorExp())
           val str = stringLiteral match {
             case StringConst(s) => s
             case TripleQuotedStringConst(s) => s
@@ -1174,8 +1361,10 @@ class RawSnapiVisitor(
     }
   }
 
-  override def visitPackageIdnExp(ctx: SnapiParser.PackageIdnExpContext): SourceNode =
-    Option(ctx).flatMap(context => Option(context.package_idn_exp())).map(visit(_)).getOrElse(ErrorExp())
+  override def visitPackageIdnExp(ctx: SnapiParser.PackageIdnExpContext): SourceNode = Option(ctx)
+    .flatMap(context => Option(context.package_idn_exp()))
+    .flatMap(packageIdnContext => Option(visit(packageIdnContext)))
+    .getOrElse(ErrorExp())
 
   // Nodes to ignore, they are not part of the AST and should never be visited
   override def visitBool_const(ctx: SnapiParser.Bool_constContext): SourceNode =
