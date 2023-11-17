@@ -198,7 +198,17 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
           EvalSuccess(rawValue)
         } catch {
           case ex: PolyglotException =>
+            // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
+            // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
+            // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
+            // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
+            // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
+            // and which must handle interruption as well.
             if (ex.isInterrupted) {
+              throw new InterruptedException()
+            } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+              throw ex.getCause
+            } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
               throw new InterruptedException()
             } else if (ex.isGuestException) {
               val err = ex.getGuestObject
@@ -363,7 +373,17 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       }
     } catch {
       case ex: PolyglotException =>
+        // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
+        // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
+        // that does startsWith. That said, I believe with Truffle, the expectation is that one is supposed to
+        // "cancel the context", but in our case this doesn't quite match the current architecture, where we have
+        // other non-Truffle languages and also, we have parts of the pipeline that are running outside of Truffle
+        // and which must handle interruption as well.
         if (ex.isInterrupted) {
+          throw new InterruptedException()
+        } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+          throw ex.getCause
+        } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
           throw new InterruptedException()
         } else if (ex.isGuestException) {
           val err = ex.getGuestObject
