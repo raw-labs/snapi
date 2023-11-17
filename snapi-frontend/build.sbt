@@ -7,6 +7,8 @@ import java.time.Year
 
 import Dependencies._
 
+import scala.sys.process._
+
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
@@ -52,8 +54,10 @@ headerSources / excludeFilter := HiddenFileFilter
 scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
-  "-source", "21",
-  "-target", "21"
+  "-source",
+  "21",
+  "-target",
+  "21"
 )
 
 scalacOptions ++= Seq(
@@ -161,5 +165,43 @@ libraryDependencies ++= Seq(
   "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0"
 ) ++
   poiDeps
+
+val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
+
+generateParser := {
+  val basePath: String = s"${baseDirectory.value}/src/main/resources/antlr4"
+
+  val outputPath: String = s"${baseDirectory.value}/src/main/java/raw/compiler/rql2/generated"
+
+  val packageName: String = "raw.compiler.rql2.generated"
+
+  val jarName = "antlr-4.12.0-complete.jar"
+
+  val command: String =
+    s"java -jar $basePath/$jarName -visitor -package $packageName -o $outputPath"
+
+  val s: TaskStreams = streams.value
+  val output = new StringBuilder
+  val logger = ProcessLogger(
+    (o: String) => output.append(o + "\n"), // for standard output
+    (e: String) => output.append(e + "\n") // for standard error
+  )
+
+  val lexerResult = s"$command $basePath/SnapiLexer.g4".!(logger)
+  if (lexerResult == 0) {
+    s.log.info("Parser code generated successfully")
+  } else {
+    s.log.error("Parser code generation failed with exit code " + lexerResult)
+    s.log.error("Output:\n" + output.toString)
+  }
+
+  val parserResult = s"$command $basePath/SnapiParser.g4".!(logger)
+  if (parserResult == 0) {
+    s.log.info("Parser code generated successfully")
+  } else {
+    s.log.error("Parser code generation failed with exit code " + lexerResult)
+    s.log.error("Output:\n" + output.toString)
+  }
+}
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.frontend")
