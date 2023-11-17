@@ -189,9 +189,9 @@ generateParser := {
 
   val lexerResult = s"$command $basePath/SnapiLexer.g4".!(logger)
   if (lexerResult == 0) {
-    s.log.info("Parser code generated successfully")
+    s.log.info("Lexer code generated successfully")
   } else {
-    s.log.error("Parser code generation failed with exit code " + lexerResult)
+    s.log.error("Lexer code generation failed with exit code " + lexerResult)
     s.log.error("Output:\n" + output.toString)
   }
 
