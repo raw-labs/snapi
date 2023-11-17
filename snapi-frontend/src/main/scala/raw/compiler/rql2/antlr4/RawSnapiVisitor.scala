@@ -339,8 +339,10 @@ class RawSnapiVisitor(
 
   override def visitNamedFunArgExpr(ctx: SnapiParser.NamedFunArgExprContext): SourceNode = Option(ctx)
     .map { context =>
-      val exp =
-        Option(context.expr()).map(exprContext => Option(visit(exprContext)).asInstanceOf[Exp]).getOrElse(ErrorExp())
+      val exp = Option(context.expr())
+        .flatMap(exprContext => Option(visit(exprContext)))
+        .getOrElse(ErrorExp())
+        .asInstanceOf[Exp]
       val ident = Option(context.ident()).map { identContext =>
         val result = identContext.getValue
         positionsWrapper.setPosition(identContext, result)
@@ -355,7 +357,9 @@ class RawSnapiVisitor(
   override def visitFunAbs(ctx: SnapiParser.FunAbsContext): SourceNode = Option(ctx)
     .flatMap { context =>
       Option(context.fun_proto_lambda()).map { funProtoLambdaContext =>
-        val funProto = Option(visit(funProtoLambdaContext)).asInstanceOf[FunProto]
+        val funProto = Option(visit(funProtoLambdaContext))
+          .getOrElse(FunProto(Vector.empty, Option.empty, FunBody(ErrorExp())))
+          .asInstanceOf[FunProto]
         val result = FunAbs(funProto)
         positionsWrapper.setPosition(context, result)
         result
@@ -776,8 +780,10 @@ class RawSnapiVisitor(
             }
           }
           .getOrElse(Vector.empty)
-        val exp =
-          Option(context.expr()).map(exprContext => Option(visit(exprContext))).getOrElse(ErrorExp()).asInstanceOf[Exp]
+        val exp = Option(context.expr())
+          .flatMap(exprContext => Option(visit(exprContext)))
+          .getOrElse(ErrorExp())
+          .asInstanceOf[Exp]
         val result = FunApp(exp, args)
         positionsWrapper.setPosition(context, result)
         result
