@@ -7,4 +7,3 @@ trait BrokenCodeTest extends CompilerTestContext {
   test("""let a in a""")(_ shouldNot run)
 
 }
-
