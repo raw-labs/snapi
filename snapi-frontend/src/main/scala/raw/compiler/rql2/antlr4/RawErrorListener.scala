@@ -13,10 +13,9 @@
 package raw.compiler.rql2.antlr4
 
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
-import org.bitbucket.inkytonik.kiama.util.Source
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 
-class RawErrorListener(private val source: Source) extends BaseErrorListener {
+class RawErrorListener() extends BaseErrorListener {
 
   private var errors = List[ErrorMessage]()
 
@@ -28,16 +27,28 @@ class RawErrorListener(private val source: Source) extends BaseErrorListener {
       msg: String,
       e: RecognitionException
   ): Unit = {
-    val positions = Option(offendingSymbol)
-      .map(_.asInstanceOf[Token])
-      .map { token =>
+    val getCharPositionInLinePlusOne = charPositionInLine + 1
+    val positions =
+      if (offendingSymbol.isInstanceOf[Token]) {
+        Option(offendingSymbol)
+          .map(_.asInstanceOf[Token])
+          .map { token =>
+            ErrorRange(
+              ErrorPosition(token.getLine, token.getCharPositionInLine),
+              ErrorPosition(token.getLine, token.getCharPositionInLine + token.getText.length)
+            )
+          }
+          .getOrElse {
+            ErrorRange(
+              ErrorPosition(line, getCharPositionInLinePlusOne),
+              ErrorPosition(line, getCharPositionInLinePlusOne + 1)
+            )
+          }
+      } else {
         ErrorRange(
-          ErrorPosition(token.getLine, token.getCharPositionInLine),
-          ErrorPosition(token.getLine, token.getCharPositionInLine + token.getText.length)
+          ErrorPosition(line, getCharPositionInLinePlusOne),
+          ErrorPosition(line, getCharPositionInLinePlusOne + 1)
         )
-      }
-      .getOrElse {
-        ErrorRange(ErrorPosition(line, charPositionInLine + 1), ErrorPosition(line, charPositionInLine + 1))
       }
     errors = errors :+ ErrorMessage(msg, List(positions))
   }

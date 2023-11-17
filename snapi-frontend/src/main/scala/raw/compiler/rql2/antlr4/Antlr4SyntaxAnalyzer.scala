@@ -34,7 +34,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
 
   def parse(s: String): ParseProgramResult[SourceProgram] = {
     val source = StringSource(s)
-    val rawErrorListener = new RawErrorListener(source)
+    val rawErrorListener = new RawErrorListener()
 
     val lexer = new SnapiLexer(CharStreams.fromString(s))
     lexer.removeErrorListeners()
@@ -56,7 +56,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
 
   def parseType(s: String): ParseTypeResult = {
     val source = StringSource(s)
-    val rawErrorListener = new RawErrorListener(source)
+    val rawErrorListener = new RawErrorListener()
 
     val lexer = new SnapiLexer(CharStreams.fromString(s))
     lexer.removeErrorListeners()

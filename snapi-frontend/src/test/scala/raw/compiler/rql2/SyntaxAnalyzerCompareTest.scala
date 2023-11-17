@@ -107,9 +107,9 @@ class SyntaxAnalyzerCompareTest extends RawTestSuite {
 
   test("""FE test 4""") { _ =>
     val prog = s"""let
-                  |  hello = Json.InferAndRead("https://jsonplaceholder.typicode.com/users")
-                  |  in
-                  |  hello""".stripMargin
+      |  hello = Json.InferAndRead("https://jsonplaceholder.typicode.com/users")
+      |  in
+      |  hello""".stripMargin
     val result = parseWithAntlr4(prog)
     assert(result.isSuccess)
   }

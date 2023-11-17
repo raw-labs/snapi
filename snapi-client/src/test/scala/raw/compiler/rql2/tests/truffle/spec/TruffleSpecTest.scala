@@ -53,3 +53,4 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class StagedCompilerTruffleTest extends TruffleCompilerTestContext with StagedCompilerTest
 
 @TruffleTests class LetFunTruffleTest extends TruffleCompilerTestContext with LetFunTest
+@TruffleTests class BrokenCodeTruffleTest extends TruffleCompilerTestContext with BrokenCodeTest

@@ -24,23 +24,6 @@ class TreeWithPositions(originalSource: String, ensureTree: Boolean = true, fron
   override lazy val analyzer = new SemanticAnalyzer(sourceTree)
 
   override def doParse(): ParseProgramResult[SourceProgram] = {
-
-    // Parsers compare testing
-    // ParserCompare.compareTrees(originalSource, frontend)
-    // ParserCompare.comparePositions(originalSource, frontend)
-
-//    val parser =
-    //    // We have both a frontend parser and an internal parser, which gives access to internal nodes.
-    //      if (frontend) {
-    //        new FrontendSyntaxAnalyzer(positions)
-    //      } else {
-    //        new SyntaxAnalyzer(positions)
-    //      }
-    //    parser.parse(originalSource) match {
-    //      case Right(program) => program.asInstanceOf[SourceProgram]
-    //      case Left((err, pos)) => throw new CompilerParserException(err, ErrorPosition(pos.line, pos.column))
-    //    }
-
     val parser = new Antlr4SyntaxAnalyzer(positions, frontend)
     parser.parse(originalSource)
   }

@@ -122,7 +122,7 @@ let: LET_TOKEN let_left IN_TOKEN expr // do not add a rule for missing expr here
    ;
 
 let_left: let_decl (COMMA let_decl)*
-        | let_decl {notifyErrorListeners("Missing ','");} (let_decl)*
+        | (let_decl{notifyErrorListeners("Missing ','");})+ let_decl
         ;
 
 let_decl: let_bind                                             # LetBind
