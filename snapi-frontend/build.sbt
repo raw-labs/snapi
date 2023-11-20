@@ -205,3 +205,7 @@ generateParser := {
 }
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.frontend")
+
+Compile / compile := (Compile / compile).dependsOn(generateParser).value
+
+publishLocal := (publishLocal dependsOn generateParser).value
