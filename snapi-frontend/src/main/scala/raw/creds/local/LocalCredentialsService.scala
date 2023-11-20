@@ -15,32 +15,22 @@ package raw.creds.local
 import raw.utils.AuthenticatedUser
 import raw.creds.api._
 
-import scala.collection.mutable
 class LocalCredentialsService extends CredentialsService {
 
-  private val storedCredentials = new mutable.HashMap[(AuthenticatedUser, String), Credential]()
-
   override protected def doRegisterS3Bucket(user: AuthenticatedUser, bucket: S3Bucket): Boolean = {
-    if (storedCredentials.contains(user, bucket.name)) {
-      false
-    } else {
-      storedCredentials.put((user, bucket.name), bucket)
-      true
-    }
+    false
   }
 
   override def getS3Bucket(user: AuthenticatedUser, name: String): Option[S3Bucket] = {
-    storedCredentials.get((user, name)).collect { case s3Bucket: S3Bucket => s3Bucket }
+    None
   }
 
   override def listS3Buckets(user: AuthenticatedUser): List[String] = {
-    storedCredentials.collect { case (_, s3Bucket: S3Bucket) => s3Bucket.name }.toList
+    List.empty
   }
 
   override def unregisterS3Bucket(user: AuthenticatedUser, name: String): Boolean = {
-    val maybeBucket = getS3Bucket(user, name)
-    maybeBucket.foreach(_ => storedCredentials.remove((user, name)))
-    maybeBucket.isDefined
+    false
   }
 
   override def registerDropboxToken(user: AuthenticatedUser, dropboxToken: DropboxToken): Boolean = {
