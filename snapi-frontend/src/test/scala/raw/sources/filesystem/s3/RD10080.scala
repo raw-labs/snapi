@@ -3,7 +3,7 @@ package raw.sources.filesystem.s3
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.BeforeAndAfterAll
 import raw.client.api.{LocationDescription, LocationSettingKey, LocationStringSetting}
-import raw.creds.api.CredentialsTestContext
+import raw.creds.api.{AWSCredentials, CredentialsTestContext, S3Bucket}
 import raw.creds.local.LocalCredentialsService
 import raw.creds.s3.S3TestCreds
 import raw.sources.api.SourceContext
@@ -18,43 +18,52 @@ class RD10080
     with S3TestCreds
     with CredentialsTestContext {
 
+  val user: InteractiveUser = InteractiveUser(Uid("test"), "test", "test@email.com")
+  var sourceContext: SourceContext = _
+
   override def beforeAll(): Unit = {
     super.beforeAll()
     val creds = new LocalCredentialsService
 
     setCredentials(creds)
+    sourceContext = new SourceContext(user, credentials, settings, None)
   }
 
   override def afterAll(): Unit = {
     credentials.stop()
     super.afterAll()
   }
-  test("hard-coded s3 credentials have priority") { _ =>
-    // First register credentials a bucket with good credentials
-    val user = InteractiveUser(Uid("test"), "test", "test@email.com")
-    val sourceContext = new SourceContext(user, credentials, settings, None)
-    credentials.registerS3Bucket(user, UnitTestPrivateBucket)
 
-    // If we pass a location without credentials it should get them from the credentials service
-    val locationBuilder = new S3FileSystemLocationBuilder
-    val locationNoCreds = LocationDescription(s"s3://${UnitTestPrivateBucket.name}/")
-    val goodS3 = locationBuilder.build(locationNoCreds)(sourceContext)
-    val result1 = goodS3.ls().toList
-    assert(result1.nonEmpty)
+  test("credentials passed in location settings have priority") { _ =>
+    // Registering a bucket with wrong credentials
+    val wrongS3 =
+      S3Bucket(UnitTestPrivateBucket.name, Some("eu-west-1"), Some(AWSCredentials("wrong key", "wrong secret")))
+    credentials.registerS3Bucket(user, wrongS3)
 
-    // Now if we pass a location with wrong hardcoded credentials it should fail to list
-    val locationBadCreds = LocationDescription(
-      s"s3://${UnitTestPrivateBucket.name}/",
-      Map(
-        LocationSettingKey("region") -> LocationStringSetting("eu-west-1"),
-        LocationSettingKey("s3-access-key") -> LocationStringSetting("wrong key"),
-        LocationSettingKey("s3-secret-key") -> LocationStringSetting("wrong secret")
+    try {
+      val locationBuilder = new S3FileSystemLocationBuilder
+      val locationNoCreds = LocationDescription(s"s3://${UnitTestPrivateBucket.name}/")
+
+      val badS3 = locationBuilder.build(locationNoCreds)(sourceContext)
+      val error = intercept[PathUnauthorizedException](badS3.ls().toList)
+      logger.info(error.getMessage)
+
+      // Now if we pass a location with correct credentials it should work
+      val hardCodedCreds = LocationDescription(
+        s"s3://${UnitTestPrivateBucket.name}/",
+        Map(
+          LocationSettingKey("region") -> LocationStringSetting(UnitTestPrivateBucket.region.get),
+          LocationSettingKey("s3-access-key") -> LocationStringSetting(UnitTestPrivateBucket.credentials.get.accessKey),
+          LocationSettingKey("s3-secret-key") -> LocationStringSetting(UnitTestPrivateBucket.credentials.get.secretKey)
+        )
       )
-    )
-    val badS3 = locationBuilder.build(locationBadCreds)(sourceContext)
-    val error = intercept[PathUnauthorizedException](badS3.ls().toList)
-    logger.info(error.getMessage)
 
+      val goodS3 = locationBuilder.build(hardCodedCreds)(sourceContext)
+      val listResult = goodS3.ls().toList
+      assert(listResult.nonEmpty)
+    } finally {
+      credentials.unregisterS3Bucket(user, UnitTestPrivateBucket.name)
+    }
   }
-
+  
 }
