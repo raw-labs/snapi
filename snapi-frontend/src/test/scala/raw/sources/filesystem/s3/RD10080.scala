@@ -15,6 +15,7 @@ package raw.sources.filesystem.s3
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.BeforeAndAfterAll
 import raw.client.api.{LocationDescription, LocationSettingKey, LocationStringSetting}
+import raw.creds.TestCredentialsService
 import raw.creds.api.{AWSCredentials, CredentialsTestContext, S3Bucket}
 import raw.creds.local.LocalCredentialsService
 import raw.creds.s3.S3TestCreds
@@ -31,13 +32,11 @@ class RD10080
     with CredentialsTestContext {
 
   val user: InteractiveUser = InteractiveUser(Uid("test"), "test", "test@email.com")
-  var sourceContext: SourceContext = _
+  implicit var sourceContext: SourceContext = _
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    val creds = new LocalCredentialsService
-
-    setCredentials(creds)
+    setCredentials(new TestCredentialsService)
     sourceContext = new SourceContext(user, credentials, settings, None)
   }
 
@@ -56,7 +55,7 @@ class RD10080
       val locationBuilder = new S3FileSystemLocationBuilder
       val locationNoCreds = LocationDescription(s"s3://${UnitTestPrivateBucket.name}/")
 
-      val badS3 = locationBuilder.build(locationNoCreds)(sourceContext)
+      val badS3 = locationBuilder.build(locationNoCreds)
       val error = intercept[PathUnauthorizedException](badS3.ls().toList)
       logger.info(error.getMessage)
 
