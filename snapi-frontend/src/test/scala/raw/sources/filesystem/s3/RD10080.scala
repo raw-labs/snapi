@@ -62,8 +62,8 @@ class RD10080
       val listResult = goodS3.ls().toList
       assert(listResult.nonEmpty)
     } finally {
-      credentials.unregisterS3Bucket(user, UnitTestPrivateBucket.name)
+      credentials.unregisterS3Bucket(user, wrongS3.name)
     }
   }
-  
+
 }
