@@ -42,12 +42,12 @@ class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictL
         } yield AWSCredentials(accessKey, secretKey)
         // If credentials are not provided in the code, we try to get them from the credentials service
         val s3Bucket = credentials match {
+          case Some(cred) => S3Bucket(bucket, region, Some(cred))
           case None => sourceContext.credentialsService
               .getS3Bucket(sourceContext.user, bucket)
               .getOrElse(
                 S3Bucket(bucket, region, None)
               )
-          case Some(cred) => S3Bucket(bucket, region, Some(cred))
         }
 
         val cli = new S3FileSystem(s3Bucket)(
