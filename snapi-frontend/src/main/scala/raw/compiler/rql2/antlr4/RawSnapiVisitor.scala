@@ -1324,21 +1324,27 @@ class RawSnapiVisitor(
           val tipe = Option(context.tipe)
             .flatMap(tipeContext => Option(visit(tipeContext)))
             .getOrElse(ErrorType())
-            .asInstanceOf[Rql2TypeWithProperties]
           // this is needed for the case of parenthesis around nullable_tryable rule
-          Option(context.nullable_tryable())
-            .flatMap(c => Option(c.nullable_tryable()).orElse(Some(c)))
-            .map { nullableTryable =>
-              val withoutNullable = Option(nullableTryable.NULLABLE_TOKEN())
-                .map(_ => tipe.cloneAndAddProp(Rql2IsNullableTypeProperty()).asInstanceOf[Rql2TypeWithProperties])
+          tipe match {
+            case rql2TypeWithProperties: Rql2TypeWithProperties => Option(context.nullable_tryable())
+                .flatMap(c => Option(c.nullable_tryable()).orElse(Some(c)))
+                .map { nullableTryable =>
+                  val withoutNullable = Option(nullableTryable.NULLABLE_TOKEN())
+                    .map(_ =>
+                      rql2TypeWithProperties
+                        .cloneAndAddProp(Rql2IsNullableTypeProperty())
+                        .asInstanceOf[Rql2TypeWithProperties]
+                    )
+                    .getOrElse(rql2TypeWithProperties)
+                  Option(nullableTryable.TRYABLE_TOKEN())
+                    .map(_ =>
+                      withoutNullable.cloneAndAddProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
+                    )
+                    .getOrElse(withoutNullable)
+                }
                 .getOrElse(tipe)
-              Option(nullableTryable.TRYABLE_TOKEN())
-                .map(_ =>
-                  withoutNullable.cloneAndAddProp(Rql2IsTryableTypeProperty()).asInstanceOf[Rql2TypeWithProperties]
-                )
-                .getOrElse(withoutNullable)
-            }
-            .getOrElse(tipe)
+            case _ => tipe
+          }
         }
         .getOrElse(ErrorType())
     }
