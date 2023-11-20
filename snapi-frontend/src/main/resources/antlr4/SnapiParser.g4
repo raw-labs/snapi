@@ -211,8 +211,7 @@ ident: NON_ESC_IDENTIFIER
 // =============== Internal parser ==================
 package_idn_exp: DOLLAR_TOKEN PACKAGE_TOKEN LEFT_PAREN string_literal RIGHT_PAREN;
 
-nullable_tryable: LEFT_PAREN nullable_tryable RIGHT_PAREN
-                | NULLABLE_TOKEN TRYABLE_TOKEN
+nullable_tryable: NULLABLE_TOKEN TRYABLE_TOKEN
                 | TRYABLE_TOKEN NULLABLE_TOKEN
                 | NULLABLE_TOKEN
                 | TRYABLE_TOKEN

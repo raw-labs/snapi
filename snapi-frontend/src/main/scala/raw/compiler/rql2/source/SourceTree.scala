@@ -276,7 +276,14 @@ final case class BoolConst(value: Boolean) extends Const
 final case class StringConst(value: String) extends Const
 
 final case class TripleQuotedStringConst(value: String) extends Const
-final case class BinaryConst(bytes: Array[Byte]) extends Const
+final case class BinaryConst(bytes: Array[Byte]) extends Const {
+  override def equals(obj: Any): Boolean = {
+    obj match {
+      case BinaryConst(otherBytes) => bytes.sameElements(otherBytes)
+      case _ => false
+    }
+  }
+}
 
 /**
  * Number Constants

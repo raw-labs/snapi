@@ -1324,10 +1324,8 @@ class RawSnapiVisitor(
           val tipe = Option(context.tipe)
             .flatMap(tipeContext => Option(visit(tipeContext)))
             .getOrElse(ErrorType())
-          // this is needed for the case of parenthesis around nullable_tryable rule
           tipe match {
             case rql2TypeWithProperties: Rql2TypeWithProperties => Option(context.nullable_tryable())
-                .flatMap(c => Option(c.nullable_tryable()).orElse(Some(c)))
                 .map { nullableTryable =>
                   val withoutNullable = Option(nullableTryable.NULLABLE_TOKEN())
                     .map(_ =>
