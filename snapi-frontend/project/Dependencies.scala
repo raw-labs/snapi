@@ -11,6 +11,9 @@ object Dependencies {
   val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
+  val rawAntlr4ParserVersion = IO.read(new File("../antlr4-parser/version")).trim
+  val rawAntlr4Parser = "com.raw-labs" %% "raw-antlr4-parser" % rawAntlr4ParserVersion
+
   val aws =
     "com.amazonaws" % "aws-java-sdk-osgi" % "1.12.540" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
 

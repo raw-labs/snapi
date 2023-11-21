@@ -71,5 +71,5 @@ client/version
 snapi-client/version
 snapi-frontend/version
 snapi-truffle/version
-snapi-frontend/src/main/java/raw/compiler/rql2/generated
+antlr4-parser/src/main/java/raw/compiler/rql2/generated
 

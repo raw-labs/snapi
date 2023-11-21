@@ -7,6 +7,8 @@ import java.time.Year
 
 import Dependencies._
 
+import scala.sys.process._
+
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
@@ -33,7 +35,7 @@ organizationName := "RAW Labs SA"
 
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
 
-name := "raw-snapi-frontend"
+name := "raw-antlr4-parser"
 
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
 
@@ -49,8 +51,6 @@ headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 
 headerSources / excludeFilter := HiddenFileFilter
 
-scalaVersion := "2.12.18"
-
 javacOptions ++= Seq(
   "-source",
   "21",
@@ -58,26 +58,11 @@ javacOptions ++= Seq(
   "21"
 )
 
-scalacOptions ++= Seq(
-  "-feature",
-  "-unchecked",
-  // When compiling in encrypted drives in Linux, the max size of a name is reduced to around 140.
-  "-Xmax-classfile-name",
-  "140",
-  "-deprecation",
-  "-Xlint:-stars-align,_",
-  "-Ywarn-dead-code",
-  // Fix for false warning of unused implicit arguments in traits/interfaces.
-  "-Ywarn-macros:after",
-  "-Ypatmat-exhaust-depth",
-  "160"
-)
-
 // Use cached resolution of dependencies
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
 // Needed for JPMS to work.
-compileOrder := CompileOrder.ScalaThenJava
+compileOrder := CompileOrder.JavaThenScala
 
 // Doc generation breaks with Java files
 Compile / doc / sources := {
@@ -86,6 +71,9 @@ Compile / doc / sources := {
 Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
+
+// Skipping javadoc generation for antlr4 broken links
+Compile / doc := { file("/dev/null") } // for Unix-like systems
 
 // Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
@@ -142,25 +130,50 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawClient % "compile->compile;test->test",
-  commonsLang,
-  commonsText,
-  apacheHttpClient,
-  icuDeps,
-  woodstox,
-  kiama,
-  dropboxSDK,
-  aws,
-  jwtApi,
-  jwtImpl,
-  jwtCore,
-  postgresqlDeps,
-  mysqlDeps,
-  mssqlDeps,
-  snowflakeDeps,
-  commonsCodec,
-  springCore,
-  kryo,
-  rawAntlr4Parser
-) ++
-  poiDeps
+  // We depend directly on the Truffle DSL processor to use their Antlr4.
+  // If we'd use ours, they would conflict as Truffle DSL package defines the org.antlr4 package.
+  "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0"
+)
+
+val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
+
+generateParser := {
+  val basePath: String = s"${baseDirectory.value}/src/main/resources/antlr4"
+
+  val outputPath: String = s"${baseDirectory.value}/src/main/java/raw/compiler/rql2/generated"
+
+  val packageName: String = "raw.compiler.rql2.generated"
+
+  val jarName = "antlr-4.12.0-complete.jar"
+
+  val command: String =
+    s"java -jar $basePath/$jarName -visitor -package $packageName -o $outputPath"
+
+  val s: TaskStreams = streams.value
+  val output = new StringBuilder
+  val logger = ProcessLogger(
+    (o: String) => output.append(o + "\n"), // for standard output
+    (e: String) => output.append(e + "\n") // for standard error
+  )
+
+  val lexerResult = s"$command $basePath/SnapiLexer.g4".!(logger)
+  if (lexerResult == 0) {
+    s.log.info("Lexer code generated successfully")
+  } else {
+    s.log.error("Lexer code generation failed with exit code " + lexerResult)
+    s.log.error("Output:\n" + output.toString)
+  }
+
+  val parserResult = s"$command $basePath/SnapiParser.g4".!(logger)
+  if (parserResult == 0) {
+    s.log.info("Parser code generated successfully")
+  } else {
+    s.log.error("Parser code generation failed with exit code " + lexerResult)
+    s.log.error("Output:\n" + output.toString)
+  }
+}
+
+Compile / compile := (Compile / compile).dependsOn(generateParser).value
+
+publishLocal := (publishLocal dependsOn generateParser).value
+
