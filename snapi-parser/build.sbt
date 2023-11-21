@@ -35,7 +35,7 @@ organizationName := "RAW Labs SA"
 
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
 
-name := "raw-antlr4-parser"
+name := "raw-snapi-parser"
 
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
 

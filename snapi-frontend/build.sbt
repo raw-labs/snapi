@@ -161,6 +161,6 @@ libraryDependencies ++= Seq(
   commonsCodec,
   springCore,
   kryo,
-  rawAntlr4Parser
+  rawSnapiParser
 ) ++
   poiDeps
