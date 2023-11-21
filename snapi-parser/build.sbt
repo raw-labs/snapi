@@ -125,8 +125,6 @@ outputVersion := {
 // Publish settings
 Test / publishArtifact := true
 Compile / packageSrc / publishArtifact := true
-// When doing publishLocal, also publish to the local maven repository and generate the version number file.
-publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)).value
 
 // Dependencies
 libraryDependencies ++= Seq(
@@ -175,5 +173,4 @@ generateParser := {
 
 Compile / compile := (Compile / compile).dependsOn(generateParser).value
 
-publishLocal := (publishLocal dependsOn generateParser).value
-
+publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, generateParser, publishM2)).value
