@@ -12,7 +12,7 @@ object Dependencies {
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
   val aws =
-    "com.amazonaws" % "aws-java-sdk-osgi" % "1.12.540" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
+    "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
 
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 

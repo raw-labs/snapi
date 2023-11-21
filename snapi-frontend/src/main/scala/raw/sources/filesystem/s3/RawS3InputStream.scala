@@ -12,23 +12,24 @@
 
 package raw.sources.filesystem.s3
 
-import com.amazonaws.AbortedException
-import com.amazonaws.services.s3.model.S3ObjectInputStream
+import software.amazon.awssdk.core.ResponseInputStream
+import software.amazon.awssdk.services.s3.model.GetObjectResponse
 
 import java.io.IOException
 import java.io.InputStream
 import java.io.InterruptedIOException
 
-class RawS3InputStream(s3ObjectInputStream: S3ObjectInputStream) extends InputStream {
+class RawS3InputStream(s3ObjectInputStream: ResponseInputStream[GetObjectResponse]) extends InputStream {
 
   @throws[IOException]
   override def read(): Int = {
     try {
       s3ObjectInputStream.read()
     } catch {
-      case ex: AbortedException =>
-        // AbortedException isn't a subclass of IOException. We wrap it.
-        // It is thrown when the thread is interrupted, so we wrap it in an InterruptedIOException.
+      case ex: InterruptedException =>
+        // InterruptedException is thrown when a thread is interrupted during a blocking IO operation.
+        // We wrap it in an InterruptedIOException.
+        Thread.currentThread().interrupt() // Set the interrupt flag again
         throw new InterruptedIOException(ex.getMessage)
     }
   }

@@ -12,18 +12,33 @@
 
 package raw.sources.filesystem.s3
 
-import com.amazonaws.auth.{AWSStaticCredentialsProvider, AnonymousAWSCredentials, BasicAWSCredentials}
-import com.amazonaws.retry.PredefinedRetryPolicies
-import com.amazonaws.services.s3.model.{ListObjectsRequest, S3Object, S3ObjectSummary}
-import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
-import com.amazonaws.{AmazonClientException, AmazonServiceException, ClientConfiguration}
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.S3Configuration
+
+import java.net.ConnectException
 import com.google.common.collect.AbstractIterator
-import org.apache.http.conn.ConnectTimeoutException
 import org.springframework.util.AntPathMatcher
 import raw.creds.api.{AWSCredentials, S3Bucket}
 import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
 import raw.sources.filesystem.api._
 import raw.utils._
+import software.amazon.awssdk.auth.credentials.{
+  AnonymousCredentialsProvider,
+  AwsBasicCredentials,
+  StaticCredentialsProvider
+}
+import software.amazon.awssdk.core.exception.{SdkClientException, SdkException, SdkServiceException}
+import software.amazon.awssdk.http.SdkHttpClient
+import software.amazon.awssdk.http.apache.ApacheHttpClient
+import software.amazon.awssdk.services.s3.model.{
+  GetBucketLocationRequest,
+  GetObjectRequest,
+  ListObjectsV2Request,
+  ListObjectsV2Response,
+  S3Exception,
+  S3Object
+}
 
 import java.io.InputStream
 import java.util
@@ -41,6 +56,8 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
 
   import S3FileSystem._
 
+  private lazy val defaultRegion = settings.getString(S3_DEFAULT_REGION)
+
   private[sources] val fileSeparator: String = "/"
   private val fileSeparatorRegex: String = RawUtils.descape(fileSeparator)
 
@@ -50,26 +67,63 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
 
   def bucketName: String = bucket.name
 
-  private lazy val client: AmazonS3 = {
-    val builder = AmazonS3ClientBuilder
-      .standard()
-      // see https://github.com/aws/aws-sdk-java/issues/1366
-      .enableForceGlobalBucketAccess()
-      .withRegion(bucket.region.getOrElse(settings.getString(S3_DEFAULT_REGION)))
-
+  private def getBucketRegion(bucketName: String): Region = {
+    val builder = S3Client.builder()
+    builder.region(Region.of(defaultRegion))
     bucket.credentials match {
       case Some(AWSCredentials(accessKey, secretKey)) =>
-        builder.withCredentials(new AWSStaticCredentialsProvider(new BasicAWSCredentials(accessKey, secretKey)))
-      case None => builder.withCredentials(new AWSStaticCredentialsProvider(new AnonymousAWSCredentials))
+        builder.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
+      case None => builder.credentialsProvider(AnonymousCredentialsProvider.create())
+    }
+    val client = builder.build()
+    try {
+      val location = client.getBucketLocation(GetBucketLocationRequest.builder().bucket(bucketName).build())
+      val bucketRegion = location.locationConstraint()
+
+      // 'US_EAST_1' is returned as "null" by AWS SDK
+      if (bucketRegion == null || bucketRegion.toString == "null" || bucketRegion.toString.isEmpty) Region.US_EAST_1
+      else Region.of(bucketRegion.toString)
+    } finally {
+      client.close()
+    }
+  }
+
+  private lazy val client = {
+    val builder = S3Client.builder()
+
+    val s3Config = S3Configuration
+      .builder()
+      .useArnRegionEnabled(true) // Equivalent to enableForceGlobalBucketAccess in SDK v1
+      .build()
+
+    builder.serviceConfiguration(s3Config)
+
+    // Setting the region
+    val region = bucket.region match {
+      case Some(regionValue) => Region.of(regionValue)
+      case None => getBucketRegion(bucketName)
+    }
+    builder.region(region)
+
+    // Set credentials
+    bucket.credentials match {
+      case Some(AWSCredentials(accessKey, secretKey)) =>
+        builder.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
+      case None => builder.credentialsProvider(AnonymousCredentialsProvider.create())
     }
 
-    builder.setClientConfiguration(
-      new ClientConfiguration()
-        .withSocketTimeout(s3ConnectTimeout.toInt)
-        .withConnectionTimeout(s3ReadTimeout.toInt)
-        .withMaxConnections(s3MaxConnections)
-        .withRetryPolicy(PredefinedRetryPolicies.getDefaultRetryPolicy())
-    )
+    val httpClient: SdkHttpClient = ApacheHttpClient
+      .builder()
+      .socketTimeout(java.time.Duration.ofMillis(s3ConnectTimeout.toInt))
+      .connectionTimeout(java.time.Duration.ofMillis(s3ReadTimeout.toInt))
+      .maxConnections(s3MaxConnections)
+      .build()
+
+    builder.httpClient(httpClient)
+
+//    // Set retry policy
+//    builder.retryPolicy(RetryPolicy.defaultRetryPolicy())
+
     builder.build()
   }
 
@@ -90,18 +144,29 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
     path.replaceAll(s"$fileSeparatorRegex+", fileSeparator).stripSuffix(fileSeparator).stripPrefix(fileSeparator)
   }
 
-  private def getS3Object(file: String): S3Object = {
-    withCatchAmazonExceptions(file, client.getObject(bucket.name, file))
+  private def getS3ObjectResponse(file: String) = {
+    withCatchAmazonExceptions(file, getS3Object(file).response())
+  }
+
+  private def getS3Object(file: String) = {
+    val getObjectRequest = GetObjectRequest
+      .builder()
+      .bucket(bucket.name)
+      .key(file)
+      .build()
+
+    withCatchAmazonExceptions(file, client.getObject(getObjectRequest))
   }
 
   private def withCatchAmazonExceptions[R](path: String, f: => R): R = {
     try {
       f
     } catch {
-      case ex: AmazonServiceException if ex.getStatusCode == 403 => throw new PathUnauthorizedException(path, ex)
-      case ex: AmazonServiceException => throw new PathNotFoundException(path, ex)
-      case ex: AmazonClientException => ex.getCause match {
-          case ex: ConnectTimeoutException => throw new FileSystemTimeoutException(Some(path), ex)
+      case ex: S3Exception if ex.statusCode() == 403 => throw new PathUnauthorizedException(path, ex)
+      case ex: S3Exception if ex.awsErrorDetails().errorCode() == "NoSuchKey" =>
+        throw new PathNotFoundException(path, ex)
+      case ex: SdkException => ex.getCause match {
+          case cause: ConnectException => throw new FileSystemTimeoutException(Some(path), cause)
           case _ =>
             logger.warn(s"error getting s3 object: ${ex.getMessage}", ex)
             throw new FileSystemUnavailableException(path, ex)
@@ -117,29 +182,25 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
     if (sanitizedPath == "") {
       return DirectoryMetadata(None)
     }
-    val s3Object =
+    val s3Object = {
       try {
-        getS3Object(sanitizedPath)
+        getS3ObjectResponse(sanitizedPath)
       } catch {
         case _: PathNotFoundException =>
           listContents(path).hasNext // If there are contents, then try as "directory", which may throw exception
           return DirectoryMetadata(None)
       }
-    try {
-      val metadata = s3Object.getObjectMetadata
-      FileMetadata(
-        Option(metadata.getLastModified).map(_.toInstant),
-        Option(metadata.getContentLength),
-        Array.empty
-      )
-    } finally {
-      s3Object.close()
     }
+    FileMetadata(
+      Option(s3Object.lastModified()),
+      Option(s3Object.contentLength()),
+      Array.empty
+    )
   }
 
   override def getInputStream(file: String): InputStream = {
     try {
-      new RawS3InputStream(getS3Object(sanitizePath(file)).getObjectContent)
+      new RawS3InputStream(getS3Object(sanitizePath(file)))
     } catch {
       case ex: PathNotFoundException =>
         // If there are contents, then try as "directory", which may throw exception
@@ -184,14 +245,18 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
 
     private val matcher = new AntPathMatcher
     matcher.setPathSeparator(fileSeparator)
-    private var objectListing = {
-      val s3Request = new ListObjectsRequest()
-        .withBucketName(bucket.name)
-        .withPrefix(pathBeforeGlob)
 
-      withCatchAmazonExceptions(path, client.listObjects(s3Request))
+    private var objectListing: ListObjectsV2Response = {
+      val s3Request = ListObjectsV2Request
+        .builder()
+        .bucket(bucket.name)
+        .prefix(pathBeforeGlob)
+        .build()
+
+      withCatchAmazonExceptions(path, client.listObjectsV2(s3Request))
     }
-    private var summariesIterator = objectListing.getObjectSummaries.iterator()
+
+    private var summariesIterator = objectListing.contents().iterator()
 
     // Keep track of the number of objects/files found. This does not include directory entries.
     // It is necessary to handle the special cases where the results contain a single file.
@@ -217,9 +282,9 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
      * It will add 0 or more entries to represent the directories that are on the path of the key
      * of this object.
      */
-    private def processObject(file: S3ObjectSummary): Unit = {
-      val p = file.getKey
-      val meta = FileMetadata(Some(file.getLastModified.toInstant), Some(file.getSize), Array.empty)
+    private def processObject(file: S3Object): Unit = {
+      val p = file.key()
+      val meta = FileMetadata(Some(file.lastModified()), Some(file.size()), Array.empty)
 
       // S3 will not list "directories" when listing objects.
       // Therefore, look at all matching objects and add all intermediate "directories".
@@ -237,14 +302,23 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
 
     private def nextBatch(): Unit = {
       if (!summariesIterator.hasNext) {
-        // Try to get the next batch of objects from S3
+        // Check if there are more objects to list
         if (objectListing.isTruncated) {
-          objectListing = withCatchAmazonExceptions(path, client.listNextBatchOfObjects(objectListing))
-          summariesIterator = objectListing.getObjectSummaries.iterator()
+          val nextRequest = ListObjectsV2Request
+            .builder()
+            .bucket(bucket.name)
+            .prefix(pathBeforeGlob)
+            .continuationToken(objectListing.nextContinuationToken())
+            .build()
+
+          objectListing = withCatchAmazonExceptions(path, client.listObjectsV2(nextRequest))
+          summariesIterator = objectListing.contents().iterator()
         }
       }
+
       while (summariesIterator.hasNext) {
-        processObject(summariesIterator.next())
+        val summary = summariesIterator.next()
+        processObject(summary) // Ensure processObject is compatible with SDK v2 summary object
       }
     }
 
@@ -317,11 +391,13 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
   @throws[FileSystemException]
   def testBucketAccess(): Unit = {
     try {
-      client.listObjects(new ListObjectsRequest().withBucketName(bucket.name))
+      client.listObjectsV2(ListObjectsV2Request.builder().bucket(bucket.name).build())
     } catch {
-      case ex: AmazonServiceException if ex.getStatusCode == 403 => throw new PathUnauthorizedException(bucket.name, ex)
-      case ex: AmazonServiceException => throw new PathNotFoundException(bucket.name, ex)
-      case ex: AmazonClientException => throw new FileSystemUnavailableException(s"s3://${bucket.name}", ex)
+      case ex: SdkServiceException if ex.statusCode() == 403 => throw new PathUnauthorizedException(bucket.name, ex)
+
+      case ex: SdkServiceException => throw new PathNotFoundException(bucket.name, ex)
+
+      case ex: SdkClientException => throw new FileSystemUnavailableException(s"s3://${bucket.name}", ex)
     }
   }
 

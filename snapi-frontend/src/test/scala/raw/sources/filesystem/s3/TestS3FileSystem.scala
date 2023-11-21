@@ -12,31 +12,36 @@
 
 package raw.sources.filesystem.s3
 
-import com.amazonaws.SdkClientException
-import com.amazonaws.auth.{AWSStaticCredentialsProvider, BasicAWSCredentials}
-import com.amazonaws.services.s3.AmazonS3ClientBuilder
 import raw.utils.RawTestSuite
 import raw.creds.api.S3Bucket
 import raw.creds.s3.S3TestCreds
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
+import software.amazon.awssdk.auth.credentials.{AwsBasicCredentials, StaticCredentialsProvider}
+import software.amazon.awssdk.core.exception.SdkClientException
+import software.amazon.awssdk.core.sync.RequestBody
+import software.amazon.awssdk.regions.Region
+import software.amazon.awssdk.services.s3.S3Client
+import software.amazon.awssdk.services.s3.model.PutObjectRequest
+
+import java.nio.charset.StandardCharsets
 
 trait TestS3FileSystem extends TestFileSystems with S3TestCreds {
   this: RawTestSuite =>
 
   def bucket: S3Bucket = UnitTestPrivateBucket
 
-  lazy val awsClient = AmazonS3ClientBuilder
-    .standard()
-    .withCredentials(
-      new AWSStaticCredentialsProvider(
-        new BasicAWSCredentials(
-          bucket.credentials.get.accessKey,
-          bucket.credentials.get.secretKey
-        )
-      )
+  lazy val awsClient = {
+    val credentials = AwsBasicCredentials.create(
+      bucket.credentials.get.accessKey,
+      bucket.credentials.get.secretKey
     )
-    .withRegion(bucket.region.get)
-    .build()
+
+    S3Client
+      .builder()
+      .credentialsProvider(StaticCredentialsProvider.create(credentials))
+      .region(Region.of(bucket.region.get))
+      .build()
+  }
 
   override val newFileSystem: FileSystem = new S3FileSystem(bucket)
 
@@ -47,7 +52,15 @@ trait TestS3FileSystem extends TestFileSystems with S3TestCreds {
     var ok = false
     while (!ok) {
       try {
-        awsClient.putObject(bucket.name, s3Path, "foobar")
+        val putRequest = PutObjectRequest
+          .builder()
+          .bucket(bucket.name)
+          .key(s3Path)
+          .build()
+
+        val requestBody = RequestBody.fromString("foobar", StandardCharsets.UTF_8)
+
+        awsClient.putObject(putRequest, requestBody)
         ok = true
       } catch {
         case e: SdkClientException =>
