@@ -52,8 +52,10 @@ headerSources / excludeFilter := HiddenFileFilter
 scalaVersion := "2.12.18"
 
 javacOptions ++= Seq(
-  "-source", "21",
-  "-target", "21"
+  "-source",
+  "21",
+  "-target",
+  "21"
 )
 
 scalacOptions ++= Seq(
@@ -84,6 +86,12 @@ Compile / doc / sources := {
 Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
+
+// Add all the classpath to the module path.
+Compile / javacOptions ++= Seq(
+  "--module-path",
+  (Compile / dependencyClasspath).value.files.absString
+)
 
 // The tests are run in a forked JVM.
 // System properties given to sbt are not automatically passed to the forked VM
@@ -155,5 +163,3 @@ libraryDependencies ++= Seq(
   kryo
 ) ++
   poiDeps
-
-Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.frontend")
