@@ -122,4 +122,8 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     }
   }
 
+//  test("type autocomplete") { _ =>
+//    wordAutoCompleteTest("""let a :  """, 1, 8, "", Seq(("", Some("int"))))
+//  }
+
 }
