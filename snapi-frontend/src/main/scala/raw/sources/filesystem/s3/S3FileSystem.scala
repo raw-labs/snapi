@@ -67,24 +67,32 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
 
   def bucketName: String = bucket.name
 
-  private def getBucketRegion(bucketName: String): Region = {
-    val builder = S3Client.builder()
-    builder.region(Region.of(defaultRegion))
-    bucket.credentials match {
-      case Some(AWSCredentials(accessKey, secretKey)) =>
-        builder.credentialsProvider(StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey)))
-      case None => builder.credentialsProvider(AnonymousCredentialsProvider.create())
-    }
-    val client = builder.build()
-    try {
-      val location = client.getBucketLocation(GetBucketLocationRequest.builder().bucket(bucketName).build())
-      val bucketRegion = location.locationConstraint()
+  private def guessBucketRegion(bucketName: String): Region = {
+    // Try to guess the bucket.
+    // That said, we can only get the bucket if we have credentials.
+    // If we don't have credentials, we also don't have permissions to find the bucket region.
+    if (bucket.credentials.isDefined) {
+      val builder = S3Client.builder()
+      builder.region(Region.of(defaultRegion))
+      bucket.credentials match {
+        case Some(AWSCredentials(accessKey, secretKey)) => builder.credentialsProvider(
+            StaticCredentialsProvider.create(AwsBasicCredentials.create(accessKey, secretKey))
+          )
+        case None => builder.credentialsProvider(AnonymousCredentialsProvider.create())
+      }
+      val client = builder.build()
+      try {
+        val location = client.getBucketLocation(GetBucketLocationRequest.builder().bucket(bucketName).build())
+        val bucketRegion = location.locationConstraint()
 
-      // 'US_EAST_1' is returned as "null" by AWS SDK
-      if (bucketRegion == null || bucketRegion.toString == "null" || bucketRegion.toString.isEmpty) Region.US_EAST_1
-      else Region.of(bucketRegion.toString)
-    } finally {
-      client.close()
+        // 'US_EAST_1' is returned as "null" by AWS SDK
+        if (bucketRegion == null || bucketRegion.toString == "null" || bucketRegion.toString.isEmpty) Region.US_EAST_1
+        else Region.of(bucketRegion.toString)
+      } finally {
+        client.close()
+      }
+    } else {
+      Region.of(defaultRegion)
     }
   }
 
@@ -101,7 +109,7 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
     // Setting the region
     val region = bucket.region match {
       case Some(regionValue) => Region.of(regionValue)
-      case None => getBucketRegion(bucketName)
+      case None => guessBucketRegion(bucket.name)
     }
     builder.region(region)
 
@@ -140,7 +148,7 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
    * This wouldn't be possible without some form of path "sanitizer".
    */
   private def sanitizePath(path: String): String = {
-    //(CTM) Added the stripPrefix from the original file committed long time ago
+    // (CTM) Added the stripPrefix from the original file committed long time ago.
     path.replaceAll(s"$fileSeparatorRegex+", fileSeparator).stripSuffix(fileSeparator).stripPrefix(fileSeparator)
   }
 
@@ -168,7 +176,7 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
       case ex: SdkException => ex.getCause match {
           case cause: ConnectException => throw new FileSystemTimeoutException(Some(path), cause)
           case _ =>
-            logger.warn(s"error getting s3 object: ${ex.getMessage}", ex)
+            logger.warn("Unhandled S3 exception", ex)
             throw new FileSystemUnavailableException(path, ex)
         }
     }
@@ -241,7 +249,7 @@ class S3FileSystem(val bucket: S3Bucket)(implicit settings: RawSettings) extends
       .split(fileSeparatorRegex)
       .takeWhile(p => !hasGlob(p))
       .mkString(fileSeparator)
-    logger.debug(s"Path: $path, sanitizedPath: $sanitizedPath (glob: ${_hasGlob}), pathBeforeGlob: $pathBeforeGlob")
+    logger.trace(s"Path: $path, sanitizedPath: $sanitizedPath (glob: ${_hasGlob}), pathBeforeGlob: $pathBeforeGlob")
 
     private val matcher = new AntPathMatcher
     matcher.setPathSeparator(fileSeparator)
