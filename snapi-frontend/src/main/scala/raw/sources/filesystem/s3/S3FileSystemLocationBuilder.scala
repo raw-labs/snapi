@@ -35,17 +35,21 @@ class S3FileSystemLocationBuilder extends FileSystemLocationBuilder with StrictL
             key
           }
 
-        // If the bucket is not registered then we bypass the credentials provider and use local credentials.
-        val s3Bucket = sourceContext.credentialsService.getS3Bucket(sourceContext.user, bucket) match {
-          case Some(cred) => cred
-          case None =>
-            val region = location.getStringSetting("s3-region")
-            val credentials = for {
-              accessKey <- location.getStringSetting("s3-access-key")
-              secretKey <- location.getStringSetting("s3-secret-key")
-            } yield AWSCredentials(accessKey, secretKey)
-            S3Bucket(bucket, region, credentials)
+        val region = location.getStringSetting("s3-region")
+        val credentials = for {
+          accessKey <- location.getStringSetting("s3-access-key")
+          secretKey <- location.getStringSetting("s3-secret-key")
+        } yield AWSCredentials(accessKey, secretKey)
+        // If credentials are not provided in the code, we try to get them from the credentials service
+        val s3Bucket = credentials match {
+          case Some(cred) => S3Bucket(bucket, region, Some(cred))
+          case None => sourceContext.credentialsService
+              .getS3Bucket(sourceContext.user, bucket)
+              .getOrElse(
+                S3Bucket(bucket, region, None)
+              )
         }
+
         val cli = new S3FileSystem(s3Bucket)(
           sourceContext.settings
         )
