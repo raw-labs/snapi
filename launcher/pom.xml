@@ -8,14 +8,14 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <raw-launcher.version>1.0-SNAPSHOT</raw-launcher.version>
-        <raw-client.version>0.27.1+3-a4d29838-SNAPSHOT</raw-client.version>
-        <raw-snapi-client.version>0.27.1+3-a4d29838-SNAPSHOT</raw-snapi-client.version>
-        <raw-python-client.version>0.27.1+3-a4d29838+20231121-1110-SNAPSHOT</raw-python-client.version>
+        <raw-client.version>0.27.1+4-553ba33e+20231121-1312-SNAPSHOT</raw-client.version>
+        <raw-snapi-client.version>0.27.1+4-553ba33e+20231121-1314-SNAPSHOT</raw-snapi-client.version>
+        <raw-python-client.version>0.27.1+4-553ba33e+20231121-1314-SNAPSHOT</raw-python-client.version>
     </properties>
 
     <groupId>com.raw-labs.com</groupId>
     <artifactId>raw-launcher</artifactId>
-    <version>0.27.1+3-a4d29838-SNAPSHOT</version>
+    <version>0.27.1+4-553ba33e+20231121-1314-SNAPSHOT</version>
 
     <dependencies>
         <!-- GraalVM Polyglot Dependency -->
