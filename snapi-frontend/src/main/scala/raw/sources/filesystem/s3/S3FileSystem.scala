@@ -16,9 +16,9 @@ import com.amazonaws.auth.{AWSStaticCredentialsProvider, AnonymousAWSCredentials
 import com.amazonaws.retry.PredefinedRetryPolicies
 import com.amazonaws.services.s3.model.{ListObjectsRequest, S3Object, S3ObjectSummary}
 import com.amazonaws.services.s3.{AmazonS3, AmazonS3ClientBuilder}
-import com.amazonaws.thirdparty.apache.http.conn.ConnectTimeoutException
 import com.amazonaws.{AmazonClientException, AmazonServiceException, ClientConfiguration}
 import com.google.common.collect.AbstractIterator
+import org.apache.http.conn.ConnectTimeoutException
 import org.springframework.util.AntPathMatcher
 import raw.creds.api.{AWSCredentials, S3Bucket}
 import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}

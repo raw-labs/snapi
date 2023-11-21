@@ -7,8 +7,6 @@ import java.time.Year
 
 import Dependencies._
 
-import scala.sys.process._
-
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
@@ -79,7 +77,7 @@ scalacOptions ++= Seq(
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
 // Needed for JPMS to work.
-compileOrder := CompileOrder.JavaThenScala
+compileOrder := CompileOrder.ScalaThenJava
 
 // Doc generation breaks with Java files
 Compile / doc / sources := {
@@ -89,8 +87,11 @@ Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
 
-// Skipping javadoc generation for antlr4 broken links
-Compile / doc := { file("/dev/null") } // for Unix-like systems
+// Add all the classpath to the module path.
+Compile / javacOptions ++= Seq(
+  "--module-path",
+  (Compile / dependencyClasspath).value.files.absString
+)
 
 // The tests are run in a forked JVM.
 // System properties given to sbt are not automatically passed to the forked VM
@@ -159,53 +160,6 @@ libraryDependencies ++= Seq(
   snowflakeDeps,
   commonsCodec,
   springCore,
-  kryo,
-  // We depend directly on the Truffle DSL processor to use their Antlr4.
-  // If we'd use ours, they would conflict as Truffle DSL package defines the org.antlr4 package.
-  "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0"
+  kryo
 ) ++
   poiDeps
-
-val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
-
-generateParser := {
-  val basePath: String = s"${baseDirectory.value}/src/main/resources/antlr4"
-
-  val outputPath: String = s"${baseDirectory.value}/src/main/java/raw/compiler/rql2/generated"
-
-  val packageName: String = "raw.compiler.rql2.generated"
-
-  val jarName = "antlr-4.12.0-complete.jar"
-
-  val command: String =
-    s"java -jar $basePath/$jarName -visitor -package $packageName -o $outputPath"
-
-  val s: TaskStreams = streams.value
-  val output = new StringBuilder
-  val logger = ProcessLogger(
-    (o: String) => output.append(o + "\n"), // for standard output
-    (e: String) => output.append(e + "\n") // for standard error
-  )
-
-  val lexerResult = s"$command $basePath/SnapiLexer.g4".!(logger)
-  if (lexerResult == 0) {
-    s.log.info("Lexer code generated successfully")
-  } else {
-    s.log.error("Lexer code generation failed with exit code " + lexerResult)
-    s.log.error("Output:\n" + output.toString)
-  }
-
-  val parserResult = s"$command $basePath/SnapiParser.g4".!(logger)
-  if (parserResult == 0) {
-    s.log.info("Parser code generated successfully")
-  } else {
-    s.log.error("Parser code generation failed with exit code " + lexerResult)
-    s.log.error("Output:\n" + output.toString)
-  }
-}
-
-Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.snapi.frontend")
-
-Compile / compile := (Compile / compile).dependsOn(generateParser).value
-
-publishLocal := (publishLocal dependsOn generateParser).value
