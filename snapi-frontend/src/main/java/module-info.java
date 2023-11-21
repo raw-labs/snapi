@@ -40,7 +40,7 @@ module raw.snapi.frontend {
   requires jul.to.slf4j;
   requires com.fasterxml.jackson.datatype.jsr310;
   requires com.fasterxml.jackson.datatype.jdk8;
-  requires aws.java.sdk.bundle;
+  requires aws.java.sdk.osgi;
   requires raw.utils;
   requires raw.client;
 
