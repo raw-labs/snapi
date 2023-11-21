@@ -33,7 +33,11 @@ class MockPath(
     })
 
     logger.info(s"Pausing for $delayMillis millis. Called by: $caller")
-    Thread.sleep(delayMillis)
+    try {
+      Thread.sleep(delayMillis)
+    } catch {
+      case _: InterruptedException => Thread.currentThread().interrupt()
+    }
     logger.info(s"Continuing")
   }
 
