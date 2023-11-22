@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-module raw.snapi.truffle {
+module raw.snapi.parser {
   requires truffle.dsl.processor;
 
   exports raw.compiler.rql2.generated;

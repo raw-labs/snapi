@@ -8,11 +8,11 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
-  val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
-
   val rawSnapiParserVersion = IO.read(new File("../snapi-parser/version")).trim
   val rawSnapiParser = "com.raw-labs" %% "raw-snapi-parser" % rawSnapiParserVersion
+
+  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
+  val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
   val aws =
     "com.amazonaws" % "aws-java-sdk-osgi" % "1.12.540" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.

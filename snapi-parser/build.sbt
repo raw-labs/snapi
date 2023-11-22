@@ -136,7 +136,7 @@ libraryDependencies ++= Seq(
 val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
 
 generateParser := {
-  val basePath: String = s"${baseDirectory.value}/src/main/resources/antlr4"
+  val basePath: String = s"${baseDirectory.value}/src/main/java"
 
   val outputPath: String = s"${baseDirectory.value}/src/main/java/raw/compiler/rql2/generated"
 
@@ -145,7 +145,7 @@ generateParser := {
   val jarName = "antlr-4.12.0-complete.jar"
 
   val command: String =
-    s"java -jar $basePath/$jarName -visitor -package $packageName -o $outputPath"
+    s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
 
   val s: TaskStreams = streams.value
   val output = new StringBuilder
@@ -154,7 +154,9 @@ generateParser := {
     (e: String) => output.append(e + "\n") // for standard error
   )
 
-  val lexerResult = s"$command $basePath/SnapiLexer.g4".!(logger)
+  val grammarPath = s"$basePath/raw/parser/grammar"
+
+  val lexerResult = s"$command  $grammarPath/SnapiLexer.g4".!(logger)
   if (lexerResult == 0) {
     s.log.info("Lexer code generated successfully")
   } else {
@@ -162,7 +164,7 @@ generateParser := {
     s.log.error("Output:\n" + output.toString)
   }
 
-  val parserResult = s"$command $basePath/SnapiParser.g4".!(logger)
+  val parserResult = s"$command $grammarPath/SnapiParser.g4".!(logger)
   if (parserResult == 0) {
     s.log.info("Parser code generated successfully")
   } else {
