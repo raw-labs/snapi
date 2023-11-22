@@ -17,6 +17,25 @@ import raw.client.api._
 
 trait LspWordAutoCompleteTest extends CompilerTestContext {
 
+  private lazy val allTypes = Seq(
+    ("byte", Some("")),
+    ("short", Some("")),
+    ("int", Some("")),
+    ("long", Some("")),
+    ("float", Some("")),
+    ("double", Some("")),
+    ("decimal", Some("")),
+    ("string", Some("")),
+    ("boolean", Some("")),
+    ("date", Some("")),
+    ("datetime", Some("")),
+    ("time", Some("")),
+    ("interval", Some("")),
+    ("record", Some("")),
+    ("list", Some("")),
+    ("collection", Some(""))
+  )
+
   private def wordAutoCompleteTest(
       code: String,
       line: Int,
@@ -122,8 +141,20 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     }
   }
 
-//  test("type autocomplete") { _ =>
-//    wordAutoCompleteTest("""let a :  """, 1, 8, "", Seq(("", Some("int"))))
-//  }
+  test("type autocomplete with colon") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, a :  = 5 in a""",
+      1,
+      23,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
+  // in this case it is not clear if the user wants to type a type so we shouldn't return type
+  test("type autocomplete without colon") { _ =>
+    val AutoCompleteResponse(entries, _) = wordAutoComplete("""let b = type int, a   = 5 in a""", "", Pos(1, 23))
+    assert(entries.length > 17)
+  }
 
 }
