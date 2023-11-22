@@ -43,6 +43,7 @@ module raw.snapi.frontend {
   requires aws.java.sdk.osgi;
   requires raw.utils;
   requires raw.client;
+  requires raw.snapi.parser;
 
   exports raw.auth.api;
   exports raw.creds.api;

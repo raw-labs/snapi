@@ -10,6 +10,10 @@ cd ../client
 rm -rf target/
 sbt clean publishLocal
 
+cd ../snapi-parser
+rm -rf target/
+sbt clean publishLocal
+
 cd ../snapi-frontend
 rm -rf target/
 sbt clean publishLocal

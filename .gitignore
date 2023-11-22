@@ -71,5 +71,7 @@ client/version
 snapi-client/version
 snapi-frontend/version
 snapi-truffle/version
-snapi-frontend/src/main/java/raw/compiler/rql2/generated
+snapi-parser/version
+python-client/version
+snapi-parser/src/main/java/raw/compiler/rql2/generated
 

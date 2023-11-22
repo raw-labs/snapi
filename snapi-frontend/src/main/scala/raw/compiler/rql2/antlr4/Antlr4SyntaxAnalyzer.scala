@@ -12,12 +12,12 @@
 
 package raw.compiler.rql2.antlr4
 
-import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.antlr.v4.runtime.tree.ParseTree
+import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
-import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
+import org.bitbucket.inkytonik.kiama.util.{Positions, StringSource}
 import raw.client.api.ErrorMessage
-import raw.compiler.base.source.{BaseProgram, Type}
+import raw.compiler.base.source.Type
 import raw.compiler.common.source.SourceProgram
 import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
 import raw.compiler.rql2.source.Rql2Program
@@ -47,7 +47,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
 
     val tree: ParseTree = parser.prog
     val visitorParseErrors = RawVisitorParseErrors()
-    val visitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend, visitorParseErrors)
+    val visitor = new RawSnapiVisitor(positions, source, isFrontend, visitorParseErrors)
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
@@ -69,7 +69,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
 
     val tree: ParseTree = parser.tipe
     val visitorParseErrors = RawVisitorParseErrors()
-    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, StringSource(s), isFrontend, visitorParseErrors)
+    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, source, isFrontend, visitorParseErrors)
     val result: Type = visitor.visit(tree).asInstanceOf[Type]
 
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
