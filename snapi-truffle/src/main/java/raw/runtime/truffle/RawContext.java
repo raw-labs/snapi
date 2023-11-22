@@ -41,7 +41,7 @@ import scala.collection.immutable.Seq;
 import scala.collection.immutable.Seq$;
 import scala.collection.immutable.Set;
 
-public final class RawContext extends Closeable {
+public final class RawContext implements Closeable {
 
   private final RawLanguage language;
   private final Env env;
