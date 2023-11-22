@@ -11,6 +11,7 @@
  */
 
 module raw.snapi.truffle {
-    requires truffle.dsl.processor;
-    exports raw.compiler.rql2.generated;
+  requires truffle.dsl.processor;
+
+  exports raw.compiler.rql2.generated;
 }
