@@ -17,6 +17,7 @@ import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
 import com.typesafe.config.ConfigFactory;
+import java.io.Closeable;
 import java.io.OutputStream;
 import java.util.Objects;
 import raw.client.api.*;
@@ -40,7 +41,7 @@ import scala.collection.immutable.Seq;
 import scala.collection.immutable.Seq$;
 import scala.collection.immutable.Set;
 
-public final class RawContext {
+public final class RawContext extends Closeable {
 
   private final RawLanguage language;
   private final Env env;
@@ -178,5 +179,11 @@ public final class RawContext {
    */
   public TruffleObject getPolyglotBindings() {
     return (TruffleObject) env.getPolyglotBindings();
+  }
+
+  @Override
+  public void close() {
+    inferrer.stop();
+    sourceContext.credentialsService().stop();
   }
 }
