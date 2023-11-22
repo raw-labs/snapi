@@ -102,7 +102,8 @@ module raw.snapi.frontend {
   exports raw.sources.jdbc.sqlite;
   exports raw.sources.jdbc.sqlserver;
 
-  opens raw.rest.common to com.fasterxml.jackson.databind;
+  opens raw.rest.common to
+      com.fasterxml.jackson.databind;
 
   uses raw.inferrer.api.InferrerServiceBuilder;
 
