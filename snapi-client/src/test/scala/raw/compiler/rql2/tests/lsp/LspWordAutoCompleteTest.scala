@@ -157,4 +157,58 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     assert(entries.length > 17)
   }
 
+  test("argument type autocomplete with colon") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, f(v:  ) = v * 2 in f(1)""",
+      1,
+      24,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
+  test("argument type autocomplete without colon") { _ =>
+    val AutoCompleteResponse(entries, _) =
+      wordAutoComplete("""let b = type int, f(v  ) = v * 2 in f(1)""", "", Pos(1, 23))
+    assert(entries.length > 17)
+  }
+
+  // This tests need either LSPSyntaxAnalyzer support or the new parser
+
+//  test("nested type autocompletion") { _ =>
+  //    wordAutoCompleteTest(
+  //      """let b = type int, c = Json.Read("url", type record(  )) in c""",
+  //      1,
+  //      54,
+  //      "",
+  //      allTypes :+ (("b", Some("int")))
+  //    )
+  //  }
+
+//  test("typealias completion") { _ =>
+  //    wordAutoCompleteTest(
+  //      """let a = type  in a""",
+  //      1,
+  //      14,
+  //      "",
+  //      allTypes
+  //    )
+  //  }
+
+//  test("function type autocomplete with colon") { _ =>
+//    wordAutoCompleteTest(
+//      """let b = type int, f(v: int):  = v * 2 in f(1)""",
+//      1,
+//      30,
+//      "",
+//      allTypes :+ (("b", Some("int")))
+//    )
+//  }
+//
+//  test("function type autocomplete without colon") { _ =>
+//    val AutoCompleteResponse(entries, _) =
+//      wordAutoComplete("""let b = type int, f(v: int)  = v * 2 in f(1)""", "", Pos(1, 23))
+//    assert(entries.length > 28)
+//  }
+
 }

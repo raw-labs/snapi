@@ -47,6 +47,25 @@ class CompilerLspService(
       .mkString(", ")})${if (funProto.r.isDefined) " -> " + SourcePrettyPrinter.format(funProto.r.get) else ""}"
   }
 
+  private def getAllTypesInScope(maybeNode: Option[SourceNode], prefix: String) = {
+    val typeAliases = analyzer
+      .scopeInWithIdentifier(maybeNode.get)
+      .filter {
+        case (idn, e) => e match {
+            case l: LetBindEntity if idn.startsWith(prefix) => l.b.e.isInstanceOf[TypeExp]
+            case _ => false
+          }
+      }
+      .map {
+        case (idn, e) => e match {
+            case l: LetBindEntity => TypeCompletion(idn, SourcePrettyPrinter.format(l.b.e.asInstanceOf[TypeExp].t))
+                .asInstanceOf[Completion]
+          }
+      }
+    CompilerLspService.existingTypes
+      .map(t => TypeCompletion(t, "").asInstanceOf[Completion]) ++ typeAliases
+  }
+
   def wordAutoComplete(
       source: String,
       environment: ProgramEnvironment,
@@ -98,23 +117,8 @@ class CompilerLspService(
       }
 
     maybeNode match {
-      case Some(LetBind(_, _, Some(ErrorType()))) =>
-        val typeAliases = analyzer
-          .scopeInWithIdentifier(maybeNode.get)
-          .filter {
-            case (idn, e) => e match {
-                case l: LetBindEntity if idn.startsWith(prefix) => l.b.e.isInstanceOf[TypeExp]
-                case _ => false
-              }
-          }
-          .map {
-            case (idn, e) => e match {
-                case l: LetBindEntity => TypeCompletion(idn, SourcePrettyPrinter.format(l.b.e.asInstanceOf[TypeExp].t))
-                    .asInstanceOf[Completion]
-              }
-          }
-        val allTypes = CompilerLspService.existingTypes
-          .map(t => TypeCompletion(t, "").asInstanceOf[Completion]) ++ typeAliases
+      case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) =>
+        val allTypes = getAllTypesInScope(maybeNode, prefix)
         AutoCompleteResponse(allTypes, errors)
       case _ => // Given that node, ask the "chain" for all entries in scope.
         val maybeEntries = maybeNode
