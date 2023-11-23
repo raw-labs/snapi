@@ -37,13 +37,3 @@ final case class ErrorPosition(line: Int, column: Int)
  * The message can be safely shared with the user.
  */
 sealed class CompilerException(message: String, cause: Throwable = null) extends RawException(message, cause)
-
-final class CompilerParserException(message: String, val position: ErrorPosition) extends CompilerException(message)
-
-/**
- * Exception thrown for errors that happened during the execution of a program.
- *
- * The message can be safely shared with the user.
- */
-final class CompilerExecutionException(val reason: String, val cause: Throwable = null)
-    extends CompilerException(reason, cause)

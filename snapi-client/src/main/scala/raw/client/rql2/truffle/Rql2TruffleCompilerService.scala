@@ -89,13 +89,18 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   }
 
   override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
-    val positions = new Positions()
-    val parser = new Antlr4SyntaxAnalyzer(positions, true)
-    val parseResult = parser.parse(source)
-    if (parseResult.isSuccess) {
-      ParseSuccess(parseResult.tree)
-    } else {
-      ParseFailure(parseResult.errors)
+    val programContext = getProgramContext(environment.user, environment)
+    try {
+      val positions = new Positions()
+      val parser = new Antlr4SyntaxAnalyzer(positions, true)
+      val parseResult = parser.parse(source)
+      if (parseResult.isSuccess) {
+        ParseSuccess(parseResult.tree)
+      } else {
+        ParseFailure(parseResult.errors)
+      }
+    } catch {
+      case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
     }
   }
 
@@ -107,11 +112,15 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       environment,
       _ => {
         val programContext = getProgramContext(environment.user, environment)
-        val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-        if (tree.valid) {
-          GetTypeSuccess(tree.rootType)
-        } else {
-          GetTypeFailure(tree.errors)
+        try {
+          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+          if (tree.valid) {
+            GetTypeSuccess(tree.rootType)
+          } else {
+            GetTypeFailure(tree.errors)
+          }
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
       }
     )
@@ -125,44 +134,50 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       environment,
       _ => {
         val programContext = getProgramContext(environment.user, environment)
-        val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-        if (tree.valid) {
-          val TreeDescription(decls, maybeType, comment) = tree.description
-          val formattedDecls = decls.map {
-            case (idn, programDecls) =>
-              val formattedDecls = programDecls.map {
-                case TreeDeclDescription(None, outType, comment) => rql2TypeToRawType(outType) match {
-                    case Some(rawType) => DeclDescription(None, rawType, comment)
-                    case None => return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
-                  }
-                case TreeDeclDescription(Some(params), outType, comment) =>
-                  val formattedParams = params.map {
-                    case TreeParamDescription(idn, tipe, required) => rql2TypeToRawType(tipe) match {
-                        case Some(rawType) => ParamDescription(idn, rawType, None, required)
-                        case None =>
-                          return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
-                      }
-                  }
-                  rql2TypeToRawType(outType) match {
-                    case Some(rawType) => DeclDescription(Some(formattedParams), rawType, comment)
-                    case None => return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
-                  }
-              }
-              (idn, formattedDecls)
+        try {
+          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+          if (tree.valid) {
+            val TreeDescription(decls, maybeType, comment) = tree.description
+            val formattedDecls = decls.map {
+              case (idn, programDecls) =>
+                val formattedDecls = programDecls.map {
+                  case TreeDeclDescription(None, outType, comment) => rql2TypeToRawType(outType) match {
+                      case Some(rawType) => DeclDescription(None, rawType, comment)
+                      case None =>
+                        return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                    }
+                  case TreeDeclDescription(Some(params), outType, comment) =>
+                    val formattedParams = params.map {
+                      case TreeParamDescription(idn, tipe, required) => rql2TypeToRawType(tipe) match {
+                          case Some(rawType) => ParamDescription(idn, rawType, None, required)
+                          case None =>
+                            return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                        }
+                    }
+                    rql2TypeToRawType(outType) match {
+                      case Some(rawType) => DeclDescription(Some(formattedParams), rawType, comment)
+                      case None =>
+                        return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                    }
+                }
+                (idn, formattedDecls)
+            }
+            val programDescription = ProgramDescription(
+              formattedDecls,
+              maybeType.map { t =>
+                rql2TypeToRawType(t) match {
+                  case Some(rawType) => rawType
+                  case None => return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                }
+              },
+              comment
+            )
+            GetProgramDescriptionSuccess(programDescription)
+          } else {
+            GetProgramDescriptionFailure(tree.errors)
           }
-          val programDescription = ProgramDescription(
-            formattedDecls,
-            maybeType.map { t =>
-              rql2TypeToRawType(t) match {
-                case Some(rawType) => rawType
-                case None => return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
-              }
-            },
-            comment
-          )
-          GetProgramDescriptionSuccess(programDescription)
-        } else {
-          GetProgramDescriptionFailure(tree.errors)
+        } catch {
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
       }
     )

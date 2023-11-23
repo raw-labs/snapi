@@ -34,6 +34,7 @@ import raw.compiler.common.PhaseDescriptor;
 import raw.compiler.common.source.SourceProgram;
 import raw.compiler.rql2.*;
 import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
+import raw.compiler.rql2.source.Rql2Method;
 import raw.compiler.rql2.source.Rql2Program;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.runtime.RuntimeContext;
@@ -115,65 +116,42 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
             new Some<>(classLoader),
             rawSettings);
     ProgramContext programContext = new Rql2ProgramContext(runtimeContext, compilerContext);
-    try {
-      // If we are in staged compiler mode, use the internal parser.
-      boolean frontend = true;
-      if (context
-          .getEnv()
-          .getOptions()
-          .get(RawOptions.STAGED_COMPILER_KEY)
-          .equalsIgnoreCase("true")) {
-        frontend = false;
-      }
-      TreeWithPositions tree = new TreeWithPositions(source, false, frontend, programContext);
-      if (tree.valid()) {
-        Rql2Program inputProgram = (Rql2Program) tree.root();
-        SourceProgram outputProgram = transpile(inputProgram, programContext);
-        Entrypoint entrypoint = TruffleEmit.doEmit(outputProgram, this, programContext);
-        RootNode rootNode = (RootNode) entrypoint.target();
-        JavaConverters.asJavaCollection(inputProgram.methods())
-            .forEach(
-                m -> {
-                  try {
-                    bindings.writeMember(
-                        context.getPolyglotBindings(),
-                        "@type:" + m.i().idn(),
-                        InternalSourcePrettyPrinter.format(tree.analyzer().idnType(m.i())));
-                  } catch (UnsupportedMessageException
-                      | UnknownIdentifierException
-                      | UnsupportedTypeException e) {
-                    throw new RuntimeException(e);
-                  }
-                });
-        if (tree.rootType().isDefined()) {
-          Type outputType = tree.rootType().get();
-          bindings.writeMember(
-              context.getPolyglotBindings(),
-              "@type",
-              InternalSourcePrettyPrinter.format(outputType));
-        } else {
-          if (bindings.isMemberExisting(context.getPolyglotBindings(), "@type"))
-            bindings.removeMember(context.getPolyglotBindings(), "@type");
-        }
-        return rootNode.getCallTarget();
+    // If we are in staged compiler mode, use the internal parser.
+    boolean frontend =
+        !context.getEnv().getOptions().get(RawOptions.STAGED_COMPILER_KEY).equalsIgnoreCase("true");
+    TreeWithPositions tree = new TreeWithPositions(source, false, frontend, programContext);
+    if (tree.valid()) {
+      Rql2Program inputProgram = (Rql2Program) tree.root();
+      SourceProgram outputProgram = transpile(inputProgram, programContext);
+      Entrypoint entrypoint = TruffleEmit.doEmit(outputProgram, this, programContext);
+      RootNode rootNode = (RootNode) entrypoint.target();
+      JavaConverters.asJavaCollection(inputProgram.methods()).stream()
+          .map(m -> (Rql2Method) m)
+          .forEach(
+              m -> {
+                try {
+                  bindings.writeMember(
+                      context.getPolyglotBindings(),
+                      "@type:" + m.i().idn(),
+                      InternalSourcePrettyPrinter.format(tree.analyzer().idnType(m.i())));
+                } catch (UnsupportedMessageException
+                    | UnknownIdentifierException
+                    | UnsupportedTypeException e) {
+                  throw new RuntimeException(e);
+                }
+              });
+      if (tree.rootType().isDefined()) {
+        Type outputType = tree.rootType().get();
+        bindings.writeMember(
+            context.getPolyglotBindings(), "@type", InternalSourcePrettyPrinter.format(outputType));
       } else {
-        throw new RawTruffleValidationException(JavaConverters.seqAsJavaList(tree.errors()));
+        if (bindings.isMemberExisting(context.getPolyglotBindings(), "@type"))
+          bindings.removeMember(context.getPolyglotBindings(), "@type");
       }
-    } catch (RuntimeException e) {
-      if (e.getCause() instanceof CompilerParserException) {
-        CompilerParserException ex = (CompilerParserException) e.getCause();
-        throw new RawTruffleValidationException(
-            java.util.Collections.singletonList(
-                new ErrorMessage(
-                    ex.getMessage(),
-                    JavaConverters.asScalaBufferConverter(
-                            java.util.Collections.singletonList(
-                                new ErrorRange(ex.position(), ex.position())))
-                        .asScala()
-                        .toList())));
-      } else {
-        throw e;
-      }
+      return rootNode.getCallTarget();
+    } else {
+      throw new RawTruffleValidationException(
+          JavaConverters.seqAsJavaList(tree.errors()).stream().map(e -> (ErrorMessage) e).toList());
     }
   }
 
