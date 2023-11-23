@@ -24,7 +24,9 @@ case class CleanedTemporalFormats(
     timestampFormat: Option[String]
 )
 
-private[inferrer] trait TextTypeInferrer extends DatetimeFormatFinder {
+private[inferrer] trait TextTypeInferrer {
+
+  import DateTimeFormatFinder._
 
   def getType(value: String, currentType: SourceType): SourceType = {
     (currentType: @unchecked) match {

@@ -131,31 +131,3 @@ object DateTimeFormatFinder {
   }
 
 }
-
-trait DatetimeFormatFinder {
-
-  def getDate(str: String): Option[(String, LocalDate)] = {
-    DateTimeFormatFinder.getDate(str)
-  }
-
-  def getTimestamp(str: String): Option[(String, LocalDateTime)] = {
-    DateTimeFormatFinder.getTimestamp(str)
-  }
-
-  def getTime(str: String): Option[(String, LocalTime)] = {
-    DateTimeFormatFinder.getTime(str)
-  }
-
-  def tryDateFormat(value: String, format: String): Boolean = {
-    DateTimeFormatFinder.tryDateFormat(value, format)
-  }
-
-  def tryTimeFormat(value: String, format: String): Boolean = {
-    DateTimeFormatFinder.tryTimeFormat(value, format)
-  }
-
-  def tryTimestampFormat(value: String, format: String): Boolean = {
-    DateTimeFormatFinder.tryTimestampFormat(value, format)
-  }
-
-}
