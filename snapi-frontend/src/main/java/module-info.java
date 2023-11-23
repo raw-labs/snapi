@@ -40,7 +40,26 @@ module raw.snapi.frontend {
   requires jul.to.slf4j;
   requires com.fasterxml.jackson.datatype.jsr310;
   requires com.fasterxml.jackson.datatype.jdk8;
-  requires aws.java.sdk.osgi;
+  requires software.amazon.awssdk.annotations;
+  requires software.amazon.awssdk.http.apache;
+  requires software.amazon.awssdk.arns;
+  requires software.amazon.awssdk.auth;
+  requires software.amazon.awssdk.awscore;
+  requires software.amazon.awssdk.protocols.query;
+  requires software.amazon.awssdk.protocols.xml;
+  requires software.amazon.awssdk.crtcore;
+  requires software.amazon.awssdk.endpoints;
+  requires software.amazon.awssdk.http;
+  requires software.amazon.awssdk.protocols.jsoncore;
+  requires software.amazon.awssdk.metrics;
+  requires software.amazon.awssdk.http.nio.netty;
+  requires software.amazon.awssdk.profiles;
+  requires software.amazon.awssdk.protocols.core;
+  requires software.amazon.awssdk.regions;
+  requires software.amazon.awssdk.services.s3;
+  requires software.amazon.awssdk.core;
+  requires software.amazon.awssdk.thirdparty.jackson.core;
+  requires software.amazon.awssdk.utils;
   requires raw.utils;
   requires raw.client;
   requires raw.snapi.parser;
@@ -83,6 +102,9 @@ module raw.snapi.frontend {
   exports raw.sources.jdbc.snowflake;
   exports raw.sources.jdbc.sqlite;
   exports raw.sources.jdbc.sqlserver;
+
+  opens raw.rest.common to
+      com.fasterxml.jackson.databind;
 
   uses raw.inferrer.api.InferrerServiceBuilder;
 

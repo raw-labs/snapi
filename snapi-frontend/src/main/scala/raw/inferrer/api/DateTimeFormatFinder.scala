@@ -15,8 +15,7 @@ package raw.inferrer.api
 import java.time._
 import java.time.format.{DateTimeFormatter, DateTimeParseException}
 
-trait DatetimeFormatFinder {
-
+object DateTimeFormatFinder {
   final private val timeFormats = Seq("H:m", "h:m a", "H:m:s", "h:m:s a", "H:m:s.SSS", "h:m:s.SSS a", "HHmmss")
 
   // TODO:  To be able to year 99 as 1999 use a DateTimeFormatBuilder as shown in:

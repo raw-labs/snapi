@@ -55,7 +55,7 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
 
   override protected def isTreeValid: Boolean = {
     val isValid = errors.isEmpty
-    logTree(isValid)
+    if (programContext.settings.onTrainingWheels) logTree(isValid)
     isValid
   }
 

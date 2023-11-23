@@ -69,6 +69,11 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return new RawContext(this, env);
   }
 
+  @Override
+  protected void finalizeContext(RawContext context) {
+    context.close();
+  }
+
   private static final LanguageReference<RawLanguage> REFERENCE =
       LanguageReference.create(RawLanguage.class);
 
