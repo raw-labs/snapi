@@ -173,6 +173,42 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     assert(entries.length > 17)
   }
 
+  test("type autocomplete with scopes") { _ =>
+    wordAutoCompleteTest(
+      """let
+        |  x = type int,
+        |  y =
+        |    let
+        |      y1 = type string,
+        |      y2: y1 = "1"
+        |    in y2,
+        |  z: = 5
+        |in z """.stripMargin,
+      8,
+      6,
+      "",
+      allTypes :+ (("x", Some("int")))
+    )
+  }
+
+  test("type autocomplete with nested scopes") { _ =>
+    wordAutoCompleteTest(
+      """let
+        |  x = type int,
+        |  y =
+        |    let
+        |      y1 = type string,
+        |      y2: y1 = "1",
+        |      y3: = 5
+        |    in y2
+        |in z """.stripMargin,
+      7,
+      10,
+      "",
+      allTypes :+ (("x", Some("int"))) :+ (("y1", Some("string")))
+    )
+  }
+
   // This tests need either LSPSyntaxAnalyzer support or the new parser
 
 //  test("nested type autocompletion") { _ =>
