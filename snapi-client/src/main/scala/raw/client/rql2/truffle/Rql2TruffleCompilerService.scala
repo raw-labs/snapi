@@ -15,7 +15,7 @@ package raw.client.rql2.truffle
 import org.bitbucket.inkytonik.kiama.relation.EnsureTree
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
-import raw.client.api._
+import raw.client.api.{CodeSnippetsResponse, _}
 import raw.client.rql2.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import raw.compiler.base
@@ -663,6 +663,29 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       }
       ErrorMessage(ErrorsPrettyPrinter.format(err), ranges)
     }.toList
+  }
+
+  override def codeSnippets(source: String, environment: ProgramEnvironment): CodeSnippetsResponse = {
+    withTruffleContext(
+      environment,
+      _ => {
+        val programContext = getProgramContext(environment.user, environment)
+        try {
+          val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+          if (tree.valid) {
+            val codeSnippets = tree.analyzer.codeSnippets.toList
+            CodeSnippetsSuccess(codeSnippets)
+          } else {
+            CodeSnippetsFailure(tree.errors)
+          }
+        } catch {
+          case ex: CompilerParserException => CodeSnippetsFailure(
+              List(ErrorMessage(ex.getMessage, List(raw.client.api.ErrorRange(ex.position, ex.position))))
+            )
+          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+        }
+      }
+    )
   }
 
   override def doStop(): Unit = {

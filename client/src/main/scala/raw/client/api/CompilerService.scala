@@ -157,6 +157,10 @@ trait CompilerService extends RawService {
   @throws[CompilerServiceException]
   def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse
 
+  // Retrieve all code snippets in a source program.
+  @throws[CompilerServiceException]
+  def codeSnippets(source: String, environment: ProgramEnvironment): CodeSnippetsResponse
+
   protected def polyglotValueToRawValue(v: Value, t: RawType): RawValue = {
     if (t.triable) {
       if (v.isException) {
@@ -332,3 +336,15 @@ final case class RenameResponse(positions: Array[Pos], errors: List[ErrorMessage
 final case class GoToDefinitionResponse(position: Option[Pos], errors: List[ErrorMessage])
 
 final case class ValidateResponse(errors: List[ErrorMessage])
+
+sealed trait CodeSnippetsResponse
+final case class CodeSnippetsSuccess(snippets: List[CodeSnippet]) extends CodeSnippetsResponse
+final case class CodeSnippetsFailure(errors: List[ErrorMessage]) extends CodeSnippetsResponse
+
+final case class CodeSnippet(
+    code: String,
+    comment: Option[String],
+    outputType: RawType,
+    isEndpoint: Boolean,
+    hasDataSources: Boolean
+)
