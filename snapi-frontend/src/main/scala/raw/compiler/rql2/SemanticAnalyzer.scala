@@ -1474,10 +1474,18 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     Right(r)
   }
 
+  final lazy val codeSnippets: Seq[CodeSnippet] = {
+    val snippets = mutable.ArrayBuffer.empty[CodeSnippet]
+
+    ???
+
+    snippets.toSeq
+  }
+
   final private def getValue(report: CompatibilityReport, e: Exp): Either[BaseError, Value] = {
     // Recurse over all entities in the order of its dependencies.
     // Populate an ordered list of declarations as a side-effect.
-    val lets: mutable.ArrayBuffer[LetDecl] = mutable.ArrayBuffer.empty[LetDecl]
+    val lets = mutable.ArrayBuffer.empty[LetDecl]
 
     class RecurseEntitiesException(val err: BaseError) extends Exception
 
