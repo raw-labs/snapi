@@ -26,6 +26,7 @@ import org.apache.hc.core5.http.io.entity.StringEntity
 import org.apache.hc.core5.http.io.{HttpClientResponseHandler, SocketConfig}
 import org.apache.hc.core5.net.URIBuilder
 import org.apache.hc.core5.util.Timeout
+import org.slf4j.MDC
 import raw.auth.api.{ForbiddenException, GenericAuthException, TokenProvider, UnauthorizedException}
 import raw.utils.RawSettings
 import raw.rest.common._
@@ -41,6 +42,7 @@ import scala.concurrent.CancellationException
 object RestClient {
   val X_RAW_CLIENT = "X-RAW-Client"
   val X_RAW_CLIENT_VALUE = "Scala RAW REST Client/0.1"
+  val X_RAW_TRACE_ID = "X-RAW-Trace-Id"
 
   val mapper = new RestJsonMapper()
   val restErrorReader = mapper.readerFor[GenericRestError]
@@ -56,6 +58,7 @@ class RestClient(
     serverHttpAddress: URI,
     maybeTokenProvider: Option[TokenProvider],
     name: String,
+    maybeTraceId: Option[String] = Option(MDC.get("trace_id")),
     maybeImpersonateUser: Option[String] = None,
     retryOnAccepted: Option[String] =
       Some("/1/public/pending-request") // Legacy mode to automatically retry ACCEPTED responses in the following URL.
@@ -458,7 +461,10 @@ class RestClient(
   }
 
   private def configureRequest(req: HttpUriRequestBase, withAuth: Boolean): Unit = {
+    // Set the RAW client version.
     req.setHeader(RestClient.X_RAW_CLIENT, RestClient.X_RAW_CLIENT_VALUE)
+    // Set the trace ID in case it is defined.
+    maybeTraceId.foreach(traceId => req.setHeader(RestClient.X_RAW_TRACE_ID, traceId))
     // FIXME: Move this to be a developer mode settings
     //    req.setHeader(HttpHeaders.ACCEPT_ENCODING, "identity") // No gzip
     if (withAuth) {
