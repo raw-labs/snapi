@@ -151,6 +151,16 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     )
   }
 
+  test("type autocomplete with colon and prefix") { _ =>
+    wordAutoCompleteTest(
+      """let by = type int, a : b = 5 in a""",
+      1,
+      25,
+      "b",
+      Seq(("by", Some("int")), ("byte", Some("")), ("bool", Some("")))
+    )
+  }
+
   // in this case it is not clear if the user wants to type a type so we shouldn't return type
   test("type autocomplete without colon") { _ =>
     val AutoCompleteResponse(entries, _) = wordAutoComplete("""let b = type int, a   = 5 in a""", "", Pos(1, 23))

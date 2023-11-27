@@ -63,6 +63,7 @@ class CompilerLspService(
           }
       }
     CompilerLspService.existingTypes
+      .filter(_.startsWith(prefix))
       .map(t => TypeCompletion(t, "").asInstanceOf[Completion]) ++ typeAliases
   }
 
@@ -117,7 +118,8 @@ class CompilerLspService(
       }
 
     maybeNode match {
-      case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) =>
+      case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) |
+          Some(TypeAliasType(IdnUse(_))) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
         AutoCompleteResponse(allTypes, errors)
       case _ => // Given that node, ask the "chain" for all entries in scope.
@@ -458,9 +460,9 @@ object CompilerLspService {
     "double",
     "decimal",
     "string",
-    "boolean",
+    "bool",
     "date",
-    "datetime",
+    "timestamp",
     "time",
     "interval",
     "record",
