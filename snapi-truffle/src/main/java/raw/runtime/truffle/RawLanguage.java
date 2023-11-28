@@ -22,6 +22,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.typesafe.config.ConfigFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
@@ -36,6 +37,8 @@ import raw.compiler.rql2.*;
 import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
 import raw.compiler.rql2.source.Rql2Program;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
+import raw.creds.api.CredentialsService;
+import raw.creds.api.CredentialsServiceProvider;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.RecordObject;
@@ -63,6 +66,11 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   public static final String ID = "rql";
   public static final String VERSION = "0.10";
   public static final String MIME_TYPE = "application/x-rql";
+
+  public final RawSettings rawSettings =
+      new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
+  CredentialsService credentialsService =
+      CredentialsServiceProvider.apply(RawLanguage.class.getClassLoader(), rawSettings);
 
   @Override
   protected final RawContext createContext(Env env) {
