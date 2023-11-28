@@ -124,7 +124,8 @@ public class Closure implements TruffleObject {
       // first fill in the default arguments (nulls if no default).
       System.arraycopy(closure.defaultArguments, 0, args, 1, argNames.length);
       for (int i = 0; i < namedArgsNames.length; i++) {
-        if (namedArgsNames[i] == null) {
+        String currentArgName = namedArgsNames[i];
+        if (currentArgName == null) {
           // no arg name was provided, use the index.
           args[i + 1] = arguments[i];
         } else {
@@ -133,8 +134,8 @@ public class Closure implements TruffleObject {
           // real, and fill it in.
 
           int idx = 0;
-          for (; idx < namedArgsNames.length; idx++) {
-            if (Objects.equals(namedArgsNames[i], argNames[idx])) {
+          for (; idx < argNames.length; idx++) {
+            if (Objects.equals(currentArgName, argNames[idx])) {
               break;
             }
           }
