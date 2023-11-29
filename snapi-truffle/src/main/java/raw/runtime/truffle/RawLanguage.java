@@ -69,7 +69,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   public final RawSettings rawSettings =
       new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
-  CredentialsService credentialsService =
+  public final CredentialsService credentialsService =
       CredentialsServiceProvider.apply(RawLanguage.class.getClassLoader(), rawSettings);
 
   @Override
