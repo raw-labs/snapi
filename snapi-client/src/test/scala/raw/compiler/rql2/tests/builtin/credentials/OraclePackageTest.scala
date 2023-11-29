@@ -131,11 +131,11 @@ trait OraclePackageTest extends CompilerTestContext with CredentialsTestContext 
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "oracle.example.com", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
+      |  host = "oracle.localdomain", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
-    it should runErrorAs("""unknown host: oracle.example.com""".stripMargin)
+    it should runErrorAs("""unknown host: oracle.localdomain""".stripMargin)
   }
 
   // network error
@@ -143,11 +143,11 @@ trait OraclePackageTest extends CompilerTestContext with CredentialsTestContext 
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "example.com", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
+      |  host = "localhost.localdomain", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
-    it should runErrorAs("""error connecting to database: example.com""".stripMargin)
+    it should runErrorAs("error connecting to database: localhost.localdomain")
   }
 
   // wrong port
