@@ -207,8 +207,7 @@ class CompilerLspService(
           analyzer.idnType(idn) match {
             case PackageType(name: String) if programContext.getPackage(name).isDefined =>
               HoverResponse(Some(PackageCompletion(idn.idn, programContext.getPackage(name).get.docs)))
-            case _ =>
-              HoverResponse(Some(TypeCompletion(idn.idn, SourcePrettyPrinter.format(analyzer.idnType(idn)))))
+            case _ => HoverResponse(Some(TypeCompletion(idn.idn, SourcePrettyPrinter.format(analyzer.idnType(idn)))))
           }
         case idnDef: IdnDef => //gets here
           val ent = analyzer.entity(idnDef)
@@ -217,7 +216,7 @@ class CompilerLspService(
               val LetBind(e, i, t) = letBindEntity.b
               e match {
                 case FunAbs(funProto: FunProto) => HoverResponse(
-                    Some(TypeCompletion(i.idn, getFunctionSignature(i, funProto))),
+                    Some(TypeCompletion(i.idn, getFunctionSignature(i, funProto)))
                   ) //gets here
                 case _ => HoverResponse(
                     Some(TypeCompletion(i.idn, SourcePrettyPrinter.format(analyzer.idnType(i))))
@@ -243,8 +242,7 @@ class CompilerLspService(
         case Proj(e, i) => analyzer.actualType(e) match { //gets here
             case Rql2RecordType(atts, _) =>
               val att = atts.find(a => a.idn == i)
-              if (att.isDefined)
-                HoverResponse(Some(TypeCompletion(i, SourcePrettyPrinter.format(att.get.tipe))))
+              if (att.isDefined) HoverResponse(Some(TypeCompletion(i, SourcePrettyPrinter.format(att.get.tipe))))
               else HoverResponse(None)
             case PackageType(name: String) if programContext.getPackage(name).isDefined =>
               val pkg = programContext
