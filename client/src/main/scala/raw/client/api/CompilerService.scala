@@ -311,9 +311,9 @@ case object ExecutionSuccess extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 
-final case class FormatCodeResponse(code: Option[String], errors: List[ErrorMessage])
+final case class FormatCodeResponse(code: Option[String])
 
-final case class AutoCompleteResponse(completions: Array[Completion], errors: List[ErrorMessage])
+final case class AutoCompleteResponse(completions: Array[Completion])
 
 sealed trait Completion
 final case class TypeCompletion(name: String, tipe: String) extends Completion
@@ -325,10 +325,10 @@ final case class FunParamCompletion(name: String, tipe: String) extends Completi
 final case class PackageCompletion(name: String, doc: PackageDoc) extends Completion
 final case class PackageEntryCompletion(name: String, doc: EntryDoc) extends Completion
 
-final case class HoverResponse(completion: Option[Completion], errors: List[ErrorMessage])
+final case class HoverResponse(completion: Option[Completion])
 
-final case class RenameResponse(positions: Array[Pos], errors: List[ErrorMessage])
+final case class RenameResponse(positions: Array[Pos])
 
-final case class GoToDefinitionResponse(position: Option[Pos], errors: List[ErrorMessage])
+final case class GoToDefinitionResponse(position: Option[Pos])
 
 final case class ValidateResponse(errors: List[ErrorMessage])
