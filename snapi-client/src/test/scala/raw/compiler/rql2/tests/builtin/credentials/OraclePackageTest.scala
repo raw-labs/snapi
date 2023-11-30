@@ -147,7 +147,7 @@ trait OraclePackageTest extends CompilerTestContext with CredentialsTestContext 
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
-    it should runErrorAs("""error connecting to database: example.com""".stripMargin)
+    it should runErrorAs("""connect timed out: example.com""".stripMargin)
   }
 
   // wrong port
