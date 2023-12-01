@@ -38,7 +38,7 @@ trait LspHoverTest extends CompilerTestContext {
   test("hover entry doc type output test") { _ =>
     val code = """String.Lower("HI")""".stripMargin
     val HoverResponse(Some(PackageEntryCompletion(name, doc))) = hover(code, Pos(1, 9))
-    assertResult("Lower")(name)
+    assertResult("String.Lower")(name)
     assertResult("Convert a string to lowercase.")(doc.summary)
   }
 
