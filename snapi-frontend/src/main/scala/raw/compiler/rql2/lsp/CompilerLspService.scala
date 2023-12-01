@@ -250,7 +250,7 @@ class CompilerLspService(
                 .get
               //make sure that entry exists and have documentation defined.
               val maybeDocs = Try(pkg.getEntry(i).docs)
-              if (maybeDocs.isSuccess) HoverResponse(Some(PackageEntryCompletion(i, maybeDocs.get)))
+              if (maybeDocs.isSuccess) HoverResponse(Some(PackageEntryCompletion(s"${pkg.name}.$i", maybeDocs.get)))
               else HoverResponse(None)
             case _ => HoverResponse(None)
           }
