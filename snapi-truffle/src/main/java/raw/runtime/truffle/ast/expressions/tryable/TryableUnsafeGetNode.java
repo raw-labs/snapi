@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -21,13 +22,15 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Try.UnsafeGet")
 @NodeChild("tryable")
+@ImportStatic(Tryable.class)
 public abstract class TryableUnsafeGetNode extends ExpressionNode {
+  @Specialization(guards = "isSuccess(tryable)")
+  protected Object doObjectIsSuccess(Object tryable) {
+    return tryable;
+  }
+
   @Specialization(limit = "1")
   protected Object doObject(Object tryable) {
-    if (Tryable.isSuccess(tryable)) {
-      return tryable;
-    } else {
-      throw new RawTruffleRuntimeException(Tryable.getFailure(tryable), this);
-    }
+    throw new RawTruffleRuntimeException(Tryable.getFailure(tryable), this);
   }
 }

@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -27,6 +28,7 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 @NodeInfo(shortName = "Tryable.FlatMap")
 @NodeChild("tryable")
 @NodeChild("function")
+@ImportStatic(Tryable.class)
 public abstract class TryableFlatMapNode extends ExpressionNode {
 
   //    here add more guads to try to find object value and then do executeLong instead and call
@@ -34,19 +36,21 @@ public abstract class TryableFlatMapNode extends ExpressionNode {
   //    that's the only thing I think
   //    guarguars is tryable and object isSccess and type is null kind of thin
 
-  @Specialization(limit = "1")
-  protected Object doObject(
+  private final Object[] argumentValues = new Object[1];
+
+  @Specialization(limit = "1", guards = "isSuccess(tryable)")
+  protected Object doObjectIsSuccess(
       Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
-    if (Tryable.isSuccess(tryable)) {
-      Object[] argumentValues = new Object[1];
-      argumentValues[0] = tryable;
-      try {
-        return interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
-      }
-    } else {
-      return tryable;
+    argumentValues[0] = tryable;
+    try {
+      return interops.execute(closure, argumentValues);
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     }
+  }
+
+  @Specialization(limit = "1")
+  protected Object doObjectFailure(Object tryable, Object closure) {
+    return tryable;
   }
 }

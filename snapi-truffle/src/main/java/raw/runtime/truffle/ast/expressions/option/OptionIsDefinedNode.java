@@ -22,7 +22,7 @@ import raw.runtime.truffle.tryable_nullable.Nullable;
 @NodeChild("option")
 public abstract class OptionIsDefinedNode extends ExpressionNode {
 
-  @Specialization(limit = "1")
+  @Specialization
   protected boolean isDefined(Object option) {
     return Nullable.isNotNull(option);
   }

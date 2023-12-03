@@ -26,37 +26,45 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeInfo(shortName = "/")
 public abstract class DivNode extends BinaryNode {
 
-  @Specialization
+  @Specialization(guards = "b != 0")
   protected Object divByte(byte a, byte b) {
-    return b != 0 ? (a / b) : new ErrorObject("/ by zero");
+    return a / b;
   }
 
-  @Specialization
+  @Specialization(guards = "b != 0")
   protected Object divShort(short a, short b) {
-    return b != 0 ? (a / b) : new ErrorObject("/ by zero");
+    return a / b;
   }
 
-  @Specialization
+  @Specialization(guards = "b != 0")
   protected Object divInt(int a, int b) {
-    return b != 0 ? (a / b) : new ErrorObject("/ by zero");
+    return a / b;
   }
 
-  @Specialization
+  @Specialization(guards = "b != 0")
   protected Object divLong(long a, long b) {
-    return b != 0 ? a / b : new ErrorObject("/ by zero");
+    return a / b;
   }
 
-  @Specialization
+  public boolean floatIsZero(float value) {
+    return value == 0.0f;
+  }
+
+  @Specialization(guards = "floatIsZero(b)")
   protected Object divFloat(float a, float b) {
-    return b != 0 ? a / b : new ErrorObject("/ by zero");
+    return a / b;
   }
 
-  @Specialization
+  public boolean doubleIsZero(double value) {
+    return value == 0.0d;
+  }
+
+  @Specialization(guards = "doubleIsZero(b)")
   protected Object divDouble(double a, double b) {
-    return b != 0 ? a / b : new ErrorObject("/ by zero");
+    return a / b;
   }
 
-  @Specialization
+  @Specialization(guards = "doubleIsZero(b.getBigDecimal().doubleValue())")
   @CompilerDirectives.TruffleBoundary
   protected Object divDecimal(DecimalObject a, DecimalObject b) {
     // Without the MathContext.DECIMAL128, we would get a:
@@ -65,8 +73,11 @@ public abstract class DivNode extends BinaryNode {
     // MathContext DECIMAL128 = new MathContext(34, RoundingMode.HALF_EVEN);
     // This means 34 digits before rounding
     // TODO: Check if this the rounding mode we want.
-    return b.getBigDecimal().doubleValue() != 0
-        ? new DecimalObject(a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128))
-        : new ErrorObject("/ by zero");
+    return new DecimalObject(a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128));
+  }
+
+  @Specialization
+  protected ErrorObject divByZero(Object a, Object b) {
+    return new ErrorObject("/ by zero");
   }
 }
