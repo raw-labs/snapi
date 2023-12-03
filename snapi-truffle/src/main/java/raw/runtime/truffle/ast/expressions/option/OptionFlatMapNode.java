@@ -22,25 +22,19 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.FlatMap")
 @NodeChild("option")
 @NodeChild("function")
 public abstract class OptionFlatMapNode extends ExpressionNode {
 
-  @Specialization(
-      guards = {"options.isOption(option)"},
-      limit = "1")
+  @Specialization(limit = "1")
   protected Object optionFlatMap(
-      Object option,
-      Object closure,
-      @CachedLibrary("option") OptionLibrary options,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    if (options.isDefined(option)) {
-      Object v = options.get(option);
+      Object option, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
+    if (Nullable.isNotNull(option)) {
       Object[] argumentValues = new Object[1];
-      argumentValues[0] = v;
+      argumentValues[0] = option;
       try {
         return interops.execute(closure, argumentValues);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {

@@ -28,11 +28,11 @@ import java.util.Arrays;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.handlers.NullableTryableHandler;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.*;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.Filter")
@@ -45,8 +45,6 @@ public abstract class ListFilterNode extends ExpressionNode {
   static final int LIB_LIMIT = 2;
 
   protected abstract Rql2Type getResultType();
-
-  protected abstract Rql2Type getPredicateType();
 
   @Specialization(
       guards = {"isByteKind(getResultType())"},
@@ -68,8 +66,7 @@ public abstract class ListFilterNode extends ExpressionNode {
       Boolean predicate = null;
       try {
         predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                interops.execute(closure, argumentValues), getPredicateType(), false);
+            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
@@ -104,8 +101,7 @@ public abstract class ListFilterNode extends ExpressionNode {
       Boolean predicate = null;
       try {
         predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                interops.execute(closure, argumentValues), getPredicateType(), false);
+            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
@@ -140,8 +136,8 @@ public abstract class ListFilterNode extends ExpressionNode {
                 x -> {
                   argumentValues[0] = generators.next(generator);
                   try {
-                    return NullableTryableHandler.handleOptionTriablePredicate(
-                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                    return TryableNullable.handlePredicate(
+                        interops.execute(closure, argumentValues), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {
@@ -172,8 +168,8 @@ public abstract class ListFilterNode extends ExpressionNode {
                 x -> {
                   argumentValues[0] = generators.next(generator);
                   try {
-                    return NullableTryableHandler.handleOptionTriablePredicate(
-                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                    return TryableNullable.handlePredicate(
+                        interops.execute(closure, argumentValues), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {
@@ -204,8 +200,7 @@ public abstract class ListFilterNode extends ExpressionNode {
       Boolean predicate = null;
       try {
         predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                interops.execute(closure, argumentValues), getPredicateType(), false);
+            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
@@ -240,8 +235,8 @@ public abstract class ListFilterNode extends ExpressionNode {
                 x -> {
                   argumentValues[0] = generators.next(generator);
                   try {
-                    return NullableTryableHandler.handleOptionTriablePredicate(
-                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                    return TryableNullable.handlePredicate(
+                        interops.execute(closure, argumentValues), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {
@@ -272,8 +267,7 @@ public abstract class ListFilterNode extends ExpressionNode {
       boolean predicate = false;
       try {
         predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                interops.execute(closure, argumentValues), getPredicateType(), false);
+            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
@@ -308,8 +302,7 @@ public abstract class ListFilterNode extends ExpressionNode {
       boolean predicate = false;
       try {
         predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                interops.execute(closure, argumentValues), getPredicateType(), false);
+            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
@@ -342,8 +335,8 @@ public abstract class ListFilterNode extends ExpressionNode {
                 x -> {
                   argumentValues[0] = generators.next(generator);
                   try {
-                    return NullableTryableHandler.handleOptionTriablePredicate(
-                        interops.execute(closure, argumentValues), getPredicateType(), false);
+                    return TryableNullable.handlePredicate(
+                        interops.execute(closure, argumentValues), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {

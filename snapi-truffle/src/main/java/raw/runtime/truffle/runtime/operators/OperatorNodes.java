@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.operators;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
@@ -27,19 +28,20 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.Objects;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.Tryable;
 
 public class OperatorNodes {
 
   @NodeInfo(shortName = "Operator.Compare")
   @GenerateUncached
+  @ImportStatic(value = {Nullable.class, Tryable.class})
   public abstract static class CompareNode extends Node {
 
     public abstract int execute(Object obj1, Object obj2);
@@ -231,54 +233,24 @@ public class OperatorNodes {
       }
     }
 
-    @Specialization(guards = {"tryables.isTryable(left)"})
-    static int doTryable(
-        Object left,
-        Object right,
-        @Cached CompareNode compare,
-        @CachedLibrary(limit = "3") TryableLibrary tryables) {
-      // both are tryables (maybe not nullable but that's handled recursively)
-      assert (tryables.isTryable(right));
-      boolean leftIsSuccess = tryables.isSuccess(left);
-      boolean rightIsSuccess = tryables.isSuccess(right);
+    @Specialization(guards = {"isFailure(left) || isFailure(right)"})
+    static int doTryable(Object left, Object right) {
+      boolean leftIsSuccess = Tryable.isSuccess(left);
       if (leftIsSuccess) {
-        if (rightIsSuccess) {
-          Object leftValue = tryables.success(left);
-          Object rightValue = tryables.success(right);
-          return compare.execute(leftValue, rightValue);
-        } else {
-          return 1;
-        }
+        return 1;
       } else {
-        if (rightIsSuccess) {
-          return -1;
-        } else {
-          String leftFailure = tryables.failure(left);
-          String rightFailure = tryables.failure(right);
-          return compare.execute(leftFailure, rightFailure);
-        }
+        return -1;
       }
     }
 
-    @Specialization(guards = {"options.isOption(left)"})
-    static int doNullable(
-        Object left,
-        Object right,
-        @Cached CompareNode compare,
-        @CachedLibrary(limit = "3") OptionLibrary options) {
+    @Specialization(guards = {"isNull(left) || isNull(right)"})
+    static int doNullable(Object left, Object right) {
       // both are options
-      assert (options.isOption(right));
-      boolean leftIsDefined = options.isDefined(left);
-      boolean rightIsDefined = options.isDefined(right);
+      boolean leftIsDefined = Nullable.isNotNull(left);
+      boolean rightIsDefined = Nullable.isNotNull(right);
 
       if (leftIsDefined) {
-        if (rightIsDefined) {
-          Object leftValue = options.get(left);
-          Object rightValue = options.get(right);
-          return compare.execute(leftValue, rightValue);
-        } else {
-          return 1;
-        }
+        return 1;
       } else {
         if (rightIsDefined) {
           return -1;
@@ -337,23 +309,28 @@ public class OperatorNodes {
       return left.concat(right);
     }
 
-    @Specialization(guards = "left == null || right == null")
-    @CompilerDirectives.TruffleBoundary
-    static Object doNull(Object left, Object right) {
-      if (left == null && right == null) {
+    @Specialization(guards = {"left != null", "right != null"})
+    static Object doNullableTryable(Object left, Object right, @Cached AddNode add) {
+      if (Tryable.isFailure(left)) {
+        throw new RawTruffleRuntimeException(Tryable.getFailure(left));
+      } else if (Tryable.isFailure(right)) {
+        throw new RawTruffleRuntimeException(Tryable.getFailure(right));
+      } else if (Nullable.isNull(left) && Nullable.isNull(right)) {
         return 0;
-      } else return Objects.requireNonNullElse(left, right);
+      } else {
+        return Objects.requireNonNullElse(left, right);
+      }
     }
 
-    @Specialization(guards = {"left != null", "right != null"})
-    static Object doNullableTryable(
-        Object left,
-        Object right,
-        @Cached AddNode add,
-        @Cached TryableNullableNodes.UnboxUnsafeNode unbox) {
-      Object unboxedLeft = unbox.execute(left);
-      Object unboxedRight = unbox.execute(right);
-      return add.execute(unboxedLeft, unboxedRight);
-    }
+    //    @Specialization(guards = {"left != null", "right != null"})
+    //    static Object doNullableTryable(
+    //        Object left,
+    //        Object right,
+    //        @Cached AddNode add,
+    //        @Cached TryableNullableNodes.UnboxUnsafeNode unbox) {
+    //      Object unboxedLeft = unbox.execute(left);
+    //      Object unboxedRight = unbox.execute(right);
+    //      return add.execute(unboxedLeft, unboxedRight);
+    //    }
   }
 }

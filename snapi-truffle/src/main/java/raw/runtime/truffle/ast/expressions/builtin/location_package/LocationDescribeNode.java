@@ -34,11 +34,10 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.option.StringOption;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.utils.RawException;
 import scala.Some;
 
@@ -184,9 +183,9 @@ public abstract class LocationDescribeNode extends ExpressionNode {
         RecordObject rec = RawLanguage.get(this).createRecord();
         records.writeMember(rec, "name", keyList.get(i));
         if (properties.containsKey(keyList.get(i))) {
-          records.writeMember(rec, "value", new StringOption(properties.get(keyList.get(i))));
+          records.writeMember(rec, "value", properties.get(keyList.get(i)));
         } else {
-          records.writeMember(rec, "value", new StringOption());
+          records.writeMember(rec, "value", NullObject.INSTANCE);
         }
         propRecords[i] = rec;
       }
@@ -207,8 +206,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
           typeStr = SourcePrettyPrinter$.MODULE$.format(fieldType);
           isNullable = fieldType.props().contains(Rql2IsNullableTypeProperty.apply());
           RecordObject column = RawLanguage.get(this).createRecord();
-          records.writeMember(
-              column, "col_name", new StringOption(rql2RecordType.atts().apply(i).idn()));
+          records.writeMember(column, "col_name", rql2RecordType.atts().apply(i).idn());
           records.writeMember(column, "col_type", typeStr);
           records.writeMember(column, "nullable", isNullable);
           columnRecords[i] = column;
@@ -228,7 +226,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
           typeStr = SourcePrettyPrinter$.MODULE$.format(flatten);
         }
         RecordObject column = RawLanguage.get(this).createRecord();
-        records.writeMember(column, "col_name", new EmptyOption());
+        records.writeMember(column, "col_name", NullObject.INSTANCE);
         records.writeMember(column, "col_type", typeStr);
         records.writeMember(column, "nullable", isNullable);
         ObjectList columnList = new ObjectList(new Object[] {column});
@@ -236,9 +234,9 @@ public abstract class LocationDescribeNode extends ExpressionNode {
       }
       records.writeMember(record, "sampled", sampled);
 
-      return ObjectTryable.BuildSuccess(record);
+      return record;
     } catch (RawException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } catch (UnsupportedMessageException
         | UnknownIdentifierException
         | UnsupportedTypeException ex) {

@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.MathContext;
 import raw.runtime.truffle.ast.BinaryNode;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.tryable.*;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 // TODO: further optimization could be done by creating permutations of types?
 // if we divide 500.0 by 500.0 the result could fit into int, should we specialize that case?
@@ -27,42 +27,38 @@ import raw.runtime.truffle.runtime.tryable.*;
 public abstract class DivNode extends BinaryNode {
 
   @Specialization
-  protected ByteTryable divByte(byte a, byte b) {
-    return b != 0
-        ? ByteTryable.BuildSuccess((byte) (a / b))
-        : ByteTryable.BuildFailure("/ by zero");
+  protected Object divByte(byte a, byte b) {
+    return b != 0 ? (a / b) : new ErrorObject("/ by zero");
   }
 
   @Specialization
-  protected ShortTryable divShort(short a, short b) {
-    return b != 0
-        ? ShortTryable.BuildSuccess((short) (a / b))
-        : ShortTryable.BuildFailure("/ by zero");
+  protected Object divShort(short a, short b) {
+    return b != 0 ? (a / b) : new ErrorObject("/ by zero");
   }
 
   @Specialization
-  protected IntTryable divInt(int a, int b) {
-    return b != 0 ? IntTryable.BuildSuccess(a / b) : IntTryable.BuildFailure("/ by zero");
+  protected Object divInt(int a, int b) {
+    return b != 0 ? (a / b) : new ErrorObject("/ by zero");
   }
 
   @Specialization
-  protected LongTryable divLong(long a, long b) {
-    return b != 0 ? LongTryable.BuildSuccess(a / b) : LongTryable.BuildFailure("/ by zero");
+  protected Object divLong(long a, long b) {
+    return b != 0 ? a / b : new ErrorObject("/ by zero");
   }
 
   @Specialization
-  protected FloatTryable divFloat(float a, float b) {
-    return b != 0 ? FloatTryable.BuildSuccess(a / b) : FloatTryable.BuildFailure("/ by zero");
+  protected Object divFloat(float a, float b) {
+    return b != 0 ? a / b : new ErrorObject("/ by zero");
   }
 
   @Specialization
-  protected DoubleTryable divDouble(double a, double b) {
-    return b != 0 ? DoubleTryable.BuildSuccess(a / b) : DoubleTryable.BuildFailure("/ by zero");
+  protected Object divDouble(double a, double b) {
+    return b != 0 ? a / b : new ErrorObject("/ by zero");
   }
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable divDecimal(DecimalObject a, DecimalObject b) {
+  protected Object divDecimal(DecimalObject a, DecimalObject b) {
     // Without the MathContext.DECIMAL128, we would get a:
     // java.lang.ArithmeticException: Non-terminating decimal expansion; no exact representable
     // decimal result.
@@ -70,8 +66,7 @@ public abstract class DivNode extends BinaryNode {
     // This means 34 digits before rounding
     // TODO: Check if this the rounding mode we want.
     return b.getBigDecimal().doubleValue() != 0
-        ? ObjectTryable.BuildSuccess(
-            new DecimalObject(a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128)))
-        : ObjectTryable.BuildFailure("/ by zero");
+        ? new DecimalObject(a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128))
+        : new ErrorObject("/ by zero");
   }
 }

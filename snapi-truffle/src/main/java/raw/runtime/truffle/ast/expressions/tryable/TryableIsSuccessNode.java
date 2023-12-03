@@ -14,17 +14,16 @@ package raw.runtime.truffle.ast.expressions.tryable;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Tryable.isSuccess")
 @NodeChild("tryable")
 public abstract class TryableIsSuccessNode extends ExpressionNode {
 
   @Specialization(limit = "1")
-  protected boolean isSuccess(Object tryable, @CachedLibrary("tryable") TryableLibrary tryables) {
-    return tryables.isSuccess(tryable);
+  protected boolean isSuccess(Object tryable) {
+    return Tryable.isSuccess(tryable);
   }
 }

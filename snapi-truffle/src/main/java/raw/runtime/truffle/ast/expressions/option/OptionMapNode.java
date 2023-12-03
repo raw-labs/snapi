@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.option;
 
-import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -22,35 +21,27 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.Map")
 @NodeChild("option")
 @NodeChild("function")
 public abstract class OptionMapNode extends ExpressionNode {
 
-  @Specialization(
-      guards = {"options.isOption(option)"},
-      limit = "1")
+  @Specialization(limit = "1")
   protected Object optionMap(
-      Object option,
-      Object closure,
-      @Cached("create()") TryableNullableNodes.BoxOptionNode boxOption,
-      @CachedLibrary("option") OptionLibrary options,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    if (options.isDefined(option)) {
-      Object v = options.get(option);
+      Object option, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
+    if (Nullable.isNotNull(option)) {
       Object[] argumentValues = new Object[1];
-      argumentValues[0] = v;
+      argumentValues[0] = option;
       Object result;
       try {
         result = interops.execute(closure, argumentValues);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
-      return boxOption.execute(result);
+      return result;
     } else {
       return option;
     }

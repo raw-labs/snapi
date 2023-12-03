@@ -19,8 +19,8 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.list.StringList;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.api.Location;
 import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.FileSystemLocation;
@@ -46,9 +46,9 @@ public abstract class LocationLsNode extends ExpressionNode {
         result[i] = values.apply(i);
       }
 
-      return ObjectTryable.BuildSuccess(new StringList(result));
+      return new StringList(result);
     } catch (RawException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

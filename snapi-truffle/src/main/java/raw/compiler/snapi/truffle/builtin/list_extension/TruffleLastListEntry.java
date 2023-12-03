@@ -25,6 +25,6 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListLastNodeGen;
 public class TruffleLastListEntry extends LastListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ListLastNodeGen.create(args.get(0).exprNode(), (Rql2Type) type);
+    return ListLastNodeGen.create(args.get(0).exprNode());
   }
 }

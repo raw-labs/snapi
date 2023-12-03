@@ -20,7 +20,7 @@ import java.time.DateTimeException;
 import java.time.LocalDate;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Date.Build")
 @NodeChild("y")
@@ -32,9 +32,9 @@ public abstract class DateBuildNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   public Object buildDate(int y, int m, int d) {
     try {
-      return ObjectTryable.BuildSuccess(new DateObject(LocalDate.of(y, m, d)));
+      return new DateObject(LocalDate.of(y, m, d));
     } catch (DateTimeException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

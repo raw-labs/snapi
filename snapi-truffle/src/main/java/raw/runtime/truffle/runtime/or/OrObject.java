@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.or;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.*;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.math.BigInteger;
@@ -25,11 +26,8 @@ import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
 public final class OrObject implements TruffleObject {
-
-  private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
-
   private final int index;
-  private final Object value;
+  public final Object value;
 
   public OrObject(int index, Object value) {
     this.index = index;
@@ -66,7 +64,8 @@ public final class OrObject implements TruffleObject {
   }
 
   @ExportMessage
-  Object readMember(String name) throws UnsupportedMessageException, UnknownIdentifierException {
+  Object readMember(String name, @CachedLibrary("this.value") InteropLibrary interops)
+      throws UnsupportedMessageException, UnknownIdentifierException {
     return interops.readMember(value, name);
   }
 
@@ -89,5 +88,8 @@ public final class OrObject implements TruffleObject {
     };
   }
 
-  @ExportMessage final boolean isMemberReadable(String member) { return false; }
+  @ExportMessage
+  final boolean isMemberReadable(String member) {
+    return false;
+  }
 }

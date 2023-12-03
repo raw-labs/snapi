@@ -26,7 +26,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.*;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.From")
@@ -39,7 +39,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isByteKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doByte(
+  protected Object doByte(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -54,9 +54,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new ByteList(list));
+      return new ByteList(list);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }
@@ -65,7 +65,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isShortKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doShort(
+  protected Object doShort(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -80,9 +80,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new ShortList(list));
+      return new ShortList(list);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }
@@ -91,7 +91,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isIntKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doInt(
+  protected Object doInt(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -106,9 +106,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new IntList(list));
+      return new IntList(list);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }
@@ -117,7 +117,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isLongKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doLong(
+  protected Object doLong(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -132,9 +132,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new LongList(list));
+      return new LongList(list);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }
@@ -143,7 +143,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isFloatKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doFloat(
+  protected Object doFloat(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -158,9 +158,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new FloatList(list));
+      return new FloatList(list);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }
@@ -169,7 +169,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isDoubleKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doDouble(
+  protected Object doDouble(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -184,9 +184,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new DoubleList(list));
+      return new DoubleList(list);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }
@@ -195,7 +195,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isBooleanKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doBoolean(
+  protected Object doBoolean(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -210,9 +210,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new BooleanList(list));
+      return new BooleanList(list);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }
@@ -221,7 +221,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(
       guards = {"isStringKind(getResultType())"},
       limit = "3")
-  protected ObjectTryable doString(
+  protected Object doString(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -236,16 +236,16 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new StringList(list));
+      return new StringList(list);
     } catch (RawTruffleRuntimeException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     } finally {
       generators.close(generator);
     }
   }
 
   @Specialization(limit = "3")
-  protected ObjectTryable doObject(
+  protected Object doObject(
       Object iterable,
       @CachedLibrary("iterable") IterableLibrary iterables,
       @CachedLibrary(limit = "1") GeneratorLibrary generators) {
@@ -260,9 +260,9 @@ public abstract class ListFromNode extends ExpressionNode {
       for (int i = 0; i < list.length; i++) {
         list[i] = llist.get(i);
       }
-      return ObjectTryable.BuildSuccess(new ObjectList(list));
+      return new ObjectList(list);
     } catch (RawTruffleRuntimeException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     } finally {
       generators.close(generator);
     }

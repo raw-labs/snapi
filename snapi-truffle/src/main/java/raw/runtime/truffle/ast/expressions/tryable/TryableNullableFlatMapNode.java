@@ -23,10 +23,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @NodeInfo(shortName = "TryableNullable.FlatMap")
 @NodeChild("tryable")
@@ -34,31 +31,22 @@ import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 public abstract class TryableNullableFlatMapNode extends ExpressionNode {
 
   private final Object[] argumentValues = new Object[1];
-  private final ObjectTryable successNone = ObjectTryable.BuildSuccess(new EmptyOption());
 
   @Specialization(limit = "1")
   @CompilerDirectives.TruffleBoundary
   protected Object doTryable(
-      Object tryable,
+      Object maybeTryableNullable,
       Object closure,
-      @CachedLibrary("tryable") TryableLibrary tryables,
-      @CachedLibrary("closure") InteropLibrary interops,
-      @CachedLibrary(limit = "1") OptionLibrary nullables) {
-    if (tryables.isSuccess(tryable)) {
-      Object n = tryables.success(tryable);
-      if (nullables.isDefined(n)) {
-        Object v = nullables.get(n);
-        argumentValues[0] = v;
-        try {
-          return interops.execute(closure, argumentValues);
-        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-          throw new RawTruffleRuntimeException("failed to execute function");
-        }
-      } else {
-        return successNone;
+      @CachedLibrary("closure") InteropLibrary interops) {
+    if (TryableNullable.isValue(maybeTryableNullable)) {
+      argumentValues[0] = maybeTryableNullable;
+      try {
+        return interops.execute(closure, argumentValues);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
       }
     } else {
-      return tryable;
+      return maybeTryableNullable;
     }
   }
 }

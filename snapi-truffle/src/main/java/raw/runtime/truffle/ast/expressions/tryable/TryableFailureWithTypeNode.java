@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.tryable.*;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Tryable.FailureWithType")
 @NodeChild("zeroedValue")
@@ -26,41 +26,41 @@ public abstract class TryableFailureWithTypeNode extends ExpressionNode {
 
   @Specialization
   protected Object tryableFailureBoolean(boolean zeroedValue, String message) {
-    return BooleanTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 
   @Specialization
   protected Object tryableFailureByte(byte zeroedValue, String message) {
-    return ByteTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 
   @Specialization
   protected Object tryableFailureShort(String message, short zeroedValue) {
-    return ShortTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 
   @Specialization
   protected Object tryableFailureInt(int zeroedValue, String message) {
-    return IntTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 
   @Specialization
   protected Object tryableFailureLong(long zeroedValue, String message) {
-    return LongTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 
   @Specialization
   protected Object tryableFailureString(String zeroedValue, String message) {
-    return StringTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 
   @Specialization
   protected Object tryableFailureDecimal(DecimalObject zeroedValue, String message) {
-    return ObjectTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 
   @Specialization
   protected Object tryableFailureObject(Object zeroedValue, String message) {
-    return ObjectTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 }

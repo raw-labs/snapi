@@ -20,11 +20,11 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class FilterComputeNext {
@@ -54,7 +54,6 @@ public class FilterComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTryablePredicate,
       @CachedLibrary("this.predicate") InteropLibrary interops,
       @CachedLibrary("this.parent") GeneratorLibrary generators) {
     Object[] argumentValues = new Object[1];
@@ -65,7 +64,7 @@ public class FilterComputeNext {
       Boolean isPredicateTrue = null;
       try {
         isPredicateTrue =
-            handleOptionTryablePredicate.execute(
+            TryableNullable.handlePredicate(
                 interops.execute(predicate, argumentValues), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");

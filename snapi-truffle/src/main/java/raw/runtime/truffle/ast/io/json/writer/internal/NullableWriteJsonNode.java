@@ -20,14 +20,12 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "NullableWriteJson")
 public class NullableWriteJsonNode extends StatementNode {
 
   @Child private DirectCallNode childDirectCall;
-
-  @Child private OptionLibrary options = OptionLibrary.getFactory().createDispatched(1);
 
   @Child
   JsonWriteNodes.WriteNullJsonWriterNode writeNullNode =
@@ -42,8 +40,8 @@ public class NullableWriteJsonNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object option = args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
-    if (options.isDefined(option)) {
-      childDirectCall.call(options.get(option), gen);
+    if (Nullable.isNotNull(option)) {
+      childDirectCall.call(option, gen);
     } else {
       writeNullNode.execute(gen);
     }

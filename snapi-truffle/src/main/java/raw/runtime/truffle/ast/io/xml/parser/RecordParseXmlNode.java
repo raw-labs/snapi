@@ -25,11 +25,10 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.option.EmptyOption;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
@@ -38,8 +37,6 @@ public class RecordParseXmlNode extends ExpressionNode {
   private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
 
   @Children private DirectCallNode[] childDirectCalls;
-
-  @Child private InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
 
   // Field name and its index in the childDirectCalls array
   private final int fieldsSize;
@@ -159,10 +156,7 @@ public class RecordParseXmlNode extends ExpressionNode {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
-            Object nullValue =
-                fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())
-                    ? ObjectTryable.BuildSuccess(new EmptyOption())
-                    : new EmptyOption();
+            Object nullValue = NullObject.INSTANCE;
             writeIndexNode.execute(record, i, fieldName, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);

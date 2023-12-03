@@ -17,19 +17,13 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
-import raw.runtime.truffle.runtime.tryable.ErrorTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableParseXml")
 public class TryableParseXmlNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
-
-  @Child
-  private TryableNullableNodes.BoxTryableNode boxTryable =
-      TryableNullableNodesFactory.BoxTryableNodeGen.create();
 
   public TryableParseXmlNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
@@ -39,10 +33,9 @@ public class TryableParseXmlNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
     try {
-      Object result = childDirectCall.call(args);
-      return boxTryable.execute(result);
+      return childDirectCall.call(args);
     } catch (XmlParserRawTruffleException ex) {
-      Object failure = ErrorTryable.BuildFailure(ex.getMessage());
+      Object failure = new ErrorObject(ex.getMessage());
       try {
         parser.finishConsuming();
       } catch (XmlParserRawTruffleException e) {

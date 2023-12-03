@@ -33,11 +33,10 @@ import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
-import raw.runtime.truffle.runtime.option.EmptyOption;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "RecordParseJson")
 public class RecordParseJsonNode extends ExpressionNode {
@@ -119,10 +118,7 @@ public class RecordParseJsonNode extends ExpressionNode {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
-            Object nullValue =
-                fieldTypes[i].props().contains(Rql2IsTryableTypeProperty.apply())
-                    ? ObjectTryable.BuildSuccess(new EmptyOption())
-                    : new EmptyOption();
+            Object nullValue = NullObject.INSTANCE;
             writeIndexNode.execute(record, i, fields[i].toString(), nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);

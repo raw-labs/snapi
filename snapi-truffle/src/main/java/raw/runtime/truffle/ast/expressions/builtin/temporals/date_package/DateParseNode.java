@@ -22,7 +22,7 @@ import java.time.format.DateTimeParseException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Date.Parse")
 @NodeChild("str")
@@ -34,11 +34,11 @@ public abstract class DateParseNode extends ExpressionNode {
   public Object parse(String str, String format) {
     try {
       DateTimeFormatter formatter = DateTimeFormatCache.get(format);
-      return ObjectTryable.BuildSuccess(new DateObject(LocalDate.parse(str, formatter)));
+      return new DateObject(LocalDate.parse(str, formatter));
     } catch (IllegalArgumentException ex) {
-      return ObjectTryable.BuildFailure("invalid date template: " + format);
+      return new ErrorObject("invalid date template: " + format);
     } catch (DateTimeParseException ex) {
-      return ObjectTryable.BuildFailure(
+      return new ErrorObject(
           String.format("string '%s' does not match date template '%s'", str, format));
     }
   }

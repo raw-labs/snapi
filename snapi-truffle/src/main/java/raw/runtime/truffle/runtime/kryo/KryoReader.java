@@ -32,11 +32,8 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.option.ObjectOption;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @ExportLibrary(KryoReaderLibrary.class)
 public final class KryoReader {
@@ -61,11 +58,10 @@ public final class KryoReader {
       if (isSuccess) {
         Rql2TypeWithProperties successType =
             (Rql2TypeWithProperties) t.cloneAndRemoveProp(new Rql2IsTryableTypeProperty());
-        Object value = kryo.read(receiver, input, successType);
-        return ObjectTryable.BuildSuccess(value);
+        return kryo.read(receiver, input, successType);
       } else {
         String error = input.readString();
-        return ObjectTryable.BuildFailure(error);
+        return new ErrorObject(error);
       }
     }
 
@@ -79,10 +75,9 @@ public final class KryoReader {
       if (isDefined) {
         Rql2TypeWithProperties innerType =
             (Rql2TypeWithProperties) t.cloneAndRemoveProp(new Rql2IsNullableTypeProperty());
-        Object innerValue = kryo.read(receiver, input, innerType);
-        return new ObjectOption(innerValue);
+        return kryo.read(receiver, input, innerType);
       } else {
-        return new EmptyOption();
+        return NullObject.INSTANCE;
       }
     }
 

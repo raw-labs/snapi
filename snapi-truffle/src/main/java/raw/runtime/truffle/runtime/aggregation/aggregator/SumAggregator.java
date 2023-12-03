@@ -16,7 +16,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.option.EmptyOption;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 @ExportLibrary(AggregatorLibrary.class)
 public class SumAggregator {
@@ -35,6 +35,6 @@ public class SumAggregator {
 
   @ExportMessage(limit = "3")
   public Object zero() {
-    return new EmptyOption();
+    return NullObject.INSTANCE;
   }
 }

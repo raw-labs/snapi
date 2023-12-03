@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Regex.Matches")
 @NodeChild(value = "string")
@@ -26,12 +26,12 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 public abstract class RegexMatchesNode extends ExpressionNode {
 
   @Specialization
-  protected ObjectTryable regexMatches(String string, String regex) {
+  protected Object regexMatches(String string, String regex) {
     try {
       Pattern pattern = RegexCache.get(regex);
-      return ObjectTryable.BuildSuccess(pattern.matcher(string).matches());
+      return pattern.matcher(string).matches();
     } catch (PatternSyntaxException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

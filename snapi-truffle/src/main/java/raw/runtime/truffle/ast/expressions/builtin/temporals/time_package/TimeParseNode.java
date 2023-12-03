@@ -21,8 +21,8 @@ import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Time.Parse")
 @NodeChild("str")
@@ -34,11 +34,11 @@ public abstract class TimeParseNode extends ExpressionNode {
   public Object parse(String str, String format) {
     try {
       DateTimeFormatter formatter = DateTimeFormatCache.get(format);
-      return ObjectTryable.BuildSuccess(new TimeObject(LocalTime.parse(str, formatter)));
+      return new TimeObject(LocalTime.parse(str, formatter));
     } catch (IllegalArgumentException ex) {
-      return ObjectTryable.BuildFailure("invalid time template: " + format);
+      return new ErrorObject("invalid time template: " + format);
     } catch (DateTimeParseException ex) {
-      return ObjectTryable.BuildFailure(
+      return new ErrorObject(
           String.format("string '%s' does not match time template '%s'", str, format));
     }
   }

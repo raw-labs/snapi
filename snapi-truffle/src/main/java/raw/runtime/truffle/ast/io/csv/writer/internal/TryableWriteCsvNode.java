@@ -21,14 +21,12 @@ import java.io.IOException;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "TryableWriteCsv")
 public class TryableWriteCsvNode extends StatementNode {
 
   @Child private DirectCallNode valueWriter;
-
-  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(3);
 
   public TryableWriteCsvNode(ProgramStatementNode valueWriter) {
     this.valueWriter = DirectCallNode.create(valueWriter.getCallTarget());
@@ -38,10 +36,10 @@ public class TryableWriteCsvNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object tryable = args[0];
     CsvGenerator generator = (CsvGenerator) args[1];
-    if (tryables.isSuccess(tryable)) {
-      valueWriter.call(tryables.success(tryable), generator);
+    if (Tryable.isSuccess(tryable)) {
+      valueWriter.call(tryable, generator);
     } else {
-      doWriteError(tryables.failure(tryable), generator);
+      doWriteError(Tryable.getFailure(tryable), generator);
     }
   }
 

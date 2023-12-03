@@ -14,8 +14,8 @@ package raw.runtime.truffle.ast.expressions.binary;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.option.BooleanOption;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.runtime.primitives.NullObject;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 public final class AndNode extends ExpressionNode {
 
@@ -32,28 +32,26 @@ public final class AndNode extends ExpressionNode {
     Boolean left = getOperand(leftNode, virtualFrame);
     if (left != null && !left) {
       // if left is false, and evaluates to false
-      return new BooleanOption(false);
+      return false;
     } else {
       // left is either null or true (in which case we need to check right)
       Boolean right = getOperand(rightNode, virtualFrame);
       if (left == null) {
         // if left is null, we need to check if right is false or not
-        if (right != null && !right) return new BooleanOption(false);
-        else return new BooleanOption();
+        if (right != null && !right) return false;
+        else return NullObject.INSTANCE;
       } else {
         // left is true, the result of and is right
-        if (right != null) return new BooleanOption(right);
-        else return new BooleanOption();
+        if (right != null) return right;
+        else return NullObject.INSTANCE;
       }
     }
   }
 
   private Boolean getOperand(ExpressionNode node, VirtualFrame frame) {
     Object value = node.executeGeneric(frame);
-    OptionLibrary option = OptionLibrary.getFactory().create(value);
-    assert (option.isOption(value));
-    if (option.isDefined(value)) {
-      return (Boolean) option.get(value);
+    if (Nullable.isNotNull(value)) {
+      return (Boolean) value;
     } else {
       return null;
     }

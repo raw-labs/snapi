@@ -20,14 +20,12 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "TryableWriteJson")
 public class TryableWriteJsonNode extends StatementNode {
 
   @Child private DirectCallNode childDirectCall;
-
-  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
 
   @Child
   JsonWriteNodes.WriteStringJsonWriterNode writeString =
@@ -42,10 +40,10 @@ public class TryableWriteJsonNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object tryable = args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
-    if (tryables.isSuccess(tryable)) {
-      childDirectCall.call(tryables.success(tryable), gen);
+    if (Tryable.isSuccess(tryable)) {
+      childDirectCall.call(tryable, gen);
     } else {
-      writeString.execute(tryables.failure(tryable), gen);
+      writeString.execute(Tryable.getFailure(tryable), gen);
     }
   }
 }

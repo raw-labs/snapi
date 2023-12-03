@@ -17,19 +17,13 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.ErrorTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableParseAttributeXml")
 public class TryableParseAttributeXmlNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
-
-  @Child
-  private TryableNullableNodes.BoxTryableNode boxTryable =
-      TryableNullableNodesFactory.BoxTryableNodeGen.create();
 
   public TryableParseAttributeXmlNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
@@ -38,10 +32,9 @@ public class TryableParseAttributeXmlNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     try {
-      Object result = childDirectCall.call(args);
-      return boxTryable.execute(result);
+      return childDirectCall.call(args);
     } catch (RawTruffleRuntimeException ex) {
-      return ErrorTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     }
   }
 }

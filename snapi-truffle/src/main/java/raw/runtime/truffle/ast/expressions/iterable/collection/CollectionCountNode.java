@@ -21,7 +21,7 @@ import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
 import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
 import raw.runtime.truffle.runtime.aggregation.aggregator.CountAggregator;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 // A.Z. Need to cache count somehow
 @NodeInfo(shortName = "Collection.Count")
@@ -29,14 +29,13 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 public abstract class CollectionCountNode extends ExpressionNode {
 
   @Specialization
-  protected ObjectTryable doCount(
+  protected Object doCount(
       Object iterable, @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
     try {
       Object aggregation = new SingleAggregation(new CountAggregator());
-      Object result = aggregations.aggregate(aggregation, iterable);
-      return ObjectTryable.BuildSuccess(result);
+      return aggregations.aggregate(aggregation, iterable);
     } catch (RawTruffleRuntimeException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     }
   }
 }

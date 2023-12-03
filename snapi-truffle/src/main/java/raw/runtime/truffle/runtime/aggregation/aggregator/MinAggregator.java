@@ -13,12 +13,11 @@
 package raw.runtime.truffle.runtime.aggregation.aggregator;
 
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.runtime.primitives.NullObject;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @ExportLibrary(AggregatorLibrary.class)
 public class MinAggregator {
@@ -34,10 +33,9 @@ public class MinAggregator {
   public Object merge(
       Object current,
       Object next,
-      @Cached OperatorNodes.CompareNode compare,
-      @CachedLibrary(limit = "3") OptionLibrary options) {
-    if (options.isDefined(current)) {
-      if (options.isDefined(next)) {
+      @Cached OperatorNodes.CompareNode compare) {
+    if (Nullable.isNotNull(current)) {
+      if (Nullable.isNotNull(next)) {
         // if both are defined, pick the smallest
         if (compare.execute(current, next) < 0) {
           return current;
@@ -56,6 +54,6 @@ public class MinAggregator {
 
   @ExportMessage(limit = "3")
   public Object zero() {
-    return new EmptyOption();
+    return NullObject.INSTANCE;
   }
 }
