@@ -190,12 +190,7 @@ public class OperatorNodes {
 
     @Specialization(
         limit = "3",
-        guards = {
-          "left != null",
-          "right != null",
-          "lefts.isIterable(left)",
-          "rights.isIterable(right)"
-        })
+        guards = {"lefts.isIterable(left)", "rights.isIterable(right)"})
     static int doIterable(
         Object left,
         Object right,
@@ -222,47 +217,39 @@ public class OperatorNodes {
       }
     }
 
-    @Specialization(guards = "left == null || right == null")
-    static int doNull(Object left, Object right) {
-      if (left == null && right == null) {
-        return 0;
-      } else if (left == null) {
-        return -2;
-      } else {
-        return 2;
-      }
-    }
-
     @Specialization(guards = {"isFailure(left) || isFailure(right)"})
     static int doTryable(Object left, Object right) {
-      boolean leftIsSuccess = Tryable.isSuccess(left);
-      if (leftIsSuccess) {
-        return 1;
-      } else {
+      boolean leftIsFailure = Tryable.isFailure(left);
+      boolean rightIsFailure = Tryable.isFailure(right);
+      if (leftIsFailure && rightIsFailure) {
+        return Tryable.getFailure(left).compareTo(Tryable.getFailure(right));
+      }
+      if (leftIsFailure) {
         return -1;
+      } else {
+        return 1;
       }
     }
 
     @Specialization(guards = {"isNull(left) || isNull(right)"})
     static int doNullable(Object left, Object right) {
       // both are options
-      boolean leftIsDefined = Nullable.isNotNull(left);
-      boolean rightIsDefined = Nullable.isNotNull(right);
+      boolean leftIsNull = Nullable.isNull(left);
+      boolean rightIsNull = Nullable.isNull(right);
 
-      if (leftIsDefined) {
-        return 1;
+      if (leftIsNull && rightIsNull) {
+        return 0;
+      } else if (leftIsNull) {
+        return -2;
       } else {
-        if (rightIsDefined) {
-          return -1;
-        } else {
-          return 0;
-        }
+        return 2;
       }
     }
   }
 
   @NodeInfo(shortName = "Operator.Add")
   @GenerateUncached
+  @ImportStatic(value = {Nullable.class, Tryable.class})
   public abstract static class AddNode extends Node {
 
     public abstract Object execute(Object obj1, Object obj2);
@@ -309,16 +296,21 @@ public class OperatorNodes {
       return left.concat(right);
     }
 
-    @Specialization(guards = {"left != null", "right != null"})
-    static Object doNullableTryable(Object left, Object right, @Cached AddNode add) {
-      if (Tryable.isFailure(left)) {
-        throw new RawTruffleRuntimeException(Tryable.getFailure(left));
-      } else if (Tryable.isFailure(right)) {
-        throw new RawTruffleRuntimeException(Tryable.getFailure(right));
-      } else if (Nullable.isNull(left) && Nullable.isNull(right)) {
+    @Specialization(guards = {"isNull(left) || isNull(right)"})
+    static Object doNullableTryable(Object left, Object right) {
+      if (Nullable.isNull(left) && Nullable.isNull(right)) {
         return 0;
       } else {
-        return Objects.requireNonNullElse(left, right);
+        return Nullable.isNull(left) ? right : left;
+      }
+    }
+
+    @Specialization(guards = {"isFailure(left) || isFailure(right)"})
+    static Object doNTryable(Object left, Object right) {
+      if (Tryable.isFailure(left)) {
+        throw new RawTruffleRuntimeException(Tryable.getFailure(left));
+      } else {
+        throw new RawTruffleRuntimeException(Tryable.getFailure(right));
       }
     }
 
