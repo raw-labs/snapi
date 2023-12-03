@@ -22,7 +22,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
-import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;

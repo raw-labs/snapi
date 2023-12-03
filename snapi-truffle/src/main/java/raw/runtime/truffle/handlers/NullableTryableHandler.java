@@ -1,4 +1,16 @@
-///*
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+/// *
 // * Copyright 2023 RAW Labs S.A.
 // *
 // * Use of this software is governed by the Business Source License
@@ -10,17 +22,17 @@
 // * licenses/APL.txt.
 // */
 //
-//package raw.runtime.truffle.handlers;
+// package raw.runtime.truffle.handlers;
 //
-//import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
-//import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
-//import raw.compiler.rql2.source.Rql2Type;
-//import raw.compiler.rql2.source.Rql2TypeWithProperties;
-//import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-//import raw.runtime.truffle.runtime.option.OptionLibrary;
-//import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+// import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
+// import raw.compiler.rql2.source.Rql2IsTryableTypeProperty;
+// import raw.compiler.rql2.source.Rql2Type;
+// import raw.compiler.rql2.source.Rql2TypeWithProperties;
+// import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+// import raw.runtime.truffle.runtime.option.OptionLibrary;
+// import raw.runtime.truffle.runtime.tryable.TryableLibrary;
 //
-//public class NullableTryableHandler {
+// public class NullableTryableHandler {
 //
 //  public static TryableLibrary triables = TryableLibrary.getFactory().createDispatched(5);
 //  public static OptionLibrary options = OptionLibrary.getFactory().createDispatched(5);
@@ -172,4 +184,4 @@
 //      return (Boolean) value;
 //    }
 //  }
-//}
+// }

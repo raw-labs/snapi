@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;

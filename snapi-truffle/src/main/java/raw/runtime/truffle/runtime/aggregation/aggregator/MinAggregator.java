@@ -30,10 +30,7 @@ public class MinAggregator {
   }
 
   @ExportMessage(limit = "3")
-  public Object merge(
-      Object current,
-      Object next,
-      @Cached OperatorNodes.CompareNode compare) {
+  public Object merge(Object current, Object next, @Cached OperatorNodes.CompareNode compare) {
     if (Nullable.isNotNull(current)) {
       if (Nullable.isNotNull(next)) {
         // if both are defined, pick the smallest

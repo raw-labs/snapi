@@ -16,7 +16,6 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-
 import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;

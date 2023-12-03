@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
-import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -64,8 +63,7 @@ public class FilterComputeNext {
       Boolean isPredicateTrue = null;
       try {
         isPredicateTrue =
-            TryableNullable.handlePredicate(
-                interops.execute(predicate, argumentValues), false);
+            TryableNullable.handlePredicate(interops.execute(predicate, argumentValues), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }

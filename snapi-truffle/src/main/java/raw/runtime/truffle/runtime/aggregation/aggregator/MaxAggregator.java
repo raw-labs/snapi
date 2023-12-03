@@ -13,7 +13,6 @@
 package raw.runtime.truffle.runtime.aggregation.aggregator;
 
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
@@ -32,9 +31,7 @@ public class MaxAggregator {
 
   @ExportMessage(limit = "3")
   public Object merge(
-      Object current,
-      Object next,
-      @Cached("create()") OperatorNodes.CompareNode compare) {
+      Object current, Object next, @Cached("create()") OperatorNodes.CompareNode compare) {
     if (Nullable.isNotNull(current)) {
       if (Nullable.isNotNull(next)) {
         // if both are defined, pick the largest

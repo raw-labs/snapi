@@ -19,7 +19,6 @@ import java.io.OutputStream;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.binary.BinaryWriterRawTruffleException;
-import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Binary.TryableWrite")

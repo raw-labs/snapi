@@ -1,4 +1,16 @@
-///*
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
+/// *
 // * Copyright 2023 RAW Labs S.A.
 // *
 // * Use of this software is governed by the Business Source License
@@ -10,19 +22,19 @@
 // * licenses/APL.txt.
 // */
 //
-//package raw.runtime.truffle.ast.tryable_nullable;
+// package raw.runtime.truffle.ast.tryable_nullable;
 //
-//import com.oracle.truffle.api.dsl.Cached;
-//import com.oracle.truffle.api.dsl.GenerateUncached;
-//import com.oracle.truffle.api.dsl.Specialization;
-//import com.oracle.truffle.api.library.CachedLibrary;
-//import com.oracle.truffle.api.nodes.Node;
-//import com.oracle.truffle.api.nodes.NodeInfo;
-//import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-//import raw.runtime.truffle.runtime.option.*;
-//import raw.runtime.truffle.runtime.tryable.*;
+// import com.oracle.truffle.api.dsl.Cached;
+// import com.oracle.truffle.api.dsl.GenerateUncached;
+// import com.oracle.truffle.api.dsl.Specialization;
+// import com.oracle.truffle.api.library.CachedLibrary;
+// import com.oracle.truffle.api.nodes.Node;
+// import com.oracle.truffle.api.nodes.NodeInfo;
+// import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+// import raw.runtime.truffle.runtime.option.*;
+// import raw.runtime.truffle.runtime.tryable.*;
 //
-//public class TryableNullableNodes {
+// public class TryableNullableNodes {
 //
 //  @NodeInfo(shortName = "TryableNullable.BoxOption")
 //  @GenerateUncached
@@ -316,4 +328,4 @@
 //      return null;
 //    }
 //  }
-//}
+// }

@@ -29,7 +29,7 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 @NodeChild("function")
 public abstract class TryableMapNode extends ExpressionNode {
 
-  @Specialization( limit = "1")
+  @Specialization(limit = "1")
   protected Object doObject(
       Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
     if (Tryable.isSuccess(tryable)) {
