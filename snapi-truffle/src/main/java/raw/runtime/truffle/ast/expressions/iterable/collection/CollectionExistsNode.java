@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -21,24 +20,20 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.handlers.NullableTryableHandler;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.tryable.BooleanTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @NodeInfo(shortName = "Collection.Exists")
 @NodeChild("iterable")
 @NodeChild("function")
-@NodeField(name = "predicateType", type = Rql2TypeWithProperties.class)
 public abstract class CollectionExistsNode extends ExpressionNode {
 
-  protected abstract Rql2TypeWithProperties getPredicateType();
-
   @Specialization(limit = "3")
-  protected BooleanTryable doIterable(
+  protected Object doIterable(
       Object iterable,
       Object closure,
       @CachedLibrary("iterable") IterableLibrary iterables,
@@ -51,18 +46,17 @@ public abstract class CollectionExistsNode extends ExpressionNode {
       while (generators.hasNext(generator)) {
         argumentValues[0] = generators.next(generator);
         Boolean predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                interops.execute(closure, argumentValues), getPredicateType(), false);
+            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
         if (predicate) {
-          return BooleanTryable.BuildSuccess(true);
+          return true;
         }
       }
-      return BooleanTryable.BuildSuccess(false);
+      return false;
     } catch (RawTruffleRuntimeException
         | UnsupportedMessageException
         | UnsupportedTypeException
         | ArityException ex) {
-      return BooleanTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       generators.close(generator);
     }

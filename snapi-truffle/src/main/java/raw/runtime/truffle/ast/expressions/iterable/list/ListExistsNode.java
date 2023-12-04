@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -21,21 +20,17 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.handlers.NullableTryableHandler;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @NodeInfo(shortName = "List.Exists")
 @NodeChild("list")
 @NodeChild("function")
-@NodeField(name = "predicateType", type = Rql2Type.class)
 public abstract class ListExistsNode extends ExpressionNode {
-
-  protected abstract Rql2Type getPredicateType();
 
   @Specialization(limit = "3")
   protected boolean doList(
@@ -53,8 +48,7 @@ public abstract class ListExistsNode extends ExpressionNode {
       while (generators.hasNext(generator)) {
         argumentValues[0] = generators.next(generator);
         Boolean predicate =
-            NullableTryableHandler.handleOptionTriablePredicate(
-                interops.execute(closure, argumentValues), getPredicateType(), false);
+            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
         if (predicate) {
           return true;
         }

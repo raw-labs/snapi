@@ -22,8 +22,8 @@ import java.util.regex.Pattern;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.boundary.BoundaryNodesFactory;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Interval.Parse")
 @NodeChild("format")
@@ -88,21 +88,20 @@ public abstract class IntervalParseNode extends ExpressionNode {
             millis = -milliseconds;
           }
         }
-        return ObjectTryable.BuildSuccess(
-            new IntervalObject(
-                this.intOrDefault(y),
-                this.intOrDefault(m),
-                this.intOrDefault(w),
-                this.intOrDefault(d),
-                this.intOrDefault(h),
-                this.intOrDefault(mi),
-                seconds,
-                millis));
+        return new IntervalObject(
+            this.intOrDefault(y),
+            this.intOrDefault(m),
+            this.intOrDefault(w),
+            this.intOrDefault(d),
+            this.intOrDefault(h),
+            this.intOrDefault(mi),
+            seconds,
+            millis);
       } else {
         throw new ParseException("Couldn't parse interval", 0);
       }
     } catch (ParseException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

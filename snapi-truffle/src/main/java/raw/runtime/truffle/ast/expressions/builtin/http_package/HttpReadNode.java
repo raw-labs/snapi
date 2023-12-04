@@ -30,11 +30,11 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 import raw.sources.api.LocationException;
 import raw.sources.api.SourceContext;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
@@ -50,10 +50,9 @@ public abstract class HttpReadNode extends ExpressionNode {
 
   @Specialization(limit = "4")
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable doRead(
+  protected Object doRead(
       LocationObject locationObject,
       Object statusListOption,
-      @CachedLibrary("statusListOption") OptionLibrary options,
       @CachedLibrary(limit = "1") ListLibrary lists,
       @CachedLibrary(limit = "3") InteropLibrary records) {
     try {
@@ -64,16 +63,15 @@ public abstract class HttpReadNode extends ExpressionNode {
       HttpResult result = location.getHttpResult();
       RecordObject record = RawLanguage.get(this).createRecord();
 
-      if (options.isDefined(statusListOption)) {
-        Object statusList = options.get(statusListOption);
-        int[] statuses = (int[]) lists.getInnerList(statusList);
+      if (Nullable.isNotNull(statusListOption)) {
+        int[] statuses = (int[]) lists.getInnerList(statusListOption);
         if (Arrays.stream(statuses).noneMatch(status -> status == result.status())) {
           String method =
               locationObject
                   .getLocationDescription()
                   .getStringSetting("http-method")
                   .getOrElse(() -> "get");
-          return ObjectTryable.BuildFailure(
+          return new ErrorObject(
               String.format(
                   "HTTP %s failed, got %d, expected %s",
                   method.toUpperCase(),
@@ -102,9 +100,9 @@ public abstract class HttpReadNode extends ExpressionNode {
       ObjectList headersResult = new ObjectList(headers);
       records.writeMember(record, "headers", headersResult);
 
-      return ObjectTryable.BuildSuccess(record);
+      return record;
     } catch (LocationException | IOException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     } catch (UnsupportedMessageException
         | UnknownIdentifierException
         | UnsupportedTypeException e) {

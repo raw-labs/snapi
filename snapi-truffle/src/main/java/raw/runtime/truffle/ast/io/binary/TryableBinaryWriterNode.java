@@ -19,14 +19,12 @@ import java.io.OutputStream;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.binary.BinaryWriterRawTruffleException;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Binary.TryableWrite")
 public class TryableBinaryWriterNode extends StatementNode {
 
   @Child private DirectCallNode innerWriter;
-
-  @Child private TryableLibrary tryables = TryableLibrary.getFactory().createDispatched(1);
 
   public TryableBinaryWriterNode(ProgramStatementNode innerWriter) {
     this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
@@ -37,12 +35,12 @@ public class TryableBinaryWriterNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object tryable = args[0];
     OutputStream output = (OutputStream) args[1];
-    if (tryables.isSuccess(tryable)) {
+    if (Tryable.isSuccess(tryable)) {
       // the tryable is a success, write its bytes using the inner writer.
-      innerWriter.call(tryables.success(tryable), output);
+      innerWriter.call(tryable, output);
     } else {
       // else throw.
-      throw new BinaryWriterRawTruffleException(tryables.failure(tryable), this);
+      throw new BinaryWriterRawTruffleException(Tryable.getFailure(tryable), this);
     }
   }
 }

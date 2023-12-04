@@ -32,9 +32,9 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.list.ListLibrary;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.Tryable;
 import scala.collection.immutable.Vector;
 
 @ExportLibrary(KryoWriterLibrary.class)
@@ -54,18 +54,19 @@ public final class KryoWriter {
         KryoWriter receiver,
         Output output,
         Rql2TypeWithProperties type,
-        Object tryable,
-        @CachedLibrary("tryable") TryableLibrary tryables,
+        Object maybeTryable,
         @CachedLibrary("receiver") KryoWriterLibrary kryo) {
-      boolean isSuccess = tryables.isSuccess(tryable);
+      boolean isSuccess = Tryable.isSuccess(maybeTryable);
       output.writeBoolean(isSuccess);
       if (isSuccess) {
-        Object value = tryables.success(tryable);
         kryo.write(
-            receiver, output, (Rql2TypeWithProperties) type.cloneAndRemoveProp(isTryable), value);
+            receiver,
+            output,
+            (Rql2TypeWithProperties) type.cloneAndRemoveProp(isTryable),
+            maybeTryable);
       } else {
-        String error = tryables.failure(tryable);
-        output.writeString(error);
+        ErrorObject error = (ErrorObject) maybeTryable;
+        output.writeString(error.getMessage());
       }
     }
 
@@ -76,15 +77,16 @@ public final class KryoWriter {
         KryoWriter receiver,
         Output output,
         Rql2TypeWithProperties type,
-        Object option,
-        @CachedLibrary("option") OptionLibrary options,
+        Object maybeOption,
         @CachedLibrary("receiver") KryoWriterLibrary kryo) {
-      boolean isDefined = options.isDefined(option);
+      boolean isDefined = Nullable.isNotNull(maybeOption);
       output.writeBoolean(isDefined);
       if (isDefined) {
-        Object value = options.get(option);
         kryo.write(
-            receiver, output, (Rql2TypeWithProperties) type.cloneAndRemoveProp(isNullable), value);
+            receiver,
+            output,
+            (Rql2TypeWithProperties) type.cloneAndRemoveProp(isNullable),
+            maybeOption);
       }
     }
 

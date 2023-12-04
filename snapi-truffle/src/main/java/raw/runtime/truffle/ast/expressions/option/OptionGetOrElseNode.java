@@ -12,27 +12,26 @@
 
 package raw.runtime.truffle.ast.expressions.option;
 
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.FlatMap")
 @NodeChild("option")
 @NodeChild("orElse")
+@ImportStatic(Nullable.class)
 public abstract class OptionGetOrElseNode extends ExpressionNode {
 
-  @Specialization(
-      guards = {"options.isOption(option)"},
-      limit = "1")
-  protected Object optionGetOrElse(
-      Object option, Object orElse, @CachedLibrary("option") OptionLibrary options) {
-    if (options.isDefined(option)) {
-      return options.get(option);
-    } else {
-      return orElse;
-    }
+  @Specialization(guards = "isNotNull(option)")
+  protected Object optionGet(Object option, Object orElse) {
+    return option;
+  }
+
+  @Specialization(guards = "isNull(option)")
+  protected Object optionOrElse(Object option, Object orElse) {
+    return orElse;
   }
 }

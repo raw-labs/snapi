@@ -26,8 +26,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.io.*;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
@@ -37,6 +35,7 @@ import raw.runtime.truffle.runtime.kryo.KryoReader;
 import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
 import raw.runtime.truffle.runtime.kryo.KryoWriter;
 import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.sources.api.SourceContext;
 
@@ -64,9 +63,6 @@ public class JoinComputeNext {
   private final Boolean reshapeBeforePredicate;
 
   private final InteropLibrary interop = InteropLibrary.getFactory().getUncached();
-
-  TryableNullableNodes.HandleOptionTryablePredicateNode handleOptionTriablePredicateNode =
-      TryableNullableNodesFactory.HandleOptionTryablePredicateNodeGen.getUncached();
 
   @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public JoinComputeNext(
@@ -184,12 +180,11 @@ public class JoinComputeNext {
       Object row = null;
       if (reshapeBeforePredicate) {
         row = interop.execute(remap, leftRow, rightRow);
-        pass = handleOptionTriablePredicateNode.execute(interop.execute(predicate, row), false);
+        pass = TryableNullable.handlePredicate(interop.execute(predicate, row), false);
         if (!pass) row = null;
       } else {
         pass =
-            handleOptionTriablePredicateNode.execute(
-                interop.execute(predicate, leftRow, rightRow), false);
+            TryableNullable.handlePredicate(interop.execute(predicate, leftRow, rightRow), false);
         if (pass) row = interop.execute(remap, leftRow, rightRow);
       }
       return row;

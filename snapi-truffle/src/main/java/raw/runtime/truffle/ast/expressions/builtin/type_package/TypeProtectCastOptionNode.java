@@ -14,18 +14,12 @@ package raw.runtime.truffle.ast.expressions.builtin.type_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleUnexpectedNullException;
-import raw.runtime.truffle.runtime.option.*;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 public final class TypeProtectCastOptionNode extends ExpressionNode {
 
   @Child private ExpressionNode child;
-
-  @Child
-  private TryableNullableNodes.BoxOptionNode boxOption =
-      TryableNullableNodesFactory.BoxOptionNodeGen.create();
 
   public TypeProtectCastOptionNode(ExpressionNode child) {
     this.child = child;
@@ -33,9 +27,9 @@ public final class TypeProtectCastOptionNode extends ExpressionNode {
 
   public Object executeGeneric(VirtualFrame virtualFrame) {
     try {
-      return boxOption.execute(child.executeGeneric(virtualFrame));
+      return child.executeGeneric(virtualFrame);
     } catch (RawTruffleUnexpectedNullException e) {
-      return new EmptyOption();
+      return NullObject.INSTANCE;
     }
   }
 }

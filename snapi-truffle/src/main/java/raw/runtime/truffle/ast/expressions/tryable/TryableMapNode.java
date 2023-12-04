@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
-import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -22,35 +22,29 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.TryableLibrary;
+import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Tryable.Map")
 @NodeChild("tryable")
 @NodeChild("function")
+@ImportStatic(Tryable.class)
 public abstract class TryableMapNode extends ExpressionNode {
 
-  @Specialization(guards = "tryables.isTryable(tryable)", limit = "1")
-  protected Object doObject(
-      Object tryable,
-      Object closure,
-      @Cached("create()") TryableNullableNodes.BoxTryableNode boxTryable,
-      @CachedLibrary("tryable") TryableLibrary tryables,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    if (tryables.isSuccess(tryable)) {
-      Object v = tryables.success(tryable);
-      Object[] argumentValues = new Object[1];
-      argumentValues[0] = v;
-      Object result = null;
-      try {
-        result = interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
-      }
-      return boxTryable.execute(result);
-    } else {
-      return tryable;
+  @Specialization(guards = "isSuccess(tryable)", limit = "1")
+  protected Object doObjectIsSuccess(
+      Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
+    Object result = null;
+    try {
+      result = interops.execute(closure, tryable);
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     }
+    return result;
+  }
+
+  @Specialization(guards = "isFailure(tryable)")
+  protected Object doObjectIsFailure(Object tryable, Object closure) {
+    return tryable;
   }
 }

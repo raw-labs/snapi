@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Short.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
@@ -61,11 +61,11 @@ public abstract class ShortFromNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable fromString(String argument) {
+  protected Object fromString(String argument) {
     try {
-      return ObjectTryable.BuildSuccess(Short.parseShort(argument));
+      return Short.parseShort(argument);
     } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to short");
+      return new ErrorObject("cannot cast '" + argument + "' to short");
     }
   }
 }

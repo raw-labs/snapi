@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
 
-import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -20,13 +19,13 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.iterable.operations.EmptyCollection;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @ExportLibrary(ComputeNextLibrary.class)
 public class UnnestComputeNext {
@@ -65,7 +64,6 @@ public class UnnestComputeNext {
 
   @ExportMessage
   Object computeNext(
-      @Cached TryableNullableNodes.GetOrElseNode getOrElse,
       @CachedLibrary("this.transform") InteropLibrary interops,
       @CachedLibrary(limit = "3") GeneratorLibrary generators,
       @CachedLibrary(limit = "5") IterableLibrary iterables) {
@@ -84,7 +82,7 @@ public class UnnestComputeNext {
         }
         // the function result could be tryable/nullable. If error/null,
         // we replace it by an empty collection.
-        Object iterable = getOrElse.execute(functionResult, empty);
+        Object iterable = TryableNullable.getOrElse(functionResult, empty);
         currentGenerator = iterables.getGenerator(iterable);
         generators.init(currentGenerator);
       }

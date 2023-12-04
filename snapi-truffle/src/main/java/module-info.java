@@ -313,7 +313,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.operators;
   exports raw.runtime.truffle.runtime.kryo;
   exports raw.runtime.truffle.runtime.array;
-  exports raw.runtime.truffle.runtime.option;
   exports raw.runtime.truffle.runtime.function;
   exports raw.runtime.truffle.runtime.exceptions;
   exports raw.runtime.truffle.runtime.exceptions.xml;
@@ -329,12 +328,10 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
   exports raw.runtime.truffle.runtime.generator.list;
   exports raw.runtime.truffle.runtime.map;
-  exports raw.runtime.truffle.runtime.tryable;
   exports raw.runtime.truffle.runtime.list;
   exports raw.runtime.truffle.runtime.or;
   exports raw.runtime.truffle.utils;
   exports raw.runtime.truffle.ast;
-  exports raw.runtime.truffle.ast.tryable_nullable;
   exports raw.runtime.truffle.ast.io.kryo;
   exports raw.runtime.truffle.ast.io.xml.parser;
   exports raw.runtime.truffle.ast.io.jdbc;
@@ -381,7 +378,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.ast.expressions.builtin.location_package;
   exports raw.runtime.truffle.ast.expressions.builtin.binary_package;
   exports raw.runtime.truffle.ast.controlflow;
-  exports raw.runtime.truffle.handlers;
   exports raw.runtime.truffle.runtime.exceptions.validation;
   exports raw.compiler.snapi.truffle.compiler;
   exports raw.compiler.rql2output.truffle.builtin;

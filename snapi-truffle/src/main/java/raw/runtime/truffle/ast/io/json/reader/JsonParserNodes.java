@@ -47,7 +47,6 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.option.EmptyOption;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
@@ -673,7 +672,7 @@ public final class JsonParserNodes {
     protected Object writeNull(
         JsonParser parser, @Cached JsonParserNodes.SkipNextJsonParserNode skip) {
       skip.execute(parser);
-      return new EmptyOption();
+      return NullObject.INSTANCE;
     }
   }
 }

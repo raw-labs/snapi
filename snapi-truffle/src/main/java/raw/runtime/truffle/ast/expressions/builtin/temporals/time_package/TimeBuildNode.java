@@ -20,8 +20,8 @@ import java.time.DateTimeException;
 import java.time.LocalTime;
 import java.util.concurrent.TimeUnit;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Time.Build")
 @NodeChild("h")
@@ -34,10 +34,9 @@ public abstract class TimeBuildNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   public Object buildTime(int h, int m, int s, int ms) {
     try {
-      return ObjectTryable.BuildSuccess(
-          new TimeObject(LocalTime.of(h, m, s, (int) TimeUnit.MILLISECONDS.toNanos(ms))));
+      return new TimeObject(LocalTime.of(h, m, s, (int) TimeUnit.MILLISECONDS.toNanos(ms)));
     } catch (DateTimeException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

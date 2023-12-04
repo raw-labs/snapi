@@ -19,7 +19,7 @@ import java.util.NoSuchElementException;
 import raw.creds.api.Secret;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Environment.Secret")
 @NodeChild(value = "key")
@@ -29,9 +29,9 @@ public abstract class EnvironmentSecretNode extends ExpressionNode {
   protected Object doSecret(String key) {
     try {
       Secret v = RawContext.get(this).getSecret(key);
-      return ObjectTryable.BuildSuccess(v.value());
+      return v.value();
     } catch (NoSuchElementException e) {
-      return ObjectTryable.BuildFailure("could not find secret " + key);
+      return new ErrorObject("could not find secret " + key);
     }
   }
 }

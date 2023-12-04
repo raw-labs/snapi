@@ -17,8 +17,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.option.ObjectOption;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 @NodeInfo(shortName = "NullableReadJdbcQuery")
 public class NullableReadJdbcQuery extends ExpressionNode {
@@ -34,7 +33,7 @@ public class NullableReadJdbcQuery extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    if (rs.isNull(idx, this)) return new EmptyOption();
-    else return new ObjectOption(innerParse.call(rs, idx));
+    if (rs.isNull(idx, this)) return NullObject.INSTANCE;
+    else return innerParse.call(rs, idx);
   }
 }

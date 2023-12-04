@@ -274,7 +274,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case Exp ignored when tipe(in) instanceof PackageType || tipe(in) instanceof PackageEntryType ->
                     new ZeroedConstNode(Rql2ByteType.apply(new scala.collection.immutable.HashSet<Rql2TypeProperty>().seq()));
             case TypeExp typeExp -> new ZeroedConstNode((Rql2Type) typeExp.t());
-            case NullConst ignored -> new OptionNoneNode(tipe(in));
+            case NullConst ignored -> new OptionNoneNode();
             case BoolConst v -> new BoolNode(v.value());
             case ByteConst v -> new ByteNode(v.value());
             case ShortConst v -> new ShortNode(v.value());

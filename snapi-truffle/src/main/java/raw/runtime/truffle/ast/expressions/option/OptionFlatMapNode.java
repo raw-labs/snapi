@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.option;
 
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -22,32 +23,26 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.FlatMap")
 @NodeChild("option")
 @NodeChild("function")
+@ImportStatic(Nullable.class)
 public abstract class OptionFlatMapNode extends ExpressionNode {
 
-  @Specialization(
-      guards = {"options.isOption(option)"},
-      limit = "1")
-  protected Object optionFlatMap(
-      Object option,
-      Object closure,
-      @CachedLibrary("option") OptionLibrary options,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    if (options.isDefined(option)) {
-      Object v = options.get(option);
-      Object[] argumentValues = new Object[1];
-      argumentValues[0] = v;
-      try {
-        return interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
-      }
-    } else {
-      return option;
+  @Specialization(guards = "isNotNull(option)", limit = "1")
+  protected Object notNullFlatMap(
+      Object option, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
+    try {
+      return interops.execute(closure, option);
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     }
+  }
+
+  @Specialization(guards = "isNull(option)")
+  protected Object optionFlatMap(Object option, Object closure) {
+    return option;
   }
 }

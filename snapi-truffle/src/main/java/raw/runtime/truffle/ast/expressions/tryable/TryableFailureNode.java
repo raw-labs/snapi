@@ -15,9 +15,8 @@ package raw.runtime.truffle.ast.expressions.tryable;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.tryable.*;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Tryable.Failure")
 @NodeChild("message")
@@ -25,6 +24,6 @@ public abstract class TryableFailureNode extends ExpressionNode {
 
   @Specialization
   protected Object tryableFailure(String message) {
-    return ErrorTryable.BuildFailure(message);
+    return new ErrorObject(message);
   }
 }

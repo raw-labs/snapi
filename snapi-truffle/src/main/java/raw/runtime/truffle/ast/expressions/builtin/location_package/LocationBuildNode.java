@@ -29,7 +29,6 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListLibrary;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
@@ -45,7 +44,6 @@ public class LocationBuildNode extends ExpressionNode {
 
   @Child ListLibrary listLibs = ListLibrary.getFactory().createDispatched(3);
   @Child InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
-  @Child OptionLibrary options = OptionLibrary.getFactory().createDispatched(3);
   @Child private ExpressionNode url;
 
   @Children private final ExpressionNode[] values;
@@ -113,7 +111,7 @@ public class LocationBuildNode extends ExpressionNode {
           Object keys = interops.getMembers(record);
           Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
           Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
-          vec = vec.$plus$eq(Tuple2.apply((String) options.get(key), (String) options.get(val)));
+          vec = vec.$plus$eq(Tuple2.apply((String) key, (String) val));
         }
         return new LocationKVSetting(vec.result());
       } else if (TypeGuards.isBinaryKind(type)) {

@@ -29,12 +29,11 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.list.StringList;
-import raw.runtime.truffle.runtime.option.LongOption;
-import raw.runtime.truffle.runtime.option.ObjectOption;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.*;
 import raw.utils.RawException;
@@ -67,14 +66,13 @@ public abstract class LocationLlNode extends ExpressionNode {
             records.writeMember(
                 metadata,
                 "modified",
-                new ObjectOption(
-                    new TimestampObject(
-                        LocalDateTime.ofInstant(
-                            directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC))));
+                new TimestampObject(
+                    LocalDateTime.ofInstant(
+                        directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC)));
           } else {
-            records.writeMember(metadata, "modified", new ObjectOption());
+            records.writeMember(metadata, "modified", NullObject.INSTANCE);
           }
-          records.writeMember(metadata, "size", new LongOption());
+          records.writeMember(metadata, "size", NullObject.INSTANCE);
           records.writeMember(metadata, "blocks", new ObjectList(new Object[0]));
         } else {
           FileMetadata fileMetadata = (FileMetadata) values.apply(i)._2;
@@ -82,17 +80,15 @@ public abstract class LocationLlNode extends ExpressionNode {
             records.writeMember(
                 metadata,
                 "modified",
-                new ObjectOption(
-                    new TimestampObject(
-                        LocalDateTime.ofInstant(
-                            fileMetadata.modifiedInstant().get(), ZoneOffset.UTC))));
+                new TimestampObject(
+                    LocalDateTime.ofInstant(fileMetadata.modifiedInstant().get(), ZoneOffset.UTC)));
           } else {
-            records.writeMember(metadata, "modified", new ObjectOption());
+            records.writeMember(metadata, "modified", NullObject.INSTANCE);
           }
           if (fileMetadata.size().isDefined()) {
-            records.writeMember(metadata, "size", new LongOption((long) fileMetadata.size().get()));
+            records.writeMember(metadata, "size", fileMetadata.size().get());
           } else {
-            records.writeMember(metadata, "size", new LongOption());
+            records.writeMember(metadata, "size", NullObject.INSTANCE);
           }
           int blocksSize = fileMetadata.blocks().length;
           RecordObject[] blocks = new RecordObject[blocksSize];
@@ -111,9 +107,9 @@ public abstract class LocationLlNode extends ExpressionNode {
         result[i] = topRecord;
       }
 
-      return ObjectTryable.BuildSuccess(new ObjectList(result));
+      return new ObjectList(result);
     } catch (RawException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     } catch (UnsupportedMessageException
         | UnknownIdentifierException
         | UnsupportedTypeException e) {

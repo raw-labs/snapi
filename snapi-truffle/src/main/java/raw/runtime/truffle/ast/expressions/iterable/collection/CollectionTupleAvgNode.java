@@ -29,16 +29,14 @@ import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
 import raw.runtime.truffle.runtime.aggregation.aggregator.CountAggregator;
 import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.option.ObjectOption;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Collection.TupleAvg")
 @NodeChild("iterable")
 public abstract class CollectionTupleAvgNode extends ExpressionNode {
   @Specialization
-  protected ObjectTryable doCollection(
+  protected Object doCollection(
       Object iterable,
       @CachedLibrary(limit = "1") AggregationLibrary aggregations,
       @CachedLibrary(limit = "3") AggregatorLibrary aggregatorLibs,
@@ -54,12 +52,10 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
         records.writeMember(record, "sum", aggregatorLibs.zero(sumAggregator));
       } else {
         records.writeMember(
-            record,
-            "sum",
-            new ObjectOption(new DecimalObject(new BigDecimal(results[0].toString()))));
+            record, "sum", new DecimalObject(new BigDecimal(results[0].toString())));
       }
       records.writeMember(record, "count", results[1]);
-      return ObjectTryable.BuildSuccess(record);
+      return record;
     } catch (UnsupportedMessageException
         | UnknownIdentifierException
         | UnsupportedTypeException ex) {
