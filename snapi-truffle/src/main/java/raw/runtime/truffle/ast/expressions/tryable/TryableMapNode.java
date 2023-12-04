@@ -44,8 +44,7 @@ public abstract class TryableMapNode extends ExpressionNode {
   }
 
   @Specialization(guards = "isFailure(tryable)")
-  protected Object doObjectIsFailure(
-      Object tryable, Object closure) {
+  protected Object doObjectIsFailure(Object tryable, Object closure) {
     return tryable;
   }
 }

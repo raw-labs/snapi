@@ -14,7 +14,6 @@ package raw.runtime.truffle.ast.expressions.option;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.base.source.Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 
