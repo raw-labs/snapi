@@ -178,8 +178,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
   }
 
   test("argument type autocomplete without colon") { _ =>
-    val AutoCompleteResponse(entries) =
-      wordAutoComplete("""let b = type int, f(v  ) = v * 2 in f(1)""", "", Pos(1, 23))
+    val AutoCompleteResponse(entries) = wordAutoComplete("""let b = type int, f(v  ) = v * 2 in f(1)""", "", Pos(1, 23))
     assert(entries.length > 17)
   }
 
