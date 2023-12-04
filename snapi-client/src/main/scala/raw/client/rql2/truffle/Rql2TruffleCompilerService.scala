@@ -695,7 +695,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     val ctxBuilder = Context
       .newBuilder("rql")
       .engine(engine)
-      .environment("RAW_SETTINGS", settings.renderAsString)
       .environment("RAW_USER", environment.user.uid.toString)
       .environment("RAW_TRACE_ID", environment.user.uid.toString)
       .environment("RAW_SCOPES", environment.scopes.mkString(","))

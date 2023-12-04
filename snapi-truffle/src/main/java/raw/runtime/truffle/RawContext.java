@@ -16,13 +16,10 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
-import com.typesafe.config.ConfigFactory;
 import java.io.Closeable;
 import java.io.OutputStream;
 import java.util.Objects;
 import raw.client.api.*;
-import raw.creds.api.CredentialsService;
-import raw.creds.api.CredentialsServiceProvider;
 import raw.creds.api.Secret;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
@@ -50,7 +47,6 @@ public final class RawContext implements Closeable {
   private AuthenticatedUser user;
   private String traceId;
   private String[] scopes;
-  private RawSettings rawSettings;
   private ProgramEnvironment programEnvironment;
   private InferrerService inferrer;
   private final RawFunctionRegistry functionRegistry;
@@ -59,14 +55,6 @@ public final class RawContext implements Closeable {
     this.language = language;
     this.env = env;
     this.output = env.out();
-
-    // Set settings from environment variable if available.
-    String rawSettingsString = Objects.toString(env.getEnvironment().get("RAW_SETTINGS"), "");
-    if (rawSettingsString.isEmpty()) {
-      this.rawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
-    } else {
-      this.rawSettings = new RawSettings(rawSettingsString);
-    }
 
     // Set user from environment variable.
     String uid = Objects.toString(env.getEnvironment().get("RAW_USER"), "");
@@ -83,10 +71,9 @@ public final class RawContext implements Closeable {
     this.scopes = (scopesStr == null || scopesStr.isEmpty()) ? new String[0] : scopesStr.split(",");
 
     // Create source context.
-    CredentialsService credentialsService =
-        CredentialsServiceProvider.apply(classLoader, this.rawSettings);
     this.sourceContext =
-        new SourceContext(this.user, credentialsService, this.rawSettings, new Some<>(classLoader));
+        new SourceContext(
+            this.user, language.credentialsService, language.rawSettings, new Some<>(classLoader));
 
     // Create program environment.
     Set<String> scalaScopes =
@@ -128,7 +115,7 @@ public final class RawContext implements Closeable {
   }
 
   public RawSettings getRawSettings() {
-    return rawSettings;
+    return language.rawSettings;
   }
 
   public ProgramEnvironment getProgramEnvironment() {
