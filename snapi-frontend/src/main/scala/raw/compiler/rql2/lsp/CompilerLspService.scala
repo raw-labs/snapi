@@ -171,11 +171,11 @@ class CompilerLspService(
               }
           }
 
-    maybeEntries match {
-      case Some(entries) => AutoCompleteResponse(entries.toArray)
-      case None => AutoCompleteResponse(Array.empty)
+        maybeEntries match {
+          case Some(entries) => AutoCompleteResponse(entries.toArray)
+          case None => AutoCompleteResponse(Array.empty)
+        }
     }
-  }
 
   }
 
