@@ -21,10 +21,6 @@ module raw.snapi.frontend {
   requires java.sql;
   requires com.ctc.wstx;
   requires kiama;
-  requires org.postgresql.jdbc;
-  requires mysql.connector.j;
-  requires com.microsoft.sqlserver.jdbc;
-  requires snowflake.jdbc;
   requires org.apache.commons.io;
   requires org.apache.commons.lang3;
   requires org.apache.commons.text;
@@ -115,7 +111,6 @@ module raw.snapi.frontend {
   opens raw.rest.common to
       com.fasterxml.jackson.databind;
 
-  uses org.postgresql.util.PSQLException;
   uses raw.inferrer.api.InferrerServiceBuilder;
 
   provides raw.inferrer.api.InferrerServiceBuilder with
