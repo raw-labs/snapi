@@ -43,7 +43,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
       prefix: String,
       expected: Seq[(String, Option[String])]
   ): Unit = {
-    val AutoCompleteResponse(entries, _) = wordAutoComplete(code, prefix, Pos(line, col))
+    val AutoCompleteResponse(entries) = wordAutoComplete(code, prefix, Pos(line, col))
     val actual = entries.map {
       case FieldCompletion(n, t) => (n, Some(t))
       case LetBindCompletion(n, t) => (n, Some(t))
@@ -163,7 +163,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
 
   // in this case it is not clear if the user wants to type a type so we shouldn't return type
   test("type autocomplete without colon") { _ =>
-    val AutoCompleteResponse(entries, _) = wordAutoComplete("""let b = type int, a   = 5 in a""", "", Pos(1, 23))
+    val AutoCompleteResponse(entries) = wordAutoComplete("""let b = type int, a   = 5 in a""", "", Pos(1, 23))
     assert(entries.length > 17)
   }
 
@@ -178,7 +178,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
   }
 
   test("argument type autocomplete without colon") { _ =>
-    val AutoCompleteResponse(entries, _) =
+    val AutoCompleteResponse(entries) =
       wordAutoComplete("""let b = type int, f(v  ) = v * 2 in f(1)""", "", Pos(1, 23))
     assert(entries.length > 17)
   }

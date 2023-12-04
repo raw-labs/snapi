@@ -23,29 +23,29 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 1))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 1))
     assertResult("a")(name)
     assertResult("int")(tipe)
   }
 
   test("hover package doc type output test") { _ =>
     val code = """String""".stripMargin
-    val HoverResponse(Some(PackageCompletion(name, doc)), errors) = hover(code, Pos(1, 2))
+    val HoverResponse(Some(PackageCompletion(name, doc))) = hover(code, Pos(1, 2))
     assertResult("String")(name)
     assertResult("Library of functions for the string type.")(doc.description)
   }
 
   test("hover entry doc type output test") { _ =>
     val code = """String.Lower("HI")""".stripMargin
-    val HoverResponse(Some(PackageEntryCompletion(name, doc)), errors) = hover(code, Pos(1, 9))
-    assertResult("Lower")(name)
+    val HoverResponse(Some(PackageEntryCompletion(name, doc))) = hover(code, Pos(1, 9))
+    assertResult("String.Lower")(name)
     assertResult("Convert a string to lowercase.")(doc.summary)
   }
 
   test("hover non existing entry test") { _ =>
     val code = """String.NonExistingFunction("HI")""".stripMargin
-    val HoverResponse(_, errors) = hover(code, Pos(1, 9))
-    assert(errors.nonEmpty)
+    val hoverResponse = hover(code, Pos(1, 9))
+    assert(hoverResponse.completion.isEmpty)
   }
 
   test("hover correct type output test") { _ =>
@@ -54,7 +54,7 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 1))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 1))
     assertResult("a")(name)
     assertResult("float")(tipe)
   }
@@ -65,7 +65,7 @@ trait LspHoverTest extends CompilerTestContext {
       |in
       |aaaaaaa
       |""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 3))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(4, 3))
     assertResult("aaaaaaa")(name)
     assertResult("record(a: int, b: string)")(tipe)
   }
@@ -79,7 +79,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 3))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 3))
     assertResult("buildCollection")(name)
     assertResult("buildCollection(lastElement: int)")(tipe)
   }
@@ -90,7 +90,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(5, 1))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(5, 1))
     assertResult("b")(name)
     assertResult("(int) -> int")(tipe)
   }
@@ -100,7 +100,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 1))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(4, 1))
     assertResult("b")(name)
     assertResult("(int) -> int")(tipe)
   }
@@ -110,7 +110,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 7))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 7))
     assertResult("b")(name)
     assertResult("recursive function: b(v: int) -> int")(tipe)
   }
@@ -120,7 +120,7 @@ trait LspHoverTest extends CompilerTestContext {
       |  b(v: int): int = v
       |in
       |b(2)""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 3))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 3))
     assertResult("b")(name)
     assertResult("b(v: int) -> int")(tipe)
   }
@@ -134,7 +134,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(8, 16))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(8, 16))
     assertResult("buildCollection")(name)
     assertResult("(int) -> collection(collection(int))")(tipe)
   }
@@ -148,7 +148,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 20))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 20))
     assertResult("lastElement")(name)
     assertResult("int")(tipe)
   }
@@ -162,7 +162,7 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(3, 30))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(3, 30))
     assertResult("lastElement")(name)
     assertResult("int")(tipe)
   }
@@ -176,8 +176,8 @@ trait LspHoverTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val HoverResponse(_, errors) = hover(code, Pos(1, 1))
-    assert(errors.isEmpty)
+    val hoverResponse = hover(code, Pos(1, 1))
+    assert(hoverResponse.completion.isEmpty)
   }
 
   test("hover field of a collection") { _ =>
@@ -185,7 +185,7 @@ trait LspHoverTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 33))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(4, 33))
     assertResult("aaaaaaaaaaaa")(name)
     assertResult("record(cccccccccccc: string, d: int)")(tipe)
   }
@@ -195,7 +195,7 @@ trait LspHoverTest extends CompilerTestContext {
       |    data = Collection.Build(Record.Build(aaaaaaaaaaaa = Record.Build(cccccccccccc = "takis", d = 6), b = 3))
       |in
       |Collection.Filter(data, d -> d.aaaaaaaaaaaa.cccccccccccc > 0)""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(4, 48))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(4, 48))
     assertResult("cccccccccccc")(name)
     assertResult("string")(tipe)
   }
@@ -203,7 +203,7 @@ trait LspHoverTest extends CompilerTestContext {
   knownBug("RD-8323", "hover variable in the end of the code (RD-8323)") { _ =>
     val code = """let c = 2
       |in c""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe)), errors) = hover(code, Pos(2, 5))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 5))
     name shouldBe "c"
     tipe shouldBe "int"
   }

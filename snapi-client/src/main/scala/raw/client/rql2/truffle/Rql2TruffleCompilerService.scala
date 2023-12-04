@@ -425,8 +425,8 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     try {
       val pretty = new SourceCommentsPrettyPrinter(maybeIndent, maybeWidth)
       pretty.prettyCode(source) match {
-        case Right(code) => FormatCodeResponse(Some(code), List.empty)
-        case Left((err, pos)) => FormatCodeResponse(None, parseError(err, pos))
+        case Right(code) => FormatCodeResponse(Some(code))
+        case Left(_) => FormatCodeResponse(None)
       }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -447,7 +447,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             programContext
           ) match {
             case Right(value) => value
-            case Left((err, pos)) => AutoCompleteResponse(Array.empty, parseError(err, pos))
+            case Left(_) => AutoCompleteResponse(Array.empty)
           }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -471,7 +471,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             programContext
           ) match {
             case Right(value) => value
-            case Left((err, pos)) => AutoCompleteResponse(Array.empty, parseError(err, pos))
+            case Left(_) => AutoCompleteResponse(Array.empty)
           }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -494,7 +494,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
         try {
           withLspTree(source, lspService => lspService.hover(source, environment, position))(programContext) match {
             case Right(value) => value
-            case Left((err, pos)) => HoverResponse(None, parseError(err, pos))
+            case Left(_) => HoverResponse(None)
           }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -511,7 +511,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
         try {
           withLspTree(source, lspService => lspService.rename(source, environment, position))(programContext) match {
             case Right(value) => value
-            case Left((err, pos)) => RenameResponse(Array.empty, parseError(err, pos))
+            case Left(_) => RenameResponse(Array.empty)
           }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -534,7 +534,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             programContext
           ) match {
             case Right(value) => value
-            case Left((err, pos)) => GoToDefinitionResponse(None, parseError(err, pos))
+            case Left(_) => GoToDefinitionResponse(None)
           }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)

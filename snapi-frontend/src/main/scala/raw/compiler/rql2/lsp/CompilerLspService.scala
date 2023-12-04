@@ -122,7 +122,7 @@ class CompilerLspService(
       case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) |
           Some(TypeAliasType(IdnUse(_))) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
-        AutoCompleteResponse(allTypes, errors)
+        AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.
         val maybeEntries = maybeNode
           .map { n =>
@@ -171,11 +171,11 @@ class CompilerLspService(
               }
           }
 
-        maybeEntries match {
-          case Some(entries) => AutoCompleteResponse(entries.toArray, errors)
-          case None => AutoCompleteResponse(Array.empty, errors)
-        }
+    maybeEntries match {
+      case Some(entries) => AutoCompleteResponse(entries.toArray)
+      case None => AutoCompleteResponse(Array.empty)
     }
+  }
 
   }
 
@@ -228,8 +228,8 @@ class CompilerLspService(
       }
 
     maybeEntries match {
-      case Some(entries) => AutoCompleteResponse(entries.toArray, errors)
-      case None => AutoCompleteResponse(Array.empty, errors)
+      case Some(entries) => AutoCompleteResponse(entries.toArray)
+      case None => AutoCompleteResponse(Array.empty)
     }
   }
 
@@ -243,9 +243,8 @@ class CompilerLspService(
           val IdnExp(idn) = idnExp
           analyzer.idnType(idn) match {
             case PackageType(name: String) if programContext.getPackage(name).isDefined =>
-              HoverResponse(Some(PackageCompletion(idn.idn, programContext.getPackage(name).get.docs)), errors)
-            case _ =>
-              HoverResponse(Some(TypeCompletion(idn.idn, SourcePrettyPrinter.format(analyzer.idnType(idn)))), errors)
+              HoverResponse(Some(PackageCompletion(idn.idn, programContext.getPackage(name).get.docs)))
+            case _ => HoverResponse(Some(TypeCompletion(idn.idn, SourcePrettyPrinter.format(analyzer.idnType(idn)))))
           }
         case idnDef: IdnDef => //gets here
           val ent = analyzer.entity(idnDef)
@@ -254,47 +253,43 @@ class CompilerLspService(
               val LetBind(e, i, t) = letBindEntity.b
               e match {
                 case FunAbs(funProto: FunProto) => HoverResponse(
-                    Some(TypeCompletion(i.idn, getFunctionSignature(i, funProto))),
-                    errors
+                    Some(TypeCompletion(i.idn, getFunctionSignature(i, funProto)))
                   ) //gets here
                 case _ => HoverResponse(
-                    Some(TypeCompletion(i.idn, SourcePrettyPrinter.format(analyzer.idnType(i)))),
-                    errors
+                    Some(TypeCompletion(i.idn, SourcePrettyPrinter.format(analyzer.idnType(i))))
                   ) //gets here
               }
             case funParamEntity: FunParamEntity => //gets here
               val FunParam(i, t, e) = funParamEntity.f
-              HoverResponse(Some(TypeCompletion(i.idn, SourcePrettyPrinter.format(analyzer.idnType(i)))), errors)
+              HoverResponse(Some(TypeCompletion(i.idn, SourcePrettyPrinter.format(analyzer.idnType(i)))))
             case letFunEntity: LetFunEntity => //gets here
               val LetFun(p, i) = letFunEntity.f
-              HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))), errors)
+              HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))))
             case methodEntity: MethodEntity => //gets here
               val Rql2Method(p, i) = methodEntity.d
-              HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))), errors)
+              HoverResponse(Some(TypeCompletion(i.idn, getFunctionSignature(i, p))))
             case letFunRecEntity: LetFunRecEntity => //gets here
               val LetFunRec(i, p) = letFunRecEntity.f
               HoverResponse(
-                Some(TypeCompletion(i.idn, s"recursive function: ${getFunctionSignature(i, p)}")),
-                errors
+                Some(TypeCompletion(i.idn, s"recursive function: ${getFunctionSignature(i, p)}"))
               )
-            case p: PackageEntity => HoverResponse(Some(PackageCompletion(p.p.name, p.p.docs)), errors)
-            case _ => HoverResponse(None, errors)
+            case p: PackageEntity => HoverResponse(Some(PackageCompletion(p.p.name, p.p.docs)))
+            case _ => HoverResponse(None)
           }
         case Proj(e, i) => analyzer.actualType(e) match { //gets here
             case Rql2RecordType(atts, _) =>
               val att = atts.find(a => a.idn == i)
-              if (att.isDefined)
-                HoverResponse(Some(TypeCompletion(i, SourcePrettyPrinter.format(att.get.tipe))), errors)
-              else HoverResponse(None, errors)
+              if (att.isDefined) HoverResponse(Some(TypeCompletion(i, SourcePrettyPrinter.format(att.get.tipe))))
+              else HoverResponse(None)
             case PackageType(name: String) if programContext.getPackage(name).isDefined =>
               val pkg = programContext
                 .getPackage(name)
                 .get
               //make sure that entry exists and have documentation defined.
               val maybeDocs = Try(pkg.getEntry(i).docs)
-              if (maybeDocs.isSuccess) HoverResponse(Some(PackageEntryCompletion(i, maybeDocs.get)), errors)
-              else HoverResponse(None, errors)
-            case _ => HoverResponse(None, errors)
+              if (maybeDocs.isSuccess) HoverResponse(Some(PackageEntryCompletion(s"${pkg.name}.$i", maybeDocs.get)))
+              else HoverResponse(None)
+            case _ => HoverResponse(None)
           }
         // for debugging
         //        case rql2Node: Rql2Node => rql2Node
@@ -302,7 +297,7 @@ class CompilerLspService(
 
     res match {
       case Some(response) => response
-      case None => HoverResponse(None, errors)
+      case None => HoverResponse(None)
     }
   }
 
@@ -326,20 +321,20 @@ class CompilerLspService(
               e match {
                 case FunAbs(funProto: FunProto) =>
                   val pos = positions.getStart(i)
-                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
                 case _ =>
                   val pos = positions.getStart(i)
-                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
               }
             case funParamEntity: FunParamEntity =>
               val FunParam(i, t, e) = funParamEntity.f
               val pos = positions.getStart(i)
-              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
             case letFunRecEntity: LetFunRecEntity =>
               val LetFunRec(i, p) = letFunRecEntity.f
               val pos = positions.getStart(i)
-              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
-            case _ => GoToDefinitionResponse(None, errors)
+              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
+            case _ => GoToDefinitionResponse(None)
           }
         case idnDef: IdnDef => //gets here
           val ent = analyzer.entity(idnDef)
@@ -349,28 +344,28 @@ class CompilerLspService(
               e match {
                 case FunAbs(funProto: FunProto) =>
                   val pos = positions.getStart(i)
-                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
                 case _ => //gets here
                   val pos = positions.getStart(i)
-                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+                  GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
               }
             case funParamEntity: FunParamEntity =>
               val FunParam(i, t, e) = funParamEntity.f
               val pos = positions.getStart(i)
-              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
             case letFunEntity: LetFunEntity =>
               val LetFun(p, i) = letFunEntity.f
               val pos = positions.getStart(i)
-              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
             case methodEntity: MethodEntity =>
               val Rql2Method(p, i) = methodEntity.d
               val pos = positions.getStart(i)
-              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
+              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
             case letFunRecEntity: LetFunRecEntity =>
               val LetFunRec(i, p) = letFunRecEntity.f
               val pos = positions.getStart(i)
-              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)), errors)
-            case _ => GoToDefinitionResponse(None, errors)
+              GoToDefinitionResponse(Some(Pos(pos.get.line, pos.get.column)))
+            case _ => GoToDefinitionResponse(None)
           }
         case Proj(e, i) => analyzer.actualType(e) match {
             case Rql2RecordType(atts, _) =>
@@ -379,10 +374,10 @@ class CompilerLspService(
                 pos <- positions.getStart(att.idn)
               } yield pos
               posRes match {
-                case Some(pos) => GoToDefinitionResponse(Some(Pos(pos.line, pos.column)), errors)
-                case None => GoToDefinitionResponse(None, errors)
+                case Some(pos) => GoToDefinitionResponse(Some(Pos(pos.line, pos.column)))
+                case None => GoToDefinitionResponse(None)
               }
-            case _ => GoToDefinitionResponse(None, errors)
+            case _ => GoToDefinitionResponse(None)
           }
         // for debugging
         //        case rql2Node: Rql2Node => rql2Node
@@ -390,7 +385,7 @@ class CompilerLspService(
 
     res match {
       case Some(response) => response
-      case None => GoToDefinitionResponse(None, errors)
+      case None => GoToDefinitionResponse(None)
     }
   }
 
@@ -413,19 +408,19 @@ class CompilerLspService(
           everywhere(query[Any] {
             case i: BaseIdnNode => if (analyzer.entity(i) == ent) myPositions.add(positions.getStart(i).get)
           })(rootNode)
-          RenameResponse(myPositions.map(p => Pos(p.line, p.column)).toArray, errors)
+          RenameResponse(myPositions.map(p => Pos(p.line, p.column)).toArray)
         case idnDef: IdnDef =>
           val ent = analyzer.entity(idnDef)
           val myPositions = collection.mutable.Set[Position]()
           everywhere(query[Any] {
             case i: BaseIdnNode => if (analyzer.entity(i) == ent) myPositions.add(positions.getStart(i).get)
           })(rootNode)
-          RenameResponse(myPositions.map(p => Pos(p.line, p.column)).toArray, errors)
+          RenameResponse(myPositions.map(p => Pos(p.line, p.column)).toArray)
       }
 
     res match {
       case Some(response) => response
-      case None => RenameResponse(Array(), errors)
+      case None => RenameResponse(Array())
     }
   }
 
