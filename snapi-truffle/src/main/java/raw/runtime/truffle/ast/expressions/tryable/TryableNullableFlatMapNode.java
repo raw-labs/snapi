@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.tryable;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -28,25 +29,25 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 @NodeInfo(shortName = "TryableNullable.FlatMap")
 @NodeChild("tryable")
 @NodeChild("function")
+@ImportStatic(TryableNullable.class)
 public abstract class TryableNullableFlatMapNode extends ExpressionNode {
 
-  private final Object[] argumentValues = new Object[1];
-
-  @Specialization(limit = "1")
+  @Specialization(guards = "isValue(maybeTryableNullable)", limit = "1")
   @CompilerDirectives.TruffleBoundary
-  protected Object doTryable(
+  protected Object doTryableValue(
       Object maybeTryableNullable,
       Object closure,
       @CachedLibrary("closure") InteropLibrary interops) {
-    if (TryableNullable.isValue(maybeTryableNullable)) {
-      argumentValues[0] = maybeTryableNullable;
-      try {
-        return interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
-      }
-    } else {
-      return maybeTryableNullable;
+    try {
+      return interops.execute(closure, maybeTryableNullable);
+    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+      throw new RawTruffleRuntimeException("failed to execute function");
     }
+  }
+
+  @Specialization(guards = "!isValue(maybeTryableNullable)")
+  @CompilerDirectives.TruffleBoundary
+  protected Object doTryableNotValue(Object maybeTryableNullable, Object closure) {
+    return maybeTryableNullable;
   }
 }

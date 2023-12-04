@@ -29,7 +29,7 @@ public abstract class TryableUnsafeGetNode extends ExpressionNode {
     return tryable;
   }
 
-  @Specialization(limit = "1")
+  @Specialization(guards = "isFailure(tryable)")
   protected Object doObject(Object tryable) {
     throw new RawTruffleRuntimeException(Tryable.getFailure(tryable), this);
   }

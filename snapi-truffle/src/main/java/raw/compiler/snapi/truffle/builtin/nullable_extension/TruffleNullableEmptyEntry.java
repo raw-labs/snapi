@@ -24,6 +24,6 @@ import raw.runtime.truffle.ast.expressions.option.OptionNoneNode;
 public class TruffleNullableEmptyEntry extends NullableEmptyEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return new OptionNoneNode(type);
+    return new OptionNoneNode();
   }
 }

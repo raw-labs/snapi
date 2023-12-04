@@ -30,7 +30,7 @@ public abstract class OptionGetOrElseNode extends ExpressionNode {
     return option;
   }
 
-  @Specialization
+  @Specialization(guards = "isNull(option)")
   protected Object optionOrElse(Object option, Object orElse) {
     return orElse;
   }

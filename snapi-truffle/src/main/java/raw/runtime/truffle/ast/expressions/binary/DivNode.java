@@ -15,6 +15,8 @@ package raw.runtime.truffle.ast.expressions.binary;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+
+import java.math.BigDecimal;
 import java.math.MathContext;
 import raw.runtime.truffle.ast.BinaryNode;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
@@ -50,7 +52,7 @@ public abstract class DivNode extends BinaryNode {
     return value == 0.0f;
   }
 
-  @Specialization(guards = "floatIsZero(b)")
+  @Specialization(guards = "!floatIsZero(b)")
   protected Object divFloat(float a, float b) {
     return a / b;
   }
@@ -59,12 +61,12 @@ public abstract class DivNode extends BinaryNode {
     return value == 0.0d;
   }
 
-  @Specialization(guards = "doubleIsZero(b)")
+  @Specialization(guards = "!doubleIsZero(b)")
   protected Object divDouble(double a, double b) {
     return a / b;
   }
 
-  @Specialization(guards = "doubleIsZero(b.getBigDecimal().doubleValue())")
+  @Specialization(guards = "!doubleIsZero(b.getBigDecimal().doubleValue())")
   @CompilerDirectives.TruffleBoundary
   protected Object divDecimal(DecimalObject a, DecimalObject b) {
     // Without the MathContext.DECIMAL128, we would get a:
@@ -76,7 +78,16 @@ public abstract class DivNode extends BinaryNode {
     return new DecimalObject(a.getBigDecimal().divide(b.getBigDecimal(), MathContext.DECIMAL128));
   }
 
-  @Specialization
+  public boolean isZero(Object value) {
+    return switch (value) {
+      case BigDecimal bd -> bd.compareTo(BigDecimal.ZERO) == 0;
+      case Double d -> d == 0.0d;
+      case Float f -> f == 0.0f;
+      default -> (int) value == 0;
+    };
+  }
+
+  @Specialization(guards = "isZero(b)")
   protected ErrorObject divByZero(Object a, Object b) {
     return new ErrorObject("/ by zero");
   }

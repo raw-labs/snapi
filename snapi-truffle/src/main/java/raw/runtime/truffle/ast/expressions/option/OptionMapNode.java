@@ -30,22 +30,20 @@ import raw.runtime.truffle.tryable_nullable.Nullable;
 @NodeChild("function")
 @ImportStatic(Nullable.class)
 public abstract class OptionMapNode extends ExpressionNode {
-  private final Object[] argumentValues = new Object[1];
 
   @Specialization(guards = "isNotNull(option)", limit = "1")
   protected Object optionMapNotNull(
       Object option, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
-    argumentValues[0] = option;
     Object result;
     try {
-      result = interops.execute(closure, argumentValues);
+      result = interops.execute(closure, option);
     } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
       throw new RawTruffleRuntimeException("failed to execute function");
     }
     return result;
   }
 
-  @Specialization(limit = "1")
+  @Specialization(guards = "isNull(option)")
   protected Object optionMapNull(Object option, Object closure) {
     return option;
   }

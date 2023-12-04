@@ -22,7 +22,7 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 @NodeChild("tryable")
 public abstract class TryableIsSuccessNode extends ExpressionNode {
 
-  @Specialization(limit = "1")
+  @Specialization
   protected boolean isSuccess(Object tryable) {
     return Tryable.isSuccess(tryable);
   }

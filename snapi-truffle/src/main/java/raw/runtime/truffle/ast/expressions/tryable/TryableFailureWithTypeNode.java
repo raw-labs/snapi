@@ -20,47 +20,11 @@ import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Tryable.FailureWithType")
-@NodeChild("zeroedValue")
 @NodeChild("message")
 public abstract class TryableFailureWithTypeNode extends ExpressionNode {
 
   @Specialization
-  protected Object tryableFailureBoolean(boolean zeroedValue, String message) {
-    return new ErrorObject(message);
-  }
-
-  @Specialization
-  protected Object tryableFailureByte(byte zeroedValue, String message) {
-    return new ErrorObject(message);
-  }
-
-  @Specialization
-  protected Object tryableFailureShort(String message, short zeroedValue) {
-    return new ErrorObject(message);
-  }
-
-  @Specialization
-  protected Object tryableFailureInt(int zeroedValue, String message) {
-    return new ErrorObject(message);
-  }
-
-  @Specialization
-  protected Object tryableFailureLong(long zeroedValue, String message) {
-    return new ErrorObject(message);
-  }
-
-  @Specialization
-  protected Object tryableFailureString(String zeroedValue, String message) {
-    return new ErrorObject(message);
-  }
-
-  @Specialization
-  protected Object tryableFailureDecimal(DecimalObject zeroedValue, String message) {
-    return new ErrorObject(message);
-  }
-
-  @Specialization
-  protected Object tryableFailureObject(Object zeroedValue, String message) {
+  protected Object tryableFailureBoolean(String message) {
     return new ErrorObject(message);
   }
 }

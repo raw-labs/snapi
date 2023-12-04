@@ -36,20 +36,18 @@ public abstract class TryableFlatMapNode extends ExpressionNode {
   //    that's the only thing I think
   //    guarguars is tryable and object isSccess and type is null kind of thin
 
-  private final Object[] argumentValues = new Object[1];
-
   @Specialization(limit = "1", guards = "isSuccess(tryable)")
   protected Object doObjectIsSuccess(
       Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
-    argumentValues[0] = tryable;
+    //    argumentValues[0] = tryable;
     try {
-      return interops.execute(closure, argumentValues);
+      return interops.execute(closure, tryable);
     } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
       throw new RawTruffleRuntimeException("failed to execute function");
     }
   }
 
-  @Specialization(limit = "1")
+  @Specialization(guards = "isFailure(tryable)")
   protected Object doObjectFailure(Object tryable, Object closure) {
     return tryable;
   }

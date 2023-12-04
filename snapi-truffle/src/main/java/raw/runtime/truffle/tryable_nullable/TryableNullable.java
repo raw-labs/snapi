@@ -16,7 +16,7 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 
 public class TryableNullable {
-  public static Boolean handlePredicate(Object value, boolean defaultValue) {
+  public static boolean handlePredicate(Object value, boolean defaultValue) {
     if (value == null || value == NullObject.INSTANCE || value instanceof ErrorObject) {
       return defaultValue;
     }

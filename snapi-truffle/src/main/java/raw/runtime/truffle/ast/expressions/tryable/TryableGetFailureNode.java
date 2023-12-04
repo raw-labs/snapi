@@ -21,7 +21,7 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 @NodeInfo(shortName = "Tryable.GetFailure")
 @NodeChild("tryable")
 public abstract class TryableGetFailureNode extends ExpressionNode {
-  @Specialization(limit = "1")
+  @Specialization
   protected String getFailure(Object tryable) {
     return Tryable.getFailure(tryable);
   }

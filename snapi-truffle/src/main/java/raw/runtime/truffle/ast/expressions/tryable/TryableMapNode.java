@@ -31,24 +31,21 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 @ImportStatic(Tryable.class)
 public abstract class TryableMapNode extends ExpressionNode {
 
-  private final Object[] argumentValues = new Object[1];
-
   @Specialization(guards = "isSuccess(tryable)", limit = "1")
   protected Object doObjectIsSuccess(
       Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
-    argumentValues[0] = tryable;
     Object result = null;
     try {
-      result = interops.execute(closure, argumentValues);
+      result = interops.execute(closure, tryable);
     } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
       throw new RawTruffleRuntimeException("failed to execute function");
     }
     return result;
   }
 
-  @Specialization(limit = "1")
+  @Specialization(guards = "isFailure(tryable)")
   protected Object doObjectIsFailure(
-      Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
+      Object tryable, Object closure) {
     return tryable;
   }
 }

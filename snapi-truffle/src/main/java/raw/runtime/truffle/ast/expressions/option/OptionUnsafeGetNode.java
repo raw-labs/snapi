@@ -29,7 +29,7 @@ public abstract class OptionUnsafeGetNode extends ExpressionNode {
     return option;
   }
 
-  @Specialization
+  @Specialization(guards = "isNull(option)")
   protected Object doObject(Object option) {
     throw new RawTruffleUnexpectedNullException(this);
   }
