@@ -21,6 +21,7 @@ import raw.compiler.rql2._
 import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 import raw.compiler.rql2.source._
 import raw.client.api._
+import raw.compiler.rql2.builtin.TypeEmptyEntry
 
 import scala.util.Try
 
@@ -45,6 +46,26 @@ class CompilerLspService(
         else ""}"
       )
       .mkString(", ")})${if (funProto.r.isDefined) " -> " + SourcePrettyPrinter.format(funProto.r.get) else ""}"
+  }
+
+  private def getAllTypesInScope(maybeNode: Option[SourceNode], prefix: String) = {
+    val typeAliases = analyzer
+      .scopeInWithIdentifier(maybeNode.get)
+      .filter {
+        case (idn, e) => e match {
+            case l: LetBindEntity if idn.startsWith(prefix) => l.b.e.isInstanceOf[TypeExp]
+            case _ => false
+          }
+      }
+      .map {
+        case (idn, e) => e match {
+            case l: LetBindEntity => TypeCompletion(idn, SourcePrettyPrinter.format(l.b.e.asInstanceOf[TypeExp].t))
+                .asInstanceOf[Completion]
+          }
+      }
+    CompilerLspService.existingTypes
+      .filter(_.startsWith(prefix))
+      .map(t => TypeCompletion(t, "").asInstanceOf[Completion]) ++ typeAliases
   }
 
   def wordAutoComplete(
@@ -96,52 +117,66 @@ class CompilerLspService(
           )
           .lastOption
       }
-    // Given that node, ask the "chain" for all entries in scope.
-    val maybeEntries = maybeNode
-      .map { n =>
-        val entities = analyzer.scopeInWithIdentifier(n)
-        entities
-          .filter {
-            case (idn, _) =>
-              // Filter nodes that start with the given prefix.
-              // (If empty, all match.)
-              idn.startsWith(prefix)
-          }
-          .filter {
-            case (idn, e) => e match {
-                case p: PackageEntity =>
-                  // Filter nodes with documentation defined.
-                  Try(p.p.docs).isSuccess
-                case _ => true
-              }
-          }
-          .map {
-            case (idn, e) => e match {
-                case l: LetBindEntity =>
-                  LetBindCompletion(SourcePrettyPrinter.ident(idn), SourcePrettyPrinter.format(analyzer.idnType(l.b.i)))
-                case f: LetFunEntity =>
-                  LetFunCompletion(SourcePrettyPrinter.ident(idn), SourcePrettyPrinter.format(analyzer.idnType(f.f.i)))
-                case m: MethodEntity =>
-                  LetFunCompletion(SourcePrettyPrinter.ident(idn), SourcePrettyPrinter.format(analyzer.idnType(m.d.i)))
-                case f: LetFunRecEntity => LetFunRecCompletion(
-                    SourcePrettyPrinter.ident(idn),
-                    SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
-                  )
-                case p: FunParamEntity => FunParamCompletion(
-                    SourcePrettyPrinter.ident(idn),
-                    SourcePrettyPrinter.format(analyzer.idnType(p.f.i))
-                  )
-                case p: PackageEntity =>
-                  val docs = p.p.docs
-                  PackageCompletion(SourcePrettyPrinter.ident(idn), docs)
-              }
-          }
-      }
 
-    maybeEntries match {
-      case Some(entries) => AutoCompleteResponse(entries.toArray, errors)
-      case None => AutoCompleteResponse(Array.empty, errors)
+    maybeNode match {
+      case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) |
+          Some(TypeAliasType(IdnUse(_))) =>
+        val allTypes = getAllTypesInScope(maybeNode, prefix)
+        AutoCompleteResponse(allTypes, errors)
+      case _ => // Given that node, ask the "chain" for all entries in scope.
+        val maybeEntries = maybeNode
+          .map { n =>
+            val entities = analyzer.scopeInWithIdentifier(n)
+            entities
+              .filter {
+                case (idn, _) =>
+                  // Filter nodes that start with the given prefix.
+                  // (If empty, all match.)
+                  idn.startsWith(prefix)
+              }
+              .filter {
+                case (idn, e) => e match {
+                    case p: PackageEntity =>
+                      // Filter nodes with documentation defined.
+                      Try(p.p.docs).isSuccess
+                    case _ => true
+                  }
+              }
+              .map {
+                case (idn, e) => e match {
+                    case l: LetBindEntity => LetBindCompletion(
+                        SourcePrettyPrinter.ident(idn),
+                        SourcePrettyPrinter.format(analyzer.idnType(l.b.i))
+                      )
+                    case f: LetFunEntity => LetFunCompletion(
+                        SourcePrettyPrinter.ident(idn),
+                        SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                      )
+                    case m: MethodEntity => LetFunCompletion(
+                        SourcePrettyPrinter.ident(idn),
+                        SourcePrettyPrinter.format(analyzer.idnType(m.d.i))
+                      )
+                    case f: LetFunRecEntity => LetFunRecCompletion(
+                        SourcePrettyPrinter.ident(idn),
+                        SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                      )
+                    case p: FunParamEntity => FunParamCompletion(
+                        SourcePrettyPrinter.ident(idn),
+                        SourcePrettyPrinter.format(analyzer.idnType(p.f.i))
+                      )
+                    case p: PackageEntity =>
+                      val docs = p.p.docs
+                      PackageCompletion(SourcePrettyPrinter.ident(idn), docs)
+                  }
+              }
+          }
+
+        maybeEntries match {
+          case Some(entries) => AutoCompleteResponse(entries.toArray, errors)
+          case None => AutoCompleteResponse(Array.empty, errors)
+        }
     }
+
   }
 
   def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
@@ -151,6 +186,7 @@ class CompilerLspService(
       StringSource(source)
     )
     val nodes = getNodesAtPosition(currentPosition)
+
     val maybeEntries = nodes
       .collect { case e: Exp => e }
       .sortBy { e: Exp => positions.textOf(e).get.length }
@@ -413,4 +449,25 @@ class CompilerLspService(
       case _ => None
     }
   }
+}
+
+object CompilerLspService {
+  private def existingTypes = Array(
+    "byte",
+    "short",
+    "int",
+    "long",
+    "float",
+    "double",
+    "decimal",
+    "string",
+    "bool",
+    "date",
+    "timestamp",
+    "time",
+    "interval",
+    "record",
+    "list",
+    "collection"
+  )
 }
