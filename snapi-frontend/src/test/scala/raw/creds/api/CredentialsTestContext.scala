@@ -62,6 +62,12 @@ trait CredentialsTestContext extends BeforeAndAfterAll {
     newHttpCreds.foreach { case (user, (name, cred)) => credentials.registerNewHttpCredential(user, name, cred) }
     dropboxTokens.foreach { case (user, token) => credentials.registerDropboxToken(user, token) }
     secrets.foreach { case (user, secret) => credentials.registerSecret(user, secret) }
+    // Set the system properties for the credentials so that this is overriding what RawLanguage
+    // runs with. This way, the credential server booted by the test framework is used.
+    for (property <- Seq("raw.creds.impl", "raw.creds.client.server-address")) {
+      System.clearProperty(property)
+      settings.getStringOpt(property).foreach(v => System.setProperty(property, v))
+    }
   }
 
   override def afterAll(): Unit = {
