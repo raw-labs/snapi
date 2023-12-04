@@ -143,11 +143,11 @@ trait OraclePackageTest extends CompilerTestContext with CredentialsTestContext 
     s"""Oracle.Read(
       |  "$oracleDb", "$oracleSchema", "$oracleTable",
       |  type collection(record(A: int, B: int, C: double, D: double, X: int, Y: string)),
-      |  host = "localhost.localdomain", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
+      |  host = "localhost", username = "${oracleCreds.username.get.toString}", password = "${oracleCreds.password.get.toString}"
       |)""".stripMargin
   ) { it =>
     assume(!compilerService.language.contains("rql2-truffle"))
-    it should runErrorAs("error connecting to database: localhost.localdomain")
+    it should runErrorAs("error connecting to database: localhost")
   }
 
   // wrong port
