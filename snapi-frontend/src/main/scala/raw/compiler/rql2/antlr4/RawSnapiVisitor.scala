@@ -40,6 +40,12 @@ class RawSnapiVisitor(
     if (isFrontend) Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
     else Set.empty
 
+  private def getBrokenTypeCompletion(t: Option[Type], context: ParserRuleContext): Option[Type] = {
+    if (t.isEmpty && context.getText.contains(":") && !context.getText.contains("`")) {
+      Option(ErrorType().asInstanceOf[Type])
+    } else t
+  }
+
   // An extension method to extract the identifier from a token (removes the backticks)
   implicit class IdentExtension(ctx: SnapiParser.IdentContext) {
     def getValue: String = Option(ctx)
@@ -171,8 +177,13 @@ class RawSnapiVisitor(
                 result
               })
               .getOrElse(IdnDef(""))
-            val tipe = Option(attContext.tipe())
-              .map(attTipeContext => Option(visit(attTipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
+
+            val tipe = {
+              val t = Option(attContext.tipe())
+                .map(attTipeContext => Option(visit(attTipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
+              getBrokenTypeCompletion(t, attContext)
+            }
+
             val funParam = FunParam(idnDef, tipe, Option.empty)
             positionsWrapper.setPosition(attContext, funParam)
             Vector(funParam)
@@ -268,8 +279,13 @@ class RawSnapiVisitor(
               res
             }
             .getOrElse(IdnDef(""))
-          val tipe = Option(attrContext.tipe)
-            .map(attrTipeContext => Option(visit(attrTipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
+
+          val tipe = {
+            val t = Option(attrContext.tipe)
+              .map(attrTipeContext => Option(visit(attrTipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
+            getBrokenTypeCompletion(t, attrContext)
+          }
+
           val result = FunParam(
             idnDef,
             tipe,
@@ -1050,8 +1066,12 @@ class RawSnapiVisitor(
 
   override def visitLet_bind(ctx: SnapiParser.Let_bindContext): SourceNode = Option(ctx)
     .map { context =>
-      val tipe =
-        Option(context.tipe).map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
+      val tipe = {
+        val t =
+          Option(context.tipe).map(tipeContext => Option(visit(tipeContext)).getOrElse(ErrorType()).asInstanceOf[Type])
+        getBrokenTypeCompletion(t, context)
+      }
+
       val idnDef = IdnDef(context.ident.getValue)
       positionsWrapper.setPosition(context.ident, idnDef)
       val exp = Option(context.expr())

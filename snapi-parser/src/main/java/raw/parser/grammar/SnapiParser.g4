@@ -27,10 +27,13 @@ fun_param: attr                                                 # FunParamAttr
          ;
 
 attr: ident COLON tipe
+    | ident COLON {notifyErrorListeners("Missing type");}
     | ident
     ;
 
-type_attr: ident COLON tipe;
+type_attr: ident COLON tipe
+         | ident COLON {notifyErrorListeners("Missing type");}
+         ;
 
 // the input parameters of a function
 fun_ar: LEFT_PAREN fun_args? RIGHT_PAREN;
@@ -131,6 +134,8 @@ let_decl: let_bind                                             # LetBind
 
 let_bind: ident EQUALS expr
         | ident COLON tipe EQUALS expr
+        | ident COLON {notifyErrorListeners("Missing type");}
+        | ident COLON {notifyErrorListeners("Missing type");} EQUALS expr
         | ident EQUALS {notifyErrorListeners("Missing expression binding");}
         | ident COLON tipe EQUALS {notifyErrorListeners("Missing expression binding");}
         ;

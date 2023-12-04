@@ -12,7 +12,26 @@
 
 package raw.compiler.rql2
 
+import raw.compiler.common.source.{ErrorType, IdnDef, IdnExp, IdnUse}
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
+import raw.compiler.rql2.source.{
+  BinaryExp,
+  FunApp,
+  FunAppArg,
+  FunBody,
+  FunParam,
+  FunProto,
+  IntConst,
+  Let,
+  LetBind,
+  LetFun,
+  Mult,
+  Rql2IntType,
+  Rql2IsNullableTypeProperty,
+  Rql2IsTryableTypeProperty,
+  Rql2Program,
+  TypeExp
+}
 import raw.utils.RawTestSuite
 
 class Antlr4LSPTests extends RawTestSuite {
@@ -79,6 +98,77 @@ class Antlr4LSPTests extends RawTestSuite {
       |""".stripMargin
     val result = parseWithAntlr4(prog)
     assert(result.hasErrors)
+  }
+
+  test("""Missing type let bind""") { _ =>
+    val prog = """let b = type int, a :  = 5 in a""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(result.hasErrors)
+    assert(
+      result.tree == Rql2Program(
+        Vector(),
+        Some(
+          Let(
+            Vector(
+              LetBind(
+                TypeExp(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                IdnDef("b"),
+                None
+              ),
+              LetBind(IntConst("5"), IdnDef("a"), Some(ErrorType()))
+            ),
+            IdnExp(IdnUse("a"))
+          )
+        )
+      )
+    )
+  }
+
+  test("""Missing attr type""") { _ =>
+    val prog = """let b = type int, f(v:  ) = v * 2 in f(1)""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(result.hasErrors)
+    assert(
+      result.tree == Rql2Program(
+        Vector(),
+        Some(
+          Let(
+            Vector(
+              LetBind(
+                TypeExp(Rql2IntType(Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty()))),
+                IdnDef("b"),
+                None
+              ),
+              LetFun(
+                FunProto(
+                  Vector(FunParam(IdnDef("v"), Some(ErrorType()), None)),
+                  None,
+                  FunBody(BinaryExp(Mult(), IdnExp(IdnUse("v")), IntConst("2")))
+                ),
+                IdnDef("f")
+              )
+            ),
+            FunApp(IdnExp(IdnUse("f")), Vector(FunAppArg(IntConst("1"), None)))
+          )
+        )
+      )
+    )
+  }
+
+  test("""Escaped identifier with colon""") { _ =>
+    val prog = """let
+      |    myVar = 123,
+      |    `my:` = 3
+      |in
+      |m""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(!result.hasErrors)
+  }
+
+  test("""record type completion""") { _ =>
+    val prog = """let b = type int, c = Json.Read("url", type record()) in c""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(!result.hasErrors)
   }
 
 }

@@ -120,7 +120,7 @@ class CompilerLspService(
 
     maybeNode match {
       case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) |
-          Some(TypeAliasType(IdnUse(_))) =>
+          Some(LetBind(_, _, Some(TypeAliasType(_)))) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
         AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.
