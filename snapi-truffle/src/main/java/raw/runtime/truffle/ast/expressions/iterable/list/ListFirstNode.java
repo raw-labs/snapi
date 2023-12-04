@@ -28,7 +28,7 @@ import raw.runtime.truffle.runtime.primitives.NullObject;
 public abstract class ListFirstNode extends ExpressionNode {
 
   @Specialization(limit = "3")
-  protected Object doByte(Object list, @CachedLibrary("list") ListLibrary lists) {
+  protected Object doFirst(Object list, @CachedLibrary("list") ListLibrary lists) {
     if (lists.size(list) == 0) {
       return NullObject.INSTANCE;
     }
