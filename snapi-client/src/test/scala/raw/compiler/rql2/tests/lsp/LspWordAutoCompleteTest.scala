@@ -143,9 +143,9 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
 
   test("type autocomplete with colon") { _ =>
     wordAutoCompleteTest(
-      """let b = type int, a :  = 5 in a""",
+      """let b = type int, a :  in a""",
       1,
-      23,
+      21,
       "",
       allTypes :+ (("b", Some("int")))
     )
@@ -201,10 +201,10 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
         |      y1 = type string,
         |      y2: y1 = "1"
         |    in y2,
-        |  z: = 5
+        |  z:
         |in z """.stripMargin,
       8,
-      6,
+      5,
       "",
       allTypes :+ (("x", Some("int")))
     )
@@ -218,7 +218,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
         |    let
         |      y1 = type string,
         |      y2: y1 = "1",
-        |      y3: = 5
+        |      y3:
         |    in y2
         |in z """.stripMargin,
       7,

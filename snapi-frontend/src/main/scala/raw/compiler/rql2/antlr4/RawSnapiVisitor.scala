@@ -41,7 +41,7 @@ class RawSnapiVisitor(
     else Set.empty
 
   private def getBrokenTypeCompletion(t: Option[Type], context: ParserRuleContext): Option[Type] = {
-    if (t.isEmpty && context.getText.contains(":") && !context.getText.contains("`")) {
+    if (t.isEmpty && context.getText.trim.last == ':' && !context.getText.contains("`")) {
       Option(ErrorType().asInstanceOf[Type])
     } else t
   }
