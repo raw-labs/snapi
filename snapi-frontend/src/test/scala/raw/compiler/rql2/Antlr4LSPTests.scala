@@ -115,7 +115,7 @@ class Antlr4LSPTests extends RawTestSuite {
                 IdnDef("b"),
                 None
               ),
-              LetBind(IntConst("5"), IdnDef("a"), Some(ErrorType()))
+              LetBind(IntConst("5"), IdnDef("a"), None)
             ),
             IdnExp(IdnUse("a"))
           )

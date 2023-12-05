@@ -80,16 +80,6 @@ class CompilerLspService(
       StringSource(source)
     )
 
-    def unfoldForCompletion(node: SourceNode): SourceNode = {
-      // This are the cases where we hit a white space but it is inside a node.
-      // Which means we don't want the parent node but the closest child node.
-      node match {
-        case p: Rql2Program => p.me.map(unfoldForCompletion).getOrElse(p)
-        case fp: FunProto => fp.ps.find(p => p.t.isDefined && p.t.get == ErrorType()).getOrElse(fp)
-        case n => n
-      }
-    }
-
     def getClosestNode = {
       // So we did not find any node.
       // This can happen because we are sitting on whitespace (can typically happen when the prefix is empty).
@@ -120,13 +110,12 @@ class CompilerLspService(
       .collect { case n: SourceNode if positions.getStart(n).isDefined && positions.getFinish(n).isDefined => n }
       .sortBy(n => positions.textOf(n).get.length)
       .headOption
-      .map(unfoldForCompletion)
       .orElse(getClosestNode)
 
-    maybeNode match {
+    getClosestNode match {
       case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) | Some(
             LetBind(_, _, Some(TypeAliasType(_)))
-          ) | Some(Rql2AttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) =>
+          ) | Some(Rql2AttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) | Some(TypeAliasType(_)) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
         AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.

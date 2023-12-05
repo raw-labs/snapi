@@ -145,9 +145,9 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     wordAutoCompleteTest(
       """let b = type int, a :  in a""",
       1,
-      21,
+      23,
       "",
-      allTypes :+ (("b", Some("int")))
+      allTypes
     )
   }
 
@@ -204,7 +204,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
         |  z:
         |in z """.stripMargin,
       8,
-      5,
+      6,
       "",
       allTypes :+ (("x", Some("int")))
     )
@@ -242,7 +242,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     wordAutoCompleteTest(
       """let a = type  in a""",
       1,
-      12,
+      14,
       "",
       allTypes
     )
