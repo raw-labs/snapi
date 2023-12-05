@@ -14,11 +14,7 @@ package raw.runtime.truffle.runtime.record;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
@@ -34,6 +30,7 @@ public final class RecordObject implements TruffleObject {
 
   public final Vector<String> keys = new Vector<>();
   private final Vector<String> distinctKeys;
+  private boolean validDistinctKeys = true;
   public final DynamicObject values;
   private static final Shape rootShape =
       Shape.newBuilder().layout(RecordStorageObject.class).build();
@@ -44,6 +41,10 @@ public final class RecordObject implements TruffleObject {
   }
 
   private Vector<String> getDistinctKeys() {
+    if (!validDistinctKeys) {
+      refreshDistinctKeys();
+      validDistinctKeys = true;
+    }
     return distinctKeys;
   }
 
@@ -125,7 +126,7 @@ public final class RecordObject implements TruffleObject {
 
   @ExportMessage
   boolean isMemberInsertable(String member, @CachedLibrary("this") InteropLibrary receivers) {
-    return !receivers.isMemberExisting(this, member);
+    return false;
   }
 
   @ExportMessage
@@ -146,59 +147,14 @@ public final class RecordObject implements TruffleObject {
     return result;
   }
 
-  //  public Object readIdx(int idx) throws InvalidArrayIndexException {
-  //    // Pick a value by its index. Just go fetch the key in the dynamic object.
-  //    if (idx < 0 || idx >= keys.size()) {
-  //      return InvalidArrayIndexException.create(idx);
-  //    }
-  //    return valuesLibrary.getOrDefault(values, idx, null);
-  //  }
-
-  //  public Object readByKey(String key) throws UnknownIdentifierException {
-  //    // Non-interop API, key is searched in the possibly duplicate keys.
-  //    // To be used with care: searching a duplicate key would be a bug.
-  //    try {
-  //      return readIdx(keys.indexOf(key));
-  //    } catch (InvalidArrayIndexException e) {
-  //      throw UnknownIdentifierException.create(key);
-  //    }
-  //  }
-
-  // Write a field by index. The String key should be provided
-  // since all fields have names (possibly duplicated).
-  // It's an internal API, a key/idx isn't supposed to be overwritten.
-  //  @TruffleBoundary
-  //  public void writeIdx(int idx, String key, Object value) {
-  //    if (idx >= keys.size()) {
-  //      keys.setSize(idx + 1);
-  //      distinctKeys = null;
-  //    }
-  //    keys.set(idx, key);
-  //    valuesLibrary.put(values, idx, value);
-  //  }
-
-  // adds a value by key only (auto-increment the index)
-  // TODO replace all internal calls to writeMember by calls to addByKey
-  //  public void addByKey(String key, Object value) {
-  //    valuesLibrary.put(
-  //        values, keys.size(), value); // "key" to use in the dynamic object is the current index.
-  //    keys.add(key); // the original key is added (possible duplicate)
-  //  }
-
-  @ExportMessage
-  // TODO (RD-9392) our internal calls that write fields should use an internal API (addByKey,
-  // etc.)
-  // and
-  //  writeMember should expose a semantic matching the interop API.
-  public void writeMember(
-      String name, Object value, @Cached("create()") RecordNodes.AddByKeyNode addByKey) {
-    addByKey.execute(this, name, value);
-    refreshDistinctKeys();
+  void invalidateDistinctKeys() {
+    validDistinctKeys = false;
   }
 
   @ExportMessage
-  void removeMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary) {
-    valuesLibrary.removeKey(values, name);
-    refreshDistinctKeys();
-  }
+  void writeMember(String member, Object value)
+      throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException {}
+
+  @ExportMessage
+  void removeMember(String member) throws UnsupportedMessageException, UnknownIdentifierException {}
 }
