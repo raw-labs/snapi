@@ -74,4 +74,6 @@ class RawPositions(positions: Positions, source: Source) {
     }
   }
 
+  def getPositions: Positions = positions
+
 }

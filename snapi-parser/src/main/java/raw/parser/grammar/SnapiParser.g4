@@ -81,7 +81,9 @@ param_list: (tipe | attr) (COMMA (tipe | attr))* COMMA?;
 record_type: RECORD_TOKEN LEFT_PAREN record_attr_list? RIGHT_PAREN;
 record_attr_list: type_attr (COMMA type_attr)* COMMA?;
 iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
-list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
+list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN
+         | LIST_TOKEN LEFT_PAREN  {notifyErrorListeners("Missing type");} RIGHT_PAREN
+         ;
 expr_type: TYPE_TOKEN tipe
          | TYPE_TOKEN {notifyErrorListeners("Missing type");}
          ;

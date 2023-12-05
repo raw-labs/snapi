@@ -201,8 +201,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
         |      y1 = type string,
         |      y2: y1 = "1"
         |    in y2,
-        |  z:
-        |in z """.stripMargin,
+        |  z: in z """.stripMargin,
       8,
       6,
       "",

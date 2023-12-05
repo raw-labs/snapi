@@ -61,6 +61,6 @@ trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
     |  hello = type recor(a: int)
     |in
     |  hello
-    |""".stripMargin)(it => it should parseErrorAs("no viable alternative at input 'hello=typerecor(a:int)'"))
+    |""".stripMargin)(it => it should parseErrorAs("Missing ','"))
 
 }

@@ -176,4 +176,10 @@ class Antlr4LSPTests extends RawTestSuite {
     val result = parseWithAntlr4(prog)
     assert(result.hasErrors)
   }
+
+  test("""list type completion""") { _ =>
+    val prog = """let b = type int, c = Json.Read("url", type list()) in c""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(result.hasErrors)
+  }
 }

@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.lsp
 
+import com.esotericsoftware.minlog.Log.Logger
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
@@ -106,20 +107,20 @@ class CompilerLspService(
 
     // Find the most precise node at a given position.
     // Filter nodes that have start and finish defined and sort by length. Take the shortest one, i.e. the 'deepest' node.
-    val maybeNode: Option[SourceNode] = getNodesAtPosition(currentPosition)
-      .collect { case n: SourceNode if positions.getStart(n).isDefined && positions.getFinish(n).isDefined => n }
-      .sortBy(n => positions.textOf(n).get.length)
-      .headOption
-      .orElse(closestNodeToCurrentPosition)
+    val maybeNode = closestNodeToCurrentPosition
 
-    closestNodeToCurrentPosition match {
+    maybeNode match {
       case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) | Some(
             LetBind(_, _, Some(TypeAliasType(_)))
           ) | Some(Rql2AttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) | Some(TypeAliasType(_)) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
         AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.
-        val maybeEntries = maybeNode
+        val maybeEntries = getNodesAtPosition(currentPosition)
+          .collect { case n: SourceNode if positions.getStart(n).isDefined && positions.getFinish(n).isDefined => n }
+          .sortBy(n => positions.textOf(n).get.length)
+          .headOption
+          .orElse(maybeNode)
           .map { n =>
             val entities = analyzer.scopeInWithIdentifier(n)
             entities
