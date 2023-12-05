@@ -19,6 +19,8 @@ fun_dec: ident fun_proto                                        # NormalFun
 
 fun_proto: LEFT_PAREN (fun_param (COMMA fun_param)*)?
              COMMA? RIGHT_PAREN (COLON tipe)? EQUALS expr
+         | LEFT_PAREN (fun_param (COMMA fun_param)*)?
+             COMMA? RIGHT_PAREN COLON {notifyErrorListeners("Missing type");} EQUALS expr
          ;
 
 
@@ -80,7 +82,9 @@ record_type: RECORD_TOKEN LEFT_PAREN record_attr_list? RIGHT_PAREN;
 record_attr_list: type_attr (COMMA type_attr)* COMMA?;
 iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
-expr_type: TYPE_TOKEN tipe;
+expr_type: TYPE_TOKEN tipe
+         | TYPE_TOKEN {notifyErrorListeners("Missing type");}
+         ;
 
 // ========== expressions ============
 expr: LEFT_PAREN expr RIGHT_PAREN                                             # ParenExpr

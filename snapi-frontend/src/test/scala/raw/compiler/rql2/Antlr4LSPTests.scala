@@ -171,4 +171,9 @@ class Antlr4LSPTests extends RawTestSuite {
     assert(!result.hasErrors)
   }
 
+  test("""function type completion""") { _ =>
+    val prog = """let b = type int, f(v: int):  = v * 2 in f(1)""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(!result.hasErrors)
+  }
 }

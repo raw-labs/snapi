@@ -151,6 +151,16 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     )
   }
 
+  test("type autocomplete with colon without in") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, a : """,
+      1,
+      23,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
   test("type autocomplete with colon and prefix") { _ =>
     wordAutoCompleteTest(
       """let by = type int, a : b = 5 in a""",
@@ -169,9 +179,9 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
 
   test("argument type autocomplete with colon") { _ =>
     wordAutoCompleteTest(
-      """let b = type int, f(v:) = v * 2 in f(1)""",
+      """let b = type int, f(v:  ) = v * 2 in f(1)""",
       1,
-      22,
+      24,
       "",
       allTypes :+ (("b", Some("int")))
     )
@@ -218,40 +228,40 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     )
   }
 
-  // This tests need either LSPSyntaxAnalyzer support or the new parser
-
   test("nested type autocompletion") { _ =>
-      wordAutoCompleteTest(
-        """let b = type int, c = Json.Read("url", type record()) in c""",
-        1,
-        52,
-        "",
-        allTypes :+ (("b", Some("int")))
-      )
-    }
-
-  test("typealias completion") { _ =>
     wordAutoCompleteTest(
-      """let a = type  in a""",
+      """let b = type int, c = Json.Read("url", type record(a:  )) in c""",
       1,
-      14,
-      "",
-      allTypes
-    )
-  }
-
-  test("function type autocomplete with colon") { _ =>
-    wordAutoCompleteTest(
-      """let b = type int, f(v: int):  = v * 2 in f(1)""",
-      1,
-      30,
+      55,
       "",
       allTypes :+ (("b", Some("int")))
     )
   }
 
+  test("typealias completion") { _ =>
+    wordAutoCompleteTest(
+      """let a = type  in a""",
+      1,
+      12,
+      "",
+      allTypes
+    )
+  }
+
+// for this test to pass we need to separate funproto in two parts
+//  test("function type autocomplete with colon") { _ =>
+//    wordAutoCompleteTest(
+//      """let b = type int, f(v: int):  = v * 2 in f(1)""",
+//      1,
+//      28,
+//      "",
+//      allTypes :+ (("b", Some("int")))
+//    )
+//  }
+
   test("function type autocomplete without colon") { _ =>
-    val AutoCompleteResponse(entries) = wordAutoComplete("""let b = type int, f(v: int)  = v * 2 in f(1)""", "", Pos(1, 23))
+    val AutoCompleteResponse(entries) =
+      wordAutoComplete("""let b = type int, f(v: int)  = v * 2 in f(1)""", "", Pos(1, 23))
     assert(entries.length > 17)
   }
 

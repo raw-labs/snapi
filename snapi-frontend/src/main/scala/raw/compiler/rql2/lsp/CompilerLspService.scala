@@ -79,48 +79,54 @@ class CompilerLspService(
       position.column,
       StringSource(source)
     )
+
+    def unfoldForCompletion(node: SourceNode): SourceNode = {
+      // This are the cases where we hit a white space but it is inside a node.
+      // Which means we don't want the parent node but the closest child node.
+      node match {
+        case p: Rql2Program => p.me.map(unfoldForCompletion).getOrElse(p)
+        case fp: FunProto => fp.ps.find(p => p.t.isDefined && p.t.get == ErrorType()).getOrElse(fp)
+        case n => n
+      }
+    }
+
+    def getClosestNode = {
+      // So we did not find any node.
+      // This can happen because we are sitting on whitespace (can typically happen when the prefix is empty).
+      // In this case, we have to find the closest node to us, and auto-complete from it.
+      // The closest node is a node in the same line but that finishes just before:
+      // 'let x = a  []'
+      // So in the example above we are at [], therefore the closest node is IdnExp(a)
+      // ... or, the node in the previous line that is most to the right:
+      // 'let x = a
+      //     []'
+      // So in the example above we are at [], therefore the closest node is again IdnExp(a) because it's the rightmost
+      // node in the previous line.
+
+      // Find nodes in the closest line to ours.
+      analyzer.tree.nodes
+        // First isolate nodes that end before our position
+        .filter(positions.getFinish(_).exists(_ <= currentPosition))
+        // Order them by 1/ the offset they *end* at, and 2/ the offset they *start* at.
+        // 1. The ones with the highest ending offset are the closest to our position.
+        // 2. Among those, the one with the highest *starting* offset, is the deepest.
+        .sortBy(node => (positions.getFinish(node).flatMap(_.optOffset), positions.getStart(node).flatMap(_.optOffset)))
+        .lastOption
+    }
+
     // Find the most precise node at a given position.
     // Filter nodes that have start and finish defined and sort by length. Take the shortest one, i.e. the 'deepest' node.
     val maybeNode: Option[SourceNode] = getNodesAtPosition(currentPosition)
       .collect { case n: SourceNode if positions.getStart(n).isDefined && positions.getFinish(n).isDefined => n }
       .sortBy(n => positions.textOf(n).get.length)
       .headOption
-      .map {
-        case l: Let =>
-          // If our precise node is a Let, return instead the <in> part of the Let, because that's probably where we
-          // actually want to infer.
-          l.e
-        case n => n
-      }
-      .orElse {
-        // So we did not find any node.
-        // This can happen because we are sitting on whitespace (can typically happen when the prefix is empty).
-        // In this case, we have to find the closest node to us, and auto-complete from it.
-        // The closest node is a node in the same line but that finishes just before:
-        // 'let x = a  []'
-        // So in the example above we are at [], therefore the closest node is IdnExp(a)
-        // ... or, the node in the previous line that is most to the right:
-        // 'let x = a
-        //     []'
-        // So in the example above we are at [], therefore the closest node is again IdnExp(a) because it's the rightmost
-        // node in the previous line.
-
-        // Find nodes in the closest line to ours.
-        analyzer.tree.nodes
-          // First isolate nodes that end before our position
-          .filter(positions.getFinish(_).exists(_ <= currentPosition))
-          // Order them by 1/ the offset they *end* at, and 2/ the offset they *start* at.
-          // 1. The ones with the highest ending offset are the closest to our position.
-          // 2. Among those, the one with the highest *starting* offset, is the deepest.
-          .sortBy(node =>
-            (positions.getFinish(node).flatMap(_.optOffset), positions.getStart(node).flatMap(_.optOffset))
-          )
-          .lastOption
-      }
+      .map(unfoldForCompletion)
+      .orElse(getClosestNode)
 
     maybeNode match {
-      case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) |
-          Some(LetBind(_, _, Some(TypeAliasType(_)))) =>
+      case Some(LetBind(_, _, Some(ErrorType()))) | Some(FunParam(IdnDef(_), Some(ErrorType()), None)) | Some(
+            LetBind(_, _, Some(TypeAliasType(_)))
+          ) | Some(Rql2AttrType(_, ErrorType())) | Some(TypeExp(ErrorType())) =>
         val allTypes = getAllTypesInScope(maybeNode, prefix)
         AutoCompleteResponse(allTypes)
       case _ => // Given that node, ask the "chain" for all entries in scope.
