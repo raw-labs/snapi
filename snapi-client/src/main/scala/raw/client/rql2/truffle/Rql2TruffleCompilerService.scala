@@ -12,7 +12,7 @@
 
 package raw.client.rql2.truffle
 
-import org.bitbucket.inkytonik.kiama.relation.EnsureTree
+import org.bitbucket.inkytonik.kiama.relation.LeaveAlone
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.graalvm.polyglot._
 import raw.client.api._
@@ -631,7 +631,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     val ParseProgramResult(errors, program) = parser.parse(source)
     val tree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
       program,
-      shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
+      shape = LeaveAlone // The LSP parser can create "cloned nodes" so this protects it.
     )
     val analyzer = new SemanticAnalyzer(tree)(programContext.asInstanceOf[ProgramContext])
     // Handle the LSP request.
