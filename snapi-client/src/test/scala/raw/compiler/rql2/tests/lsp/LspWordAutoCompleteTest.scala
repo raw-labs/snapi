@@ -228,11 +228,21 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     )
   }
 
-  test("nested type autocompletion") { _ =>
+  test("nested record type autocompletion") { _ =>
     wordAutoCompleteTest(
       """let b = type int, c = Json.Read("url", type record(a:  )) in c""",
       1,
       55,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
+  test("nested type autocompletion") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, c = Json.Read("url", type list()) in c""",
+      1,
+      50,
       "",
       allTypes :+ (("b", Some("int")))
     )
