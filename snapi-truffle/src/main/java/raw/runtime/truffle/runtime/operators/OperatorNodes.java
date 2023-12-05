@@ -312,16 +312,5 @@ public class OperatorNodes {
         throw new RawTruffleRuntimeException(Tryable.getFailure(right));
       }
     }
-
-    //    @Specialization(guards = {"left != null", "right != null"})
-    //    static Object doNullableTryable(
-    //        Object left,
-    //        Object right,
-    //        @Cached AddNode add,
-    //        @Cached TryableNullableNodes.UnboxUnsafeNode unbox) {
-    //      Object unboxedLeft = unbox.execute(left);
-    //      Object unboxedRight = unbox.execute(right);
-    //      return add.execute(unboxedLeft, unboxedRight);
-    //    }
   }
 }

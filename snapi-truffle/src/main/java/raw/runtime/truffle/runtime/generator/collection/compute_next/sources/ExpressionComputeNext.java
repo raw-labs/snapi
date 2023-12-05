@@ -18,7 +18,6 @@ import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.compute_next.ComputeNextLibrary;
 
-@ExportLibrary(ComputeNextLibrary.class)
 public final class ExpressionComputeNext {
 
   private final Object[] values;
