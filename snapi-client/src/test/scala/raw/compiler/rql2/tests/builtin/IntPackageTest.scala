@@ -16,6 +16,27 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait IntPackageTest extends CompilerTestContext {
 
-  test("""let x = [List.Transform, null]
-    |in List.Count(x)""".stripMargin)(t => executeQuery(t.q))
+  test(""" Int.From(1)""")(it => it should evaluateTo("1"))
+
+  test(""" Int.From("1")""")(it => it should evaluateTo("1"))
+
+  test(""" Int.From(1.5)""")(it => it should evaluateTo("1"))
+
+  test(""" Int.From(1.5f)""")(it => it should evaluateTo("1"))
+
+  test(""" Int.From(List.Build(1, 2, 3))""")(it =>
+    it should typeErrorAs("expected either number or string but got list(int)")
+  )
+
+  test(""" Int.From("abc")""")(it => it should runErrorAs("cannot cast 'abc' to int"))
+
+  // Errors don't propagate through
+  test(""" [Int.From("abc") + 12]""")(it => it should evaluateTo("""[Error.Build("cannot cast 'abc' to int")]"""))
+
+  // Nullability is handled
+  test(""" [Int.From("abc" + null) + 12]""")(it => it should evaluateTo("""[null]"""))
+  test(""" [Int.From(1b + null) + 12b]""")(it => it should evaluateTo("""[null]"""))
+
+  // Range tests
+  test("""Long.Range(0,2,step=1)""")(it => it should evaluateTo("""Collection.Build(0L,1L)"""))
 }
