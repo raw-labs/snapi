@@ -16,7 +16,6 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait IntPackageTest extends CompilerTestContext {
 
-  test(
-    """let x = [List.Transform, null]
-      |in List.Count(x)""".stripMargin)(t => executeQuery(t.q))
+  test("""let x = [List.Transform, null]
+    |in List.Count(x)""".stripMargin)(t => executeQuery(t.q))
 }
