@@ -71,7 +71,7 @@ public class RecordNodes {
         record.keys.setSize(idx + 1);
       }
       record.keys.set(idx, key);
-      record.refreshDistinctKeys();
+      record.invalidateDistinctKeys();
       valuesLibrary.put(record.values, idx, value);
     }
   }
@@ -94,7 +94,7 @@ public class RecordNodes {
           record.keys.size(),
           value); // "key" to use in the dynamic object is the current index.
       record.keys.add(key); // the original key is added (possible duplicate)
-      record.refreshDistinctKeys();
+      record.invalidateDistinctKeys();
     }
   }
 }
