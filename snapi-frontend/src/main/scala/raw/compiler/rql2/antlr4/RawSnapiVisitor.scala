@@ -36,7 +36,7 @@ class RawSnapiVisitor(
 
   private val assertionMessage = "This is a helper (better grammar readability)  node, should never visit it"
 
-  private val defaultProps: Set[Rql2TypeProperty] =
+  private def defaultProps: Set[Rql2TypeProperty] =
     if (isFrontend) Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
     else Set.empty
 
