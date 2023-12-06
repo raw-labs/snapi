@@ -13,6 +13,7 @@
 package raw.compiler.rql2
 
 import raw.compiler.common.source._
+import raw.compiler.rql2.source.InternalSourcePrettyPrinter
 
 class Tree(originalRoot: SourceProgram, ensureTree: Boolean = true)(
     implicit programContext: ProgramContext
@@ -23,7 +24,7 @@ class Tree(originalRoot: SourceProgram, ensureTree: Boolean = true)(
   override lazy val analyzer = new SemanticAnalyzer(sourceTree)
 
   override def cloneWithPositions(): TreeWithPositions = {
-    new TreeWithPositions(pretty, ensureTree)
+    new TreeWithPositions(InternalSourcePrettyPrinter.format(originalRoot), ensureTree, frontend = false)
   }
 
   override def checkSemanticAnalyzer(): Boolean = {

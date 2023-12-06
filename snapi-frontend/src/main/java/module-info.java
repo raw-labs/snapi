@@ -62,6 +62,7 @@ module raw.snapi.frontend {
   requires software.amazon.awssdk.utils;
   requires raw.utils;
   requires raw.client;
+  requires raw.snapi.parser;
 
   exports raw.auth.api;
   exports raw.creds.api;

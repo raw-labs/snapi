@@ -25,6 +25,7 @@ import raw.client.api._
 import scala.util.Try
 
 class CompilerLspService(
+    parseErrors: List[ErrorMessage],
     analyzer: SemanticAnalyzer,
     positions: Positions
 )(implicit programContext: ProgramContext)
@@ -400,7 +401,7 @@ class CompilerLspService(
         case Some(range) => ErrorMessage(ErrorsPrettyPrinter.format(err), List(range))
         case _ => ErrorMessage(ErrorsPrettyPrinter.format(err), List.empty)
       }
-    }.to
+    }.toList ++ parseErrors
   }
 
   private def getRange(n: BaseNode): Option[ErrorRange] = {

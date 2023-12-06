@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.tests
+package raw.compiler.rql2.tests.truffle.spec
 
 import raw.compiler.rql2.tests.spec._
 import raw.compiler.rql2.truffle.TruffleCompilerTestContext

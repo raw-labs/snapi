@@ -585,7 +585,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       |                          machineId: Int.From(List.Get(groups, 1)),
       |                          timestamp: Timestamp.Parse(
       |                              List.Get(groups, 0),
-      |                              "y-M-d'T'H:m:s"
+      |                              "y-M-d\'T\'H:m:s"
       |                          ),
       |                          error: List.Get(groups, 2)
       |                      }
@@ -696,7 +696,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |                in
         |                    {
         |                        machineId: Int.From(List.Get(groups, 1)),
-        |                        timestamp: Timestamp.Parse(List.Get(groups, 0), "y-M-d\'T\'H:m:s"),
+        |                        timestamp: Timestamp.Parse(List.Get(groups, 0), "y-M-d'T'H:m:s"),
         |                        error: List.Get(groups, 2)
         |                    }
         |        )

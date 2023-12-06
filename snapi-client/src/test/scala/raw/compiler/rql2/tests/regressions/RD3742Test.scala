@@ -42,6 +42,6 @@ trait RD3742Test extends CompilerTestContext {
     |   a = $triple$triple$triple,
     |   b = ${triple}Hello world!$triple
     |in
-    |   [a, b]""".stripMargin)(_ should typeErrorAs("in expected but '\"' found"))
+    |   [a, b]""".stripMargin)(_ should parseErrorAs("missing 'in' at '\",\\n   b = \"'"))
 
 }

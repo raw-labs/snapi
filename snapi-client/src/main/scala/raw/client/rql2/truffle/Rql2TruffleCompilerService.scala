@@ -23,11 +23,12 @@ import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
 import raw.compiler.base.source.BaseNode
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
+import raw.compiler.rql2._
+import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult}
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import raw.compiler.rql2.errors._
-import raw.compiler.rql2.lsp.{CompilerLspService, LspSyntaxAnalyzer}
+import raw.compiler.rql2.lsp.CompilerLspService
 import raw.compiler.rql2.source._
-import raw.compiler.rql2._
 import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
@@ -78,24 +79,27 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     SourcePrettyPrinter.format(node)
   }
 
-  // TODO (msb): Change signature to include position of the parsing error.
   override def parseType(tipe: String, user: AuthenticatedUser, internal: Boolean = false): ParseTypeResponse = {
     val positions = new Positions()
-    val parser = if (!internal) new FrontendSyntaxAnalyzer(positions) else new SyntaxAnalyzer(positions)
+    val parser = new Antlr4SyntaxAnalyzer(positions, !internal)
     parser.parseType(tipe) match {
-      case Right(t) => ParseTypeSuccess(t)
-      case Left((err, pos)) => ParseTypeFailure(err)
+      case ParseTypeResult(errors, tipe) if errors.isEmpty => ParseTypeSuccess(tipe)
+      case ParseTypeResult(errors, _) => ParseTypeFailure(errors)
     }
   }
 
   override def parse(source: String, environment: ProgramEnvironment): ParseResponse = {
     val programContext = getProgramContext(environment.user, environment)
     try {
-      val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-      val root = tree.root
-      ParseSuccess(root)
+      val positions = new Positions()
+      val parser = new Antlr4SyntaxAnalyzer(positions, true)
+      val parseResult = parser.parse(source)
+      if (parseResult.isSuccess) {
+        ParseSuccess(parseResult.tree)
+      } else {
+        ParseFailure(parseResult.errors)
+      }
     } catch {
-      case ex: CompilerParserException => ParseFailure(ex.getMessage, ex.position)
       case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
     }
   }
@@ -116,8 +120,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             GetTypeFailure(tree.errors)
           }
         } catch {
-          case ex: CompilerParserException =>
-            GetTypeFailure(List(ErrorMessage(ex.getMessage, List(raw.client.api.ErrorRange(ex.position, ex.position)))))
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
       }
@@ -175,9 +177,6 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             GetProgramDescriptionFailure(tree.errors)
           }
         } catch {
-          case ex: CompilerParserException => GetProgramDescriptionFailure(
-              List(ErrorMessage(ex.getMessage, List(raw.client.api.ErrorRange(ex.position, ex.position))))
-            )
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
         }
       }
@@ -585,43 +584,40 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       environment,
       _ => {
         val programContext = getProgramContext(environment.user, environment)
-        try {
-          // Will analyze the code and return only unknown declarations errors.
-          val positions = new Positions()
-          val parser = new FrontendSyntaxAnalyzer(positions)
-          parser.parse(source) match {
-            case Right(program) =>
-              val sourceProgram = program.asInstanceOf[SourceProgram]
-              val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
-                sourceProgram
-              )
-              val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
+        // Will analyze the code and return only unknown declarations errors.
+        val positions = new Positions()
+        val parser = new Antlr4SyntaxAnalyzer(positions, true)
+        val parseResult = parser.parse(source)
+        if (parseResult.isSuccess) {
+          val sourceProgram = parseResult.tree
+          val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+            sourceProgram
+          )
+          val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
 
-              // Selecting only a subset of the errors
-              val selection = analyzer.errors.filter {
-                // For the case of a function that does not exist in a package
-                case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
-                case _: UnknownDecl => true
-                case _: OutputTypeRequiredForRecursiveFunction => true
-                case _: UnexpectedOptionalArgument => true
-                case _: NoOptionalArgumentsExpected => true
-                case _: KeyNotComparable => true
-                case _: ItemsNotComparable => true
-                case _: MandatoryArgumentAfterOptionalArgument => true
-                case _: RepeatedFieldNames => true
-                case _: UnexpectedArguments => true
-                case _: MandatoryArgumentsMissing => true
-                case _: RepeatedOptionalArguments => true
-                case _: PackageNotFound => true
-                case _: NamedParameterAfterOptionalParameter => true
-                case _: ExpectedTypeButGotExpression => true
-                case _ => false
-              }
-              ValidateResponse(formatErrors(selection, positions))
-            case Left((err, pos)) => ValidateResponse(parseError(err, pos))
+          // Selecting only a subset of the errors
+          val selection = analyzer.errors.filter {
+            // For the case of a function that does not exist in a package
+            case UnexpectedType(_, PackageType(_), ExpectedProjType(_), _, _) => true
+            case _: UnknownDecl => true
+            case _: OutputTypeRequiredForRecursiveFunction => true
+            case _: UnexpectedOptionalArgument => true
+            case _: NoOptionalArgumentsExpected => true
+            case _: KeyNotComparable => true
+            case _: ItemsNotComparable => true
+            case _: MandatoryArgumentAfterOptionalArgument => true
+            case _: RepeatedFieldNames => true
+            case _: UnexpectedArguments => true
+            case _: MandatoryArgumentsMissing => true
+            case _: RepeatedOptionalArguments => true
+            case _: PackageNotFound => true
+            case _: NamedParameterAfterOptionalParameter => true
+            case _: ExpectedTypeButGotExpression => true
+            case _ => false
           }
-        } catch {
-          case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
+          ValidateResponse(formatErrors(selection, positions))
+        } else {
+          ValidateResponse(parseResult.errors)
         }
       }
     )
@@ -630,22 +626,17 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private def withLspTree[T](source: String, f: CompilerLspService => T)(
       implicit programContext: base.ProgramContext
   ): Either[(String, Position), T] = {
-    // Parse tree with dedicated parser, which is more lose and tries to obtain an AST even with broken code.
     val positions = new Positions()
-    val parser = new LspSyntaxAnalyzer(positions)
-    parser.parse(source).right.map { program =>
-      // Manually instantiate an analyzer to create a "flexible tree" that copes with broken code.
-      val sourceProgram = program.asInstanceOf[SourceProgram]
-      val kiamaTree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
-        sourceProgram,
-        shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
-      )
-      // Do not perform any validation on errors as we fully expect the tree to be "broken" in most cases.
-      val analyzer = new SemanticAnalyzer(kiamaTree)(programContext.asInstanceOf[ProgramContext])
-      // Handle the LSP request.
-      val lspService = new CompilerLspService(analyzer, positions)(programContext.asInstanceOf[ProgramContext])
-      f(lspService)
-    }
+    val parser = new Antlr4SyntaxAnalyzer(positions, true)
+    val ParseProgramResult(errors, program) = parser.parse(source)
+    val tree = new org.bitbucket.inkytonik.kiama.relation.Tree[SourceNode, SourceProgram](
+      program,
+      shape = EnsureTree // The LSP parser can create "cloned nodes" so this protects it.
+    )
+    val analyzer = new SemanticAnalyzer(tree)(programContext.asInstanceOf[ProgramContext])
+    // Handle the LSP request.
+    val lspService = new CompilerLspService(errors, analyzer, positions)(programContext.asInstanceOf[ProgramContext])
+    Right(f(lspService))
   }
 
   private def parseError(error: String, position: Position): List[ErrorMessage] = {

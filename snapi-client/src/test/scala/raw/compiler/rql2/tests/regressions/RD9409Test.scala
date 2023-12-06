@@ -17,10 +17,10 @@ import raw.client.api._
 
 trait RD9409Test extends CompilerTestContext {
 
-  test("""// note the extra comma after c = 3
-    |let a = 1,
+  test("""let
+    |    a = 1,
     |    b = 2,
-    |    c = 3,
+    |    c = 3
     |in a + b + c""".stripMargin) { it =>
     it should parse
     // now make sure the flexible parser works

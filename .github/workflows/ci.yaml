@@ -73,6 +73,18 @@ jobs:
       - name: build client
         working-directory: client
         run: ./build.sh
+      - name: snapi-parser headers
+        run: sbt headerCheckAll
+        working-directory: snapi-parser
+      - name: snapi-parser scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-parser
+      - name: snapi-parser java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-parser
+      - name: build snapi-parser
+        working-directory: snapi-parser
+        run: ./build.sh
       - name: snapi-frontend headers
         run: sbt headerCheckAll
         working-directory: snapi-frontend
@@ -125,6 +137,9 @@ jobs:
         working-directory: utils
         run: sbt doc
       - name: client doc
+        working-directory: client
+        run: sbt doc
+      - name: snapi-parser doc
         working-directory: client
         run: sbt doc
       - name: snapi-frontend doc
