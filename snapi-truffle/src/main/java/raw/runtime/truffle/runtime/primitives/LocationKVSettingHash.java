@@ -16,8 +16,8 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
+import raw.runtime.truffle.runtime.generator.collection_old.CollectionAbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection_old.compute_next.sources.ExpressionComputeNext;
 import raw.runtime.truffle.runtime.list.StringList;
 
 import java.util.Objects;

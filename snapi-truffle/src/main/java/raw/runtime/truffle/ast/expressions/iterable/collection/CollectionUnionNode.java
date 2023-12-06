@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.iterable.sources.UnionCollection;
+import raw.runtime.truffle.runtime.iterable_old.sources.UnionCollection;
 
 @NodeInfo(shortName = "Collection.Union")
 public class CollectionUnionNode extends ExpressionNode {

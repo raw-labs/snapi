@@ -20,7 +20,7 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.iterable.operations.DistinctCollection;
+import raw.runtime.truffle.runtime.iterable_old.operations.DistinctCollection;
 
 @NodeInfo(shortName = "Collection.Distinct")
 @NodeChild("input")

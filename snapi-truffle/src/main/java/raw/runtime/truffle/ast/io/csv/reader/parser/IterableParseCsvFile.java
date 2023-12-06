@@ -20,7 +20,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
-import raw.runtime.truffle.runtime.iterable.sources.CsvCollection;
+import raw.runtime.truffle.runtime.iterable_old.sources.CsvCollection;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.tryable_nullable.Nullable;

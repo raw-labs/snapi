@@ -305,10 +305,10 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.boundary;
   exports raw.runtime.truffle.runtime.aggregation;
   exports raw.runtime.truffle.runtime.aggregation.aggregator;
-  exports raw.runtime.truffle.runtime.iterable;
-  exports raw.runtime.truffle.runtime.iterable.operations;
-  exports raw.runtime.truffle.runtime.iterable.list;
-  exports raw.runtime.truffle.runtime.iterable.sources;
+  exports raw.runtime.truffle.runtime.iterable_old;
+  exports raw.runtime.truffle.runtime.iterable_old.operations;
+  exports raw.runtime.truffle.runtime.iterable_old.list;
+  exports raw.runtime.truffle.runtime.iterable_old.sources;
   exports raw.runtime.truffle.runtime.record;
   exports raw.runtime.truffle.runtime.operators;
   exports raw.runtime.truffle.runtime.kryo;
@@ -322,10 +322,10 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.exceptions.rdbms;
   exports raw.runtime.truffle.runtime.primitives;
   exports raw.runtime.truffle.runtime.generator;
-  exports raw.runtime.truffle.runtime.generator.collection;
-  exports raw.runtime.truffle.runtime.generator.collection.compute_next;
-  exports raw.runtime.truffle.runtime.generator.collection.compute_next.operations;
-  exports raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
+  exports raw.runtime.truffle.runtime.generator.collection_old;
+  exports raw.runtime.truffle.runtime.generator.collection_old.compute_next;
+  exports raw.runtime.truffle.runtime.generator.collection_old.compute_next.operations;
+  exports raw.runtime.truffle.runtime.generator.collection_old.compute_next.sources;
   exports raw.runtime.truffle.runtime.generator.list;
   exports raw.runtime.truffle.runtime.map;
   exports raw.runtime.truffle.runtime.list;
@@ -381,6 +381,7 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.exceptions.validation;
   exports raw.compiler.snapi.truffle.compiler;
   exports raw.compiler.rql2output.truffle.builtin;
-    exports raw.runtime.truffle.runtime.generator.generators.compute_next;
-  exports raw.runtime.truffle.runtime.generator.generators;
+    exports raw.runtime.truffle.runtime.generator.collection.compute_next;
+  exports raw.runtime.truffle.runtime.generator.collection;
+  exports raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 }

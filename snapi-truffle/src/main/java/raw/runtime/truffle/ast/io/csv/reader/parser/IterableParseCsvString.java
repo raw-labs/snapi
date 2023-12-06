@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
-import raw.runtime.truffle.runtime.iterable.sources.CsvFromStringCollection;
+import raw.runtime.truffle.runtime.iterable_old.sources.CsvFromStringCollection;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 

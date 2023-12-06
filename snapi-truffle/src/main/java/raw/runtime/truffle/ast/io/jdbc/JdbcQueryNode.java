@@ -19,7 +19,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
-import raw.runtime.truffle.runtime.iterable.sources.JdbcQueryCollection;
+import raw.runtime.truffle.runtime.iterable_old.sources.JdbcQueryCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.SourceContext;
 

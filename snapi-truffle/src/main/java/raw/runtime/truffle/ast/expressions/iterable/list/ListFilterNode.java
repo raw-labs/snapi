@@ -30,7 +30,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
 import raw.runtime.truffle.runtime.list.*;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 

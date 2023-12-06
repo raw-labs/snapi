@@ -22,7 +22,7 @@ import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
 
 @NodeInfo(shortName = "IterableWriteJson")
 public class IterableWriteJsonNode extends StatementNode {
