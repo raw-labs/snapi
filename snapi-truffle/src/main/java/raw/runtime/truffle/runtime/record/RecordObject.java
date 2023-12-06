@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.record;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -147,14 +148,26 @@ public final class RecordObject implements TruffleObject {
     return result;
   }
 
-  void invalidateDistinctKeys() {
-    validDistinctKeys = false;
+  // adds a value by key only (auto-increment the index)
+  // TODO replace all internal calls to writeMember by calls to addByKey
+  //  public void addByKey(String key, Object value) {
+  //    valuesLibrary.put(
+  //        values, keys.size(), value); // "key" to use in the dynamic object is the current index.
+  //    keys.add(key); // the original key is added (possible duplicate)
+  //  }
+
+  @ExportMessage
+  public void writeMember(
+      String name, Object value, @Cached("create()") RecordNodes.AddByKeyNode addByKey) {
+    addByKey.execute(this, name, value);
   }
 
   @ExportMessage
-  void writeMember(String member, Object value)
-      throws UnsupportedMessageException, UnknownIdentifierException, UnsupportedTypeException {}
+  void removeMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary) {
+    valuesLibrary.removeKey(values, name);
+  }
 
-  @ExportMessage
-  void removeMember(String member) throws UnsupportedMessageException, UnknownIdentifierException {}
+  void invalidateDistinctKeys() {
+    validDistinctKeys = false;
+  }
 }
