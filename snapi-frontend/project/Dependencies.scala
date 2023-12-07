@@ -8,7 +8,6 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
   val aws =
