@@ -404,11 +404,8 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
             }
             ExecutionValidationFailure(errors.to)
           } else {
-            if (ex.isInternalError) {
-              val programContext = getProgramContext(environment.user, environment)
-              throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
-            }
-            ExecutionRuntimeFailure(ex.getMessage)
+            val programContext = getProgramContext(environment.user, environment)
+            throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
           }
         } else {
           // Unexpected error. For now we throw the PolyglotException.
