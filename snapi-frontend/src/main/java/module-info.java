@@ -61,6 +61,7 @@ module raw.snapi.frontend {
   requires software.amazon.awssdk.thirdparty.jackson.core;
   requires software.amazon.awssdk.utils;
   requires org.postgresql.jdbc;
+  requires com.microsoft.sqlserver.jdbc;
   requires raw.utils;
   requires raw.client;
 
