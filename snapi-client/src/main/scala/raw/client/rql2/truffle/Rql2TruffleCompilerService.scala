@@ -558,11 +558,17 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
                 // The "flexible" tree did not find any semantic errors.
                 // So now we should parse with the "strict" parser/analyzer to get a proper tree and check for errors
                 // in that one.
-                val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-                if (tree.valid) {
-                  ValidateResponse(List.empty)
-                } else {
-                  ValidateResponse(tree.errors)
+                try {
+                  val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
+                  if (tree.valid) {
+                    ValidateResponse(List.empty)
+                  } else {
+                    ValidateResponse(tree.errors)
+                  }
+                } catch {
+                  case ex: CompilerParserException => ValidateResponse(
+                      List(ErrorMessage(ex.getMessage, List(raw.client.api.ErrorRange(ex.position, ex.position))))
+                    )
                 }
               } else {
                 // The "flexible" tree found some semantic errors, so report only those.
