@@ -551,23 +551,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
         try {
           withLspTree(
             source,
-            lspService => {
-              val response = lspService.validate
-              if (response.errors.isEmpty) {
-                // The "flexible" tree did not find any semantic errors.
-                // So now we should parse with the "strict" parser/analyzer to get a proper tree and check for errors
-                // in that one.
-                val tree = new TreeWithPositions(source, ensureTree = false, frontend = true)(programContext)
-                if (tree.valid) {
-                  ValidateResponse(List.empty)
-                } else {
-                  ValidateResponse(tree.errors)
-                }
-              } else {
-                // The "flexible" tree found some semantic errors, so report only those.
-                response
-              }
-            }
+            lspService => lspService.validate
           )(programContext) match {
             case Right(value) => value
             case Left((err, pos)) => ValidateResponse(parseError(err, pos))
