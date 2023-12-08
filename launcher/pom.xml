@@ -8,15 +8,15 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <raw-launcher.version>1.0-SNAPSHOT</raw-launcher.version>
-        <raw-client.version>0.27.5+1-feb68629+20231207-1411-SNAPSHOT</raw-client.version>
-        <raw-snapi-truffle.version>0.27.5+1-feb68629+20231207-1419-SNAPSHOT</raw-snapi-truffle.version>
-        <raw-snapi-client.version>0.27.5+1-feb68629+20231207-1413-SNAPSHOT</raw-snapi-client.version>
-        <raw-python-client.version>0.27.5+1-feb68629+20231207-1413-SNAPSHOT</raw-python-client.version>
+        <raw-client.version>0.27.11+2-886fc4e8+20231207-2150-SNAPSHOT</raw-client.version>
+        <raw-snapi-truffle.version>0.27.11+2-886fc4e8+20231207-2151-SNAPSHOT</raw-snapi-truffle.version>
+        <raw-snapi-client.version>0.27.11+2-886fc4e8+20231207-2151-SNAPSHOT</raw-snapi-client.version>
+        <raw-python-client.version>0.27.11+2-886fc4e8+20231207-2152-SNAPSHOT</raw-python-client.version>
     </properties>
 
     <groupId>com.raw-labs.com</groupId>
     <artifactId>raw-launcher</artifactId>
-    <version>0.27.5+1-feb68629+20231207-1413-SNAPSHOT</version>
+    <version>0.27.11+2-886fc4e8+20231207-2151-SNAPSHOT</version>
 
     <dependencies>
         <!-- GraalVM Polyglot Dependency -->
@@ -43,7 +43,8 @@
             <version>${raw-snapi-client.version}</version>
             <scope>runtime</scope>
         </dependency>
-        <dependency>
+ 
+        <!-- <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-python-client_2.12</artifactId>
             <version>${raw-python-client.version}</version>
@@ -55,7 +56,7 @@
             <version>23.1.0</version>
             <scope>runtime</scope>
             <type>pom</type>
-        </dependency>
+        </dependency> -->
         <!-- JLine Dependency -->
         <dependency>
             <groupId>org.jline</groupId>
@@ -83,11 +84,11 @@
             <artifactId>log4j-over-slf4j</artifactId>
             <version>2.0.5</version>
         </dependency>
-        <dependency>
+        <!-- <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jcl-over-slf4j</artifactId>
             <version>2.0.5</version>
-        </dependency>
+        </dependency> -->
         <dependency>
             <groupId>org.slf4j</groupId>
             <artifactId>jul-to-slf4j</artifactId>
@@ -117,6 +118,12 @@
             <scope>test</scope>
         </dependency>
 
+        <!-- fixing stuff-->
+        <dependency>
+            <groupId>jakarta.ws.rs</groupId>
+            <artifactId>jakarta.ws.rs-api</artifactId>
+            <version>3.1.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -142,7 +149,7 @@
 <!--                </configuration>-->
 <!--            </plugin>-->
             <!-- Required to run the application -->
-            <plugin>
+            <!-- <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.0.0</version>
@@ -156,9 +163,31 @@
                 <configuration>
                     <mainClass>raw.cli.RawCli</mainClass>
                 </configuration>
-            </plugin>
+            </plugin> -->
+            <!-- Save the entire classpath in a file. -->
+              <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <version>3.2.0</version>
+        <executions>
+          <execution>
+            <id>copy-dependencies</id>
+            <phase>prepare-package</phase>
+            <goals>
+              <goal>build-classpath</goal>
+            </goals>
+    <configuration>
+                <outputFile>${project.build.directory}/dependencies.txt</outputFile>
+                <outputScope>runtime</outputScope>
+                <outputAbsoluteArtifactFilename>true</outputAbsoluteArtifactFilename>
+                <pathSeparator>:</pathSeparator>
+                <includeTypes>jar</includeTypes> 
+            </configuration>
+                      </execution>
+        </executions>
+      </plugin>
             <!-- Required for native image generation. -->
-             <!-- <plugin>
+             <plugin>
                 <artifactId>exec-maven-plugin</artifactId>
                 <groupId>org.codehaus.mojo</groupId>
                 <executions>
@@ -169,20 +198,17 @@
                             <goal>exec</goal>
                         </goals>
                         <configuration>
-                            <executable>
-                                ${env.JAVA_HOME}/bin/native-image</executable>
-                            <commandlineArgs>
-                                -p %classpath
-                                --module-path %classpath
-                                -H:+UnlockExperimentalVMOptions
-                                -H:+ReportExceptionStackTraces
-                                -m ${launcherClass}
-                                -o ${project.build.directory}/slnative
-                            </commandlineArgs>
+                <executable>bash</executable>
+                <arguments>
+                            <argument>
+                               ./build-native.sh
+                            </argument>
+                                                <argument>${project.build.directory}/${project.build.finalName}.jar</argument>
+                            </arguments>
                         </configuration>
                     </execution>
                 </executions>
-            </plugin> -->
+            </plugin>
         </plugins>
     </build>
 

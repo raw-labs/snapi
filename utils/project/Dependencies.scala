@@ -7,7 +7,7 @@ object Dependencies {
   val slf4j = Seq(
     "org.slf4j" % "slf4j-api" % "2.0.5",
     "org.slf4j" % "log4j-over-slf4j" % "2.0.5",
-    "org.slf4j" % "jcl-over-slf4j" % "2.0.5",
+    //"org.slf4j" % "jcl-over-slf4j" % "2.0.5",
     "org.slf4j" % "jul-to-slf4j" % "2.0.5"
   )
 
