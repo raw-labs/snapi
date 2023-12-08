@@ -430,6 +430,8 @@ module raw.snapi.frontend {
       raw.compiler.rql2.builtin.MandatoryValueArgsEntry,
       raw.compiler.rql2.builtin.OptionalExpArgsTestEntry,
       raw.compiler.rql2.builtin.OptionalValueArgsTestEntry,
+      raw.compiler.rql2.builtin.OptionalValueArgSugar,
+      raw.compiler.rql2.builtin.VarValueArgSugarTestEntry,
       raw.compiler.rql2.builtin.VarExpArgsTestEntry,
       raw.compiler.rql2.builtin.VarValueArgsTestEntry,
       raw.compiler.rql2.builtin.VarNullableStringValueTestEntry,
