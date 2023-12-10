@@ -103,8 +103,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
     ProgramEnvironment programEnvironment = context.getProgramEnvironment();
     RuntimeContext runtimeContext =
-            new RuntimeContext(context.getSourceContext(), getRawSettings(), programEnvironment);
-    ProgramContext programContext = new Rql2ProgramContext(runtimeContext, getCompilerContext(context.getUser()));
+        new RuntimeContext(context.getSourceContext(), getRawSettings(), programEnvironment);
+    ProgramContext programContext =
+        new Rql2ProgramContext(runtimeContext, getCompilerContext(context.getUser()));
 
     String source = request.getSource().getCharacters().toString();
 
@@ -255,5 +256,4 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   public static void dropCaches() {
     languageCache.reset();
   }
-
 }

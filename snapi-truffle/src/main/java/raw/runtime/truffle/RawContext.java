@@ -22,7 +22,6 @@ import java.util.Objects;
 import raw.client.api.*;
 import raw.creds.api.Secret;
 import raw.inferrer.api.InferrerService;
-import raw.inferrer.api.InferrerServiceProvider;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
 import raw.sources.api.SourceContext;
