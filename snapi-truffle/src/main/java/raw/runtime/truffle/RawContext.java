@@ -43,12 +43,10 @@ public final class RawContext implements Closeable {
   private final RawLanguage language;
   private final Env env;
   private OutputStream output;
-  private SourceContext sourceContext;
   private AuthenticatedUser user;
   private String traceId;
   private String[] scopes;
   private ProgramEnvironment programEnvironment;
-  private InferrerService inferrer;
   private final RawFunctionRegistry functionRegistry;
 
   public RawContext(RawLanguage language, Env env) {
@@ -70,11 +68,6 @@ public final class RawContext implements Closeable {
     String scopesStr = Objects.toString(env.getEnvironment().get("RAW_SCOPES"), "");
     this.scopes = (scopesStr == null || scopesStr.isEmpty()) ? new String[0] : scopesStr.split(",");
 
-    // Create source context.
-    this.sourceContext =
-        new SourceContext(
-            this.user, language.credentialsService, language.rawSettings, new Some<>(classLoader));
-
     // Create program environment.
     Set<String> scalaScopes =
         JavaConverters.asScalaSetConverter(java.util.Set.of(this.scopes)).asScala().toSet();
@@ -92,9 +85,6 @@ public final class RawContext implements Closeable {
     Option<Tuple2<String, RawValue>[]> maybeArguments = Option.empty();
     this.programEnvironment =
         new ProgramEnvironment(this.user, maybeArguments, scalaScopes, scalaOptions, maybeTraceId);
-
-    // Initialize inferrer
-    this.inferrer = InferrerServiceProvider.apply(classLoader, this.sourceContext);
 
     // The function registry holds snapi methods (top level functions). It is the data
     // structure that is used to extract a ref to a function from a piece of execute snapi.
@@ -115,7 +105,7 @@ public final class RawContext implements Closeable {
   }
 
   public RawSettings getRawSettings() {
-    return language.rawSettings;
+    return language.getRawSettings();
   }
 
   public ProgramEnvironment getProgramEnvironment() {
@@ -127,7 +117,7 @@ public final class RawContext implements Closeable {
   }
 
   public InferrerService getInferrer() {
-    return inferrer;
+    return language.getInferrer(getUser());
   }
 
   public OutputStream getOutput() {
@@ -135,14 +125,14 @@ public final class RawContext implements Closeable {
   }
 
   public SourceContext getSourceContext() {
-    return sourceContext;
+    return language.getSourceContext(getUser());
   }
 
   public Secret getSecret(String key) {
     if (user == null) {
       throw new RawTruffleRuntimeException("User not set");
     }
-    return sourceContext.credentialsService().getSecret(user, key).get();
+    return getSourceContext().credentialsService().getSecret(user, key).get();
   }
 
   public AuthenticatedUser getUser() {
@@ -170,7 +160,6 @@ public final class RawContext implements Closeable {
 
   @Override
   public void close() {
-    inferrer.stop();
-    sourceContext.credentialsService().stop();
+    // Nothing to do.
   }
 }

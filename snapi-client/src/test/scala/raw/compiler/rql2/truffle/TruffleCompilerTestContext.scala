@@ -14,8 +14,17 @@ package raw.compiler.rql2.truffle
 
 import raw.compiler.rql2.api.Rql2OutputTestContext
 import raw.compiler.rql2.tests.CompilerTestContext
+import raw.runtime.truffle.RawLanguage
 
 class TruffleCompilerTestContext
     extends CompilerTestContext
     with Rql2OutputTestContext
-    with Rql2TruffleCompilerServiceTestContext
+    with Rql2TruffleCompilerServiceTestContext {
+
+  override def beforeAll(): Unit = {
+    super.beforeAll()
+    // Forcibly drop all language caches before each test suite.
+    RawLanguage.dropCaches()
+  }
+
+}

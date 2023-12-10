@@ -22,7 +22,6 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
-import com.typesafe.config.ConfigFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
@@ -37,13 +36,13 @@ import raw.compiler.rql2.*;
 import raw.compiler.rql2.source.InternalSourcePrettyPrinter;
 import raw.compiler.rql2.source.Rql2Program;
 import raw.compiler.snapi.truffle.compiler.TruffleEmit;
-import raw.creds.api.CredentialsService;
-import raw.creds.api.CredentialsServiceProvider;
+import raw.inferrer.api.InferrerService;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.sources.api.SourceContext;
+import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
-import scala.Some;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(
@@ -67,10 +66,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   public static final String VERSION = "0.10";
   public static final String MIME_TYPE = "application/x-rql";
 
-  public final RawSettings rawSettings =
-      new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
-  public final CredentialsService credentialsService =
-      CredentialsServiceProvider.apply(RawLanguage.class.getClassLoader(), rawSettings);
+  private static final RawLanguageCache languageCache = new RawLanguageCache();
 
   @Override
   protected final RawContext createContext(Env env) {
@@ -103,26 +99,16 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   @Override
   protected CallTarget parse(ParsingRequest request) throws Exception {
-    ClassLoader classLoader = RawLanguage.class.getClassLoader();
-
     RawContext context = RawContext.get(null);
-    RawSettings rawSettings = context.getRawSettings();
+
     ProgramEnvironment programEnvironment = context.getProgramEnvironment();
+    RuntimeContext runtimeContext =
+            new RuntimeContext(context.getSourceContext(), getRawSettings(), programEnvironment);
+    ProgramContext programContext = new Rql2ProgramContext(runtimeContext, getCompilerContext(context.getUser()));
 
     String source = request.getSource().getCharacters().toString();
 
     // Parse and validate
-    RuntimeContext runtimeContext =
-        new RuntimeContext(context.getSourceContext(), rawSettings, programEnvironment);
-    CompilerContext compilerContext =
-        new CompilerContext(
-            "rql2-truffle",
-            context.getUser(),
-            context.getInferrer(),
-            context.getSourceContext(),
-            new Some<>(classLoader),
-            rawSettings);
-    ProgramContext programContext = new Rql2ProgramContext(runtimeContext, compilerContext);
     try {
       // If we are in staged compiler mode, use the internal parser.
       boolean frontend = true;
@@ -249,4 +235,25 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   protected Object getScope(RawContext context) {
     return context.getFunctionRegistry().asPolyglot();
   }
+
+  public SourceContext getSourceContext(AuthenticatedUser user) {
+    return languageCache.getSourceContext(user);
+  }
+
+  public CompilerContext getCompilerContext(AuthenticatedUser user) {
+    return languageCache.getCompilerContext(user);
+  }
+
+  public InferrerService getInferrer(AuthenticatedUser user) {
+    return languageCache.getInferrer(user);
+  }
+
+  public RawSettings getRawSettings() {
+    return languageCache.rawSettings;
+  }
+
+  public static void dropCaches() {
+    languageCache.reset();
+  }
+
 }
