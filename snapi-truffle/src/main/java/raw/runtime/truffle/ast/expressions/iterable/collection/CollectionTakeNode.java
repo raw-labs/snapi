@@ -16,7 +16,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.iterable_old.operations.TakeCollection;
+import raw.runtime.truffle.runtime.iterable.operations.TakeCollection;
 
 @NodeInfo(shortName = "Collection.Take")
 @NodeChild("iterable")

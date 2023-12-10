@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.iterable_old.operations.TransformCollection;
+import raw.runtime.truffle.runtime.iterable.operations.TransformCollection;
 
 @NodeInfo(shortName = "Collection.Transform")
 @NodeChild("iterable")

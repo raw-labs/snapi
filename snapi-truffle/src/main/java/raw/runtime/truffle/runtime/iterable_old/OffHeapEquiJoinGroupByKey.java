@@ -31,15 +31,15 @@ public class OffHeapEquiJoinGroupByKey extends OffHeapGroupByKey {
   }
 }
 
-class EquiJoinGroupByRecordShaper extends GroupByRecordShaper {
-
-  private InteropLibrary records = null;
-
-  public EquiJoinGroupByRecordShaper(RawLanguage language) {
-    super(language);
-  }
-
-  public Object makeRow(Object key, Object[] values) {
-    return new Object[] {key, values};
-  }
-}
+//class EquiJoinGroupByRecordShaper extends GroupByRecordShaper {
+//
+//  private InteropLibrary records = null;
+//
+//  public EquiJoinGroupByRecordShaper(RawLanguage language) {
+//    super(language);
+//  }
+//
+//  public Object makeRow(Object key, Object[] values) {
+//    return new Object[] {key, values};
+//  }
+//}

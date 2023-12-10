@@ -1,5 +1,8 @@
 package raw.runtime.truffle.runtime.generator.collection.compute_next.sources;
 
+import raw.runtime.truffle.runtime.exceptions.BreakException;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+
 public class ExpressionComputeNext {
   private final Object[] values;
   private int position;
@@ -19,5 +22,18 @@ public class ExpressionComputeNext {
 
   public Object getCurrent() {
     return values[position];
+  }
+
+  public Object next() {
+    if (this.isTerminated()) {
+      throw new BreakException();
+    }
+    try {
+      return this.getCurrent();
+    } catch (RawTruffleRuntimeException e) {
+      return new RawTruffleRuntimeException(e.getMessage());
+    } finally {
+      this.incrementPosition();
+    }
   }
 }

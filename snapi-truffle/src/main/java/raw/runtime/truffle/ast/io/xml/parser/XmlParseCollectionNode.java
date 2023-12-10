@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.iterable_old.sources.XmlParseCollection;
+import raw.runtime.truffle.runtime.iterable.sources.XmlParseCollection;
 import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "XmlParseCollection")

@@ -398,14 +398,14 @@ class OffHeapGroupByKey {
 
 // A helper class to reshape the GROUP BY result into the right format (when group by is used with
 // collections/lists, the result is a pair of key and _collection/list_ of values).
-abstract class GroupByRecordShaper {
-
-  protected final RawLanguage language;
-
-  public GroupByRecordShaper(RawLanguage language) {
-    this.language = language;
-  }
-
-  // returns the key/group record, with the group being of the correct type (collection/list).
-  public abstract Object makeRow(Object key, Object[] values);
-}
+// abstract class GroupByRecordShaper {
+//
+//  protected final RawLanguage language;
+//
+//  public GroupByRecordShaper(RawLanguage language) {
+//    this.language = language;
+//  }
+//
+//  // returns the key/group record, with the group being of the correct type (collection/list).
+//  public abstract Object makeRow(Object key, Object[] values);
+// }

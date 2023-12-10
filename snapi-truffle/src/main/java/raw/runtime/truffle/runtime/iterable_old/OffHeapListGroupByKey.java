@@ -37,27 +37,27 @@ public class OffHeapListGroupByKey extends OffHeapGroupByKey {
   }
 }
 
-class ListGroupByRecordShaper extends GroupByRecordShaper {
-
-  private InteropLibrary records = null;
-
-  public ListGroupByRecordShaper(RawLanguage language) {
-    super(language);
-  }
-
-  public Object makeRow(Object key, Object[] values) {
-    RecordObject record = language.createRecord();
-    if (records == null) {
-      records = InteropLibrary.getFactory().getUncached(record);
-    }
-    try {
-      records.writeMember(record, "key", key);
-      records.writeMember(record, "group", new ObjectList(values));
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException e) {
-      throw new RawTruffleInternalErrorException(e);
-    }
-    return record;
-  }
-}
+// class ListGroupByRecordShaper extends GroupByRecordShaper {
+//
+//  private InteropLibrary records = null;
+//
+//  public ListGroupByRecordShaper(RawLanguage language) {
+//    super(language);
+//  }
+//
+//  public Object makeRow(Object key, Object[] values) {
+//    RecordObject record = language.createRecord();
+//    if (records == null) {
+//      records = InteropLibrary.getFactory().getUncached(record);
+//    }
+//    try {
+//      records.writeMember(record, "key", key);
+//      records.writeMember(record, "group", new ObjectList(values));
+//    } catch (UnsupportedMessageException
+//        | UnknownIdentifierException
+//        | UnsupportedTypeException e) {
+//      throw new RawTruffleInternalErrorException(e);
+//    }
+//    return record;
+//  }
+// }

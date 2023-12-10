@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.iterable_old.sources.LongRangeCollection;
+import raw.runtime.truffle.runtime.iterable.sources.LongRangeCollection;
 
 @NodeInfo(shortName = "Int.Range")
 @NodeChild(value = "start")
