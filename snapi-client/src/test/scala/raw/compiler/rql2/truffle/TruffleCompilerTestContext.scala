@@ -27,4 +27,10 @@ class TruffleCompilerTestContext
     RawLanguage.dropCaches()
   }
 
+  override def afterAll(): Unit = {
+    // Forcibly drop all language caches after each test suite.
+    RawLanguage.dropCaches()
+    super.afterAll()
+  }
+
 }
