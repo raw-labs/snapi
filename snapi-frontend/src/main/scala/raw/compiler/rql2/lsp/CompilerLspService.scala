@@ -95,14 +95,18 @@ class CompilerLspService(
       // node in the previous line.
 
       // Find nodes in the closest line to ours.
-      analyzer.tree.nodes
+      val sorted = analyzer.tree.nodes
         // First isolate nodes that end before our position
         .filter(positions.getFinish(_).exists(_ <= currentPosition))
         // Order them by 1/ the offset they *end* at, and 2/ the offset they *start* at.
         // 1. The ones with the highest ending offset are the closest to our position.
         // 2. Among those, the one with the highest *starting* offset, is the deepest.
         .sortBy(node => (positions.getFinish(node).flatMap(_.optOffset), positions.getStart(node).flatMap(_.optOffset)))
-        .lastOption
+
+      if (
+        sorted.length >= 2 && sorted(sorted.length - 2).isInstanceOf[TypeAliasType] && sorted.last.isInstanceOf[IdnUse]
+      ) Some(sorted(sorted.length - 2))
+      else sorted.lastOption
     }
 
     // Find the most precise node at a given position.

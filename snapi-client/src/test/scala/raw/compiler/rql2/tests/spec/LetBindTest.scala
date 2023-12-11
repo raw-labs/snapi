@@ -120,7 +120,7 @@ trait LetBindTest extends CompilerTestContext with CombinationSpecTestHelper {
   // CTM: Was expecting something like the error before
   test("""let let x = 1 in x""")(it =>
     it should parseErrorAs(
-      "extraneous input 'let' expecting {'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'rec', 'undefined', NON_ESC_IDENTIFIER, ESC_IDENTIFIER}"
+      "the input 'let' is not valid here; expected elements are: 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'rec', 'undefined', identifier."
     )
   )
 

@@ -42,17 +42,17 @@ trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
 
   test("""let f = (v: int) => 1
     |in f(1)
-    |""".stripMargin)(it => it should parseErrorAs("no viable alternative at input 'f=(v:int)='"))
+    |""".stripMargin)(it => it should parseErrorAs("the input does not form a valid statement or expression."))
 
   test("""let f = (v: int,) -> 1
     |in f(1)
-    |""".stripMargin)(it => it should parseErrorAs("no viable alternative at input 'f=(v:int,)'"))
+    |""".stripMargin)(it => it should parseErrorAs("the input does not form a valid statement or expression."))
 
   test("""{ #: 1 }""".stripMargin)(it => it should parseErrorAs("token recognition error at: '#'"))
 
   test("""{ : 1 }""".stripMargin)(it =>
     it should parseErrorAs(
-      "extraneous input ':' expecting {'type', 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'let', 'undefined', 'if', 'null', BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE, DECIMAL, '+', '-', 'not', 'true', 'false', STRING, START_TRIPLE_QUOTE, NON_ESC_IDENTIFIER, ESC_IDENTIFIER, '(', '{', '}', '[', BINARY_CONST, '$'}"
+      "the input ':' is not valid here; expected elements are: 'type', 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'let', 'undefined', 'if', 'null', BYTE, SHORT, INTEGER, LONG, FLOAT, DOUBLE, DECIMAL, '+', '-', 'not', 'true', 'false', STRING, '(', '{', '}', '[', BINARY_CONST, identifier."
     )
   )
 
@@ -61,6 +61,6 @@ trait FrontendSyntaxAnalyzerTest extends CompilerTestContext {
     |  hello = type recor(a: int)
     |in
     |  hello
-    |""".stripMargin)(it => it should parseErrorAs("Missing ','"))
+    |""".stripMargin)(it => it should parseErrorAs("missing ','"))
 
 }

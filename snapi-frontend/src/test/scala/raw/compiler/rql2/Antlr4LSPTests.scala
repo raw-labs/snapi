@@ -208,7 +208,7 @@ class Antlr4LSPTests extends RawTestSuite {
       |    hello""".stripMargin
     val result = parseWithAntlr4(prog)
     assert(
-      result.errors.head.message == "The input 'f(v:int)=letxx=1,b=xxadjg...gufygfauiwyegfuawgefhello' does not form a valid statement or expression."
+      result.errors.head.message == "The input does not form a valid statement or expression."
     )
   }
 

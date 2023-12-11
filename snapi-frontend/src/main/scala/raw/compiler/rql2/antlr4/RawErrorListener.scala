@@ -24,7 +24,7 @@ class RawErrorListener() extends BaseErrorListener {
     val noViableAlternativePattern = "no viable alternative at input '(.+)'".r
     msg match {
       case extraneousPattern(input, expected) =>
-        val splitted = expected.split(", ")
+        val splitted = expected.split(", ").filter(x => !x.equals("'$'") && !x.equals("START_TRIPLE_QUOTE"))
         val result =
           if (splitted.contains("NON_ESC_IDENTIFIER") || splitted.contains("ESC_IDENTIFIER")) {
             splitted.filter(x => !x.equals("NON_ESC_IDENTIFIER") && !x.equals("ESC_IDENTIFIER")) :+ "identifier"
@@ -32,7 +32,7 @@ class RawErrorListener() extends BaseErrorListener {
             splitted
           }
         val expectedElements = result.mkString(", ")
-        s"The input '$input' is not valid here; expected elements are: $expectedElements."
+        s"the input '$input' is not valid here; expected elements are: $expectedElements."
       case noViableAlternativePattern(input) =>
         val res =
           if (input.length > 50) {
@@ -42,7 +42,7 @@ class RawErrorListener() extends BaseErrorListener {
           } else {
             input
           }
-        s"The input '$res' does not form a valid statement or expression."
+        s"the input does not form a valid statement or expression."
       case _ => msg
     }
   }

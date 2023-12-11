@@ -20,7 +20,7 @@ fun_dec: ident fun_proto                                        # NormalFun
 fun_proto: LEFT_PAREN (fun_param (COMMA fun_param)*)?
              COMMA? RIGHT_PAREN (COLON tipe)? EQUALS expr
          | LEFT_PAREN (fun_param (COMMA fun_param)*)?
-             COMMA? RIGHT_PAREN COLON {notifyErrorListeners("Missing type");} EQUALS expr
+             COMMA? RIGHT_PAREN COLON {notifyErrorListeners("missing type");} EQUALS expr
          ;
 
 
@@ -29,12 +29,12 @@ fun_param: attr                                                 # FunParamAttr
          ;
 
 attr: ident COLON tipe
-    | ident COLON {notifyErrorListeners("Missing type");}
+    | ident COLON {notifyErrorListeners("missing type");}
     | ident
     ;
 
 type_attr: ident COLON tipe
-         | ident COLON {notifyErrorListeners("Missing type");}
+         | ident COLON {notifyErrorListeners("missing type");}
          ;
 
 // the input parameters of a function
@@ -47,16 +47,16 @@ fun_arg: expr                                                   # FunArgExpr
 // lambda expression
 fun_abs: fun_proto_lambda                                                 # FunAbs
        | ident RIGHT_ARROW expr                                           # FunAbsUnnamed
-       | ident RIGHT_ARROW {notifyErrorListeners("Missing expression");}  # FunAbsUnnamed
+       | ident RIGHT_ARROW {notifyErrorListeners("missing expression");}  # FunAbsUnnamed
        ;
 
 fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)?
                     RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr                                 # FunProtoLambdaMultiParam
                 | LEFT_PAREN (fun_param (COMMA fun_param)*)?
                                      RIGHT_PAREN (COLON tipe)?
-                                     RIGHT_ARROW {notifyErrorListeners("Missing expression");} # FunProtoLambdaMultiParam
+                                     RIGHT_ARROW {notifyErrorListeners("missing expression");} # FunProtoLambdaMultiParam
                 | attr (COLON tipe)? RIGHT_ARROW expr                                          # FunProtoLambdaSingleParam
-                | attr (COLON tipe)? RIGHT_ARROW {notifyErrorListeners("Missing expression");} # FunProtoLambdaSingleParam
+                | attr (COLON tipe)? RIGHT_ARROW {notifyErrorListeners("missing expression");} # FunProtoLambdaSingleParam
                 ;
 
 // ============= types =================
@@ -87,10 +87,10 @@ record_type: RECORD_TOKEN LEFT_PAREN record_attr_list? RIGHT_PAREN;
 record_attr_list: type_attr (COMMA type_attr)* COMMA?;
 iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
 list_type: LIST_TOKEN LEFT_PAREN tipe RIGHT_PAREN
-         | LIST_TOKEN LEFT_PAREN  {notifyErrorListeners("Missing type");} RIGHT_PAREN
+         | LIST_TOKEN LEFT_PAREN  {notifyErrorListeners("missing type");} RIGHT_PAREN
          ;
 expr_type: TYPE_TOKEN tipe
-         | TYPE_TOKEN {notifyErrorListeners("Missing type");}
+         | TYPE_TOKEN {notifyErrorListeners("missing type");}
          ;
 
 // ========== expressions ============
@@ -110,33 +110,33 @@ expr: LEFT_PAREN expr RIGHT_PAREN                                             # 
     | lists                                                                   # ListExpr
     | records                                                                 # RecordExpr
     | <assoc=right> expr DOT ident fun_ar?                                    # ProjectionExpr
-    | <assoc=right> expr DOT {notifyErrorListeners("Missing projection");}    # ProjectionExpr
+    | <assoc=right> expr DOT {notifyErrorListeners("missing projection");}    # ProjectionExpr
     | MINUS_TOKEN expr                                                        # MinusUnaryExpr
     | PLUS_TOKEN expr                                                         # PlusUnaryExpr
     | expr DIV_TOKEN expr                                                     # DivExpr
-    | expr DIV_TOKEN {notifyErrorListeners("Missing right expression");}      # DivExpr
+    | expr DIV_TOKEN {notifyErrorListeners("missing right expression");}      # DivExpr
     | expr MUL_TOKEN expr                                                     # MulExpr
-    | expr MUL_TOKEN {notifyErrorListeners("Missing right expression");}      # MulExpr
+    | expr MUL_TOKEN {notifyErrorListeners("missing right expression");}      # MulExpr
     | expr MOD_TOKEN expr                                                     # ModExpr
-    | expr MOD_TOKEN {notifyErrorListeners("Missing right expression");}      # ModExpr
+    | expr MOD_TOKEN {notifyErrorListeners("missing right expression");}      # ModExpr
     | expr MINUS_TOKEN expr                                                   # MinusExpr
-    | expr MINUS_TOKEN {notifyErrorListeners("Missing right expression");}    # MinusExpr
+    | expr MINUS_TOKEN {notifyErrorListeners("missing right expression");}    # MinusExpr
     | expr PLUS_TOKEN expr                                                    # PlusExpr
-    | expr PLUS_TOKEN {notifyErrorListeners("Missing right expression");}     # PlusExpr
+    | expr PLUS_TOKEN {notifyErrorListeners("missing right expression");}     # PlusExpr
     | expr compare_tokens expr                                                # CompareExpr
-    | expr compare_tokens {notifyErrorListeners("Missing right expression");} # CompareExpr
+    | expr compare_tokens {notifyErrorListeners("missing right expression");} # CompareExpr
     | NOT_TOKEN expr                                                          # NotExpr
     | expr AND_TOKEN expr                                                     # AndExpr
-    | expr AND_TOKEN {notifyErrorListeners("Missing right expression");}      # AndExpr
+    | expr AND_TOKEN {notifyErrorListeners("missing right expression");}      # AndExpr
     | expr OR_TOKEN expr                                                      # OrExpr
-    | expr OR_TOKEN {notifyErrorListeners("Missing right expression");}       # OrExpr
+    | expr OR_TOKEN {notifyErrorListeners("missing right expression");}       # OrExpr
     ;
 
 let: LET_TOKEN let_left IN_TOKEN expr // do not add a rule for missing expr here. it introduces ambiguity
    ;
 
 let_left: let_decl (COMMA let_decl)*
-        | (let_decl{notifyErrorListeners("Missing ','");})+ let_decl
+        | (let_decl{notifyErrorListeners("missing ','");})+ let_decl
         ;
 
 let_decl: let_bind                                             # LetBind
@@ -145,15 +145,15 @@ let_decl: let_bind                                             # LetBind
 
 let_bind: ident EQUALS expr
         | ident COLON tipe EQUALS expr
-        | ident COLON {notifyErrorListeners("Missing type");}
-        | ident COLON {notifyErrorListeners("Missing type");} EQUALS expr
-        | ident EQUALS {notifyErrorListeners("Missing expression binding");}
-        | ident COLON tipe EQUALS {notifyErrorListeners("Missing expression binding");}
+        | ident COLON {notifyErrorListeners("missing type");}
+        | ident COLON {notifyErrorListeners("missing type");} EQUALS expr
+        | ident EQUALS {notifyErrorListeners("missing expression binding");}
+        | ident COLON tipe EQUALS {notifyErrorListeners("missing expression binding");}
         ;
 
 if_then_else: IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN expr
-            | IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN {notifyErrorListeners("Missing else expression");}
-            | IF_TOKEN expr {notifyErrorListeners("Missing then body");}
+            | IF_TOKEN expr THEN_TOKEN expr ELSE_TOKEN {notifyErrorListeners("missing else expression");}
+            | IF_TOKEN expr {notifyErrorListeners("missing then body");}
             ;
 
 lists: LEFT_SQ_BR (lists_element)? RIGHT_SQ_BR;

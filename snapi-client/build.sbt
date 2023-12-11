@@ -146,6 +146,5 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
   rawSnapiFrontend % "compile->compile;test->test",
-  rawSnapiTruffle % "test->test",
-  rawSnapiParser % "test->test"
+  rawSnapiTruffle % "test->test"
 )

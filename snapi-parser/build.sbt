@@ -1,13 +1,12 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
-
-import sbt.Keys._
-import sbt._
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.*
+import sbt.Keys.*
+import sbt.*
 
 import java.time.Year
+import Dependencies.*
 
-import Dependencies._
-
-import scala.sys.process._
+import java.io.IOException
+import scala.sys.process.*
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -136,16 +135,30 @@ libraryDependencies ++= Seq(
 val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
 
 generateParser := {
+
+  def deleteRecursively(file: File): Unit = {
+    if (file.isDirectory) {
+      file.listFiles.foreach(deleteRecursively)
+    }
+    if (file.exists && !file.delete()) {
+      throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
+    }
+  }
+
   val basePath: String = s"${baseDirectory.value}/src/main/java"
 
   val outputPath: String = s"${baseDirectory.value}/src/main/java/raw/compiler/rql2/generated"
+
+  val file = new File(outputPath)
+  if (file.exists()) {
+    deleteRecursively(file)
+  }
 
   val packageName: String = "raw.compiler.rql2.generated"
 
   val jarName = "antlr-4.12.0-complete.jar"
 
-  val command: String =
-    s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
+  val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
 
   val s: TaskStreams = streams.value
   val output = new StringBuilder
