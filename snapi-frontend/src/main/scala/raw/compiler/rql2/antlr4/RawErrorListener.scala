@@ -19,6 +19,34 @@ class RawErrorListener() extends BaseErrorListener {
 
   private var errors = List[ErrorMessage]()
 
+  private def improveErrorMessage(msg: String): String = {
+    val extraneousPattern = "extraneous input '(.+)' expecting \\{(.*?)}".r
+    val noViableAlternativePattern = "no viable alternative at input '(.+)'".r
+    msg match {
+      case extraneousPattern(input, expected) =>
+        val splitted = expected.split(", ")
+        val result =
+          if (splitted.contains("NON_ESC_IDENTIFIER") || splitted.contains("ESC_IDENTIFIER")) {
+            splitted.filter(x => !x.equals("NON_ESC_IDENTIFIER") && !x.equals("ESC_IDENTIFIER")) :+ "identifier"
+          } else {
+            splitted
+          }
+        val expectedElements = result.mkString(", ")
+        s"The input '$input' is not valid here; expected elements are: $expectedElements."
+      case noViableAlternativePattern(input) =>
+        val res =
+          if (input.length > 50) {
+            val leftPart = input.substring(0, 25)
+            val rightPart = input.substring(input.length - 25, input.length)
+            s"$leftPart...$rightPart"
+          } else {
+            input
+          }
+        s"The input '$res' does not form a valid statement or expression."
+      case _ => msg
+    }
+  }
+
   override def syntaxError(
       recognizer: Recognizer[_, _],
       offendingSymbol: Any,
@@ -50,7 +78,7 @@ class RawErrorListener() extends BaseErrorListener {
           ErrorPosition(line, getCharPositionInLinePlusOne + 1)
         )
       }
-    errors = errors :+ ErrorMessage(msg, List(positions))
+    errors = errors :+ ErrorMessage(improveErrorMessage(msg), List(positions))
   }
 
   def getErrors: List[ErrorMessage] = errors

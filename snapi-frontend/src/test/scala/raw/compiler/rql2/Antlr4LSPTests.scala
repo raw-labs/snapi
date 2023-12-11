@@ -182,4 +182,34 @@ class Antlr4LSPTests extends RawTestSuite {
     val result = parseWithAntlr4(prog)
     assert(result.hasErrors)
   }
+
+  test("""error output test 1""") { _ =>
+    val prog = """let
+      |    res = if true then
+      |        Record.Build(a = 4)
+      |    else
+      |        Record.Build(a = 4, ),
+      |    a = type int,
+      |in
+      |    res.a""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(
+      result.errors.head.message == "The input 'in' is not valid here; expected elements are: 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'rec', 'undefined', identifier."
+    )
+  }
+
+  test("""error output test 2""") { _ =>
+    val prog = """f(v: int) =
+      |    let
+      |    xx = 1,
+      |    b = xxadjgfjhasguyfgeaeuwygwyuegguyagwuefgayuwgfuwagygfayuwegfuewyafuagiwuygfwuywgfuyewgauygfuewygfauyiwegfauyiwegfuawgufygfauiwyegfuawgef
+      |    hello = "Hello world!"
+      |in
+      |    hello""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(
+      result.errors.head.message == "The input 'f(v:int)=letxx=1,b=xxadjg...gufygfauiwyegfuawgefhello' does not form a valid statement or expression."
+    )
+  }
+
 }
