@@ -963,7 +963,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                     err => return Left(err),
                     v => {
                       prevMandatoryArgs += ValueArg(v, report.t)
-//                      outProps ++= report.extraProps
+                      // ValueParam does not add extra properties. Because it's
+                      // resolved to a value eventually, it's not nullable/tryable.
                     }
                   )
                 case _ => return Left(
@@ -1048,7 +1049,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                         err => return Left(err),
                         v => {
                           prevOptionalArgs.append((idn, ValueArg(v, report.t)))
-                          outProps ++= report.extraProps
+                          // ValueParam does not add extra properties. Because it's
+                          // resolved to a value eventually, it's not nullable/tryable.
                         }
                       )
                     case None => return Left(
@@ -1137,7 +1139,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                       err => return Left(err),
                       v => {
                         prevVarArgs += ValueArg(v, report.t)
-                        outProps ++= report.extraProps
+                        // ValueParam does not add extra properties. Because it's
+                        // resolved to a value eventually, it's not nullable/tryable.
                       }
                     )
                   case None => return Left(
