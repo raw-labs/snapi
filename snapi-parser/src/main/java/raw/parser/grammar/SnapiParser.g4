@@ -45,13 +45,18 @@ fun_arg: expr                                                   # FunArgExpr
        ;
 
 // lambda expression
-fun_abs: fun_proto_lambda                                       # FunAbs
-       | ident RIGHT_ARROW expr                                 # FunAbsUnnamed
+fun_abs: fun_proto_lambda                                                 # FunAbs
+       | ident RIGHT_ARROW expr                                           # FunAbsUnnamed
+       | ident RIGHT_ARROW {notifyErrorListeners("Missing expression");}  # FunAbsUnnamed
        ;
 
 fun_proto_lambda: LEFT_PAREN (fun_param (COMMA fun_param)*)?
-                    RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr # FunProtoLambdaMultiParam
-                | attr (COLON tipe)? RIGHT_ARROW expr          # FunProtoLambdaSingleParam
+                    RIGHT_PAREN (COLON tipe)? RIGHT_ARROW expr                                 # FunProtoLambdaMultiParam
+                | LEFT_PAREN (fun_param (COMMA fun_param)*)?
+                                     RIGHT_PAREN (COLON tipe)?
+                                     RIGHT_ARROW {notifyErrorListeners("Missing expression");} # FunProtoLambdaMultiParam
+                | attr (COLON tipe)? RIGHT_ARROW expr                                          # FunProtoLambdaSingleParam
+                | attr (COLON tipe)? RIGHT_ARROW {notifyErrorListeners("Missing expression");} # FunProtoLambdaSingleParam
                 ;
 
 // ============= types =================
