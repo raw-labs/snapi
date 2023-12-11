@@ -194,7 +194,7 @@ class Antlr4LSPTests extends RawTestSuite {
       |    res.a""".stripMargin
     val result = parseWithAntlr4(prog)
     assert(
-      result.errors.head.message == "The input 'in' is not valid here; expected elements are: 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'rec', 'undefined', identifier."
+      result.errors.head.message == "the input 'in' is not valid here; expected elements are: 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'rec', 'undefined', identifier."
     )
   }
 
@@ -208,7 +208,7 @@ class Antlr4LSPTests extends RawTestSuite {
       |    hello""".stripMargin
     val result = parseWithAntlr4(prog)
     assert(
-      result.errors.head.message == "The input does not form a valid statement or expression."
+      result.errors.head.message == "the input does not form a valid statement or expression."
     )
   }
 
