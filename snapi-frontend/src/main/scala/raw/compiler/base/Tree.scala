@@ -31,7 +31,7 @@ abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest]
     val newTree = cloneWithPositions()
 
     // Ensure new tree looks like the current one
-    val sameAST = newTree.root.toString == root.toString
+    val sameAST = newTree.root == root
     if (!sameAST) {
       val msg = s"""Original pretty printed: $pretty
         |Parsed pretty printed:   ${newTree.pretty}

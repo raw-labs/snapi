@@ -17,6 +17,25 @@ import raw.client.api._
 
 trait LspWordAutoCompleteTest extends CompilerTestContext {
 
+  private lazy val allTypes = Seq(
+    ("byte", Some("")),
+    ("short", Some("")),
+    ("int", Some("")),
+    ("long", Some("")),
+    ("float", Some("")),
+    ("double", Some("")),
+    ("decimal", Some("")),
+    ("string", Some("")),
+    ("bool", Some("")),
+    ("date", Some("")),
+    ("timestamp", Some("")),
+    ("time", Some("")),
+    ("interval", Some("")),
+    ("record", Some("")),
+    ("list", Some("")),
+    ("collection", Some(""))
+  )
+
   private def wordAutoCompleteTest(
       code: String,
       line: Int,
@@ -24,7 +43,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
       prefix: String,
       expected: Seq[(String, Option[String])]
   ): Unit = {
-    val AutoCompleteResponse(entries, _) = wordAutoComplete(code, prefix, Pos(line, col))
+    val AutoCompleteResponse(entries) = wordAutoComplete(code, prefix, Pos(line, col))
     val actual = entries.map {
       case FieldCompletion(n, t) => (n, Some(t))
       case LetBindCompletion(n, t) => (n, Some(t))
@@ -120,6 +139,139 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
         |m""".stripMargin
       wordAutoCompleteTest(code, 5, 2, "m", Seq((idn, Some("int")), ("myVar", Some("int"))))
     }
+  }
+
+  test("type autocomplete with colon") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, a :  in a""",
+      1,
+      23,
+      "",
+      allTypes
+    )
+  }
+
+  test("type autocomplete with colon without in") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, a : """,
+      1,
+      23,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
+  test("type autocomplete with colon and prefix") { _ =>
+    wordAutoCompleteTest(
+      """let by = type int, a : b = 5 in a""",
+      1,
+      25,
+      "b",
+      Seq(("by", Some("int")), ("byte", Some("")), ("bool", Some("")))
+    )
+  }
+
+  // in this case it is not clear if the user wants to type a type so we shouldn't return type
+  test("type autocomplete without colon") { _ =>
+    val AutoCompleteResponse(entries) = wordAutoComplete("""let b = type int, a   = 5 in a""", "", Pos(1, 23))
+    assert(entries.length > 17)
+  }
+
+  test("argument type autocomplete with colon") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, f(v:  ) = v * 2 in f(1)""",
+      1,
+      24,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
+  test("argument type autocomplete without colon") { _ =>
+    val AutoCompleteResponse(entries) = wordAutoComplete("""let b = type int, f(v  ) = v * 2 in f(1)""", "", Pos(1, 23))
+    assert(entries.length > 17)
+  }
+
+  test("type autocomplete with scopes") { _ =>
+    wordAutoCompleteTest(
+      """let
+        |  x = type int,
+        |  y =
+        |    let
+        |      y1 = type string,
+        |      y2: y1 = "1"
+        |    in y2,
+        |  z: in z """.stripMargin,
+      8,
+      6,
+      "",
+      allTypes :+ (("x", Some("int")))
+    )
+  }
+
+  test("type autocomplete with nested scopes") { _ =>
+    wordAutoCompleteTest(
+      """let
+        |  x = type int,
+        |  y =
+        |    let
+        |      y1 = type string,
+        |      y2: y1 = "1",
+        |      y3:
+        |    in y2
+        |in z """.stripMargin,
+      7,
+      10,
+      "",
+      allTypes :+ (("x", Some("int"))) :+ (("y1", Some("string")))
+    )
+  }
+
+  test("nested record type autocompletion") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, c = Json.Read("url", type record(a:  )) in c""",
+      1,
+      55,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
+  test("nested type autocompletion") { _ =>
+    wordAutoCompleteTest(
+      """let b = type int, c = Json.Read("url", type list()) in c""",
+      1,
+      50,
+      "",
+      allTypes :+ (("b", Some("int")))
+    )
+  }
+
+  test("typealias completion") { _ =>
+    wordAutoCompleteTest(
+      """let a = type  in a""",
+      1,
+      14,
+      "",
+      allTypes
+    )
+  }
+
+// for this test to pass we need to separate funproto in two parts
+//  test("function type autocomplete with colon") { _ =>
+//    wordAutoCompleteTest(
+//      """let b = type int, f(v: int):  = v * 2 in f(1)""",
+//      1,
+//      28,
+//      "",
+//      allTypes :+ (("b", Some("int")))
+//    )
+//  }
+
+  test("function type autocomplete without colon") { _ =>
+    val AutoCompleteResponse(entries) =
+      wordAutoComplete("""let b = type int, f(v: int)  = v * 2 in f(1)""", "", Pos(1, 23))
+    assert(entries.length > 17)
   }
 
 }

@@ -68,7 +68,6 @@ object RawUtils extends StrictLogging {
     for (c <- s) {
       descapedStr += (c match {
         case '\\' => "\\\\"
-        case '\'' => "\\'"
         case '\"' => "\\\""
         case '\b' => "\\b"
         case '\f' => "\\f"

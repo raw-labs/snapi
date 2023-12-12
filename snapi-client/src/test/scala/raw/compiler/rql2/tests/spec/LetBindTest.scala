@@ -111,10 +111,18 @@ trait LetBindTest extends CompilerTestContext with CombinationSpecTestHelper {
     |in
     |   x""".stripMargin)(it => it should typeAs("int"))
 
-  test("""let x = 1""")(it => it should typeErrorAs("in expected but end of source found"))
+  test("""let x = 1""")(it =>
+    it should parseErrorAs(
+      "mismatched input '<EOF>' expecting {'in', '==', '!=', '<=', '<', '>=', '>', '+', '-', '*', '/', '%', 'and', 'or', '(', ',', '.'}"
+    )
+  )
 
   // CTM: Was expecting something like the error before
-  test("""let let x = 1 in x""")(it => it should typeErrorAs("expected declaration"))
+  test("""let let x = 1 in x""")(it =>
+    it should parseErrorAs(
+      "the input 'let' is not valid here; expected elements are: 'bool', 'string', 'location', 'binary', 'byte', 'short', 'int', 'long', 'float', 'double', 'decimal', 'date', 'time', 'interval', 'timestamp', 'record', 'collection', 'list', 'rec', 'undefined', identifier."
+    )
+  )
 
   val numbers = Table(
     "numbers",
