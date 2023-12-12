@@ -18,8 +18,8 @@ import java.io.ByteArrayInputStream;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.kryo.KryoReader;
-import raw.runtime.truffle.runtime.kryo.KryoReaderLibrary;
+import raw.runtime.truffle.runtime.kryo_old.KryoReader;
+import raw.runtime.truffle.runtime.kryo_old.KryoReaderLibrary;
 
 public class KryoFromNode extends ExpressionNode {
   @Child private ExpressionNode valueNode;

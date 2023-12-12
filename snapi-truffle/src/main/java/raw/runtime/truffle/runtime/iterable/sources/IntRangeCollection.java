@@ -5,9 +5,9 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.collection.AbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.AbstractGeneratorNodes;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.IntRangeComputeNext;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.IntRangeComputeNext;
 
 @ExportLibrary(InteropLibrary.class)
 public class IntRangeCollection implements TruffleObject {
@@ -32,7 +32,7 @@ public class IntRangeCollection implements TruffleObject {
   }
 
   @ExportMessage
-  Object getIterator(@Cached AbstractGeneratorNodes.AbstractGeneratorInitNode initNode) {
+  Object getIterator(@Cached GeneratorNodes.GeneratorInitNode initNode) {
     Object generator = getGenerator();
     initNode.execute(generator);
     return generator;

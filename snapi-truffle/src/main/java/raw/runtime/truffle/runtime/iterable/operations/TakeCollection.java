@@ -5,9 +5,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.collection.AbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.AbstractGeneratorNodes;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.TakeComputeNext;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 
 @ExportLibrary(InteropLibrary.class)
@@ -38,7 +36,7 @@ public class TakeCollection implements TruffleObject {
   @ExportMessage
   Object getIterator(
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached AbstractGeneratorNodes.AbstractGeneratorInitNode initNode) {
+      @Cached GeneratorNodes.GeneratorInitNode initNode) {
     Object generator = getGeneratorNode.execute(this);
     initNode.execute(generator);
     return generator;

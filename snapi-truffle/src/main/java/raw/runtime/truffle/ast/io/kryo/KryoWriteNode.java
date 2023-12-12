@@ -17,8 +17,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import java.io.ByteArrayOutputStream;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.kryo.KryoWriter;
-import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
+import raw.runtime.truffle.runtime.kryo_old.KryoWriter;
+import raw.runtime.truffle.runtime.kryo_old.KryoWriterLibrary;
 
 public class KryoWriteNode extends ExpressionNode {
   @Child private ExpressionNode valueNode;
