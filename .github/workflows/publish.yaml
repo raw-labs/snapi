@@ -107,6 +107,14 @@ jobs:
         echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
         echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
         echo "SNAPI_CLIENT=$(cat snapi-client/version)" >> $GITHUB_ENV
+    - name: show produced version
+      run: |
+        echo "UTILS_VER=${UTILS_VER}"
+        echo "CLIENT_VER=${CLIENT_VER}"
+        echo "SNAPI_PARSER_VER=${SNAPI_PARSER_VER}"
+        echo "SNAPI_FRONTEND_VER=${SNAPI_FRONTEND_VER}"
+        echo "SNAPI_TRUFFLE_VER=${SNAPI_TRUFFLE_VER}"
+        echo "SNAPI_CLIENT=${SNAPI_CLIENT}"
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
       with:
