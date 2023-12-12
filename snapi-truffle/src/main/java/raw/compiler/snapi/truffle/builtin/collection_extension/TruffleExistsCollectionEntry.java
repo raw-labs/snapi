@@ -16,7 +16,6 @@ import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.ExistsCollectionEntry;
 import raw.compiler.rql2.source.FunType;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
@@ -29,7 +28,6 @@ public class TruffleExistsCollectionEntry extends ExistsCollectionEntry
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     FunType funType = (FunType) args.get(1).type();
 
-    return CollectionExistsNodeGen.create(
-        args.get(0).exprNode(), args.get(1).exprNode(), (Rql2TypeWithProperties) funType.r());
+    return CollectionExistsNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

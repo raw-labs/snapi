@@ -47,8 +47,10 @@ public class JdbcQuery {
     try {
       connection = JdbcLocationProvider.build(locationDescription, context).getJdbcConnection();
       PreparedStatement stmt;
+      int fetchSize = context.settings().getInt("raw.runtime.rdbms.fetch-size");
       try {
         stmt = connection.prepareStatement(query);
+        stmt.setFetchSize(fetchSize);
         rs = stmt.executeQuery();
       } catch (SQLException e) {
         throw exceptionHandler.rewrite(e, this);

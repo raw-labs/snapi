@@ -20,8 +20,8 @@ import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.util.concurrent.TimeUnit;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 
 @NodeInfo(shortName = "Timestamp.Build")
 @NodeChild("y")
@@ -37,11 +37,10 @@ public abstract class TimestampBuildNode extends ExpressionNode {
   @CompilerDirectives.TruffleBoundary
   public Object buildTimestamp(int y, int m, int d, int h, int mi, int s, int ms) {
     try {
-      return ObjectTryable.BuildSuccess(
-          new TimestampObject(
-              LocalDateTime.of(y, m, d, h, mi, s, (int) TimeUnit.MILLISECONDS.toNanos(ms))));
+      return new TimestampObject(
+          LocalDateTime.of(y, m, d, h, mi, s, (int) TimeUnit.MILLISECONDS.toNanos(ms)));
     } catch (DateTimeException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

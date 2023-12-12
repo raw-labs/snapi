@@ -33,12 +33,7 @@ import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvReaderRawTruffleException;
-import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.option.ObjectOption;
-import raw.runtime.truffle.runtime.primitives.DateObject;
-import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.primitives.TimeObject;
-import raw.runtime.truffle.runtime.primitives.TimestampObject;
+import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.utils.RawTruffleCharStream;
 
 public class RawTruffleCsvParser {
@@ -192,10 +187,10 @@ public class RawTruffleCsvParser {
         String token = jacksonParser.getText();
         for (String nullToken : nulls) {
           if (token.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
-        return new ObjectOption(jacksonParser.getByteValue());
+        return jacksonParser.getByteValue();
       } catch (JsonProcessingException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a byte", jacksonParser.getText()),
@@ -215,10 +210,10 @@ public class RawTruffleCsvParser {
         String token = jacksonParser.getText();
         for (String nullToken : nulls) {
           if (token.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
-        return new ObjectOption(jacksonParser.getShortValue());
+        return jacksonParser.getShortValue();
       } catch (JsonProcessingException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a short", jacksonParser.getText()),
@@ -254,10 +249,10 @@ public class RawTruffleCsvParser {
         String token = jacksonParser.getText();
         for (String nullToken : nulls) {
           if (token.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
-        return new ObjectOption(jacksonParser.getIntValue());
+        return jacksonParser.getIntValue();
       } catch (JsonProcessingException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as an int", jacksonParser.getText()),
@@ -293,10 +288,10 @@ public class RawTruffleCsvParser {
         String token = jacksonParser.getText();
         for (String nullToken : nulls) {
           if (token.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
-        return new ObjectOption(jacksonParser.getLongValue());
+        return jacksonParser.getLongValue();
       } catch (JsonProcessingException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a long", jacksonParser.getText()),
@@ -316,15 +311,15 @@ public class RawTruffleCsvParser {
         String token = jacksonParser.getText();
         for (String nullToken : nulls) {
           if (token.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
         for (String nanToken : nans) {
           if (token.equals(nanToken)) {
-            return new ObjectOption(Float.NaN);
+            return Float.NaN;
           }
         }
-        return new ObjectOption(jacksonParser.getFloatValue());
+        return jacksonParser.getFloatValue();
       } catch (JsonProcessingException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a float", jacksonParser.getText()),
@@ -367,15 +362,15 @@ public class RawTruffleCsvParser {
         String token = jacksonParser.getText();
         for (String nullToken : nulls) {
           if (token.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
         for (String nanToken : nans) {
           if (token.equals(nanToken)) {
-            return new ObjectOption(Double.NaN);
+            return Double.NaN;
           }
         }
-        return new ObjectOption(jacksonParser.getDoubleValue());
+        return jacksonParser.getDoubleValue();
       } catch (JsonProcessingException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a double", jacksonParser.getText()),
@@ -412,10 +407,10 @@ public class RawTruffleCsvParser {
         String malformed = jacksonParser.getText();
         for (String nullToken : nulls) {
           if (malformed.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
-        return new ObjectOption(new DecimalObject(jacksonParser.getDecimalValue()));
+        return new DecimalObject(jacksonParser.getDecimalValue());
       } catch (JsonProcessingException | NumberFormatException ex) {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a decimal", jacksonParser.getText()),
@@ -452,13 +447,13 @@ public class RawTruffleCsvParser {
       String text = jacksonParser.getText();
       String normalized = text.toLowerCase().strip();
       if (Objects.equals(normalized, "true")) {
-        return new ObjectOption(true);
+        return true;
       } else if (Objects.equals(normalized, "false")) {
-        return new ObjectOption(false);
+        return false;
       } else {
         for (String nullToken : nulls) {
           if (normalized.equals(nullToken)) {
-            return new EmptyOption();
+            return NullObject.INSTANCE;
           }
         }
         throw new CsvParserRawTruffleException(
@@ -484,10 +479,10 @@ public class RawTruffleCsvParser {
       String token = jacksonParser.getText();
       for (String nullToken : nulls) {
         if (token.equals(nullToken)) {
-          return new EmptyOption();
+          return NullObject.INSTANCE;
         }
       }
-      return new ObjectOption(token);
+      return token;
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
@@ -516,10 +511,10 @@ public class RawTruffleCsvParser {
       String token = jacksonParser.getText();
       for (String nullToken : nulls) {
         if (token.equals(nullToken)) {
-          return new EmptyOption();
+          return NullObject.INSTANCE;
         }
       }
-      return new ObjectOption(new DateObject(LocalDate.parse(token, dateFormatter)));
+      return new DateObject(LocalDate.parse(token, dateFormatter));
     } catch (DateTimeParseException ex) {
       throw new CsvParserRawTruffleException(
           String.format(
@@ -555,10 +550,10 @@ public class RawTruffleCsvParser {
       String token = jacksonParser.getText();
       for (String nullToken : nulls) {
         if (token.equals(nullToken)) {
-          return new EmptyOption();
+          return NullObject.INSTANCE;
         }
       }
-      return new ObjectOption(new TimeObject(LocalTime.parse(token, timeFormatter)));
+      return new TimeObject(LocalTime.parse(token, timeFormatter));
     } catch (DateTimeParseException ex) {
       throw new CsvParserRawTruffleException(
           String.format(
@@ -595,10 +590,10 @@ public class RawTruffleCsvParser {
       String token = jacksonParser.getText();
       for (String nullToken : nulls) {
         if (token.equals(nullToken)) {
-          return new EmptyOption();
+          return NullObject.INSTANCE;
         }
       }
-      return new ObjectOption(new TimestampObject(LocalDateTime.parse(token, timestampFormatter)));
+      return new TimestampObject(LocalDateTime.parse(token, timestampFormatter));
     } catch (DateTimeParseException ex) {
       throw new CsvParserRawTruffleException(
           String.format(

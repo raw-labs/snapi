@@ -15,53 +15,52 @@ package raw.runtime.truffle.ast.expressions.option;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.option.*;
 
 @NodeChild("value")
 public abstract class OptionSomeNode extends ExpressionNode {
 
   @Specialization
   protected Object someByte(byte value) {
-    return new ByteOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someShort(short value) {
-    return new ShortOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someInt(int value) {
-    return new IntOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someLong(long value) {
-    return new LongOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someFloat(float value) {
-    return new FloatOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someDouble(double value) {
-    return new DoubleOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someBoolean(boolean value) {
-    return new BooleanOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someString(String value) {
-    return new StringOption(value);
+    return value;
   }
 
   @Specialization
   protected Object someOption(Object value) {
-    return new ObjectOption(value);
+    return value;
   }
 }

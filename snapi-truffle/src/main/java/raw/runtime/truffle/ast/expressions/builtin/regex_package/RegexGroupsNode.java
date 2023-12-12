@@ -16,13 +16,14 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.Objects;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.option.StringOption;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 @NodeInfo(shortName = "Regex.FirstMatchIn")
 @NodeChild(value = "string")
@@ -31,31 +32,27 @@ public abstract class RegexGroupsNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable regexGroups(String string, String regex) {
+  protected Object regexGroups(String string, String regex) {
     try {
       Pattern pattern = RegexCache.get(regex);
       Matcher matcher = pattern.matcher(string);
 
       if (matcher.matches()) {
         // Group zero is the full match
-        StringOption[] groups = new StringOption[matcher.groupCount()];
+        Object[] groups = new Object[matcher.groupCount()];
         for (int i = 0; i < matcher.groupCount(); i++) {
           String value = matcher.group(i + 1);
-          if (value == null) {
-            groups[i] = new StringOption();
-          } else {
-            groups[i] = new StringOption(value);
-          }
+          groups[i] = Objects.requireNonNullElse(value, NullObject.INSTANCE);
         }
-        return ObjectTryable.BuildSuccess(new ObjectList(groups));
+        return new ObjectList(groups);
       } else {
         String error =
             String.format(
                 "string '%s' does not match pattern '%s'", string, matcher.pattern().pattern());
-        return ObjectTryable.BuildFailure(error);
+        return new ErrorObject(error);
       }
     } catch (PatternSyntaxException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

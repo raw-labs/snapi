@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Regex.Replace")
 @NodeChild(value = "string")
@@ -27,12 +27,12 @@ import raw.runtime.truffle.runtime.tryable.ObjectTryable;
 public abstract class RegexReplaceNode extends ExpressionNode {
 
   @Specialization
-  protected ObjectTryable regexReplace(String string, String regex, String replacement) {
+  protected Object regexReplace(String string, String regex, String replacement) {
     try {
       Pattern pattern = RegexCache.get(regex);
-      return ObjectTryable.BuildSuccess(pattern.matcher(string).replaceAll(replacement));
+      return pattern.matcher(string).replaceAll(replacement);
     } catch (PatternSyntaxException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

@@ -14,19 +14,16 @@ package raw.runtime.truffle.ast.expressions.option;
 
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.IsDefined")
 @NodeChild("option")
 public abstract class OptionIsDefinedNode extends ExpressionNode {
 
-  @Specialization(
-      guards = {"options.isOption(option)"},
-      limit = "1")
-  protected boolean isDefined(Object option, @CachedLibrary("option") OptionLibrary options) {
-    return options.isDefined(option);
+  @Specialization
+  protected boolean isDefined(Object option) {
+    return Nullable.isNotNull(option);
   }
 }

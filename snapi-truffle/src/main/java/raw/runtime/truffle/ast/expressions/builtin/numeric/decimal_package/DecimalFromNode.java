@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Decimal.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
@@ -68,11 +68,11 @@ public abstract class DecimalFromNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable fromString(String argument) {
+  protected Object fromString(String argument) {
     try {
-      return ObjectTryable.BuildSuccess(new DecimalObject(new BigDecimal(argument)));
+      return new DecimalObject(new BigDecimal(argument));
     } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to decimal");
+      return new ErrorObject("cannot cast '" + argument + "' to decimal");
     }
   }
 }

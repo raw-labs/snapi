@@ -22,8 +22,8 @@ import org.apache.commons.io.IOUtils;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.runtime.truffle.runtime.tryable.StringTryable;
 import raw.runtime.truffle.utils.TruffleInputStream;
 import raw.sources.api.SourceContext;
 
@@ -39,14 +39,14 @@ public abstract class StringReadNode extends ExpressionNode {
     try {
       Reader reader = stream.getReader(encoding);
       try {
-        return StringTryable.BuildSuccess(IOUtils.toString(reader));
+        return IOUtils.toString(reader);
       } catch (IOException ex) {
-        return StringTryable.BuildFailure(ex.getMessage());
+        return new ErrorObject(ex.getMessage());
       } finally {
         IOUtils.closeQuietly(reader);
       }
     } catch (RawTruffleRuntimeException ex) {
-      return StringTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     }
   }
 }

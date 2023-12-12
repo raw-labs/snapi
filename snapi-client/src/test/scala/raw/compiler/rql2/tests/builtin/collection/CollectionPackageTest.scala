@@ -285,8 +285,7 @@ trait CollectionPackageTest extends CompilerTestContext {
 
   // Sum
 
-  test("""
-    |Collection.Sum(Collection.Build(4,2,7,3,1,5))""".stripMargin) { it =>
+  test("""Collection.Sum(Collection.Build(4,2,7,3,1,5))""".stripMargin) { it =>
     it should typeAs("int")
     it should evaluateTo("22")
   }

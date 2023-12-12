@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableReadJdbcQuery")
 public class TryableReadJdbcQuery extends ExpressionNode {
@@ -35,10 +35,9 @@ public class TryableReadJdbcQuery extends ExpressionNode {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
     try {
-      Object value = innerParse.call(rs, idx);
-      return ObjectTryable.BuildSuccess(value);
+      return innerParse.call(rs, idx);
     } catch (RawTruffleRuntimeException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

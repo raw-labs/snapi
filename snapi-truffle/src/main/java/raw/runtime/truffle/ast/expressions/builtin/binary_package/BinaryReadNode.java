@@ -23,9 +23,8 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
-import raw.runtime.truffle.runtime.tryable.StringTryable;
 import raw.runtime.truffle.utils.TruffleInputStream;
 import raw.sources.api.SourceContext;
 
@@ -40,10 +39,9 @@ public abstract class BinaryReadNode extends ExpressionNode {
     InputStream stream = null;
     try {
       stream = (new TruffleInputStream(locationObject, context)).getInputStream();
-      BinaryObject binary = new BinaryObject(stream.readAllBytes());
-      return ObjectTryable.BuildSuccess(binary);
+      return new BinaryObject(stream.readAllBytes());
     } catch (IOException | RawTruffleRuntimeException ex) {
-      return StringTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     } finally {
       IOUtils.closeQuietly(stream);
     }

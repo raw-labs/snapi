@@ -15,8 +15,6 @@ package raw.compiler.snapi.truffle.builtin.list_extension;
 import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.ExistsListEntry;
-import raw.compiler.rql2.source.FunType;
-import raw.compiler.rql2.source.Rql2Type;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
@@ -26,8 +24,6 @@ import raw.runtime.truffle.ast.expressions.iterable.list.ListExistsNodeGen;
 public class TruffleExistsListEntry extends ExistsListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    FunType funType = (FunType) args.get(1).type();
-    return ListExistsNodeGen.create(
-        args.get(0).exprNode(), args.get(1).exprNode(), (Rql2Type) funType.r());
+    return ListExistsNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

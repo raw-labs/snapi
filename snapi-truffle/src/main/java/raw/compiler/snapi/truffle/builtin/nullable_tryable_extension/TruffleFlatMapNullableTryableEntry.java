@@ -62,7 +62,7 @@ public class TruffleFlatMapNullableTryableEntry extends FlatMapNullableTryableEn
       return OptionGetOrElseNodeGen.create(
           OptionMapNodeGen.create(
               emitter.recurseExp(args.get(0).e()), emitter.recurseExp(args.get(1).e())),
-          TryableSuccessNodeGen.create(new OptionNoneNode(outType)));
+          TryableSuccessNodeGen.create(new OptionNoneNode()));
     }
     // Pure tryable
     else if (eType.props().contains(tryable) && outType.props().contains(tryable)) {

@@ -20,11 +20,9 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonExpectedNothingException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
-import raw.runtime.truffle.runtime.option.EmptyOption;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 public class NullableParseJsonNode extends ExpressionNode {
 
@@ -38,10 +36,6 @@ public class NullableParseJsonNode extends ExpressionNode {
   private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode =
       JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.getUncached();
 
-  @Child
-  private TryableNullableNodes.BoxOptionNode boxOption =
-      TryableNullableNodesFactory.BoxOptionNodeGen.create();
-
   public NullableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
   }
@@ -51,11 +45,10 @@ public class NullableParseJsonNode extends ExpressionNode {
     JsonParser parser = (JsonParser) args[0];
     if (currentTokenNode.execute(parser) == JsonToken.VALUE_NULL) {
       nextTokenNode.execute(parser);
-      return new EmptyOption();
+      return NullObject.INSTANCE;
     } else {
       try {
-        Object result = childDirectCall.call(parser);
-        return boxOption.execute(result);
+        return childDirectCall.call(parser);
       } catch (JsonExpectedNothingException ex) {
         throw new JsonParserRawTruffleException("expected null but got non-null", this);
       }

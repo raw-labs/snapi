@@ -22,7 +22,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.iterable.IterableLibrary;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.tryable.StringTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Collection.MkString")
 @NodeChild("iterable")
@@ -31,7 +31,7 @@ import raw.runtime.truffle.runtime.tryable.StringTryable;
 @NodeChild("end")
 public abstract class CollectionMkStringNode extends ExpressionNode {
   @Specialization(limit = "3")
-  protected StringTryable doCollection(
+  protected Object doCollection(
       Object iterable,
       String start,
       String sep,
@@ -43,7 +43,7 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
       Object generator = iterables.getGenerator(iterable);
       String currentString = start;
       if (!generators.hasNext(generator)) {
-        return StringTryable.BuildSuccess(start + end);
+        return start + end;
       } else {
         Object next = generators.next(generator);
         currentString = (String) add.execute(currentString, next);
@@ -52,9 +52,9 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
         Object next = generators.next(generator);
         currentString = (String) add.execute(currentString + sep, next);
       }
-      return StringTryable.BuildSuccess(currentString + end);
+      return currentString + end;
     } catch (RawTruffleRuntimeException ex) {
-      return StringTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     }
   }
 }

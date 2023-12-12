@@ -20,8 +20,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.regex.PatternSyntaxException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.option.StringOption;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 @NodeInfo(shortName = "Regex.FirstMatchIn")
 @NodeChild(value = "string")
@@ -30,17 +30,17 @@ public abstract class RegexFirstMatchInNode extends ExpressionNode {
 
   @Specialization
   @CompilerDirectives.TruffleBoundary
-  protected ObjectTryable regexFirstMatchIn(String string, String regex) {
+  protected Object regexFirstMatchIn(String string, String regex) {
     try {
       Pattern pattern = RegexCache.get(regex);
       Matcher match = pattern.matcher(string);
       if (match.find()) {
-        return ObjectTryable.BuildSuccess(new StringOption(match.group()));
+        return match.group();
       } else {
-        return ObjectTryable.BuildSuccess(new StringOption());
+        return NullObject.INSTANCE;
       }
     } catch (PatternSyntaxException e) {
-      return ObjectTryable.BuildFailure(e.getMessage());
+      return new ErrorObject(e.getMessage());
     }
   }
 }

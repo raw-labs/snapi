@@ -20,20 +20,14 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodes;
-import raw.runtime.truffle.ast.tryable_nullable.TryableNullableNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
-import raw.runtime.truffle.runtime.tryable.ErrorTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableParseJson")
 public class TryableParseJsonNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
-
-  @Child
-  private TryableNullableNodes.BoxTryableNode boxTryable =
-      TryableNullableNodesFactory.BoxTryableNodeGen.create();
 
   @Child
   private JsonParserNodes.SkipNextJsonParserNode skipNext =
@@ -47,15 +41,14 @@ public class TryableParseJsonNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
     try {
-      Object result = childDirectCall.call(parser);
-      return boxTryable.execute(result);
+      return childDirectCall.call(parser);
     } catch (JsonParserRawTruffleException ex) {
       try {
         skipNext.execute(parser);
       } catch (JsonReaderRawTruffleException e) {
-        return ErrorTryable.BuildFailure(ex.getMessage());
+        return new ErrorObject(ex.getMessage());
       }
-      return ErrorTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     }
   }
 }

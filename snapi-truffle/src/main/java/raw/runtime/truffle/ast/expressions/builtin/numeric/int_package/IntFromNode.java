@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Int.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
@@ -60,12 +60,11 @@ public abstract class IntFromNode extends ExpressionNode {
   }
 
   @Specialization
-  protected ObjectTryable fromString(String argument) {
+  protected Object fromString(String argument) {
     try {
-      return ObjectTryable.BuildSuccess(
-          BoundaryNodesFactory.ParseIntNodeGen.getUncached().execute(argument));
+      return BoundaryNodesFactory.ParseIntNodeGen.getUncached().execute(argument);
     } catch (RuntimeException ex) {
-      return ObjectTryable.BuildFailure("cannot cast '" + argument + "' to int");
+      return new ErrorObject("cannot cast '" + argument + "' to int");
     }
   }
 }

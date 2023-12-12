@@ -19,7 +19,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
-import raw.runtime.truffle.runtime.tryable.ObjectTryable;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "TryableParseCsv")
 public class TryableParseCsvNode extends ExpressionNode {
@@ -37,12 +37,11 @@ public class TryableParseCsvNode extends ExpressionNode {
   }
 
   @CompilerDirectives.TruffleBoundary
-  private ObjectTryable doParse(RawTruffleCsvParser parser) {
+  private Object doParse(RawTruffleCsvParser parser) {
     try {
-      Object value = innerParse.call(parser);
-      return ObjectTryable.BuildSuccess(value);
+      return innerParse.call(parser);
     } catch (CsvParserRawTruffleException ex) {
-      return ObjectTryable.BuildFailure(ex.getMessage());
+      return new ErrorObject(ex.getMessage());
     }
   }
 }

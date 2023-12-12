@@ -10,41 +10,33 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.option;
+package raw.runtime.truffle.runtime.primitives;
 
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
-@ExportLibrary(OptionLibrary.class)
 @ExportLibrary(InteropLibrary.class)
-public final class EmptyOption implements TruffleObject {
+public class ErrorObject implements TruffleObject {
+  private final String message;
 
-  public EmptyOption() {}
+  public ErrorObject(String message) {
+    this.message = message;
+  }
+
+  public String getMessage() {
+    return message;
+  }
 
   @ExportMessage
-  boolean isOption() {
+  public boolean isException() {
     return true;
   }
 
   @ExportMessage
-  public Object get() {
-    throw new AssertionError("Calling get() on EmptyOption.");
-  }
-
-  @ExportMessage
-  public void set(Object value) {
-    throw new AssertionError("Calling set() on EmptyOption.");
-  }
-
-  @ExportMessage
-  public boolean isDefined() {
-    return false;
-  }
-
-  @ExportMessage
-  boolean isNull() {
-    return true;
+  public RuntimeException throwException() {
+    return new RawTruffleRuntimeException(message);
   }
 }

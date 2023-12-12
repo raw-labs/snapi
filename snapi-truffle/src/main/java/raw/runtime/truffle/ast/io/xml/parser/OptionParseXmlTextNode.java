@@ -17,8 +17,7 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.option.EmptyOption;
-import raw.runtime.truffle.runtime.option.ObjectOption;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 @NodeInfo(shortName = "OptionParseXmlText")
 public class OptionParseXmlTextNode extends ExpressionNode {
@@ -34,10 +33,9 @@ public class OptionParseXmlTextNode extends ExpressionNode {
     RawTruffleXmlParser parser = (RawTruffleXmlParser) args[0];
     String text = (String) args[1];
     if (text.isEmpty()) {
-      return new EmptyOption();
+      return NullObject.INSTANCE;
     } else {
-      Object value = childDirectCall.call(parser, text);
-      return new ObjectOption(value);
+      return childDirectCall.call(parser, text);
     }
   }
 }

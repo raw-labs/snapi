@@ -22,8 +22,8 @@ import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
 import raw.runtime.truffle.runtime.iterable.sources.CsvCollection;
 import raw.runtime.truffle.runtime.list.StringList;
-import raw.runtime.truffle.runtime.option.OptionLibrary;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
+import raw.runtime.truffle.tryable_nullable.Nullable;
 import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "IterableParseCsvFile")
@@ -41,8 +41,6 @@ public class IterableParseCsvFile extends ExpressionNode {
   @Child private ExpressionNode dateFormatExp;
   @Child private ExpressionNode timeFormatExp;
   @Child private ExpressionNode datetimeFormatExp;
-
-  private final OptionLibrary options = OptionLibrary.getFactory().getUncached();
 
   public IterableParseCsvFile(
       ExpressionNode location,
@@ -81,8 +79,8 @@ public class IterableParseCsvFile extends ExpressionNode {
       Object quoteValue = quoteExp.executeGeneric(frame);
       char quoteChar = 0;
       boolean useQuote = false;
-      if (options.isDefined(quoteValue)) {
-        String quoteCharString = (String) options.get(quoteValue);
+      if (Nullable.isNotNull(quoteValue)) {
+        String quoteCharString = (String) quoteValue;
         if (!quoteCharString.isEmpty()) {
           useQuote = true;
           quoteChar = quoteCharString.charAt(0);
@@ -90,8 +88,8 @@ public class IterableParseCsvFile extends ExpressionNode {
       }
       Object escapeValue = escapeExp.executeGeneric(frame);
       char escapeChar = 0;
-      if (options.isDefined(escapeValue)) {
-        String escapeCharString = (String) options.get(escapeValue);
+      if (Nullable.isNotNull(escapeValue)) {
+        String escapeCharString = (String) escapeValue;
         if (!escapeCharString.isEmpty()) {
           escapeChar = escapeCharString.charAt(0);
         }

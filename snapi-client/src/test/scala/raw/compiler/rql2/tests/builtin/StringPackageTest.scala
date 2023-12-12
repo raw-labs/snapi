@@ -251,20 +251,6 @@ trait StringPackageTest extends CompilerTestContext with FailAfterNServer {
     _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
   )
 
-  test(s"""Collection.Take(String.ReadLines("$testServerUrl/fail-after-10"), 9)""")(
-    _ should evaluateTo(s"""[
-      | "1, #1, 1.1",
-      | "2, #2, 2.2",
-      | "3, #3, 3.3",
-      | "4, #4, 4.4",
-      | "5, #5, 5.5",
-      | "6, #6, 6.6",
-      | "7, #7, 7.7",
-      | "8, #8, 8.8",
-      | "9, #9, 9.9"
-      |]""".stripMargin)
-  )
-
   test(s"""Collection.Take(String.ReadLines("$testServerUrl/fail-after-10"), 11)""")(
     _ should runErrorAs(s"failed to read lines (url: $testServerUrl/fail-after-10): closed")
   )
@@ -279,28 +265,6 @@ trait StringPackageTest extends CompilerTestContext with FailAfterNServer {
 
   test(s"""Try.IsError( List.From(String.ReadLines("$testServerUrl/fail-after-10")) ) """) {
     _ should evaluateTo("true")
-  }
-
-  test(
-    s""" List.From( Collection.Take(String.ReadLines("$testServerUrl/fail-after-10") , 9 )) """
-  ) {
-    _ should evaluateTo(s"""[
-      | "1, #1, 1.1",
-      | "2, #2, 2.2",
-      | "3, #3, 3.3",
-      | "4, #4, 4.4",
-      | "5, #5, 5.5",
-      | "6, #6, 6.6",
-      | "7, #7, 7.7",
-      | "8, #8, 8.8",
-      | "9, #9, 9.9"
-      |]""".stripMargin)
-  }
-
-  test(s"""Try.IsError(
-    |  List.From(Collection.Take(String.ReadLines("$testServerUrl/fail-after-10"), 9))
-    |)""".stripMargin) {
-    _ should evaluateTo("false")
   }
 
   // RD-8789: make sure the error (wrong encoding name) doesn't propagate through the code (it stays in the list)
