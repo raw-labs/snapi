@@ -47,8 +47,7 @@ jobs:
       - name: build deps
         run: |
           deps/kiama/build.sh
-          deps/scala-logging/build.sh
-          deps/jackson-module-scala/build.sh
+          deps/others/build.sh
       - name: utils headers
         run: sbt headerCheckAll
         working-directory: utils
