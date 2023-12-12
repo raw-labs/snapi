@@ -44,6 +44,7 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
+      - uses: s4u/setup-maven-action@v1.11.0
       - name: build deps
         run: |
           deps/kiama/build.sh
