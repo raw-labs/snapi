@@ -11,10 +11,13 @@ val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5"
 
 val jacksonModuleScala = "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.15.2"
 
+val mysqlModule = "com.mysql" % "mysql-connector-j" % "8.1.0"
+
 libraryDependencies ++= Seq(
   jwtCore,
   scalaLogging,
-  jacksonModuleScala
+  jacksonModuleScala,
+  mysqlModule
 )
 
 // Map of artifact ID to module name
@@ -22,6 +25,7 @@ val moduleNames = Map(
   "jwt-core" -> "jwt.core",
   "scala-logging" -> "typesafe.scalalogging",
   "jackson-module-scala" -> "com.fasterxml.jackson.scala",
+  "mysql-connector-j" -> "mysql.connector.j",
 )
 
 def getCoursierCachePath: String = {

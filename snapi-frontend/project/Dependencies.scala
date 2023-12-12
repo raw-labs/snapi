@@ -31,7 +31,7 @@ object Dependencies {
 
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
 
-  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0"
+  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0-rawlabs"
 
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
 
