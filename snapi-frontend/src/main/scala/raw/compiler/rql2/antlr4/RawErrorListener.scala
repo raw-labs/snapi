@@ -21,6 +21,7 @@ class RawErrorListener() extends BaseErrorListener {
 
   private def improveErrorMessage(msg: String): String = {
     val extraneousPattern = "extraneous input '(.+)' expecting \\{(.*?)}".r
+    val extraneousPattern2 = "extraneous input '(.+)' expecting '(.*?)'".r
     val noViableAlternativePattern = "no viable alternative at input '(.+)'".r
     msg match {
       case extraneousPattern(input, expected) =>
@@ -33,16 +34,12 @@ class RawErrorListener() extends BaseErrorListener {
           }
         val expectedElements = result.mkString(", ")
         s"the input '$input' is not valid here; expected elements are: $expectedElements."
-      case noViableAlternativePattern(input) =>
-        val res =
-          if (input.length > 50) {
-            val leftPart = input.substring(0, 25)
-            val rightPart = input.substring(input.length - 25, input.length)
-            s"$leftPart...$rightPart"
-          } else {
-            input
-          }
-        s"the input does not form a valid statement or expression."
+      case extraneousPattern2(input, expected) =>
+        val res = expected
+          .replace("NON_ESC_IDENTIFIER", "identifier")
+          .replace("ESC_IDENTIFIER", "identifier")
+        s"the input '$input' is not valid here; expected elements is: '$res'.'"
+      case noViableAlternativePattern(_) => s"the input does not form a valid statement or expression."
       case _ => msg
     }
   }

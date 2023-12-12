@@ -212,4 +212,20 @@ class Antlr4LSPTests extends RawTestSuite {
     )
   }
 
+  test("""error output test 3""") { _ =>
+    val prog = """let
+                 |    res = if true then
+                 |        Record.Build(a = 4)
+                 |    else
+                 |        Record.Build(a = 4),
+                 |    a = type int,
+                 |    x: i
+                 |in
+                 |    res.a""".stripMargin
+    val result = parseWithAntlr4(prog)
+    assert(
+      result.errors(1).message == "the input 'i' is not valid here; expected elements is: 'in'.'"
+    )
+  }
+
 }
