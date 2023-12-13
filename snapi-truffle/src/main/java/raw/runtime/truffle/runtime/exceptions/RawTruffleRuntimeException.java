@@ -54,6 +54,6 @@ public class RawTruffleRuntimeException extends AbstractTruffleException {
 
   @ExportMessage
   public ExceptionType getExceptionType() {
-    return ExceptionType.RUNTIME;
+    return ExceptionType.RUNTIME_ERROR;
   }
 }
