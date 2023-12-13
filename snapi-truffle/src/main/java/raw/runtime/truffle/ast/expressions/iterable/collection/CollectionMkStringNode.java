@@ -19,8 +19,8 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
@@ -36,20 +36,21 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
       String start,
       String sep,
       String end,
-      @Cached("create()") OperatorNodes.AddNode add,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
+      @Cached OperatorNodes.AddNode add,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode nextNode) {
     try {
-      Object generator = iterables.getGenerator(iterable);
+      Object generator = getGeneratorNode.execute(iterable);
       String currentString = start;
-      if (!generators.hasNext(generator)) {
+      if (!hasNextNode.execute(generator)) {
         return start + end;
       } else {
-        Object next = generators.next(generator);
+        Object next = nextNode.execute(generator);
         currentString = (String) add.execute(currentString, next);
       }
-      while (generators.hasNext(generator)) {
-        Object next = generators.next(generator);
+      while (hasNextNode.execute(generator)) {
+        Object next = nextNode.execute(generator);
         currentString = (String) add.execute(currentString + sep, next);
       }
       return currentString + end;

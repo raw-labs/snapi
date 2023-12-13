@@ -1,4 +1,4 @@
-package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key;
+package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct;
 
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
@@ -7,31 +7,25 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.util.Iterator;
-import java.util.Objects;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key.OffHeapGroupByKey;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.runtime.list.StringList;
 
+import java.util.Iterator;
+import java.util.Objects;
+
 @ExportLibrary(InteropLibrary.class)
-public class GroupByMemoryGenerator implements TruffleObject {
-  private final Iterator<Object> keys;
+public class DistinctMemoryGenerator implements TruffleObject {
+  private final Iterator<Object> items;
 
-  private final OffHeapGroupByKey offHeapGroupByKey;
-
-  public GroupByMemoryGenerator(OffHeapGroupByKey offHeapGroupByKey) {
-    keys = offHeapGroupByKey.getMemMap().keySet().iterator();
-    this.offHeapGroupByKey = offHeapGroupByKey;
+  public DistinctMemoryGenerator(OffHeapDistinct offHeapDistinct) {
+    this.items = offHeapDistinct.getIndex().iterator();
   }
 
-  public Iterator<Object> getKeys() {
-    return keys;
+  public Iterator<Object> getItems() {
+    return items;
   }
 
-  public OffHeapGroupByKey getOffHeapGroupByKey() {
-    return offHeapGroupByKey;
-  }
+  // InteropLibrary: Iterator
 
   @ExportMessage
   final boolean isIterator() {

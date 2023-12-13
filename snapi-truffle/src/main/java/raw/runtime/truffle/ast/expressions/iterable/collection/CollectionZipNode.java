@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.iterable_old.operations.ZipCollection;
+import raw.runtime.truffle.runtime.iterable.operations.ZipCollection;
 
 @NodeInfo(shortName = "Collection.Zip")
 @NodeChild("parent1")

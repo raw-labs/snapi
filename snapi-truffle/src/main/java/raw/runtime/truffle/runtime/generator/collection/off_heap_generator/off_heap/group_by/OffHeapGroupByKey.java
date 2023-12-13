@@ -1,10 +1,11 @@
-package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key;
+package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
@@ -27,8 +28,6 @@ public class OffHeapGroupByKey {
   // to
   // disk).
 
-  private final Comparator<Object> keyCompare; // grouping key comparison function.
-
   private final SourceContext context;
   private final Rql2TypeWithProperties keyType, rowType; // grouping key and row types.
   private final int kryoOutputBufferSize,
@@ -41,15 +40,13 @@ public class OffHeapGroupByKey {
 
   @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKey(
-      Comparator<Object> keyCompare,
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
       SourceContext context,
       RecordShaper reshape) {
-    this.keyCompare = keyCompare;
     this.language = language;
-    this.memMap = new TreeMap<>(keyCompare);
+    this.memMap = new TreeMap<>(OperatorNodesFactory.CompareNodeGen.create().getUncached()::execute);
     this.keyType = kType;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);
@@ -82,10 +79,6 @@ public class OffHeapGroupByKey {
 
   public int getSize() {
     return size;
-  }
-
-  public Comparator<Object> getKeyCompare() {
-    return keyCompare;
   }
 
   public SourceContext getContext() {

@@ -1,15 +1,15 @@
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer;
 
 import com.esotericsoftware.kryo.io.Input;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key.OffHeapGroupByKey;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 
-public class InputBuffer {
+public class GroupByInputBuffer {
   private final OffHeapGroupByKey offHeapGroupByKey;
   private final Input input;
   private Object key;
   private int itemsLeft;
 
-  public InputBuffer(Input input, OffHeapGroupByKey offHeapGroupByKey) {
+  public GroupByInputBuffer(OffHeapGroupByKey offHeapGroupByKey, Input input) {
     this.input = input;
     this.key = null;
     this.itemsLeft = 0;

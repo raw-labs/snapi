@@ -1,6 +1,9 @@
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next;
 
+import com.esotericsoftware.kryo.io.Input;
+import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.core.JsonToken;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
@@ -24,13 +27,22 @@ import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.*;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable.sources.EmptyCollection;
+import raw.runtime.truffle.runtime.kryo.KryoNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 
 public class ComputeNextNodes {
 
@@ -310,6 +322,176 @@ public class ComputeNextNodes {
         throw new RawTruffleInternalErrorException(e);
       }
     }
+
+    @Specialization
+    static Object next(
+        EquiJoinComputeNext computeNext,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached OperatorNodes.CompareNode compareKey,
+        @CachedLibrary("computeNext.getMkJoinedRecord()") InteropLibrary interops) {
+
+      assert (computeNext.getLeftMapGenerator() != null);
+      assert (computeNext.getRightMapGenerator() != null);
+
+      // keep iterating until we find matching keys
+      while (computeNext.getLeftKey() == null || computeNext.getRightKey() == null) {
+        if (computeNext.getLeftKey() == null) {
+          if (hasNextNode.execute(computeNext.getLeftMapGenerator())) {
+            computeNext.setLeftEntry(
+                (Object[]) nextNode.execute(computeNext.getLeftMapGenerator()));
+            computeNext.setLeftKey(computeNext.getLeftEntry()[0]);
+          } else {
+            throw new BreakException();
+          }
+        }
+
+        if (computeNext.getRightKey() == null) {
+          if (hasNextNode.execute(computeNext.getRightMapGenerator())) {
+            computeNext.setRightEntry(
+                (Object[]) nextNode.execute(computeNext.getRightMapGenerator()));
+            computeNext.setRightKey(computeNext.getRightEntry()[0]);
+          } else {
+            throw new BreakException();
+          }
+        }
+
+        int compare = compareKey.execute(computeNext.getLeftKey(), computeNext.getRightKey());
+        // if keys aren't equal, reset the smallest of both (it will be read in the next
+        // iteration and
+        // will be larger)
+        if (compare < 0) {
+          computeNext.setLeftKey(null);
+        } else if (compare > 0) {
+          computeNext.setRightKey(null);
+        } else {
+          // keys are equal, prepare to do the cartesian product between both.
+          // leftRows and rightRows are the arrays of rows with the same key.
+          // We'll iterate over them to produce the cartesian product.
+          computeNext.setLeftRows((Object[]) computeNext.getLeftEntry()[1]);
+          computeNext.setRightRows((Object[]) computeNext.getRightEntry()[1]);
+          computeNext.setLeftIndex(0);
+          computeNext.setRightIndex(0);
+          break;
+        }
+      }
+
+      // record to return
+      Object joinedRow = null;
+      try {
+        joinedRow =
+            interops.execute(
+                computeNext.getMkJoinedRecord(),
+                computeNext.getLeftRows()[computeNext.getLeftIndex()],
+                computeNext.getRightRows()[computeNext.getRightIndex()]);
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      }
+
+      // move to the next right row
+      computeNext.setRightIndex(computeNext.getRightIndex() + 1);
+      if (computeNext.getRightIndex() == computeNext.getRightRows().length) {
+        // right side is exhausted, move to the next left row.
+        computeNext.setLeftIndex(computeNext.getLeftIndex() + 1);
+        if (computeNext.getLeftIndex() < computeNext.getLeftRows().length) {
+          // there are more left rows, reset the right side to perform another loop.
+          computeNext.setRightIndex(0);
+        } else {
+          // left side is exhausted, we're done with the cartesian product
+          // reset left and right keys to get new ones and restart the cartesian production
+          // in the next call.
+          computeNext.setLeftKey(null);
+          computeNext.setRightKey(null);
+        }
+      }
+      return joinedRow;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    private static Input createInput(File file) {
+      try {
+        return new Input(new FileInputStream(file));
+      } catch (FileNotFoundException e) {
+        throw new RawTruffleRuntimeException(e.getMessage());
+      }
+    }
+
+    @Specialization
+    static Object next(
+        JoinComputeNext computeNext,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached KryoNodes.KryoReadNode kryoReadNode,
+        @CachedLibrary(limit = "5") InteropLibrary interop) {
+      Object row = null;
+
+      while (row == null) {
+        if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
+          if (computeNext.getLeftRow() == null) {
+            if (hasNextNode.execute(computeNext.getLeftGen())) {
+              computeNext.setLeftRow(nextNode.execute(computeNext.getLeftGen()));
+            } else {
+              // end of left, nothing else to read
+              throw new BreakException();
+            }
+          }
+          if (computeNext.getKryoRight() == null) {
+            computeNext.setKryoRight(createInput(computeNext.getDiskRight()));
+            computeNext.setReadRight(0);
+          }
+          if (computeNext.getRightRow() == null) {
+            if (computeNext.getReadRight() < computeNext.getSpilledRight()) {
+              computeNext.setRightRow(
+                  kryoReadNode.execute(
+                      computeNext.getLanguage(),
+                      computeNext.getKryoRight(),
+                      computeNext.getRightRowType()));
+
+              try {
+                boolean pass;
+                if (computeNext.getReshapeBeforePredicate()) {
+                  row =
+                      interop.execute(
+                          computeNext.getRemap(),
+                          computeNext.getLeftRow(),
+                          computeNext.getRightRow());
+                  pass =
+                      TryableNullable.handlePredicate(
+                          interop.execute(computeNext.getPredicate(), row), false);
+                  if (!pass) row = null;
+                } else {
+                  pass =
+                      TryableNullable.handlePredicate(
+                          interop.execute(
+                              computeNext.getPredicate(),
+                              computeNext.getLeftRow(),
+                              computeNext.getRightRow()),
+                          false);
+                  if (pass)
+                    row =
+                        interop.execute(
+                            computeNext.getRemap(),
+                            computeNext.getLeftRow(),
+                            computeNext.getRightRow());
+                }
+              } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+                throw new RawTruffleRuntimeException("failed to execute function");
+              }
+
+              computeNext.setReadRight(computeNext.getReadRight() + 1);
+              computeNext.setRightRow(null);
+            } else {
+              // end of right, reset currentLeft to make sure we try another round
+              computeNext.setLeftRow(null);
+              computeNext.getKryoRight().close();
+              computeNext.setRightRow(null);
+              computeNext.setKryoRight(null);
+            }
+          }
+        }
+      }
+      return row;
+    }
   }
 
   // ==================== ComputeNextNodes end ====================
@@ -482,6 +664,104 @@ public class ComputeNextNodes {
       initNode1.execute(computeNext.getParent1());
       initNode2.execute(computeNext.getParent2());
     }
+
+    @Specialization
+    static void init(
+        EquiJoinComputeNext computeNext,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached GeneratorNodes.GeneratorInitNode initNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
+        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGenerator,
+        @CachedLibrary("computeNext.getLeftKeyF()") InteropLibrary leftKeyFLib,
+        @CachedLibrary("computeNext.getRightKeyF()") InteropLibrary rightKeyFLib) {
+      // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
+      OffHeapGroupByKey leftMap =
+          new OffHeapGroupByKey(
+              computeNext.getKeyType(),
+              computeNext.getLeftRowType(),
+              computeNext.getLanguage(),
+              computeNext.getContext(),
+              null);
+      Object leftGenerator = getGeneratorNode.execute(computeNext.getLeftIterable());
+      try {
+        initNode.execute(leftGenerator);
+        while (hasNextNode.execute(leftGenerator)) {
+          Object leftItem = nextNode.execute(leftGenerator);
+          Object leftKey = leftKeyFLib.execute(computeNext.getLeftKeyF(), leftItem);
+          putNode.execute(leftMap, leftKey, leftItem);
+        }
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      } finally {
+        closeNode.execute(leftGenerator);
+      }
+      computeNext.setLeftMapGenerator(offHeapGenerator.execute(leftMap));
+      initNode.execute(computeNext.getLeftMapGenerator());
+
+      // same with right side
+      OffHeapGroupByKey rightMap =
+          new OffHeapGroupByKey(
+              computeNext.getKeyType(),
+              computeNext.getRightRowType(),
+              computeNext.getLanguage(),
+              computeNext.getContext(),
+              null);
+      Object rightGenerator = getGeneratorNode.execute(computeNext.getRightIterable());
+      try {
+        initNode.execute(rightGenerator);
+        while (hasNextNode.execute(rightGenerator)) {
+          Object rightItem = nextNode.execute(rightGenerator);
+          Object rightKey = rightKeyFLib.execute(computeNext.getRightKeyF(), rightItem);
+          putNode.execute(rightMap, rightKey, rightItem);
+        }
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      } finally {
+        closeNode.execute(rightGenerator);
+      }
+      computeNext.setRightMapGenerator(offHeapGenerator.execute(rightMap));
+      initNode.execute(computeNext.getRightMapGenerator());
+    }
+
+    @Specialization
+    static void init(
+        JoinComputeNext computeNext,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached GeneratorNodes.GeneratorInitNode initNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached KryoNodes.KryoWriteNode kryoWrite) {
+      // initialize left
+      computeNext.setLeftGen(getGeneratorNode.execute(computeNext.getLeftIterable()));
+      initNode.execute(computeNext.getLeftGen());
+
+      // save right to disk
+      Output buffer;
+      try {
+        buffer =
+            new Output(
+                new FileOutputStream(computeNext.getDiskRight()),
+                computeNext.getKryoOutputBufferSize());
+      } catch (FileNotFoundException e) {
+        throw new RawTruffleRuntimeException(e.getMessage());
+      }
+      Object rightGen = getGeneratorNode.execute(computeNext.getRightIterable());
+      try {
+        initNode.execute(rightGen);
+        while (hasNextNode.execute(rightGen)) {
+          Object row = nextNode.execute(rightGen);
+          kryoWrite.execute(buffer, computeNext.getRightRowType(), row);
+          computeNext.setSpilledRight(computeNext.getSpilledRight() + 1);
+        }
+      } finally {
+        closeNode.execute(rightGen);
+        buffer.close();
+      }
+    }
   }
 
   // ==================== InitNodes end =======================
@@ -592,6 +872,28 @@ public class ComputeNextNodes {
         @Cached GeneratorNodes.GeneratorCloseNode closeNode2) {
       closeNode1.execute(computeNext.getParent1());
       closeNode2.execute(computeNext.getParent2());
+    }
+
+    @Specialization
+    static void close(
+        EquiJoinComputeNext computeNext,
+        @Cached GeneratorNodes.GeneratorCloseNode closeNode1,
+        @Cached GeneratorNodes.GeneratorCloseNode closeNode2) {
+      if (computeNext.getLeftMapGenerator() != null) {
+        closeNode1.execute(computeNext.getLeftMapGenerator());
+        computeNext.setLeftMapGenerator(null);
+      }
+      if (computeNext.getRightMapGenerator() != null) {
+        closeNode2.execute(computeNext.getRightMapGenerator());
+        computeNext.setRightMapGenerator(null);
+      }
+    }
+
+    @Specialization
+    static void close(
+        JoinComputeNext computeNext, @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
+      closeNode.execute(computeNext.getLeftGen());
+      if (computeNext.getKryoRight() != null) computeNext.getKryoRight().close();
     }
   }
   // ==================== CloseNodes end =======================

@@ -21,7 +21,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.iterable_old.operations.GroupByCollection;
+import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 
 @NodeInfo(shortName = "Collection.GroupBy")
 @NodeChild("iterable")

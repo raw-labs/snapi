@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -23,7 +24,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
@@ -36,16 +37,16 @@ public abstract class CollectionExistsNode extends ExpressionNode {
   protected Object doIterable(
       Object iterable,
       Object closure,
-      @CachedLibrary("iterable") IterableLibrary iterables,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @CachedLibrary("closure") InteropLibrary interops,
       @CachedLibrary(limit = "2") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+    Object generator = getGeneratorNode.execute(iterable);
     try {
       generators.init(generator);
       Object[] argumentValues = new Object[1];
       while (generators.hasNext(generator)) {
         argumentValues[0] = generators.next(generator);
-        Boolean predicate =
+        boolean predicate =
             TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
         if (predicate) {
           return true;

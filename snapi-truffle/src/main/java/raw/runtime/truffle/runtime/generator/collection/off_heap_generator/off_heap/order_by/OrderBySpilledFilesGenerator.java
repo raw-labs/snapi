@@ -1,4 +1,4 @@
-package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key;
+package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
@@ -7,38 +7,47 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.util.ArrayList;
-import java.util.Objects;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key.OffHeapGroupByKey;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.InputBuffer;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.OrderByInputBuffer;
 import raw.runtime.truffle.runtime.list.StringList;
 
+import java.util.ArrayList;
+import java.util.Objects;
+
 @ExportLibrary(InteropLibrary.class)
-public class GroupBySpilledFilesGenerator implements TruffleObject {
+public class OrderBySpilledFilesGenerator implements TruffleObject {
+  private final OffHeapGroupByKeys offHeapGroupByKeys;
 
-  private final OffHeapGroupByKey offHeapGroupByKey;
-  private ArrayList<InputBuffer>
+  private ArrayList<OrderByInputBuffer>
       inputBuffers; // list of Kryo buffers that contain the spilled data.
+  private OrderByInputBuffer currentKryoBuffer; // the current buffer being read.
 
-  public GroupBySpilledFilesGenerator(OffHeapGroupByKey offHeapGroupByKey) {
-    this.offHeapGroupByKey = offHeapGroupByKey;
+  public OrderBySpilledFilesGenerator(OffHeapGroupByKeys offHeapGroupByKeys) {
+    this.offHeapGroupByKeys = offHeapGroupByKeys;
   }
 
-  public void setInputBuffers(ArrayList<InputBuffer> inputBuffers) {
+  public void setInputBuffers(ArrayList<OrderByInputBuffer> inputBuffers) {
     this.inputBuffers = inputBuffers;
   }
 
-  public void addInputBuffer(InputBuffer inputBuffer) {
-    this.inputBuffers.add(inputBuffer);
+  public void setCurrentKryoBuffer(OrderByInputBuffer currentKryoBuffer) {
+    this.currentKryoBuffer = currentKryoBuffer;
   }
 
-  public ArrayList<InputBuffer> getInputBuffers() {
+  public OffHeapGroupByKeys getOffHeapGroupByKeys() {
+    return offHeapGroupByKeys;
+  }
+
+  public ArrayList<OrderByInputBuffer> getInputBuffers() {
     return inputBuffers;
   }
 
-  public OffHeapGroupByKey getOffHeapGroupByKey() {
-    return offHeapGroupByKey;
+  public OrderByInputBuffer getCurrentKryoBuffer() {
+    return currentKryoBuffer;
+  }
+
+  public void addInputBuffer(OrderByInputBuffer inputBuffer) {
+    this.inputBuffers.add(inputBuffer);
   }
 
   @ExportMessage

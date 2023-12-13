@@ -21,7 +21,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.iterable_old.operations.OrderByCollection;
+import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
 
 @NodeInfo(shortName = "Collection.OrderBy")
 public class CollectionOrderByNode extends ExpressionNode {

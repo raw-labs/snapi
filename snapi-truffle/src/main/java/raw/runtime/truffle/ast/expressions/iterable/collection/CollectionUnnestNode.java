@@ -17,7 +17,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.iterable_old.operations.UnnestCollection;
+import raw.runtime.truffle.runtime.iterable.operations.UnnestCollection;
 
 @NodeInfo(shortName = "Collection.Unnest")
 @NodeChild("iterable")

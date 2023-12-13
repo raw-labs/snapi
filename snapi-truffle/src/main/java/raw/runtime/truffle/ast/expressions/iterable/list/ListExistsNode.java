@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -22,8 +23,8 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
@@ -36,19 +37,21 @@ public abstract class ListExistsNode extends ExpressionNode {
   protected boolean doList(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary("closure") InteropLibrary interops,
-      @CachedLibrary(limit = "2") IterableLibrary iterables,
-      @CachedLibrary(limit = "2") GeneratorLibrary generators) {
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
+    Object generator = getGeneratorNode.execute(iterable);
     try {
-      generators.init(generator);
-      Object[] argumentValues = new Object[1];
-      while (generators.hasNext(generator)) {
-        argumentValues[0] = generators.next(generator);
-        Boolean predicate =
-            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
+      generatorInitNode.execute(generator);
+      while (generatorHasNextNode.execute(generator)) {
+        boolean predicate =
+            TryableNullable.handlePredicate(
+                interops.execute(closure, generatorNextNode.execute(generator)), false);
         if (predicate) {
           return true;
         }
@@ -57,7 +60,7 @@ public abstract class ListExistsNode extends ExpressionNode {
     } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
       throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
-      generators.close(generator);
+      generatorCloseNode.execute(generator);
     }
   }
 }

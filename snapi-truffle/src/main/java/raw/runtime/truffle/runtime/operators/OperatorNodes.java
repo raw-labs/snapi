@@ -30,7 +30,7 @@ import java.time.LocalTime;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.tryable_nullable.Nullable;
@@ -194,11 +194,11 @@ public class OperatorNodes {
         Object left,
         Object right,
         @Cached CompareNode compare,
-        @CachedLibrary("left") IterableLibrary lefts,
-        @CachedLibrary("right") IterableLibrary rights,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeRight,
         @CachedLibrary(limit = "2") GeneratorLibrary generators) {
-      Object leftGenerator = lefts.getGenerator(left);
-      Object rightGenerator = rights.getGenerator(right);
+      Object leftGenerator = getGeneratorNodeLeft.execute(left);
+      Object rightGenerator = getGeneratorNodeRight.execute(right);
       while (generators.hasNext(leftGenerator) && generators.hasNext(rightGenerator)) {
         Object leftElement = generators.next(leftGenerator);
         Object rightElement = generators.next(rightGenerator);

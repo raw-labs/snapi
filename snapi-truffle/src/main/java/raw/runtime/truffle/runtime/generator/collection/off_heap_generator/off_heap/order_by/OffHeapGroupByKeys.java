@@ -1,4 +1,4 @@
-package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key;
+package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
 import com.oracle.truffle.api.CompilerDirectives;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -24,8 +24,6 @@ public class OffHeapGroupByKeys {
   // to
   // disk).
 
-  private final Comparator<Object[]> keyCompare; // grouping keys compare function.
-
   private final Rql2TypeWithProperties[] keyTypes; // grouped key and value types.
   private final Rql2TypeWithProperties rowType; // grouped key and value types.
   private final int keysSize, rowSize; // grouping keys and row kryo binary size
@@ -44,13 +42,12 @@ public class OffHeapGroupByKeys {
 
   @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKeys(
-      Comparator<Object[]> keyCompare,
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
       SourceContext context) {
-    this.keyCompare = keyCompare;
-    this.memMap = new TreeMap<>(keyCompare);
+    this.memMap =
+        new TreeMap<>(OperatorNodesFactory.CompareNodeGen.create().getUncached()::execute);
     this.keyTypes = kTypes;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);

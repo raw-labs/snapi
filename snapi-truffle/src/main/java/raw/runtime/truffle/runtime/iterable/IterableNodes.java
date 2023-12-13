@@ -3,10 +3,22 @@ package raw.runtime.truffle.runtime.iterable;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.interop.UnsupportedTypeException;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.runtime.generator.collection.AbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.*;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OffHeapGroupByKeys;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.runtime.iterable.operations.*;
 import raw.runtime.truffle.runtime.iterable.sources.*;
 
@@ -123,6 +135,112 @@ public class IterableNodes {
       Object parentGenerator2 = getGeneratorNode1.execute(collection.getParentIterable2());
       return new AbstractGenerator(
           new ZipComputeNext(parentGenerator1, parentGenerator2, collection.getLanguage()));
+    }
+
+    @Specialization
+    static Object getGenerator(
+        DistinctCollection collection,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached GeneratorNodes.GeneratorInitNode initNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
+        @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode) {
+      OffHeapDistinct index =
+          new OffHeapDistinct(
+              collection.getRowType(), collection.getLanguage(), collection.getContext());
+      Object generator = getGeneratorNode.execute(collection.getIterable());
+      try {
+        initNode.execute(generator);
+        while (hasNextNode.execute(generator)) {
+          Object next = hasNextNode.execute(generator);
+          putNode.execute(index, next, null);
+        }
+      } finally {
+        closeNode.execute(generator);
+      }
+      return generatorNode.execute(index);
+    }
+
+    @Specialization
+    static Object getGenerator(EquiJoinCollection collection) {
+      return collection.getGenerator();
+    }
+
+    @Specialization
+    static Object getGenerator(
+        GroupByCollection collection,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached GeneratorNodes.GeneratorInitNode initNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
+        @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @CachedLibrary("collection.getKeyFun()") InteropLibrary keyFunLib) {
+      OffHeapGroupByKey map =
+          new OffHeapGroupByKey(
+              collection.getKeyType(),
+              collection.getRowType(),
+              collection.getLanguage(),
+              collection.getContext(),
+              new RecordShaper(collection.getLanguage(), false));
+      Object inputGenerator = getGeneratorNode.execute(collection.getIterable());
+      try {
+        initNode.execute(inputGenerator);
+        while (hasNextNode.execute(inputGenerator)) {
+          Object v = nextNode.execute(inputGenerator);
+          Object key = keyFunLib.execute(collection.getKeyFun(), v);
+          putNode.execute(map, key, v);
+        }
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RawTruffleRuntimeException("failed to execute function");
+      } finally {
+        closeNode.execute(inputGenerator);
+      }
+      return generatorNode.execute(map);
+    }
+
+    @Specialization
+    static Object getGenerator(JoinCollection collection) {
+      return collection.getGenerator();
+    }
+
+    @Specialization
+    static Object getGenerator(
+        OrderByCollection collection,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached GeneratorNodes.GeneratorInitNode initNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
+        @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @CachedLibrary(limit = "8") InteropLibrary keyFunctionsLib) {
+      Object generator = getGeneratorNode.execute(collection.getParentIterable());
+      OffHeapGroupByKeys groupByKeys =
+          new OffHeapGroupByKeys(
+              collection.getKeyTypes(),
+              collection.getRowType(),
+              collection.getLanguage(),
+              collection.getContext());
+      try {
+        initNode.execute(generator);
+        while (hasNextNode.execute(generator)) {
+          Object v = nextNode.execute(generator);
+          int len = collection.getKeyFunctions().length;
+          Object[] key = new Object[len];
+          for (int i = 0; i < len; i++) {
+            key[i] = keyFunctionsLib.execute(collection.getKeyFunctions()[i], v);
+          }
+          putNode.execute(groupByKeys, key, v);
+        }
+      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+        throw new RuntimeException(e);
+      } finally {
+        closeNode.execute(generator);
+      }
+      return generatorNode.execute(groupByKeys);
     }
   }
 }

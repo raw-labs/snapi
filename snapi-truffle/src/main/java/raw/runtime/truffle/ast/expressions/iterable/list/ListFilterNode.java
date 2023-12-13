@@ -13,10 +13,7 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -29,8 +26,8 @@ import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
@@ -53,16 +50,17 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected ByteList doByte(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     ArrayList<Byte> llist = new ArrayList<>();
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
+    Object generator = getGeneratorNode.execute(iterable);
     Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
+    while (generatorHasNextNode.execute(generator)) {
+      argumentValues[0] = generatorNextNode.execute(generator);
       Boolean predicate = null;
       try {
         predicate =
@@ -88,25 +86,24 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected ShortList doShort(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     ArrayList<Short> llist = new ArrayList<>();
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
+    Object generator = getGeneratorNode.execute(iterable);
+    while (generatorHasNextNode.execute(generator)) {
+      Object v = generatorNextNode.execute(generator);
       Boolean predicate = null;
       try {
-        predicate =
-            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
+        predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
       if (predicate) {
-        llist.add((Short) argumentValues[0]);
+        llist.add((Short) v);
       }
     }
     short[] values = new short[llist.size()];
@@ -123,21 +120,20 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected IntList doInt(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
+    Object generator = getGeneratorNode.execute(iterable);
     int[] values =
         Arrays.stream((int[]) lists.getInnerList(list))
             .filter(
                 x -> {
-                  argumentValues[0] = generators.next(generator);
                   try {
                     return TryableNullable.handlePredicate(
-                        interops.execute(closure, argumentValues), false);
+                        interops.execute(closure, generatorNextNode.execute(generator)), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {
@@ -155,21 +151,19 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected LongList doLong(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
+    Object generator = getGeneratorNode.execute(iterable);
     long[] values =
         Arrays.stream((long[]) lists.getInnerList(list))
             .filter(
                 x -> {
-                  argumentValues[0] = generators.next(generator);
                   try {
                     return TryableNullable.handlePredicate(
-                        interops.execute(closure, argumentValues), false);
+                        interops.execute(closure, generatorNextNode.execute(generator)), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {
@@ -187,25 +181,24 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected FloatList doFloat(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
+    Object generator = getGeneratorNode.execute(iterable);
     ArrayList<Float> llist = new ArrayList<>();
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
+    while (generatorHasNextNode.execute(generator)) {
+      Object v = generatorNextNode.execute(generator);
       Boolean predicate = null;
       try {
-        predicate =
-            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
+        predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
       if (predicate) {
-        llist.add((Float) argumentValues[0]);
+        llist.add((Float) v);
       }
     }
     float[] values = new float[llist.size()];
@@ -222,21 +215,19 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected DoubleList doDouble(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
+    Object generator = getGeneratorNode.execute(iterable);
     double[] values =
         Arrays.stream((double[]) lists.getInnerList(list))
             .filter(
                 x -> {
-                  argumentValues[0] = generators.next(generator);
                   try {
                     return TryableNullable.handlePredicate(
-                        interops.execute(closure, argumentValues), false);
+                        interops.execute(closure, generatorNextNode.execute(generator)), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {
@@ -254,25 +245,24 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected BooleanList doBoolean(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
+    Object generator = getGeneratorNode.execute(iterable);
     ArrayList<Boolean> llist = new ArrayList<>();
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
+    while (generatorHasNextNode.execute(generator)) {
+      Object v = generatorNextNode.execute(generator);
       boolean predicate = false;
       try {
-        predicate =
-            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
+        predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
       if (predicate) {
-        llist.add((Boolean) argumentValues[0]);
+        llist.add((Boolean) v);
       }
     }
     boolean[] values = new boolean[llist.size()];
@@ -289,25 +279,24 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected StringList doString(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
+    Object generator = getGeneratorNode.execute(iterable);
     ArrayList<String> llist = new ArrayList<>();
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
+    while (generatorHasNextNode.execute(generator)) {
+      Object v = generatorNextNode.execute(generator);
       boolean predicate = false;
       try {
-        predicate =
-            TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
+        predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       }
       if (predicate) {
-        llist.add((String) argumentValues[0]);
+        llist.add((String) v);
       }
     }
     String[] values = new String[llist.size()];
@@ -322,21 +311,19 @@ public abstract class ListFilterNode extends ExpressionNode {
   protected ObjectList doObject(
       Object list,
       Object closure,
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] argumentValues = new Object[1];
+    Object generator = getGeneratorNode.execute(iterable);
     Object[] values =
         Arrays.stream((Object[]) lists.getInnerList(list))
             .filter(
                 x -> {
-                  argumentValues[0] = generators.next(generator);
                   try {
                     return TryableNullable.handlePredicate(
-                        interops.execute(closure, argumentValues), false);
+                        interops.execute(closure, generatorNextNode.execute(generator)), false);
                   } catch (UnsupportedMessageException
                       | UnsupportedTypeException
                       | ArityException e) {

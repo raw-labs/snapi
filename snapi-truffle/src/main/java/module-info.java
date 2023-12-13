@@ -305,13 +305,9 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.boundary;
   exports raw.runtime.truffle.runtime.aggregation;
   exports raw.runtime.truffle.runtime.aggregation.aggregator;
-  exports raw.runtime.truffle.runtime.iterable_old;
-  exports raw.runtime.truffle.runtime.iterable_old.operations;
   exports raw.runtime.truffle.runtime.iterable_old.list;
-  exports raw.runtime.truffle.runtime.iterable_old.sources;
   exports raw.runtime.truffle.runtime.record;
   exports raw.runtime.truffle.runtime.operators;
-  exports raw.runtime.truffle.runtime.kryo_old;
   exports raw.runtime.truffle.runtime.array;
   exports raw.runtime.truffle.runtime.function;
   exports raw.runtime.truffle.runtime.exceptions;
@@ -322,10 +318,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.exceptions.rdbms;
   exports raw.runtime.truffle.runtime.primitives;
   exports raw.runtime.truffle.runtime.generator;
-  exports raw.runtime.truffle.runtime.generator.collection_old;
-  exports raw.runtime.truffle.runtime.generator.collection_old.compute_next;
-  exports raw.runtime.truffle.runtime.generator.collection_old.compute_next.operations;
-  exports raw.runtime.truffle.runtime.generator.collection_old.compute_next.sources;
   exports raw.runtime.truffle.runtime.generator.list;
   exports raw.runtime.truffle.runtime.map;
   exports raw.runtime.truffle.runtime.list;
@@ -384,8 +376,11 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next;
   exports raw.runtime.truffle.runtime.generator.collection;
   exports raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources;
-  exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer;
-  exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.group_by_key;
+  exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap;
+  exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by;
+  exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
+  exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct;
+  exports raw.runtime.truffle.runtime.iterable;
 }

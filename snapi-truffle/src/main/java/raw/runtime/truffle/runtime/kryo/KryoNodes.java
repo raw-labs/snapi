@@ -19,7 +19,7 @@ import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.*;
@@ -283,11 +283,11 @@ public class KryoNodes {
         Rql2TypeWithProperties type,
         Object o,
         @Cached KryoWriteNode kryo,
-        @CachedLibrary("o") IterableLibrary iterators,
+        @Cached IterableNodes.GetGeneratorNode iterators,
         @CachedLibrary(limit = "2") GeneratorLibrary generators) {
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType();
-      Object generator = iterators.getGenerator(o);
+      Object generator = iterators.execute(o);
       generators.init(generator);
       ArrayList<Object> contents = new ArrayList<>();
       while (generators.hasNext(generator)) {

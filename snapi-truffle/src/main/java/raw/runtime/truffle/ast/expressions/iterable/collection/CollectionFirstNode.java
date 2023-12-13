@@ -12,14 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 
@@ -30,15 +30,17 @@ public abstract class CollectionFirstNode extends ExpressionNode {
   @Specialization(limit = "3")
   protected Object doObject(
       Object iterable,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators,
-      @CachedLibrary("iterable") IterableLibrary iterables) {
+      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached GeneratorNodes.GeneratorInitNode initNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode hasNext,
+      @Cached GeneratorNodes.GeneratorNextNode next) {
     try {
-      Object generator = iterables.getGenerator(iterable);
-      generators.init(generator);
-      if (!generators.hasNext(generator)) {
+      Object generator = getGeneratorNode.execute(iterable);
+      initNode.execute(generator);
+      if (!hasNext.execute(generator)) {
         return NullObject.INSTANCE;
       }
-      return generators.next(generator);
+      return next.execute(generator);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     }
