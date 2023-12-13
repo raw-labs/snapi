@@ -35,7 +35,8 @@ class MySqlClient(db: MySqlCredential)(implicit settings: RawSettings) extends J
   }
   override val username: Option[String] = db.username
   override val password: Option[String] = db.password
-
+  // TO BE REMOVED
+  final private val sillytricktousethemysqlpackage = new CJCommunicationsException("sillytricktousethemysqlpackage")
   override val hostname: String = db.host
 
   override def wrapSQLException[T](f: => T): T = {
