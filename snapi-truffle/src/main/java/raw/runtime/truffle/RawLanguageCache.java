@@ -99,5 +99,6 @@ public class RawLanguageCache {
               v.getSourceContext().credentialsService().stop();
             });
     map.clear();
+    credentialsService.stop();
   }
 }
