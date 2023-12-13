@@ -412,7 +412,9 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
               }
               ExecutionValidationFailure(errors.to)
             } else {
-              // A runtime failure during execution. The query is a failed tryable.
+              // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
+              // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
+              // evaluation of the query).
               ExecutionRuntimeFailure(ex.getMessage)
             }
           }
