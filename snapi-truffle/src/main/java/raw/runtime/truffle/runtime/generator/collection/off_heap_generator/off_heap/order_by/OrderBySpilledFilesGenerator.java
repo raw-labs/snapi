@@ -1,18 +1,17 @@
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.OrderByInputBuffer;
-import raw.runtime.truffle.runtime.list.StringList;
-
 import java.util.ArrayList;
 import java.util.Objects;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.OrderByInputBuffer;
+import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
 public class OrderBySpilledFilesGenerator implements TruffleObject {
@@ -50,21 +49,22 @@ public class OrderBySpilledFilesGenerator implements TruffleObject {
     this.inputBuffers.add(inputBuffer);
   }
 
+
   @ExportMessage
   final boolean isIterator() {
     return true;
   }
 
   @ExportMessage
-  final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
-      throws UnsupportedMessageException {
-    return generatorLibrary.hasNext(this);
+  final boolean hasIteratorNextElement(@Cached GeneratorNodes.GeneratorHasNextNode hasNextNode)
+          throws UnsupportedMessageException {
+    return hasNextNode.execute(this);
   }
 
   @ExportMessage
-  final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
-      throws UnsupportedMessageException, StopIterationException {
-    return generatorLibrary.next(this);
+  final Object getIteratorNextElement(@Cached GeneratorNodes.GeneratorNextNode nextNode)
+          throws UnsupportedMessageException, StopIterationException {
+    return nextNode.execute(this);
   }
 
   @ExportMessage
@@ -84,9 +84,9 @@ public class OrderBySpilledFilesGenerator implements TruffleObject {
 
   @ExportMessage
   final Object invokeMember(
-      String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) {
+          String member, Object[] args, @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
     assert (Objects.equals(member, "close"));
-    generatorLibrary.close(this);
+    closeNode.execute(this);
     return 0;
   }
 }

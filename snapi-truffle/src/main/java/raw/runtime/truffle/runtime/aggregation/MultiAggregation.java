@@ -12,12 +12,15 @@
 
 package raw.runtime.truffle.runtime.aggregation;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
 
 @ExportLibrary(AggregationLibrary.class)
@@ -36,21 +39,24 @@ public final class MultiAggregation {
   @ExportMessage(limit = "3")
   public Object aggregate(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "5") AggregatorLibrary aggregatorLibs,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached IterableNodes.GetGeneratorNode getGenerator,
+      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @CachedLibrary(limit = "5") AggregatorLibrary aggregatorLibs) {
+    Object generator = getGenerator.execute(iterable);
     try {
-      generators.init(generator);
+      generatorInitNode.execute(generator);
       Object[] results = new Object[aggregators.length];
       for (int i = 0; i < aggregators.length; i++) {
         results[i] = aggregatorLibs.zero(aggregators[i]);
       }
-      if (!generators.hasNext(generator)) {
+      if (!generatorHasNextNode.execute(generator)) {
         return results;
       }
-      while (generators.hasNext(generator)) {
-        Object next = generators.next(generator);
+      while (generatorHasNextNode.execute(generator)) {
+        Object next = generatorNextNode.execute(generator);
         for (int i = 0; i < aggregators.length; i++) {
           results[i] = aggregatorLibs.merge(aggregators[i], results[i], next);
         }
@@ -59,7 +65,7 @@ public final class MultiAggregation {
     } catch (RawTruffleRuntimeException ex) {
       throw new RawTruffleRuntimeException(ex.getMessage());
     } finally {
-      generators.close(generator);
+      generatorCloseNode.execute(generator);
     }
   }
 }

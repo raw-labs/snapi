@@ -23,7 +23,7 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
@@ -38,14 +38,17 @@ public abstract class CollectionExistsNode extends ExpressionNode {
       Object iterable,
       Object closure,
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @CachedLibrary("closure") InteropLibrary interops,
-      @CachedLibrary(limit = "2") GeneratorLibrary generators) {
+      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @CachedLibrary("closure") InteropLibrary interops) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
-      generators.init(generator);
+      generatorInitNode.execute(generator);
       Object[] argumentValues = new Object[1];
-      while (generators.hasNext(generator)) {
-        argumentValues[0] = generators.next(generator);
+      while (generatorHasNextNode.execute(generator)) {
+        argumentValues[0] = generatorNextNode.execute(generator);
         boolean predicate =
             TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
         if (predicate) {
@@ -59,7 +62,7 @@ public abstract class CollectionExistsNode extends ExpressionNode {
         | ArityException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      generatorCloseNode.execute(generator);
     }
   }
 }

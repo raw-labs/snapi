@@ -12,12 +12,15 @@
 
 package raw.runtime.truffle.runtime.aggregation;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
 
 @ExportLibrary(AggregationLibrary.class)
@@ -37,25 +40,28 @@ public final class SingleAggregation {
   @ExportMessage(limit = "3")
   public Object aggregate(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary("this.aggregator") AggregatorLibrary aggregators,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached IterableNodes.GetGeneratorNode getGenerator,
+      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @CachedLibrary("this.aggregator") AggregatorLibrary aggregators) {
+    Object generator = getGenerator.execute(iterable);
     try {
-      generators.init(generator);
-      if (!generators.hasNext(generator)) {
+      generatorInitNode.execute(generator);
+      if (!generatorHasNextNode.execute(generator)) {
         return aggregators.zero(aggregator);
       }
       Object result = aggregators.zero(aggregator);
-      while (generators.hasNext(generator)) {
-        Object next = generators.next(generator);
+      while (generatorHasNextNode.execute(generator)) {
+        Object next = generatorNextNode.execute(generator);
         result = aggregators.merge(aggregator, result, next);
       }
       return result;
     } catch (RawTruffleRuntimeException ex) {
       throw new RawTruffleRuntimeException(ex.getMessage());
     } finally {
-      generators.close(generator);
+      generatorCloseNode.execute(generator);
     }
   }
 }

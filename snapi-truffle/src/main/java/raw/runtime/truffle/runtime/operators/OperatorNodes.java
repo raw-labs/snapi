@@ -29,7 +29,7 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
@@ -196,20 +196,23 @@ public class OperatorNodes {
         @Cached CompareNode compare,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNodeRight,
-        @CachedLibrary(limit = "2") GeneratorLibrary generators) {
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeLeft,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeRight,
+        @Cached GeneratorNodes.GeneratorNextNode nextNodeLeft,
+        @Cached GeneratorNodes.GeneratorNextNode nextNodeRight) {
       Object leftGenerator = getGeneratorNodeLeft.execute(left);
       Object rightGenerator = getGeneratorNodeRight.execute(right);
-      while (generators.hasNext(leftGenerator) && generators.hasNext(rightGenerator)) {
-        Object leftElement = generators.next(leftGenerator);
-        Object rightElement = generators.next(rightGenerator);
+      while (hasNextNodeLeft.execute(leftGenerator) && hasNextNodeRight.execute(rightGenerator)) {
+        Object leftElement = nextNodeLeft.execute(leftGenerator);
+        Object rightElement = nextNodeRight.execute(rightGenerator);
         int result = compare.execute(leftElement, rightElement);
         if (result != 0) {
           return result;
         }
       }
-      if (generators.hasNext(leftGenerator)) {
+      if (hasNextNodeLeft.execute(leftGenerator)) {
         return 1;
-      } else if (generators.hasNext(rightGenerator)) {
+      } else if (hasNextNodeRight.execute(rightGenerator)) {
         return -1;
       } else {
         return 0;

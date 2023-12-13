@@ -82,10 +82,6 @@ public class OffHeapGroupByKeys {
     return size;
   }
 
-  public Comparator<Object[]> getKeyCompare() {
-    return keyCompare;
-  }
-
   public Rql2TypeWithProperties[] getKeyTypes() {
     return keyTypes;
   }

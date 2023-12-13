@@ -383,4 +383,5 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct;
   exports raw.runtime.truffle.runtime.iterable;
+  exports raw.runtime.truffle.runtime.kryo;
 }

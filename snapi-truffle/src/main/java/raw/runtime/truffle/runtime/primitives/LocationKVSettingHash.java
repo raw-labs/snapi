@@ -18,8 +18,8 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Objects;
 
-import raw.runtime.truffle.runtime.generator.collection.AbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.ExpressionComputeNext;
 import raw.runtime.truffle.runtime.list.StringList;
 
 /* This class is used to export Location KVSettings (as a Hash) */
