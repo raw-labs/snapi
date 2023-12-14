@@ -5,18 +5,10 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
 cd "${SCRIPT_HOME}"/snapi-frontend
 
-rm -rfv test-results
-mkdir -p test-results
-
-java --version
-which java
-###############sbt test
+./test.sh
 
 # snapi-client
 
 cd "${SCRIPT_HOME}"/snapi-client
 
-rm -rfv test-results
-mkdir -p test-results
-
-sbt test
+./test.sh
