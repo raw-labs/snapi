@@ -61,9 +61,9 @@ patchDependencies := {
 
     // Get the name of the JAR file
     val name = jar.getName
-    
+    val newName = name.replace(".jar", "-rawlabs.jar")
     // Copy the JAR file to a new JAR file with the same name but with the suffix '-rawlabs'
-    val newJar = new File(s"$name-rawlabs.jar")
+    val newJar = new File(newName)
     Files.copy(jar.toPath, newJar.toPath, StandardCopyOption.REPLACE_EXISTING)
 
     // Create a file called manifest.txt and add 'Automatic-Module-Name: sdk.http.ahc'
@@ -87,7 +87,6 @@ patchDependencies := {
       throw new Exception(s"Failed to publish JAR $newJar")
     }
   }
-
 }
 
 
