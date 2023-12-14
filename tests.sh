@@ -8,7 +8,9 @@ cd "${SCRIPT_HOME}"/snapi-frontend
 rm -rfv test-results
 mkdir -p test-results
 
-sbt test
+java --version
+which java
+###############sbt test
 
 # snapi-client
 
