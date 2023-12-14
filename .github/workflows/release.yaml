@@ -11,7 +11,7 @@ jobs:
   create-gh-release:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001
       credentials:
         username: ${{ github.actor }}
