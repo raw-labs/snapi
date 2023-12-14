@@ -16,31 +16,27 @@ env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
 
 jobs:
-  build-deps:
-    strategy:
-      fail-fast: false
-      matrix:
-        component:
-          - kiama
-          - scala-logging
-          - jackson-module-scala
+  build:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:buster_21.0.1.12-1_python3.7_scala2.12.18_sbt1.9.6
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - uses: s4u/setup-maven-action@v1.11.0
-      - uses: coursier/cache-action@v6
+      - run: ./rebuild.sh
+      - uses: actions/upload-artifact@v4
         with:
-          root: deps/${{ matrix.component }}
-      - run: ./build.sh
-        working-directory: deps/${{ matrix.component }}
-  build:
-    needs: build-deps
+          name: build
+          path: /home/sbtuser/.ivy2/local
+      - uses: actions/upload-artifact@v4
+        with:
+          name: versions
+          path: ./**/version
+  code-checks:
+    needs: build
     strategy:
       fail-fast: false
       matrix:
@@ -60,36 +56,14 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - uses: s4u/setup-maven-action@v1.11.0
-      - uses: coursier/cache-action@v6
+      - uses: actions/download-artifact@v4
         with:
-          root: ${{ matrix.component }}
-      - run: ./build.sh
-        working-directory: ${{ matrix.component }}
-  code-checks:
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        component:
-          - utils
-          - client
-          - snapi-frontend
-          - snapi-truffle
-          - snapi-client
-          - python-client
-    runs-on: self-hosted
-    container:
-      image: ghcr.io/raw-labs/raw-scala-runner:buster_21.0.1.12-1_python3.7_scala2.12.18_sbt1.9.6
-      options: --user 1001
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.READ_PACKAGES }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: coursier/cache-action@v6
+          name: build
+          path: /home/sbtuser/.ivy2/local
+      - uses: actions/download-artifact@v4
         with:
-          root: ${{ matrix.component }}
+          name: versions
+          path: ./**/version
       - name: headers
         run: sbt headerCheckAll
         working-directory: ${{ matrix.component }}
@@ -122,9 +96,14 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - uses: coursier/cache-action@v6
+      - uses: actions/download-artifact@v4
         with:
-          root: ${{ matrix.component }}
+          name: build
+          path: /home/sbtuser/.ivy2/local
+      - uses: actions/download-artifact@v4
+        with:
+          name: versions
+          path: ./**/version
       - run: sbt test
         working-directory: ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v3
