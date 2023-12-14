@@ -17,6 +17,16 @@ env:
 
 jobs:
   code-checks:
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - utils
+          - client
+          - snapi-frontend
+          - snapi-truffle
+          - snapi-client
+          - python-client
     runs-on: self-hosted
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
@@ -25,8 +35,22 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
+      - uses: s4u/setup-maven-action@v1.11.0
+      - name: build deps
+        run: |
+          deps/kiama/build.sh
+          deps/scala-logging/build.sh
+          deps/jackson-module-scala/build.sh
+      - name: headers
+        run: sbt headerCheckAll
+        working-directory: ${{ matrix.component }}
+      - name: scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: ${{ matrix.component }}
+      - name: java fmt
+        run: sbt javafmtCheckAll
+        working-directory: ${{ matrix.component }}
   tests:
     needs: code-checks
     runs-on: self-hosted
@@ -40,84 +64,31 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
+      - uses: s4u/setup-maven-action@v1.11.0
       - name: build deps
         run: |
           deps/kiama/build.sh
           deps/scala-logging/build.sh
           deps/jackson-module-scala/build.sh
-      - name: utils headers
-        run: sbt headerCheckAll
-        working-directory: utils
-      - name: utils scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: utils
-      - name: utils java fmt
-        run: sbt javafmtCheckAll
-        working-directory: utils
       - name: build utils
         working-directory: utils
         run: ./build.sh
-      - name: client headers
-        run: sbt headerCheckAll
-        working-directory: client
-      - name: client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: client
-      - name: client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: client
       - name: build client
         working-directory: client
         run: ./build.sh
-      - name: snapi-frontend headers
-        run: sbt headerCheckAll
-        working-directory: snapi-frontend
-      - name: snapi-frontend scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-frontend
-      - name: snapi-frontend java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-frontend
       - name: build snapi-frontend
         working-directory: snapi-frontend
         run: ./build.sh
-      - name: snapi-truffle headers
-        run: sbt headerCheckAll
-        working-directory: snapi-truffle
-      - name: snapi-truffle scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-truffle
-      - name: snapi-truffle java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-truffle
       - name: build snapi-truffle
         working-directory: snapi-truffle
         run: ./build.sh
-      - name: snapi-client headers
-        run: sbt headerCheckAll
-        working-directory: snapi-client
-      - name: snapi-client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-client
-      - name: snapi-client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-client
       - name: build snapi-client
         working-directory: snapi-client
         run: ./build.sh
-      - name: python-client headers
-        run: sbt headerCheckAll
-        working-directory: python-client
-      - name: python-client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: python-client
-      - name: python-client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: python-client
       - name: build python-client
         working-directory: python-client
         run: ./build.sh
