@@ -23,7 +23,7 @@ trait LspRenameTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(2, 1))
+    val RenameResponse(positions) = rename(code, Pos(2, 1))
     assert(positions.exists(p => p.line == 2 && p.column == 1))
     assert(positions.exists(p => p.line == 4 && p.column == 1))
   }
@@ -31,7 +31,7 @@ trait LspRenameTest extends CompilerTestContext {
   test("another rename identifier at usage test") { _ =>
     val code = """let b = 5
       |in b""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(2, 4))
+    val RenameResponse(positions) = rename(code, Pos(2, 4))
     assert(positions.exists(p => p.line == 1 && p.column == 5))
     assert(positions.exists(p => p.line == 2 && p.column == 4))
   }
@@ -42,7 +42,7 @@ trait LspRenameTest extends CompilerTestContext {
       |in
       |a
       |""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(4, 1))
+    val RenameResponse(positions) = rename(code, Pos(4, 1))
     assert(positions.exists(p => p.line == 2 && p.column == 1))
     assert(positions.exists(p => p.line == 4 && p.column == 1))
   }
@@ -53,7 +53,7 @@ trait LspRenameTest extends CompilerTestContext {
       |rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(5, 1))
+    val RenameResponse(positions) = rename(code, Pos(5, 1))
     assert(positions.exists(p => p.line == 5 && p.column == 1))
     assert(positions.exists(p => p.line == 3 && p.column == 5))
     assert(positions.exists(p => p.line == 3 && p.column == 50))
@@ -64,7 +64,7 @@ trait LspRenameTest extends CompilerTestContext {
       |rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(2, 5))
+    val RenameResponse(positions) = rename(code, Pos(2, 5))
     assert(positions.exists(p => p.line == 4 && p.column == 1))
     assert(positions.exists(p => p.line == 2 && p.column == 5))
     assert(positions.exists(p => p.line == 2 && p.column == 50))
@@ -75,7 +75,7 @@ trait LspRenameTest extends CompilerTestContext {
       |rec b(v: int): int = if (v >= 0) then 0 else v * b(v - 1)
       |in
       |b(2)""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(2, 5))
+    val RenameResponse(positions) = rename(code, Pos(2, 5))
     assert(positions.exists(p => p.line == 4 && p.column == 1))
     assert(positions.exists(p => p.line == 2 && p.column == 5))
     assert(positions.exists(p => p.line == 2 && p.column == 50))
@@ -90,7 +90,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(2, 5))
+    val RenameResponse(positions) = rename(code, Pos(2, 5))
     assert(positions.exists(p => p.line == 8 && p.column == 11))
     assert(positions.exists(p => p.line == 2 && p.column == 1))
   }
@@ -100,7 +100,7 @@ trait LspRenameTest extends CompilerTestContext {
       |b(v: int): int = v
       |in
       |b(2)""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(2, 1))
+    val RenameResponse(positions) = rename(code, Pos(2, 1))
     assert(positions.exists(p => p.line == 4 && p.column == 1))
     assert(positions.exists(p => p.line == 2 && p.column == 1))
   }
@@ -114,7 +114,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(8, 11))
+    val RenameResponse(positions) = rename(code, Pos(8, 11))
     assert(positions.exists(p => p.line == 8 && p.column == 11))
     assert(positions.exists(p => p.line == 2 && p.column == 1))
   }
@@ -128,7 +128,7 @@ trait LspRenameTest extends CompilerTestContext {
       | in Collection.Build(a,b,c)
       |in
       |let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(2, 20))
+    val RenameResponse(positions) = rename(code, Pos(2, 20))
     assert(positions.exists(p => p.line == 2 && p.column == 20))
     assert(positions.exists(p => p.line == 3 && p.column == 28))
     assert(positions.exists(p => p.line == 4 && p.column == 28))
@@ -144,7 +144,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(4, 28))
+    val RenameResponse(positions) = rename(code, Pos(4, 28))
     assert(positions.exists(p => p.line == 2 && p.column == 20))
     assert(positions.exists(p => p.line == 3 && p.column == 28))
     assert(positions.exists(p => p.line == 4 && p.column == 28))
@@ -160,7 +160,7 @@ trait LspRenameTest extends CompilerTestContext {
       |                                        in Collection.Build(a,b,c)
       |in
       |    let bbb = buildCollection(5), ttt = Collection.Build(1,2,3) in Collection.Filter(ttt, t -> t > 1 )""".stripMargin
-    val RenameResponse(positions, _) = rename(code, Pos(1, 1))
+    val RenameResponse(positions) = rename(code, Pos(1, 1))
     assert(positions.length == 0)
   }
 

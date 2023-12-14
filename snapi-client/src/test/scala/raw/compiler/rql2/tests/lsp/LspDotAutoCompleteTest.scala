@@ -18,7 +18,7 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait LspDotAutoCompleteTest extends CompilerTestContext {
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[(String, String)]): Unit = {
-    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(line, col))
+    val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(line, col))
     assert(entries.toSeq == expectedFields.map(ef => FieldCompletion(ef._1, ef._2)))
   }
 
@@ -47,7 +47,7 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
 
   test("package autocomplete for string package test") { _ =>
     val code = """String""".stripMargin
-    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(1, 6))
+    val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(1, 6))
     assert(
       entries.forall {
         case PackageEntryCompletion(_, _) => true
@@ -67,7 +67,7 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
 
   test("package autocomplete for non existing package test") { _ =>
     val code = """Stringz""".stripMargin
-    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(1, 7))
+    val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(1, 7))
     assert(entries.length == 0)
   }
 

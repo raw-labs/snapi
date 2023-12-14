@@ -24,7 +24,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
       prefix: String,
       expected: Seq[(String, Option[String])]
   ): Unit = {
-    val AutoCompleteResponse(entries, _) = wordAutoComplete(code, prefix, Pos(line, col))
+    val AutoCompleteResponse(entries) = wordAutoComplete(code, prefix, Pos(line, col))
     val actual = entries.map {
       case FieldCompletion(n, t) => (n, Some(t))
       case LetBindCompletion(n, t) => (n, Some(t))

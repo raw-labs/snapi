@@ -31,7 +31,7 @@ trait RD5851Test extends CompilerTestContext {
   }
 
   private def dotAutoCompleteTest(code: String, line: Int, col: Int, expectedFields: Seq[String]): Unit = {
-    val AutoCompleteResponse(entries, _) = dotAutoComplete(code, Pos(line, col))
+    val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(line, col))
     val actual = autoCompleteNames(entries)
     assert(actual == expectedFields)
   }
@@ -43,7 +43,7 @@ trait RD5851Test extends CompilerTestContext {
       prefix: String,
       expected: Seq[String]
   ): Unit = {
-    val AutoCompleteResponse(entries, _) = wordAutoComplete(code, prefix, Pos(line, col))
+    val AutoCompleteResponse(entries) = wordAutoComplete(code, prefix, Pos(line, col))
     val actual = autoCompleteNames(entries)
     // Check that all expected are in actual.
     // actual can have more though - e.g. built-in packages.

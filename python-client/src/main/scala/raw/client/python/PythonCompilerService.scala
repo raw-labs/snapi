@@ -254,11 +254,11 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
       maybeIndent: Option[Int],
       maybeWidth: Option[Int]
   ): FormatCodeResponse = {
-    FormatCodeResponse(Some(source), List.empty)
+    FormatCodeResponse(Some(source))
   }
 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
-    AutoCompleteResponse(Array.empty, List.empty)
+    AutoCompleteResponse(Array.empty)
   }
 
   override def wordAutoComplete(
@@ -267,15 +267,15 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
-    AutoCompleteResponse(Array.empty, List.empty)
+    AutoCompleteResponse(Array.empty)
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
-    HoverResponse(None, List.empty)
+    HoverResponse(None)
   }
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
-    RenameResponse(Array.empty, List.empty)
+    RenameResponse(Array.empty)
   }
 
   override def goToDefinition(
@@ -283,7 +283,7 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
       environment: ProgramEnvironment,
       position: Pos
   ): GoToDefinitionResponse = {
-    GoToDefinitionResponse(None, List.empty)
+    GoToDefinitionResponse(None)
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {

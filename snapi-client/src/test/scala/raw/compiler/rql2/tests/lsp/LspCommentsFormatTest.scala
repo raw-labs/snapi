@@ -23,10 +23,9 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       indentation: Option[Int] = None,
       width: Option[Int] = None
   ) = {
-    val FormatCodeResponse(Some(formattedCode), errors) = formatCode(code, indentation, width)
+    val FormatCodeResponse(Some(formattedCode)) = formatCode(code, indentation, width)
     logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
     assert(formattedCode.trim == expected.trim)
-    assert(errors.isEmpty)
   }
 
   test("comment after binary exp") { _ =>
