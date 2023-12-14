@@ -16,7 +16,31 @@ env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
 
 jobs:
-  code-checks:
+  build-deps:
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - kiama
+          - scala-logging
+          - jackson-module-scala
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:buster_21.0.1.12-1_python3.7_scala2.12.18_sbt1.9.6
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: s4u/setup-maven-action@v1.11.0
+      - uses: coursier/cache-action@v6
+        with:
+          root: deps/${{ matrix.component }}
+      - run: ./build.sh
+        working-directory: deps/${{ matrix.component }}
+  build:
+    needs: build-deps
     strategy:
       fail-fast: false
       matrix:
@@ -37,11 +61,35 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: s4u/setup-maven-action@v1.11.0
-      - name: build deps
-        run: |
-          deps/kiama/build.sh
-          deps/scala-logging/build.sh
-          deps/jackson-module-scala/build.sh
+      - uses: coursier/cache-action@v6
+        with:
+          root: ${{ matrix.component }}
+      - run: ./build.sh
+        working-directory: ${{ matrix.component }}
+  code-checks:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - utils
+          - client
+          - snapi-frontend
+          - snapi-truffle
+          - snapi-client
+          - python-client
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:buster_21.0.1.12-1_python3.7_scala2.12.18_sbt1.9.6
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: coursier/cache-action@v6
+        with:
+          root: ${{ matrix.component }}
       - name: headers
         run: sbt headerCheckAll
         working-directory: ${{ matrix.component }}
@@ -53,6 +101,12 @@ jobs:
         working-directory: ${{ matrix.component }}
   tests:
     needs: code-checks
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - snapi-frontend
+          - snapi-client
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
@@ -68,49 +122,11 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - uses: s4u/setup-maven-action@v1.11.0
-      - name: build deps
-        run: |
-          deps/kiama/build.sh
-          deps/scala-logging/build.sh
-          deps/jackson-module-scala/build.sh
-      - name: build utils
-        working-directory: utils
-        run: ./build.sh
-      - name: build client
-        working-directory: client
-        run: ./build.sh
-      - name: build snapi-frontend
-        working-directory: snapi-frontend
-        run: ./build.sh
-      - name: build snapi-truffle
-        working-directory: snapi-truffle
-        run: ./build.sh
-      - name: build snapi-client
-        working-directory: snapi-client
-        run: ./build.sh
-      - name: build python-client
-        working-directory: python-client
-        run: ./build.sh
-      - name: utils doc
-        working-directory: utils
-        run: sbt doc
-      - name: client doc
-        working-directory: client
-        run: sbt doc
-      - name: snapi-frontend doc
-        working-directory: snapi-frontend
-        run: sbt doc
-      - name: snapi-truffle doc
-        working-directory: snapi-truffle
-        run: sbt doc
-      - name: snapi-client doc
-        working-directory: snapi-client
-        run: sbt doc
-      - name: python-client doc
-        working-directory: python-client
-        run: sbt doc
-      - run: ./tests.sh
+      - uses: coursier/cache-action@v6
+        with:
+          root: ${{ matrix.component }}
+      - run: sbt test
+        working-directory: ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v3
         if: success() || failure()
         with:
