@@ -20,6 +20,9 @@ cd "${SCRIPT_HOME}/utils"
 cd "${SCRIPT_HOME}/client"
 ./build.sh
 
+cd "${SCRIPT_HOME}/sql-client"
+./build.sh
+
 cd "${SCRIPT_HOME}/snapi-frontend"
 ./build.sh
 

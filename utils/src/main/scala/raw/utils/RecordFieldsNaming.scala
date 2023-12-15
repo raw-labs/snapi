@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2
+package raw.utils
 
 import scala.collection.mutable
 
