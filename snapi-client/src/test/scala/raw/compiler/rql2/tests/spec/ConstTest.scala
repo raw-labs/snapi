@@ -31,13 +31,21 @@ trait ConstTest extends CompilerTestContext with TableDrivenPropertyChecks {
     it should evaluateTo(""""Hello"""")
   }
 
+  test("\"x\\u2192x+1\" // RD-10265") { it =>
+    it should parse
+    it should typeAs("string")
+    it should astTypeAs(Rql2StringType())
+    it should run
+    it should evaluateTo(""""x\u2192x+1"""")
+  }
+
   test("""  true """) { it =>
     it should typeAs("bool")
     it should astTypeAs(Rql2BoolType())
     it should evaluateTo("""true""")
   }
 
-  val consts = Table(
+  private val consts = Table(
     "constants",
     TestValue("byte", "1b"),
     TestValue("short", "Short.From(1)"),
