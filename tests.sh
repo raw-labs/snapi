@@ -1,4 +1,4 @@
-#!/bin/bash -exu
+#!/bin/bash -ex
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 [ "$CI" == "true" ] && { export HOME=/home/sbtuser; }
 . ~/.sdkman/bin/sdkman-init.sh
