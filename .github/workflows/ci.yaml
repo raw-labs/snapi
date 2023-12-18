@@ -34,11 +34,13 @@ jobs:
         with:
           name: build
           path: /home/sbtuser/.ivy2/local
+          retention-days: 1
       - name: upload versions
         uses: actions/upload-artifact@v4
         with:
           name: versions
           path: ./**/version
+          retention-days: 1
   code-checks:
     needs: build
     strategy:
@@ -125,11 +127,11 @@ jobs:
         with:
           name: executor-logs
           path: test-results/executor-logs
-          retention-days: 7
+          retention-days: 4
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v3
         with:
           name: heap-dumps
           path: test-results/heap-dumps
-          retention-days: 7
+          retention-days: 4
           if-no-files-found: ignore
