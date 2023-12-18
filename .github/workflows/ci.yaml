@@ -27,11 +27,13 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - run: ./rebuild.sh
-      - uses: actions/upload-artifact@v4
+      - name: upload build artifacts
+        uses: actions/upload-artifact@v4
         with:
           name: build
           path: /home/sbtuser/.ivy2/local
-      - uses: actions/upload-artifact@v4
+      - name: upload versions
+        uses: actions/upload-artifact@v4
         with:
           name: versions
           path: ./**/version
@@ -56,11 +58,13 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/download-artifact@v4
+      - name: download build artifacts
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: /home/sbtuser/.ivy2/local
-      - uses: actions/download-artifact@v4
+      - name: download versions
+        uses: actions/download-artifact@v4
         with:
           name: versions
       - name: headers
@@ -95,14 +99,19 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - uses: actions/download-artifact@v4
+      - name: download build artifacts
+        uses: actions/download-artifact@v4
         with:
           name: build
           path: /home/sbtuser/.ivy2/local
-      - uses: actions/download-artifact@v4
+      - name: download versions
+        uses: actions/download-artifact@v4
         with:
           name: versions
-      - run: sbt test
+      - run: |
+          test_version=$(cat ${{ matrix.component }}/version)
+          echo "Testing ${{ matrix.component }} version: $test_version"
+          sbt test
         working-directory: ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v3
         if: success() || failure()
