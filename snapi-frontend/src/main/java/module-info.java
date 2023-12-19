@@ -60,6 +60,8 @@ module raw.snapi.frontend {
   requires software.amazon.awssdk.core;
   requires software.amazon.awssdk.thirdparty.jackson.core;
   requires software.amazon.awssdk.utils;
+  requires org.postgresql.jdbc;
+  requires com.microsoft.sqlserver.jdbc;
   requires raw.utils;
   requires raw.client;
 
@@ -430,6 +432,8 @@ module raw.snapi.frontend {
       raw.compiler.rql2.builtin.MandatoryValueArgsEntry,
       raw.compiler.rql2.builtin.OptionalExpArgsTestEntry,
       raw.compiler.rql2.builtin.OptionalValueArgsTestEntry,
+      raw.compiler.rql2.builtin.OptionalValueArgSugar,
+      raw.compiler.rql2.builtin.VarValueArgSugarTestEntry,
       raw.compiler.rql2.builtin.VarExpArgsTestEntry,
       raw.compiler.rql2.builtin.VarValueArgsTestEntry,
       raw.compiler.rql2.builtin.VarNullableStringValueTestEntry,

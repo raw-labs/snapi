@@ -16,130 +16,111 @@ env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
 
 jobs:
-  code-checks:
+  build:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
-      - uses: actions/checkout@v3
-
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - run: ./rebuild.sh
+      - name: upload build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: build
+          path: /home/sbtuser/.ivy2/local
+          retention-days: 1
+      - name: upload versions
+        uses: actions/upload-artifact@v4
+        with:
+          name: versions
+          path: ./**/version
+          retention-days: 1
+  code-checks:
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - utils
+          - client
+          - snapi-frontend
+          - snapi-truffle
+          - snapi-client
+          - python-client
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: /home/sbtuser/.ivy2/local
+      - name: download versions
+        uses: actions/download-artifact@v4
+        with:
+          name: versions
+      - name: headers
+        run: sbt headerCheckAll
+        working-directory: ${{ matrix.component }}
+      - name: scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: ${{ matrix.component }}
+      - name: java fmt
+        run: sbt javafmtCheckAll
+        working-directory: ${{ matrix.component }}
+      - name: doc
+        run: sbt doc
+        working-directory: ${{ matrix.component }}
   tests:
-    needs: code-checks
+    needs: build
+    strategy:
+      fail-fast: false
+      matrix:
+        component:
+          - snapi-frontend
+          - snapi-client
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
       COURSIER_PROGRESS : false
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.6.2
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - name: build deps
+      - name: download build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: build
+          path: /home/sbtuser/.ivy2/local
+      - name: download versions
+        uses: actions/download-artifact@v4
+        with:
+          name: versions
+      - name: test
         run: |
-          deps/kiama/build.sh
-          deps/scala-logging/build.sh
-          deps/jackson-module-scala/build.sh
-      - name: utils headers
-        run: sbt headerCheckAll
-        working-directory: utils
-      - name: utils scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: utils
-      - name: utils java fmt
-        run: sbt javafmtCheckAll
-        working-directory: utils
-      - name: build utils
-        working-directory: utils
-        run: ./build.sh
-      - name: client headers
-        run: sbt headerCheckAll
-        working-directory: client
-      - name: client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: client
-      - name: client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: client
-      - name: build client
-        working-directory: client
-        run: ./build.sh
-      - name: snapi-frontend headers
-        run: sbt headerCheckAll
-        working-directory: snapi-frontend
-      - name: snapi-frontend scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-frontend
-      - name: snapi-frontend java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-frontend
-      - name: build snapi-frontend
-        working-directory: snapi-frontend
-        run: ./build.sh
-      - name: snapi-truffle headers
-        run: sbt headerCheckAll
-        working-directory: snapi-truffle
-      - name: snapi-truffle scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-truffle
-      - name: snapi-truffle java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-truffle
-      - name: build snapi-truffle
-        working-directory: snapi-truffle
-        run: ./build.sh
-      - name: snapi-client headers
-        run: sbt headerCheckAll
-        working-directory: snapi-client
-      - name: snapi-client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: snapi-client
-      - name: snapi-client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: snapi-client
-      - name: build snapi-client
-        working-directory: snapi-client
-        run: ./build.sh
-      - name: python-client headers
-        run: sbt headerCheckAll
-        working-directory: python-client
-      - name: python-client scala fmt
-        run: sbt scalafmtCheckAll
-        working-directory: python-client
-      - name: python-client java fmt
-        run: sbt javafmtCheckAll
-        working-directory: python-client
-      - name: build python-client
-        working-directory: python-client
-        run: ./build.sh
-      - name: utils doc
-        working-directory: utils
-        run: sbt doc
-      - name: client doc
-        working-directory: client
-        run: sbt doc
-      - name: snapi-frontend doc
-        working-directory: snapi-frontend
-        run: sbt doc
-      - name: snapi-truffle doc
-        working-directory: snapi-truffle
-        run: sbt doc
-      - name: snapi-client doc
-        working-directory: snapi-client
-        run: sbt doc
-      - name: python-client doc
-        working-directory: python-client
-        run: sbt doc
-      - run: ./tests.sh
+          test_version=$(cat ./version)
+          echo "Testing ${{ matrix.component }} version: $test_version"
+          ./test.sh
+        working-directory: ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v3
         if: success() || failure()
         with:
@@ -149,11 +130,11 @@ jobs:
         with:
           name: executor-logs
           path: test-results/executor-logs
-          retention-days: 7
+          retention-days: 4
           if-no-files-found: ignore
       - uses: actions/upload-artifact@v3
         with:
           name: heap-dumps
           path: test-results/heap-dumps
-          retention-days: 7
+          retention-days: 4
           if-no-files-found: ignore

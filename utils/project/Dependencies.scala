@@ -21,6 +21,7 @@ object Dependencies {
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.2"
 
   val commonsIO = "commons-io" % "commons-io" % "2.11.0"
+  val commonsText = "org.apache.commons" % "commons-text" % "1.11.0"
 
   val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
 

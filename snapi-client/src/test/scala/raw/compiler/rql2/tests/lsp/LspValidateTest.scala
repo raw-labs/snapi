@@ -29,6 +29,20 @@ trait LspValidateTest extends CompilerTestContext {
     assert(errors.nonEmpty)
   }
 
+  test("validate broken code that passes the flexible parser (RD-10225)") { _ =>
+    // RD-10225: the flexible parser accepts this code, but the syntax analyzer rejects it and throws.
+    val code = """true and""".stripMargin
+    val ValidateResponse(errors) = validate(code)
+    assert(errors.nonEmpty)
+  }
+
+  test("validate broken code that passes the flexible parser (RD-10235))") { _ =>
+    // RD-10235: the flexible parser accepts this code, but the syntax analyzer rejects it and throws.
+    val code = """List.Transform([1,2,3], x -> )""".stripMargin
+    val ValidateResponse(errors) = validate(code)
+    assert(errors.nonEmpty)
+  }
+
   // RD-5907
   test("validate or type syntax") { _ =>
     val code = """let

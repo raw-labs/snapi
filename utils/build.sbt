@@ -151,6 +151,7 @@ libraryDependencies ++= Seq(
   typesafeConfig,
   loki4jAppender,
   commonsIO,
+  commonsText,
   scalatest % Test
 ) ++
   slf4j ++

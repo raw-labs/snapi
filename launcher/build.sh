@@ -5,8 +5,8 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
 set -e
 
-yes | sdk install java 21-graalce || true
-sdk use java 21-graalce
+yes | sdk install java 21.0.1-graalce || true
+sdk use java 21.0.1-graalce
 
 client_version=$(cat $SCRIPT_HOME/../client/version)
 snapi_client_version=$(cat $SCRIPT_HOME/../snapi-client/version)

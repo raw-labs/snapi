@@ -402,13 +402,24 @@ trait PropagationTest extends CompilerTestContext {
   test("""TestPackage.OptionalValueArgs(14, x=1, y=Error.Build("argh!"))""")(_ should runErrorAs("argh!"))
   test("""TestPackage.OptionalValueArgs(14, x=Error.Build("argh!"), y=3)""")(_ should runErrorAs("argh!"))
 
+  test("""TestPackage.OptionalValueArgSugar(14, x=2)""")(_ should evaluateTo("14*2*10"))
+  test("""TestPackage.OptionalValueArgSugar(14, x=(if true then 2 else null))""")(_ should evaluateTo("14*2*10"))
+  test("""TestPackage.OptionalValueArgSugar(14, x=(if true then 2 else Error.Build("argh!")))""")(
+    _ should evaluateTo("14*2*10")
+  )
+
   test("TestPackage.VarValueArgs(1, 2, 3)")(_ should evaluateTo("6"))
   test("TestPackage.VarValueArgs(1, 2, null)")(_ should runErrorAs("null value found"))
   test("TestPackage.VarValueArgs(1, null, 3)")(_ should runErrorAs("null value found"))
   test("TestPackage.VarValueArgs(null, 2, 3)")(_ should runErrorAs("null value found"))
+  test("TestPackage.VarValueArgs(if true then 1 else null, 2, 3)")(_ should evaluateTo("6"))
   test("""TestPackage.VarValueArgs(1, 2, Error.Build("argh!"))""")(_ should runErrorAs("argh!"))
   test("""TestPackage.VarValueArgs(1, Error.Build("argh!"), 3)""")(_ should runErrorAs("argh!"))
   test("""TestPackage.VarValueArgs(Error.Build("argh!"), 2, 3)""")(_ should runErrorAs("argh!"))
+
+  test("TestPackage.VarValueArgSugar(3)")(_ should evaluateTo("6"))
+  test("TestPackage.VarValueArgSugar(if true then 3 else null)")(_ should evaluateTo("6"))
+  test("TestPackage.VarValueArgSugar(if true then 3 else Error.Build(\"argh!\"))")(_ should evaluateTo("6"))
 
   test("""TestPackage.VarValueNullableStringArgs("a", "b", "c")""")(_ should evaluateTo(""" "abc" """))
   test("""TestPackage.VarValueNullableStringArgs("a", "b", null)""")(_ should evaluateTo(""" "ab" """))

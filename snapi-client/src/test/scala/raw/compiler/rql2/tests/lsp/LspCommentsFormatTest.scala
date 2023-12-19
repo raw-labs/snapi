@@ -696,7 +696,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |                in
         |                    {
         |                        machineId: Int.From(List.Get(groups, 1)),
-        |                        timestamp: Timestamp.Parse(List.Get(groups, 0), "y-M-d\'T\'H:m:s"),
+        |                        timestamp: Timestamp.Parse(List.Get(groups, 0), "y-M-d'T'H:m:s"),
         |                        error: List.Get(groups, 2)
         |                    }
         |        )
@@ -928,5 +928,11 @@ trait LspCommentsFormatTest extends CompilerTestContext {
         |    Collection.First(points)""".stripMargin
     )
   }
+
+  test("\"x\\u2192x+1\" // RD-10265")(it => assertFormattedCode(it.q, "\"x\\u2192x+1\" // RD-10265"))
+
+  test("\"x\u2192x+1\" // RD-10265")(it => assertFormattedCode(it.q, "\"x\\u2192x+1\" // RD-10265"))
+
+  test("\"\"\"x\u2192x+1\"\"\" // RD-10265")(it => assertFormattedCode(it.q, "\"\"\"x\u2192x+1\"\"\" // RD-10265"))
 
 }

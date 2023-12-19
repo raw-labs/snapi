@@ -17,6 +17,7 @@ module raw.utils {
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.scala;
   requires org.apache.commons.io;
+  requires org.apache.commons.text;
   requires typesafe.config;
   requires typesafe.scalalogging;
   requires org.slf4j;

@@ -77,6 +77,19 @@ private[inferrer] trait TextTypeInferrer {
         else SourceStringType(n)
       case c: SourceCollectionType => SourceOrType(Set(SourceStringType(false), c))
       case or: SourceOrType => addElementToOrType(or, value)
+      // If antyhing else, we will try to make an or-type of this
+      case nullable: SourceNullableType =>
+        // Trying to get the type of the string value
+        val strType =
+          if (isNumber(value)) {
+            findNumber(value, false)
+          } else if (tryAsBoolean(value)) SourceBoolType(false)
+          else {
+            findTemporal(value, false)
+              .getOrElse(SourceStringType(false))
+          }
+        SourceOrType(Set(nullable, strType.asInstanceOf[SourceNullableType]))
+      case other => throw new InferrerException(s"Cannot not merge type ${other.getClass.getName} with a string value")
     }
   }
 

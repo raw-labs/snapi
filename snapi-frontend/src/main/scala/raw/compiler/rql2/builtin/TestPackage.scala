@@ -17,6 +17,7 @@ import raw.compiler.rql2._
 import raw.compiler.rql2.api._
 import raw.compiler.rql2.source._
 import raw.client.api.{EntryDoc, PackageDoc}
+import raw.compiler.common.source.Exp
 
 class TestPackage extends PackageExtension {
 
@@ -89,6 +90,49 @@ class OptionalExpArgsTestEntry extends EntryExtension {
 
 }
 
+class OptionalValueArgSugar extends SugarEntryExtension {
+
+  override def packageName: String = "TestPackage"
+
+  override def entryName: String = "OptionalValueArgSugar"
+
+  override def docs: EntryDoc = ???
+
+  override def nrMandatoryParams: Int = 1
+
+  override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] =
+    Right(ExpParam(Rql2IntType()))
+
+  override def optionalParams: Option[Set[String]] = Some(Set("x"))
+
+  override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] =
+    Right(ValueParam(Rql2IntType()))
+
+  override def returnType(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Either[String, Type] = {
+    Right(Rql2IntType())
+  }
+
+  override def desugar(
+      t: Type,
+      args: Seq[FunAppArg],
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Exp = {
+    val mandatory = FunAppArg(mandatoryArgs.head.asInstanceOf[ExpArg].e, None)
+    val optionalX = {
+      val arg = optionalArgs.find(_._1 == "x").get._2.asInstanceOf[ValueArg].v.asInstanceOf[IntValue]
+      FunAppArg(IntConst(arg.v.toString), Some("x"))
+    }
+    val optionalY = FunAppArg(IntConst("10"), Some("y"))
+    FunApp(Proj(PackageIdnExp("TestPackage"), "OptionalValueArgs"), Vector(mandatory, optionalX, optionalY))
+  }
+}
+
 class OptionalValueArgsTestEntry extends OptionalExpArgsTestEntry {
 
   override def entryName: String = "OptionalValueArgs"
@@ -129,6 +173,45 @@ class VarValueArgsTestEntry extends VarExpArgsTestEntry {
 
   override def getVarParam(prevMandatoryArgs: Seq[Arg], prevVarArgs: Seq[Arg], idx: Int): Either[String, Param] =
     Right(ValueParam(Rql2IntType()))
+
+}
+
+class VarValueArgSugarTestEntry extends SugarEntryExtension {
+
+  override def packageName: String = "TestPackage"
+
+  override def entryName: String = "VarValueArgSugar"
+
+  override def docs: EntryDoc = ???
+
+  override def nrMandatoryParams: Int = 0
+
+  override def hasVarArgs: Boolean = true
+
+  override def getVarParam(prevMandatoryArgs: Seq[Arg], prevVarArgs: Seq[Arg], idx: Int): Either[String, Param] =
+    Right(ValueParam(Rql2IntType()))
+
+  override def returnType(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Either[String, Type] = {
+    Right(Rql2IntType())
+  }
+
+  override def desugar(
+      t: Type,
+      args: Seq[FunAppArg],
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Exp = {
+    val varArg1 = FunAppArg(IntConst("1"), None)
+    val varArg2 = FunAppArg(IntConst("2"), None)
+    val valueArgs =
+      varArgs.map { case ValueArg(v, _) => FunAppArg(IntConst(v.asInstanceOf[IntValue].v.toString), None) }
+    FunApp(Proj(PackageIdnExp("TestPackage"), "VarValueArgs"), Vector(varArg1, varArg2) ++ valueArgs)
+  }
 
 }
 
