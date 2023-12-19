@@ -63,3 +63,11 @@ out/
 target/
 /.project
 *.iml
+
+language/version
+extensions/version
+utils/version
+client/version
+snapi-client/version
+snapi-frontend/version
+snapi-truffle/version

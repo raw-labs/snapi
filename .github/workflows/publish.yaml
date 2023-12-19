@@ -4,53 +4,37 @@ on:
     types: [publish]
   workflow_dispatch:
   push:
-    branches:
-      - master
-      - main
-    paths:
-      - raw-*/**
     tags:
       - "v*.*.*"
 jobs:
   build:
-    #(ybo)(todo): migrate to self-hosted
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
+      options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
     env:
       JAVA_OPTS: -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
       JVM_OPTS:  -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
     steps:
     - if: github.event_name != 'repository_dispatch'
-      name: Checkout caller ref
+      name: checkout caller ref
       uses: actions/checkout@v3
       with:
         fetch-depth: 0
     - if: github.event_name == 'repository_dispatch'
-      name: Checkout for PR comment
+      name: checkout for PR comment
       uses: actions/checkout@v3
       with:
         ref: ${{ github.event.client_payload.pull_request.head.sha }}
         fetch-depth: 0
-    - uses: actions/setup-java@v3
-      with:
-        distribution: temurin
-        java-version: 11
-        cache: sbt
-    - if: github.event_name == 'repository_dispatch'
-      name: evaluate produced version
-      shell: bash
-      run: |
-        sbt -Dsbt.log.noformat=true version > version_output.txt 2>&1
-        echo "DYNVER=$(awk -F '\t' '/\t[[:digit:]]/ {print $2}' version_output.txt | tail -n 1 | awk '{$1=$1;print}')" >> $GITHUB_ENV
-    - if: github.event_name == 'repository_dispatch'
-      uses: peter-evans/create-or-update-comment@v2
-      with:
-        token: ${{ secrets.RAW_CI_PAT }}
-        repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-        comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
-        body: |
-          > will publish version: ${{ env.DYNVER }}
-        reactions: rocket
-    - run: sbt ci-release
+    - name: build all
+      run: ./rebuild.sh
+    - name: sbt ci-release utils
+      run: ./release.sh
+      working-directory: utils
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -59,6 +43,71 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
+    - name: sbt ci-release client
+      run: ./release.sh
+      working-directory: client
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - name: sbt ci-release snapi-frontend
+      run: ./release.sh
+      working-directory: snapi-frontend
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - name: sbt ci-release snapi-truffle
+      run: ./release.sh
+      working-directory: snapi-truffle
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - name: sbt ci-release snapi-client
+      run: ./release.sh
+      working-directory: snapi-client
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
+    - name: evaluate produced version
+      shell: bash
+      run: |
+        echo "UTILS_VER=$(cat utils/version)" >> $GITHUB_ENV
+        echo "CLIENT_VER=$(cat client/version)" >> $GITHUB_ENV
+        echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
+        echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
+        echo "SNAPI_CLIENT=$(cat snapi-client/version)" >> $GITHUB_ENV
+    - if: github.event_name == 'repository_dispatch'
+      uses: peter-evans/create-or-update-comment@v2
+      with:
+        token: ${{ secrets.RAW_CI_PAT }}
+        repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+        comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+        body: |
+          > will publish utils version: ${{ env.UTILS_VER  }}
+          > will publish client version: ${{ env.CLIENT_VER }}
+          > will publish snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
+          > will publish snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}
+          > will publish snapi-client version: ${{ env.SNAPI_CLIENT }}
+        reactions: rocket
     - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       uses: peter-evans/repository-dispatch@v2
       with:

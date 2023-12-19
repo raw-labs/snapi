@@ -2,11 +2,16 @@ name: release
 on:
   repository_dispatch:
     types: [release]
+  workflow_dispatch:
+
+env:
+  SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
+
 jobs:
   create-gh-release:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001
       credentials:
         username: ${{ github.actor }}
@@ -15,8 +20,11 @@ jobs:
       - uses: actions/checkout@v3
         with:
           ref: ${{ github.event.client_payload.ref }}
-      - run: ./rebuild.sh
-      - run: sbt buildSnapi
+          fetch-depth: 0
+      #- uses: stCarolas/setup-maven@v4.5
+      #  with:
+      #    maven-version: 3.8.2
+      #- run: ./rebuild.sh
       - uses: softprops/action-gh-release@v1
         with:
           token: "${{ secrets.RAW_CI_PAT }}"
@@ -25,10 +33,11 @@ jobs:
           draft: false
           prerelease: false
           tag_name: ${{ github.event.client_payload.tag }}
-          files: |
-            ./licenses/BSL.txt
-            ./raw-cli/target/scala-2.12/raw-cli-assembly*.jar
+          #files: |
+          #  ./licenses/BSL.txt
+          #  ./launcher/target/raw-cli-*.jar
   notify-main-repo:
+    if: github.event == 'repository_dispatch'
     runs-on: self-hosted
     steps:
       - uses: actions/checkout@v3

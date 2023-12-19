@@ -144,18 +144,18 @@ To build the project, you will need to install:
 We recommend using [SDKMAN](https://sdkman.io/) to install both:
 ```bash
 $ sdk install sbt
-$ sdk install java 17.0.7-graal
+$ sdk install java 21.0.1-graalce
 ```
 
-Once you have both installed and have the GraalVM enabled in your console, you can build the Snapi command-line REPL using sbt:
+Once you have both installed and have the GraalVM enabled in your console, you can build all of Snapi's components and dependencies using:
 ```bash
-$ sbt buildSnapi
+$ ./rebuild.sh
 ```
 
-You are now ready to start using Snapi! Congratulations!
-To do so, simply run the `snapi` script:
+For development and testing purposes, we also include a (very) simple command-line tool. To use it go to the launcher/ and:
 ```bash
-$ ./snapi
+$ cd launcher
+$ ./run
 > 1 + 1
 2
 ```
@@ -163,11 +163,13 @@ $ ./snapi
 ### Using Secrets
 
 Snapi includes the ability to read secrets from environment variables.
-For this, define an environment variable called `SNAPI_<SECRET_NAME>` with the content.
+
+For development and testing purposes, you can define an environment variable called `SNAPI_<SECRET_NAME>` with the content.
 For instance:
 ```bash
 $ export SNAPI_MY_SECRET=1234
-$ ./snapi
+$ cd launcher
+$ ./run
 > Environment.Secret("MY_SECRET")
 1234
 ```
@@ -221,6 +223,22 @@ If you are interested in collaborating in any of these topics, [please get in to
 
 # Development notes for contributors
 
+## Overview of Components
+
+Snapi is part of the [RAW Platform](https://www.raw-labs.com/), which supports languages other than Snapi.
+In fact, other languages, such as Python, are also supported.
+Therefore, this repository contains other components to support languages other than Snapi.
+Note that each folder corresponds to a separate component.
+
+Here is an overview of each component:
+* `client`: This component defines the common interfaces and APIs for interacting with languages in the [RAW Platform](https://www.raw-labs.com/).
+* `snapi-frontend`: This includes the compiler frontend, e.g. parser, type checker, pretty printers, etc for the Snapi language;
+* `snapi-truffle`: This includes the implementation of the Snapi language in Truffle.
+* `snapi-client`: This implements the `client` interface using the Snapi Truffle backend engine.
+* `python-client`: This is an early-preview of the Python support for the [RAW Platform](https://www.raw-labs.com/). Effectively, it implements `client` interface using the [GraalPy][https://github.com/oracle/graalpython) implementation.
+* `launcher`: A simple CLI implementation against the `client` interface. By default it runs with the Snapi language.
+* `utils: Some common utils shared among components.
+
 ## IntelliJ
 
 The following are some notes in setting up a development environment in IntelliJ.
@@ -231,51 +249,25 @@ Before starting:
 
 To setup the project in Intellij, we recommend cloning the repo and opening it with "Import project from existing sources".
 You can choose to import as an "SBT" project, but we found that "BSP" with "SBT" also works well.
+"SBT" with "Shell for importing building" is also recommended.
+Reach out to us (Discord)[https://discord.com/invite/AwFHYThJeh] if you have issues setting up the project.
 
 If Intellij prompts you to use 'scalafmt', say "Yes" as this is our code formatter.
 
 As a contributor, you may want to add new files to the project.
 You will need to follow the copyright header information, as described in [this section](#copyright-headers).
 
-A few more settings are required (for Truffle):
-- Set "Enable Annotation Processing" to true (as Truffle uses annotations to generate code).
-- Edit the `Scalatest` Run/Debug configuration to add the following VM options:
-```
--Dpolyglot.engine.Inlining=false \
--Dpolyglot.engine.CompileImmediately=true \
--Dpolyglot.engine.AllowExperimentalOptions=true \
--Dgraal.Dump=Truffle:2 \
--Dgraal.PrintGraph=Network \
--Dpolyglot.engine.BackgroundCompilation=false \
--Dpolyglot.engine.TraceCompilation=true \
--Dpolyglot.engine.TraceCompilationDetails=true \
--Dgraalvm.locatorDisabled=true \
---add-exports org.graalvm.sdk/org.graalvm.polyglot=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api.nodes=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api.frame=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api.source=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api.object=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api.library=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api.dsl=ALL-UNNAMED \
---add-exports org.graalvm.truffle/com.oracle.truffle.api.instrumentation=ALL-UNNAMED \
---add-exports java.base/jdk.internal.module=ALL-UNNAMED
-```
-
-If you want to learn more about these Truffle flags, refer to the [Truffle documentation](https://www.graalvm.org/latest/graalvm-as-a-platform/language-implementation-framework/Options/).
-
 ## Scala coding guidelines
 
 For general Scala coding guidelines, refer to the [Databricks Scala Guide](https://github.com/databricks/scala-style-guide).
 
-## Scala code formatting
+## Java Scala code formatting
 
-We use [scalafmt](https://scalameta.org/scalafmt/) to format code.
-The scalafmt rules are defined [here](./.scalafmt.conf) and should be automatically loaded by sbt or IntelliJ.
+We use [scalafmt](https://scalameta.org/scalafmt/) and [sbt-java-formatter](https://github.com/sbt/sbt-java-formatter/tree/master) to format code.
 
 To use it manually, run:
 ```bash
-sbt scalafmtCheckAll
+sbt javafmtAll
 sbt scalafmtAll
 ```
 

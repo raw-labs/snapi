@@ -2,9 +2,13 @@ name: CI
 on:
   pull_request:
     paths:
-      - raw-*/**
-      - build.sbt
-      - project/**
+      - deps/**
+      - utils/**
+      - client/**
+      - snapi-frontend/**
+      - snapi-truffle/**
+      - snapi-client/**
+      - python-client/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
@@ -15,27 +19,14 @@ jobs:
   code-checks:
     runs-on: self-hosted
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v3
-      - run: sbt headerCheckAll
-      - run: sbt scalafmtCheckAll
-      - run: sbt javafmtCheckAll
-  doc-gen-check:
-    runs-on: self-hosted
-    container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
-      options: --user 1001
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.READ_PACKAGES }}
-    steps:
-      - uses: actions/checkout@v3
-      - run: sbt doc
+
   tests:
     needs: code-checks
     runs-on: self-hosted
@@ -43,8 +34,8 @@ jobs:
       SBT_FORK_OUTPUT_DIR : test-results
       COURSIER_PROGRESS : false
     container:
-      image: ghcr.io/raw-labs/raw-scala-runner:ol8_java17_gvm22.3.0_scala2.12.15_sbt1.6.2
-      options: --user 1001 --cpus 6 --memory 32g
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
+      options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
@@ -53,7 +44,101 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - run: ./rebuild.sh
+      - name: build deps
+        run: |
+          deps/kiama/build.sh
+          deps/scala-logging/build.sh
+          deps/jackson-module-scala/build.sh
+      - name: utils headers
+        run: sbt headerCheckAll
+        working-directory: utils
+      - name: utils scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: utils
+      - name: utils java fmt
+        run: sbt javafmtCheckAll
+        working-directory: utils
+      - name: build utils
+        working-directory: utils
+        run: ./build.sh
+      - name: client headers
+        run: sbt headerCheckAll
+        working-directory: client
+      - name: client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: client
+      - name: client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: client
+      - name: build client
+        working-directory: client
+        run: ./build.sh
+      - name: snapi-frontend headers
+        run: sbt headerCheckAll
+        working-directory: snapi-frontend
+      - name: snapi-frontend scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-frontend
+      - name: snapi-frontend java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-frontend
+      - name: build snapi-frontend
+        working-directory: snapi-frontend
+        run: ./build.sh
+      - name: snapi-truffle headers
+        run: sbt headerCheckAll
+        working-directory: snapi-truffle
+      - name: snapi-truffle scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-truffle
+      - name: snapi-truffle java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-truffle
+      - name: build snapi-truffle
+        working-directory: snapi-truffle
+        run: ./build.sh
+      - name: snapi-client headers
+        run: sbt headerCheckAll
+        working-directory: snapi-client
+      - name: snapi-client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: snapi-client
+      - name: snapi-client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: snapi-client
+      - name: build snapi-client
+        working-directory: snapi-client
+        run: ./build.sh
+      - name: python-client headers
+        run: sbt headerCheckAll
+        working-directory: python-client
+      - name: python-client scala fmt
+        run: sbt scalafmtCheckAll
+        working-directory: python-client
+      - name: python-client java fmt
+        run: sbt javafmtCheckAll
+        working-directory: python-client
+      - name: build python-client
+        working-directory: python-client
+        run: ./build.sh
+      - name: utils doc
+        working-directory: utils
+        run: sbt doc
+      - name: client doc
+        working-directory: client
+        run: sbt doc
+      - name: snapi-frontend doc
+        working-directory: snapi-frontend
+        run: sbt doc
+      - name: snapi-truffle doc
+        working-directory: snapi-truffle
+        run: sbt doc
+      - name: snapi-client doc
+        working-directory: snapi-client
+        run: sbt doc
+      - name: python-client doc
+        working-directory: python-client
+        run: sbt doc
       - run: ./tests.sh
       - uses: mikepenz/action-junit-report@v3
         if: success() || failure()
