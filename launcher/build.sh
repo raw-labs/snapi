@@ -5,7 +5,7 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
 set -e
 
-yes | sdk install java 21-graalce || true
+yes | sdk install java 21.0.1-graalce || true
 sdk use java 21-graalce
 
 client_version=$(cat $SCRIPT_HOME/../client/version)
