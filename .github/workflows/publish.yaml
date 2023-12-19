@@ -33,7 +33,7 @@ jobs:
     - name: build all
       run: ./rebuild.sh
     - name: sbt ci-release utils
-      run: sbt ci-release
+      run: ./release.sh
       working-directory: utils
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -44,7 +44,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release client
-      run: sbt ci-release
+      run: ./release.sh
       working-directory: client
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -55,7 +55,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-frontend
-      run: sbt ci-release
+      run: ./release.sh
       working-directory: snapi-frontend
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -66,7 +66,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-truffle
-      run: sbt ci-release
+      run: ./release.sh
       working-directory: snapi-truffle
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
@@ -77,7 +77,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-client
-      run: sbt ci-release
+      run: ./release.sh
       working-directory: snapi-client
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
