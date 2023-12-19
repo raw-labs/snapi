@@ -32,16 +32,16 @@ public class DistinctCollection implements TruffleObject {
     return iterable;
   }
 
-  public RawLanguage getLanguage() {
-    return language;
-  }
-
   public Rql2TypeWithProperties getRowType() {
     return rowType;
   }
 
   public SourceContext getContext() {
     return context;
+  }
+
+  public RawLanguage getLang() {
+    return language;
   }
 
   // InteropLibrary: Iterable

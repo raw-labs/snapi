@@ -59,12 +59,12 @@ public class OrderByCollection implements TruffleObject {
     return rowType;
   }
 
-  public RawLanguage getLanguage() {
-    return language;
-  }
-
   public SourceContext getContext() {
     return context;
+  }
+
+  public RawLanguage getLang() {
+    return language;
   }
 
   // InteropLibrary: Iterable

@@ -46,4 +46,8 @@ public class JdbcQueryComputeNext {
     this.rs.close();
     this.rs = null;
   }
+
+  public RootCallTarget getRowParserCallTarget() {
+    return rowParserCallTarget;
+  }
 }

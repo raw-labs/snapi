@@ -187,38 +187,6 @@ public class OperatorNodes {
       }
     }
 
-    @Specialization(
-        limit = "3",
-        guards = {"lefts.isIterable(left)", "rights.isIterable(right)"})
-    static int doIterable(
-        Object left,
-        Object right,
-        @Cached CompareNode compare,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeRight,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeLeft,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeRight,
-        @Cached GeneratorNodes.GeneratorNextNode nextNodeLeft,
-        @Cached GeneratorNodes.GeneratorNextNode nextNodeRight) {
-      Object leftGenerator = getGeneratorNodeLeft.execute(left);
-      Object rightGenerator = getGeneratorNodeRight.execute(right);
-      while (hasNextNodeLeft.execute(leftGenerator) && hasNextNodeRight.execute(rightGenerator)) {
-        Object leftElement = nextNodeLeft.execute(leftGenerator);
-        Object rightElement = nextNodeRight.execute(rightGenerator);
-        int result = compare.execute(leftElement, rightElement);
-        if (result != 0) {
-          return result;
-        }
-      }
-      if (hasNextNodeLeft.execute(leftGenerator)) {
-        return 1;
-      } else if (hasNextNodeRight.execute(rightGenerator)) {
-        return -1;
-      } else {
-        return 0;
-      }
-    }
-
     @Specialization(guards = {"isFailure(left) || isFailure(right)"})
     static int doTryable(Object left, Object right) {
       boolean leftIsFailure = Tryable.isFailure(left);
@@ -245,6 +213,37 @@ public class OperatorNodes {
         return -2;
       } else {
         return 2;
+      }
+    }
+
+    @Specialization(limit = "3")
+    //            guards = {"lefts.isIterable(left)", "rights.isIterable(right)"})
+    static int doIterable(
+        Object left,
+        Object right,
+        @Cached CompareNode compare,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeRight,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeLeft,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeRight,
+        @Cached GeneratorNodes.GeneratorNextNode nextNodeLeft,
+        @Cached GeneratorNodes.GeneratorNextNode nextNodeRight) {
+      Object leftGenerator = getGeneratorNodeLeft.execute(left);
+      Object rightGenerator = getGeneratorNodeRight.execute(right);
+      while (hasNextNodeLeft.execute(leftGenerator) && hasNextNodeRight.execute(rightGenerator)) {
+        Object leftElement = nextNodeLeft.execute(leftGenerator);
+        Object rightElement = nextNodeRight.execute(rightGenerator);
+        int result = compare.execute(leftElement, rightElement);
+        if (result != 0) {
+          return result;
+        }
+      }
+      if (hasNextNodeLeft.execute(leftGenerator)) {
+        return 1;
+      } else if (hasNextNodeRight.execute(rightGenerator)) {
+        return -1;
+      } else {
+        return 0;
       }
     }
   }

@@ -19,6 +19,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OffHeapGroupByKeys;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
+import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 import raw.runtime.truffle.runtime.iterable.operations.*;
 import raw.runtime.truffle.runtime.iterable.sources.*;
 
@@ -134,7 +135,7 @@ public class IterableNodes {
       Object parentGenerator1 = getGeneratorNode1.execute(collection.getParentIterable1());
       Object parentGenerator2 = getGeneratorNode1.execute(collection.getParentIterable2());
       return new AbstractGenerator(
-          new ZipComputeNext(parentGenerator1, parentGenerator2, collection.getLanguage()));
+          new ZipComputeNext(parentGenerator1, parentGenerator2, collection.getLang()));
     }
 
     @Specialization
@@ -143,17 +144,18 @@ public class IterableNodes {
         @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached GeneratorNodes.GeneratorInitNode initNode,
         @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextNode,
         @Cached GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
         @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode) {
       OffHeapDistinct index =
           new OffHeapDistinct(
-              collection.getRowType(), collection.getLanguage(), collection.getContext());
+              collection.getRowType(), collection.getLang(), collection.getContext());
       Object generator = getGeneratorNode.execute(collection.getIterable());
       try {
         initNode.execute(generator);
         while (hasNextNode.execute(generator)) {
-          Object next = hasNextNode.execute(generator);
+          Object next = nextNode.execute(generator);
           putNode.execute(index, next, null);
         }
       } finally {
@@ -167,7 +169,7 @@ public class IterableNodes {
       return collection.getGenerator();
     }
 
-    @Specialization
+    @Specialization(limit = "3")
     static Object getGenerator(
         GroupByCollection collection,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -182,9 +184,9 @@ public class IterableNodes {
           new OffHeapGroupByKey(
               collection.getKeyType(),
               collection.getRowType(),
-              collection.getLanguage(),
+              collection.getLang(),
               collection.getContext(),
-              new RecordShaper(collection.getLanguage(), false));
+              new RecordShaper(collection.getLang(), false));
       Object inputGenerator = getGeneratorNode.execute(collection.getIterable());
       try {
         initNode.execute(inputGenerator);
@@ -222,7 +224,8 @@ public class IterableNodes {
           new OffHeapGroupByKeys(
               collection.getKeyTypes(),
               collection.getRowType(),
-              collection.getLanguage(),
+              collection.getKeyOrderings(),
+              collection.getLang(),
               collection.getContext());
       try {
         initNode.execute(generator);
@@ -241,6 +244,11 @@ public class IterableNodes {
         closeNode.execute(generator);
       }
       return generatorNode.execute(groupByKeys);
+    }
+
+    @Specialization
+    static Object getGenerator(ListIterable collection) {
+      return collection.getGenerator();
     }
   }
 }

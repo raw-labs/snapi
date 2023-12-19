@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.TreeSet;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
 
@@ -31,7 +32,7 @@ public class OffHeapDistinct {
 
   @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public OffHeapDistinct(Rql2TypeWithProperties vType, RawLanguage rl, SourceContext context) {
-    this.index = new TreeSet<>(OperatorNodesFactory.CompareNodeGen.create().getUncached()::execute);
+    this.index = new TreeSet<>(OperatorNodesFactory.CompareNodeGen.getUncached()::execute);
     this.itemType = vType;
     this.itemSize = KryoFootPrint.of(vType);
     this.binarySize = 0;

@@ -18,10 +18,8 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
 
 @ExportLibrary(AggregationLibrary.class)
 public final class MultiAggregation {

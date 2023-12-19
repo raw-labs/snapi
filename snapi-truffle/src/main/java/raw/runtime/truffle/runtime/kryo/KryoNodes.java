@@ -4,6 +4,7 @@ import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -17,8 +18,9 @@ import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.list.ObjectList;
@@ -31,6 +33,7 @@ import scala.collection.immutable.Vector;
 public class KryoNodes {
   @NodeInfo(shortName = "Kryo.Read")
   @GenerateUncached
+  @ImportStatic(TypeGuards.class)
   public abstract static class KryoReadNode extends Node {
 
     public abstract Object execute(RawLanguage language, Input input, Rql2TypeWithProperties t);
@@ -215,12 +218,13 @@ public class KryoNodes {
 
   @NodeInfo(shortName = "Kryo.Write")
   @GenerateUncached
+  @ImportStatic(TypeGuards.class)
   public abstract static class KryoWriteNode extends Node {
 
     private static final Rql2TypeProperty isTryable = new Rql2IsTryableTypeProperty();
     private static final Rql2TypeProperty isNullable = new Rql2IsNullableTypeProperty();
 
-    public abstract Object execute(Output output, Rql2TypeWithProperties type, Object maybeTryable);
+    public abstract void execute(Output output, Rql2TypeWithProperties type, Object maybeTryable);
 
     @Specialization(
         guards = {"isTryable(type)"},
@@ -282,19 +286,22 @@ public class KryoNodes {
         Output output,
         Rql2TypeWithProperties type,
         Object o,
+        @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+        @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+        @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
         @Cached KryoWriteNode kryo,
-        @Cached IterableNodes.GetGeneratorNode iterators,
-        @CachedLibrary(limit = "2") GeneratorLibrary generators) {
+        @Cached IterableNodes.GetGeneratorNode iterators) {
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType();
       Object generator = iterators.execute(o);
-      generators.init(generator);
+      generatorInitNode.execute(generator);
       ArrayList<Object> contents = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        Object content = generators.next(generator);
+      while (generatorHasNextNode.execute(generator)) {
+        Object content = generatorNextNode.execute(generator);
         contents.add(content);
       }
-      generators.close(generator);
+      generatorCloseNode.execute(generator);
       output.writeInt(contents.size());
       for (Object content : contents) {
         kryo.execute(output, elementType, content);

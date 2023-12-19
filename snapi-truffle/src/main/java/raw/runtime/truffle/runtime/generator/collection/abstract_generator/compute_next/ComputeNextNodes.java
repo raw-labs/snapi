@@ -3,6 +3,7 @@ package raw.runtime.truffle.runtime.generator.collection.abstract_generator.comp
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.core.JsonToken;
+import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
@@ -61,8 +62,8 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         CsvReadComputeNext computeNext,
-        @Cached(value = "computeNext.getRowParserCallTarget()") RootCallTarget cachedTarget,
-        @Cached(value = "create(cachedTarget)") DirectCallNode rowParser) {
+        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true) RootCallTarget cachedTarget,
+        @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
       if (computeNext.getParser().done()) {
         throw new BreakException();
       }
@@ -77,8 +78,8 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         CsvReadFromStringComputeNext computeNext,
-        @Cached(value = "computeNext.getRowParserCallTarget()") RootCallTarget cachedTarget,
-        @Cached(value = "create(cachedTarget)") DirectCallNode rowParser) {
+        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true) RootCallTarget cachedTarget,
+        @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
       if (computeNext.getParser().done()) {
         throw new BreakException();
       }
@@ -98,8 +99,8 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         JdbcQueryComputeNext computeNext,
-        @Cached(value = "computeNext.getRowParserCallTarget()") RootCallTarget cachedTarget,
-        @Cached(value = "create(cachedTarget)") DirectCallNode rowParser) {
+        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true) RootCallTarget cachedTarget,
+        @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
       boolean ok = computeNext.getRs().next();
       if (ok) {
         return rowParser.call(computeNext.getRs());
@@ -112,8 +113,10 @@ public class ComputeNextNodes {
     static Object next(
         JsonReadComputeNext computeNext,
         @Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached(value = "computeNext.getParseNextCallTarget()") RootCallTarget cachedTarget,
-        @Cached(value = "create(cachedTarget)") DirectCallNode parseNextCallNode) {
+        @Cached(value = "computeNext.getParseNextCallTarget()", allowUncached = true)
+            RootCallTarget cachedTarget,
+        @Cached(value = "create(cachedTarget)", allowUncached = true)
+            DirectCallNode parseNextCallNode) {
       try {
         JsonToken token = currentToken.execute(computeNext.getParser());
         if (token != JsonToken.END_ARRAY && token != null) {
@@ -176,8 +179,10 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         XmlParseComputeNext computeNext,
-        @Cached(value = "computeNext.getParseNextRootCallTarget()") RootCallTarget cachedTarget,
-        @Cached(value = "create(cachedTarget)") DirectCallNode parseNextCallNode) {
+        @Cached(value = "computeNext.getParseNextRootCallTarget()", allowUncached = true)
+            RootCallTarget cachedTarget,
+        @Cached(value = "create(cachedTarget)", allowUncached = true)
+            DirectCallNode parseNextCallNode) {
       if (computeNext.getParser().onEndTag()) {
         throw new BreakException();
       } else {
@@ -188,8 +193,10 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         XmlReadComputeNext computeNext,
-        @Cached(value = "computeNext.getParseNextRootCallTarget()") RootCallTarget cachedTarget,
-        @Cached(value = "create(cachedTarget)") DirectCallNode parseNextCallNode) {
+        @Cached(value = "computeNext.getParseNextRootCallTarget()", allowUncached = true)
+            RootCallTarget cachedTarget,
+        @Cached(value = "create(cachedTarget)", allowUncached = true)
+            DirectCallNode parseNextCallNode) {
       if (computeNext.getParser().onEndTag()) {
         throw new BreakException();
       } else {
@@ -206,7 +213,7 @@ public class ComputeNextNodes {
       throw new BreakException();
     }
 
-    @Specialization
+    @Specialization(limit = "3")
     static Object next(
         FilterComputeNext computeNext,
         @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
@@ -242,7 +249,7 @@ public class ComputeNextNodes {
       throw new BreakException();
     }
 
-    @Specialization
+    @Specialization(limit = "3")
     static Object next(
         TransformComputeNext computeNext,
         @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
@@ -259,7 +266,7 @@ public class ComputeNextNodes {
       }
     }
 
-    @Specialization
+    @Specialization(limit = "3")
     static Object next(
         UnnestComputeNext computeNext,
         @Cached GeneratorNodes.GeneratorNextNode nextNode,
@@ -323,7 +330,7 @@ public class ComputeNextNodes {
       }
     }
 
-    @Specialization
+    @Specialization(limit = "3")
     static Object next(
         EquiJoinComputeNext computeNext,
         @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
@@ -502,7 +509,7 @@ public class ComputeNextNodes {
   @GenerateUncached
   public abstract static class InitNode extends Node {
 
-    public abstract Object execute(Object computeNext);
+    public abstract void execute(Object computeNext);
 
     @Specialization
     static void init(ExpressionComputeNext computeNext) {}
@@ -665,7 +672,7 @@ public class ComputeNextNodes {
       initNode2.execute(computeNext.getParent2());
     }
 
-    @Specialization
+    @Specialization(limit = "3")
     static void init(
         EquiJoinComputeNext computeNext,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -772,7 +779,7 @@ public class ComputeNextNodes {
   @GenerateUncached
   public abstract static class CloseNode extends Node {
 
-    public abstract Object execute(Object computeNext);
+    public abstract void execute(Object computeNext);
 
     @Specialization
     static void close(ExpressionComputeNext computeNext) {}

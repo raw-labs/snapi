@@ -21,7 +21,7 @@ public class RecordShaperNodes {
 
     public abstract Object execute(Object shaper, Object key, Object[] values);
 
-    @Specialization(guards = "shaper != null && !shaper.isList()")
+    @Specialization(guards = {"shaper != null", "!shaper.forList()"})
     static Object makeRowCollection(
         RecordShaper shaper,
         Object key,
@@ -39,7 +39,7 @@ public class RecordShaperNodes {
       return record;
     }
 
-    @Specialization(guards = "shaper != null && shaper.isList()")
+    @Specialization(guards = {"shaper != null", "shaper.forList()"})
     static Object makeRowList(
         RecordShaper shaper,
         Object key,

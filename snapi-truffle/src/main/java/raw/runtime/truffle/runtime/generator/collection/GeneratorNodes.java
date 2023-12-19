@@ -6,6 +6,7 @@ import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
@@ -22,7 +23,9 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.InputBufferNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.OrderByInputBuffer;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaperNodes;
+import raw.runtime.truffle.runtime.generator.list.ListGenerator;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
+import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 import java.io.FileInputStream;
@@ -43,7 +46,7 @@ public class GeneratorNodes {
       if (generator.isTerminated()) {
         throw new BreakException();
       }
-      if (generator.getNext() == null) {
+      if (generator.getNext() == null && !generator.hasException()) {
         try {
           generator.setNext(computeNextNode.execute(generator.getNextGenerator()));
         } catch (BreakException e) { // case end of data
@@ -234,6 +237,14 @@ public class GeneratorNodes {
       }
       return key;
     }
+
+    @Specialization(limit = "3")
+    static Object next(
+        ListGenerator generator, @CachedLibrary("generator.getList()") ListLibrary lists) {
+      Object item = lists.get(generator.getList(), generator.getPosition());
+      generator.incrementPosition();
+      return item;
+    }
   }
 
   @NodeInfo(shortName = "AbstractGenerator.HasNext")
@@ -247,7 +258,7 @@ public class GeneratorNodes {
         AbstractGenerator generator, @Cached ComputeNextNodes.NextNode computeNextNode) {
       if (generator.isTerminated()) {
         return false;
-      } else if (generator.getNext() == null) {
+      } else if (generator.getNext() == null && !generator.hasException()) {
         try {
           generator.setNext(computeNextNode.execute(generator.getNextGenerator()));
         } catch (BreakException e) {
@@ -361,13 +372,19 @@ public class GeneratorNodes {
       }
       return key != null;
     }
+
+    @Specialization(limit = "3")
+    static boolean hasNext(
+        ListGenerator generator, @CachedLibrary("generator.getList()") ListLibrary lists) {
+      return generator.getPosition() < lists.size(generator.getList());
+    }
   }
 
   @NodeInfo(shortName = "AbstractGenerator.Init")
   @GenerateUncached
   public abstract static class GeneratorInitNode extends Node {
 
-    public abstract boolean execute(Object generator);
+    public abstract void execute(Object generator);
 
     @Specialization
     static void init(AbstractGenerator generator, @Cached ComputeNextNodes.InitNode initNode) {
@@ -455,13 +472,16 @@ public class GeneratorNodes {
                 }
               });
     }
+
+    @Specialization
+    static void init(ListGenerator generator) {}
   }
 
-  @NodeInfo(shortName = "AbstractGenerator.Close")
+  @NodeInfo(shortName = "Generator.Close")
   @GenerateUncached
   public abstract static class GeneratorCloseNode extends Node {
 
-    public abstract boolean execute(Object generator);
+    public abstract void execute(Object generator);
 
     @Specialization
     static void close(AbstractGenerator generator, @Cached ComputeNextNodes.CloseNode closeNode) {
@@ -491,5 +511,8 @@ public class GeneratorNodes {
     static void close(DistinctSpilledFilesGenerator generator) {
       generator.getKryoBuffers().forEach(Input::close);
     }
+
+    @Specialization
+    static void close(ListGenerator generator) {}
   }
 }

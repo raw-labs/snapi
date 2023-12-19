@@ -30,7 +30,7 @@ public class ZipCollection implements TruffleObject {
     return parentIterable2;
   }
 
-  public RawLanguage getLanguage() {
+  public RawLanguage getLang() {
     return language;
   }
 

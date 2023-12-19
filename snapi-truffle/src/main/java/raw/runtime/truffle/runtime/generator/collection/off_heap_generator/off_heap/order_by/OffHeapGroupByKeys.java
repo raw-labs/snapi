@@ -3,6 +3,8 @@ package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_
 import com.oracle.truffle.api.CompilerDirectives;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
 
@@ -14,6 +16,8 @@ import java.util.TreeMap;
 public class OffHeapGroupByKeys {
 
   private final RawLanguage language;
+
+  private final int[] keyOrderings;
   private final TreeMap<Object[], ArrayList<Object>>
       memMap; // in-memory map from arrays of keys to array of rows.
   private final ArrayList<File> spilledBuffers =
@@ -32,6 +36,9 @@ public class OffHeapGroupByKeys {
 
   private final SourceContext context;
 
+  private final OperatorNodes.CompareNode compare =
+      OperatorNodesFactory.CompareNodeGen.getUncached();
+
   private static int keysFootPrint(Rql2TypeWithProperties[] keyType) {
     int size = 0;
     for (Rql2TypeWithProperties t : keyType) {
@@ -40,14 +47,28 @@ public class OffHeapGroupByKeys {
     return size;
   }
 
+  private int compareKeys(Object[] keys1, Object[] keys2) {
+    // Keys are compared in order, until a difference is found.
+    // If all keys are equal, then the rows are equal.
+    // If keys are different, the comparison result is multiplied by the 'order' of the key to
+    // reflect the "ASC/DESC".
+    for (int i = 0; i < keys1.length; i++) {
+      int cmp = compare.execute(keys1[i], keys2[i]);
+      if (cmp != 0) {
+        return keyOrderings[i] * cmp;
+      }
+    }
+    return 0;
+  }
+
   @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKeys(
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
+      int[] keyOrderings,
       RawLanguage language,
       SourceContext context) {
-    this.memMap =
-        new TreeMap<>(OperatorNodesFactory.CompareNodeGen.create().getUncached()::execute);
+    this.memMap = new TreeMap<>(this::compareKeys);
     this.keyTypes = kTypes;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);
@@ -60,6 +81,7 @@ public class OffHeapGroupByKeys {
         (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     this.context = context;
     this.language = language;
+    this.keyOrderings = keyOrderings;
   }
 
   public RawLanguage getLanguage() {

@@ -1,80 +1,55 @@
-/*
- * Copyright 2023 RAW Labs S.A.
- *
- * Use of this software is governed by the Business Source License
- * included in the file licenses/BSL.txt.
- *
- * As of the Change Date specified in that file, in accordance with
- * the Business Source License, use of this software will be governed
- * by the Apache License, Version 2.0, included in the file
- * licenses/APL.txt.
- */
-
 package raw.runtime.truffle.runtime.generator.list;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.util.Objects;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.list.StringList;
 
-@ExportLibrary(GeneratorLibrary.class)
+import java.util.Objects;
+
 @ExportLibrary(InteropLibrary.class)
 public class ListGenerator implements TruffleObject {
 
-  final Object list;
+  private final Object list;
   private int position = 0;
 
   public ListGenerator(Object list) {
     this.list = list;
   }
 
-  @ExportMessage
-  boolean isGenerator() {
-    return true;
+  public int getPosition() {
+    return position;
   }
 
-  @ExportMessage
-  void init() {}
-
-  @ExportMessage
-  void close() {}
-
-  @ExportMessage
-  public boolean hasNext(@CachedLibrary("this.list") ListLibrary lists) {
-    return this.position < lists.size(list);
-  }
-
-  @ExportMessage
-  public Object next(@CachedLibrary("this.list") ListLibrary lists) {
-    Object item = lists.get(list, position);
+  public void incrementPosition() {
     this.position++;
-    return item;
+  }
+
+  public Object getList() {
+    return list;
   }
 
   // InteropLibrary: Iterator
-
   @ExportMessage
   final boolean isIterator() {
     return true;
   }
 
   @ExportMessage
-  final boolean hasIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+  final boolean hasIteratorNextElement(@Cached GeneratorNodes.GeneratorHasNextNode hasNextNode)
       throws UnsupportedMessageException {
-    return generatorLibrary.hasNext(this);
+    return hasNextNode.execute(this);
   }
 
   @ExportMessage
-  final Object getIteratorNextElement(@CachedLibrary("this") GeneratorLibrary generatorLibrary)
+  final Object getIteratorNextElement(@Cached GeneratorNodes.GeneratorNextNode nextNode)
       throws UnsupportedMessageException, StopIterationException {
-    return generatorLibrary.next(this);
+    return nextNode.execute(this);
   }
 
   @ExportMessage
@@ -94,9 +69,9 @@ public class ListGenerator implements TruffleObject {
 
   @ExportMessage
   final Object invokeMember(
-      String member, Object[] args, @CachedLibrary("this") GeneratorLibrary generatorLibrary) {
+      String member, Object[] args, @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
     assert (Objects.equals(member, "close"));
-    generatorLibrary.close(this);
+    closeNode.execute(this);
     return 0;
   }
 }

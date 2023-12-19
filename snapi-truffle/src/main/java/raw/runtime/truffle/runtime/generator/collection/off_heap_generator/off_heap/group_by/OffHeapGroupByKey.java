@@ -6,6 +6,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
@@ -46,7 +47,7 @@ public class OffHeapGroupByKey {
       SourceContext context,
       RecordShaper reshape) {
     this.language = language;
-    this.memMap = new TreeMap<>(OperatorNodesFactory.CompareNodeGen.create().getUncached()::execute);
+    this.memMap = new TreeMap<>(OperatorNodesFactory.CompareNodeGen.getUncached()::execute);
     this.keyType = kType;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);

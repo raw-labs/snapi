@@ -45,10 +45,6 @@ public class GroupByCollection implements TruffleObject {
     return keyFun;
   }
 
-  public RawLanguage getLanguage() {
-    return language;
-  }
-
   public Rql2TypeWithProperties getKeyType() {
     return keyType;
   }
@@ -59,6 +55,10 @@ public class GroupByCollection implements TruffleObject {
 
   public SourceContext getContext() {
     return context;
+  }
+
+  public RawLanguage getLang() {
+    return language;
   }
 
   // InteropLibrary: Iterable

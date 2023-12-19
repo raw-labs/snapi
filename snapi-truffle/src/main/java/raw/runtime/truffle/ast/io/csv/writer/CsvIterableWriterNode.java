@@ -28,8 +28,10 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable_old.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 
 public class CsvIterableWriterNode extends StatementNode {
 
@@ -37,9 +39,21 @@ public class CsvIterableWriterNode extends StatementNode {
 
   @Child private DirectCallNode itemWriter;
 
-  @Child private IterableLibrary iterables = IterableLibrary.getFactory().createDispatched(3);
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
 
-  @Child private GeneratorLibrary generators = GeneratorLibrary.getFactory().createDispatched(3);
+  @Child
+  private GeneratorNodes.GeneratorInitNode generatorInitNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorNextNode generatorNextNode =
+      GeneratorNodesFactory.GeneratorNextNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorHasNextNode generatorHasNextNode =
+      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
 
   private final String[] columnNames;
   private final String lineSeparator;
@@ -57,10 +71,10 @@ public class CsvIterableWriterNode extends StatementNode {
     try (OutputStream os = RawContext.get(this).getOutput();
         CsvGenerator gen = createGenerator(os)) {
       Object iterable = dataNode.executeGeneric(frame);
-      Object generator = iterables.getGenerator(iterable);
-      generators.init(generator);
-      while (generators.hasNext(generator)) {
-        Object item = generators.next(generator);
+      Object generator = getGeneratorNode.execute(iterable);
+      generatorInitNode.execute(generator);
+      while (generatorHasNextNode.execute(generator)) {
+        Object item = generatorNextNode.execute(generator);
         itemWriter.call(item, gen);
       }
     } catch (IOException e) {
