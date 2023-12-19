@@ -27,6 +27,7 @@ trait RD9485Test extends CompilerTestContext {
     |</top>""".stripMargin)
 
   test(s"""Xml.InferAndRead("file://$xmlList")""") { it =>
+    it should evaluateTo(s"""Xml.Read("file://$xmlList", type record(a: collection(double)))""")
     it should evaluateTo("""{
       |  a: [
       |      1.0,
