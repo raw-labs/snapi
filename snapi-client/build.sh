@@ -4,7 +4,7 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 . ~/.sdkman/bin/sdkman-init.sh
 
 yes | sdk install java 21.0.1-graalce || true
-sdk use java 21-graalce
+sdk use java 21.0.1-graalce
 
 cd "$SCRIPT_HOME"
 sbt clean publishLocal
