@@ -60,6 +60,7 @@ module raw.snapi.frontend {
   requires software.amazon.awssdk.core;
   requires software.amazon.awssdk.thirdparty.jackson.core;
   requires software.amazon.awssdk.utils;
+  requires mysql.connector.j;
   requires raw.utils;
   requires raw.client;
 
