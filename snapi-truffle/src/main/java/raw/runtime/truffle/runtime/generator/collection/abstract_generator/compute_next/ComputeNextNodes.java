@@ -1,9 +1,20 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.core.JsonToken;
-import com.oracle.truffle.api.CallTarget;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
@@ -14,6 +25,10 @@ import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
@@ -26,8 +41,8 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
-import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.*;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.*;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
@@ -39,11 +54,6 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 
 public class ComputeNextNodes {
 
@@ -62,7 +72,8 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         CsvReadComputeNext computeNext,
-        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true) RootCallTarget cachedTarget,
+        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true)
+            RootCallTarget cachedTarget,
         @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
       if (computeNext.getParser().done()) {
         throw new BreakException();
@@ -78,7 +89,8 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         CsvReadFromStringComputeNext computeNext,
-        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true) RootCallTarget cachedTarget,
+        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true)
+            RootCallTarget cachedTarget,
         @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
       if (computeNext.getParser().done()) {
         throw new BreakException();
@@ -99,7 +111,8 @@ public class ComputeNextNodes {
     @Specialization
     static Object next(
         JdbcQueryComputeNext computeNext,
-        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true) RootCallTarget cachedTarget,
+        @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true)
+            RootCallTarget cachedTarget,
         @Cached(value = "create(cachedTarget)", allowUncached = true) DirectCallNode rowParser) {
       boolean ok = computeNext.getRs().next();
       if (ok) {
@@ -675,13 +688,20 @@ public class ComputeNextNodes {
     @Specialization(limit = "3")
     static void init(
         EquiJoinComputeNext computeNext,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-        @Cached GeneratorNodes.GeneratorInitNode initNode,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
-        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGenerator,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorLeftNode,
+        @Cached IterableNodes.GetGeneratorNode getGeneratorRightNode,
+        @Cached GeneratorNodes.GeneratorInitNode initLeftNode,
+        @Cached GeneratorNodes.GeneratorInitNode initRightNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextLeftNode,
+        @Cached GeneratorNodes.GeneratorHasNextNode hasNextRightNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextLeftNode,
+        @Cached GeneratorNodes.GeneratorNextNode nextRightNode,
+        @Cached GeneratorNodes.GeneratorCloseNode closeLeftNode,
+        @Cached GeneratorNodes.GeneratorCloseNode closeRightNode,
+        @Cached OffHeapNodes.OffHeapGroupByPutNode putLeftNode,
+        @Cached OffHeapNodes.OffHeapGroupByPutNode putRightNode,
+        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorLeft,
+        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight,
         @CachedLibrary("computeNext.getLeftKeyF()") InteropLibrary leftKeyFLib,
         @CachedLibrary("computeNext.getRightKeyF()") InteropLibrary rightKeyFLib) {
       // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
@@ -692,21 +712,21 @@ public class ComputeNextNodes {
               computeNext.getLanguage(),
               computeNext.getContext(),
               null);
-      Object leftGenerator = getGeneratorNode.execute(computeNext.getLeftIterable());
+      Object leftGenerator = getGeneratorLeftNode.execute(computeNext.getLeftIterable());
       try {
-        initNode.execute(leftGenerator);
-        while (hasNextNode.execute(leftGenerator)) {
-          Object leftItem = nextNode.execute(leftGenerator);
+        initLeftNode.execute(leftGenerator);
+        while (hasNextLeftNode.execute(leftGenerator)) {
+          Object leftItem = nextLeftNode.execute(leftGenerator);
           Object leftKey = leftKeyFLib.execute(computeNext.getLeftKeyF(), leftItem);
-          putNode.execute(leftMap, leftKey, leftItem);
+          putLeftNode.execute(leftMap, leftKey, leftItem);
         }
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       } finally {
-        closeNode.execute(leftGenerator);
+        closeLeftNode.execute(leftGenerator);
       }
-      computeNext.setLeftMapGenerator(offHeapGenerator.execute(leftMap));
-      initNode.execute(computeNext.getLeftMapGenerator());
+      computeNext.setLeftMapGenerator(offHeapGeneratorLeft.execute(leftMap));
+      initRightNode.execute(computeNext.getLeftMapGenerator());
 
       // same with right side
       OffHeapGroupByKey rightMap =
@@ -716,21 +736,21 @@ public class ComputeNextNodes {
               computeNext.getLanguage(),
               computeNext.getContext(),
               null);
-      Object rightGenerator = getGeneratorNode.execute(computeNext.getRightIterable());
+      Object rightGenerator = getGeneratorRightNode.execute(computeNext.getRightIterable());
       try {
-        initNode.execute(rightGenerator);
-        while (hasNextNode.execute(rightGenerator)) {
-          Object rightItem = nextNode.execute(rightGenerator);
+        initRightNode.execute(rightGenerator);
+        while (hasNextRightNode.execute(rightGenerator)) {
+          Object rightItem = nextRightNode.execute(rightGenerator);
           Object rightKey = rightKeyFLib.execute(computeNext.getRightKeyF(), rightItem);
-          putNode.execute(rightMap, rightKey, rightItem);
+          putRightNode.execute(rightMap, rightKey, rightItem);
         }
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       } finally {
-        closeNode.execute(rightGenerator);
+        closeRightNode.execute(rightGenerator);
       }
-      computeNext.setRightMapGenerator(offHeapGenerator.execute(rightMap));
-      initNode.execute(computeNext.getRightMapGenerator());
+      computeNext.setRightMapGenerator(offHeapGeneratorRight.execute(rightMap));
+      initRightNode.execute(computeNext.getRightMapGenerator());
     }
 
     @Specialization

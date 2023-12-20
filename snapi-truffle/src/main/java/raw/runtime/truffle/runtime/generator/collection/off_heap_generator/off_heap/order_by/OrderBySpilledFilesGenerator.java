@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
 import com.oracle.truffle.api.dsl.Cached;
@@ -49,7 +61,6 @@ public class OrderBySpilledFilesGenerator implements TruffleObject {
     this.inputBuffers.add(inputBuffer);
   }
 
-
   @ExportMessage
   final boolean isIterator() {
     return true;
@@ -57,13 +68,13 @@ public class OrderBySpilledFilesGenerator implements TruffleObject {
 
   @ExportMessage
   final boolean hasIteratorNextElement(@Cached GeneratorNodes.GeneratorHasNextNode hasNextNode)
-          throws UnsupportedMessageException {
+      throws UnsupportedMessageException {
     return hasNextNode.execute(this);
   }
 
   @ExportMessage
   final Object getIteratorNextElement(@Cached GeneratorNodes.GeneratorNextNode nextNode)
-          throws UnsupportedMessageException, StopIterationException {
+      throws UnsupportedMessageException, StopIterationException {
     return nextNode.execute(this);
   }
 
@@ -84,7 +95,7 @@ public class OrderBySpilledFilesGenerator implements TruffleObject {
 
   @ExportMessage
   final Object invokeMember(
-          String member, Object[] args, @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
+      String member, Object[] args, @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
     assert (Objects.equals(member, "close"));
     closeNode.execute(this);
     return 0;

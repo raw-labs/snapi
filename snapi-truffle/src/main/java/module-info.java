@@ -324,7 +324,14 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.generator.collection.abstract_generator;
   exports raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next;
   exports raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources;
-  exports raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
+  exports raw.runtime
+      .truffle
+      .runtime
+      .generator
+      .collection
+      .abstract_generator
+      .compute_next
+      .operations;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap;

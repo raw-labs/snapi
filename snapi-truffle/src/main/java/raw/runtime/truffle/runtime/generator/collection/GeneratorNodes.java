@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.runtime.truffle.runtime.generator.collection;
 
 import com.esotericsoftware.kryo.KryoException;
@@ -9,29 +21,28 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.util.ArrayList;
+import java.util.Arrays;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.ComputeNextNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.GroupByInputBuffer;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.InputBufferNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.OrderByInputBuffer;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.DistinctMemoryGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.DistinctSpilledFilesGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.GroupByMemoryGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.GroupBySpilledFilesGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OrderByMemoryGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OrderBySpilledFilesGenerator;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.GroupByInputBuffer;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.InputBufferNodes;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.OrderByInputBuffer;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaperNodes;
 import raw.runtime.truffle.runtime.generator.list.ListGenerator;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
-
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.util.ArrayList;
-import java.util.Arrays;
 
 public class GeneratorNodes {
   @NodeInfo(shortName = "AbstractGenerator.Next")
