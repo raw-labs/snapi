@@ -12,14 +12,15 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
+import raw.runtime.truffle.runtime.aggregation.AggregationNodes;
 import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
-import raw.runtime.truffle.runtime.aggregation.aggregator.MinAggregator;
+import raw.runtime.truffle.runtime.aggregation.aggregator.Aggregators;
 import raw.runtime.truffle.runtime.list.ListLibrary;
 
 @NodeInfo(shortName = "List.Min")
@@ -29,10 +30,10 @@ public abstract class ListMinNode extends ExpressionNode {
   @Specialization(limit = "3")
   protected Object doCollection(
       Object list,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
+      @Cached AggregationNodes.Aggregate aggregate,
+      @CachedLibrary("list") ListLibrary lists) {
     Object iterable = lists.toIterable(list);
-    Object aggregation = new SingleAggregation(new MinAggregator());
-    return aggregations.aggregate(aggregation, iterable);
+    Object aggregation = new SingleAggregation(Aggregators.MIN);
+    return aggregate.execute(aggregation, iterable);
   }
 }
