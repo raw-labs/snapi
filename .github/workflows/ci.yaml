@@ -29,11 +29,17 @@ jobs:
         with:
           fetch-depth: 0
       - run: ./rebuild.sh
-      - name: upload build artifacts
+      - name: upload ivy build artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: build
+          name:  ivy
           path: /home/sbtuser/.ivy2/local
+          retention-days: 1
+      - name: upload m2 build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: m2
+          path: /home/sbtuser/.m2/repository
           retention-days: 1
       - name: upload versions
         uses: actions/upload-artifact@v4
@@ -62,11 +68,16 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - name: download build artifacts
+      - name: download ivy build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build
+          name: ivy
           path: /home/sbtuser/.ivy2/local
+      - name: download m2 build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: m2
+          path: /home/sbtuser/.m2/repository
       - name: download versions
         uses: actions/download-artifact@v4
         with:
@@ -106,11 +117,16 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1
         with:
           secrets: ${{ toJSON(secrets) }}
-      - name: download build artifacts
+      - name: download ivy build artifacts
         uses: actions/download-artifact@v4
         with:
-          name: build
+          name: ivy
           path: /home/sbtuser/.ivy2/local
+      - name: download m2 build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: m2
+          path: /home/sbtuser/.m2/repository
       - name: download versions
         uses: actions/download-artifact@v4
         with:
