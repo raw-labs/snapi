@@ -5,10 +5,7 @@ export COURSIER_PROGRESS=false
 
 find . -type d -name "target" -exec rm -r {} \; || true
 
-cd "${SCRIPT_HOME}/deps/kiama"
-./build.sh
-
-cd "${SCRIPT_HOME}/deps/others"
+cd "${SCRIPT_HOME}/deps"
 ./build.sh
 
 cd "${SCRIPT_HOME}/utils"
