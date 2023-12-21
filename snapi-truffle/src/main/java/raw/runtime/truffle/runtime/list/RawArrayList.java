@@ -16,52 +16,46 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import java.util.ArrayList;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
 @ExportLibrary(InteropLibrary.class)
-public final class BooleanList implements TruffleObject {
+public class RawArrayList implements TruffleObject {
+  private final ArrayList<Object> list;
 
-  private final boolean[] list;
-
-  public BooleanList(boolean[] list) {
+  public RawArrayList(ArrayList<Object> list) {
     this.list = list;
   }
 
-  public boolean[] getInnerList() {
+  public ArrayList<Object> getInnerList() {
     return list;
   }
 
   boolean isElementReadable(int index) {
-    return index >= 0 && index < list.length;
+    return index >= 0 && index < list.size();
   }
 
-  public boolean get(long index) {
+  public Object get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
       throw new IndexOutOfBoundsException("index out of bounds");
     }
-    return list[idx];
+    return list.get(idx);
   }
 
   public int size() {
-    return list.length;
+    return list.size();
   }
 
   public ListIterable toIterable() {
     return new ListIterable(this);
   }
 
-  public BooleanList sort() {
-    return this;
-  }
-
-  public BooleanList take(int num) {
-    if (num >= this.getInnerList().length) {
+  public RawArrayList take(int num) {
+    if (num >= this.list.size()) {
       return this;
     }
-    boolean[] result = new boolean[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new BooleanList(result);
+    return new RawArrayList(new ArrayList<>(list.subList(0, num)));
   }
 
   // InteropLibrary: Array
@@ -73,20 +67,20 @@ public final class BooleanList implements TruffleObject {
 
   @ExportMessage
   final long getArraySize() {
-    return list.length;
+    return list.size();
   }
 
   @ExportMessage
   final boolean isArrayElementReadable(long index) {
-    return index >= 0 && index < list.length;
+    return index >= 0 && index < list.size();
   }
 
   @ExportMessage
-  final boolean readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
+  final Object readArrayElement(long index) throws ArrayIndexOutOfBoundsException {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
       throw new ArrayIndexOutOfBoundsException(idx);
     }
-    return list[idx];
+    return list.get(idx);
   }
 }

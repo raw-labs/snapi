@@ -20,14 +20,17 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
+import raw.runtime.truffle.runtime.list.ListNodesFactory;
 
 @NodeInfo(shortName = "ListWriteJson")
 public class ListWriteJsonNode extends StatementNode {
 
   @Child private DirectCallNode childDirectCall;
 
-  @Child private ListLibrary listLibrary = ListLibrary.getFactory().createDispatched(1);
+  @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
+
+  @Child private ListNodes.GetNode getNode = ListNodesFactory.GetNodeGen.create();
 
   @Child
   private JsonWriteNodes.WriteStartArrayJsonWriterNode writeStartArrayNode =
@@ -44,11 +47,11 @@ public class ListWriteJsonNode extends StatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    int listSize = (int) listLibrary.size(args[0]);
+    int listSize = (int) sizeNode.execute(args[0]);
     JsonGenerator gen = (JsonGenerator) args[1];
     writeStartArrayNode.execute(gen);
     for (int i = 0; i < listSize; i++) {
-      childDirectCall.call(listLibrary.get(args[0], i), gen);
+      childDirectCall.call(getNode.execute(args[0], i), gen);
     }
     writeEndArrayNode.execute(gen);
   }

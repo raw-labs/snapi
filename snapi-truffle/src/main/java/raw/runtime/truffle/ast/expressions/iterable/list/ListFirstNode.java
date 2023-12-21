@@ -12,14 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 
 @ImportStatic(value = TypeGuards.class)
@@ -28,10 +28,11 @@ import raw.runtime.truffle.runtime.primitives.NullObject;
 public abstract class ListFirstNode extends ExpressionNode {
 
   @Specialization(limit = "3")
-  protected Object doFirst(Object list, @CachedLibrary("list") ListLibrary lists) {
-    if (lists.size(list) == 0) {
+  protected Object doFirst(
+      Object list, @Cached ListNodes.SizeNode sizeNode, @Cached ListNodes.GetNode getNode) {
+    if (sizeNode.execute(list) == 0) {
       return NullObject.INSTANCE;
     }
-    return lists.get(list, 0);
+    return getNode.execute(list, 0);
   }
 }

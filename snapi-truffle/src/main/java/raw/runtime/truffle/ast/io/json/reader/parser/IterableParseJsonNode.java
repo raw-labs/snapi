@@ -18,14 +18,16 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
+import raw.runtime.truffle.runtime.list.ListNodesFactory;
 
 @NodeInfo(shortName = "IterableParseJson")
 public class IterableParseJsonNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
 
-  @Child private ListLibrary lists = ListLibrary.getFactory().createDispatched(1);
+  @Child
+  private ListNodes.ToIterableNode toIterableNode = ListNodesFactory.ToIterableNodeGen.create();
 
   public IterableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
@@ -35,6 +37,6 @@ public class IterableParseJsonNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
     Object list = this.childDirectCall.call(parser);
-    return lists.toIterable(list);
+    return toIterableNode.execute(list);
   }
 }

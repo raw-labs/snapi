@@ -18,7 +18,6 @@ import com.esotericsoftware.kryo.unsafe.UnsafeInput;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.FileInputStream;
@@ -41,7 +40,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaperNodes;
 import raw.runtime.truffle.runtime.generator.list.ListGenerator;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 public class GeneratorNodes {
@@ -250,9 +249,8 @@ public class GeneratorNodes {
     }
 
     @Specialization(limit = "3")
-    static Object next(
-        ListGenerator generator, @CachedLibrary("generator.getList()") ListLibrary lists) {
-      Object item = lists.get(generator.getList(), generator.getPosition());
+    static Object next(ListGenerator generator, @Cached ListNodes.GetNode getNode) {
+      Object item = getNode.execute(generator.getList(), generator.getPosition());
       generator.incrementPosition();
       return item;
     }
@@ -385,9 +383,8 @@ public class GeneratorNodes {
     }
 
     @Specialization(limit = "3")
-    static boolean hasNext(
-        ListGenerator generator, @CachedLibrary("generator.getList()") ListLibrary lists) {
-      return generator.getPosition() < lists.size(generator.getList());
+    static boolean hasNext(ListGenerator generator, @Cached ListNodes.SizeNode sizeNode) {
+      return generator.getPosition() < sizeNode.execute(generator.getList());
     }
   }
 

@@ -47,11 +47,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    byte[] values = new byte[(int) lists.size(list)];
+    byte[] values = new byte[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -74,11 +75,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    short[] values = new short[(int) lists.size(list)];
+    short[] values = new short[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -101,11 +103,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    int[] values = new int[(int) lists.size(list)];
+    int[] values = new int[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -128,11 +131,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    long[] values = new long[(int) lists.size(list)];
+    long[] values = new long[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -155,11 +159,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    float[] values = new float[(int) lists.size(list)];
+    float[] values = new float[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -182,11 +187,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    double[] values = new double[(int) lists.size(list)];
+    double[] values = new double[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -209,11 +215,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    boolean[] values = new boolean[(int) lists.size(list)];
+    boolean[] values = new boolean[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -236,11 +243,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    String[] values = new String[(int) lists.size(list)];
+    String[] values = new String[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);
@@ -261,11 +269,12 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached ListNodes.SizeNode sizeNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
-    Object[] values = new Object[(int) lists.size(list)];
+    Object[] values = new Object[(int) sizeNode.execute(list)];
     int cnt = 0;
     while (generatorHasNextNode.execute(generator)) {
       Object v = generatorNextNode.execute(generator);

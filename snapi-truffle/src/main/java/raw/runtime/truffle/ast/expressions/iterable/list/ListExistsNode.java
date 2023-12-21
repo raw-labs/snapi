@@ -25,7 +25,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @NodeInfo(shortName = "List.Exists")
@@ -42,9 +42,9 @@ public abstract class ListExistsNode extends ExpressionNode {
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-      @CachedLibrary("list") ListLibrary lists,
+      @Cached ListNodes.ToIterableNode toIterableNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
+    Object iterable = toIterableNode.execute(list);
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);

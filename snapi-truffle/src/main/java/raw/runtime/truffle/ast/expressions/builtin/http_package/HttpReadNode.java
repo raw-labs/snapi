@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.builtin.http_package;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -28,7 +29,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
@@ -53,7 +54,8 @@ public abstract class HttpReadNode extends ExpressionNode {
   protected Object doRead(
       LocationObject locationObject,
       Object statusListOption,
-      @CachedLibrary(limit = "1") ListLibrary lists,
+      @Cached ListNodes.SizeNode sizeNode,
+      @Cached ListNodes.GetNode getNode,
       @CachedLibrary(limit = "3") InteropLibrary records) {
     try {
       SourceContext context = RawContext.get(this).getSourceContext();
@@ -64,7 +66,10 @@ public abstract class HttpReadNode extends ExpressionNode {
       RecordObject record = RawLanguage.get(this).createRecord();
 
       if (Nullable.isNotNull(statusListOption)) {
-        int[] statuses = (int[]) lists.getInnerList(statusListOption);
+        int[] statuses = new int[(int) sizeNode.execute(statusListOption)];
+        for (int i = 0; i < statuses.length; i++) {
+          statuses[i] = (int) getNode.execute(statusListOption, i);
+        }
         if (Arrays.stream(statuses).noneMatch(status -> status == result.status())) {
           String method =
               locationObject

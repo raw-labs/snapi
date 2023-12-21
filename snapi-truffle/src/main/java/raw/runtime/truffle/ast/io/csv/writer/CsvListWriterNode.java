@@ -28,7 +28,8 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
+import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.list.ObjectList;
 
 public class CsvListWriterNode extends StatementNode {
@@ -37,7 +38,9 @@ public class CsvListWriterNode extends StatementNode {
 
   @Child private DirectCallNode itemWriter;
 
-  @Child private ListLibrary lists = ListLibrary.getFactory().createDispatched(3);
+  @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
+
+  @Child private ListNodes.GetNode getNode = ListNodesFactory.GetNodeGen.create();
 
   private final String[] columnNames;
   private final String lineSeparator;
@@ -55,9 +58,9 @@ public class CsvListWriterNode extends StatementNode {
     try (OutputStream os = RawContext.get(this).getOutput();
         CsvGenerator gen = createGenerator(os)) {
       ObjectList list = (ObjectList) dataNode.executeGeneric(frame);
-      long size = lists.size(list);
+      long size = sizeNode.execute(list);
       for (long i = 0; i < size; i++) {
-        Object item = lists.get(list, i);
+        Object item = getNode.execute(list, i);
         itemWriter.call(item, gen);
       }
     } catch (IOException e) {

@@ -34,7 +34,7 @@ import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
@@ -280,14 +280,15 @@ public class KryoNodes {
         Output output,
         Rql2TypeWithProperties type,
         Object o,
-        @Cached KryoWriteNode kryo,
-        @CachedLibrary("o") ListLibrary lists) {
-      output.writeInt((int) lists.size(o));
+        @Cached ListNodes.SizeNode sizeNode,
+        @Cached ListNodes.GetNode getNode,
+        @Cached KryoWriteNode kryo) {
+      int size = (int) sizeNode.execute(o);
+      output.writeInt(size);
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2ListType) type).innerType();
-      Object[] contents = (Object[]) lists.getInnerList(o);
-      for (Object content : contents) {
-        kryo.execute(output, elementType, content);
+      for (int i = 0; i < size; i++) {
+        kryo.execute(output, elementType, getNode.execute(o, i));
       }
     }
 

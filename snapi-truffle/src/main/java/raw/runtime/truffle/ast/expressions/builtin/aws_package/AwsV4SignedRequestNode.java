@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.builtin.aws_package;
 
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -36,7 +37,7 @@ import raw.client.api.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import scala.Tuple2;
@@ -125,8 +126,9 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       String bodyString,
       Object urlParams,
       Object headers,
-      @CachedLibrary(limit = "2") ListLibrary urlParamsLists,
-      @CachedLibrary(limit = "2") ListLibrary headersLists,
+      @Cached ListNodes.SortNode sortNode,
+      @Cached ListNodes.SizeNode sizeNode,
+      @Cached ListNodes.GetNode getNode,
       @CachedLibrary(limit = "2") InteropLibrary records) {
     try {
       Instant t = Instant.now();
@@ -138,27 +140,27 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       VectorBuilder<Tuple2<String, String>> urlParamsVec = new VectorBuilder<>();
       StringBuilder canonicalQueryBuilder = new StringBuilder();
 
-      Object urlParamsSorted = urlParamsLists.sort(urlParams);
+      Object urlParamsSorted = sortNode.execute(urlParams);
 
-      for (int i = 0; i < urlParamsLists.size(urlParamsSorted); i++) {
+      for (int i = 0; i < sizeNode.execute(urlParamsSorted); i++) {
         canonicalQueryBuilder
             .append(
                 URLEncoder.encode(
-                    (String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_1"),
+                    (String) records.readMember(getNode.execute(urlParamsSorted, i), "_1"),
                     StandardCharsets.UTF_8))
             .append("=")
             .append(
                 URLEncoder.encode(
-                    (String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_2"),
+                    (String) records.readMember(getNode.execute(urlParamsSorted, i), "_2"),
                     StandardCharsets.UTF_8))
             .append("&");
         urlParamsVec.$plus$eq(
             new Tuple2<>(
-                (String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_1"),
-                (String) records.readMember(urlParamsLists.get(urlParamsSorted, i), "_2")));
+                (String) records.readMember(getNode.execute(urlParamsSorted, i), "_1"),
+                (String) records.readMember(getNode.execute(urlParamsSorted, i), "_2")));
       }
       // remove last '&'
-      if (canonicalQueryBuilder.length() > 0) {
+      if (!canonicalQueryBuilder.isEmpty()) {
         canonicalQueryBuilder.deleteCharAt(canonicalQueryBuilder.length() - 1);
       }
 
@@ -173,19 +175,17 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       StringBuilder signedHeadersBuilder = new StringBuilder();
       VectorBuilder<Tuple2<String, String>> headersParamsVec = new VectorBuilder<>();
 
-      int headersSize = (int) headersLists.size(headers);
+      int headersSize = (int) sizeNode.execute(headers);
       // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is
       // defined
       int allHeadersSize = headersSize + 2;
-      if (!sessionToken.equals("")) allHeadersSize++;
+      if (!sessionToken.isEmpty()) allHeadersSize++;
 
       Object[] allHeaders = new Object[allHeadersSize];
-      System.arraycopy(
-          (Object[]) headersLists.getInnerList(headers),
-          0,
-          allHeaders,
-          0,
-          (int) headersLists.size(headers));
+
+      for (int i = 0; i < allHeaders.length; i++) {
+        allHeaders[i] = getNode.execute(headers, i);
+      }
 
       allHeaders[headersSize] = RawLanguage.get(this).createRecord();
       records.writeMember(allHeaders[headersSize], "_1", "host");
@@ -195,37 +195,37 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       records.writeMember(allHeaders[headersSize + 1], "_1", "x-amz-date");
       records.writeMember(allHeaders[headersSize + 1], "_2", amzdate);
 
-      if (!sessionToken.equals("")) {
+      if (!sessionToken.isEmpty()) {
         allHeaders[headersSize + 2] = RawLanguage.get(this).createRecord();
         records.writeMember(allHeaders[headersSize + 2], "_1", "x-amz-security-token");
         records.writeMember(allHeaders[headersSize + 2], "_2", sessionToken);
       }
 
-      Object sortedHeaders = headersLists.sort(new ObjectList(allHeaders));
+      Object sortedHeaders = sortNode.execute(new ObjectList(allHeaders));
 
-      for (int i = 0; i < headersLists.size(sortedHeaders); i++) {
+      for (int i = 0; i < sizeNode.execute(sortedHeaders); i++) {
         canonicalHeadersBuilder
             .append(
-                ((String) records.readMember(headersLists.get(sortedHeaders, i), "_1"))
+                ((String) records.readMember(getNode.execute(sortedHeaders, i), "_1"))
                     .toLowerCase())
             .append(":")
-            .append((String) records.readMember(headersLists.get(sortedHeaders, i), "_2"))
+            .append((String) records.readMember(getNode.execute(sortedHeaders, i), "_2"))
             .append("\n");
         signedHeadersBuilder
             .append(
-                ((String) records.readMember(headersLists.get(sortedHeaders, i), "_1"))
+                ((String) records.readMember(getNode.execute(sortedHeaders, i), "_1"))
                     .toLowerCase())
             .append(";");
       }
 
-      for (int i = 0; i < headersLists.size(headers); i++) {
+      for (int i = 0; i < sizeNode.execute(headers); i++) {
         headersParamsVec.$plus$eq(
             new Tuple2<>(
-                ((String) records.readMember(headersLists.get(headers, i), "_1")).toLowerCase(),
-                (String) records.readMember(headersLists.get(headers, i), "_2")));
+                ((String) records.readMember(getNode.execute(headers, i), "_1")).toLowerCase(),
+                (String) records.readMember(getNode.execute(headers, i), "_2")));
       }
 
-      if (signedHeadersBuilder.length() > 0) {
+      if (!signedHeadersBuilder.isEmpty()) {
         signedHeadersBuilder.deleteCharAt(signedHeadersBuilder.length() - 1);
       }
 
@@ -289,7 +289,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       VectorBuilder<Tuple2<String, String>> newHeaders = new VectorBuilder<>();
       newHeaders.$plus$eq(new Tuple2<>("x-amz-date", amzdate));
       newHeaders.$plus$eq(new Tuple2<>("Authorization", authorizationHeader));
-      if (!sessionToken.equals("")) {
+      if (!sessionToken.isEmpty()) {
         newHeaders.$plus$eq(new Tuple2<>("x-amz-security-token", sessionToken));
       }
 

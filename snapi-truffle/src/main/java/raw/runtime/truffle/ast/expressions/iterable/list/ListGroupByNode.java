@@ -33,7 +33,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
@@ -68,8 +68,8 @@ public abstract class ListGroupByNode extends ExpressionNode {
       @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
       @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode,
       @CachedLibrary("keyFun") InteropLibrary keyFunLib,
-      @CachedLibrary("input") ListLibrary lists) {
-    Object iterable = lists.toIterable(input);
+      @Cached ListNodes.ToIterableNode toIterableNode) {
+    Object iterable = toIterableNode.execute(input);
     SourceContext context = RawContext.get(this).getSourceContext();
     OffHeapGroupByKey map =
         new OffHeapGroupByKey(

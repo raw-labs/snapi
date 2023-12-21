@@ -28,7 +28,8 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
+import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
@@ -41,10 +42,11 @@ import scala.collection.immutable.VectorBuilder;
 public class LocationBuildNode extends ExpressionNode {
 
   private final String[] keys;
-
-  @Child ListLibrary listLibs = ListLibrary.getFactory().createDispatched(3);
-  @Child InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
+  @Child private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(3);
   @Child private ExpressionNode url;
+  @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
+
+  @Child private ListNodes.GetNode getNode = ListNodesFactory.GetNodeGen.create();
 
   @Children private final ExpressionNode[] values;
 
@@ -100,14 +102,16 @@ public class LocationBuildNode extends ExpressionNode {
         return new LocationDurationSetting(Duration.ofMillis(((IntervalObject) value).toMillis()));
       } else if (TypeGuards.isListKind(type)
           && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
-        ListLibrary lists = ListLibrary.getFactory().create(value);
-        int[] ints = (int[]) lists.getInnerList(value);
+        int[] ints = new int[(int) sizeNode.execute(value)];
+        for (int i = 0; i < ints.length; i++) {
+          ints[i] = (int) getNode.execute(value, i);
+        }
         return new LocationIntArraySetting(ints);
       } else if (TypeGuards.isListKind(type)) {
         VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
-        int size = (int) listLibs.size(value);
+        int size = (int) sizeNode.execute(value);
         for (int i = 0; i < size; i++) {
-          Object record = listLibs.get(value, i);
+          Object record = getNode.execute(value, i);
           Object keys = interops.getMembers(record);
           Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
           Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));
