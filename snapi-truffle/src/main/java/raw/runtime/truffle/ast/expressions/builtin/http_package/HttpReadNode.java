@@ -49,7 +49,7 @@ import scala.collection.IndexedSeq;
 @NodeChild(value = "statusList")
 public abstract class HttpReadNode extends ExpressionNode {
 
-  @Specialization(limit = "4")
+  @Specialization
   @TruffleBoundary
   protected Object doRead(
       LocationObject locationObject,

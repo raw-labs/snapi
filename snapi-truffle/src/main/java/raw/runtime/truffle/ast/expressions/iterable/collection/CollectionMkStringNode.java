@@ -29,7 +29,7 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeChild("sep")
 @NodeChild("end")
 public abstract class CollectionMkStringNode extends ExpressionNode {
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doCollection(
       Object iterable,
       String start,

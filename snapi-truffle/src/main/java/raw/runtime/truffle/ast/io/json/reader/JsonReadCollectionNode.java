@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.io.json.reader;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -22,7 +23,7 @@ import raw.runtime.truffle.runtime.iterable.sources.JsonReadCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.SourceContext;
 
-@NodeInfo(shortName = "Json.ReadArray")
+@NodeInfo(shortName = "Json.ReadCollection")
 public class JsonReadCollectionNode extends ExpressionNode {
   @Child private ExpressionNode locationExp;
 

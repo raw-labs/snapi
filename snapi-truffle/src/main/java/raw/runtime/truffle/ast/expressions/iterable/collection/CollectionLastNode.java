@@ -26,7 +26,7 @@ import raw.runtime.truffle.runtime.primitives.NullObject;
 @NodeInfo(shortName = "Collection.Last")
 @NodeChild("parent")
 public abstract class CollectionLastNode extends ExpressionNode {
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doObject(
       Object iterable,
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,

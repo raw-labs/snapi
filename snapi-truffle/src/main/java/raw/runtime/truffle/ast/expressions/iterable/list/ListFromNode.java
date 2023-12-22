@@ -32,16 +32,15 @@ public abstract class ListFromNode extends ExpressionNode {
 
   protected abstract Rql2Type getResultType();
 
-  @Specialization(
-      guards = {"isByteKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isByteKind(getResultType())"})
   protected Object doByte(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -61,16 +60,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isShortKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isShortKind(getResultType())"})
   protected Object doShort(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -90,16 +88,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isIntKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isIntKind(getResultType())"})
   protected Object doInt(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -119,16 +116,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isLongKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isLongKind(getResultType())"})
   protected Object doLong(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -148,16 +144,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isFloatKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isFloatKind(getResultType())"})
   protected Object doFloat(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -177,16 +172,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isDoubleKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected Object doDouble(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -206,16 +200,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isBooleanKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected Object doBoolean(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -235,16 +228,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isStringKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isStringKind(getResultType())"})
   protected Object doString(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);
@@ -264,14 +256,15 @@ public abstract class ListFromNode extends ExpressionNode {
     }
   }
 
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doObject(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextGeneratorNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+      @Cached @Cached.Shared("getGeneratorNode") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       initGeneratorNode.execute(generator);

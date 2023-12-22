@@ -28,18 +28,18 @@ import raw.runtime.truffle.runtime.list.*;
 @NodeField(name = "resultType", type = Rql2Type.class)
 public abstract class ListFromUnsafe extends ExpressionNode {
 
+  @Idempotent
   protected abstract Rql2Type getResultType();
 
-  @Specialization(
-      guards = {"isByteKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isByteKind(getResultType())"})
   protected ByteList doByte(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -57,16 +57,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isShortKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isShortKind(getResultType())"})
   protected ShortList doShort(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -84,16 +83,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isIntKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isIntKind(getResultType())"})
   protected IntList doInt(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -111,16 +109,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isLongKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isLongKind(getResultType())"})
   protected LongList doLong(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -138,16 +135,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isFloatKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isFloatKind(getResultType())"})
   protected FloatList doFloat(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -165,16 +161,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isDoubleKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected DoubleList doDouble(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -192,16 +187,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isBooleanKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected BooleanList doBoolean(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -219,16 +213,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(
-      guards = {"isStringKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isStringKind(getResultType())"})
   protected StringList doString(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);
@@ -246,14 +239,15 @@ public abstract class ListFromUnsafe extends ExpressionNode {
     }
   }
 
-  @Specialization(limit = "3")
+  @Specialization
   protected ObjectList doObject(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
     Object generator = getGeneratorNode.execute(iterable);
     try {
       generatorInitNode.execute(generator);

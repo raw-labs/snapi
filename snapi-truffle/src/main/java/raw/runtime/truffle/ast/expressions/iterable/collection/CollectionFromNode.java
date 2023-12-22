@@ -22,7 +22,7 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 @NodeInfo(shortName = "Collection.From")
 @NodeChild("iterable")
 public abstract class CollectionFromNode extends ExpressionNode {
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doFrom(Object list, @Cached ListNodes.ToIterableNode toIterableNode) {
     return toIterableNode.execute(list);
   }
