@@ -18,7 +18,7 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -82,7 +82,7 @@ public class CsvIterableWriterNode extends StatementNode {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private CsvGenerator createGenerator(OutputStream os) {
     try {
       CsvFactory factory = new CsvFactory();

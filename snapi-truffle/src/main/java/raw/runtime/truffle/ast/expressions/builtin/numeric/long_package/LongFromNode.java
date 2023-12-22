@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.numeric.long_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -60,7 +60,7 @@ public abstract class LongFromNode extends ExpressionNode {
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected Object fromString(String argument) {
     try {
       return Long.parseLong(argument);

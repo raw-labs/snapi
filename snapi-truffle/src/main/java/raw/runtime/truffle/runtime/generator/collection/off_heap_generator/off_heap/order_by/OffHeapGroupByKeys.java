@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.TreeMap;
@@ -71,7 +71,7 @@ public class OffHeapGroupByKeys {
     return 0;
   }
 
-  @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
+  @TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKeys(
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,

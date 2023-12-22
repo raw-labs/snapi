@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -78,7 +78,7 @@ public final class IntervalObject implements TruffleObject {
   //    new IntervalObject(0, millis);
   //  }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public IntervalObject(String interval) {
 
     Matcher matcher = pattern.matcher(interval);

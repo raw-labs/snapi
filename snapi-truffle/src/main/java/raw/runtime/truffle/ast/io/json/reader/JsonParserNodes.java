@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
@@ -63,7 +63,7 @@ public final class JsonParserNodes {
     public abstract JsonParser execute(Object value);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     JsonParser initParserFromString(String value, @Cached CloseJsonParserNode closeParser) {
       JsonParser parser = null;
       try {
@@ -81,7 +81,7 @@ public final class JsonParserNodes {
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     JsonParser initParserFromStream(
         TruffleCharInputStream stream, @Cached CloseJsonParserNode closeParser) {
       JsonParser parser = null;
@@ -108,7 +108,7 @@ public final class JsonParserNodes {
     public abstract void execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void closeParserSilently(JsonParser parser) {
       try {
         if (parser != null) {
@@ -128,7 +128,7 @@ public final class JsonParserNodes {
     public abstract void execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void nextToken(JsonParser parser) {
       try {
         parser.nextToken();
@@ -145,7 +145,7 @@ public final class JsonParserNodes {
     public abstract String execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     String getCurrentFieldName(JsonParser parser) {
       try {
         return parser.getCurrentName();
@@ -162,7 +162,7 @@ public final class JsonParserNodes {
     public abstract JsonToken execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     JsonToken getCurrentToken(JsonParser parser) {
       return parser.getCurrentToken();
     }
@@ -175,7 +175,7 @@ public final class JsonParserNodes {
     public abstract void execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void skip(JsonParser parser) {
       try {
         parser.skipChildren(); // finish reading lists and records children (do nothing if
@@ -196,7 +196,7 @@ public final class JsonParserNodes {
     public abstract BinaryObject execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     BinaryObject doParse(JsonParser parser) {
       try {
         String binary = parser.getText();
@@ -215,7 +215,7 @@ public final class JsonParserNodes {
     public abstract boolean execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     boolean doParse(JsonParser parser) {
       try {
         boolean v = parser.getBooleanValue();
@@ -234,7 +234,7 @@ public final class JsonParserNodes {
     public abstract byte execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     byte doParse(JsonParser parser) {
       try {
         byte v = parser.getByteValue();
@@ -253,7 +253,7 @@ public final class JsonParserNodes {
     public abstract DateObject execute(JsonParser parser, String format);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     DateObject doParse(JsonParser parser, String format) {
       try {
         String text = parser.getText();
@@ -273,7 +273,7 @@ public final class JsonParserNodes {
     public abstract DecimalObject execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     DecimalObject doParse(JsonParser parser) {
       try {
         BigDecimal v = parser.getDecimalValue();
@@ -292,7 +292,7 @@ public final class JsonParserNodes {
     public abstract double execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     double doParse(JsonParser parser) {
       try {
         double v = parser.getDoubleValue();
@@ -311,7 +311,7 @@ public final class JsonParserNodes {
     public abstract float execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     float doParse(JsonParser parser) {
       try {
         float v = parser.getFloatValue();
@@ -330,7 +330,7 @@ public final class JsonParserNodes {
     public abstract IntervalObject execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     IntervalObject doParse(JsonParser parser) {
       try {
         String text = parser.getText();
@@ -350,7 +350,7 @@ public final class JsonParserNodes {
     public abstract int execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     int doParse(JsonParser parser) {
       try {
         int v = parser.getIntValue();
@@ -369,7 +369,7 @@ public final class JsonParserNodes {
     public abstract long execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     long doParse(JsonParser parser) {
       try {
         long v = parser.getLongValue();
@@ -388,7 +388,7 @@ public final class JsonParserNodes {
     public abstract short execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     short doParse(JsonParser parser) {
       try {
         short v = parser.getShortValue();
@@ -407,7 +407,7 @@ public final class JsonParserNodes {
     public abstract String execute(JsonParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     String doParse(JsonParser parser) {
       try {
         if (!parser.currentToken().isScalarValue()) {
@@ -430,7 +430,7 @@ public final class JsonParserNodes {
     public abstract TimeObject execute(JsonParser parser, String format);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     TimeObject doParse(JsonParser parser, String format) {
       try {
         String text = parser.getText();
@@ -450,7 +450,7 @@ public final class JsonParserNodes {
     public abstract TimestampObject execute(JsonParser parser, String format);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     TimestampObject doParse(JsonParser parser, String format) {
       try {
         String text = parser.getText();
@@ -470,19 +470,19 @@ public final class JsonParserNodes {
 
     public abstract Object execute(JsonParser parser);
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isArray(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.START_ARRAY;
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isObject(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.START_OBJECT;
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isString(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.VALUE_STRING;
@@ -492,13 +492,13 @@ public final class JsonParserNodes {
       return false;
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isBoolean(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token.isBoolean();
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isInt(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -508,7 +508,7 @@ public final class JsonParserNodes {
       }
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isLong(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -518,7 +518,7 @@ public final class JsonParserNodes {
       }
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isFloat(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -528,7 +528,7 @@ public final class JsonParserNodes {
       }
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isDouble(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -538,7 +538,7 @@ public final class JsonParserNodes {
       }
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isDecimal(JsonParser parser) {
       try {
         JsonToken token = parser.getCurrentToken();
@@ -548,7 +548,7 @@ public final class JsonParserNodes {
       }
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     public boolean isNull(JsonParser parser) {
       JsonToken token = parser.getCurrentToken();
       return token == JsonToken.VALUE_NULL;

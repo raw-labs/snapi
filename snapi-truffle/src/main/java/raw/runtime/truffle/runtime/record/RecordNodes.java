@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.record;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -82,7 +82,6 @@ public class RecordNodes {
 
     public abstract void execute(RecordObject record, String key, Object value);
 
-    @CompilerDirectives.TruffleBoundary
     @Specialization(limit = "3")
     void exec(
         RecordObject record,
@@ -93,8 +92,13 @@ public class RecordNodes {
           record.values,
           record.keys.size(),
           value); // "key" to use in the dynamic object is the current index.
-      record.keys.add(key); // the original key is added (possible duplicate)
+      addKey(record, key); // the original key is added (possible duplicate)
       record.invalidateDistinctKeys();
+    }
+
+    @TruffleBoundary
+    private static void addKey(RecordObject record, String key) {
+      record.keys.add(key);
     }
   }
 }

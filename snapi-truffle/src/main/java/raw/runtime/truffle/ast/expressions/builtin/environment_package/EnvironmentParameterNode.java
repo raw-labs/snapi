@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.environment_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
@@ -109,7 +109,7 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   }
 
   @Specialization(guards = {"isIntervalKind(getParamType())"})
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected IntervalObject getInterval(String key) {
     return (IntervalObject) getParam(key);
   }

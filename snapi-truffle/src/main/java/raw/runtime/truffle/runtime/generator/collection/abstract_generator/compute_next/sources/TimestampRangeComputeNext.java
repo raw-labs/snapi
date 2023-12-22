@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.time.LocalDateTime;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
@@ -40,7 +40,7 @@ public class TimestampRangeComputeNext {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private void addTime() {
     current =
         current

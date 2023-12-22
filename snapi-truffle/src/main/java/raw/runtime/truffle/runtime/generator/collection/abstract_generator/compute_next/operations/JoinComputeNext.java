@@ -13,7 +13,7 @@
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
 import com.esotericsoftware.kryo.io.Input;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
@@ -39,7 +39,7 @@ public class JoinComputeNext {
 
   private final RawLanguage language;
 
-  @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
+  @TruffleBoundary // Needed because of SourceContext
   public JoinComputeNext(
       Object leftIterable,
       Object rightIterable,

@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.TreeSet;
@@ -42,7 +42,7 @@ public class OffHeapDistinct {
 
   private final RawLanguage language;
 
-  @CompilerDirectives.TruffleBoundary // Needed because of SourceContext
+  @TruffleBoundary // Needed because of SourceContext
   public OffHeapDistinct(Rql2TypeWithProperties vType, RawLanguage rl, SourceContext context) {
     this.index = new TreeSet<>(OperatorNodesFactory.CompareNodeGen.getUncached()::execute);
     this.itemType = vType;

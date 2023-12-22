@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -36,7 +35,6 @@ public abstract class RecordConcatNode extends ExpressionNode {
 
   @Specialization
   @ExplodeLoop
-  @CompilerDirectives.TruffleBoundary
   protected Object doConcat(Object rec1, Object rec2) {
     RecordObject newRecord = RawLanguage.get(this).createRecord();
     RecordObject record1 = (RecordObject) rec1;

@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.time_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -26,7 +26,7 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 @NodeChild("time2")
 public abstract class TimeSubtractNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected IntervalObject getYear(TimeObject time1, TimeObject time2) {
     LocalTime localTime1 = time1.getTime();
     LocalTime localTime2 = time2.getTime();

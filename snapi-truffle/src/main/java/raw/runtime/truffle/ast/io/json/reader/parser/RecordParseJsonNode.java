@@ -14,10 +14,8 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
@@ -89,7 +87,6 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
   }
 
-  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
@@ -103,7 +100,18 @@ public class RecordParseJsonNode extends ExpressionNode {
 
     RecordObject record = RawLanguage.get(this).createRecord();
 
-    executeWhile(parser, currentBitSet, record);
+    while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
+      String fieldName = currentFieldNode.execute(parser);
+      Integer index = fieldNamesMap.get(fieldName);
+      nextTokenNode.execute(parser); // skip the field name
+      if (index != null) {
+        bitSetSet.execute(currentBitSet, index);
+        writeIndexNode.execute(record, index, fieldName, childDirectCalls[index].call(parser));
+      } else {
+        // skip the field value
+        skipNode.execute(parser);
+      }
+    }
 
     nextTokenNode.execute(parser); // skip the END_OBJECT token
 
@@ -126,21 +134,5 @@ public class RecordParseJsonNode extends ExpressionNode {
       }
     }
     return record;
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private void executeWhile(JsonParser parser, BitSet currentBitSet, RecordObject record) {
-    while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
-      String fieldName = currentFieldNode.execute(parser);
-      Integer index = fieldNamesMap.get(fieldName);
-      nextTokenNode.execute(parser); // skip the field name
-      if (index != null) {
-        bitSetSet.execute(currentBitSet, index);
-        writeIndexNode.execute(record, index, fieldName, childDirectCalls[index].call(parser));
-      } else {
-        // skip the field value
-        skipNode.execute(parser);
-      }
-    }
   }
 }

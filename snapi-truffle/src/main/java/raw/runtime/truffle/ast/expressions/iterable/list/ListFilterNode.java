@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -21,7 +20,6 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
-import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -37,8 +35,7 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 public abstract class ListFilterNode extends ExpressionNode {
 
   @Specialization(limit = "3")
-  @CompilerDirectives.TruffleBoundary
-  protected RawArrayList doByte(
+  protected RawArrayList doFilter(
       Object list,
       Object closure,
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,

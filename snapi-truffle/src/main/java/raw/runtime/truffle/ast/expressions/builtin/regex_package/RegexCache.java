@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.regex_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.util.HashMap;
 import java.util.regex.Pattern;
 
@@ -20,7 +20,7 @@ import java.util.regex.Pattern;
 public class RegexCache {
   private static final ThreadLocal<HashMap<String, Pattern>> regexCache = new ThreadLocal<>();
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private static HashMap<String, Pattern> getMap() {
     if (regexCache.get() == null) {
       regexCache.set(new HashMap<>());
@@ -30,7 +30,7 @@ public class RegexCache {
 
   private RegexCache() {}
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public static Pattern get(String s) {
     HashMap<String, Pattern> map = getMap();
     if (map.containsKey(s)) return map.get(s);

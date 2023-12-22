@@ -15,7 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection.abstract_generator.comp
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.core.JsonToken;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
@@ -427,7 +427,7 @@ public class ComputeNextNodes {
       return joinedRow;
     }
 
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     private static Input createInput(File file) {
       try {
         return new Input(new FileInputStream(file));

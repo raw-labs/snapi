@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.io.csv.reader;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
@@ -30,7 +29,6 @@ public class CsvParserNodes {
     public abstract RawTruffleCsvParser execute(Object value, RawTruffleCsvParserSettings settings);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
     RawTruffleCsvParser initParserFromStream(
         RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
       return new RawTruffleCsvParser(stream, settings);
@@ -44,7 +42,6 @@ public class CsvParserNodes {
     public abstract void execute(RawTruffleCsvParser parser);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
     void closeParserSilently(RawTruffleCsvParser parser) {
       if (parser != null) {
         parser.close();

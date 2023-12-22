@@ -15,7 +15,7 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -93,7 +93,7 @@ public class OrParseJsonNode extends ExpressionNode {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private String getFromMapper(ObjectMapper mapper, JsonParser parser) throws IOException {
     return mapper.readValue(parser, JsonNode.class).toPrettyString();
   }

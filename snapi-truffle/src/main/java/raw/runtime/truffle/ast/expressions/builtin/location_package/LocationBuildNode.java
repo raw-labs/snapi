@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
@@ -74,14 +74,14 @@ public class LocationBuildNode extends ExpressionNode {
     return new LocationObject(url, map);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private Map<LocationSettingKey, LocationSettingValue> addToMap(
       Map<LocationSettingKey, LocationSettingValue> map, String key, Object value, int index) {
     return map.$plus(
         Tuple2.apply(new LocationSettingKey(key), buildLocationSettingValue(value, types[index])));
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private LocationSettingValue buildLocationSettingValue(
       Object value, Rql2TypeWithProperties type) {
     try {

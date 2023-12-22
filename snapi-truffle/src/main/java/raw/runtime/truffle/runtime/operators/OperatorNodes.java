@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.operators;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.ImportStatic;
@@ -46,61 +46,56 @@ public class OperatorNodes {
     public abstract int execute(Object obj1, Object obj2);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
     static int doBoolean(boolean left, boolean right) {
       return Boolean.compare(left, right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
     static int doByte(byte left, byte right) {
       return Byte.compare(left, right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
     static int doShort(short left, short right) {
       return Short.compare(left, right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
     static int doInt(int left, int right) {
       return Integer.compare(left, right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
     static int doLong(long left, long right) {
       return Long.compare(left, right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doFloat(float left, float right) {
       return Float.compare(left, right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doDouble(double left, double right) {
       return Double.compare(left, right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doDecimal(DecimalObject left, DecimalObject right) {
       return left.getBigDecimal().compareTo(right.getBigDecimal());
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doString(String left, String right) {
       return left.compareTo(right);
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doDate(DateObject left, DateObject right) {
       LocalDate leftDate = left.getDate();
       LocalDate rightDate = right.getDate();
@@ -114,7 +109,7 @@ public class OperatorNodes {
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doTimestamp(TimestampObject left, TimestampObject right) {
       LocalDateTime leftDate = left.getTimestamp();
       LocalDateTime rightDate = right.getTimestamp();
@@ -128,7 +123,7 @@ public class OperatorNodes {
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doTime(TimeObject left, TimeObject right) {
       LocalTime leftTime = left.getTime();
       LocalTime rightTime = right.getTime();
@@ -142,7 +137,7 @@ public class OperatorNodes {
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static int doInterval(IntervalObject left, IntervalObject right) {
       return left.compareTo(right);
     }
@@ -286,14 +281,14 @@ public class OperatorNodes {
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     static DecimalObject doDecimal(DecimalObject left, DecimalObject right) {
       return new DecimalObject(left.getBigDecimal().add(right.getBigDecimal()));
     }
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    static Object doString(String left, String right) {
+    @TruffleBoundary
+    static String doString(String left, String right) {
       return left.concat(right);
     }
 

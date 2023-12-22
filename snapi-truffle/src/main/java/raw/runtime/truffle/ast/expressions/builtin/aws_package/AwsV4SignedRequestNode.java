@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.aws_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -59,7 +59,7 @@ import scala.collection.immutable.VectorBuilder;
 @NodeChild("headers")
 public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private byte[] hmacSHA256(String data, byte[] key) {
     try {
       String algorithm = "HmacSHA256";
@@ -80,7 +80,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     return hmacSHA256("aws4_request", kService);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private String toHexString(byte[] bytes) {
     StringBuilder hexString = new StringBuilder();
     String hex;
@@ -93,17 +93,17 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
   }
 
   // Amazon needs timestamps for signing requests with specific formats.
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private DateTimeFormatter formatterWithTimeZone() {
     return DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmssX").withZone(ZoneId.from(ZoneOffset.UTC));
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private DateTimeFormatter getDateFormatter() {
     return DateTimeFormatter.ofPattern("yyyyMMdd").withZone(ZoneId.from(ZoneOffset.UTC));
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private MessageDigest getSha256Digest() {
     try {
       return MessageDigest.getInstance("SHA-256");
@@ -112,7 +112,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   @Specialization(limit = "2")
   protected LocationObject doRequest(
       String key,

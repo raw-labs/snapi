@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -38,7 +38,7 @@ public abstract class IntervalParseNode extends ExpressionNode {
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public Object parse(String format) {
     try {
       BoundaryNodes.ParseIntNode parseIntNode = BoundaryNodesFactory.ParseIntNodeGen.getUncached();

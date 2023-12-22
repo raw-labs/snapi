@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.ImportStatic;
@@ -51,7 +51,7 @@ public final class JsonWriteNodes {
     public abstract JsonGenerator execute(OutputStream os);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     JsonGenerator createGenerator(OutputStream os) {
       try {
         JsonFactory jsonFactory = new JsonFactory();
@@ -70,7 +70,7 @@ public final class JsonWriteNodes {
     public abstract void execute(JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeStartArray(JsonGenerator gen) {
       try {
         gen.writeStartArray();
@@ -87,7 +87,7 @@ public final class JsonWriteNodes {
     public abstract void execute(JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeStartArray(JsonGenerator gen) {
       try {
         gen.writeEndArray();
@@ -104,7 +104,7 @@ public final class JsonWriteNodes {
     public abstract void execute(JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeStartObject(JsonGenerator gen) {
       try {
         gen.writeStartObject();
@@ -121,7 +121,7 @@ public final class JsonWriteNodes {
     public abstract void execute(JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeStartObject(JsonGenerator gen) {
       try {
         gen.writeEndObject();
@@ -138,7 +138,7 @@ public final class JsonWriteNodes {
     public abstract void execute(String fieldName, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeField(String fieldName, JsonGenerator gen) {
       try {
         gen.writeFieldName(fieldName);
@@ -155,7 +155,7 @@ public final class JsonWriteNodes {
     public abstract void execute(BinaryObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(BinaryObject value, JsonGenerator gen) {
       try {
         String result = Base64.getEncoder().encodeToString(value.getBytes());
@@ -173,7 +173,7 @@ public final class JsonWriteNodes {
     public abstract void execute(boolean value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(boolean value, JsonGenerator gen) {
       try {
         gen.writeBoolean(value);
@@ -190,7 +190,7 @@ public final class JsonWriteNodes {
     public abstract void execute(byte value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(byte value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
@@ -207,7 +207,7 @@ public final class JsonWriteNodes {
     public abstract void execute(DateObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(DateObject value, JsonGenerator gen) {
       try {
         gen.writeString(value.getDate().toString());
@@ -224,7 +224,7 @@ public final class JsonWriteNodes {
     public abstract void execute(DecimalObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(DecimalObject value, JsonGenerator gen) {
       try {
         gen.writeNumber(value.getBigDecimal());
@@ -241,7 +241,7 @@ public final class JsonWriteNodes {
     public abstract void execute(double value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(double value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
@@ -258,7 +258,7 @@ public final class JsonWriteNodes {
     public abstract void execute(float value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(float value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
@@ -275,7 +275,7 @@ public final class JsonWriteNodes {
     public abstract void execute(IntervalObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(IntervalObject value, JsonGenerator gen) {
       try {
         gen.writeString(value.toString());
@@ -292,7 +292,7 @@ public final class JsonWriteNodes {
     public abstract void execute(int value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(int value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
@@ -309,7 +309,7 @@ public final class JsonWriteNodes {
     public abstract void execute(long value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(long value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
@@ -326,7 +326,7 @@ public final class JsonWriteNodes {
     public abstract void execute(JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeNull(JsonGenerator gen) {
       try {
         gen.writeNull();
@@ -343,7 +343,7 @@ public final class JsonWriteNodes {
     public abstract void execute(short value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(short value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
@@ -360,7 +360,7 @@ public final class JsonWriteNodes {
     public abstract void execute(String value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(String value, JsonGenerator gen) {
       try {
         gen.writeString(value);
@@ -380,7 +380,7 @@ public final class JsonWriteNodes {
     public abstract void execute(TimestampObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(TimestampObject value, JsonGenerator gen) {
       try {
         LocalDateTime ts = value.getTimestamp();
@@ -404,7 +404,7 @@ public final class JsonWriteNodes {
     public abstract void execute(TimeObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void doWrite(TimeObject value, JsonGenerator gen) {
       try {
         LocalTime ts = value.getTime();

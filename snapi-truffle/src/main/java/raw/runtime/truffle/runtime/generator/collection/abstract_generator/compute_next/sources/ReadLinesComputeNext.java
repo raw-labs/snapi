@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.BufferedReader;
 import java.io.IOException;
 import org.apache.commons.io.IOUtils;
@@ -47,7 +47,7 @@ public class ReadLinesComputeNext {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private String readLine() {
     try {
       return this.reader.readLine();

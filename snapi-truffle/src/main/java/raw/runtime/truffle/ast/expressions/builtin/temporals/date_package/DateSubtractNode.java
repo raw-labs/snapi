@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -26,7 +25,6 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeChild("date2")
 public abstract class DateSubtractNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
   protected IntervalObject getYear(DateObject date1, DateObject date2) {
     LocalDate localDate1 = date1.getDate();
     LocalDate localDate2 = date2.getDate();
