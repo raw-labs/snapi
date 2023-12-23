@@ -20,7 +20,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Concat")
