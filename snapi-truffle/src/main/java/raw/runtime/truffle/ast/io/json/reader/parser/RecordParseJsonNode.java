@@ -14,6 +14,7 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -87,6 +88,16 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
+  private Integer getFieldNameIndex(String fieldName) {
+    return fieldNamesMap.get(fieldName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private Object callChild(int index, JsonParser parser) {
+    return childDirectCalls[index].call(parser);
+  }
+
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
@@ -100,13 +111,15 @@ public class RecordParseJsonNode extends ExpressionNode {
 
     RecordObject record = RawLanguage.get(this).createRecord();
 
+    // todo: (az) need to find a solution for the array of direct calls,
+    // the json object can be out of order, the child nodes cannot be inlined
     while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
       String fieldName = currentFieldNode.execute(parser);
-      Integer index = fieldNamesMap.get(fieldName);
+      Integer index = this.getFieldNameIndex(fieldName);
       nextTokenNode.execute(parser); // skip the field name
       if (index != null) {
         bitSetSet.execute(currentBitSet, index);
-        writeIndexNode.execute(record, index, fieldName, childDirectCalls[index].call(parser));
+        writeIndexNode.execute(record, index, fieldName, callChild(index, parser));
       } else {
         // skip the field value
         skipNode.execute(parser);
