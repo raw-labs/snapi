@@ -13,10 +13,7 @@
 package raw.runtime.truffle.ast.expressions.builtin.environment_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
@@ -34,6 +31,7 @@ import raw.runtime.truffle.runtime.primitives.*;
 @NodeField(name = "paramType", type = Rql2Type.class)
 public abstract class EnvironmentParameterNode extends ExpressionNode {
 
+  @Idempotent
   protected abstract Rql2Type getParamType();
 
   @Child private InteropLibrary bindings = insert(InteropLibrary.getFactory().createDispatched(1));

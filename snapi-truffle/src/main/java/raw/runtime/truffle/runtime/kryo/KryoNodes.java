@@ -14,10 +14,7 @@ package raw.runtime.truffle.runtime.kryo;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
@@ -52,7 +49,10 @@ public class KryoNodes {
 
     @Specialization(guards = {"isTryable(t)"})
     static Object doTryable(
-        RawLanguage language, Input input, Rql2TypeWithProperties t, @Cached KryoReadNode kryo) {
+        RawLanguage language,
+        Input input,
+        Rql2TypeWithProperties t,
+        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
       boolean isSuccess = input.readBoolean();
       if (isSuccess) {
         Rql2TypeWithProperties successType =
@@ -66,7 +66,10 @@ public class KryoNodes {
 
     @Specialization(guards = {"isNullable(t)"})
     static Object doNullable(
-        RawLanguage language, Input input, Rql2TypeWithProperties t, @Cached KryoReadNode kryo) {
+        RawLanguage language,
+        Input input,
+        Rql2TypeWithProperties t,
+        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
       boolean isDefined = input.readBoolean();
       if (isDefined) {
         Rql2TypeWithProperties innerType =
@@ -79,7 +82,10 @@ public class KryoNodes {
 
     @Specialization(guards = {"isListKind(t)"})
     static ObjectList doList(
-        RawLanguage language, Input input, Rql2TypeWithProperties t, @Cached KryoReadNode kryo) {
+        RawLanguage language,
+        Input input,
+        Rql2TypeWithProperties t,
+        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
       Rql2ListType listType = (Rql2ListType) t;
       Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) listType.innerType();
       int size = input.readInt();
@@ -92,7 +98,10 @@ public class KryoNodes {
 
     @Specialization(guards = {"isIterableKind(t)"})
     static Object doIterable(
-        RawLanguage language, Input input, Rql2TypeWithProperties t, @Cached KryoReadNode kryo) {
+        RawLanguage language,
+        Input input,
+        Rql2TypeWithProperties t,
+        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
       Rql2IterableType iterableType = (Rql2IterableType) t;
       Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) iterableType.innerType();
       int size = input.readInt();
@@ -108,7 +117,7 @@ public class KryoNodes {
         RawLanguage language,
         Input input,
         Rql2TypeWithProperties t,
-        @Cached KryoReadNode kryo,
+        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo,
         @CachedLibrary(limit = "2") InteropLibrary records) {
       Rql2RecordType recordType = (Rql2RecordType) t;
       RecordObject record = language.createRecord();
@@ -238,14 +247,12 @@ public class KryoNodes {
 
     public abstract void execute(Output output, Rql2TypeWithProperties type, Object maybeTryable);
 
-    @Specialization(
-        guards = {"isTryable(type)"},
-        limit = "1")
+    @Specialization(guards = "isTryable(type)")
     static void doTryable(
         Output output,
         Rql2TypeWithProperties type,
         Object maybeTryable,
-        @Cached KryoWriteNode kryo) {
+        @Cached @Cached.Shared("kryo") KryoWriteNode kryo) {
       boolean isSuccess = Tryable.isSuccess(maybeTryable);
       output.writeBoolean(isSuccess);
       if (isSuccess) {
@@ -257,14 +264,12 @@ public class KryoNodes {
       }
     }
 
-    @Specialization(
-        guards = {"isNullable(type)"},
-        limit = "1")
+    @Specialization(guards = "isNullable(type)")
     static void doNullable(
         Output output,
         Rql2TypeWithProperties type,
         Object maybeOption,
-        @Cached KryoWriteNode kryo) {
+        @Cached @Cached.Shared("kryo") KryoWriteNode kryo) {
       boolean isDefined = Nullable.isNotNull(maybeOption);
       output.writeBoolean(isDefined);
       if (isDefined) {
@@ -273,16 +278,14 @@ public class KryoNodes {
       }
     }
 
-    @Specialization(
-        guards = {"isListKind(type)"},
-        limit = "1")
+    @Specialization(guards = "isListKind(type)")
     static void doList(
         Output output,
         Rql2TypeWithProperties type,
         Object o,
         @Cached ListNodes.SizeNode sizeNode,
         @Cached ListNodes.GetNode getNode,
-        @Cached KryoWriteNode kryo) {
+        @Cached @Cached.Shared("kryo") KryoWriteNode kryo) {
       int size = (int) sizeNode.execute(o);
       output.writeInt(size);
       Rql2TypeWithProperties elementType =
@@ -292,9 +295,7 @@ public class KryoNodes {
       }
     }
 
-    @Specialization(
-        guards = {"isIterableKind(type)"},
-        limit = "1")
+    @Specialization(guards = "isIterableKind(type)")
     static void doIterable(
         Output output,
         Rql2TypeWithProperties type,
@@ -303,7 +304,7 @@ public class KryoNodes {
         @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
         @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
         @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-        @Cached KryoWriteNode kryo,
+        @Cached @Cached.Shared("kryo") KryoWriteNode kryo,
         @Cached IterableNodes.GetGeneratorNode iterators) {
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType();
@@ -328,7 +329,7 @@ public class KryoNodes {
         Output output,
         Rql2RecordType type,
         Object o,
-        @Cached KryoWriteNode kryo,
+        @Cached @Cached.Shared("kryo") KryoWriteNode kryo,
         @CachedLibrary("o") InteropLibrary recordLibrary,
         @CachedLibrary(limit = "2") InteropLibrary arrayLibrary) {
       try {

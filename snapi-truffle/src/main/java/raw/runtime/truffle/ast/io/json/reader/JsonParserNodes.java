@@ -19,10 +19,7 @@ import com.fasterxml.jackson.core.json.JsonReadFeature;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLogger;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -64,7 +61,8 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    JsonParser initParserFromString(String value, @Cached CloseJsonParserNode closeParser) {
+    JsonParser initParserFromString(
+        String value, @Cached @Cached.Shared("closeParser") CloseJsonParserNode closeParser) {
       JsonParser parser = null;
       try {
         JsonFactory jsonFactory = new JsonFactory();
@@ -83,7 +81,8 @@ public final class JsonParserNodes {
     @Specialization
     @TruffleBoundary
     JsonParser initParserFromStream(
-        TruffleCharInputStream stream, @Cached CloseJsonParserNode closeParser) {
+        TruffleCharInputStream stream,
+        @Cached @Cached.Shared("closeParser") CloseJsonParserNode closeParser) {
       JsonParser parser = null;
       try {
         JsonFactory jsonFactory = new JsonFactory();
@@ -557,9 +556,10 @@ public final class JsonParserNodes {
     @Specialization(guards = {"isArray(parser)"})
     protected ObjectList doParseList(
         JsonParser parser,
-        @Cached("create()") ParseAnyJsonParserNode parse,
-        @Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken) {
+        @Cached @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
+        @Cached @Cached.Shared("currentToken")
+            JsonParserNodes.CurrentTokenJsonParserNode currentToken,
+        @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken) {
       if (currentToken.execute(parser) != JsonToken.START_ARRAY) {
         throw new JsonUnexpectedTokenException(
             JsonToken.START_ARRAY.asString(), currentToken.execute(parser).toString(), this);
@@ -584,9 +584,10 @@ public final class JsonParserNodes {
     @Specialization(guards = {"isObject(parser)"})
     protected RecordObject doParse(
         JsonParser parser,
-        @Cached("create()") ParseAnyJsonParserNode parse,
-        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken,
-        @Cached JsonParserNodes.CurrentTokenJsonParserNode currentToken,
+        @Cached @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
+        @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken,
+        @Cached @Cached.Shared("currentToken")
+            JsonParserNodes.CurrentTokenJsonParserNode currentToken,
         @Cached JsonParserNodes.CurrentFieldJsonParserNode currentField,
         @CachedLibrary(limit = "3") InteropLibrary records) {
       if (currentToken.execute(parser) != JsonToken.START_OBJECT) {

@@ -18,10 +18,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
@@ -428,9 +425,9 @@ public final class JsonWriteNodes {
     protected void doWriteList(
         ObjectList list,
         JsonGenerator gen,
-        @Cached("create()") WriteStartArrayJsonWriterNode startArray,
-        @Cached("create()") WriteEndArrayJsonWriterNode endArray,
-        @Cached("create()") WriteAnyJsonParserNode writeAny) {
+        @Cached WriteStartArrayJsonWriterNode startArray,
+        @Cached WriteEndArrayJsonWriterNode endArray,
+        @Cached @Cached.Shared("writeAny") WriteAnyJsonParserNode writeAny) {
       Object[] objList = list.getInnerList();
 
       startArray.execute(gen);
@@ -444,10 +441,10 @@ public final class JsonWriteNodes {
     protected void doWriteRecord(
         RecordObject record,
         JsonGenerator gen,
-        @Cached("create()") WriteAnyJsonParserNode writeAny,
-        @Cached("create()") WriteFieldNameJsonWriterNode writeField,
-        @Cached("create()") WriteStartObjectJsonWriterNode startObject,
-        @Cached("create()") WriteEndObjectJsonWriterNode endObject,
+        @Cached @Cached.Shared("writeAny") WriteAnyJsonParserNode writeAny,
+        @Cached WriteFieldNameJsonWriterNode writeField,
+        @Cached WriteStartObjectJsonWriterNode startObject,
+        @Cached WriteEndObjectJsonWriterNode endObject,
         @CachedLibrary(limit = "3") InteropLibrary interops) {
       try {
         Object keys = interops.getMembers(record);

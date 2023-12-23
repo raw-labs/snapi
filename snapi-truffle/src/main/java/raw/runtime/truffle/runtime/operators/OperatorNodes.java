@@ -13,10 +13,7 @@
 package raw.runtime.truffle.runtime.operators;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
@@ -146,7 +143,7 @@ public class OperatorNodes {
     static int doRecord(
         RecordObject left,
         RecordObject right,
-        @Cached CompareNode compare,
+        @Cached @Cached.Shared("compare") CompareNode compare,
         @CachedLibrary("left") InteropLibrary lefts,
         @CachedLibrary(limit = "3") InteropLibrary arrays,
         @CachedLibrary("right") InteropLibrary rights) {
@@ -211,12 +208,11 @@ public class OperatorNodes {
       }
     }
 
-    @Specialization(limit = "3")
-    //            guards = {"lefts.isIterable(left)", "rights.isIterable(right)"})
+    @Specialization
     static int doIterable(
         Object left,
         Object right,
-        @Cached CompareNode compare,
+        @Cached @Cached.Shared("compare") CompareNode compare,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNodeRight,
         @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeLeft,

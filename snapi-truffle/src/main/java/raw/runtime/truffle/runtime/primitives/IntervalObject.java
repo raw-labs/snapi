@@ -242,7 +242,7 @@ public final class IntervalObject implements TruffleObject {
       result += (days + "D");
     }
 
-    if (!time.equals("")) {
+    if (!time.isEmpty()) {
       result += ("T" + time);
     }
     return result;
