@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.kryo;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.io.Output;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
@@ -48,6 +49,7 @@ public class KryoNodes {
     public abstract Object execute(RawLanguage language, Input input, Rql2TypeWithProperties t);
 
     @Specialization(guards = {"isTryable(t)"})
+    @CompilerDirectives.TruffleBoundary
     static Object doTryable(
         RawLanguage language,
         Input input,
@@ -65,6 +67,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isNullable(t)"})
+    @CompilerDirectives.TruffleBoundary
     static Object doNullable(
         RawLanguage language,
         Input input,
@@ -81,6 +84,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isListKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static ObjectList doList(
         RawLanguage language,
         Input input,
@@ -97,6 +101,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isIterableKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static Object doIterable(
         RawLanguage language,
         Input input,
@@ -113,6 +118,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isRecordKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static RecordObject doRecord(
         RawLanguage language,
         Input input,
@@ -140,6 +146,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isIntervalKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static IntervalObject doInterval(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int years = input.readInt();
       int months = input.readInt();
@@ -153,6 +160,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isTimeKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static TimeObject doTime(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int hours = input.readInt();
       int minutes = input.readInt();
@@ -163,6 +171,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isDateKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static DateObject doDate(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int year = input.readInt();
       int month = input.readInt();
@@ -171,6 +180,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isTimestampKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static TimestampObject doTimestamp(
         RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int year = input.readInt();
@@ -192,46 +202,55 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isBooleanKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static boolean doBoolean(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readBoolean();
     }
 
     @Specialization(guards = {"isStringKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static String doString(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readString();
     }
 
     @Specialization(guards = {"isDecimalKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static DecimalObject doDecimal(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return new DecimalObject(new BigDecimal(input.readString()));
     }
 
     @Specialization(guards = {"isDoubleKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static double doDouble(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readDouble();
     }
 
     @Specialization(guards = {"isFloatKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static float doFloat(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readFloat();
     }
 
     @Specialization(guards = {"isLongKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static long doLong(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readLong();
     }
 
     @Specialization(guards = {"isIntKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static int doInt(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readInt();
     }
 
     @Specialization(guards = {"isShortKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static short doShort(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readShort();
     }
 
     @Specialization(guards = {"isByteKind(t)"})
+    @CompilerDirectives.TruffleBoundary
     static byte doByte(RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readByte();
     }
