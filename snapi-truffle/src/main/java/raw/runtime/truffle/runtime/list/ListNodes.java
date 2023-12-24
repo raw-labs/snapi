@@ -23,62 +23,6 @@ import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 public class ListNodes {
-  //  @NodeInfo(shortName = "List.GetInnerList")
-  //  @GenerateUncached
-  //  public abstract static class GetInnerListNode extends Node {
-  //
-  //    public abstract Object execute(Object list);
-  //
-  //    @Specialization
-  //    static boolean[] getInnerList(BooleanList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static byte[] getInnerList(ByteList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static double[] getInnerList(DoubleList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static float[] getInnerList(FloatList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static int[] getInnerList(IntList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static long[] getInnerList(LongList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static Object[] getInnerList(ObjectList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static short[] getInnerList(ShortList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static String[] getInnerList(StringList list) {
-  //      return list.getInnerList();
-  //    }
-  //
-  //    @Specialization
-  //    static ArrayList<Object> getInnerList(RawArrayList list) {
-  //      return list.getInnerList();
-  //    }
-  //  }
 
   @NodeInfo(shortName = "List.IsElementReadable")
   @GenerateUncached

@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.list;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -35,6 +36,7 @@ public class RawArrayList implements TruffleObject {
     return index >= 0 && index < list.size();
   }
 
+  @CompilerDirectives.TruffleBoundary
   public Object get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
@@ -51,6 +53,7 @@ public class RawArrayList implements TruffleObject {
     return new ListIterable(this);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public RawArrayList take(int num) {
     if (num >= this.list.size()) {
       return this;

@@ -30,6 +30,7 @@ public class TimestampRangeComputeNext {
     this.step = step;
   }
 
+  @TruffleBoundary
   public Object next() {
     if (current.isBefore(end)) {
       TimestampObject r = new TimestampObject(current);

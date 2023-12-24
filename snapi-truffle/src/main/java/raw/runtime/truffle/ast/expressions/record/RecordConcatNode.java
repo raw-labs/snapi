@@ -28,7 +28,6 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 public abstract class RecordConcatNode extends ExpressionNode {
 
   @Specialization
-  @ExplodeLoop
   protected Object doConcat(
       Object rec1,
       Object rec2,

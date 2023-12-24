@@ -754,6 +754,7 @@ public class ComputeNextNodes {
     }
 
     @Specialization
+    @TruffleBoundary
     static void init(
         JoinComputeNext computeNext,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
