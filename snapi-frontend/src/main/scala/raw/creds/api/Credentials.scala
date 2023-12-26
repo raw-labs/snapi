@@ -93,7 +93,8 @@ final case class PostgresqlCredential(
     port: Option[Int],
     database: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 final case class MySqlCredential(
