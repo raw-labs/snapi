@@ -31,3 +31,6 @@ cd "${SCRIPT_HOME}/snapi-truffle"
 
 cd "${SCRIPT_HOME}/snapi-client"
 ./build.sh
+
+cd "${SCRIPT_HOME}/sql-client"
+./build.sh

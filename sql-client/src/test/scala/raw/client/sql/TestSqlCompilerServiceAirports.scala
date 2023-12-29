@@ -349,8 +349,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   }
 
   ignore("""
-         |SELECT COUNT(*) FROM example.airports
-         |WHERE city = COALESCE(:name, 'Lyon')""".stripMargin) { t =>
+    |SELECT COUNT(*) FROM example.airports
+    |WHERE city = COALESCE(:name, 'Lyon')""".stripMargin) { t =>
     val withCity = ProgramEnvironment(
       user,
       Some(Array(("name", RawString("Braganca")))),

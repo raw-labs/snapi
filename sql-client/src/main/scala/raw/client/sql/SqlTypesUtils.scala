@@ -13,7 +13,21 @@
 package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawLongType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
+import raw.client.api.{
+  RawBoolType,
+  RawByteType,
+  RawDateType,
+  RawDecimalType,
+  RawDoubleType,
+  RawFloatType,
+  RawIntType,
+  RawLongType,
+  RawShortType,
+  RawStringType,
+  RawTimeType,
+  RawTimestampType,
+  RawType
+}
 
 import scala.annotation.tailrec
 

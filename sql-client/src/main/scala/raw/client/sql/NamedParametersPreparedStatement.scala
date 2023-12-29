@@ -129,7 +129,9 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
           val typeStatus =
             if (errors.isEmpty) {
               val options = typeOptions.collect { case Right(t) => t }
-              SqlTypesUtils.mergeRawTypes(options).right
+              SqlTypesUtils
+                .mergeRawTypes(options)
+                .right
                 .map(_.cloneNullable)
                 .left
                 .map(message =>
@@ -210,7 +212,7 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
     ErrorPosition(line, column)
   }
 
-    // Parameters are considered nullable (null when not specified). The prepared statement is initialized
+  // Parameters are considered nullable (null when not specified). The prepared statement is initialized
   // with nulls on all parameters. When a parameter is set, the null is replaced with the value.
   for (locations <- paramLocations.valuesIterator; location <- locations) {
     stmt.setNull(location.index, java.sql.Types.NULL)
