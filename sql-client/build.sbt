@@ -33,7 +33,7 @@ organizationName := "RAW Labs SA"
 
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
 
-name := "raw-python-client"
+name := "raw-sql-client"
 
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
 
@@ -78,7 +78,6 @@ scalacOptions ++= Seq(
 // Use cached resolution of dependencies
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
-// Needed for JPMS to work.
 compileOrder := CompileOrder.ScalaThenJava
 
 // Doc generation breaks with Java files
@@ -145,7 +144,9 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 // Dependencies
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
+  postgresqlDeps,
+  // pretending a dependency on 'python' in order to have a truffle language, otherwise one cannot use the polyglot API
   "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
 )
 
-Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client")
+Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.sql.client")
