@@ -47,6 +47,7 @@ class TypedPolyglotJsonWriter(os: OutputStream) {
   final private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
   final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
 
+  @throws[IOException]
   def write(v: Value, t: RawType): Unit = {
     if (t.triable) {
       if (v.isException) {
