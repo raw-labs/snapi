@@ -110,7 +110,8 @@ final case class OracleCredential(
     port: Option[Int],
     database: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 final case class SqlServerCredential(
@@ -118,7 +119,8 @@ final case class SqlServerCredential(
     port: Option[Int],
     database: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 // list of possible parameters (might include the port also)
@@ -128,7 +130,8 @@ final case class TeradataCredential(
     port: Option[Int],
     username: Option[String],
     password: Option[String],
-    parameters: Map[String, String] = Map.empty
+    parameters: Map[String, String] = Map.empty,
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 final case class SnowflakeCredential(
@@ -136,7 +139,8 @@ final case class SnowflakeCredential(
     database: String,
     username: Option[String],
     password: Option[String],
-    parameters: Map[String, String] = Map.empty
+    parameters: Map[String, String] = Map.empty,
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential {
   val host = s"$accountIdentifier.snowflakecomputing.com"
   val port = None
