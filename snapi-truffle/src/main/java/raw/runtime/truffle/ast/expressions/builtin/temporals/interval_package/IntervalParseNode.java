@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package;
 
+import static raw.runtime.truffle.boundary.RawTruffleBoundaries.parseInt;
+
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
@@ -21,12 +23,9 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.boundary.BoundaryNodesFactory;
 import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
-
-import static raw.runtime.truffle.boundary.RawTruffleBoundaries.parseInt;
 
 @NodeInfo(shortName = "Interval.Parse")
 @NodeChild("format")
