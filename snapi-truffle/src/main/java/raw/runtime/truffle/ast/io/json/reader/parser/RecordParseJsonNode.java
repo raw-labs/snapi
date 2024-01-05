@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
+import static raw.runtime.truffle.boundary.RawTruffleBoundaries.*;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -35,8 +37,6 @@ import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
-
-import static raw.runtime.truffle.boundary.RawTruffleBoundaries.*;
 
 @NodeInfo(shortName = "RecordParseJson")
 @ImportStatic(RawTruffleBoundaries.class)
