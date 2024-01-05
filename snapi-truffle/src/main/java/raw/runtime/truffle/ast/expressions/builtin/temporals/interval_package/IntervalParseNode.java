@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -20,18 +21,21 @@ import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.boundary.BoundaryNodes;
 import raw.runtime.truffle.boundary.BoundaryNodesFactory;
+import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 
+import static raw.runtime.truffle.boundary.RawTruffleBoundaries.parseInt;
+
 @NodeInfo(shortName = "Interval.Parse")
 @NodeChild("format")
+@ImportStatic(RawTruffleBoundaries.class)
 public abstract class IntervalParseNode extends ExpressionNode {
 
   private int intOrDefault(String toParse) {
     try {
-      return BoundaryNodesFactory.ParseIntNodeGen.getUncached().execute(toParse);
+      return parseInt(toParse);
     } catch (NumberFormatException ex) {
       return 0;
     }
@@ -41,7 +45,6 @@ public abstract class IntervalParseNode extends ExpressionNode {
   @TruffleBoundary
   public Object parse(String format) {
     try {
-      BoundaryNodes.ParseIntNode parseIntNode = BoundaryNodesFactory.ParseIntNodeGen.getUncached();
       Pattern pattern =
           Pattern.compile(
               "P(?:(-?\\d+)Y)?(?:(-?\\d+)M)?(?:(-?\\d+)W)?(?:(-?\\d+)D)?T?(?:(-?\\d+)H)?(?:(-?\\d+)M)?(?:(-?\\d+)S|(-?\\d+)\\.(\\d+)S)?");
@@ -65,7 +68,7 @@ public abstract class IntervalParseNode extends ExpressionNode {
           seconds = 0;
           millis = 0;
         } else if (s1 != null) {
-          seconds = parseIntNode.execute(s1);
+          seconds = parseInt(s1);
           millis = 0;
         } else {
           int milliseconds;
@@ -75,13 +78,13 @@ public abstract class IntervalParseNode extends ExpressionNode {
             for (int i = 0; i <= 3 - mil.length(); i++) {
               multiplier *= 10;
             }
-            milliseconds = parseIntNode.execute(mil) * multiplier;
+            milliseconds = parseInt(mil) * multiplier;
           } else {
-            milliseconds = parseIntNode.execute(mil.substring(0, 3));
+            milliseconds = parseInt(mil.substring(0, 3));
           }
-          long parsedSeconds = parseIntNode.execute(s2);
+          long parsedSeconds = parseInt(s2);
 
-          seconds = parseIntNode.execute(s2);
+          seconds = parseInt(s2);
           if (parsedSeconds >= 0) {
             millis = milliseconds;
           } else {

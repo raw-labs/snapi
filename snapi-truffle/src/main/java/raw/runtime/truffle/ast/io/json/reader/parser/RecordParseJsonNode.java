@@ -15,6 +15,7 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -27,8 +28,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
-import raw.runtime.truffle.boundary.BoundaryNodes;
-import raw.runtime.truffle.boundary.BoundaryNodesFactory;
+import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.primitives.NullObject;
@@ -36,7 +36,10 @@ import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
+import static raw.runtime.truffle.boundary.RawTruffleBoundaries.*;
+
 @NodeInfo(shortName = "RecordParseJson")
+@ImportStatic(RawTruffleBoundaries.class)
 public class RecordParseJsonNode extends ExpressionNode {
 
   @Children private DirectCallNode[] childDirectCalls;
@@ -59,15 +62,6 @@ public class RecordParseJsonNode extends ExpressionNode {
 
   @Child
   private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
-
-  private final BoundaryNodes.BitSetSetNode bitSetSet =
-      BoundaryNodesFactory.BitSetSetNodeGen.getUncached();
-
-  private final BoundaryNodes.BitSetCardinalityNode bitSetCardinality =
-      BoundaryNodesFactory.BitSetCardinalityNodeGen.getUncached();
-
-  private final BoundaryNodes.BitSetGetNode bitSetGet =
-      BoundaryNodesFactory.BitSetGetNodeGen.getUncached();
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
@@ -118,7 +112,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       Integer index = this.getFieldNameIndex(fieldName);
       nextTokenNode.execute(parser); // skip the field name
       if (index != null) {
-        bitSetSet.execute(currentBitSet, index);
+        setBitSet(currentBitSet, index);
         writeIndexNode.execute(record, index, fieldName, callChild(index, parser));
       } else {
         // skip the field value
@@ -128,12 +122,12 @@ public class RecordParseJsonNode extends ExpressionNode {
 
     nextTokenNode.execute(parser); // skip the END_OBJECT token
 
-    if (bitSetCardinality.execute(currentBitSet) != this.fieldsSize) {
+    if (bitSetCardinality(currentBitSet) != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
       // fail.
       Object[] fields = fieldNamesMap.keySet().toArray();
       for (int i = 0; i < this.fieldsSize; i++) {
-        if (!bitSetGet.execute(currentBitSet, i)) {
+        if (!bitSetGet(currentBitSet, i)) {
           if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
