@@ -21,6 +21,8 @@ import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.RawTypesGen;
+import raw.runtime.truffle.ExpressionNodeWrapper;
 
 @TypeSystemReference(RawTypes.class)
 @GenerateWrapper
