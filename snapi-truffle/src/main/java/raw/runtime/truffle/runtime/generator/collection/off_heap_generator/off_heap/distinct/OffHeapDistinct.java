@@ -44,7 +44,7 @@ public class OffHeapDistinct {
 
   @TruffleBoundary // Needed because of SourceContext
   public OffHeapDistinct(Rql2TypeWithProperties vType, RawLanguage rl, SourceContext context) {
-    this.index = new TreeSet<>(OperatorNodesFactory.CompareNodeGen.getUncached()::execute);
+    this.index = new TreeSet<>(OperatorNodesFactory.CompareUninlinedNodeGen.getUncached()::execute);
     this.itemType = vType;
     this.itemSize = KryoFootPrint.of(vType);
     this.binarySize = 0;

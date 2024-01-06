@@ -56,14 +56,14 @@ public class ListGenerator implements TruffleObject {
 
   @ExportMessage
   final boolean hasIteratorNextElement(
-      @Bind("$node") Node thisNode, @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode)
+      @Bind("$node") Node thisNode, @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode)
       throws UnsupportedMessageException {
     return hasNextNode.execute(thisNode, this);
   }
 
   @ExportMessage
   final Object getIteratorNextElement(
-      @Bind("$node") Node thisNode, @Cached GeneratorNodes.GeneratorNextNode nextNode)
+      @Bind("$node") Node thisNode, @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode)
       throws UnsupportedMessageException, StopIterationException {
     return nextNode.execute(thisNode, this);
   }
@@ -88,7 +88,7 @@ public class ListGenerator implements TruffleObject {
       String member,
       Object[] args,
       @Bind("$node") Node thisNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode) {
     assert (Objects.equals(member, "close"));
     closeNode.execute(thisNode, this);
     return 0;

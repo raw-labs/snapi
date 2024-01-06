@@ -36,7 +36,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isByteKind(getResultType())"})
   protected Object doByte(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -68,7 +68,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isShortKind(getResultType())"})
   protected Object doShort(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -100,7 +100,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isIntKind(getResultType())"})
   protected Object doInt(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -132,7 +132,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isLongKind(getResultType())"})
   protected Object doLong(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -164,7 +164,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isFloatKind(getResultType())"})
   protected Object doFloat(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -196,7 +196,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected Object doDouble(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -228,7 +228,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected Object doBoolean(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -260,7 +260,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization(guards = {"isStringKind(getResultType())"})
   protected Object doString(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
@@ -292,7 +292,7 @@ public abstract class ListFromNode extends ExpressionNode {
   @Specialization
   protected Object doObject(
       Object iterable,
-      @Cached @Cached.Shared("getGeneratorNode")
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,

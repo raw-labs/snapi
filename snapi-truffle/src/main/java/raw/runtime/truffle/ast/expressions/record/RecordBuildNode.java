@@ -45,7 +45,7 @@ public class RecordBuildNode extends ExpressionNode {
       // i jump by 2 because we have k1, v1, k2, v2, ..., kn, vn.
       Object key = elementNodes[i].executeGeneric(frame);
       Object value = elementNodes[i + 1].executeGeneric(frame);
-      writeIndexNode.execute(record, j, (String) key, value);
+      writeIndexNode.execute(this, record, j, (String) key, value);
     }
     return record;
   }

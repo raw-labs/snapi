@@ -29,9 +29,9 @@ public abstract class ListMinNode extends ExpressionNode {
   @Specialization
   protected Object doCollection(
       Object list,
-      @Cached AggregationNodes.Aggregate aggregate,
-      @Cached ListNodes.ToIterableNode toIterableNode) {
-    Object iterable = toIterableNode.execute(list);
+      @Cached(inline = true) AggregationNodes.Aggregate aggregate,
+      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
+    Object iterable = toIterableNode.execute(this, list);
     Object aggregation = new SingleAggregation(Aggregators.MIN);
     return aggregate.execute(this, aggregation, iterable);
   }

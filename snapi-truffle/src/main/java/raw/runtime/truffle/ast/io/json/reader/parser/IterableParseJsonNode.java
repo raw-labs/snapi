@@ -37,6 +37,6 @@ public class IterableParseJsonNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
     Object list = this.childDirectCall.call(parser);
-    return toIterableNode.execute(list);
+    return toIterableNode.execute(this, list);
   }
 }

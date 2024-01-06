@@ -35,7 +35,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isByteKind(getResultType())"})
   protected ByteList doByte(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -64,7 +65,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isShortKind(getResultType())"})
   protected ShortList doShort(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -93,7 +95,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isIntKind(getResultType())"})
   protected IntList doInt(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -122,7 +125,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isLongKind(getResultType())"})
   protected LongList doLong(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -151,7 +155,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isFloatKind(getResultType())"})
   protected FloatList doFloat(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -180,7 +185,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected DoubleList doDouble(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -209,7 +215,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected BooleanList doBoolean(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -238,7 +245,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization(guards = {"isStringKind(getResultType())"})
   protected StringList doString(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")
@@ -267,7 +275,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   @Specialization
   protected ObjectList doObject(
       Object iterable,
-      @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) @Cached.Shared("hasNextNode")

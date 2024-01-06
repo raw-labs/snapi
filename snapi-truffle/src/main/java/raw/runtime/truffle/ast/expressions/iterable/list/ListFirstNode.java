@@ -29,10 +29,10 @@ public abstract class ListFirstNode extends ExpressionNode {
 
   @Specialization
   protected Object doFirst(
-      Object list, @Cached ListNodes.SizeNode sizeNode, @Cached ListNodes.GetNode getNode) {
-    if (sizeNode.execute(list) == 0) {
+      Object list, @Cached(inline = true) ListNodes.SizeNode sizeNode, @Cached(inline = true) ListNodes.GetNode getNode) {
+    if (sizeNode.execute(this, list) == 0) {
       return NullObject.INSTANCE;
     }
-    return getNode.execute(list, 0);
+    return getNode.execute(this, list, 0);
   }
 }

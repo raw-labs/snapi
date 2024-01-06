@@ -88,7 +88,7 @@ public final class JsonParserNodes {
         Node node,
         TruffleCharInputStream stream,
         @Bind("$node") Node thisNode,
-        @Cached(inline = true) @Cached.Shared("close") CloseJsonParserNode closeParser) {
+        @Cached @Cached.Shared("close") CloseJsonParserNode closeParser) {
       JsonParser parser = null;
       try {
         JsonFactory jsonFactory = new JsonFactory();
@@ -587,7 +587,7 @@ public final class JsonParserNodes {
         @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached(inline = true) @Cached.Shared("nextToken")
+        @Cached @Cached.Shared("nextToken")
             JsonParserNodes.NextTokenJsonParserNode nextToken) {
       if (currentToken.execute(thisNode, parser) != JsonToken.START_ARRAY) {
         throw new JsonUnexpectedTokenException(
@@ -618,11 +618,11 @@ public final class JsonParserNodes {
         JsonParser parser,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
-        @Cached(inline = true) @Cached.Shared("nextToken")
+        @Cached @Cached.Shared("nextToken")
             JsonParserNodes.NextTokenJsonParserNode nextToken,
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached(inline = true) JsonParserNodes.CurrentFieldJsonParserNode currentField,
+        @Cached JsonParserNodes.CurrentFieldJsonParserNode currentField,
         @CachedLibrary(limit = "3") InteropLibrary records) {
       if (currentToken.execute(thisNode, parser) != JsonToken.START_OBJECT) {
         throw new JsonUnexpectedTokenException(

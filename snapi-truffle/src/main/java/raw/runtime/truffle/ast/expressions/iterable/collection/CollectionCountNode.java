@@ -30,7 +30,7 @@ public abstract class CollectionCountNode extends ExpressionNode {
 
   @Specialization
   protected Object doCount(
-      Object iterable, @Cached AggregationNodes.Aggregate aggregate) {
+      Object iterable, @Cached(inline = true) AggregationNodes.Aggregate aggregate) {
     try {
       Object aggregation = new SingleAggregation(Aggregators.COUNT);
       return aggregate.execute(this, aggregation, iterable);

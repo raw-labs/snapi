@@ -40,13 +40,13 @@ public abstract class ListFilterNode extends ExpressionNode {
       Object list,
       Object closure,
       @Bind("this") Node thisNode,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     ArrayList<Object> llist = new ArrayList<>();
-    Object iterable = toIterableNode.execute(list);
+    Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     while (generatorHasNextNode.execute(thisNode, generator)) {
       Object v = generatorNextNode.execute(thisNode, generator);

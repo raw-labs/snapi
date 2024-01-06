@@ -68,8 +68,8 @@ public class DistinctCollection implements TruffleObject {
   @ExportMessage
   Object getIterator(
       @Bind("$node") Node thisNode,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initNode) {
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
     Object generator = getGeneratorNode.execute(thisNode, this);
     initNode.execute(thisNode, generator);
     return generator;

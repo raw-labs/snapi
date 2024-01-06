@@ -29,8 +29,8 @@ public abstract class ListSumNode extends ExpressionNode {
   protected Object doCollection(
       Object list,
       @Cached(inline = true) AggregationNodes.Aggregate aggregate,
-      @Cached ListNodes.ToIterableNode toIterableNode) {
-    Object iterable = toIterableNode.execute(list);
+      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
+    Object iterable = toIterableNode.execute(this, list);
     Object aggregation = new SingleAggregation(Aggregators.SUM);
     return aggregate.execute(this, aggregation, iterable);
   }

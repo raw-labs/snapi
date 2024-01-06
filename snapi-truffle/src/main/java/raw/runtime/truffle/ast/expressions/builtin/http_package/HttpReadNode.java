@@ -54,8 +54,8 @@ public abstract class HttpReadNode extends ExpressionNode {
   protected Object doRead(
       LocationObject locationObject,
       Object statusListOption,
-      @Cached ListNodes.SizeNode sizeNode,
-      @Cached ListNodes.GetNode getNode,
+      @Cached(inline = true) ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) ListNodes.GetNode getNode,
       @CachedLibrary(limit = "3") InteropLibrary records) {
     try {
       SourceContext context = RawContext.get(this).getSourceContext();
@@ -66,9 +66,9 @@ public abstract class HttpReadNode extends ExpressionNode {
       RecordObject record = RawLanguage.get(this).createRecord();
 
       if (Nullable.isNotNull(statusListOption)) {
-        int[] statuses = new int[(int) sizeNode.execute(statusListOption)];
+        int[] statuses = new int[(int) sizeNode.execute(this, statusListOption)];
         for (int i = 0; i < statuses.length; i++) {
-          statuses[i] = (int) getNode.execute(statusListOption, i);
+          statuses[i] = (int) getNode.execute(this, statusListOption, i);
         }
         if (Arrays.stream(statuses).noneMatch(status -> status == result.status())) {
           String method =

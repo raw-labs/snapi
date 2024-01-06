@@ -35,65 +35,84 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 
 public class OperatorNodes {
 
-  @NodeInfo(shortName = "Operator.Compare")
+  @NodeInfo(shortName = "Operator.CompareUninlined")
   @GenerateUncached
+  @GenerateInline(false)
   @ImportStatic(value = {Nullable.class, Tryable.class})
-  public abstract static class CompareNode extends Node {
+  public abstract static class CompareUninlinedNode extends Node {
 
     public abstract int execute(Object obj1, Object obj2);
 
     @Specialization
-    static int doBoolean(boolean left, boolean right) {
+    static int doBoolean(
+        Object left,
+        Object right,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = true) CompareNode compare) {
+      return compare.execute(thisNode, left, right);
+    }
+  }
+
+  @NodeInfo(shortName = "Operator.Compare")
+  @GenerateUncached
+  @GenerateInline
+  @ImportStatic(value = {Nullable.class, Tryable.class})
+  public abstract static class CompareNode extends Node {
+
+    public abstract int execute(Node node, Object obj1, Object obj2);
+
+    @Specialization
+    static int doBoolean(Node node, boolean left, boolean right) {
       return Boolean.compare(left, right);
     }
 
     @Specialization
-    static int doByte(byte left, byte right) {
+    static int doByte(Node node, byte left, byte right) {
       return Byte.compare(left, right);
     }
 
     @Specialization
-    static int doShort(short left, short right) {
+    static int doShort(Node node, short left, short right) {
       return Short.compare(left, right);
     }
 
     @Specialization
-    static int doInt(int left, int right) {
+    static int doInt(Node node, int left, int right) {
       return Integer.compare(left, right);
     }
 
     @Specialization
-    static int doLong(long left, long right) {
+    static int doLong(Node node, long left, long right) {
       return Long.compare(left, right);
     }
 
     @Specialization
     @TruffleBoundary
-    static int doFloat(float left, float right) {
+    static int doFloat(Node node, float left, float right) {
       return Float.compare(left, right);
     }
 
     @Specialization
     @TruffleBoundary
-    static int doDouble(double left, double right) {
+    static int doDouble(Node node, double left, double right) {
       return Double.compare(left, right);
     }
 
     @Specialization
     @TruffleBoundary
-    static int doDecimal(DecimalObject left, DecimalObject right) {
+    static int doDecimal(Node node, DecimalObject left, DecimalObject right) {
       return left.getBigDecimal().compareTo(right.getBigDecimal());
     }
 
     @Specialization
     @TruffleBoundary
-    static int doString(String left, String right) {
+    static int doString(Node node, String left, String right) {
       return left.compareTo(right);
     }
 
     @Specialization
     @TruffleBoundary
-    static int doDate(DateObject left, DateObject right) {
+    static int doDate(Node node, DateObject left, DateObject right) {
       LocalDate leftDate = left.getDate();
       LocalDate rightDate = right.getDate();
       if (leftDate.isBefore(rightDate)) {
@@ -107,7 +126,7 @@ public class OperatorNodes {
 
     @Specialization
     @TruffleBoundary
-    static int doTimestamp(TimestampObject left, TimestampObject right) {
+    static int doTimestamp(Node node, TimestampObject left, TimestampObject right) {
       LocalDateTime leftDate = left.getTimestamp();
       LocalDateTime rightDate = right.getTimestamp();
       if (leftDate.isBefore(rightDate)) {
@@ -121,7 +140,7 @@ public class OperatorNodes {
 
     @Specialization
     @TruffleBoundary
-    static int doTime(TimeObject left, TimeObject right) {
+    static int doTime(Node node, TimeObject left, TimeObject right) {
       LocalTime leftTime = left.getTime();
       LocalTime rightTime = right.getTime();
       if (leftTime.isBefore(rightTime)) {
@@ -135,15 +154,17 @@ public class OperatorNodes {
 
     @Specialization
     @TruffleBoundary
-    static int doInterval(IntervalObject left, IntervalObject right) {
+    static int doInterval(Node node, IntervalObject left, IntervalObject right) {
       return left.compareTo(right);
     }
 
     @Specialization(limit = "3")
     static int doRecord(
+        Node node,
         RecordObject left,
         RecordObject right,
-        @Cached @Cached.Shared("compare") CompareNode compare,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
         @CachedLibrary("left") InteropLibrary lefts,
         @CachedLibrary(limit = "3") InteropLibrary arrays,
         @CachedLibrary("right") InteropLibrary rights) {
@@ -160,13 +181,13 @@ public class OperatorNodes {
         for (int i = 0; i < leftSize; i++) {
           String leftKey = (String) arrays.readArrayElement(leftKeys, i);
           String rightKey = (String) arrays.readArrayElement(rightKeys, i);
-          int result = compare.execute(leftKey, rightKey);
+          int result = compare.execute(thisNode, leftKey, rightKey);
           if (result != 0) {
             return result;
           }
           Object leftValue = lefts.readMember(left, leftKey);
           Object rightValue = rights.readMember(right, rightKey);
-          result = compare.execute(leftValue, rightValue);
+          result = compare.execute(thisNode, leftValue, rightValue);
           if (result != 0) {
             return result;
           }
@@ -180,7 +201,7 @@ public class OperatorNodes {
     }
 
     @Specialization(guards = {"isFailure(left) || isFailure(right)"})
-    static int doTryable(Object left, Object right) {
+    static int doTryable(Node node, Object left, Object right) {
       boolean leftIsFailure = Tryable.isFailure(left);
       boolean rightIsFailure = Tryable.isFailure(right);
       if (leftIsFailure && rightIsFailure) {
@@ -194,7 +215,7 @@ public class OperatorNodes {
     }
 
     @Specialization(guards = {"isNull(left) || isNull(right)"})
-    static int doNullable(Object left, Object right) {
+    static int doNullable(Node node, Object left, Object right) {
       // both are options
       boolean leftIsNull = Nullable.isNull(left);
       boolean rightIsNull = Nullable.isNull(right);
@@ -210,23 +231,24 @@ public class OperatorNodes {
 
     @Specialization
     static int doIterable(
+        Node node,
         Object left,
         Object right,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("compare") CompareNode compare,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNodeRight,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeLeft,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeRight,
-        @Cached GeneratorNodes.GeneratorNextNode nextNodeLeft,
-        @Cached GeneratorNodes.GeneratorNextNode nextNodeRight) {
+        @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
+        @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
+        @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNodeRight,
+        @Cached(inline = false) GeneratorNodes.GeneratorHasNextNode hasNextNodeLeft,
+        @Cached(inline = false) GeneratorNodes.GeneratorHasNextNode hasNextNodeRight,
+        @Cached(inline = false) GeneratorNodes.GeneratorNextNode nextNodeLeft,
+        @Cached(inline = false) GeneratorNodes.GeneratorNextNode nextNodeRight) {
       Object leftGenerator = getGeneratorNodeLeft.execute(thisNode, left);
       Object rightGenerator = getGeneratorNodeRight.execute(thisNode, right);
       while (hasNextNodeLeft.execute(thisNode, leftGenerator)
           && hasNextNodeRight.execute(thisNode, rightGenerator)) {
         Object leftElement = nextNodeLeft.execute(thisNode, leftGenerator);
         Object rightElement = nextNodeRight.execute(thisNode, rightGenerator);
-        int result = compare.execute(leftElement, rightElement);
+        int result = compare.execute(thisNode, leftElement, rightElement);
         if (result != 0) {
           return result;
         }

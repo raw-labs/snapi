@@ -102,16 +102,16 @@ public class LocationBuildNode extends ExpressionNode {
         return new LocationDurationSetting(Duration.ofMillis(((IntervalObject) value).toMillis()));
       } else if (TypeGuards.isListKind(type)
           && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
-        int[] ints = new int[(int) sizeNode.execute(value)];
+        int[] ints = new int[(int) sizeNode.execute(this, value)];
         for (int i = 0; i < ints.length; i++) {
-          ints[i] = (int) getNode.execute(value, i);
+          ints[i] = (int) getNode.execute(this, value, i);
         }
         return new LocationIntArraySetting(ints);
       } else if (TypeGuards.isListKind(type)) {
         VectorBuilder<Tuple2<String, String>> vec = new VectorBuilder<>();
-        int size = (int) sizeNode.execute(value);
+        int size = (int) sizeNode.execute(this, value);
         for (int i = 0; i < size; i++) {
-          Object record = getNode.execute(value, i);
+          Object record = getNode.execute(this, value, i);
           Object keys = interops.getMembers(record);
           Object key = interops.readMember(record, (String) interops.readArrayElement(keys, 0));
           Object val = interops.readMember(record, (String) interops.readArrayElement(keys, 1));

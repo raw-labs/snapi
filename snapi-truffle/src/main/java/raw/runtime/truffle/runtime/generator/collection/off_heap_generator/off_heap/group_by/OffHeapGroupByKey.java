@@ -56,7 +56,8 @@ public class OffHeapGroupByKey {
       SourceContext context,
       RecordShaper reshape) {
     this.language = language;
-    this.memMap = new TreeMap<>(OperatorNodesFactory.CompareNodeGen.getUncached()::execute);
+    this.memMap =
+        new TreeMap<>(OperatorNodesFactory.CompareUninlinedNodeGen.getUncached()::execute);
     this.keyType = kType;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);

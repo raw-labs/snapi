@@ -111,7 +111,7 @@ public class IterableNodes {
         Node node,
         FilterCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator2")
             IterableNodes.GetGeneratorNode getGeneratorNode) {
       Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
@@ -123,7 +123,7 @@ public class IterableNodes {
         Node node,
         TakeCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator2")
             IterableNodes.GetGeneratorNode getGeneratorNode) {
       Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
@@ -135,7 +135,7 @@ public class IterableNodes {
         Node node,
         TransformCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator2")
             IterableNodes.GetGeneratorNode getGeneratorNode) {
       Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
@@ -147,7 +147,7 @@ public class IterableNodes {
         Node node,
         UnnestCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator2")
             IterableNodes.GetGeneratorNode getGeneratorNode) {
       Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
@@ -159,8 +159,9 @@ public class IterableNodes {
         Node node,
         ZipCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNode1,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator1")
+            IterableNodes.GetGeneratorNode getGeneratorNode1,
+        @Cached(inline = false) @Cached.Shared("getGenerator2")
             IterableNodes.GetGeneratorNode getGeneratorNode2) {
       Object parentGenerator1 =
           getGeneratorNode1.execute(thisNode, collection.getParentIterable1());
@@ -175,15 +176,14 @@ public class IterableNodes {
         Node node,
         DistinctCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator1")
             IterableNodes.GetGeneratorNode getGeneratorNode,
-        @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+        @Cached GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
-        @Cached(inline = false) @Cached.Shared("generator")
-            OffHeapNodes.OffHeapGeneratorNode generatorNode) {
+        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
       OffHeapDistinct index =
           new OffHeapDistinct(
               collection.getRowType(), collection.getLang(), collection.getContext());
@@ -192,12 +192,12 @@ public class IterableNodes {
         initNode.execute(thisNode, generator);
         while (hasNextNode.execute(thisNode, generator)) {
           Object next = nextNode.execute(thisNode, generator);
-          putNode.execute(index, next, null);
+          putNode.execute(thisNode, index, next, null);
         }
       } finally {
         closeNode.execute(thisNode, generator);
       }
-      return generatorNode.execute(index);
+      return generatorNode.execute(thisNode, index);
     }
 
     @Specialization
@@ -210,15 +210,14 @@ public class IterableNodes {
         Node node,
         GroupByCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator1")
             IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
-        @Cached(inline = false) @Cached.Shared("generator")
-            OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
         @CachedLibrary("collection.getKeyFun()") InteropLibrary keyFunLib) {
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
@@ -233,14 +232,14 @@ public class IterableNodes {
         while (hasNextNode.execute(thisNode, inputGenerator)) {
           Object v = nextNode.execute(thisNode, inputGenerator);
           Object key = keyFunLib.execute(collection.getKeyFun(), v);
-          putNode.execute(map, key, v);
+          putNode.execute(thisNode, map, key, v);
         }
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       } finally {
         closeNode.execute(thisNode, inputGenerator);
       }
-      return generatorNode.execute(map);
+      return generatorNode.execute(thisNode, map);
     }
 
     @Specialization
@@ -253,15 +252,14 @@ public class IterableNodes {
         Node node,
         OrderByCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("getGenerator")
+        @Cached(inline = false) @Cached.Shared("getGenerator1")
             IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
-        @Cached(inline = false) @Cached.Shared("generator")
-            OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
         @CachedLibrary(limit = "8") InteropLibrary keyFunctionsLib) {
       Object generator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       OffHeapGroupByKeys groupByKeys =
@@ -280,14 +278,14 @@ public class IterableNodes {
           for (int i = 0; i < len; i++) {
             key[i] = keyFunctionsLib.execute(collection.getKeyFunctions()[i], v);
           }
-          putNode.execute(groupByKeys, key, v);
+          putNode.execute(thisNode, groupByKeys, key, v);
         }
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RuntimeException(e);
       } finally {
         closeNode.execute(thisNode, generator);
       }
-      return generatorNode.execute(groupByKeys);
+      return generatorNode.execute(thisNode, groupByKeys);
     }
 
     @Specialization

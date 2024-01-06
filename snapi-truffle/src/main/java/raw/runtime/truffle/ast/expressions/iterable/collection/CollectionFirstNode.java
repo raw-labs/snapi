@@ -30,10 +30,10 @@ public abstract class CollectionFirstNode extends ExpressionNode {
   @Specialization
   protected Object doObject(
       Object iterable,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNext,
-      @Cached GeneratorNodes.GeneratorNextNode next) {
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNext,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode next) {
     try {
       Object generator = getGeneratorNode.execute(this, iterable);
       initNode.execute(this, generator);

@@ -115,7 +115,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       nextTokenNode.execute(this, parser); // skip the field name
       if (index != null) {
         setBitSet(currentBitSet, index);
-        writeIndexNode.execute(record, index, fieldName, callChild(index, parser));
+        writeIndexNode.execute(this, record, index, fieldName, callChild(index, parser));
       } else {
         // skip the field value
         skipNode.execute(this, parser);
@@ -135,7 +135,7 @@ public class RecordParseJsonNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            writeIndexNode.execute(record, i, fields[i].toString(), nullValue);
+            writeIndexNode.execute(this, record, i, fields[i].toString(), nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
           }

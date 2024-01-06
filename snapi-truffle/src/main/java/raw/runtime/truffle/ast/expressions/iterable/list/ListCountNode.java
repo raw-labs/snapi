@@ -23,7 +23,7 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 @NodeChild("list")
 public abstract class ListCountNode extends ExpressionNode {
   @Specialization
-  protected long doList(Object list, @Cached ListNodes.SizeNode sizeNode) {
-    return sizeNode.execute(list);
+  protected long doList(Object list, @Cached(inline = true) ListNodes.SizeNode sizeNode) {
+    return sizeNode.execute(this, list);
   }
 }

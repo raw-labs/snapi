@@ -28,10 +28,10 @@ public abstract class ListGetNode extends ExpressionNode {
   protected Object listGetTryable(
       Object list,
       int index,
-      @Cached ListNodes.IsElementReadableNode isElementReadableNode,
-      @Cached ListNodes.GetNode getNode) {
-    if (isElementReadableNode.execute(list, index)) {
-      return getNode.execute(list, index);
+      @Cached(inline = true) ListNodes.IsElementReadableNode isElementReadableNode,
+      @Cached(inline = true) ListNodes.GetNode getNode) {
+    if (isElementReadableNode.execute(this, list, index)) {
+      return getNode.execute(this, list, index);
     }
     return new ErrorObject("index out of bounds");
   }

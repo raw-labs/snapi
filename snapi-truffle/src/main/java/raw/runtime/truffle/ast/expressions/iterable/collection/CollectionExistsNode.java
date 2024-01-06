@@ -40,10 +40,10 @@ public abstract class CollectionExistsNode extends ExpressionNode {
       Object iterable,
       Object closure,
       @Bind("this") Node thisNode,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object generator = getGeneratorNode.execute(thisNode, iterable);

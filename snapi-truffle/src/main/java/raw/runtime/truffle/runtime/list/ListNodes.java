@@ -13,6 +13,7 @@
 package raw.runtime.truffle.runtime.list;
 
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
@@ -26,287 +27,300 @@ public class ListNodes {
 
   @NodeInfo(shortName = "List.IsElementReadable")
   @GenerateUncached
+  @GenerateInline
   public abstract static class IsElementReadableNode extends Node {
 
-    public abstract boolean execute(Object list, int index);
+    public abstract boolean execute(Node node, Object list, int index);
 
     @Specialization
-    static boolean isElementReadable(BooleanList list, int index) {
+    static boolean isElementReadable(Node node, BooleanList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(ByteList list, int index) {
+    static boolean isElementReadable(Node node, ByteList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(DoubleList list, int index) {
+    static boolean isElementReadable(Node node, DoubleList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(FloatList list, int index) {
+    static boolean isElementReadable(Node node, FloatList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(IntList list, int index) {
+    static boolean isElementReadable(Node node, IntList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(LongList list, int index) {
+    static boolean isElementReadable(Node node, LongList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(ObjectList list, int index) {
+    static boolean isElementReadable(Node node, ObjectList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(ShortList list, int index) {
+    static boolean isElementReadable(Node node, ShortList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(StringList list, int index) {
+    static boolean isElementReadable(Node node, StringList list, int index) {
       return list.isElementReadable(index);
     }
 
     @Specialization
-    static boolean isElementReadable(RawArrayList list, int index) {
+    static boolean isElementReadable(Node node, RawArrayList list, int index) {
       return list.isElementReadable(index);
     }
   }
 
   @NodeInfo(shortName = "List.Get")
   @GenerateUncached
+  @GenerateInline
   public abstract static class GetNode extends Node {
 
-    public abstract Object execute(Object list, long index);
+    public abstract Object execute(Node node, Object list, long index);
 
     @Specialization
-    static boolean get(BooleanList list, long index) {
+    static boolean get(Node node, BooleanList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static byte get(ByteList list, long index) {
+    static byte get(Node node, ByteList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static double get(DoubleList list, long index) {
+    static double get(Node node, DoubleList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static float get(FloatList list, long index) {
+    static float get(Node node, FloatList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static int get(IntList list, long index) {
+    static int get(Node node, IntList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static long get(LongList list, long index) {
+    static long get(Node node, LongList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static Object get(ObjectList list, long index) {
+    static Object get(Node node, ObjectList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static short get(ShortList list, long index) {
+    static short get(Node node, ShortList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static String get(StringList list, long index) {
+    static String get(Node node, StringList list, long index) {
       return list.get(index);
     }
 
     @Specialization
-    static Object get(RawArrayList list, long index) {
+    static Object get(Node node, RawArrayList list, long index) {
       return list.get(index);
     }
   }
 
   @NodeInfo(shortName = "List.Size")
   @GenerateUncached
+  @GenerateInline
   public abstract static class SizeNode extends Node {
 
-    public abstract long execute(Object list);
+    public abstract long execute(Node node, Object list);
 
     @Specialization
-    static long size(BooleanList list) {
+    static long size(Node node, BooleanList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(ByteList list) {
+    static long size(Node node, ByteList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(DoubleList list) {
+    static long size(Node node, DoubleList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(FloatList list) {
+    static long size(Node node, FloatList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(IntList list) {
+    static long size(Node node, IntList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(LongList list) {
+    static long size(Node node, LongList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(ObjectList list) {
+    static long size(Node node, ObjectList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(ShortList list) {
+    static long size(Node node, ShortList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(StringList list) {
+    static long size(Node node, StringList list) {
       return list.size();
     }
 
     @Specialization
-    static long size(RawArrayList list) {
+    static long size(Node node, RawArrayList list) {
       return list.size();
     }
   }
 
   @NodeInfo(shortName = "List.ToIterable")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ToIterableNode extends Node {
 
-    public abstract Object execute(Object list);
+    public abstract Object execute(Node node, Object list);
 
     @Specialization
-    static ListIterable toIterable(BooleanList list) {
+    static ListIterable toIterable(Node node, BooleanList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(ByteList list) {
+    static ListIterable toIterable(Node node, ByteList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(DoubleList list) {
+    static ListIterable toIterable(Node node, DoubleList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(FloatList list) {
+    static ListIterable toIterable(Node node, FloatList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(IntList list) {
+    static ListIterable toIterable(Node node, IntList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(LongList list) {
+    static ListIterable toIterable(Node node, LongList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(ObjectList list) {
+    static ListIterable toIterable(Node node, ObjectList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(ShortList list) {
+    static ListIterable toIterable(Node node, ShortList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(StringList list) {
+    static ListIterable toIterable(Node node, StringList list) {
       return list.toIterable();
     }
 
     @Specialization
-    static ListIterable toIterable(RawArrayList list) {
+    static ListIterable toIterable(Node node, RawArrayList list) {
       return list.toIterable();
     }
   }
 
   @NodeInfo(shortName = "List.Sort")
   @GenerateUncached
+  @GenerateInline
   public abstract static class SortNode extends Node {
 
-    public abstract Object execute(Object list);
+    public abstract Object execute(Node node, Object list);
 
     @Specialization
-    static BooleanList sort(BooleanList list) {
+    static BooleanList sort(Node node, BooleanList list) {
       return list.sort();
     }
 
     @Specialization
-    static ByteList sort(ByteList list) {
+    static ByteList sort(Node node, ByteList list) {
       return list.sort();
     }
 
     @Specialization
-    static DoubleList sort(DoubleList list) {
+    static DoubleList sort(Node node, DoubleList list) {
       return list.sort();
     }
 
     @Specialization
-    static FloatList sort(FloatList list) {
+    static FloatList sort(Node node, FloatList list) {
       return list.sort();
     }
 
     @Specialization
-    static IntList sort(IntList list) {
+    static IntList sort(Node node, IntList list) {
       return list.sort();
     }
 
     @Specialization
-    static LongList sort(LongList list) {
+    static LongList sort(Node node, LongList list) {
       return list.sort();
     }
 
     @Specialization
-    static ObjectList sort(ObjectList list, @Cached OperatorNodes.CompareNode compare) {
+    static ObjectList sort(
+        Node node,
+        ObjectList list,
+        @Cached(inline = false) @Cached.Shared("compareUninlined")
+            OperatorNodes.CompareUninlinedNode compare) {
       Object[] result = list.getInnerList().clone();
       Arrays.sort(result, compare::execute);
       return new ObjectList(result);
     }
 
     @Specialization
-    static ShortList sort(ShortList list) {
+    static ShortList sort(Node node, ShortList list) {
       return list.sort();
     }
 
     @Specialization
-    static StringList sort(StringList list) {
+    static StringList sort(Node node, StringList list) {
       return list.sort();
     }
 
     @Specialization
-    static RawArrayList sort(RawArrayList list, @Cached OperatorNodes.CompareNode compare) {
+    static RawArrayList sort(
+        Node node,
+        RawArrayList list,
+        @Cached(inline = false) @Cached.Shared("compareUninlined")
+            OperatorNodes.CompareUninlinedNode compare) {
       ArrayList<Object> aList = new ArrayList<>(list.getInnerList());
       aList.sort(compare::execute);
       return new RawArrayList(aList);
@@ -315,57 +329,58 @@ public class ListNodes {
 
   @NodeInfo(shortName = "List.Take")
   @GenerateUncached
+  @GenerateInline
   public abstract static class TakeNode extends Node {
 
-    public abstract Object execute(Object list, int num);
+    public abstract Object execute(Node node, Object list, int num);
 
     @Specialization
-    static BooleanList take(BooleanList list, int num) {
+    static BooleanList take(Node node, BooleanList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static ByteList take(ByteList list, int num) {
+    static ByteList take(Node node, ByteList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static DoubleList take(DoubleList list, int num) {
+    static DoubleList take(Node node, DoubleList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static FloatList take(FloatList list, int num) {
+    static FloatList take(Node node, FloatList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static IntList take(IntList list, int num) {
+    static IntList take(Node node, IntList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static LongList take(LongList list, int num) {
+    static LongList take(Node node, LongList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static ObjectList take(ObjectList list, int num) {
+    static ObjectList take(Node node, ObjectList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static ShortList take(ShortList list, int num) {
+    static ShortList take(Node node, ShortList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static StringList take(StringList list, int num) {
+    static StringList take(Node node, StringList list, int num) {
       return list.take(num);
     }
 
     @Specialization
-    static RawArrayList take(RawArrayList list, int num) {
+    static RawArrayList take(Node node, RawArrayList list, int num) {
       return list.take(num);
     }
   }

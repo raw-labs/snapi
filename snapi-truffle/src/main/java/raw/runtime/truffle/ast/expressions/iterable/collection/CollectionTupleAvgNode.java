@@ -38,7 +38,7 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
   @Specialization
   protected Object doCollection(
       Object iterable,
-      @Cached(inline = false) AggregationNodes.Aggregate aggregate,
+      @Cached(inline = true) AggregationNodes.Aggregate aggregate,
       @Cached(inline = true) AggregatorNodes.Zero zero,
       @CachedLibrary(limit = "1") InteropLibrary records) {
     try {

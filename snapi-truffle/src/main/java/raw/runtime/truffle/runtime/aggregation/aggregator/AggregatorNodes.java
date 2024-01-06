@@ -68,11 +68,12 @@ public class AggregatorNodes {
         byte aggregatorType,
         Object current,
         Object next,
+        @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
       if (Nullable.isNotNull(current)) {
         if (Nullable.isNotNull(next)) {
           // if both are defined, pick the largest
-          if (compare.execute(current, next) > 0) {
+          if (compare.execute(thisNode, current, next) > 0) {
             return current;
           } else {
             return next;
@@ -93,11 +94,12 @@ public class AggregatorNodes {
         byte aggregatorType,
         Object current,
         Object next,
+        @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
       if (Nullable.isNotNull(current)) {
         if (Nullable.isNotNull(next)) {
           // if both are defined, pick the smallest
-          if (compare.execute(current, next) < 0) {
+          if (compare.execute(thisNode, current, next) < 0) {
             return current;
           } else {
             return next;

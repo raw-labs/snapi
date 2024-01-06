@@ -70,7 +70,7 @@ public class RecordWriteJsonNode extends StatementNode {
       writeStartObjectNode.execute(this, gen);
       for (int i = 0; i < childDirectCalls.length; i++) {
         String member = (String) interops.readArrayElement(keys, i);
-        item = readIndexNode.execute( record, i);
+        item = readIndexNode.execute(this, record, i);
         writeFieldNameNode.execute(this, member, gen);
         childDirectCalls[i].call(item, gen);
       }

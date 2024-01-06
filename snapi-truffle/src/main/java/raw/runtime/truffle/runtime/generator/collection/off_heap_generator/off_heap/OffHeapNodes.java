@@ -37,12 +37,14 @@ import raw.runtime.truffle.utils.IOUtils;
 public class OffHeapNodes {
   @NodeInfo(shortName = "OffHeap.Put")
   @GenerateUncached
+  @GenerateInline
   public abstract static class OffHeapGroupByPutNode extends Node {
 
-    public abstract void execute(Object offHeapGroupBy, Object key, Object value);
+    public abstract void execute(Node node, Object offHeapGroupBy, Object key, Object value);
 
     @Specialization
     static void put(
+        Node node,
         OffHeapGroupByKey offHeapGroupByKey,
         Object key,
         Object value,
@@ -59,12 +61,13 @@ public class OffHeapNodes {
       // add the size of the row to the memory footprint.
       offHeapGroupByKey.setSize(offHeapGroupByKey.getSize() + offHeapGroupByKey.getRowSize());
       if (offHeapGroupByKey.getSize() >= offHeapGroupByKey.getMaxSize()) {
-        flushNode.execute(offHeapGroupByKey);
+        flushNode.execute(thisNode, offHeapGroupByKey);
       }
     }
 
     @Specialization
     static void put(
+        Node node,
         OffHeapGroupByKeys offHeapGroupByKeys,
         Object[] keys,
         Object value,
@@ -81,12 +84,13 @@ public class OffHeapNodes {
       // add the size of the row to the memory footprint.
       offHeapGroupByKeys.setSize(offHeapGroupByKeys.getSize() + offHeapGroupByKeys.getRowSize());
       if (offHeapGroupByKeys.getSize() >= offHeapGroupByKeys.getMaxSize()) {
-        flushNode.execute(offHeapGroupByKeys);
+        flushNode.execute(thisNode, offHeapGroupByKeys);
       }
     }
 
     @Specialization
     static void put(
+        Node node,
         OffHeapDistinct offHeapDistinct,
         Object item,
         Object value,
@@ -98,7 +102,7 @@ public class OffHeapNodes {
         offHeapDistinct.setBinarySize(
             offHeapDistinct.getBinarySize() + offHeapDistinct.getItemSize());
         if (offHeapDistinct.getBinarySize() >= offHeapDistinct.getBlockSize()) {
-          flushNode.execute(offHeapDistinct);
+          flushNode.execute(thisNode, offHeapDistinct);
         }
       }
     }
@@ -106,19 +110,21 @@ public class OffHeapNodes {
 
   @NodeInfo(shortName = "OffHeap.Flush")
   @GenerateUncached
+  @GenerateInline
   public abstract static class OffHeapFlushNode extends Node {
 
-    public abstract void execute(Object offHeap);
+    public abstract void execute(Node node, Object offHeap);
 
     @Specialization
     static void flush(
+        Node node,
         OffHeapGroupByKey offHeapGroupByKey,
         @Cached OffHeapNewDiskBufferNode newDiskBufferNode,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("kryoWriter") KryoNodes.KryoWriteNode writer) {
       Output kryoOutput =
           new UnsafeOutput(
-              newDiskBufferNode.execute(offHeapGroupByKey),
+              newDiskBufferNode.execute(thisNode, offHeapGroupByKey),
               offHeapGroupByKey.getKryoOutputBufferSize());
       for (Object key : offHeapGroupByKey.getMemMap().keySet()) {
         ArrayList<Object> values = offHeapGroupByKey.getMemMap().get(key);
@@ -137,13 +143,14 @@ public class OffHeapNodes {
 
     @Specialization
     static void flush(
+        Node node,
         OffHeapGroupByKeys offHeapGroupByKeys,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("nextFile") OffHeapNextFileNode nextFileNode,
         @Cached @Cached.Shared("kryoWriter") KryoNodes.KryoWriteNode writer) {
       Output kryoOutput =
           new UnsafeOutput(
-              nextFileNode.execute(offHeapGroupByKeys),
+              nextFileNode.execute(thisNode, offHeapGroupByKeys),
               offHeapGroupByKeys.getKryoOutputBufferSize());
       for (Object[] keys : offHeapGroupByKeys.getMemMap().keySet()) {
         // write keys, then n, then values.
@@ -164,13 +171,15 @@ public class OffHeapNodes {
 
     @Specialization
     static void flush(
+        Node node,
         OffHeapDistinct offHeapDistinct,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("nextFile") OffHeapNextFileNode nextFileNode,
         @Cached @Cached.Shared("kryoWriter") KryoNodes.KryoWriteNode writer) {
       Output kryoOutput =
           new UnsafeOutput(
-              nextFileNode.execute(offHeapDistinct), offHeapDistinct.getKryoInputBufferSize());
+              nextFileNode.execute(thisNode, offHeapDistinct),
+              offHeapDistinct.getKryoInputBufferSize());
       for (Object item : offHeapDistinct.getIndex()) {
         writer.execute(thisNode, kryoOutput, offHeapDistinct.getItemType(), item);
       }
@@ -183,61 +192,66 @@ public class OffHeapNodes {
 
   @NodeInfo(shortName = "OffHeap.Generator")
   @GenerateUncached
+  @GenerateInline
   public abstract static class OffHeapGeneratorNode extends Node {
 
-    public abstract Object execute(Object offHeap);
+    public abstract Object execute(Node node, Object offHeap);
 
     @Specialization(guards = "offHeapGroupByKey.getSpilledBuffers().isEmpty()")
-    static GroupByMemoryGenerator generator(OffHeapGroupByKey offHeapGroupByKey) {
+    static GroupByMemoryGenerator generator(Node node, OffHeapGroupByKey offHeapGroupByKey) {
       return new GroupByMemoryGenerator(offHeapGroupByKey);
     }
 
     @Specialization(guards = "!offHeapGroupByKey.getSpilledBuffers().isEmpty()")
     static GroupBySpilledFilesGenerator generator(
+        Node node,
         OffHeapGroupByKey offHeapGroupByKey,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("flush") OffHeapFlushNode flushNode) {
-      flushNode.execute(offHeapGroupByKey);
+        @Cached @Cached.Shared("flush") OffHeapFlushNode flushNode) {
+      flushNode.execute(thisNode, offHeapGroupByKey);
       return new GroupBySpilledFilesGenerator(offHeapGroupByKey);
     }
 
     @Specialization(guards = "offHeapGroupByKeys.getSpilledBuffers().isEmpty()")
-    static OrderByMemoryGenerator generator(OffHeapGroupByKeys offHeapGroupByKeys) {
+    static OrderByMemoryGenerator generator(Node node, OffHeapGroupByKeys offHeapGroupByKeys) {
       return new OrderByMemoryGenerator(offHeapGroupByKeys);
     }
 
     @Specialization(guards = "!offHeapGroupByKeys.getSpilledBuffers().isEmpty()")
     static OrderBySpilledFilesGenerator generator(
+        Node node,
         OffHeapGroupByKeys offHeapGroupByKeys,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("flush") OffHeapFlushNode flushNode) {
-      flushNode.execute(offHeapGroupByKeys);
+      flushNode.execute(thisNode, offHeapGroupByKeys);
       return new OrderBySpilledFilesGenerator(offHeapGroupByKeys);
     }
 
     @Specialization(guards = "offHeapDistinct.getSpilledBuffers().isEmpty()")
-    static DistinctMemoryGenerator generator(OffHeapDistinct offHeapDistinct) {
+    static DistinctMemoryGenerator generator(Node node, OffHeapDistinct offHeapDistinct) {
       return new DistinctMemoryGenerator(offHeapDistinct);
     }
 
     @Specialization(guards = "!offHeapDistinct.getSpilledBuffers().isEmpty()")
     static DistinctSpilledFilesGenerator generator(
+        Node node,
         OffHeapDistinct offHeapDistinct,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("flush") OffHeapFlushNode flushNode) {
-      flushNode.execute(offHeapDistinct);
+      flushNode.execute(thisNode, offHeapDistinct);
       return new DistinctSpilledFilesGenerator(offHeapDistinct);
     }
   }
 
   @NodeInfo(shortName = "OffHeap.NewDiskBuffer")
   @GenerateUncached
+  @GenerateInline
   public abstract static class OffHeapNewDiskBufferNode extends Node {
 
-    public abstract FileOutputStream execute(Object offHeapGroupByKey);
+    public abstract FileOutputStream execute(Node node, Object offHeapGroupByKey);
 
     @Specialization
-    static FileOutputStream newDiskBuffer(OffHeapGroupByKey offHeapGroupByKey) {
+    static FileOutputStream newDiskBuffer(Node node, OffHeapGroupByKey offHeapGroupByKey) {
       File file;
       file = IOUtils.getScratchFile("groupby.", ".kryo", offHeapGroupByKey.getContext()).toFile();
       offHeapGroupByKey.getSpilledBuffers().add(file);
@@ -251,12 +265,13 @@ public class OffHeapNodes {
 
   @NodeInfo(shortName = "OffHeap.nextFile")
   @GenerateUncached
+  @GenerateInline
   public abstract static class OffHeapNextFileNode extends Node {
 
-    public abstract FileOutputStream execute(Object offHeapGroupByKeys);
+    public abstract FileOutputStream execute(Node node, Object offHeapGroupByKeys);
 
     @Specialization
-    static FileOutputStream nextFile(OffHeapGroupByKeys offHeapGroupByKeys) {
+    static FileOutputStream nextFile(Node node, OffHeapGroupByKeys offHeapGroupByKeys) {
       File file;
       file = IOUtils.getScratchFile("orderby.", ".kryo", offHeapGroupByKeys.getContext()).toFile();
       offHeapGroupByKeys.getSpilledBuffers().add(file);
@@ -268,7 +283,7 @@ public class OffHeapNodes {
     }
 
     @Specialization
-    static FileOutputStream nextFile(OffHeapDistinct offHeapDistinct) {
+    static FileOutputStream nextFile(Node node, OffHeapDistinct offHeapDistinct) {
       File file;
       file = IOUtils.getScratchFile("distinct.", ".kryo", offHeapDistinct.getContext()).toFile();
       offHeapDistinct.getSpilledBuffers().add(file);

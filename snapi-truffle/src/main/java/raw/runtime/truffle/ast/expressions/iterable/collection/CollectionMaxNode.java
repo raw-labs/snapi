@@ -27,7 +27,7 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeChild("iterable")
 public abstract class CollectionMaxNode extends ExpressionNode {
   @Specialization
-  protected Object doCollection(Object iterable, @Cached AggregationNodes.Aggregate aggregate) {
+  protected Object doCollection(Object iterable, @Cached(inline = true) AggregationNodes.Aggregate aggregate) {
     try {
       Object aggregation = new SingleAggregation(Aggregators.MAX);
       return aggregate.execute(this, aggregation, iterable);

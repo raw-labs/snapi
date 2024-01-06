@@ -58,9 +58,9 @@ public class CsvListWriterNode extends StatementNode {
     try (OutputStream os = RawContext.get(this).getOutput();
         CsvGenerator gen = createGenerator(os)) {
       ObjectList list = (ObjectList) dataNode.executeGeneric(frame);
-      long size = sizeNode.execute(list);
+      long size = sizeNode.execute(this, list);
       for (long i = 0; i < size; i++) {
-        Object item = getNode.execute(list, i);
+        Object item = getNode.execute(this, list, i);
         itemWriter.call(item, gen);
       }
     } catch (IOException e) {

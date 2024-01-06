@@ -24,12 +24,14 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 public class RecordNodes {
   @NodeInfo(shortName = "Record.ReadIndexNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ReadIndexNode extends Node {
 
-    public abstract Object execute(RecordObject record, int idx);
+    public abstract Object execute(Node node, RecordObject record, int idx);
 
     @Specialization(limit = "3")
     static Object exec(
+        Node node,
         RecordObject record,
         int idx,
         @CachedLibrary("record.values") DynamicObjectLibrary valuesLibrary) {
@@ -42,28 +44,32 @@ public class RecordNodes {
 
   @NodeInfo(shortName = "Record.ReadByKeyNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ReadByKeyNode extends Node {
 
-    public abstract Object execute(RecordObject record, String key);
+    public abstract Object execute(Node node, RecordObject record, String key);
 
     @Specialization
     static Object exec(
+        Node node,
         RecordObject record,
         String key,
         @Bind("$node") Node thisNode,
         @Cached ReadIndexNode readIdx) {
-      return readIdx.execute(record, record.keys.indexOf(key));
+      return readIdx.execute(thisNode, record, record.keys.indexOf(key));
     }
   }
 
   @NodeInfo(shortName = "Record.WriteIndexNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteIndexNode extends Node {
 
-    public abstract void execute(RecordObject record, int idx, String key, Object value);
+    public abstract void execute(Node node, RecordObject record, int idx, String key, Object value);
 
     @Specialization(limit = "3")
     static void exec(
+        Node node,
         RecordObject record,
         int idx,
         String key,
@@ -80,12 +86,14 @@ public class RecordNodes {
 
   @NodeInfo(shortName = "Record.AddByKeyNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class AddByKeyNode extends Node {
 
-    public abstract void execute(RecordObject record, String key, Object value);
+    public abstract void execute(Node node, RecordObject record, String key, Object value);
 
     @Specialization(limit = "3")
     static void exec(
+        Node node,
         RecordObject record,
         String key,
         Object value,

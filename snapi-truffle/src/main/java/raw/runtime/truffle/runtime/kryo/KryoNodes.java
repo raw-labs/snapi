@@ -336,12 +336,13 @@ public class KryoNodes {
         @Cached ListNodes.SizeNode sizeNode,
         @Cached ListNodes.GetNode getNode,
         @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo) {
-      int size = (int) sizeNode.execute(o);
+      int size = (int) sizeNode.execute(thisNode, o);
       output.writeInt(size);
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2ListType) type).innerType();
       for (int i = 0; i < size; i++) {
-        kryo.execute(thisNode, output, elementType, getNode.execute(o, i));
+        Object item = getNode.execute(thisNode, o, i);
+        kryo.execute(thisNode, output, elementType, item);
       }
     }
 

@@ -126,9 +126,9 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       String bodyString,
       Object urlParams,
       Object headers,
-      @Cached ListNodes.SortNode sortNode,
-      @Cached ListNodes.SizeNode sizeNode,
-      @Cached ListNodes.GetNode getNode,
+      @Cached(inline = true) ListNodes.SortNode sortNode,
+      @Cached(inline = true) ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) ListNodes.GetNode getNode,
       @CachedLibrary(limit = "2") InteropLibrary records) {
     try {
       Instant t = Instant.now();
@@ -140,24 +140,24 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       VectorBuilder<Tuple2<String, String>> urlParamsVec = new VectorBuilder<>();
       StringBuilder canonicalQueryBuilder = new StringBuilder();
 
-      Object urlParamsSorted = sortNode.execute(urlParams);
+      Object urlParamsSorted = sortNode.execute(this, urlParams);
 
-      for (int i = 0; i < sizeNode.execute(urlParamsSorted); i++) {
+      for (int i = 0; i < sizeNode.execute(this, urlParamsSorted); i++) {
         canonicalQueryBuilder
             .append(
                 URLEncoder.encode(
-                    (String) records.readMember(getNode.execute(urlParamsSorted, i), "_1"),
+                    (String) records.readMember(getNode.execute(this, urlParamsSorted, i), "_1"),
                     StandardCharsets.UTF_8))
             .append("=")
             .append(
                 URLEncoder.encode(
-                    (String) records.readMember(getNode.execute(urlParamsSorted, i), "_2"),
+                    (String) records.readMember(getNode.execute(this, urlParamsSorted, i), "_2"),
                     StandardCharsets.UTF_8))
             .append("&");
         urlParamsVec.$plus$eq(
             new Tuple2<>(
-                (String) records.readMember(getNode.execute(urlParamsSorted, i), "_1"),
-                (String) records.readMember(getNode.execute(urlParamsSorted, i), "_2")));
+                (String) records.readMember(getNode.execute(this, urlParamsSorted, i), "_1"),
+                (String) records.readMember(getNode.execute(this, urlParamsSorted, i), "_2")));
       }
       // remove last '&'
       if (!canonicalQueryBuilder.isEmpty()) {
@@ -175,7 +175,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       StringBuilder signedHeadersBuilder = new StringBuilder();
       VectorBuilder<Tuple2<String, String>> headersParamsVec = new VectorBuilder<>();
 
-      int headersSize = (int) sizeNode.execute(headers);
+      int headersSize = (int) sizeNode.execute(this, headers);
       // Adding space for host and "x-amz-date", "host" and "x-amz-security-token" if it is
       // defined
       int allHeadersSize = headersSize + 2;
@@ -184,7 +184,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       Object[] allHeaders = new Object[allHeadersSize];
 
       for (int i = 0; i < allHeaders.length; i++) {
-        allHeaders[i] = getNode.execute(headers, i);
+        allHeaders[i] = getNode.execute(this, headers, i);
       }
 
       allHeaders[headersSize] = RawLanguage.get(this).createRecord();
@@ -201,28 +201,28 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
         records.writeMember(allHeaders[headersSize + 2], "_2", sessionToken);
       }
 
-      Object sortedHeaders = sortNode.execute(new ObjectList(allHeaders));
+      Object sortedHeaders = sortNode.execute(this, new ObjectList(allHeaders));
 
-      for (int i = 0; i < sizeNode.execute(sortedHeaders); i++) {
+      for (int i = 0; i < sizeNode.execute(this, sortedHeaders); i++) {
         canonicalHeadersBuilder
             .append(
-                ((String) records.readMember(getNode.execute(sortedHeaders, i), "_1"))
+                ((String) records.readMember(getNode.execute(this, sortedHeaders, i), "_1"))
                     .toLowerCase())
             .append(":")
-            .append((String) records.readMember(getNode.execute(sortedHeaders, i), "_2"))
+            .append((String) records.readMember(getNode.execute(this, sortedHeaders, i), "_2"))
             .append("\n");
         signedHeadersBuilder
             .append(
-                ((String) records.readMember(getNode.execute(sortedHeaders, i), "_1"))
+                ((String) records.readMember(getNode.execute(this, sortedHeaders, i), "_1"))
                     .toLowerCase())
             .append(";");
       }
 
-      for (int i = 0; i < sizeNode.execute(headers); i++) {
+      for (int i = 0; i < sizeNode.execute(this, headers); i++) {
         headersParamsVec.$plus$eq(
             new Tuple2<>(
-                ((String) records.readMember(getNode.execute(headers, i), "_1")).toLowerCase(),
-                (String) records.readMember(getNode.execute(headers, i), "_2")));
+                ((String) records.readMember(getNode.execute(this, headers, i), "_1")).toLowerCase(),
+                (String) records.readMember(getNode.execute(this, headers, i), "_2")));
       }
 
       if (!signedHeadersBuilder.isEmpty()) {

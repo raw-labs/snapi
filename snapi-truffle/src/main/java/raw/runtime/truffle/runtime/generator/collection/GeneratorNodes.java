@@ -104,7 +104,7 @@ public class GeneratorNodes {
         GroupByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
           Object bufferKey = headKeyNode.execute(thisNode, inputBuffer);
-          if (key == null || keyCompare.execute(bufferKey, key) < 0) {
+          if (key == null || keyCompare.execute(thisNode, bufferKey, key) < 0) {
             key = bufferKey;
           }
         } catch (KryoException e) {
@@ -122,7 +122,7 @@ public class GeneratorNodes {
       int numberOfRows = 0;
       for (GroupByInputBuffer inputBuffer : generator.getInputBuffers()) {
         Object bufferKey = headKeyNode.execute(thisNode, inputBuffer);
-        if (keyCompare.execute(key, bufferKey) == 0) {
+        if (keyCompare.execute(thisNode, key, bufferKey) == 0) {
           numberOfRows += inputBuffer.getItemsLeft();
         }
       }
@@ -133,7 +133,7 @@ public class GeneratorNodes {
       // array.
       int n = 0;
       for (GroupByInputBuffer inputBuffer : generator.getInputBuffers()) {
-        if (keyCompare.execute(key, headKeyNode.execute(thisNode, inputBuffer)) == 0) {
+        if (keyCompare.execute(thisNode, key, headKeyNode.execute(thisNode, inputBuffer)) == 0) {
           int inThatBuffer = inputBuffer.getItemsLeft();
           for (int i = 0; i < inThatBuffer; i++) {
             values[n++] = readNode.execute(thisNode, inputBuffer);
@@ -178,7 +178,7 @@ public class GeneratorNodes {
           OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
           try {
             Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
-            if (keys == null || keyCompare.execute(bufferKeys, keys) < 0) {
+            if (keys == null || keyCompare.execute(thisNode, bufferKeys, keys) < 0) {
               keys = bufferKeys;
             }
           } catch (KryoException e) {
@@ -195,7 +195,7 @@ public class GeneratorNodes {
         // memory.
         for (OrderByInputBuffer inputBuffer : generator.getInputBuffers()) {
           Object[] bufferKeys = inputBuffer.getKeys();
-          if (keyCompare.execute(keys, bufferKeys) == 0) {
+          if (keyCompare.execute(thisNode, keys, bufferKeys) == 0) {
             generator.setCurrentKryoBuffer(inputBuffer);
             break;
           }
@@ -245,7 +245,7 @@ public class GeneratorNodes {
           }
           generator.getHeadKeys().set(idx, bufferKey);
         }
-        if (key == null || keyCompare.execute(bufferKey, key) < 0) {
+        if (key == null || keyCompare.execute(thisNode, bufferKey, key) < 0) {
           key = bufferKey;
         }
       }
@@ -253,7 +253,7 @@ public class GeneratorNodes {
       // Walk through the buffers to consume the ones that expose the same smallest key.
       for (int idx = 0; idx < generator.getKryoBuffers().size(); idx++) {
         Object bufferKey = generator.getHeadKeys().get(idx);
-        if (keyCompare.execute(key, bufferKey) == 0) {
+        if (keyCompare.execute(thisNode, key, bufferKey) == 0) {
           // reset the key since we read its data
           generator.getHeadKeys().set(idx, null);
         }
@@ -267,7 +267,7 @@ public class GeneratorNodes {
         ListGenerator generator,
         @Bind("$node") Node thisNode,
         @Cached ListNodes.GetNode getNode) {
-      Object item = getNode.execute(generator.getList(), generator.getPosition());
+      Object item = getNode.execute(thisNode, generator.getList(), generator.getPosition());
       generator.incrementPosition();
       return item;
     }
@@ -320,7 +320,7 @@ public class GeneratorNodes {
         GroupByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
           Object bufferKey = headKeyNode.execute(thisNode, inputBuffer);
-          if (key == null || keyCompare.execute(bufferKey, key) < 0) {
+          if (key == null || keyCompare.execute(thisNode, bufferKey, key) < 0) {
             key = bufferKey;
           }
         } catch (KryoException e) {
@@ -353,7 +353,7 @@ public class GeneratorNodes {
         OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
           Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
-          if (keys == null || keyCompare.execute(bufferKeys, keys) < 0) {
+          if (keys == null || keyCompare.execute(thisNode, bufferKeys, keys) < 0) {
             keys = bufferKeys;
           }
         } catch (KryoException e) {
@@ -403,7 +403,7 @@ public class GeneratorNodes {
           }
           generator.getHeadKeys().set(idx, bufferKey);
         }
-        if (key == null || keyCompare.execute(bufferKey, key) < 0) {
+        if (key == null || keyCompare.execute(thisNode, bufferKey, key) < 0) {
           key = bufferKey;
         }
       }
@@ -416,7 +416,7 @@ public class GeneratorNodes {
         ListGenerator generator,
         @Bind("$node") Node thisNode,
         @Cached ListNodes.SizeNode sizeNode) {
-      return generator.getPosition() < sizeNode.execute(generator.getList());
+      return generator.getPosition() < sizeNode.execute(thisNode, generator.getList());
     }
   }
 

@@ -35,10 +35,10 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
       String start,
       String sep,
       String end,
-      @Cached OperatorNodes.AddNode add,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextNode) {
+      @Cached(inline = true) OperatorNodes.AddNode add,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode) {
     try {
       Object generator = getGeneratorNode.execute(this, iterable);
       String currentString = start;

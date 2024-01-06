@@ -58,16 +58,16 @@ public abstract class ListGroupByNode extends ExpressionNode {
       Object input,
       Object keyFun,
       @Bind("this") Node thisNode,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
-      @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode,
+      @Cached(inline = true) OffHeapNodes.OffHeapGroupByPutNode putNode,
+      @Cached(inline = true) OffHeapNodes.OffHeapGeneratorNode generatorNode,
       @CachedLibrary("keyFun") InteropLibrary keyFunLib,
-      @Cached ListNodes.ToIterableNode toIterableNode) {
-    Object iterable = toIterableNode.execute(input);
+      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
+    Object iterable = toIterableNode.execute(thisNode, input);
     SourceContext context = RawContext.get(thisNode).getSourceContext();
     OffHeapGroupByKey map =
         new OffHeapGroupByKey(
@@ -82,7 +82,7 @@ public abstract class ListGroupByNode extends ExpressionNode {
       while (hasNextNode.execute(thisNode, generator)) {
         Object v = nextNode.execute(thisNode, generator);
         Object key = keyFunLib.execute(keyFun, v);
-        putNode.execute( map, key, v);
+        putNode.execute(thisNode, map, key, v);
       }
     } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
       throw new RawTruffleRuntimeException("failed to execute function");
@@ -90,7 +90,7 @@ public abstract class ListGroupByNode extends ExpressionNode {
       closeNode.execute(thisNode, generator);
     }
     ArrayList<RecordObject> items = new ArrayList<>();
-    Object mapGenerator = generatorNode.execute( map);
+    Object mapGenerator = generatorNode.execute(thisNode, map);
     try {
       initNode.execute(thisNode, mapGenerator);
       while (hasNextNode.execute(thisNode, mapGenerator)) {

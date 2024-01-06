@@ -40,14 +40,14 @@ public abstract class ListExistsNode extends ExpressionNode {
       Object list,
       Object closure,
       @Bind("this") Node thisNode,
-      @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-      @Cached ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = toIterableNode.execute(list);
+    Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
       generatorInitNode.execute(thisNode, generator);

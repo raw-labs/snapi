@@ -47,11 +47,11 @@ public class ListWriteJsonNode extends StatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    int listSize = (int) sizeNode.execute(args[0]);
+    int listSize = (int) sizeNode.execute(this, args[0]);
     JsonGenerator gen = (JsonGenerator) args[1];
     writeStartArrayNode.execute(this, gen);
     for (int i = 0; i < listSize; i++) {
-      childDirectCall.call(getNode.execute(args[0], i), gen);
+      childDirectCall.call(getNode.execute(this, args[0], i), gen);
     }
     writeEndArrayNode.execute(this, gen);
   }

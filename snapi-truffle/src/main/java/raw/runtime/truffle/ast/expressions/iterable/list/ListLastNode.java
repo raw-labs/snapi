@@ -29,11 +29,13 @@ public abstract class ListLastNode extends ExpressionNode {
 
   @Specialization
   protected Object doLast(
-      Object list, @Cached ListNodes.SizeNode sizeNode, @Cached ListNodes.GetNode getNode) {
-    long size = sizeNode.execute(list);
+      Object list,
+      @Cached(inline = true) ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) ListNodes.GetNode getNode) {
+    long size = sizeNode.execute(this, list);
     if (size == 0) {
       return NullObject.INSTANCE;
     }
-    return getNode.execute(list, (int) size - 1);
+    return getNode.execute(this, list, (int) size - 1);
   }
 }

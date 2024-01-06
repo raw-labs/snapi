@@ -52,7 +52,7 @@ public class CsvFromStringCollection implements TruffleObject {
 
   @ExportMessage
   Object getIterator(
-      @Bind("$node") Node thisNode, @Cached GeneratorNodes.GeneratorInitNode initNode) {
+      @Bind("$node") Node thisNode, @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
     Object generator = getGenerator();
     initNode.execute(thisNode, generator);
     return generator;
