@@ -113,7 +113,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
   }
 
   @TruffleBoundary
-  @Specialization(limit = "2")
+  @Specialization
   protected LocationObject doRequest(
       String key,
       String secretKey,

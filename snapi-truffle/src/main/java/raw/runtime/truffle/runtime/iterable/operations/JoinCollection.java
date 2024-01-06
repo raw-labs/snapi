@@ -12,11 +12,13 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.function.Closure;
@@ -77,10 +79,11 @@ public class JoinCollection implements TruffleObject {
 
   @ExportMessage
   Object getIterator(
+      @Bind("$node") Node thisNode,
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorInitNode initNode) {
-    Object generator = getGeneratorNode.execute(this);
-    initNode.execute(generator);
+    Object generator = getGeneratorNode.execute(thisNode, this);
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

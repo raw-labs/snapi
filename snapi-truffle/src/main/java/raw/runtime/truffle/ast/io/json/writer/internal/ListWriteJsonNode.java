@@ -49,10 +49,10 @@ public class ListWriteJsonNode extends StatementNode {
     Object[] args = frame.getArguments();
     int listSize = (int) sizeNode.execute(args[0]);
     JsonGenerator gen = (JsonGenerator) args[1];
-    writeStartArrayNode.execute(gen);
+    writeStartArrayNode.execute(this, gen);
     for (int i = 0; i < listSize; i++) {
       childDirectCall.call(getNode.execute(args[0], i), gen);
     }
-    writeEndArrayNode.execute(gen);
+    writeEndArrayNode.execute(this, gen);
   }
 }

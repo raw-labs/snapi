@@ -15,9 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.unsafe.UnsafeInput;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.FileInputStream;
@@ -46,19 +44,23 @@ import raw.runtime.truffle.runtime.operators.OperatorNodes;
 public class GeneratorNodes {
   @NodeInfo(shortName = "AbstractGenerator.Next")
   @GenerateUncached
+  @GenerateInline
   public abstract static class GeneratorNextNode extends Node {
 
-    public abstract Object execute(Object generator);
+    public abstract Object execute(Node node, Object generator);
 
     @Specialization
     static Object next(
-        AbstractGenerator generator, @Cached ComputeNextNodes.NextNode computeNextNode) {
+        Node node,
+        AbstractGenerator generator,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) ComputeNextNodes.NextNode computeNextNode) {
       if (generator.isTerminated()) {
         throw new BreakException();
       }
       if (generator.getNext() == null && !generator.hasException()) {
         try {
-          generator.setNext(computeNextNode.execute(generator.getNextGenerator()));
+          generator.setNext(computeNextNode.execute(thisNode, generator.getNextGenerator()));
         } catch (BreakException e) { // case end of data
           generator.setTerminated(true);
           throw e;
@@ -76,33 +78,39 @@ public class GeneratorNodes {
 
     @Specialization
     static Object next(
-        GroupByMemoryGenerator generator, @Cached RecordShaperNodes.MakeRowNode reshape) {
+        Node node,
+        GroupByMemoryGenerator generator,
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("reshape") RecordShaperNodes.MakeRowNode reshape) {
       Object key = generator.getKeys().next();
       ArrayList<Object> values = generator.getOffHeapGroupByKey().getMemMap().get(key);
-      return reshape.execute(generator.getOffHeapGroupByKey().getReshape(), key, values.toArray());
+      return reshape.execute(
+          thisNode, generator.getOffHeapGroupByKey().getReshape(), key, values.toArray());
     }
 
     @Specialization
     static Object next(
+        Node node,
         GroupBySpilledFilesGenerator generator,
-        @Cached InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
-        @Cached OperatorNodes.CompareNode keyCompare,
-        @Cached InputBufferNodes.InputBufferCloseNode closeNode,
-        @Cached InputBufferNodes.InputBufferReadNode readNode,
-        @Cached RecordShaperNodes.MakeRowNode reshape) {
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
+        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare,
+        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
+        @Cached @Cached.Shared("read") InputBufferNodes.InputBufferReadNode readNode,
+        @Cached @Cached.Shared("reshape") RecordShaperNodes.MakeRowNode reshape) {
       Object key = null;
       // read missing keys and compute the smallest
       for (int idx = 0; idx < generator.getInputBuffers().size(); idx++) {
         GroupByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
-          Object bufferKey = headKeyNode.execute(inputBuffer);
+          Object bufferKey = headKeyNode.execute(thisNode, inputBuffer);
           if (key == null || keyCompare.execute(bufferKey, key) < 0) {
             key = bufferKey;
           }
         } catch (KryoException e) {
           // we reached the end of that buffer
           final GroupByInputBuffer removed = generator.getInputBuffers().remove(idx);
-          closeNode.execute(removed);
+          closeNode.execute(thisNode, removed);
           idx--;
         }
       }
@@ -113,7 +121,7 @@ public class GeneratorNodes {
       // memory.
       int numberOfRows = 0;
       for (GroupByInputBuffer inputBuffer : generator.getInputBuffers()) {
-        Object bufferKey = headKeyNode.execute(inputBuffer);
+        Object bufferKey = headKeyNode.execute(thisNode, inputBuffer);
         if (keyCompare.execute(key, bufferKey) == 0) {
           numberOfRows += inputBuffer.getItemsLeft();
         }
@@ -125,18 +133,18 @@ public class GeneratorNodes {
       // array.
       int n = 0;
       for (GroupByInputBuffer inputBuffer : generator.getInputBuffers()) {
-        if (keyCompare.execute(key, headKeyNode.execute(inputBuffer)) == 0) {
+        if (keyCompare.execute(key, headKeyNode.execute(thisNode, inputBuffer)) == 0) {
           int inThatBuffer = inputBuffer.getItemsLeft();
           for (int i = 0; i < inThatBuffer; i++) {
-            values[n++] = readNode.execute(inputBuffer);
+            values[n++] = readNode.execute(thisNode, inputBuffer);
           }
         }
       }
-      return reshape.execute(generator.getOffHeapGroupByKey().getReshape(), key, values);
+      return reshape.execute(thisNode, generator.getOffHeapGroupByKey().getReshape(), key, values);
     }
 
     @Specialization
-    static Object next(OrderByMemoryGenerator generator) {
+    static Object next(Node node, OrderByMemoryGenerator generator) {
       Object n;
       if (generator.getValues() == null) {
         // no iterator over the values, create one from the next key.
@@ -155,11 +163,13 @@ public class GeneratorNodes {
 
     @Specialization
     static Object next(
+        Node node,
         OrderBySpilledFilesGenerator generator,
-        @Cached InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
-        @Cached InputBufferNodes.InputBufferCloseNode closeNode,
-        @Cached InputBufferNodes.InputBufferReadNode readNode,
-        @Cached OperatorNodes.CompareNode keyCompare) {
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
+        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
+        @Cached @Cached.Shared("read") InputBufferNodes.InputBufferReadNode readNode,
+        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
       if (generator.getCurrentKryoBuffer() == null) {
         // we need to read the next keys and prepare the new buffer to read from.
         Object[] keys = null;
@@ -167,14 +177,14 @@ public class GeneratorNodes {
         for (int idx = 0; idx < generator.getInputBuffers().size(); idx++) {
           OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
           try {
-            Object[] bufferKeys = (Object[]) headKeyNode.execute(inputBuffer);
+            Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
             if (keys == null || keyCompare.execute(bufferKeys, keys) < 0) {
               keys = bufferKeys;
             }
           } catch (KryoException e) {
             // we reached the end of that buffer
             OrderByInputBuffer removed = generator.getInputBuffers().remove(idx);
-            closeNode.execute(removed);
+            closeNode.execute(thisNode, removed);
             idx--;
           }
         }
@@ -191,7 +201,7 @@ public class GeneratorNodes {
           }
         }
       }
-      Object row = readNode.execute(generator.getCurrentKryoBuffer());
+      Object row = readNode.execute(thisNode, generator.getCurrentKryoBuffer());
       if (generator.getCurrentKryoBuffer().getItemsLeft() == 0) {
         generator.setCurrentKryoBuffer(null);
       }
@@ -199,15 +209,17 @@ public class GeneratorNodes {
     }
 
     @Specialization
-    static Object next(DistinctMemoryGenerator generator) {
+    static Object next(Node node, DistinctMemoryGenerator generator) {
       return generator.getItems().next();
     }
 
     @Specialization
     static Object next(
+        Node node,
         DistinctSpilledFilesGenerator generator,
+        @Bind("$node") Node thisNode,
         @Cached KryoNodes.KryoReadNode reader,
-        @Cached OperatorNodes.CompareNode keyCompare) {
+        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
       Object key = null;
       // read missing keys and compute the smallest
       for (int idx = 0; idx < generator.getKryoBuffers().size(); idx++) {
@@ -218,6 +230,7 @@ public class GeneratorNodes {
           try {
             bufferKey =
                 reader.execute(
+                    thisNode,
                     generator.getOffHeapDistinct().getLanguage(),
                     buffer,
                     generator.getOffHeapDistinct().getItemType());
@@ -248,8 +261,12 @@ public class GeneratorNodes {
       return key;
     }
 
-    @Specialization(limit = "3")
-    static Object next(ListGenerator generator, @Cached ListNodes.GetNode getNode) {
+    @Specialization
+    static Object next(
+        Node node,
+        ListGenerator generator,
+        @Bind("$node") Node thisNode,
+        @Cached ListNodes.GetNode getNode) {
       Object item = getNode.execute(generator.getList(), generator.getPosition());
       generator.incrementPosition();
       return item;
@@ -258,18 +275,22 @@ public class GeneratorNodes {
 
   @NodeInfo(shortName = "AbstractGenerator.HasNext")
   @GenerateUncached
+  @GenerateInline
   public abstract static class GeneratorHasNextNode extends Node {
 
-    public abstract boolean execute(Object generator);
+    public abstract boolean execute(Node node, Object generator);
 
     @Specialization
     static boolean hasNext(
-        AbstractGenerator generator, @Cached ComputeNextNodes.NextNode computeNextNode) {
+        Node node,
+        AbstractGenerator generator,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) ComputeNextNodes.NextNode computeNextNode) {
       if (generator.isTerminated()) {
         return false;
       } else if (generator.getNext() == null && !generator.hasException()) {
         try {
-          generator.setNext(computeNextNode.execute(generator.getNextGenerator()));
+          generator.setNext(computeNextNode.execute(thisNode, generator.getNextGenerator()));
         } catch (BreakException e) {
           generator.setTerminated(true);
           return false;
@@ -281,29 +302,31 @@ public class GeneratorNodes {
     }
 
     @Specialization
-    static boolean hasNext(GroupByMemoryGenerator generator) {
+    static boolean hasNext(Node node, GroupByMemoryGenerator generator) {
       return generator.getKeys().hasNext();
     }
 
     @Specialization
     static boolean hasNext(
+        Node node,
         GroupBySpilledFilesGenerator generator,
-        @Cached InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
-        @Cached OperatorNodes.CompareNode keyCompare,
-        @Cached InputBufferNodes.InputBufferCloseNode closeNode) {
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
+        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare,
+        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode) {
       Object key = null;
       // read missing keys and compute the smallest
       for (int idx = 0; idx < generator.getInputBuffers().size(); idx++) {
         GroupByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
-          Object bufferKey = headKeyNode.execute(inputBuffer);
+          Object bufferKey = headKeyNode.execute(thisNode, inputBuffer);
           if (key == null || keyCompare.execute(bufferKey, key) < 0) {
             key = bufferKey;
           }
         } catch (KryoException e) {
           // we reached the end of that buffer
           final GroupByInputBuffer removed = generator.getInputBuffers().remove(idx);
-          closeNode.execute(removed);
+          closeNode.execute(thisNode, removed);
           idx--;
         }
       }
@@ -311,30 +334,32 @@ public class GeneratorNodes {
     }
 
     @Specialization
-    static boolean hasNext(OrderByMemoryGenerator generator) {
+    static boolean hasNext(Node node, OrderByMemoryGenerator generator) {
       return generator.getKeysIterator().hasNext() || generator.getValues() != null;
     }
 
     @Specialization
     static boolean hasNext(
+        Node node,
         OrderBySpilledFilesGenerator generator,
-        @Cached InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
-        @Cached InputBufferNodes.InputBufferCloseNode closeNode,
-        @Cached OperatorNodes.CompareNode keyCompare) {
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
+        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
+        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
       // we need to read the next keys and prepare the new buffer to read from.
       Object[] keys = null;
       // read missing keys and compute the smallest
       for (int idx = 0; idx < generator.getInputBuffers().size(); idx++) {
         OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
-          Object[] bufferKeys = (Object[]) headKeyNode.execute(inputBuffer);
+          Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
           if (keys == null || keyCompare.execute(bufferKeys, keys) < 0) {
             keys = bufferKeys;
           }
         } catch (KryoException e) {
           // we reached the end of that buffer
           OrderByInputBuffer removed = generator.getInputBuffers().remove(idx);
-          closeNode.execute(removed);
+          closeNode.execute(thisNode, removed);
           idx--;
         }
       }
@@ -342,15 +367,17 @@ public class GeneratorNodes {
     }
 
     @Specialization
-    static boolean hasNext(DistinctMemoryGenerator generator) {
+    static boolean hasNext(Node node, DistinctMemoryGenerator generator) {
       return generator.getItems().hasNext();
     }
 
     @Specialization
     static boolean hasNext(
+        Node node,
         DistinctSpilledFilesGenerator generator,
+        @Bind("$node") Node thisNode,
         @Cached KryoNodes.KryoReadNode reader,
-        @Cached OperatorNodes.CompareNode keyCompare) {
+        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
       Object key = null;
       // read missing keys and compute the smallest
       for (int idx = 0; idx < generator.getKryoBuffers().size(); idx++) {
@@ -361,6 +388,7 @@ public class GeneratorNodes {
           try {
             bufferKey =
                 reader.execute(
+                    thisNode,
                     generator.getOffHeapDistinct().getLanguage(),
                     buffer,
                     generator.getOffHeapDistinct().getItemType());
@@ -382,28 +410,37 @@ public class GeneratorNodes {
       return key != null;
     }
 
-    @Specialization(limit = "3")
-    static boolean hasNext(ListGenerator generator, @Cached ListNodes.SizeNode sizeNode) {
+    @Specialization
+    static boolean hasNext(
+        Node node,
+        ListGenerator generator,
+        @Bind("$node") Node thisNode,
+        @Cached ListNodes.SizeNode sizeNode) {
       return generator.getPosition() < sizeNode.execute(generator.getList());
     }
   }
 
   @NodeInfo(shortName = "AbstractGenerator.Init")
   @GenerateUncached
+  @GenerateInline
   public abstract static class GeneratorInitNode extends Node {
 
-    public abstract void execute(Object generator);
+    public abstract void execute(Node node, Object generator);
 
     @Specialization
-    static void init(AbstractGenerator generator, @Cached ComputeNextNodes.InitNode initNode) {
-      initNode.execute(generator.getNextGenerator());
+    static void init(
+        Node node,
+        AbstractGenerator generator,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) ComputeNextNodes.InitNode initNode) {
+      initNode.execute(thisNode, generator.getNextGenerator());
     }
 
     @Specialization
-    static void init(GroupByMemoryGenerator generator) {}
+    static void init(Node node, GroupByMemoryGenerator generator) {}
 
     @Specialization
-    static void init(GroupBySpilledFilesGenerator generator) {
+    static void init(Node node, GroupBySpilledFilesGenerator generator) {
       // turn the list of spilled files into a list of Kryo buffers. Buffers will be read and
       // dropped from
       // the list as they are exhausted.
@@ -429,10 +466,10 @@ public class GeneratorNodes {
     }
 
     @Specialization
-    static void init(OrderByMemoryGenerator generator) {}
+    static void init(Node node, OrderByMemoryGenerator generator) {}
 
     @Specialization
-    static void init(OrderBySpilledFilesGenerator generator) {
+    static void init(Node node, OrderBySpilledFilesGenerator generator) {
       int nSpilledFiles = generator.getOffHeapGroupByKeys().getSpilledBuffers().size();
       generator.setInputBuffers(new ArrayList<>(nSpilledFiles));
       generator
@@ -455,10 +492,10 @@ public class GeneratorNodes {
     }
 
     @Specialization
-    static void init(DistinctMemoryGenerator generator) {}
+    static void init(Node node, DistinctMemoryGenerator generator) {}
 
     @Specialization
-    static void init(DistinctSpilledFilesGenerator generator) {
+    static void init(Node node, DistinctSpilledFilesGenerator generator) {
       int nSpilledFiles = generator.getOffHeapDistinct().getSpilledBuffers().size();
       generator.setKryoBuffers(new ArrayList<>(nSpilledFiles));
       generator.setHeadKeys(new ArrayList<>(nSpilledFiles));
@@ -482,45 +519,50 @@ public class GeneratorNodes {
     }
 
     @Specialization
-    static void init(ListGenerator generator) {}
+    static void init(Node node, ListGenerator generator) {}
   }
 
   @NodeInfo(shortName = "Generator.Close")
   @GenerateUncached
+  @GenerateInline
   public abstract static class GeneratorCloseNode extends Node {
 
-    public abstract void execute(Object generator);
+    public abstract void execute(Node node, Object generator);
 
     @Specialization
-    static void close(AbstractGenerator generator, @Cached ComputeNextNodes.CloseNode closeNode) {
-      closeNode.execute(generator.getNextGenerator());
+    static void close(
+        Node node,
+        AbstractGenerator generator,
+        @Bind("$node") Node thisNode,
+        @Cached ComputeNextNodes.CloseNode closeNode) {
+      closeNode.execute(thisNode, generator.getNextGenerator());
     }
 
     @Specialization
-    static void close(GroupByMemoryGenerator generator) {}
+    static void close(Node node, GroupByMemoryGenerator generator) {}
 
     @Specialization
-    static void close(GroupBySpilledFilesGenerator generator) {
+    static void close(Node node, GroupBySpilledFilesGenerator generator) {
       generator.getInputBuffers().forEach(buffer -> buffer.getInput().close());
     }
 
     @Specialization
-    static void close(OrderByMemoryGenerator generator) {}
+    static void close(Node node, OrderByMemoryGenerator generator) {}
 
     @Specialization
-    static void close(OrderBySpilledFilesGenerator generator) {
+    static void close(Node node, OrderBySpilledFilesGenerator generator) {
       generator.getInputBuffers().forEach(buffer -> buffer.getInput().close());
     }
 
     @Specialization
-    static void close(DistinctMemoryGenerator generator) {}
+    static void close(Node node, DistinctMemoryGenerator generator) {}
 
     @Specialization
-    static void close(DistinctSpilledFilesGenerator generator) {
+    static void close(Node node, DistinctSpilledFilesGenerator generator) {
       generator.getKryoBuffers().forEach(Input::close);
     }
 
     @Specialization
-    static void close(ListGenerator generator) {}
+    static void close(Node node, ListGenerator generator) {}
   }
 }

@@ -34,7 +34,7 @@ public class KryoWriteNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     ByteArrayOutputStream array = new ByteArrayOutputStream();
     Output output = new Output(array);
-    writer.execute(output, t, valueNode.executeGeneric(virtualFrame));
+    writer.execute(this, output, t, valueNode.executeGeneric(virtualFrame));
     output.close();
     return array.toByteArray();
   }

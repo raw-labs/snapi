@@ -12,15 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -47,60 +45,60 @@ import raw.sources.api.SourceContext;
 @NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
 public abstract class ListGroupByNode extends ExpressionNode {
 
-  @Child
-  OperatorNodes.CompareNode compare = insert(OperatorNodesFactory.CompareNodeGen.getUncached());
+  @Idempotent
+  public abstract Rql2TypeWithProperties getKeyType();
 
-  protected abstract Rql2TypeWithProperties getKeyType();
-
-  protected abstract Rql2TypeWithProperties getRowType();
+  @Idempotent
+  public abstract Rql2TypeWithProperties getRowType();
 
   static final int LIB_LIMIT = 2;
 
   @Specialization(limit = "3")
-  protected Object doGroup(
+  protected static Object doGroup(
       Object input,
       Object keyFun,
+      @Bind("this") Node thisNode,
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached GeneratorNodes.GeneratorInitNode initNode,
-      @Cached GeneratorNodes.GeneratorNextNode nextNode,
-      @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
       @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode,
       @CachedLibrary("keyFun") InteropLibrary keyFunLib,
       @Cached ListNodes.ToIterableNode toIterableNode) {
     Object iterable = toIterableNode.execute(input);
-    SourceContext context = RawContext.get(this).getSourceContext();
+    SourceContext context = RawContext.get(thisNode).getSourceContext();
     OffHeapGroupByKey map =
         new OffHeapGroupByKey(
-            getKeyType(),
-            getRowType(),
-            RawLanguage.get(this),
+            ((ListGroupByNode) thisNode).getKeyType(),
+            ((ListGroupByNode) thisNode).getRowType(),
+            RawLanguage.get(thisNode),
             context,
-            new RecordShaper(RawLanguage.get(this), true));
-    Object generator = getGeneratorNode.execute(iterable);
+            new RecordShaper(RawLanguage.get(thisNode), true));
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
-      initNode.execute(generator);
-      while (hasNextNode.execute(generator)) {
-        Object v = nextNode.execute(generator);
+      initNode.execute(thisNode, generator);
+      while (hasNextNode.execute(thisNode, generator)) {
+        Object v = nextNode.execute(thisNode, generator);
         Object key = keyFunLib.execute(keyFun, v);
-        putNode.execute(map, key, v);
+        putNode.execute( map, key, v);
       }
     } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
       throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
-      closeNode.execute(generator);
+      closeNode.execute(thisNode, generator);
     }
     ArrayList<RecordObject> items = new ArrayList<>();
-    Object mapGenerator = generatorNode.execute(map);
+    Object mapGenerator = generatorNode.execute( map);
     try {
-      initNode.execute(mapGenerator);
-      while (hasNextNode.execute(mapGenerator)) {
-        RecordObject record = (RecordObject) nextNode.execute(mapGenerator);
+      initNode.execute(thisNode, mapGenerator);
+      while (hasNextNode.execute(thisNode, mapGenerator)) {
+        RecordObject record = (RecordObject) nextNode.execute(thisNode, mapGenerator);
         items.add(record);
       }
     } finally {
-      closeNode.execute(mapGenerator);
+      closeNode.execute(thisNode, mapGenerator);
     }
     return new ObjectList(items.toArray());
   }

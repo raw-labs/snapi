@@ -12,9 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -24,33 +22,46 @@ import raw.runtime.truffle.runtime.kryo.KryoNodes;
 public class InputBufferNodes {
   @NodeInfo(shortName = "InputBuffer.Close")
   @GenerateUncached
+  @GenerateInline
   public abstract static class InputBufferCloseNode extends Node {
 
-    public abstract void execute(Object generator);
+    public abstract void execute(Node node, Object generator);
 
     @Specialization
-    static void close(GroupByInputBuffer buffer, @Cached ComputeNextNodes.CloseNode closeNode) {
+    static void close(
+        Node node,
+        GroupByInputBuffer buffer,
+        @Cached @Cached.Shared("close") ComputeNextNodes.CloseNode closeNode) {
       buffer.getInput().close();
     }
 
     @Specialization
-    static void close(OrderByInputBuffer buffer, @Cached ComputeNextNodes.CloseNode closeNode) {
+    static void close(
+        Node node,
+        OrderByInputBuffer buffer,
+        @Cached @Cached.Shared("close") ComputeNextNodes.CloseNode closeNode) {
       buffer.getInput().close();
     }
   }
 
   @NodeInfo(shortName = "InputBuffer.HeadKey")
   @GenerateUncached
+  @GenerateInline
   public abstract static class InputBufferHeadKeyNode extends Node {
 
-    public abstract Object execute(Object buffer);
+    public abstract Object execute(Node node, Object buffer);
 
     @Specialization
-    static Object headKey(GroupByInputBuffer buffer, @Cached KryoNodes.KryoReadNode kryoRead) {
+    static Object headKey(
+        Node node,
+        GroupByInputBuffer buffer,
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
       // read the next key (if it is null, otherwise keep the current one).
       if (buffer.getKey() == null) {
         buffer.setKey(
             kryoRead.execute(
+                thisNode,
                 buffer.getOffHeapGroupByKey().getLanguage(),
                 buffer.getInput(),
                 buffer.getOffHeapGroupByKey().getKeyType()));
@@ -60,7 +71,11 @@ public class InputBufferNodes {
     }
 
     @Specialization
-    static Object[] headKey(OrderByInputBuffer buffer, @Cached KryoNodes.KryoReadNode kryoRead) {
+    static Object[] headKey(
+        Node node,
+        OrderByInputBuffer buffer,
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
       // read the next key (if it is null, otherwise keep the current one).
       if (buffer.getKeys() == null) {
         Rql2TypeWithProperties[] keyTypes = buffer.getOffHeapGroupByKey().getKeyTypes();
@@ -68,7 +83,10 @@ public class InputBufferNodes {
         for (int i = 0; i < keyTypes.length; i++) {
           keys[i] =
               kryoRead.execute(
-                  buffer.getOffHeapGroupByKey().getLanguage(), buffer.getInput(), keyTypes[i]);
+                  thisNode,
+                  buffer.getOffHeapGroupByKey().getLanguage(),
+                  buffer.getInput(),
+                  keyTypes[i]);
         }
         buffer.setKeys(keys);
         buffer.setItemsLeftFromInput();
@@ -79,29 +97,40 @@ public class InputBufferNodes {
 
   @NodeInfo(shortName = "InputBuffer.Read")
   @GenerateUncached
+  @GenerateInline
   public abstract static class InputBufferReadNode extends Node {
 
-    public abstract Object execute(Object buffer);
+    public abstract Object execute(Node node, Object buffer);
 
     @Specialization
-    static Object read(GroupByInputBuffer buffer, @Cached KryoNodes.KryoReadNode kryoRead) {
+    static Object read(
+        Node node,
+        GroupByInputBuffer buffer,
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
       buffer.decreaseItemsLeft();
       if (buffer.getItemsLeft() == 0) {
         buffer.setKey(null);
       }
       return kryoRead.execute(
+          thisNode,
           buffer.getOffHeapGroupByKey().getLanguage(),
           buffer.getInput(),
           buffer.getOffHeapGroupByKey().getKeyType());
     }
 
     @Specialization
-    static Object read(OrderByInputBuffer buffer, @Cached KryoNodes.KryoReadNode kryoRead) {
+    static Object read(
+        Node node,
+        OrderByInputBuffer buffer,
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
       buffer.decreaseItemsLeft();
       if (buffer.getItemsLeft() == 0) {
         buffer.setKeys(null);
       }
       return kryoRead.execute(
+          thisNode,
           buffer.getOffHeapGroupByKey().getLanguage(),
           buffer.getInput(),
           buffer.getOffHeapGroupByKey().getRowType());

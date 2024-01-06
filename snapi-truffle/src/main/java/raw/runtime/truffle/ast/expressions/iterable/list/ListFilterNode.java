@@ -18,6 +18,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.runtime.truffle.ExpressionNode;
@@ -35,9 +36,10 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 public abstract class ListFilterNode extends ExpressionNode {
 
   @Specialization(limit = "3")
-  protected RawArrayList doFilter(
+  protected static RawArrayList doFilter(
       Object list,
       Object closure,
+      @Bind("this") Node thisNode,
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
@@ -45,9 +47,9 @@ public abstract class ListFilterNode extends ExpressionNode {
       @CachedLibrary("closure") InteropLibrary interops) {
     ArrayList<Object> llist = new ArrayList<>();
     Object iterable = toIterableNode.execute(list);
-    Object generator = getGeneratorNode.execute(iterable);
-    while (generatorHasNextNode.execute(generator)) {
-      Object v = generatorNextNode.execute(generator);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    while (generatorHasNextNode.execute(thisNode, generator)) {
+      Object v = generatorNextNode.execute(thisNode, generator);
       Boolean predicate = null;
       try {
         predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);

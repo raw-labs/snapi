@@ -67,8 +67,8 @@ public class OrParseJsonNode extends ExpressionNode {
     try {
       nodeString = getFromMapper(mapper, parser);
       for (int i = 0; i < childDirectCalls.length; i++) {
-        localParser = initParserNode.execute(nodeString);
-        nextTokenNode.execute(localParser);
+        localParser = initParserNode.execute(this, nodeString);
+        nextTokenNode.execute(this, localParser);
         try {
           value = childDirectCalls[i].call(localParser);
           // No exception was thrown. Local parser was consumed successfully by the
@@ -76,12 +76,12 @@ public class OrParseJsonNode extends ExpressionNode {
           // parser.
           // The real parser had been consumed as well, so we need to move to the next
           // token.
-          nextTokenNode.execute(parser);
+          nextTokenNode.execute(this, parser);
           return new OrObject(i, value);
         } catch (RawTruffleRuntimeException ex) {
           messages[i] = ex.getMessage();
         } finally {
-          closeParserNode.execute(localParser);
+          closeParserNode.execute(this, localParser);
           localParser = null;
         }
       }
@@ -89,7 +89,7 @@ public class OrParseJsonNode extends ExpressionNode {
     } catch (IOException e) {
       throw new JsonParserRawTruffleException(e.getMessage(), this);
     } finally {
-      closeParserNode.execute(localParser);
+      closeParserNode.execute(this, localParser);
     }
   }
 

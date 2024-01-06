@@ -24,7 +24,7 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeChild("list")
 @NodeChild("index")
 public abstract class ListGetNode extends ExpressionNode {
-  @Specialization(limit = "3")
+  @Specialization
   protected Object listGetTryable(
       Object list,
       int index,

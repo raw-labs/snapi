@@ -31,7 +31,7 @@ public abstract class CollectionSumNode extends ExpressionNode {
   protected Object doCollection(Object iterable, @Cached AggregationNodes.Aggregate aggregate) {
     try {
       Object aggregation = new SingleAggregation(Aggregators.SUM);
-      return aggregate.execute(aggregation, iterable);
+      return aggregate.execute(this, aggregation, iterable);
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     }

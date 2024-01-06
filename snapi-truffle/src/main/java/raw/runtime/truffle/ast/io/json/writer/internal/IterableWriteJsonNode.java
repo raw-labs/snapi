@@ -67,18 +67,18 @@ public class IterableWriteJsonNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object iterable = args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
-    Object generator = getGeneratorNode.execute(iterable);
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
-      writeStartArrayNode.execute(gen);
+      generatorInitNode.execute(this, generator);
+      writeStartArrayNode.execute(this, gen);
 
-      while (generatorHasNextNode.execute(generator)) {
-        childDirectCall.call(generatorNextNode.execute(generator), gen);
+      while (generatorHasNextNode.execute(this, generator)) {
+        childDirectCall.call(generatorNextNode.execute(this, generator), gen);
       }
 
-      writeEndArrayNode.execute(gen);
+      writeEndArrayNode.execute(this, gen);
     } finally {
-      generatorCloseNodeNode.execute(generator);
+      generatorCloseNodeNode.execute(this, generator);
     }
   }
 }

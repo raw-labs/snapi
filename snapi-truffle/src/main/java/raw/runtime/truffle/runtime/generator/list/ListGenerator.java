@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.list;
 
+import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.StopIterationException;
@@ -20,6 +21,8 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Objects;
+
+import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.list.StringList;
 
@@ -52,15 +55,17 @@ public class ListGenerator implements TruffleObject {
   }
 
   @ExportMessage
-  final boolean hasIteratorNextElement(@Cached GeneratorNodes.GeneratorHasNextNode hasNextNode)
+  final boolean hasIteratorNextElement(
+      @Bind("$node") Node thisNode, @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode)
       throws UnsupportedMessageException {
-    return hasNextNode.execute(this);
+    return hasNextNode.execute(thisNode, this);
   }
 
   @ExportMessage
-  final Object getIteratorNextElement(@Cached GeneratorNodes.GeneratorNextNode nextNode)
+  final Object getIteratorNextElement(
+      @Bind("$node") Node thisNode, @Cached GeneratorNodes.GeneratorNextNode nextNode)
       throws UnsupportedMessageException, StopIterationException {
-    return nextNode.execute(this);
+    return nextNode.execute(thisNode, this);
   }
 
   @ExportMessage
@@ -80,9 +85,12 @@ public class ListGenerator implements TruffleObject {
 
   @ExportMessage
   final Object invokeMember(
-      String member, Object[] args, @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
+      String member,
+      Object[] args,
+      @Bind("$node") Node thisNode,
+      @Cached GeneratorNodes.GeneratorCloseNode closeNode) {
     assert (Objects.equals(member, "close"));
-    closeNode.execute(this);
+    closeNode.execute(thisNode, this);
     return 0;
   }
 }

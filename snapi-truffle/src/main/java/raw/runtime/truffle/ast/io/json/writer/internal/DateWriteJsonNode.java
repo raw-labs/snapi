@@ -28,6 +28,6 @@ public class DateWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeDate.execute((DateObject) args[0], (JsonGenerator) args[1]);
+    writeDate.execute(this, (DateObject) args[0], (JsonGenerator) args[1]);
   }
 }

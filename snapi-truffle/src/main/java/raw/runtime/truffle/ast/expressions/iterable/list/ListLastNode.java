@@ -27,7 +27,7 @@ import raw.runtime.truffle.runtime.primitives.NullObject;
 @NodeChild("list")
 public abstract class ListLastNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doLast(
       Object list, @Cached ListNodes.SizeNode sizeNode, @Cached ListNodes.GetNode getNode) {
     long size = sizeNode.execute(list);

@@ -40,17 +40,17 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
       @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode nextNode) {
     try {
-      Object generator = getGeneratorNode.execute(iterable);
+      Object generator = getGeneratorNode.execute(this, iterable);
       String currentString = start;
-      if (!hasNextNode.execute(generator)) {
+      if (!hasNextNode.execute(this, generator)) {
         return start + end;
       } else {
-        Object next = nextNode.execute(generator);
-        currentString = (String) add.execute(currentString, next);
+        Object next = nextNode.execute(this, generator);
+        currentString = (String) add.execute(this, currentString, next);
       }
-      while (hasNextNode.execute(generator)) {
-        Object next = nextNode.execute(generator);
-        currentString = (String) add.execute(currentString + sep, next);
+      while (hasNextNode.execute(this, generator)) {
+        Object next = nextNode.execute(this, generator);
+        currentString = (String) add.execute(this, currentString + sep, next);
       }
       return currentString + end;
     } catch (RawTruffleRuntimeException ex) {

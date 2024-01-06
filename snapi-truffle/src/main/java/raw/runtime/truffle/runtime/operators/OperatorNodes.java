@@ -212,6 +212,7 @@ public class OperatorNodes {
     static int doIterable(
         Object left,
         Object right,
+        @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("compare") CompareNode compare,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNodeLeft,
         @Cached IterableNodes.GetGeneratorNode getGeneratorNodeRight,
@@ -219,19 +220,20 @@ public class OperatorNodes {
         @Cached GeneratorNodes.GeneratorHasNextNode hasNextNodeRight,
         @Cached GeneratorNodes.GeneratorNextNode nextNodeLeft,
         @Cached GeneratorNodes.GeneratorNextNode nextNodeRight) {
-      Object leftGenerator = getGeneratorNodeLeft.execute(left);
-      Object rightGenerator = getGeneratorNodeRight.execute(right);
-      while (hasNextNodeLeft.execute(leftGenerator) && hasNextNodeRight.execute(rightGenerator)) {
-        Object leftElement = nextNodeLeft.execute(leftGenerator);
-        Object rightElement = nextNodeRight.execute(rightGenerator);
+      Object leftGenerator = getGeneratorNodeLeft.execute(thisNode, left);
+      Object rightGenerator = getGeneratorNodeRight.execute(thisNode, right);
+      while (hasNextNodeLeft.execute(thisNode, leftGenerator)
+          && hasNextNodeRight.execute(thisNode, rightGenerator)) {
+        Object leftElement = nextNodeLeft.execute(thisNode, leftGenerator);
+        Object rightElement = nextNodeRight.execute(thisNode, rightGenerator);
         int result = compare.execute(leftElement, rightElement);
         if (result != 0) {
           return result;
         }
       }
-      if (hasNextNodeLeft.execute(leftGenerator)) {
+      if (hasNextNodeLeft.execute(thisNode, leftGenerator)) {
         return 1;
-      } else if (hasNextNodeRight.execute(rightGenerator)) {
+      } else if (hasNextNodeRight.execute(thisNode, rightGenerator)) {
         return -1;
       } else {
         return 0;
@@ -241,55 +243,56 @@ public class OperatorNodes {
 
   @NodeInfo(shortName = "Operator.Add")
   @GenerateUncached
+  @GenerateInline
   @ImportStatic(value = {Nullable.class, Tryable.class})
   public abstract static class AddNode extends Node {
 
-    public abstract Object execute(Object obj1, Object obj2);
+    public abstract Object execute(Node node, Object obj1, Object obj2);
 
     @Specialization
-    static Object doByte(byte left, byte right) {
+    static Object doByte(Node node, byte left, byte right) {
       return (byte) (left + right);
     }
 
     @Specialization
-    static Object doShort(short left, short right) {
+    static Object doShort(Node node, short left, short right) {
       return (short) (left + right);
     }
 
     @Specialization
-    static Object doInt(int left, int right) {
+    static Object doInt(Node node, int left, int right) {
       return left + right;
     }
 
     @Specialization
-    static Object doLong(long left, long right) {
+    static Object doLong(Node node, long left, long right) {
       return left + right;
     }
 
     @Specialization
-    static Object doFloat(float left, float right) {
+    static Object doFloat(Node node, float left, float right) {
       return left + right;
     }
 
     @Specialization
-    static Object doDouble(double left, double right) {
+    static Object doDouble(Node node, double left, double right) {
       return left + right;
     }
 
     @Specialization
     @TruffleBoundary
-    static DecimalObject doDecimal(DecimalObject left, DecimalObject right) {
+    static DecimalObject doDecimal(Node node, DecimalObject left, DecimalObject right) {
       return new DecimalObject(left.getBigDecimal().add(right.getBigDecimal()));
     }
 
     @Specialization
     @TruffleBoundary
-    static String doString(String left, String right) {
+    static String doString(Node node, String left, String right) {
       return left.concat(right);
     }
 
     @Specialization(guards = {"isNull(left) || isNull(right)"})
-    static Object doNullableTryable(Object left, Object right) {
+    static Object doNullableTryable(Node node, Object left, Object right) {
       if (Nullable.isNull(left) && Nullable.isNull(right)) {
         return 0;
       } else {
@@ -298,7 +301,7 @@ public class OperatorNodes {
     }
 
     @Specialization(guards = {"isFailure(left) || isFailure(right)"})
-    static Object doNTryable(Object left, Object right) {
+    static Object doNTryable(Node node, Object left, Object right) {
       if (Tryable.isFailure(left)) {
         throw new RawTruffleRuntimeException(Tryable.getFailure(left));
       } else {

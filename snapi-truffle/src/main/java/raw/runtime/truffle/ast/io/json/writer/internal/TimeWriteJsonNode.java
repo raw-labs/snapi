@@ -29,6 +29,6 @@ public class TimeWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeTime.execute((TimeObject) args[0], (JsonGenerator) args[1]);
+    writeTime.execute(this, (TimeObject) args[0], (JsonGenerator) args[1]);
   }
 }

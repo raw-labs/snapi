@@ -12,9 +12,7 @@
 
 package raw.runtime.truffle.runtime.iterable;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -38,159 +36,189 @@ import raw.runtime.truffle.runtime.iterable.sources.*;
 public class IterableNodes {
   @NodeInfo(shortName = "Iterable.GetGenerator")
   @GenerateUncached
+  @GenerateInline
   public abstract static class GetGeneratorNode extends Node {
 
-    public abstract Object execute(Object generator);
+    public abstract Object execute(Node node, Object generator);
 
     @Specialization
-    static Object getGenerator(ExpressionCollection collection) {
+    static Object getGenerator(Node node, ExpressionCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(CsvCollection collection) {
+    static Object getGenerator(Node node, CsvCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(CsvFromStringCollection collection) {
+    static Object getGenerator(Node node, CsvFromStringCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(IntRangeCollection collection) {
+    static Object getGenerator(Node node, IntRangeCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(JdbcQueryCollection collection) {
+    static Object getGenerator(Node node, JdbcQueryCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(JsonReadCollection collection) {
+    static Object getGenerator(Node node, JsonReadCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(LongRangeCollection collection) {
+    static Object getGenerator(Node node, LongRangeCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(ReadLinesCollection collection) {
+    static Object getGenerator(Node node, ReadLinesCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(TimestampRangeCollection collection) {
+    static Object getGenerator(Node node, TimestampRangeCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(UnionCollection collection) {
+    static Object getGenerator(Node node, UnionCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(XmlParseCollection collection) {
+    static Object getGenerator(Node node, XmlParseCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(XmlReadCollection collection) {
+    static Object getGenerator(Node node, XmlReadCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
-    static Object getGenerator(EmptyCollection collection) {
+    static Object getGenerator(Node node, EmptyCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
     static Object getGenerator(
-        FilterCollection collection, @Cached IterableNodes.GetGeneratorNode getGeneratorNode) {
-      Object parentGenerator = getGeneratorNode.execute(collection.getParentIterable());
+        Node node,
+        FilterCollection collection,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode) {
+      Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
           new FilterComputeNext(parentGenerator, collection.getPredicate()));
     }
 
     @Specialization
     static Object getGenerator(
-        TakeCollection collection, @Cached IterableNodes.GetGeneratorNode getGeneratorNode) {
-      Object parentGenerator = getGeneratorNode.execute(collection.getParentIterable());
+        Node node,
+        TakeCollection collection,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode) {
+      Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
           new TakeComputeNext(parentGenerator, collection.getCachedCount()));
     }
 
     @Specialization
     static Object getGenerator(
-        TransformCollection collection, @Cached IterableNodes.GetGeneratorNode getGeneratorNode) {
-      Object parentGenerator = getGeneratorNode.execute(collection.getParentIterable());
+        Node node,
+        TransformCollection collection,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode) {
+      Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
           new TransformComputeNext(parentGenerator, collection.getTransform()));
     }
 
     @Specialization
     static Object getGenerator(
-        UnnestCollection collection, @Cached IterableNodes.GetGeneratorNode getGeneratorNode) {
-      Object parentGenerator = getGeneratorNode.execute(collection.getParentIterable());
+        Node node,
+        UnnestCollection collection,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode) {
+      Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
           new UnnestComputeNext(parentGenerator, collection.getTransform()));
     }
 
     @Specialization
     static Object getGenerator(
+        Node node,
         ZipCollection collection,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNode1,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNode2) {
-      Object parentGenerator1 = getGeneratorNode1.execute(collection.getParentIterable1());
-      Object parentGenerator2 = getGeneratorNode1.execute(collection.getParentIterable2());
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNode1,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode2) {
+      Object parentGenerator1 =
+          getGeneratorNode1.execute(thisNode, collection.getParentIterable1());
+      Object parentGenerator2 =
+          getGeneratorNode2.execute(thisNode, collection.getParentIterable2());
       return new AbstractGenerator(
           new ZipComputeNext(parentGenerator1, parentGenerator2, collection.getLang()));
     }
 
     @Specialization
     static Object getGenerator(
+        Node node,
         DistinctCollection collection,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-        @Cached GeneratorNodes.GeneratorInitNode initNode,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
-        @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+        @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
+        @Cached(inline = false) @Cached.Shared("generator")
+            OffHeapNodes.OffHeapGeneratorNode generatorNode) {
       OffHeapDistinct index =
           new OffHeapDistinct(
               collection.getRowType(), collection.getLang(), collection.getContext());
-      Object generator = getGeneratorNode.execute(collection.getIterable());
+      Object generator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
-        initNode.execute(generator);
-        while (hasNextNode.execute(generator)) {
-          Object next = nextNode.execute(generator);
+        initNode.execute(thisNode, generator);
+        while (hasNextNode.execute(thisNode, generator)) {
+          Object next = nextNode.execute(thisNode, generator);
           putNode.execute(index, next, null);
         }
       } finally {
-        closeNode.execute(generator);
+        closeNode.execute(thisNode, generator);
       }
       return generatorNode.execute(index);
     }
 
     @Specialization
-    static Object getGenerator(EquiJoinCollection collection) {
+    static Object getGenerator(Node node, EquiJoinCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization(limit = "3")
     static Object getGenerator(
+        Node node,
         GroupByCollection collection,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-        @Cached GeneratorNodes.GeneratorInitNode initNode,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
-        @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+        @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
+        @Cached(inline = false) @Cached.Shared("generator")
+            OffHeapNodes.OffHeapGeneratorNode generatorNode,
         @CachedLibrary("collection.getKeyFun()") InteropLibrary keyFunLib) {
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
@@ -199,39 +227,43 @@ public class IterableNodes {
               collection.getLang(),
               collection.getContext(),
               new RecordShaper(collection.getLang(), false));
-      Object inputGenerator = getGeneratorNode.execute(collection.getIterable());
+      Object inputGenerator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
-        initNode.execute(inputGenerator);
-        while (hasNextNode.execute(inputGenerator)) {
-          Object v = nextNode.execute(inputGenerator);
+        initNode.execute(thisNode, inputGenerator);
+        while (hasNextNode.execute(thisNode, inputGenerator)) {
+          Object v = nextNode.execute(thisNode, inputGenerator);
           Object key = keyFunLib.execute(collection.getKeyFun(), v);
           putNode.execute(map, key, v);
         }
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RawTruffleRuntimeException("failed to execute function");
       } finally {
-        closeNode.execute(inputGenerator);
+        closeNode.execute(thisNode, inputGenerator);
       }
       return generatorNode.execute(map);
     }
 
     @Specialization
-    static Object getGenerator(JoinCollection collection) {
+    static Object getGenerator(Node node, JoinCollection collection) {
       return collection.getGenerator();
     }
 
     @Specialization
     static Object getGenerator(
+        Node node,
         OrderByCollection collection,
-        @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
-        @Cached GeneratorNodes.GeneratorInitNode initNode,
-        @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putNode,
-        @Cached OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator")
+            IterableNodes.GetGeneratorNode getGeneratorNode,
+        @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+        @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+        @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
+        @Cached(inline = false) @Cached.Shared("generator")
+            OffHeapNodes.OffHeapGeneratorNode generatorNode,
         @CachedLibrary(limit = "8") InteropLibrary keyFunctionsLib) {
-      Object generator = getGeneratorNode.execute(collection.getParentIterable());
+      Object generator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       OffHeapGroupByKeys groupByKeys =
           new OffHeapGroupByKeys(
               collection.getKeyTypes(),
@@ -240,9 +272,9 @@ public class IterableNodes {
               collection.getLang(),
               collection.getContext());
       try {
-        initNode.execute(generator);
-        while (hasNextNode.execute(generator)) {
-          Object v = nextNode.execute(generator);
+        initNode.execute(thisNode, generator);
+        while (hasNextNode.execute(thisNode, generator)) {
+          Object v = nextNode.execute(thisNode, generator);
           int len = collection.getKeyFunctions().length;
           Object[] key = new Object[len];
           for (int i = 0; i < len; i++) {
@@ -253,13 +285,13 @@ public class IterableNodes {
       } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
         throw new RuntimeException(e);
       } finally {
-        closeNode.execute(generator);
+        closeNode.execute(thisNode, generator);
       }
       return generatorNode.execute(groupByKeys);
     }
 
     @Specialization
-    static Object getGenerator(ListIterable collection) {
+    static Object getGenerator(Node node, ListIterable collection) {
       return collection.getGenerator();
     }
   }

@@ -28,6 +28,6 @@ public class FloatWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeFloat.execute((float) args[0], (JsonGenerator) args[1]);
+    writeFloat.execute(this, (float) args[0], (JsonGenerator) args[1]);
   }
 }

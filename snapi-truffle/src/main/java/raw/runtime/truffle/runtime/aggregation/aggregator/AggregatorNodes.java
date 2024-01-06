@@ -12,10 +12,7 @@
 
 package raw.runtime.truffle.runtime.aggregation.aggregator;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
@@ -25,50 +22,53 @@ import raw.runtime.truffle.tryable_nullable.Nullable;
 public class AggregatorNodes {
   @NodeInfo(shortName = "Aggregator.Zero")
   @GenerateUncached
+  @GenerateInline
   @ImportStatic(Aggregators.class)
   public abstract static class Zero extends Node {
 
-    public abstract Object execute(byte aggregatorType);
+    public abstract Object execute(Node node, byte aggregatorType);
 
     @Specialization(guards = "aggregatorType == COUNT")
-    static Object countZero(byte aggregatorType) {
+    static Object countZero(Node node, byte aggregatorType) {
       return 0L;
     }
 
     @Specialization(guards = "aggregatorType == MAX")
-    static Object maxZero(byte aggregatorType) {
+    static Object maxZero(Node node, byte aggregatorType) {
       return NullObject.INSTANCE;
     }
 
     @Specialization(guards = "aggregatorType == MIN")
-    static Object minZero(byte aggregatorType) {
+    static Object minZero(Node node, byte aggregatorType) {
       return NullObject.INSTANCE;
     }
 
     @Specialization(guards = "aggregatorType == SUM")
-    static Object sumZero(byte aggregatorType) {
+    static Object sumZero(Node node, byte aggregatorType) {
       return NullObject.INSTANCE;
     }
   }
 
   @NodeInfo(shortName = "Aggregator.Merge")
   @GenerateUncached
+  @GenerateInline
   @ImportStatic(Aggregators.class)
   public abstract static class Merge extends Node {
 
-    public abstract Object execute(byte aggregatorType, Object current, Object next);
+    public abstract Object execute(Node node, byte aggregatorType, Object current, Object next);
 
     @Specialization(guards = "aggregatorType == COUNT")
-    static long mergeCount(byte aggregatorType, long current, Object next) {
+    static long mergeCount(Node node, byte aggregatorType, long current, Object next) {
       return current + 1;
     }
 
     @Specialization(guards = "aggregatorType == MAX")
     static Object mergeMax(
+        Node node,
         byte aggregatorType,
         Object current,
         Object next,
-        @Cached OperatorNodes.CompareNode compare) {
+        @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
       if (Nullable.isNotNull(current)) {
         if (Nullable.isNotNull(next)) {
           // if both are defined, pick the largest
@@ -89,10 +89,11 @@ public class AggregatorNodes {
 
     @Specialization(guards = "aggregatorType == MIN")
     static Object mergeMin(
+        Node node,
         byte aggregatorType,
         Object current,
         Object next,
-        @Cached OperatorNodes.CompareNode compare) {
+        @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
       if (Nullable.isNotNull(current)) {
         if (Nullable.isNotNull(next)) {
           // if both are defined, pick the smallest
@@ -113,8 +114,13 @@ public class AggregatorNodes {
 
     @Specialization(guards = "aggregatorType == SUM")
     static Object mergeSum(
-        byte aggregatorType, Object current, Object next, @Cached OperatorNodes.AddNode add) {
-      return add.execute(current, next);
+        Node node,
+        byte aggregatorType,
+        Object current,
+        Object next,
+        @Bind("$node") Node thisNode,
+        @Cached OperatorNodes.AddNode add) {
+      return add.execute(thisNode, current, next);
     }
   }
 }

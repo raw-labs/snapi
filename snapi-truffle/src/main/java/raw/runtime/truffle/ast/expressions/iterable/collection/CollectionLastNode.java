@@ -34,14 +34,14 @@ public abstract class CollectionLastNode extends ExpressionNode {
       @Cached GeneratorNodes.GeneratorHasNextNode hasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode nextNode) {
     try {
-      Object generator = getGeneratorNode.execute(iterable);
-      initNode.execute(generator);
-      if (!hasNextNode.execute(generator)) {
+      Object generator = getGeneratorNode.execute(this, iterable);
+      initNode.execute(this, generator);
+      if (!hasNextNode.execute(this, generator)) {
         return NullObject.INSTANCE;
       }
-      Object next = nextNode.execute(generator);
-      while (hasNextNode.execute(generator)) {
-        next = nextNode.execute(generator);
+      Object next = nextNode.execute(this, generator);
+      while (hasNextNode.execute(this, generator)) {
+        next = nextNode.execute(this, generator);
       }
       return next;
     } catch (RawTruffleRuntimeException e) {

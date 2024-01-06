@@ -12,9 +12,7 @@
 
 package raw.runtime.truffle.runtime.aggregation;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorNodes;
@@ -25,72 +23,78 @@ import raw.runtime.truffle.runtime.iterable.IterableNodes;
 public class AggregationNodes {
   @NodeInfo(shortName = "Aggregation.Aggregate")
   @GenerateUncached
+  @GenerateInline
   public abstract static class Aggregate extends Node {
 
-    public abstract Object execute(Object aggregation, Object iterable);
+    public abstract Object execute(Node node, Object aggregation, Object iterable);
 
     @Specialization
     static Object aggregate(
+        Node node,
         SingleAggregation aggregation,
         Object iterable,
-        @Cached IterableNodes.GetGeneratorNode getGenerator,
-        @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-        @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-        @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-        @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-        @Cached AggregatorNodes.Merge mergeNode,
-        @Cached AggregatorNodes.Zero zeroNode) {
-      Object generator = getGenerator.execute(iterable);
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGenerator,
+        @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode generatorInitNode,
+        @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+        @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode generatorNextNode,
+        @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+        @Cached @Cached.Shared("merge") AggregatorNodes.Merge mergeNode,
+        @Cached @Cached.Shared("zero") AggregatorNodes.Zero zeroNode) {
+      Object generator = getGenerator.execute(thisNode, iterable);
       try {
-        generatorInitNode.execute(generator);
-        if (!generatorHasNextNode.execute(generator)) {
-          return zeroNode.execute(aggregation.getAggregationType());
+        generatorInitNode.execute(thisNode, generator);
+        if (!generatorHasNextNode.execute(thisNode, generator)) {
+          return zeroNode.execute(thisNode, aggregation.getAggregationType());
         }
-        Object result = zeroNode.execute(aggregation.getAggregationType());
-        while (generatorHasNextNode.execute(generator)) {
-          Object next = generatorNextNode.execute(generator);
-          result = mergeNode.execute(aggregation.getAggregationType(), result, next);
+        Object result = zeroNode.execute(thisNode, aggregation.getAggregationType());
+        while (generatorHasNextNode.execute(thisNode, generator)) {
+          Object next = generatorNextNode.execute(thisNode, generator);
+          result = mergeNode.execute(thisNode, aggregation.getAggregationType(), result, next);
         }
         return result;
       } catch (RawTruffleRuntimeException ex) {
         throw new RawTruffleRuntimeException(ex.getMessage());
       } finally {
-        generatorCloseNode.execute(generator);
+        generatorCloseNode.execute(thisNode, generator);
       }
     }
 
     @Specialization
     static Object aggregate(
+        Node node,
         MultiAggregation aggregation,
         Object iterable,
-        @Cached IterableNodes.GetGeneratorNode getGenerator,
-        @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
-        @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-        @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-        @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-        @Cached AggregatorNodes.Merge mergeNode,
-        @Cached AggregatorNodes.Zero zeroNode) {
-      Object generator = getGenerator.execute(iterable);
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGenerator,
+        @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode generatorInitNode,
+        @Cached @Cached.Shared("hasNext") GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+        @Cached @Cached.Shared("next") GeneratorNodes.GeneratorNextNode generatorNextNode,
+        @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+        @Cached @Cached.Shared("merge") AggregatorNodes.Merge mergeNode,
+        @Cached @Cached.Shared("zero") AggregatorNodes.Zero zeroNode) {
+      Object generator = getGenerator.execute(thisNode, iterable);
       try {
-        generatorInitNode.execute(generator);
+        generatorInitNode.execute(thisNode, generator);
         Object[] results = new Object[aggregation.getAggregationTypes().length];
         for (int i = 0; i < aggregation.getAggregationTypes().length; i++) {
-          results[i] = zeroNode.execute(aggregation.getAggregationTypes()[i]);
+          results[i] = zeroNode.execute(thisNode, aggregation.getAggregationTypes()[i]);
         }
-        if (!generatorHasNextNode.execute(generator)) {
+        if (!generatorHasNextNode.execute(thisNode, generator)) {
           return results;
         }
-        while (generatorHasNextNode.execute(generator)) {
-          Object next = generatorNextNode.execute(generator);
+        while (generatorHasNextNode.execute(thisNode, generator)) {
+          Object next = generatorNextNode.execute(thisNode, generator);
           for (int i = 0; i < aggregation.getAggregationTypes().length; i++) {
-            results[i] = mergeNode.execute(aggregation.getAggregationTypes()[i], results[i], next);
+            results[i] =
+                mergeNode.execute(thisNode, aggregation.getAggregationTypes()[i], results[i], next);
           }
         }
         return results;
       } catch (RawTruffleRuntimeException ex) {
         throw new RawTruffleRuntimeException(ex.getMessage());
       } finally {
-        generatorCloseNode.execute(generator);
+        generatorCloseNode.execute(thisNode, generator);
       }
     }
   }

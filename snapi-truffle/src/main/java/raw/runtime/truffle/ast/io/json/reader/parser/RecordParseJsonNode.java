@@ -97,30 +97,32 @@ public class RecordParseJsonNode extends ExpressionNode {
     JsonParser parser = (JsonParser) args[0];
     BitSet currentBitSet = new BitSet(this.fieldsSize);
 
-    if (currentTokenNode.execute(parser) != JsonToken.START_OBJECT) {
+    if (currentTokenNode.execute(this, parser) != JsonToken.START_OBJECT) {
       throw new JsonUnexpectedTokenException(
-          JsonToken.START_OBJECT.asString(), currentTokenNode.execute(parser).toString(), this);
+          JsonToken.START_OBJECT.asString(),
+          currentTokenNode.execute(this, parser).toString(),
+          this);
     }
-    nextTokenNode.execute(parser);
+    nextTokenNode.execute(this, parser);
 
     RecordObject record = RawLanguage.get(this).createRecord();
 
     // todo: (az) need to find a solution for the array of direct calls,
     // the json object can be out of order, the child nodes cannot be inlined
-    while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
-      String fieldName = currentFieldNode.execute(parser);
+    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT) {
+      String fieldName = currentFieldNode.execute(this, parser);
       Integer index = this.getFieldNameIndex(fieldName);
-      nextTokenNode.execute(parser); // skip the field name
+      nextTokenNode.execute(this, parser); // skip the field name
       if (index != null) {
         setBitSet(currentBitSet, index);
         writeIndexNode.execute(record, index, fieldName, callChild(index, parser));
       } else {
         // skip the field value
-        skipNode.execute(parser);
+        skipNode.execute(this, parser);
       }
     }
 
-    nextTokenNode.execute(parser); // skip the END_OBJECT token
+    nextTokenNode.execute(this, parser); // skip the END_OBJECT token
 
     if (bitSetCardinality(currentBitSet) != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or

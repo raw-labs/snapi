@@ -25,13 +25,13 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 @NodeInfo(shortName = "List.Max")
 @NodeChild("list")
 public abstract class ListMaxNode extends ExpressionNode {
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doCollection(
       Object list,
-      @Cached AggregationNodes.Aggregate aggregate,
+      @Cached(inline = true) AggregationNodes.Aggregate aggregate,
       @Cached ListNodes.ToIterableNode toIterableNode) {
     Object iterable = toIterableNode.execute(list);
     Object aggregation = new SingleAggregation(Aggregators.MAX);
-    return aggregate.execute(aggregation, iterable);
+    return aggregate.execute(this, aggregation, iterable);
   }
 }

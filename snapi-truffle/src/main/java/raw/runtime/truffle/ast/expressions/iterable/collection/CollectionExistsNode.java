@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -20,6 +21,7 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -34,21 +36,22 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 public abstract class CollectionExistsNode extends ExpressionNode {
 
   @Specialization(limit = "3")
-  protected Object doIterable(
+  protected static Object doIterable(
       Object iterable,
       Object closure,
+      @Bind("this") Node thisNode,
       @Cached IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
       @CachedLibrary("closure") InteropLibrary interops) {
-    Object generator = getGeneratorNode.execute(iterable);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(thisNode, generator);
       Object[] argumentValues = new Object[1];
-      while (generatorHasNextNode.execute(generator)) {
-        argumentValues[0] = generatorNextNode.execute(generator);
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        argumentValues[0] = generatorNextNode.execute(thisNode, generator);
         boolean predicate =
             TryableNullable.handlePredicate(interops.execute(closure, argumentValues), false);
         if (predicate) {
@@ -62,7 +65,7 @@ public abstract class CollectionExistsNode extends ExpressionNode {
         | ArityException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(thisNode, generator);
     }
   }
 }

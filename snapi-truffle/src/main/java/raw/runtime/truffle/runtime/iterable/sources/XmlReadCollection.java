@@ -13,11 +13,13 @@
 package raw.runtime.truffle.runtime.iterable.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
@@ -60,9 +62,10 @@ public class XmlReadCollection implements TruffleObject {
   }
 
   @ExportMessage
-  Object getIterator(@Cached GeneratorNodes.GeneratorInitNode initNode) {
+  Object getIterator(
+      @Bind("$node") Node thisNode, @Cached GeneratorNodes.GeneratorInitNode initNode) {
     Object generator = getGenerator();
-    initNode.execute(generator);
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

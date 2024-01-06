@@ -38,17 +38,16 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
   @Specialization
   protected Object doCollection(
       Object iterable,
-      @Cached AggregationNodes.Aggregate aggregate,
-      @Cached AggregatorNodes.Zero zero,
-      @Cached AggregatorNodes.Merge merge,
+      @Cached(inline = false) AggregationNodes.Aggregate aggregate,
+      @Cached(inline = true) AggregatorNodes.Zero zero,
       @CachedLibrary(limit = "1") InteropLibrary records) {
     try {
       byte[] aggregators = new byte[] {Aggregators.SUM, Aggregators.COUNT};
       Object aggregation = new MultiAggregation(aggregators);
-      Object[] results = (Object[]) aggregate.execute(aggregation, iterable);
+      Object[] results = (Object[]) aggregate.execute(this, aggregation, iterable);
       RecordObject record = RawLanguage.get(this).createRecord();
-      if ((long) results[1] == (long) zero.execute(Aggregators.COUNT)) {
-        records.writeMember(record, "sum", zero.execute(Aggregators.SUM));
+      if ((long) results[1] == (long) zero.execute(this, Aggregators.COUNT)) {
+        records.writeMember(record, "sum", zero.execute(this, Aggregators.SUM));
       } else {
         records.writeMember(
             record, "sum", new DecimalObject(new BigDecimal(results[0].toString())));

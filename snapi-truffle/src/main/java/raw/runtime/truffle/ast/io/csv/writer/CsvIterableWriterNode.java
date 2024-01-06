@@ -71,10 +71,10 @@ public class CsvIterableWriterNode extends StatementNode {
     try (OutputStream os = RawContext.get(this).getOutput();
         CsvGenerator gen = createGenerator(os)) {
       Object iterable = dataNode.executeGeneric(frame);
-      Object generator = getGeneratorNode.execute(iterable);
-      generatorInitNode.execute(generator);
-      while (generatorHasNextNode.execute(generator)) {
-        Object item = generatorNextNode.execute(generator);
+      Object generator = getGeneratorNode.execute(this, iterable);
+      generatorInitNode.execute(this, generator);
+      while (generatorHasNextNode.execute(this, generator)) {
+        Object item = generatorNextNode.execute(this, generator);
         itemWriter.call(item, gen);
       }
     } catch (IOException e) {

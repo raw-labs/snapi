@@ -43,23 +43,27 @@ import scala.collection.immutable.Vector;
 public class KryoNodes {
   @NodeInfo(shortName = "Kryo.Read")
   @GenerateUncached
+  @GenerateInline
   @ImportStatic(TypeGuards.class)
   public abstract static class KryoReadNode extends Node {
 
-    public abstract Object execute(RawLanguage language, Input input, Rql2TypeWithProperties t);
+    public abstract Object execute(
+        Node node, RawLanguage language, Input input, Rql2TypeWithProperties t);
 
     @Specialization(guards = {"isTryable(t)"})
     @CompilerDirectives.TruffleBoundary
     static Object doTryable(
+        Node node,
         RawLanguage language,
         Input input,
         Rql2TypeWithProperties t,
-        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
       boolean isSuccess = input.readBoolean();
       if (isSuccess) {
         Rql2TypeWithProperties successType =
             (Rql2TypeWithProperties) t.cloneAndRemoveProp(new Rql2IsTryableTypeProperty());
-        return kryo.execute(language, input, successType);
+        return kryo.execute(thisNode, language, input, successType);
       } else {
         String error = input.readString();
         return new ErrorObject(error);
@@ -69,15 +73,17 @@ public class KryoNodes {
     @Specialization(guards = {"isNullable(t)"})
     @CompilerDirectives.TruffleBoundary
     static Object doNullable(
+        Node node,
         RawLanguage language,
         Input input,
         Rql2TypeWithProperties t,
-        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
       boolean isDefined = input.readBoolean();
       if (isDefined) {
         Rql2TypeWithProperties innerType =
             (Rql2TypeWithProperties) t.cloneAndRemoveProp(new Rql2IsNullableTypeProperty());
-        return kryo.execute(language, input, innerType);
+        return kryo.execute(thisNode, language, input, innerType);
       } else {
         return NullObject.INSTANCE;
       }
@@ -86,16 +92,18 @@ public class KryoNodes {
     @Specialization(guards = {"isListKind(t)"})
     @CompilerDirectives.TruffleBoundary
     static ObjectList doList(
+        Node node,
         RawLanguage language,
         Input input,
         Rql2TypeWithProperties t,
-        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
       Rql2ListType listType = (Rql2ListType) t;
       Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) listType.innerType();
       int size = input.readInt();
       Object[] values = new Object[size];
       for (int i = 0; i < size; i++) {
-        values[i] = kryo.execute(language, input, innerType);
+        values[i] = kryo.execute(thisNode, language, input, innerType);
       }
       return new ObjectList(values);
     }
@@ -103,16 +111,18 @@ public class KryoNodes {
     @Specialization(guards = {"isIterableKind(t)"})
     @CompilerDirectives.TruffleBoundary
     static Object doIterable(
+        Node node,
         RawLanguage language,
         Input input,
         Rql2TypeWithProperties t,
-        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
       Rql2IterableType iterableType = (Rql2IterableType) t;
       Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) iterableType.innerType();
       int size = input.readInt();
       Object[] values = new Object[size];
       for (int i = 0; i < size; i++) {
-        values[i] = kryo.execute(language, input, innerType);
+        values[i] = kryo.execute(node, language, input, innerType);
       }
       return new ObjectList(values).toIterable();
     }
@@ -120,10 +130,12 @@ public class KryoNodes {
     @Specialization(guards = {"isRecordKind(t)"})
     @CompilerDirectives.TruffleBoundary
     static RecordObject doRecord(
+        Node node,
         RawLanguage language,
         Input input,
         Rql2TypeWithProperties t,
-        @Cached @Cached.Shared("kryoRead") KryoReadNode kryo,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo,
         @CachedLibrary(limit = "2") InteropLibrary records) {
       Rql2RecordType recordType = (Rql2RecordType) t;
       RecordObject record = language.createRecord();
@@ -132,7 +144,7 @@ public class KryoNodes {
           .forall(
               att -> {
                 Rql2TypeWithProperties attType = (Rql2TypeWithProperties) att.tipe();
-                Object value = kryo.execute(language, input, attType);
+                Object value = kryo.execute(thisNode, language, input, attType);
                 try {
                   records.writeMember(record, att.idn(), value);
                 } catch (UnsupportedMessageException
@@ -147,7 +159,8 @@ public class KryoNodes {
 
     @Specialization(guards = {"isIntervalKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static IntervalObject doInterval(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static IntervalObject doInterval(
+        Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int years = input.readInt();
       int months = input.readInt();
       int weeks = input.readInt();
@@ -161,7 +174,8 @@ public class KryoNodes {
 
     @Specialization(guards = {"isTimeKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static TimeObject doTime(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static TimeObject doTime(
+        Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int hours = input.readInt();
       int minutes = input.readInt();
       int seconds = input.readInt();
@@ -172,7 +186,8 @@ public class KryoNodes {
 
     @Specialization(guards = {"isDateKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static DateObject doDate(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static DateObject doDate(
+        Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int year = input.readInt();
       int month = input.readInt();
       int day = input.readInt();
@@ -182,7 +197,7 @@ public class KryoNodes {
     @Specialization(guards = {"isTimestampKind(t)"})
     @CompilerDirectives.TruffleBoundary
     static TimestampObject doTimestamp(
-        RawLanguage language, Input input, Rql2TypeWithProperties t) {
+        Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       int year = input.readInt();
       int month = input.readInt();
       int day = input.readInt();
@@ -203,55 +218,57 @@ public class KryoNodes {
 
     @Specialization(guards = {"isBooleanKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static boolean doBoolean(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static boolean doBoolean(
+        Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readBoolean();
     }
 
     @Specialization(guards = {"isStringKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static String doString(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static String doString(Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readString();
     }
 
     @Specialization(guards = {"isDecimalKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static DecimalObject doDecimal(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static DecimalObject doDecimal(
+        Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return new DecimalObject(new BigDecimal(input.readString()));
     }
 
     @Specialization(guards = {"isDoubleKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static double doDouble(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static double doDouble(Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readDouble();
     }
 
     @Specialization(guards = {"isFloatKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static float doFloat(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static float doFloat(Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readFloat();
     }
 
     @Specialization(guards = {"isLongKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static long doLong(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static long doLong(Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readLong();
     }
 
     @Specialization(guards = {"isIntKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static int doInt(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static int doInt(Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readInt();
     }
 
     @Specialization(guards = {"isShortKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static short doShort(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static short doShort(Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readShort();
     }
 
     @Specialization(guards = {"isByteKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static byte doByte(RawLanguage language, Input input, Rql2TypeWithProperties t) {
+    static byte doByte(Node node, RawLanguage language, Input input, Rql2TypeWithProperties t) {
       return input.readByte();
     }
   }
@@ -259,24 +276,31 @@ public class KryoNodes {
   @NodeInfo(shortName = "Kryo.Write")
   @GenerateUncached
   @ImportStatic(TypeGuards.class)
+  @GenerateInline
   public abstract static class KryoWriteNode extends Node {
 
     private static final Rql2TypeProperty isTryable = new Rql2IsTryableTypeProperty();
     private static final Rql2TypeProperty isNullable = new Rql2IsNullableTypeProperty();
 
-    public abstract void execute(Output output, Rql2TypeWithProperties type, Object maybeTryable);
+    public abstract void execute(
+        Node node, Output output, Rql2TypeWithProperties type, Object maybeTryable);
 
     @Specialization(guards = "isTryable(type)")
     static void doTryable(
+        Node node,
         Output output,
         Rql2TypeWithProperties type,
         Object maybeTryable,
-        @Cached @Cached.Shared("kryo") KryoWriteNode kryo) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo) {
       boolean isSuccess = Tryable.isSuccess(maybeTryable);
       output.writeBoolean(isSuccess);
       if (isSuccess) {
         kryo.execute(
-            output, (Rql2TypeWithProperties) type.cloneAndRemoveProp(isTryable), maybeTryable);
+            thisNode,
+            output,
+            (Rql2TypeWithProperties) type.cloneAndRemoveProp(isTryable),
+            maybeTryable);
       } else {
         ErrorObject error = (ErrorObject) maybeTryable;
         output.writeString(error.getMessage());
@@ -285,59 +309,68 @@ public class KryoNodes {
 
     @Specialization(guards = "isNullable(type)")
     static void doNullable(
+        Node node,
         Output output,
         Rql2TypeWithProperties type,
         Object maybeOption,
-        @Cached @Cached.Shared("kryo") KryoWriteNode kryo) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo) {
       boolean isDefined = Nullable.isNotNull(maybeOption);
       output.writeBoolean(isDefined);
       if (isDefined) {
         kryo.execute(
-            output, (Rql2TypeWithProperties) type.cloneAndRemoveProp(isNullable), maybeOption);
+            thisNode,
+            output,
+            (Rql2TypeWithProperties) type.cloneAndRemoveProp(isNullable),
+            maybeOption);
       }
     }
 
     @Specialization(guards = "isListKind(type)")
     static void doList(
+        Node node,
         Output output,
         Rql2TypeWithProperties type,
         Object o,
+        @Bind("$node") Node thisNode,
         @Cached ListNodes.SizeNode sizeNode,
         @Cached ListNodes.GetNode getNode,
-        @Cached @Cached.Shared("kryo") KryoWriteNode kryo) {
+        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo) {
       int size = (int) sizeNode.execute(o);
       output.writeInt(size);
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2ListType) type).innerType();
       for (int i = 0; i < size; i++) {
-        kryo.execute(output, elementType, getNode.execute(o, i));
+        kryo.execute(thisNode, output, elementType, getNode.execute(o, i));
       }
     }
 
     @Specialization(guards = "isIterableKind(type)")
     static void doIterable(
+        Node node,
         Output output,
         Rql2TypeWithProperties type,
         Object o,
+        @Bind("$node") Node thisNode,
         @Cached GeneratorNodes.GeneratorInitNode generatorInitNode,
         @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
         @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
         @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-        @Cached @Cached.Shared("kryo") KryoWriteNode kryo,
-        @Cached IterableNodes.GetGeneratorNode iterators) {
+        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo,
+        @Cached(inline = false) IterableNodes.GetGeneratorNode iterators) {
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType();
-      Object generator = iterators.execute(o);
-      generatorInitNode.execute(generator);
+      Object generator = iterators.execute(thisNode, o);
+      generatorInitNode.execute(thisNode, generator);
       ArrayList<Object> contents = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        Object content = generatorNextNode.execute(generator);
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object content = generatorNextNode.execute(thisNode, generator);
         contents.add(content);
       }
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(thisNode, generator);
       output.writeInt(contents.size());
       for (Object content : contents) {
-        kryo.execute(output, elementType, content);
+        kryo.execute(thisNode, output, elementType, content);
       }
     }
 
@@ -345,10 +378,12 @@ public class KryoNodes {
         guards = {"isRecordKind(type)"},
         limit = "1")
     static void doRecord(
+        Node node,
         Output output,
         Rql2RecordType type,
         Object o,
-        @Cached @Cached.Shared("kryo") KryoWriteNode kryo,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo,
         @CachedLibrary("o") InteropLibrary recordLibrary,
         @CachedLibrary(limit = "2") InteropLibrary arrayLibrary) {
       try {
@@ -358,7 +393,7 @@ public class KryoNodes {
         for (int i = 0; i < length; i++) {
           String member = (String) arrayLibrary.readArrayElement(keys, i);
           Object field = recordLibrary.readMember(o, member);
-          kryo.execute(output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
+          kryo.execute(thisNode, output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
         }
       } catch (UnsupportedMessageException
           | InvalidArrayIndexException
@@ -368,7 +403,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isDateKind(type)"})
-    static void doDate(Output output, Rql2TypeWithProperties type, DateObject o) {
+    static void doDate(Node node, Output output, Rql2TypeWithProperties type, DateObject o) {
       LocalDate date = o.getDate();
       output.writeInt(date.getYear());
       output.writeInt(date.getMonthValue());
@@ -376,7 +411,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isTimeKind(type)"})
-    static void doTime(Output output, Rql2TypeWithProperties type, TimeObject o) {
+    static void doTime(Node node, Output output, Rql2TypeWithProperties type, TimeObject o) {
       LocalTime time = o.getTime();
       output.writeInt(time.getHour());
       output.writeInt(time.getMinute());
@@ -385,7 +420,8 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isTimestampKind(type)"})
-    static void doTimestamp(Output output, Rql2TypeWithProperties type, TimestampObject o) {
+    static void doTimestamp(
+        Node node, Output output, Rql2TypeWithProperties type, TimestampObject o) {
       LocalDateTime timestamp = o.getTimestamp();
       output.writeInt(timestamp.getYear());
       output.writeInt(timestamp.getMonthValue());
@@ -397,7 +433,8 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isIntervalKind(type)"})
-    static void doInterval(Output output, Rql2TypeWithProperties type, IntervalObject o) {
+    static void doInterval(
+        Node node, Output output, Rql2TypeWithProperties type, IntervalObject o) {
       output.writeInt(o.getYears());
       output.writeInt(o.getMonths());
       output.writeInt(o.getWeeks());
@@ -409,47 +446,47 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isByteKind(type)"})
-    static void doByte(Output output, Rql2TypeWithProperties type, byte o) {
+    static void doByte(Node node, Output output, Rql2TypeWithProperties type, byte o) {
       output.writeByte(o);
     }
 
     @Specialization(guards = {"isShortKind(type)"})
-    static void doShort(Output output, Rql2TypeWithProperties type, short o) {
+    static void doShort(Node node, Output output, Rql2TypeWithProperties type, short o) {
       output.writeShort(o);
     }
 
     @Specialization(guards = {"isIntKind(type)"})
-    static void doInt(Output output, Rql2TypeWithProperties type, int o) {
+    static void doInt(Node node, Output output, Rql2TypeWithProperties type, int o) {
       output.writeInt(o);
     }
 
     @Specialization(guards = {"isLongKind(type)"})
-    static void doLong(Output output, Rql2TypeWithProperties type, long o) {
+    static void doLong(Node node, Output output, Rql2TypeWithProperties type, long o) {
       output.writeLong(o);
     }
 
     @Specialization(guards = {"isFloatKind(type)"})
-    static void doFloat(Output output, Rql2TypeWithProperties type, float o) {
+    static void doFloat(Node node, Output output, Rql2TypeWithProperties type, float o) {
       output.writeFloat(o);
     }
 
     @Specialization
-    static void doDouble(Output output, Rql2TypeWithProperties type, double o) {
+    static void doDouble(Node node, Output output, Rql2TypeWithProperties type, double o) {
       output.writeDouble(o);
     }
 
     @Specialization
-    static void doDecimal(Output output, Rql2TypeWithProperties type, DecimalObject o) {
+    static void doDecimal(Node node, Output output, Rql2TypeWithProperties type, DecimalObject o) {
       output.writeString(o.getBigDecimal().toString());
     }
 
     @Specialization
-    static void doString(Output output, Rql2TypeWithProperties type, String o) {
+    static void doString(Node node, Output output, Rql2TypeWithProperties type, String o) {
       output.writeString(o);
     }
 
     @Specialization
-    static void doBool(Output output, Rql2TypeWithProperties type, boolean o) {
+    static void doBool(Node node, Output output, Rql2TypeWithProperties type, boolean o) {
       output.writeBoolean(o);
     }
   }

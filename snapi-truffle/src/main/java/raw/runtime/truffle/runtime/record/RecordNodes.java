@@ -13,9 +13,7 @@
 package raw.runtime.truffle.runtime.record;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
@@ -31,7 +29,7 @@ public class RecordNodes {
     public abstract Object execute(RecordObject record, int idx);
 
     @Specialization(limit = "3")
-    Object exec(
+    static Object exec(
         RecordObject record,
         int idx,
         @CachedLibrary("record.values") DynamicObjectLibrary valuesLibrary) {
@@ -49,7 +47,11 @@ public class RecordNodes {
     public abstract Object execute(RecordObject record, String key);
 
     @Specialization
-    Object exec(RecordObject record, String key, @Cached("create()") ReadIndexNode readIdx) {
+    static Object exec(
+        RecordObject record,
+        String key,
+        @Bind("$node") Node thisNode,
+        @Cached ReadIndexNode readIdx) {
       return readIdx.execute(record, record.keys.indexOf(key));
     }
   }
@@ -61,7 +63,7 @@ public class RecordNodes {
     public abstract void execute(RecordObject record, int idx, String key, Object value);
 
     @Specialization(limit = "3")
-    void exec(
+    static void exec(
         RecordObject record,
         int idx,
         String key,
@@ -83,7 +85,7 @@ public class RecordNodes {
     public abstract void execute(RecordObject record, String key, Object value);
 
     @Specialization(limit = "3")
-    void exec(
+    static void exec(
         RecordObject record,
         String key,
         Object value,

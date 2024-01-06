@@ -30,9 +30,9 @@ public abstract class DateParseJsonNode extends ExpressionNode {
   protected DateObject doParse(
       VirtualFrame frame,
       String format,
-      @Cached("create()") JsonParserNodes.ParseDateJsonParserNode parse) {
+      @Cached(inline = true) JsonParserNodes.ParseDateJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser, format);
+    return parse.execute(this, parser, format);
   }
 }

@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper;
 
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -28,16 +30,17 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 public class RecordShaperNodes {
   @NodeInfo(shortName = "RecordShaper.MakeRow")
   @GenerateUncached
+  @GenerateInline
   public abstract static class MakeRowNode extends Node {
 
-    public abstract Object execute(Object shaper, Object key, Object[] values);
+    public abstract Object execute(Node node, Object shaper, Object key, Object[] values);
 
     @Specialization(guards = {"shaper != null", "!shaper.forList()"})
-    static Object makeRowCollection(
-        RecordShaper shaper,
+    static Object makeRowCollection(Node node,
+                                    RecordShaper shaper,
         Object key,
         Object[] values,
-        @CachedLibrary(limit = "3") InteropLibrary records) {
+        @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
       RecordObject record = shaper.getLanguage().createRecord();
       try {
         records.writeMember(record, "key", key);
@@ -51,11 +54,11 @@ public class RecordShaperNodes {
     }
 
     @Specialization(guards = {"shaper != null", "shaper.forList()"})
-    static Object makeRowList(
-        RecordShaper shaper,
+    static Object makeRowList(Node node,
+                              RecordShaper shaper,
         Object key,
         Object[] values,
-        @CachedLibrary(limit = "3") InteropLibrary records) {
+        @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
       RecordObject record = shaper.getLanguage().createRecord();
       try {
         records.writeMember(record, "key", key);
@@ -69,7 +72,7 @@ public class RecordShaperNodes {
     }
 
     @Specialization(guards = "shaper == null")
-    static Object makeRowEquiJoin(Object shaper, Object key, Object[] values) {
+    static Object makeRowEquiJoin(Node node, Object shaper, Object key, Object[] values) {
       return new Object[] {key, values};
     }
   }

@@ -35,7 +35,7 @@ public class KryoFromNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     byte[] binary = (byte[]) valueNode.executeGeneric(virtualFrame);
     Input input = new Input(new ByteArrayInputStream(binary));
-    Object object = reader.execute(RawLanguage.get(this), input, t);
+    Object object = reader.execute(this, RawLanguage.get(this), input, t);
     input.close();
     return object;
   }

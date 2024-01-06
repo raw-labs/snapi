@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
@@ -35,17 +36,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected ByteList doByte(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Byte> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((byte) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((byte) generatorNextNode.execute(this, generator));
       }
       byte[] list = new byte[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -53,7 +57,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new ByteList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -61,17 +65,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected ShortList doShort(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Short> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((short) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((short) generatorNextNode.execute(this, generator));
       }
       short[] list = new short[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -79,7 +86,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new ShortList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -87,17 +94,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected IntList doInt(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Integer> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((int) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((int) generatorNextNode.execute(this, generator));
       }
       int[] list = new int[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -105,7 +115,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new IntList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -113,17 +123,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected LongList doLong(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Long> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((long) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((long) generatorNextNode.execute(this, generator));
       }
       long[] list = new long[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -131,7 +144,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new LongList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -139,17 +152,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected FloatList doFloat(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Float> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((float) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((float) generatorNextNode.execute(this, generator));
       }
       float[] list = new float[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -157,7 +173,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new FloatList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -165,17 +181,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected DoubleList doDouble(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Double> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((double) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((double) generatorNextNode.execute(this, generator));
       }
       double[] list = new double[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -183,7 +202,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new DoubleList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -191,17 +210,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected BooleanList doBoolean(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Boolean> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((boolean) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((boolean) generatorNextNode.execute(this, generator));
       }
       boolean[] list = new boolean[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -209,7 +231,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new BooleanList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -217,17 +239,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected StringList doString(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<String> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add((String) generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add((String) generatorNextNode.execute(this, generator));
       }
       String[] list = new String[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -235,7 +260,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new StringList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 
@@ -243,17 +268,20 @@ public abstract class ListFromUnsafe extends ExpressionNode {
   protected ObjectList doObject(
       Object iterable,
       @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached @Cached.Shared("initNode") GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached @Cached.Shared("hasNextNode")
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
           GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached @Cached.Shared("nextNode") GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached @Cached.Shared("closeNode") GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(iterable);
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(generator);
+      generatorInitNode.execute(this, generator);
       ArrayList<Object> llist = new ArrayList<>();
-      while (generatorHasNextNode.execute(generator)) {
-        llist.add(generatorNextNode.execute(generator));
+      while (generatorHasNextNode.execute(this, generator)) {
+        llist.add(generatorNextNode.execute(this, generator));
       }
       Object[] list = new Object[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -261,7 +289,7 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       }
       return new ObjectList(list);
     } finally {
-      generatorCloseNode.execute(generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 }

@@ -35,12 +35,12 @@ public abstract class CollectionFirstNode extends ExpressionNode {
       @Cached GeneratorNodes.GeneratorHasNextNode hasNext,
       @Cached GeneratorNodes.GeneratorNextNode next) {
     try {
-      Object generator = getGeneratorNode.execute(iterable);
-      initNode.execute(generator);
-      if (!hasNext.execute(generator)) {
+      Object generator = getGeneratorNode.execute(this, iterable);
+      initNode.execute(this, generator);
+      if (!hasNext.execute(this,generator)) {
         return NullObject.INSTANCE;
       }
-      return next.execute(generator);
+      return next.execute(this, generator);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     }

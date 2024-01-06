@@ -67,14 +67,14 @@ public class RecordWriteJsonNode extends StatementNode {
       Object keys = interops.getMembers(record);
       Object item;
 
-      writeStartObjectNode.execute(gen);
+      writeStartObjectNode.execute(this, gen);
       for (int i = 0; i < childDirectCalls.length; i++) {
         String member = (String) interops.readArrayElement(keys, i);
-        item = readIndexNode.execute(record, i);
-        writeFieldNameNode.execute(member, gen);
+        item = readIndexNode.execute( record, i);
+        writeFieldNameNode.execute(this, member, gen);
         childDirectCalls[i].call(item, gen);
       }
-      writeEndObjectNode.execute(gen);
+      writeEndObjectNode.execute(this, gen);
 
     } catch (RuntimeException | UnsupportedMessageException | InvalidArrayIndexException e) {
       throw new RawTruffleInternalErrorException(e, this);

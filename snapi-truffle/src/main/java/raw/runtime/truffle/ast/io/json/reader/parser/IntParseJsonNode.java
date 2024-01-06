@@ -25,9 +25,9 @@ public abstract class IntParseJsonNode extends ExpressionNode {
 
   @Specialization
   protected int doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseIntJsonParserNode parse) {
+      VirtualFrame frame, @Cached(inline = true) JsonParserNodes.ParseIntJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
+    return parse.execute(this,parser);
   }
 }

@@ -55,14 +55,18 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.Initialize")
   @GenerateUncached
+  @GenerateInline
   public abstract static class InitJsonParserNode extends Node {
 
-    public abstract JsonParser execute(Object value);
+    public abstract JsonParser execute(Node node, Object value);
 
     @Specialization
     @TruffleBoundary
-    JsonParser initParserFromString(
-        String value, @Cached @Cached.Shared("closeParser") CloseJsonParserNode closeParser) {
+    static JsonParser initParserFromString(
+        Node node,
+        String value,
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("close") CloseJsonParserNode closeParser) {
       JsonParser parser = null;
       try {
         JsonFactory jsonFactory = new JsonFactory();
@@ -73,16 +77,18 @@ public final class JsonParserNodes {
         return parser;
       } catch (IOException e) {
         JsonReaderRawTruffleException ex = new JsonReaderRawTruffleException();
-        closeParser.execute(parser);
+        closeParser.execute(thisNode, parser);
         throw ex;
       }
     }
 
     @Specialization
     @TruffleBoundary
-    JsonParser initParserFromStream(
+    static JsonParser initParserFromStream(
+        Node node,
         TruffleCharInputStream stream,
-        @Cached @Cached.Shared("closeParser") CloseJsonParserNode closeParser) {
+        @Bind("$node") Node thisNode,
+        @Cached(inline = true) @Cached.Shared("close") CloseJsonParserNode closeParser) {
       JsonParser parser = null;
       try {
         JsonFactory jsonFactory = new JsonFactory();
@@ -94,7 +100,7 @@ public final class JsonParserNodes {
         return parser;
       } catch (IOException e) {
         JsonReaderRawTruffleException ex = new JsonReaderRawTruffleException(parser, stream);
-        closeParser.execute(parser);
+        closeParser.execute(thisNode, parser);
         throw ex;
       }
     }
@@ -102,13 +108,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.Close")
   @GenerateUncached
+  @GenerateInline
   public abstract static class CloseJsonParserNode extends Node {
 
-    public abstract void execute(JsonParser parser);
+    public abstract void execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    void closeParserSilently(JsonParser parser) {
+    void closeParserSilently(Node node, JsonParser parser) {
       try {
         if (parser != null) {
           parser.close();
@@ -122,13 +129,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.NextToken")
   @GenerateUncached
+  @GenerateInline
   public abstract static class NextTokenJsonParserNode extends Node {
 
-    public abstract void execute(JsonParser parser);
+    public abstract void execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    void nextToken(JsonParser parser) {
+    void nextToken(Node node, JsonParser parser) {
       try {
         parser.nextToken();
       } catch (IOException e) {
@@ -139,13 +147,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.CurrentField")
   @GenerateUncached
+  @GenerateInline
   public abstract static class CurrentFieldJsonParserNode extends Node {
 
-    public abstract String execute(JsonParser parser);
+    public abstract String execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    String getCurrentFieldName(JsonParser parser) {
+    String getCurrentFieldName(Node node, JsonParser parser) {
       try {
         return parser.getCurrentName();
       } catch (IOException e) {
@@ -156,26 +165,28 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.CurrentToken")
   @GenerateUncached
+  @GenerateInline
   public abstract static class CurrentTokenJsonParserNode extends Node {
 
-    public abstract JsonToken execute(JsonParser parser);
+    public abstract JsonToken execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    JsonToken getCurrentToken(JsonParser parser) {
+    JsonToken getCurrentToken(Node node, JsonParser parser) {
       return parser.getCurrentToken();
     }
   }
 
   @NodeInfo(shortName = "JsonParser.SkipNext")
   @GenerateUncached
+  @GenerateInline
   public abstract static class SkipNextJsonParserNode extends Node {
 
-    public abstract void execute(JsonParser parser);
+    public abstract void execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    void skip(JsonParser parser) {
+    void skip(Node node, JsonParser parser) {
       try {
         parser.skipChildren(); // finish reading lists and records children (do nothing if
         // not a list
@@ -190,13 +201,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseBinary")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseBinaryJsonParserNode extends Node {
 
-    public abstract BinaryObject execute(JsonParser parser);
+    public abstract BinaryObject execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    BinaryObject doParse(JsonParser parser) {
+    BinaryObject doParse(Node node, JsonParser parser) {
       try {
         String binary = parser.getText();
         parser.nextToken();
@@ -209,13 +221,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseBoolean")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseBooleanJsonParserNode extends Node {
 
-    public abstract boolean execute(JsonParser parser);
+    public abstract boolean execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    boolean doParse(JsonParser parser) {
+    boolean doParse(Node node, JsonParser parser) {
       try {
         boolean v = parser.getBooleanValue();
         parser.nextToken();
@@ -228,13 +241,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseByte")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseByteJsonParserNode extends Node {
 
-    public abstract byte execute(JsonParser parser);
+    public abstract byte execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    byte doParse(JsonParser parser) {
+    byte doParse(Node node, JsonParser parser) {
       try {
         byte v = parser.getByteValue();
         parser.nextToken();
@@ -247,13 +261,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseDate")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseDateJsonParserNode extends Node {
 
-    public abstract DateObject execute(JsonParser parser, String format);
+    public abstract DateObject execute(Node node, JsonParser parser, String format);
 
     @Specialization
     @TruffleBoundary
-    DateObject doParse(JsonParser parser, String format) {
+    DateObject doParse(Node node, JsonParser parser, String format) {
       try {
         String text = parser.getText();
         DateObject date = new DateObject(LocalDate.parse(text, DateTimeFormatCache.get(format)));
@@ -267,13 +282,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseDecimal")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseDecimalJsonParserNode extends Node {
 
-    public abstract DecimalObject execute(JsonParser parser);
+    public abstract DecimalObject execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    DecimalObject doParse(JsonParser parser) {
+    DecimalObject doParse(Node node, JsonParser parser) {
       try {
         BigDecimal v = parser.getDecimalValue();
         parser.nextToken();
@@ -286,13 +302,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseDouble")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseDoubleJsonParserNode extends Node {
 
-    public abstract double execute(JsonParser parser);
+    public abstract double execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    double doParse(JsonParser parser) {
+    double doParse(Node node, JsonParser parser) {
       try {
         double v = parser.getDoubleValue();
         parser.nextToken();
@@ -305,13 +322,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseFloat")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseFloatJsonParserNode extends Node {
 
-    public abstract float execute(JsonParser parser);
+    public abstract float execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    float doParse(JsonParser parser) {
+    float doParse(Node node, JsonParser parser) {
       try {
         float v = parser.getFloatValue();
         parser.nextToken();
@@ -324,13 +342,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseInterval")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseIntervalJsonParserNode extends Node {
 
-    public abstract IntervalObject execute(JsonParser parser);
+    public abstract IntervalObject execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    IntervalObject doParse(JsonParser parser) {
+    IntervalObject doParse(Node node, JsonParser parser) {
       try {
         String text = parser.getText();
         IntervalObject interval = new IntervalObject(text);
@@ -344,13 +363,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseInt")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseIntJsonParserNode extends Node {
 
-    public abstract int execute(JsonParser parser);
+    public abstract int execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    int doParse(JsonParser parser) {
+    int doParse(Node node, JsonParser parser) {
       try {
         int v = parser.getIntValue();
         parser.nextToken();
@@ -363,9 +383,10 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseLong")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseLongJsonParserNode extends Node {
 
-    public abstract long execute(JsonParser parser);
+    public abstract long execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
@@ -382,13 +403,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseShort")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseShortJsonParserNode extends Node {
 
-    public abstract short execute(JsonParser parser);
+    public abstract short execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    short doParse(JsonParser parser) {
+    short doParse(Node node, JsonParser parser) {
       try {
         short v = parser.getShortValue();
         parser.nextToken();
@@ -401,13 +423,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseString")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseStringJsonParserNode extends Node {
 
-    public abstract String execute(JsonParser parser);
+    public abstract String execute(Node node, JsonParser parser);
 
     @Specialization
     @TruffleBoundary
-    String doParse(JsonParser parser) {
+    String doParse(Node node, JsonParser parser) {
       try {
         if (!parser.currentToken().isScalarValue()) {
           throw new JsonParserRawTruffleException(
@@ -424,13 +447,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseTime")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseTimeJsonParserNode extends Node {
 
-    public abstract TimeObject execute(JsonParser parser, String format);
+    public abstract TimeObject execute(Node node, JsonParser parser, String format);
 
     @Specialization
     @TruffleBoundary
-    TimeObject doParse(JsonParser parser, String format) {
+    TimeObject doParse(Node node, JsonParser parser, String format) {
       try {
         String text = parser.getText();
         TimeObject time = new TimeObject(LocalTime.parse(text, DateTimeFormatCache.get(format)));
@@ -444,13 +468,14 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseTimestamp")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ParseTimestampJsonParserNode extends Node {
 
-    public abstract TimestampObject execute(JsonParser parser, String format);
+    public abstract TimestampObject execute(Node node, JsonParser parser, String format);
 
     @Specialization
     @TruffleBoundary
-    TimestampObject doParse(JsonParser parser, String format) {
+    TimestampObject doParse(Node node, JsonParser parser, String format) {
       try {
         String text = parser.getText();
         TimestampObject timestamp =
@@ -465,9 +490,10 @@ public final class JsonParserNodes {
 
   @NodeInfo(shortName = "JsonParser.ParseAny")
   @ImportStatic(JsonNodeType.class)
+  @GenerateInline
   public abstract static class ParseAnyJsonParserNode extends Node {
 
-    public abstract Object execute(JsonParser parser);
+    public abstract Object execute(Node node, JsonParser parser);
 
     @TruffleBoundary
     public boolean isArray(JsonParser parser) {
@@ -554,24 +580,29 @@ public final class JsonParserNodes {
     }
 
     @Specialization(guards = {"isArray(parser)"})
-    protected ObjectList doParseList(
+    protected static ObjectList doParseList(
+        Node node,
         JsonParser parser,
-        @Cached @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken) {
-      if (currentToken.execute(parser) != JsonToken.START_ARRAY) {
+        @Cached(inline = true) @Cached.Shared("nextToken")
+            JsonParserNodes.NextTokenJsonParserNode nextToken) {
+      if (currentToken.execute(thisNode, parser) != JsonToken.START_ARRAY) {
         throw new JsonUnexpectedTokenException(
-            JsonToken.START_ARRAY.asString(), currentToken.execute(parser).toString(), this);
+            JsonToken.START_ARRAY.asString(),
+            currentToken.execute(thisNode, parser).toString(),
+            thisNode);
       }
-      nextToken.execute(parser);
+      nextToken.execute(thisNode, parser);
 
       ArrayList<Object> alist = new ArrayList<>();
 
-      while (currentToken.execute(parser) != JsonToken.END_ARRAY) {
-        alist.add(parse.execute(parser));
+      while (currentToken.execute(thisNode, parser) != JsonToken.END_ARRAY) {
+        alist.add(parse.execute(thisNode, parser));
       }
-      nextToken.execute(parser);
+      nextToken.execute(thisNode, parser);
 
       Object[] result = new Object[alist.size()];
       for (int i = 0; i < result.length; i++) {
@@ -582,54 +613,68 @@ public final class JsonParserNodes {
     }
 
     @Specialization(guards = {"isObject(parser)"})
-    protected RecordObject doParse(
+    protected static RecordObject doParse(
+        Node node,
         JsonParser parser,
-        @Cached @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
-        @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
+        @Cached(inline = true) @Cached.Shared("nextToken")
+            JsonParserNodes.NextTokenJsonParserNode nextToken,
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached JsonParserNodes.CurrentFieldJsonParserNode currentField,
+        @Cached(inline = true) JsonParserNodes.CurrentFieldJsonParserNode currentField,
         @CachedLibrary(limit = "3") InteropLibrary records) {
-      if (currentToken.execute(parser) != JsonToken.START_OBJECT) {
+      if (currentToken.execute(thisNode, parser) != JsonToken.START_OBJECT) {
         throw new JsonUnexpectedTokenException(
-            JsonToken.START_OBJECT.asString(), currentToken.execute(parser).toString(), this);
+            JsonToken.START_OBJECT.asString(),
+            currentToken.execute(thisNode, parser).toString(),
+            thisNode);
       }
 
-      nextToken.execute(parser);
+      nextToken.execute(thisNode, parser);
 
-      RecordObject record = RawLanguage.get(this).createRecord();
+      RecordObject record = RawLanguage.get(thisNode).createRecord();
       try {
-        while (currentToken.execute(parser) != JsonToken.END_OBJECT) {
-          String fieldName = currentField.execute(parser);
-          nextToken.execute(parser); // skip the field name
-          records.writeMember(record, fieldName, parse.execute(parser));
+        while (currentToken.execute(thisNode, parser) != JsonToken.END_OBJECT) {
+          String fieldName = currentField.execute(thisNode, parser);
+          nextToken.execute(thisNode, parser); // skip the field name
+          records.writeMember(record, fieldName, parse.execute(thisNode, parser));
         }
-        nextToken.execute(parser); // skip the END_OBJECT token
+        nextToken.execute(thisNode, parser); // skip the END_OBJECT token
       } catch (UnsupportedMessageException
           | UnknownIdentifierException
           | UnsupportedTypeException e) {
-        throw new RawTruffleInternalErrorException(e, this);
+        throw new RawTruffleInternalErrorException(e, thisNode);
       }
       return record;
     }
 
     @Specialization(guards = {"isString(parser)"})
-    protected String doParse(
-        JsonParser parser, @Cached JsonParserNodes.ParseStringJsonParserNode parse) {
+    protected static String doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseStringJsonParserNode parse) {
       // (az) to do maybe add some logic to parse dates
-      return parse.execute(parser);
+      return parse.execute(thisNode, parser);
     }
 
     @Specialization(guards = {"isBinary(parser)"})
-    protected BinaryObject doParse(
-        JsonParser parser, @Cached JsonParserNodes.ParseBinaryJsonParserNode parse) {
-      return parse.execute(parser);
+    protected static BinaryObject doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseBinaryJsonParserNode parse) {
+      return parse.execute(thisNode, parser);
     }
 
     @Specialization(guards = {"isBoolean(parser)"})
-    protected boolean doParseBoolean(
-        JsonParser parser, @Cached JsonParserNodes.ParseBooleanJsonParserNode parse) {
-      return parse.execute(parser);
+    protected static boolean doParseBoolean(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseBooleanJsonParserNode parse) {
+      return parse.execute(thisNode, parser);
     }
 
     //        @Specialization(guards = {"isShort(parser)"})
@@ -641,38 +686,57 @@ public final class JsonParserNodes {
     //        }
 
     @Specialization(guards = {"isInt(parser)"})
-    protected int doParse(JsonParser parser, @Cached JsonParserNodes.ParseIntJsonParserNode parse) {
-      return parse.execute(parser);
+    protected static int doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseIntJsonParserNode parse) {
+      return parse.execute(thisNode, parser);
     }
 
     @Specialization(guards = {"isLong(parser)"})
-    protected long doParse(
-        JsonParser parser, @Cached JsonParserNodes.ParseLongJsonParserNode parse) {
-      return parse.execute(parser);
+    protected static long doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseLongJsonParserNode parse) {
+      return parse.execute(thisNode, parser);
     }
 
     @Specialization(guards = {"isFloat(parser)"})
-    protected float doParse(
-        JsonParser parser, @Cached JsonParserNodes.ParseFloatJsonParserNode parse) {
-      return parse.execute(parser);
+    protected static float doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseFloatJsonParserNode parse) {
+      return parse.execute(thisNode, parser);
     }
 
     @Specialization(guards = {"isDouble(parser)"})
-    protected double doParse(
-        JsonParser parser, @Cached JsonParserNodes.ParseDoubleJsonParserNode parse) {
-      return parse.execute(parser);
+    protected static double doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseDoubleJsonParserNode parse) {
+      return parse.execute(thisNode, parser);
     }
 
     @Specialization(guards = {"isDecimal(parser)"})
-    protected DecimalObject doParse(
-        JsonParser parser, @Cached JsonParserNodes.ParseDecimalJsonParserNode parse) {
-      return parse.execute(parser);
+    protected static DecimalObject doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.ParseDecimalJsonParserNode parse) {
+      return parse.execute(thisNode, parser);
     }
 
     @Specialization(guards = {"isNull(parser)"})
-    protected Object writeNull(
-        JsonParser parser, @Cached JsonParserNodes.SkipNextJsonParserNode skip) {
-      skip.execute(parser);
+    protected static Object writeNull(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached JsonParserNodes.SkipNextJsonParserNode skip) {
+      skip.execute(thisNode, parser);
       return NullObject.INSTANCE;
     }
   }

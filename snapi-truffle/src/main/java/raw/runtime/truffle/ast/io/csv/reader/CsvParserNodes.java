@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.io.csv.reader;
 
+import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
@@ -24,25 +25,27 @@ public class CsvParserNodes {
 
   @NodeInfo(shortName = "Parser.Initialize")
   @GenerateUncached
+  @GenerateInline
   public abstract static class InitCsvParserNode extends Node {
 
-    public abstract RawTruffleCsvParser execute(Object value, RawTruffleCsvParserSettings settings);
+    public abstract RawTruffleCsvParser execute(Node node, Object value, RawTruffleCsvParserSettings settings);
 
     @Specialization
-    RawTruffleCsvParser initParserFromStream(
-        RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
+    RawTruffleCsvParser initParserFromStream(Node node,
+                                             RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
       return new RawTruffleCsvParser(stream, settings);
     }
   }
 
   @NodeInfo(shortName = "Parser.Close")
   @GenerateUncached
+  @GenerateInline
   public abstract static class CloseCsvParserNode extends Node {
 
-    public abstract void execute(RawTruffleCsvParser parser);
+    public abstract void execute(Node node, RawTruffleCsvParser parser);
 
     @Specialization
-    void closeParserSilently(RawTruffleCsvParser parser) {
+    void closeParserSilently(Node node, RawTruffleCsvParser parser) {
       if (parser != null) {
         parser.close();
       }
