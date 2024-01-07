@@ -28,6 +28,6 @@ public class ShortWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeShort.execute((short) args[0], (JsonGenerator) args[1]);
+    writeShort.execute(this, (short) args[0], (JsonGenerator) args[1]);
   }
 }

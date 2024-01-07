@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 
@@ -34,7 +34,7 @@ public final class LongNode extends ExpressionNode {
     return parseLong();
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public long parseLong() {
     return Long.parseLong(value);
   }

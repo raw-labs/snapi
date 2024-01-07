@@ -19,7 +19,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
-@ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public final class FloatList implements TruffleObject {
 
@@ -29,22 +28,14 @@ public final class FloatList implements TruffleObject {
     this.list = list;
   }
 
-  @ExportMessage
-  boolean isList() {
-    return true;
-  }
-
-  @ExportMessage
   public float[] getInnerList() {
     return list;
   }
 
-  @ExportMessage
   boolean isElementReadable(int index) {
     return index >= 0 && index < list.length;
   }
 
-  @ExportMessage
   public float get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
@@ -53,20 +44,26 @@ public final class FloatList implements TruffleObject {
     return list[idx];
   }
 
-  @ExportMessage
   public int size() {
     return list.length;
   }
 
-  @ExportMessage
-  public Object toIterable() {
+  public ListIterable toIterable() {
     return new ListIterable(this);
   }
 
-  @ExportMessage
-  public Object sort() {
+  public FloatList sort() {
     float[] result = this.list.clone();
     Arrays.sort(result);
+    return new FloatList(result);
+  }
+
+  public FloatList take(int num) {
+    if (num >= this.getInnerList().length) {
+      return this;
+    }
+    float[] result = new float[num];
+    System.arraycopy(this.list, 0, result, 0, result.length);
     return new FloatList(result);
   }
 

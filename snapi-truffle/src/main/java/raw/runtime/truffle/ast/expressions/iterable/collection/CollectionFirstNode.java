@@ -12,14 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 
@@ -27,18 +27,20 @@ import raw.runtime.truffle.runtime.primitives.NullObject;
 @NodeChild("iterable")
 public abstract class CollectionFirstNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doObject(
       Object iterable,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators,
-      @CachedLibrary("iterable") IterableLibrary iterables) {
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNext,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode next) {
     try {
-      Object generator = iterables.getGenerator(iterable);
-      generators.init(generator);
-      if (!generators.hasNext(generator)) {
+      Object generator = getGeneratorNode.execute(this, iterable);
+      initNode.execute(this, generator);
+      if (!hasNext.execute(this, generator)) {
         return NullObject.INSTANCE;
       }
-      return generators.next(generator);
+      return next.execute(this, generator);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     }

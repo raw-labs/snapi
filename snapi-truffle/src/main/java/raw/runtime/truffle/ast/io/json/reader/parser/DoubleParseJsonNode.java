@@ -25,9 +25,9 @@ public abstract class DoubleParseJsonNode extends ExpressionNode {
 
   @Specialization
   protected double doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseDoubleJsonParserNode parse) {
+      VirtualFrame frame, @Cached(inline = true) JsonParserNodes.ParseDoubleJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
+    return parse.execute(this, parser);
   }
 }

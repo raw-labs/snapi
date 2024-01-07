@@ -139,7 +139,7 @@ trait BenchmarkTests extends CompilerTestContext {
       |          angles=List.From(Int.Range(min_angle, max_angle)),
       |
       |          // Get temperatures from meteo (uploaded to a public site)
-      |          temperature_raw=Csv.InferAndRead("https://rawlabs-public-test-data.s3.eu-west-1.amazonaws.com/dataset_temperature_athens.csv"),
+      |          temperature_raw=Csv.InferAndRead("file:/home/ld/Downloads/truffle_data/dataset_temperature_athens.csv"),
       |          // Consider only temperature measurements that are within the valid time period and normalize them 
       |          temperature_data=
       |            List.From(Collection.Transform(
@@ -151,7 +151,7 @@ trait BenchmarkTests extends CompilerTestContext {
       |            )),
       |
       |          // Get solar radiation from meteo (uploaded to a public site)
-      |          solar_radiation_raw=Csv.InferAndRead("https://rawlabs-public-test-data.s3.eu-west-1.amazonaws.com/dataset_solar_radiation_athens_v2.csv"),
+      |          solar_radiation_raw=Csv.InferAndRead("file:/home/ld/Downloads/truffle_data/dataset_solar_radiation_athens_v2.csv"),
       |          // Consider only solar radiation measurements that are within the valid time period and normalize them 
       |          solar_radiation_data=
       |            Collection.Transform(

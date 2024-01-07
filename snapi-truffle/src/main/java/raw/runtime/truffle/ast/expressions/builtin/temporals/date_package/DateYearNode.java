@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -23,7 +22,6 @@ import raw.runtime.truffle.runtime.primitives.DateObject;
 @NodeChild("date")
 public abstract class DateYearNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
   protected int getYear(DateObject date) {
     return date.getDate().getYear();
   }

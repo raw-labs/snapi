@@ -35,6 +35,6 @@ public class EqNode extends BinaryNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     Object leftValue = left.executeGeneric(virtualFrame);
     Object rightValue = right.executeGeneric(virtualFrame);
-    return compare.execute(leftValue, rightValue) == 0;
+    return compare.execute(this, leftValue, rightValue) == 0;
   }
 }

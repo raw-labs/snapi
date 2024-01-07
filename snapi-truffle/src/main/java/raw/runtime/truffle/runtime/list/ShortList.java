@@ -19,7 +19,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
-@ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public final class ShortList implements TruffleObject {
   private final short[] list;
@@ -28,22 +27,18 @@ public final class ShortList implements TruffleObject {
     this.list = list;
   }
 
-  @ExportMessage
   boolean isList() {
     return true;
   }
 
-  @ExportMessage
   public short[] getInnerList() {
     return list;
   }
 
-  @ExportMessage
   boolean isElementReadable(int index) {
     return index >= 0 && index < list.length;
   }
 
-  @ExportMessage
   public short get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
@@ -52,20 +47,26 @@ public final class ShortList implements TruffleObject {
     return list[idx];
   }
 
-  @ExportMessage
   public int size() {
     return list.length;
   }
 
-  @ExportMessage
-  public Object toIterable() {
+  public ListIterable toIterable() {
     return new ListIterable(this);
   }
 
-  @ExportMessage
-  public Object sort() {
+  public ShortList sort() {
     short[] result = this.list.clone();
     Arrays.sort(result);
+    return new ShortList(result);
+  }
+
+  public ShortList take(int num) {
+    if (num >= this.getInnerList().length) {
+      return this;
+    }
+    short[] result = new short[num];
+    System.arraycopy(this.list, 0, result, 0, result.length);
     return new ShortList(result);
   }
 

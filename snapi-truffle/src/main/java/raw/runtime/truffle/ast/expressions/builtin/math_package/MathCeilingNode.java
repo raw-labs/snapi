@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.math_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -24,7 +24,7 @@ import raw.runtime.truffle.runtime.primitives.DecimalObject;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathCeilingNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected long decimalCeiling(DecimalObject argument) {
     return argument.getBigDecimal().setScale(0, RoundingMode.CEILING).longValue();
   }

@@ -12,10 +12,7 @@
 
 package raw.runtime.truffle.ast.local;
 
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.FrameSlotKind;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.compiler.rql2.source.*;
@@ -28,8 +25,10 @@ import raw.runtime.truffle.ast.TypeGuards;
 @NodeField(name = "rql2Type", type = Rql2Type.class)
 public abstract class WriteLocalVariableNode extends ExpressionNode {
 
+  @Idempotent
   protected abstract int getSlot();
 
+  @Idempotent
   protected abstract Rql2Type getRql2Type();
 
   @Specialization(guards = "isBooleanKind(getRql2Type())")

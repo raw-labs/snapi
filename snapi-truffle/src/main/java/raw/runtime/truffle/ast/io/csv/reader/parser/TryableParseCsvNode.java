@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.io.csv.reader.parser;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -33,11 +32,6 @@ public class TryableParseCsvNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-    return doParse(parser);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private Object doParse(RawTruffleCsvParser parser) {
     try {
       return innerParse.call(parser);
     } catch (CsvParserRawTruffleException ex) {

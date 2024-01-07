@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.function;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -49,7 +50,7 @@ public class Closure implements TruffleObject {
     this.defaultArguments = defaultArguments;
     for (int i = 0; i < defaultArguments.length; i++) {
       if (defaultArguments[i] != null) {
-        namedArgs.put(function.getArgNames()[i], defaultArguments[i]);
+        putNamedArg(function.getArgNames()[i], defaultArguments[i]);
       }
     }
   }
@@ -161,13 +162,14 @@ public class Closure implements TruffleObject {
   final boolean isMemberInvocable(String member) {
     if (member.startsWith(GET_DEFAULT_PREFIX)) {
       String argName = member.substring(GET_DEFAULT_PREFIX.length());
-      return namedArgs.containsKey(argName);
+      return containsKey(argName);
     } else {
       return false;
     }
   }
 
   @ExportMessage
+  @CompilerDirectives.TruffleBoundary
   final Object getMembers(boolean includeInternal) {
     return new StringList(
         namedArgs.keySet().stream().map(s -> GET_DEFAULT_PREFIX + s).toArray(String[]::new));
@@ -176,14 +178,39 @@ public class Closure implements TruffleObject {
   @ExportMessage
   final Object invokeMember(String member, Object... arguments)
       throws UnknownIdentifierException, ArityException {
-    if (member.startsWith(GET_DEFAULT_PREFIX)) {
+    if (startsWith(member)) {
       if (arguments.length > 0) {
         throw ArityException.create(0, 0, arguments.length);
       }
-      String argName = member.substring(GET_DEFAULT_PREFIX.length());
-      return namedArgs.get(argName);
+      String argName = substring(member, GET_DEFAULT_PREFIX.length());
+      return getNamedArg(argName);
     } else {
       throw UnknownIdentifierException.create(member);
     }
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private boolean startsWith(String member) {
+    return member.startsWith(Closure.GET_DEFAULT_PREFIX);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private String substring(String member, int from) {
+    return member.substring(from);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private Object getNamedArg(String argName) {
+    return namedArgs.get(argName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void putNamedArg(String argName, Object value) {
+    namedArgs.put(argName, value);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private boolean containsKey(String argName) {
+    return namedArgs.containsKey(argName);
   }
 }

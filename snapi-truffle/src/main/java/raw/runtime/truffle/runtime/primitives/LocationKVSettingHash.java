@@ -16,11 +16,11 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ExpressionComputeNext;
-import raw.runtime.truffle.runtime.list.StringList;
-
 import java.util.Objects;
+
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.ExpressionComputeNext;
+import raw.runtime.truffle.runtime.list.StringList;
 
 /* This class is used to export Location KVSettings (as a Hash) */
 
@@ -64,8 +64,12 @@ final class LocationKVSettingHash implements TruffleObject {
   }
 
   @ExportMessage
-  final  Object getHashEntriesIterator() {
-    return new CollectionAbstractGenerator(new ExpressionComputeNext(map.keySet().stream().map(k -> new StringList(new String[]{k, map.get(k)})).toArray()));
-//    return map.keySet().stream().map(k -> new Object[]{k, map.get(k)}).iterator();
+  final Object getHashEntriesIterator() {
+    return new AbstractGenerator(
+        new ExpressionComputeNext(
+            map.keySet().stream()
+                .map(k -> new StringList(new String[] {k, map.get(k)}))
+                .toArray()));
+    //    return map.keySet().stream().map(k -> new Object[]{k, map.get(k)}).iterator();
   }
 }

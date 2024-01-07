@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.primitives;
 
 import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.DATE_FORMATTER;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -61,7 +61,7 @@ public final class DateObject implements TruffleObject {
   }
 
   @ExportMessage
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
     return "Date";
   }

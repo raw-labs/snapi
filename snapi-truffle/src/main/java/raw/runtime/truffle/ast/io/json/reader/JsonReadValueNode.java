@@ -67,12 +67,12 @@ public class JsonReadValueNode extends ExpressionNode {
       TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
 
-      parser = initParserNode.execute(stream);
-      nextTokenNode.execute(parser);
+      parser = initParserNode.execute(this, stream);
+      nextTokenNode.execute(this, parser);
 
       return this.childDirectCall.call(parser);
     } finally {
-      closeParserNode.execute(parser);
+      closeParserNode.execute(this, parser);
       parser = null;
     }
   }

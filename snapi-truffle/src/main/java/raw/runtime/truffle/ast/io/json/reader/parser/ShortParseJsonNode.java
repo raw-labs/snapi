@@ -25,9 +25,9 @@ public abstract class ShortParseJsonNode extends ExpressionNode {
 
   @Specialization
   protected short doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseShortJsonParserNode parse) {
+      VirtualFrame frame, @Cached(inline = true) JsonParserNodes.ParseShortJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
+    return parse.execute(this, parser);
   }
 }

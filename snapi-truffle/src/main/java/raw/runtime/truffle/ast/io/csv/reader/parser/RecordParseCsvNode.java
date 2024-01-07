@@ -53,7 +53,7 @@ public class RecordParseCsvNode extends ExpressionNode {
       String fieldName = columns[i].idn();
       parser.getNextField();
       Object value = childDirectCalls[i].call(parser);
-      writeIndexNode.execute(record, i, fieldName, value);
+      writeIndexNode.execute(this, record, i, fieldName, value);
     }
     parser.finishLine(this);
     return record;

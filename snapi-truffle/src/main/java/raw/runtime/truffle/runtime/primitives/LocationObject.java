@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -26,20 +26,20 @@ import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
 
 @ExportLibrary(InteropLibrary.class)
-final public class LocationObject implements TruffleObject {
+public final class LocationObject implements TruffleObject {
   private final LocationDescription locationDescription;
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public LocationObject(String url) {
     this.locationDescription = new LocationDescription(url, new HashMap<>());
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public LocationObject(String url, Map<LocationSettingKey, LocationSettingValue> params) {
     this.locationDescription = new LocationDescription(url, params);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public LocationObject(LocationDescription locationDescription) {
     this.locationDescription = locationDescription;
   }
@@ -65,7 +65,10 @@ final public class LocationObject implements TruffleObject {
 
   @ExportMessage
   final Object getMembers(boolean includeInternal) {
-    String[] keys = JavaConverters.asJavaCollection(locationDescription.settings().keys()).stream().map(LocationSettingKey::key).toArray(String[]::new);
+    String[] keys =
+        JavaConverters.asJavaCollection(locationDescription.settings().keys()).stream()
+            .map(LocationSettingKey::key)
+            .toArray(String[]::new);
     return new StringList(keys);
   }
 
@@ -96,7 +99,7 @@ final public class LocationObject implements TruffleObject {
         for (int i = 0; i < size; i++) {
           String key = v.map().apply(i)._1();
           String value = v.map().apply(i)._2();
-          pairsArray[i] = new String[]{key, value};
+          pairsArray[i] = new String[] {key, value};
         }
         yield new LocationKVSettingHash(pairsArray);
       }

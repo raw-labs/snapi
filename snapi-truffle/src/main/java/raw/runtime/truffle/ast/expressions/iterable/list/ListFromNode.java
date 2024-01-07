@@ -12,19 +12,15 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
@@ -34,21 +30,28 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeField(name = "resultType", type = Rql2Type.class)
 public abstract class ListFromNode extends ExpressionNode {
 
+  @Idempotent
   protected abstract Rql2Type getResultType();
 
-  @Specialization(
-      guards = {"isByteKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isByteKind(getResultType())"})
   protected Object doByte(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Byte> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((byte) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((byte) nextGeneratorNode.execute(this, generator));
       }
       byte[] list = new byte[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -58,23 +61,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(
-      guards = {"isShortKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isShortKind(getResultType())"})
   protected Object doShort(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Short> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((short) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((short) nextGeneratorNode.execute(this, generator));
       }
       short[] list = new short[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -84,23 +93,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(
-      guards = {"isIntKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isIntKind(getResultType())"})
   protected Object doInt(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Integer> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((int) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((int) nextGeneratorNode.execute(this, generator));
       }
       int[] list = new int[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -110,23 +125,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(
-      guards = {"isLongKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isLongKind(getResultType())"})
   protected Object doLong(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Long> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((long) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((long) nextGeneratorNode.execute(this, generator));
       }
       long[] list = new long[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -136,23 +157,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(
-      guards = {"isFloatKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isFloatKind(getResultType())"})
   protected Object doFloat(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Float> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((float) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((float) nextGeneratorNode.execute(this, generator));
       }
       float[] list = new float[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -162,23 +189,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(
-      guards = {"isDoubleKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected Object doDouble(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Double> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((double) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((double) nextGeneratorNode.execute(this, generator));
       }
       double[] list = new double[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -188,23 +221,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(
-      guards = {"isBooleanKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected Object doBoolean(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Boolean> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((boolean) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((boolean) nextGeneratorNode.execute(this, generator));
       }
       boolean[] list = new boolean[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -214,23 +253,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(
-      guards = {"isStringKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isStringKind(getResultType())"})
   protected Object doString(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<String> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add((String) generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add((String) nextGeneratorNode.execute(this, generator));
       }
       String[] list = new String[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -240,21 +285,29 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doObject(
       Object iterable,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode initGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNextNode")
+          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("nextNode")
+          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
+      initGeneratorNode.execute(this, generator);
       ArrayList<Object> llist = new ArrayList<>();
-      while (generators.hasNext(generator)) {
-        llist.add(generators.next(generator));
+      while (hasNextGeneratorNode.execute(this, generator)) {
+        llist.add(nextGeneratorNode.execute(this, generator));
       }
       Object[] list = new Object[llist.size()];
       for (int i = 0; i < list.length; i++) {
@@ -264,7 +317,7 @@ public abstract class ListFromNode extends ExpressionNode {
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     } finally {
-      generators.close(generator);
+      closeGeneratorNode.execute(this, generator);
     }
   }
 }

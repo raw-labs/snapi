@@ -13,7 +13,7 @@
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.json.JsonExpectedNothingException;
@@ -26,7 +26,7 @@ public class UndefinedParseJsonNode extends ExpressionNode {
     return null;
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private void doParse(JsonParser parser) {
     throw new JsonExpectedNothingException(parser.currentToken().toString());
   }

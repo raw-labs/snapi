@@ -14,7 +14,7 @@ package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
 import static raw.runtime.truffle.runtime.primitives.TruffleTemporalFormatter.*;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -26,43 +26,43 @@ import raw.runtime.truffle.runtime.primitives.*;
 public abstract class StringFromNode extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromByte(byte value) {
     return String.valueOf(value);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromShort(short value) {
     return String.valueOf(value);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromInt(int value) {
     return String.valueOf(value);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromLong(long value) {
     return String.valueOf(value);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromFloat(float value) {
     return String.valueOf(value);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromDouble(double value) {
     return String.valueOf(value);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromDecimal(DecimalObject value) {
     return value.getBigDecimal().toString();
   }
@@ -73,25 +73,25 @@ public abstract class StringFromNode extends ExpressionNode {
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromDate(DateObject value) {
     return value.getDate().format(DATE_FORMATTER);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromTime(TimeObject value) {
     return value.getTime().format(TIME_FORMATTER);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromTimestamp(TimestampObject value) {
     return value.getTimestamp().format(TIMESTAMP_FORMATTER);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected String fromInterval(IntervalObject value) {
     return value.toString();
   }

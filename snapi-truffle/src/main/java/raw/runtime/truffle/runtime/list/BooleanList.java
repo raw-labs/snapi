@@ -18,31 +18,23 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
-@ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public final class BooleanList implements TruffleObject {
+
   private final boolean[] list;
 
   public BooleanList(boolean[] list) {
     this.list = list;
   }
 
-  @ExportMessage
-  boolean isList() {
-    return true;
-  }
-
-  @ExportMessage
   public boolean[] getInnerList() {
     return list;
   }
 
-  @ExportMessage
   boolean isElementReadable(int index) {
     return index >= 0 && index < list.length;
   }
 
-  @ExportMessage
   public boolean get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
@@ -51,19 +43,25 @@ public final class BooleanList implements TruffleObject {
     return list[idx];
   }
 
-  @ExportMessage
   public int size() {
     return list.length;
   }
 
-  @ExportMessage
-  public Object toIterable() {
+  public ListIterable toIterable() {
     return new ListIterable(this);
   }
 
-  @ExportMessage
-  public Object sort() {
+  public BooleanList sort() {
     return this;
+  }
+
+  public BooleanList take(int num) {
+    if (num >= this.getInnerList().length) {
+      return this;
+    }
+    boolean[] result = new boolean[num];
+    System.arraycopy(this.list, 0, result, 0, result.length);
+    return new BooleanList(result);
   }
 
   // InteropLibrary: Array

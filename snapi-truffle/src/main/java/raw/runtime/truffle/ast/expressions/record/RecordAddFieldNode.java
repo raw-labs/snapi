@@ -33,8 +33,8 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
       Object rec,
       String newKey,
       Object newValue,
-      @Cached("create()") RecordNodes.WriteIndexNode writeIndexNode,
-      @Cached("create()") RecordNodes.ReadIndexNode readIndexNode) {
+      @Cached(inline = true) RecordNodes.WriteIndexNode writeIndexNode,
+      @Cached(inline = true) RecordNodes.ReadIndexNode readIndexNode) {
     RecordObject record = (RecordObject) rec;
     RecordObject newRecord = RawLanguage.get(this).createRecord();
     String[] keys = record.keys();
@@ -42,9 +42,9 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
     String member;
     for (int i = 0; i < length; i++) {
       member = keys[i];
-      writeIndexNode.execute(newRecord, i, member, readIndexNode.execute(record, i));
+      writeIndexNode.execute(this, newRecord, i, member, readIndexNode.execute(this, record, i));
     }
-    writeIndexNode.execute(newRecord, length, newKey, newValue);
+    writeIndexNode.execute(this, newRecord, length, newKey, newValue);
     return newRecord;
   }
 }

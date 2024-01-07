@@ -13,26 +13,24 @@
 package raw.runtime.truffle.runtime.iterable.sources;
 
 import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.XmlParseComputeNext;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.XmlParseComputeNext;
 import raw.sources.api.SourceContext;
 
-@ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public class XmlParseCollection implements TruffleObject {
-
   private final String text;
   private final RootCallTarget parseNextRootCallTarget;
   private final RawTruffleXmlParserSettings settings;
-  private final SourceContext context;
 
   public XmlParseCollection(
       String text,
@@ -41,35 +39,25 @@ public class XmlParseCollection implements TruffleObject {
       RawTruffleXmlParserSettings settings) {
     this.text = text;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
-    this.context = context;
     this.settings = settings;
   }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
-
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(
-        new XmlParseComputeNext(text, context, parseNextRootCallTarget, settings));
+  public AbstractGenerator getGenerator() {
+    return new AbstractGenerator(new XmlParseComputeNext(text, parseNextRootCallTarget, settings));
   }
 
   // InteropLibrary: Iterable
-
   @ExportMessage
   boolean hasIterator() {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary =
-      GeneratorLibrary.getFactory().createDispatched(1);
-
   @ExportMessage
-  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(this);
-    generatorLibrary.init(generator);
+  Object getIterator(
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
+    Object generator = getGenerator();
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

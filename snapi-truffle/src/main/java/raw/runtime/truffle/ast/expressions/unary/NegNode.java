@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.unary;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import raw.runtime.truffle.ExpressionNode;
@@ -52,7 +52,7 @@ public abstract class NegNode extends ExpressionNode {
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject negDecimal(DecimalObject value) {
     return new DecimalObject(value.getBigDecimal().negate());
   }

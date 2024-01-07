@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.local;
 
 import com.oracle.truffle.api.TruffleLogger;
+import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -34,10 +35,13 @@ public abstract class ReadClosureVariableNode extends ExpressionNode {
   private static final TruffleLogger LOG =
       TruffleLogger.getLogger(RawLanguage.ID, RawTruffleRuntimeException.class);
 
+  @Idempotent
   protected abstract Integer getDepth();
 
+  @Idempotent
   protected abstract Integer getIndex();
 
+  @Idempotent
   protected abstract Rql2Type getRql2Type();
 
   @Specialization(guards = "isBooleanKind(getRql2Type())")

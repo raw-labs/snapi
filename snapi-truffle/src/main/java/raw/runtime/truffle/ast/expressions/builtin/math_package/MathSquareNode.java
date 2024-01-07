@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.math_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -22,7 +22,7 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeChild(value = "argument", type = ExpressionNode.class)
 public abstract class MathSquareNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected double doubleSquare(double argument) {
     return Math.pow(argument, 2);
   }

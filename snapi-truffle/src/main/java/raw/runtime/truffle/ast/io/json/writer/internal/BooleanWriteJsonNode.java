@@ -28,6 +28,6 @@ public class BooleanWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeBoolean.execute((boolean) args[0], (JsonGenerator) args[1]);
+    writeBoolean.execute(this, (boolean) args[0], (JsonGenerator) args[1]);
   }
 }

@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.utils;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,7 +22,7 @@ import raw.sources.api.SourceContext;
 
 public class IOUtils {
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public static Path getScratchPath(SourceContext context) {
     Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
     if (!Files.exists(p)) {
@@ -35,7 +35,7 @@ public class IOUtils {
     return p;
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public static Path getScratchFile(String prefix, String suffix, SourceContext context) {
     try {
       return Files.createTempFile(getScratchPath(context), prefix, suffix);

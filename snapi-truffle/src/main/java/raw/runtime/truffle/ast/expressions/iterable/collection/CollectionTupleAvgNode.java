@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -23,11 +24,10 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
+import raw.runtime.truffle.runtime.aggregation.AggregationNodes;
 import raw.runtime.truffle.runtime.aggregation.MultiAggregation;
-import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorLibrary;
-import raw.runtime.truffle.runtime.aggregation.aggregator.CountAggregator;
-import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
+import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorNodes;
+import raw.runtime.truffle.runtime.aggregation.aggregator.Aggregators;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.record.RecordObject;
@@ -38,18 +38,16 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
   @Specialization
   protected Object doCollection(
       Object iterable,
-      @CachedLibrary(limit = "1") AggregationLibrary aggregations,
-      @CachedLibrary(limit = "3") AggregatorLibrary aggregatorLibs,
+      @Cached(inline = true) AggregationNodes.Aggregate aggregate,
+      @Cached(inline = true) AggregatorNodes.Zero zero,
       @CachedLibrary(limit = "1") InteropLibrary records) {
     try {
-      SumAggregator sumAggregator = new SumAggregator();
-      CountAggregator countAggregator = new CountAggregator();
-      Object[] aggregators = new Object[] {sumAggregator, countAggregator};
+      byte[] aggregators = new byte[] {Aggregators.SUM, Aggregators.COUNT};
       Object aggregation = new MultiAggregation(aggregators);
-      Object[] results = (Object[]) aggregations.aggregate(aggregation, iterable);
+      Object[] results = (Object[]) aggregate.execute(this, aggregation, iterable);
       RecordObject record = RawLanguage.get(this).createRecord();
-      if ((long) results[1] == (long) aggregatorLibs.zero(countAggregator)) {
-        records.writeMember(record, "sum", aggregatorLibs.zero(sumAggregator));
+      if ((long) results[1] == (long) zero.execute(this, Aggregators.COUNT)) {
+        records.writeMember(record, "sum", zero.execute(this, Aggregators.SUM));
       } else {
         records.writeMember(
             record, "sum", new DecimalObject(new BigDecimal(results[0].toString())));

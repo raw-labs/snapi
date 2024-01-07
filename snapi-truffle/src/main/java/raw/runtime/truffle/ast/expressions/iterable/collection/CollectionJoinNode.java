@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -32,8 +33,10 @@ import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 @NodeField(name = "reshapeBeforePredicate", type = Boolean.class)
 public abstract class CollectionJoinNode extends ExpressionNode {
 
+  @Idempotent
   protected abstract Rql2TypeWithProperties getRightType();
 
+  @Idempotent
   protected abstract Boolean getReshapeBeforePredicate();
 
   @Specialization

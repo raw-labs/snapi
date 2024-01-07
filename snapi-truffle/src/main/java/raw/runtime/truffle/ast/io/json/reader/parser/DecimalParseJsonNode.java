@@ -26,9 +26,9 @@ public abstract class DecimalParseJsonNode extends ExpressionNode {
 
   @Specialization
   protected DecimalObject doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseDecimalJsonParserNode parse) {
+      VirtualFrame frame, @Cached(inline = true) JsonParserNodes.ParseDecimalJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
+    return parse.execute(this, parser);
   }
 }

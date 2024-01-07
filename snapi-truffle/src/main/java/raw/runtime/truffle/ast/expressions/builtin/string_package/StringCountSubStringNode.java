@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -24,7 +24,7 @@ import raw.runtime.truffle.ExpressionNode;
 public abstract class StringCountSubStringNode extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected int stringCountSubString(String string1, String string2) {
     return string1.split(string2, -1).length - 1;
   }

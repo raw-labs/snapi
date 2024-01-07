@@ -29,6 +29,6 @@ public class TimestampWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeTimestamp.execute((TimestampObject) args[0], (JsonGenerator) args[1]);
+    writeTimestamp.execute(this, (TimestampObject) args[0], (JsonGenerator) args[1]);
   }
 }

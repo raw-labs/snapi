@@ -37,10 +37,10 @@ public abstract class JsonWriterNode extends StatementNode {
   @Specialization
   public void doWrite(
       Object value,
-      @Cached JsonWriteNodes.InitGeneratorJsonWriterNode initGeneratorNode,
+      @Cached(inline = true) JsonWriteNodes.InitGeneratorJsonWriterNode initGeneratorNode,
       @Cached("create(getChildNode().getCallTarget())") DirectCallNode childDirectCall) {
     try (OutputStream os = RawContext.get(this).getOutput();
-        JsonGenerator gen = initGeneratorNode.execute(os)) {
+        JsonGenerator gen = initGeneratorNode.execute(this, os)) {
       childDirectCall.call(value, gen);
     } catch (IOException e) {
       throw new RawTruffleRuntimeException(e.getMessage());

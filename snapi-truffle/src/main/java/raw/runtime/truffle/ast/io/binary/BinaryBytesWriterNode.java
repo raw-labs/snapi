@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.io.binary;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
@@ -24,7 +24,7 @@ import raw.runtime.truffle.runtime.primitives.BinaryObject;
 @NodeInfo(shortName = "Binary.BytesWrite")
 public class BinaryBytesWriterNode extends StatementNode {
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private void doWrite(Object[] args) {
     byte[] binaryData;
     if (args[0] instanceof BinaryObject) {

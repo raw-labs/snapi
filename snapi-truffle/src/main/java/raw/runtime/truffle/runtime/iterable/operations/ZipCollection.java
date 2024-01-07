@@ -12,18 +12,17 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.ZipComputeNext;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 
-@ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public class ZipCollection implements TruffleObject {
   final Object parentIterable1;
@@ -37,34 +36,30 @@ public class ZipCollection implements TruffleObject {
     this.language = language;
   }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
+  public Object getParentIterable1() {
+    return parentIterable1;
   }
 
-  @ExportMessage
-  Object getGenerator(
-      @CachedLibrary("this.parentIterable1") IterableLibrary iterables1,
-      @CachedLibrary("this.parentIterable2") IterableLibrary iterables2) {
-    Object generator1 = iterables1.getGenerator(parentIterable1);
-    Object generator2 = iterables2.getGenerator(parentIterable2);
-    return new CollectionAbstractGenerator(new ZipComputeNext(generator1, generator2, language));
+  public Object getParentIterable2() {
+    return parentIterable2;
   }
 
-  // InteropLibrary: Iterable
+  public RawLanguage getLang() {
+    return language;
+  }
 
   @ExportMessage
   boolean hasIterator() {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary =
-      GeneratorLibrary.getFactory().createDispatched(1);
-
   @ExportMessage
-  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(this);
-    generatorLibrary.init(generator);
+  Object getIterator(
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
+    Object generator = getGeneratorNode.execute(thisNode, this);
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

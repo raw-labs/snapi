@@ -26,22 +26,15 @@ public class ZeroedConstNode extends ExpressionNode {
 
   @Override
   public final Object executeGeneric(VirtualFrame virtualFrame) {
-    if (this.type instanceof Rql2ByteType) {
-      return (byte) 0;
-    } else if (this.type instanceof Rql2ShortType) {
-      return (short) 0;
-    } else if (this.type instanceof Rql2IntType) {
-      return 0;
-    } else if (this.type instanceof Rql2LongType) {
-      return (long) 0;
-    } else if (this.type instanceof Rql2FloatType) {
-      return (float) 0;
-    } else if (this.type instanceof Rql2DoubleType) {
-      return (double) 0;
-    } else if (this.type instanceof Rql2BoolType) {
-      return false;
-    } else {
-      return null;
-    }
+      return switch (this.type) {
+          case Rql2ByteType rql2ByteType -> (byte) 0;
+          case Rql2ShortType rql2ShortType -> (short) 0;
+          case Rql2IntType rql2IntType -> 0;
+          case Rql2LongType rql2LongType -> (long) 0;
+          case Rql2FloatType rql2FloatType -> (float) 0;
+          case Rql2DoubleType rql2DoubleType -> (double) 0;
+          case Rql2BoolType rql2BoolType -> false;
+          case null, default -> null;
+      };
   }
 }

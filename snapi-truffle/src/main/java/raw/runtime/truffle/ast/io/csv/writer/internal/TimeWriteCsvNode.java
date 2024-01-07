@@ -13,7 +13,7 @@
 package raw.runtime.truffle.ast.io.csv.writer.internal;
 
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
@@ -38,7 +38,7 @@ public class TimeWriteCsvNode extends StatementNode {
     doWrite(value, generator);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private void doWrite(TimeObject value, CsvGenerator gen) {
     try {
       LocalTime ts = value.getTime();

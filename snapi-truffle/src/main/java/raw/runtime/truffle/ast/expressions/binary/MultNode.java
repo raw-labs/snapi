@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.binary;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ast.BinaryNode;
@@ -52,7 +52,7 @@ public abstract class MultNode extends BinaryNode {
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject mul(DecimalObject left, DecimalObject right) {
     return new DecimalObject(left.getBigDecimal().multiply(right.getBigDecimal()));
   }

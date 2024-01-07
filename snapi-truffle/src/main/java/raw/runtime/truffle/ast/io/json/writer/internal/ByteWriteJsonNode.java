@@ -28,6 +28,6 @@ public class ByteWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeByte.execute((byte) args[0], (JsonGenerator) args[1]);
+    writeByte.execute(this, (byte) args[0], (JsonGenerator) args[1]);
   }
 }

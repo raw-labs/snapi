@@ -12,14 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.aggregation.AggregationLibrary;
+import raw.runtime.truffle.runtime.aggregation.AggregationNodes;
 import raw.runtime.truffle.runtime.aggregation.SingleAggregation;
-import raw.runtime.truffle.runtime.aggregation.aggregator.SumAggregator;
+import raw.runtime.truffle.runtime.aggregation.aggregator.Aggregators;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
@@ -29,10 +29,10 @@ public abstract class CollectionSumNode extends ExpressionNode {
 
   @Specialization
   protected Object doCollection(
-      Object iterable, @CachedLibrary(limit = "1") AggregationLibrary aggregations) {
+      Object iterable, @Cached(inline = true) AggregationNodes.Aggregate aggregate) {
     try {
-      Object aggregation = new SingleAggregation(new SumAggregator());
-      return aggregations.aggregate(aggregation, iterable);
+      Object aggregation = new SingleAggregation(Aggregators.SUM);
+      return aggregate.execute(this, aggregation, iterable);
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     }

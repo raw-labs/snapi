@@ -347,23 +347,27 @@ trait JsonPackageTest extends CompilerTestContext {
   )
   val triple = "\"\"\""
 
-  test(snapi"""Json.InferAndRead("$changeTypes", sampleSize = 5)""".stripMargin)(it => it should orderEvaluateTo(s"""[
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {
-    |   a: Error.Build(${triple}Current token (VALUE_STRING) not numeric, can not use numeric value accessors
-    | at [Source: (InputStreamReader); line: 11, column: 9]$triple),
-    |   b: "1",
-    |   c: Error.Build("expected [ but token VALUE_STRING found")
-    | }
-    |]""".stripMargin))
+  test(snapi"""Json.InferAndRead("$changeTypes", sampleSize = 5)""".stripMargin)(it =>
+    it should orderEvaluateTo(
+      s"""[
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {
+        |   a: Error.Build(${triple}Current token (VALUE_STRING) not numeric, can not use numeric value accessors
+        | at [Source: (InputStreamReader); line: 11, column: 9]$triple),
+        |   b: "1",
+        |   c: Error.Build("expected [ but token VALUE_STRING found")
+        | }
+        |]""".stripMargin
+    )
+  )
 
   private val recordInTheMiddle = tempFile("""[
     |  1,

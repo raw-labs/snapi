@@ -32,6 +32,6 @@ public abstract class StringReadLinesNode extends ExpressionNode {
     SourceContext context = RawContext.get(this).getSourceContext();
     TruffleInputStream stream = new TruffleInputStream(locationObject, context);
     TruffleCharInputStream charStream = new TruffleCharInputStream(stream, encoding);
-    return new ReadLinesCollection(charStream, context);
+    return new ReadLinesCollection(charStream);
   }
 }

@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.string_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -28,13 +27,11 @@ public abstract class StringLevenshteinDistanceNode extends ExpressionNode {
     return a == b ? 0 : 1;
   }
 
-  @CompilerDirectives.TruffleBoundary
   private int min(int... numbers) {
     return Arrays.stream(numbers).min().orElse(Integer.MAX_VALUE);
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
   protected int levenshteinDistanceDP(String string1, String string2) {
     int[][] dp = new int[string1.length() + 1][string2.length() + 1];
 

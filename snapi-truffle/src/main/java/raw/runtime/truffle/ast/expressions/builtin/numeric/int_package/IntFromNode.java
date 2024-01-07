@@ -12,16 +12,20 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.numeric.int_package;
 
+import static raw.runtime.truffle.boundary.RawTruffleBoundaries.parseInt;
+
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.boundary.BoundaryNodesFactory;
+import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Int.From")
 @NodeChild(value = "argument", type = ExpressionNode.class)
+@ImportStatic(RawTruffleBoundaries.class)
 public abstract class IntFromNode extends ExpressionNode {
 
   @Specialization
@@ -62,7 +66,7 @@ public abstract class IntFromNode extends ExpressionNode {
   @Specialization
   protected Object fromString(String argument) {
     try {
-      return BoundaryNodesFactory.ParseIntNodeGen.getUncached().execute(argument);
+      return parseInt(argument);
     } catch (RuntimeException ex) {
       return new ErrorObject("cannot cast '" + argument + "' to int");
     }

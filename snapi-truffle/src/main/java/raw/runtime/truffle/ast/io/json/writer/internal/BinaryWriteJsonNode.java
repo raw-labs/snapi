@@ -29,6 +29,6 @@ public class BinaryWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeBinary.execute((BinaryObject) args[0], (JsonGenerator) args[1]);
+    writeBinary.execute(this, (BinaryObject) args[0], (JsonGenerator) args[1]);
   }
 }

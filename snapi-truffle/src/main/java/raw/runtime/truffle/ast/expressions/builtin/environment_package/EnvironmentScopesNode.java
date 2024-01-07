@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.environment_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
@@ -23,7 +23,7 @@ import raw.runtime.truffle.runtime.list.ObjectList;
 public abstract class EnvironmentScopesNode extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected Object doScopes() {
     String[] bl = RawContext.get(this).getScopes();
     return new ObjectList(bl);

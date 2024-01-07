@@ -12,12 +12,14 @@
 
 package raw.runtime.truffle.ast.io.json.reader.parser;
 
+import static raw.runtime.truffle.boundary.RawTruffleBoundaries.*;
+
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
@@ -28,8 +30,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
-import raw.runtime.truffle.boundary.BoundaryNodes;
-import raw.runtime.truffle.boundary.BoundaryNodesFactory;
+import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.primitives.NullObject;
@@ -38,6 +39,7 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseJson")
+@ImportStatic(RawTruffleBoundaries.class)
 public class RecordParseJsonNode extends ExpressionNode {
 
   @Children private DirectCallNode[] childDirectCalls;
@@ -61,15 +63,6 @@ public class RecordParseJsonNode extends ExpressionNode {
   @Child
   private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
 
-  private final BoundaryNodes.BitSetSetNode bitSetSet =
-      BoundaryNodesFactory.BitSetSetNodeGen.getUncached();
-
-  private final BoundaryNodes.BitSetCardinalityNode bitSetCardinality =
-      BoundaryNodesFactory.BitSetCardinalityNodeGen.getUncached();
-
-  private final BoundaryNodes.BitSetGetNode bitSetGet =
-      BoundaryNodesFactory.BitSetGetNodeGen.getUncached();
-
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
   private final int fieldsSize;
@@ -89,36 +82,60 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
   }
 
-  @ExplodeLoop
+  @CompilerDirectives.TruffleBoundary
+  private Integer getFieldNameIndex(String fieldName) {
+    return fieldNamesMap.get(fieldName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private Object callChild(int index, JsonParser parser) {
+    return childDirectCalls[index].call(parser);
+  }
+
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
     BitSet currentBitSet = new BitSet(this.fieldsSize);
 
-    if (currentTokenNode.execute(parser) != JsonToken.START_OBJECT) {
+    if (currentTokenNode.execute(this, parser) != JsonToken.START_OBJECT) {
       throw new JsonUnexpectedTokenException(
-          JsonToken.START_OBJECT.asString(), currentTokenNode.execute(parser).toString(), this);
+          JsonToken.START_OBJECT.asString(),
+          currentTokenNode.execute(this, parser).toString(),
+          this);
     }
-    nextTokenNode.execute(parser);
+    nextTokenNode.execute(this, parser);
 
     RecordObject record = RawLanguage.get(this).createRecord();
 
-    executeWhile(parser, currentBitSet, record);
+    // todo: (az) need to find a solution for the array of direct calls,
+    // the json object can be out of order, the child nodes cannot be inlined
+    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT) {
+      String fieldName = currentFieldNode.execute(this, parser);
+      Integer index = this.getFieldNameIndex(fieldName);
+      nextTokenNode.execute(this, parser); // skip the field name
+      if (index != null) {
+        setBitSet(currentBitSet, index);
+        writeIndexNode.execute(this, record, index, fieldName, callChild(index, parser));
+      } else {
+        // skip the field value
+        skipNode.execute(this, parser);
+      }
+    }
 
-    nextTokenNode.execute(parser); // skip the END_OBJECT token
+    nextTokenNode.execute(this, parser); // skip the END_OBJECT token
 
-    if (bitSetCardinality.execute(currentBitSet) != this.fieldsSize) {
+    if (bitSetCardinality(currentBitSet) != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
       // fail.
       Object[] fields = fieldNamesMap.keySet().toArray();
       for (int i = 0; i < this.fieldsSize; i++) {
-        if (!bitSetGet.execute(currentBitSet, i)) {
+        if (!bitSetGet(currentBitSet, i)) {
           if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            writeIndexNode.execute(record, i, fields[i].toString(), nullValue);
+            writeIndexNode.execute(this, record, i, fields[i].toString(), nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
           }
@@ -126,21 +143,5 @@ public class RecordParseJsonNode extends ExpressionNode {
       }
     }
     return record;
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private void executeWhile(JsonParser parser, BitSet currentBitSet, RecordObject record) {
-    while (currentTokenNode.execute(parser) != JsonToken.END_OBJECT) {
-      String fieldName = currentFieldNode.execute(parser);
-      Integer index = fieldNamesMap.get(fieldName);
-      nextTokenNode.execute(parser); // skip the field name
-      if (index != null) {
-        bitSetSet.execute(currentBitSet, index);
-        writeIndexNode.execute(record, index, fieldName, childDirectCalls[index].call(parser));
-      } else {
-        // skip the field value
-        skipNode.execute(parser);
-      }
-    }
   }
 }

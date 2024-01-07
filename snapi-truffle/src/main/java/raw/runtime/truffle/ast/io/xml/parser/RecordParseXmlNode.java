@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.io.xml.parser;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -83,7 +83,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     return doExecute(parser);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private Object doExecute(RawTruffleXmlParser parser) {
     for (String fieldName : collectionsIndex.keySet()) {
       // set collections/lists to empty ones
@@ -139,9 +139,9 @@ public class RecordParseXmlNode extends ExpressionNode {
       Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        writeIndexNode.execute(record, index, fieldName, list.toIterable());
+        writeIndexNode.execute(this, record, index, fieldName, list.toIterable());
       } else {
-        writeIndexNode.execute(record, index, fieldName, list);
+        writeIndexNode.execute(this, record, index, fieldName, list);
       }
     }
     // process nullable fields (null when not found)
@@ -156,7 +156,7 @@ public class RecordParseXmlNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            writeIndexNode.execute(record, i, fieldName, nullValue);
+            writeIndexNode.execute(this, record, i, fieldName, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
           }
@@ -190,7 +190,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       // record.
       collectionField.add(value);
     } else {
-      writeIndexNode.execute(record, index, fieldName, value);
+      writeIndexNode.execute(this, record, index, fieldName, value);
       bitSet.set(index);
     }
   }

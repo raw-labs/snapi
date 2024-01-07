@@ -29,6 +29,6 @@ public class IntervalWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeInterval.execute((IntervalObject) args[0], (JsonGenerator) args[1]);
+    writeInterval.execute(this, (IntervalObject) args[0], (JsonGenerator) args[1]);
   }
 }

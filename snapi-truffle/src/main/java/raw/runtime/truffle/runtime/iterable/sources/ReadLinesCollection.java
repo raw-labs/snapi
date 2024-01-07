@@ -12,54 +12,42 @@
 
 package raw.runtime.truffle.runtime.iterable.sources;
 
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.sources.ReadLinesComputeNext;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import com.oracle.truffle.api.nodes.Node;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.ReadLinesComputeNext;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
-import raw.sources.api.SourceContext;
 
-@ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public class ReadLinesCollection implements TruffleObject {
+  private final TruffleCharInputStream stream;
 
-  TruffleCharInputStream stream;
-  SourceContext context;
-
-  public ReadLinesCollection(TruffleCharInputStream stream, SourceContext context) {
+  public ReadLinesCollection(TruffleCharInputStream stream) {
     this.stream = stream;
-    this.context = context;
   }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
-
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(new ReadLinesComputeNext(stream));
+  public AbstractGenerator getGenerator() {
+    return new AbstractGenerator(new ReadLinesComputeNext(stream));
   }
 
   // InteropLibrary: Iterable
-
   @ExportMessage
   boolean hasIterator() {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary =
-      GeneratorLibrary.getFactory().createDispatched(1);
-
   @ExportMessage
-  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(this);
-    generatorLibrary.init(generator);
+  Object getIterator(
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
+    Object generator = getGenerator();
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }
