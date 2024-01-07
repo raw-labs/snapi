@@ -46,8 +46,8 @@ public abstract class RecordConcatNode extends ExpressionNode {
     }
     for (int i = 0; i < length2; i++) {
       member = keys2[i];
-      writeIndexNode.execute(this,
-              newRecord, i + length1, member, readIndexNode.execute(this, record2, i));
+      writeIndexNode.execute(
+          this, newRecord, i + length1, member, readIndexNode.execute(this, record2, i));
     }
     return newRecord;
   }

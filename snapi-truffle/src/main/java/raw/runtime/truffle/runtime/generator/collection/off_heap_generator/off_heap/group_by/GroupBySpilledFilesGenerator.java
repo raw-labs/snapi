@@ -20,10 +20,9 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import java.util.ArrayList;
 import java.util.Objects;
-
-import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer.GroupByInputBuffer;
 import raw.runtime.truffle.runtime.list.StringList;
@@ -62,14 +61,16 @@ public class GroupBySpilledFilesGenerator implements TruffleObject {
 
   @ExportMessage
   final boolean hasIteratorNextElement(
-      @Bind("$node") Node thisNode, @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode)
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode)
       throws UnsupportedMessageException {
     return hasNextNode.execute(thisNode, this);
   }
 
   @ExportMessage
   final Object getIteratorNextElement(
-      @Bind("$node") Node thisNode, @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode)
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode)
       throws UnsupportedMessageException, StopIterationException {
     return nextNode.execute(thisNode, this);
   }

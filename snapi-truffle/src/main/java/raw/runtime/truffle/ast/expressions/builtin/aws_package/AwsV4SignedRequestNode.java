@@ -221,7 +221,8 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
       for (int i = 0; i < sizeNode.execute(this, headers); i++) {
         headersParamsVec.$plus$eq(
             new Tuple2<>(
-                ((String) records.readMember(getNode.execute(this, headers, i), "_1")).toLowerCase(),
+                ((String) records.readMember(getNode.execute(this, headers, i), "_1"))
+                    .toLowerCase(),
                 (String) records.readMember(getNode.execute(this, headers, i), "_2")));
       }
 

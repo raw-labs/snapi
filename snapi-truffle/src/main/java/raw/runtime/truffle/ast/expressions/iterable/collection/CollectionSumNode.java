@@ -28,7 +28,8 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 public abstract class CollectionSumNode extends ExpressionNode {
 
   @Specialization
-  protected Object doCollection(Object iterable, @Cached(inline = true) AggregationNodes.Aggregate aggregate) {
+  protected Object doCollection(
+      Object iterable, @Cached(inline = true) AggregationNodes.Aggregate aggregate) {
     try {
       Object aggregation = new SingleAggregation(Aggregators.SUM);
       return aggregate.execute(this, aggregation, iterable);

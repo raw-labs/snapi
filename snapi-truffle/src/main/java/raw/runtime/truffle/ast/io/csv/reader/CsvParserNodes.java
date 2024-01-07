@@ -28,11 +28,12 @@ public class CsvParserNodes {
   @GenerateInline
   public abstract static class InitCsvParserNode extends Node {
 
-    public abstract RawTruffleCsvParser execute(Node node, Object value, RawTruffleCsvParserSettings settings);
+    public abstract RawTruffleCsvParser execute(
+        Node node, Object value, RawTruffleCsvParserSettings settings);
 
     @Specialization
-    RawTruffleCsvParser initParserFromStream(Node node,
-                                             RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
+    RawTruffleCsvParser initParserFromStream(
+        Node node, RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
       return new RawTruffleCsvParser(stream, settings);
     }
   }

@@ -37,7 +37,7 @@ public abstract class CollectionFirstNode extends ExpressionNode {
     try {
       Object generator = getGeneratorNode.execute(this, iterable);
       initNode.execute(this, generator);
-      if (!hasNext.execute(this,generator)) {
+      if (!hasNext.execute(this, generator)) {
         return NullObject.INSTANCE;
       }
       return next.execute(this, generator);

@@ -28,6 +28,6 @@ public abstract class IntParseJsonNode extends ExpressionNode {
       VirtualFrame frame, @Cached(inline = true) JsonParserNodes.ParseIntJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(this,parser);
+    return parse.execute(this, parser);
   }
 }

@@ -29,7 +29,9 @@ public abstract class ListFirstNode extends ExpressionNode {
 
   @Specialization
   protected Object doFirst(
-      Object list, @Cached(inline = true) ListNodes.SizeNode sizeNode, @Cached(inline = true) ListNodes.GetNode getNode) {
+      Object list,
+      @Cached(inline = true) ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) ListNodes.GetNode getNode) {
     if (sizeNode.execute(this, list) == 0) {
       return NullObject.INSTANCE;
     }

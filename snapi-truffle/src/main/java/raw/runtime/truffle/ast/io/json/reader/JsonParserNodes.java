@@ -587,8 +587,7 @@ public final class JsonParserNodes {
         @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-        @Cached @Cached.Shared("nextToken")
-            JsonParserNodes.NextTokenJsonParserNode nextToken) {
+        @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken) {
       if (currentToken.execute(thisNode, parser) != JsonToken.START_ARRAY) {
         throw new JsonUnexpectedTokenException(
             JsonToken.START_ARRAY.asString(),
@@ -618,8 +617,7 @@ public final class JsonParserNodes {
         JsonParser parser,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
-        @Cached @Cached.Shared("nextToken")
-            JsonParserNodes.NextTokenJsonParserNode nextToken,
+        @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken,
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
         @Cached JsonParserNodes.CurrentFieldJsonParserNode currentField,

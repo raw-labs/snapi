@@ -36,8 +36,9 @@ public class RecordShaperNodes {
     public abstract Object execute(Node node, Object shaper, Object key, Object[] values);
 
     @Specialization(guards = {"shaper != null", "!shaper.forList()"})
-    static Object makeRowCollection(Node node,
-                                    RecordShaper shaper,
+    static Object makeRowCollection(
+        Node node,
+        RecordShaper shaper,
         Object key,
         Object[] values,
         @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
@@ -54,8 +55,9 @@ public class RecordShaperNodes {
     }
 
     @Specialization(guards = {"shaper != null", "shaper.forList()"})
-    static Object makeRowList(Node node,
-                              RecordShaper shaper,
+    static Object makeRowList(
+        Node node,
+        RecordShaper shaper,
         Object key,
         Object[] values,
         @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
