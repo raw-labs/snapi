@@ -18,6 +18,7 @@ module raw.sql.client {
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.core;
   requires raw.client;
+  requires java.sql;
 
   provides raw.client.api.CompilerServiceBuilder with
       raw.client.sql.SqlCompilerServiceBuilder;
