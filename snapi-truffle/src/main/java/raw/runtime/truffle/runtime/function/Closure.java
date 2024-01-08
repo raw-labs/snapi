@@ -83,68 +83,86 @@ public class Closure implements TruffleObject {
 
   @ExportMessage
   abstract static class Execute {
+
+    public static Object[] getObjectArray(Closure closure) {
+      Object[] result = new Object[closure.getArgNames().length + 1];
+      result[0] = closure.frame;
+      System.arraycopy(closure.defaultArguments, 0, result, 1, closure.getArgNames().length);
+      return result;
+    }
+
     @Specialization(limit = "INLINE_CACHE_SIZE", guards = "closure.getCallTarget() == cachedTarget")
     protected static Object doDirect(
         Closure closure,
         Object[] arguments,
+        @Cached(value = "getObjectArray(closure)", dimensions = 0, allowUncached = true)
+            Object[] finalArgs,
         @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
-      Object[] args =
-          closure.getNamedArgNames() == null
-              ? getArgs(closure, arguments)
-              : getNamedArgs(closure, closure.getNamedArgNames(), arguments);
-
-      return callNode.call(args);
+      if (closure.getNamedArgNames() == null) {
+        setArgs(closure, arguments, finalArgs);
+      } else {
+        setArgsWithNames(closure, arguments, finalArgs);
+      }
+      return callNode.call(finalArgs);
     }
 
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
-        Closure closure, Object[] arguments, @Cached IndirectCallNode callNode) {
+        Closure closure,
+        Object[] arguments,
+        @Cached(
+                value = "getObjectArray(closure)",
+                dimensions = 0,
+                allowUncached = true,
+                neverDefault = true)
+            Object[] finalArgs,
+        @Cached IndirectCallNode callNode) {
 
-      Object[] args =
-          closure.getNamedArgNames() == null
-              ? getArgs(closure, arguments)
-              : getNamedArgs(closure, closure.getNamedArgNames(), arguments);
+      if (closure.getNamedArgNames() == null) {
+        setArgs(closure, arguments, finalArgs);
+      } else {
+        setArgsWithNames(closure, arguments, finalArgs);
+      }
 
-      return callNode.call(closure.getCallTarget(), args);
+      return callNode.call(closure.getCallTarget(), finalArgs);
     }
 
-    private static Object[] getArgs(Closure closure, Object[] arguments) {
-      String[] namedArgsNames = new String[arguments.length];
-      String[] argNames = closure.getArgNames();
-      System.arraycopy(argNames, 0, namedArgsNames, 0, namedArgsNames.length);
-      return getNamedArgs(closure, namedArgsNames, arguments);
-    }
-
-    // Don't explode loop, graph becomes too big.
-    private static Object[] getNamedArgs(
-        Closure closure, String[] namedArgsNames, Object[] arguments) {
-      Object[] args = new Object[closure.getArgNames().length + 1];
-      args[0] = closure.frame;
-      String[] argNames = closure.getArgNames();
-      // first fill in the default arguments (nulls if no default).
-      System.arraycopy(closure.defaultArguments, 0, args, 1, argNames.length);
-      for (int i = 0; i < namedArgsNames.length; i++) {
-        String currentArgName = namedArgsNames[i];
+    private static void setArgsWithNames(Closure closure, Object[] arguments, Object[] finalArgs) {
+      for (int i = 0; i < closure.getNamedArgNames().length; i++) {
+        String currentArgName = closure.getNamedArgNames()[i];
         if (currentArgName == null) {
           // no arg name was provided, use the index.
-          args[i + 1] = arguments[i];
+          finalArgs[i + 1] = arguments[i];
         } else {
           // an arg name, ignore the current index 'i' and instead walk the arg names to find
           // the
           // real, and fill it in.
 
           int idx = 0;
-          for (; idx < argNames.length; idx++) {
-            if (Objects.equals(currentArgName, argNames[idx])) {
+          for (; idx < closure.getArgNames().length; idx++) {
+            if (Objects.equals(currentArgName, closure.getArgNames()[idx])) {
               break;
             }
           }
-          args[idx + 1] = arguments[i];
+          finalArgs[idx + 1] = arguments[i];
         }
       }
+    }
 
-      return args;
+    private static void setArgs(Closure closure, Object[] arguments, Object[] finalArgs) {
+      String[] namedArgsNames = new String[arguments.length];
+      String[] argNames = closure.getArgNames();
+      System.arraycopy(argNames, 0, namedArgsNames, 0, namedArgsNames.length);
+
+      for (int i = 0; i < namedArgsNames.length; i++) {
+        for (int j = 0; j < argNames.length; j++) {
+          if (Objects.equals(namedArgsNames[i], argNames[j])) {
+            finalArgs[j + 1] = arguments[i];
+            break;
+          }
+        }
+      }
     }
   }
 

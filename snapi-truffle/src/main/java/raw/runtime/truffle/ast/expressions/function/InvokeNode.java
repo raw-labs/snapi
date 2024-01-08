@@ -33,6 +33,8 @@ public final class InvokeNode extends ExpressionNode {
   @Child private InteropLibrary interop = InteropLibrary.getFactory().createDispatched(3);
   @Children private final ExpressionNode[] argumentNodes;
 
+  private final Object[] argumentValues;
+
   private final String[] argNames;
 
   public InvokeNode(
@@ -41,6 +43,7 @@ public final class InvokeNode extends ExpressionNode {
     assert (argNames.length == argumentNodes.length);
     this.argNames = argNames;
     this.argumentNodes = argumentNodes;
+    this.argumentValues = new Object[argumentNodes.length];
   }
 
   @ExplodeLoop
@@ -49,7 +52,6 @@ public final class InvokeNode extends ExpressionNode {
     CompilerAsserts.compilationConstant(argumentNodes.length);
 
     Closure closure = (Closure) functionNode.executeGeneric(frame);
-    Object[] argumentValues = new Object[argumentNodes.length];
     for (int i = 0; i < argumentNodes.length; i++) {
       argumentValues[i] = argumentNodes[i].executeGeneric(frame);
     }
