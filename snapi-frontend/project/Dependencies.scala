@@ -8,7 +8,6 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
   val aws =
@@ -50,7 +49,7 @@ object Dependencies {
 
   val jwtImpl = "io.jsonwebtoken" % "jjwt-impl" % "0.11.5"
 
-  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4"
+  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4-rawlabs"
 
   val springCore = "org.springframework" % "spring-core" % "5.3.13"
 

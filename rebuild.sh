@@ -5,13 +5,7 @@ export COURSIER_PROGRESS=false
 
 find . -type d -name "target" -exec rm -r {} \; || true
 
-cd "${SCRIPT_HOME}/deps/kiama"
-./build.sh
-
-cd "${SCRIPT_HOME}/deps/scala-logging"
-./build.sh
-
-cd "${SCRIPT_HOME}/deps/jackson-module-scala"
+cd "${SCRIPT_HOME}/deps"
 ./build.sh
 
 cd "${SCRIPT_HOME}/utils"
