@@ -20,6 +20,8 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @ExportLibrary(InteropLibrary.class)
@@ -50,6 +52,7 @@ public final class IntervalObject implements TruffleObject {
     this.millis = millis;
   }
 
+  @TruffleBoundary
   public static IntervalObject fromDuration(Duration duration) {
     return new IntervalObject(0, duration.toMillis());
   }
@@ -70,7 +73,7 @@ public final class IntervalObject implements TruffleObject {
     rest %= 60000;
     this.seconds = (int) (rest / 1000);
 
-    this.millis = (int) (rest %= 1000);
+    this.millis = (int) (rest % 1000);
   }
 
   //  public IntervalObject(Duration duration) {
@@ -79,43 +82,63 @@ public final class IntervalObject implements TruffleObject {
   //  }
 
   @TruffleBoundary
+  private Matcher getMatcher(String interval) {
+    return pattern.matcher(interval);
+  }
+
+  @TruffleBoundary
+  private String matcherGroup(Matcher matcher, int group) {
+    return matcher.group(group);
+  }
+
   public IntervalObject(String interval) {
 
-    Matcher matcher = pattern.matcher(interval);
+    Matcher matcher = getMatcher(interval);
 
     if (matcher.matches()) {
+      String matchYears = matcherGroup(matcher, 1);
+      int years = matchYears == null ? 0 : RawTruffleBoundaries.parseInt(matchYears);
 
-      int years = matcher.group(1) == null ? 0 : Integer.parseInt(matcher.group(1));
-      int months = matcher.group(2) == null ? 0 : Integer.parseInt(matcher.group(2));
-      int weeks = matcher.group(3) == null ? 0 : Integer.parseInt(matcher.group(3));
-      int days = matcher.group(4) == null ? 0 : Integer.parseInt(matcher.group(4));
-      int hours = matcher.group(5) == null ? 0 : Integer.parseInt(matcher.group(5));
-      int minutes = matcher.group(6) == null ? 0 : Integer.parseInt(matcher.group(6));
-      String s1 = matcher.group(7);
-      String s2 = matcher.group(8);
-      String millisStr = matcher.group(9);
+      String matchMonths = matcherGroup(matcher, 2);
+      int months = matchMonths == null ? 0 : RawTruffleBoundaries.parseInt(matchMonths);
+
+      String matchWeeks = matcherGroup(matcher, 3);
+      int weeks = matchWeeks == null ? 0 : RawTruffleBoundaries.parseInt(matchWeeks);
+
+      String matchDays = matcherGroup(matcher, 4);
+      int days = matchDays == null ? 0 : RawTruffleBoundaries.parseInt(matchDays);
+
+      String matchHours = matcherGroup(matcher, 5);
+      int hours = matchHours == null ? 0 : RawTruffleBoundaries.parseInt(matchHours);
+
+      String matchMinutes = matcherGroup(matcher, 6);
+      int minutes = matchMinutes == null ? 0 : RawTruffleBoundaries.parseInt(matchMinutes);
+
+      String s1 = matcherGroup(matcher, 7);
+      String s2 = matcherGroup(matcher, 8);
+      String millisStr = matcherGroup(matcher, 9);
       int millisInt;
 
       if (s1 == null && s2 == null) {
         this.seconds = 0;
         millisInt = 0;
       } else if (s1 != null) {
-        this.seconds = Integer.parseInt(s1);
+        this.seconds = RawTruffleBoundaries.parseInt(s1);
         millisInt = 0;
       } else {
-        millisInt = Integer.parseInt(millisStr);
+        millisInt = RawTruffleBoundaries.parseInt(millisStr);
         // milliseconds will have the same sign as the seconds
         if (millisStr.length() < 3) {
           int multiplier = 1;
           for (int i = 1; i < (3 - millisStr.length() + 1); i++) {
             multiplier = multiplier * 10;
-            millisInt = Integer.parseInt(millisStr) * multiplier;
+            millisInt = RawTruffleBoundaries.parseInt(millisStr) * multiplier;
           }
         } else {
-          millisInt = Integer.parseInt(millisStr.substring(0, 3));
+          millisInt = RawTruffleBoundaries.parseInt(millisStr.substring(0, 3));
         }
 
-        this.seconds = Integer.parseInt(s2);
+        this.seconds = RawTruffleBoundaries.parseInt(s2);
         if (this.seconds < 0) {
           millisInt = -millisInt;
         }
@@ -163,9 +186,7 @@ public final class IntervalObject implements TruffleObject {
     long mil1 = this.toMillis();
     long mil2 = other.toMillis();
 
-    if (mil1 == mil2) return 0;
-    else if (mil1 > mil2) return 1;
-    else return -1;
+    return Long.compare(mil1, mil2);
   }
 
   public int getYears() {
@@ -254,6 +275,7 @@ public final class IntervalObject implements TruffleObject {
   }
 
   @ExportMessage
+  @TruffleBoundary
   final Duration asDuration() {
     return Duration.ofMillis(toMillis());
   }
