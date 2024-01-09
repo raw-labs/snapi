@@ -85,10 +85,7 @@ public class Closure implements TruffleObject {
   abstract static class Execute {
 
     public static Object[] getObjectArray(Closure closure) {
-      Object[] result = new Object[closure.getArgNames().length + 1];
-      result[0] = closure.frame;
-      System.arraycopy(closure.defaultArguments, 0, result, 1, closure.getArgNames().length);
-      return result;
+      return new Object[closure.getArgNames().length + 1];
     }
 
     @Specialization(limit = "INLINE_CACHE_SIZE", guards = "closure.getCallTarget() == cachedTarget")
@@ -99,6 +96,8 @@ public class Closure implements TruffleObject {
             Object[] finalArgs,
         @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
+      finalArgs[0] = closure.frame;
+      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
       if (closure.getNamedArgNames() == null) {
         setArgs(closure, arguments, finalArgs);
       } else {
@@ -118,7 +117,8 @@ public class Closure implements TruffleObject {
                 neverDefault = true)
             Object[] finalArgs,
         @Cached IndirectCallNode callNode) {
-
+      finalArgs[0] = closure.frame;
+      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
       if (closure.getNamedArgNames() == null) {
         setArgs(closure, arguments, finalArgs);
       } else {
