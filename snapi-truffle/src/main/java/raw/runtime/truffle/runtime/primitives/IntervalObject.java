@@ -20,7 +20,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.time.Duration;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-
 import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
@@ -36,7 +35,7 @@ public final class IntervalObject implements TruffleObject {
   private final int seconds;
   private final int millis;
 
-  private static final Pattern pattern =
+  private final Pattern pattern =
       Pattern.compile(
           "^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)(?:\\.(\\d{1,3}))?S)?)?$");
 
@@ -74,11 +73,6 @@ public final class IntervalObject implements TruffleObject {
 
     this.millis = (int) (rest % 1000);
   }
-
-  //  public IntervalObject(Duration duration) {
-  //    long millis = duration.getNano() / 1000000 + duration.getSeconds() * 1000;
-  //    new IntervalObject(0, millis);
-  //  }
 
   @TruffleBoundary
   private Matcher getMatcher(String interval) {
