@@ -9,6 +9,7 @@ on:
       - snapi-truffle/**
       - snapi-client/**
       - python-client/**
+      - sql-client/**
       - .github/workflows/ci.yaml
   workflow_dispatch:
 
@@ -53,6 +54,7 @@ jobs:
           - snapi-truffle
           - snapi-client
           - python-client
+          - sql-client
     runs-on: self-hosted
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
@@ -91,6 +93,7 @@ jobs:
         component:
           - snapi-frontend
           - snapi-client
+          - sql-client
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
