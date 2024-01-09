@@ -35,7 +35,7 @@ public final class IntervalObject implements TruffleObject {
   private final int seconds;
   private final int millis;
 
-  private final Pattern pattern =
+  private static final Pattern pattern =
       Pattern.compile(
           "^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)(?:\\.(\\d{1,3}))?S)?)?$");
 
