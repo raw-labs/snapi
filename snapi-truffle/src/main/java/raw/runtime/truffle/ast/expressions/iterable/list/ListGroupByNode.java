@@ -35,6 +35,7 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.sources.api.SourceContext;
+import raw.runtime.truffle.ast.expressions.iterable.list.ListGroupByNodeGen;
 
 @NodeInfo(shortName = "List.GroupBy")
 @NodeChild("input")
@@ -69,8 +70,8 @@ public abstract class ListGroupByNode extends ExpressionNode {
     SourceContext context = RawContext.get(thisNode).getSourceContext();
     OffHeapGroupByKey map =
         new OffHeapGroupByKey(
-            ((ListGroupByNode) thisNode).getKeyType(),
-            ((ListGroupByNode) thisNode).getRowType(),
+            ((ListGroupByNode) thisNode.getParent()).getKeyType(),
+            ((ListGroupByNode) thisNode.getParent()).getRowType(),
             RawLanguage.get(thisNode),
             context,
             new RecordShaper(RawLanguage.get(thisNode), true));
