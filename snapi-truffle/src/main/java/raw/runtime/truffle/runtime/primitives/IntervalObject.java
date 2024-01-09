@@ -36,7 +36,7 @@ public final class IntervalObject implements TruffleObject {
   private final int seconds;
   private final int millis;
 
-  private final Pattern pattern =
+  private static final Pattern pattern =
       Pattern.compile(
           "^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)(?:\\.(\\d{1,3}))?S)?)?$");
 
@@ -52,7 +52,6 @@ public final class IntervalObject implements TruffleObject {
     this.millis = millis;
   }
 
-  @TruffleBoundary
   public static IntervalObject fromDuration(Duration duration) {
     return new IntervalObject(0, duration.toMillis());
   }
@@ -92,7 +91,6 @@ public final class IntervalObject implements TruffleObject {
   }
 
   public IntervalObject(String interval) {
-
     Matcher matcher = getMatcher(interval);
 
     if (matcher.matches()) {
@@ -275,7 +273,6 @@ public final class IntervalObject implements TruffleObject {
   }
 
   @ExportMessage
-  @TruffleBoundary
   final Duration asDuration() {
     return Duration.ofMillis(toMillis());
   }

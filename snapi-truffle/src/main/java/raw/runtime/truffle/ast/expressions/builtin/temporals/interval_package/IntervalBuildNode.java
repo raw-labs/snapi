@@ -31,7 +31,6 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 public abstract class IntervalBuildNode extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
   public Object buildInterval(int y, int m, int w, int d, int h, int mi, int s, int ms) {
     return new IntervalObject(y, m, w, d, h, mi, s, ms);
   }

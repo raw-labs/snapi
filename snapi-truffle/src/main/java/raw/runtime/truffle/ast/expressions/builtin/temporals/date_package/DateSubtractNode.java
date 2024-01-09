@@ -25,7 +25,7 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeChild("date2")
 public abstract class DateSubtractNode extends ExpressionNode {
   @Specialization
-  protected IntervalObject getYear(DateObject date1, DateObject date2) {
+  protected IntervalObject dateSubtract(DateObject date1, DateObject date2) {
     LocalDate localDate1 = date1.getDate();
     LocalDate localDate2 = date2.getDate();
 
