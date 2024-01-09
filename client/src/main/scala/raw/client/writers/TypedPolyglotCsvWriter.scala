@@ -10,45 +10,32 @@
  * licenses/APL.txt.
  */
 
-package raw.client.rql2.truffle
+package raw.client.writers
 
-import com.fasterxml.jackson.core.JsonEncoding
-import com.fasterxml.jackson.core.JsonParser
-import org.graalvm.polyglot.Value
-import raw.compiler.rql2.source.{
-  Rql2BinaryType,
-  Rql2BoolType,
-  Rql2ByteType,
-  Rql2DateType,
-  Rql2DecimalType,
-  Rql2DoubleType,
-  Rql2FloatType,
-  Rql2IntType,
-  Rql2IntervalType,
-  Rql2IsNullableTypeProperty,
-  Rql2IsTryableTypeProperty,
-  Rql2IterableType,
-  Rql2ListType,
-  Rql2LongType,
-  Rql2RecordType,
-  Rql2ShortType,
-  Rql2StringType,
-  Rql2TimeType,
-  Rql2TimestampType,
-  Rql2TypeWithProperties
-}
-import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
+import com.fasterxml.jackson.core.{JsonEncoding, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
+import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
+import org.graalvm.polyglot.Value
+import raw.client.api._
 import raw.utils.RecordFieldsNaming
 
-import java.io.IOException
-import java.io.OutputStream
+import java.io.{IOException, OutputStream}
 import java.time.format.DateTimeFormatter
 import java.util.Base64
 import scala.annotation.tailrec
 import scala.util.control.NonFatal
 
-class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
+object TypedPolyglotCsvWriter {
+
+  def outputWriteSupport(tipe: RawType): Boolean = tipe match {
+    case _: RawIterableType => true
+    case _: RawListType => true
+    case _ => false
+  }
+
+}
+
+class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) {
 
   final private val gen =
     try {
@@ -71,38 +58,37 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
   final private val timeFormatterNoMs = DateTimeFormatter.ofPattern("HH:mm:ss")
   final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
   final private val timestampFormatterNoMs = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss")
-  final private val tryable = Rql2IsTryableTypeProperty()
-  final private val nullable = Rql2IsNullableTypeProperty()
 
   @throws[IOException]
-  def write(v: Value, t: Rql2TypeWithProperties): Unit = {
-    if (t.props.contains(tryable)) {
+  def write(v: Value, t: RawType): Unit = {
+    if (t.triable) {
       if (v.isException) {
         v.throwException()
       } else {
-        write(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties])
+        write(v, t.cloneNotTriable)
       }
-    } else if (t.props.contains(nullable)) {
+    } else if (t.nullable) {
       if (v.isNull) {
         gen.writeString("")
       } else {
-        write(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties])
+        write(v, t.cloneNotNullable)
       }
     } else {
       t match {
-        case Rql2IterableType(recordType: Rql2RecordType, _) =>
+        case RawIterableType(recordType: RawRecordType, false, false) =>
           val columnNames = recordType.atts.map(_.idn)
           for (colName <- columnNames) {
             schemaBuilder.addColumn(colName)
           }
           gen.setSchema(schemaBuilder.build)
           gen.enable(STRICT_CHECK_FOR_QUOTING)
-          val iterator = v.getIterator
+          // TODO: We accept both iterators and iterables (see https://raw-labs.atlassian.net/browse/RD-10361)
+          val iterator = if (v.isIterator) v else v.getIterator
           while (iterator.hasIteratorNextElement) {
             val next = iterator.getIteratorNextElement
             writeColumns(next, recordType)
           }
-        case Rql2ListType(recordType: Rql2RecordType, _) =>
+        case RawListType(recordType: RawRecordType, false, false) =>
           val columnNames = recordType.atts.map(_.idn)
           for (colName <- columnNames) {
             schemaBuilder.addColumn(colName)
@@ -119,62 +105,72 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
     }
   }
 
-  private def writeColumns(value: Value, recordType: Rql2RecordType): Unit = {
+  private def writeColumns(value: Value, recordType: RawRecordType): Unit = {
     val keys = new java.util.Vector[String]
-    recordType.atts.foreach(a => keys.add(a.idn))
+    val atts = recordType.atts
+    atts.foreach(a => keys.add(a.idn))
     val distincted = RecordFieldsNaming.makeDistinct(keys)
     gen.writeStartArray()
-    for (i <- 0 until distincted.size()) {
-      val field = distincted.get(i)
-      val v = value.getMember(field)
-      writeValue(v, recordType.atts(i).tipe.asInstanceOf[Rql2TypeWithProperties])
+    // We accept both RecordObject that have fields, and LinkedHashMap (records, as provided by the SQL language)
+    if (value.hasHashEntries) {
+      for (i <- 0 until distincted.size()) {
+        val field = distincted.get(i)
+        val a = value.getHashValue(field)
+        writeValue(a, atts(i).tipe)
+      }
+    } else {
+      for (i <- 0 until distincted.size()) {
+        val field = distincted.get(i)
+        val a = value.getMember(field)
+        writeValue(a, atts(i).tipe)
+      }
     }
     gen.writeEndArray()
   }
 
   @throws[IOException]
   @tailrec
-  private def writeValue(v: Value, t: Rql2TypeWithProperties): Unit = {
-    if (t.props.contains(tryable)) {
+  private def writeValue(v: Value, t: RawType): Unit = {
+    if (t.triable) {
       if (v.isException) {
         try {
           v.throwException()
         } catch {
           case NonFatal(ex) => gen.writeString(ex.getMessage)
         }
-      } else writeValue(v, t.cloneAndRemoveProp(tryable).asInstanceOf[Rql2TypeWithProperties])
-    } else if (t.props.contains(nullable)) {
+      } else writeValue(v, t.cloneNotTriable)
+    } else if (t.nullable) {
       if (v.isNull) gen.writeNull()
-      else writeValue(v, t.cloneAndRemoveProp(nullable).asInstanceOf[Rql2TypeWithProperties])
+      else writeValue(v, t.cloneNotNullable)
     } else t match {
-      case _: Rql2BinaryType =>
+      case _: RawBinaryType =>
         val bytes = (0L until v.getBufferSize).map(v.readBufferByte)
         gen.writeString(Base64.getEncoder.encodeToString(bytes.toArray))
-      case _: Rql2BoolType => gen.writeBoolean(v.asBoolean())
-      case _: Rql2ByteType => gen.writeNumber(v.asByte().toInt)
-      case _: Rql2ShortType => gen.writeNumber(v.asShort().toInt)
-      case _: Rql2IntType => gen.writeNumber(v.asInt())
-      case _: Rql2LongType => gen.writeNumber(v.asLong())
-      case _: Rql2FloatType => gen.writeNumber(v.asFloat())
-      case _: Rql2DoubleType => gen.writeNumber(v.asDouble())
-      case _: Rql2DecimalType => gen.writeString(v.asString())
-      case _: Rql2StringType => gen.writeString(v.asString())
-      case _: Rql2DateType =>
+      case _: RawBoolType => gen.writeBoolean(v.asBoolean())
+      case _: RawByteType => gen.writeNumber(v.asByte().toInt)
+      case _: RawShortType => gen.writeNumber(v.asShort().toInt)
+      case _: RawIntType => gen.writeNumber(v.asInt())
+      case _: RawLongType => gen.writeNumber(v.asLong())
+      case _: RawFloatType => gen.writeNumber(v.asFloat())
+      case _: RawDoubleType => gen.writeNumber(v.asDouble())
+      case _: RawDecimalType => gen.writeString(v.asHostObject[java.math.BigDecimal]().toString())
+      case _: RawStringType => gen.writeString(v.asString())
+      case _: RawDateType =>
         val date = v.asDate()
         gen.writeString(dateFormatter.format(date))
-      case _: Rql2TimeType =>
+      case _: RawTimeType =>
         val time = v.asTime()
         val formatter = if (time.getNano > 0) timeFormatter else timeFormatterNoMs
         val formatted = formatter.format(time)
         gen.writeString(formatted)
-      case _: Rql2TimestampType =>
+      case _: RawTimestampType =>
         val date = v.asDate()
         val time = v.asTime()
         val dateTime = date.atTime(time)
         val formatter = if (time.getNano > 0) timestampFormatter else timestampFormatterNoMs
         val formatted = formatter.format(dateTime)
         gen.writeString(formatted)
-      case _: Rql2IntervalType =>
+      case _: RawIntervalType =>
         val duration = v.asDuration()
         val days = duration.toDays
         val hours = duration.toHoursPart
