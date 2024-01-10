@@ -20,6 +20,7 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import java.time.Duration;
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
 
 @ExportLibrary(InteropLibrary.class)
 public final class IntervalObject implements TruffleObject {
@@ -133,7 +134,7 @@ public final class IntervalObject implements TruffleObject {
   @ExportMessage
   final Duration asDuration(
       @Bind("$node") Node thisNode,
-      @Cached(inline = true) IntervalNodes.IntervalToMillisNode toMillisNode) {
+      @Cached(inline = true) IntervalNodes.IntervalToMillisStaticNode toMillisNode) {
     return Duration.ofMillis(toMillisNode.execute(thisNode, this));
   }
 }

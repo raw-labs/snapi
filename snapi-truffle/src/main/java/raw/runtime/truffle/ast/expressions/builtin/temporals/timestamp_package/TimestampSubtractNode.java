@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDateTime;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.primitives.IntervalNodes;
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 

@@ -1,4 +1,4 @@
-package raw.runtime.truffle.runtime.primitives;
+package raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package;
 
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
@@ -8,6 +8,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.primitives.IntervalObject;
 
 public class IntervalNodes {
 
@@ -180,7 +181,7 @@ public class IntervalNodes {
   @NodeInfo(shortName = "Interval.ToMillis")
   @GenerateUncached
   @GenerateInline
-  public abstract static class IntervalToMillisNode extends Node {
+  public abstract static class IntervalToMillisStaticNode extends Node {
 
     public abstract long execute(Node node, IntervalObject interval);
 
@@ -212,7 +213,7 @@ public class IntervalNodes {
         IntervalObject interval1,
         IntervalObject interval2,
         @Bind("$node") Node thisNode,
-        @Cached IntervalToMillisNode toMillisNode) {
+        @Cached IntervalToMillisStaticNode toMillisNode) {
       long mil1 = toMillisNode.execute(thisNode, interval1);
       long mil2 = toMillisNode.execute(thisNode, interval1);
 

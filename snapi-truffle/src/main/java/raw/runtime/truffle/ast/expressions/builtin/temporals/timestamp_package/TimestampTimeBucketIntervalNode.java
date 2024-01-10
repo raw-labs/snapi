@@ -22,8 +22,8 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.primitives.IntervalNodes;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
@@ -36,7 +36,7 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
   protected TimestampObject fromUnixTimestamp(
       IntervalObject intervalObj,
       TimestampObject timestampObj,
-      @Cached(inline = true) IntervalNodes.IntervalToMillisNode toMillisNode) {
+      @Cached(inline = true) IntervalNodes.IntervalToMillisStaticNode toMillisNode) {
 
     LocalDateTime timestamp = timestampObj.getTimestamp();
     LocalDateTime result;

@@ -27,11 +27,12 @@ import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.primitives.IntervalNodesFactory;
 import scala.Tuple2;
 import scala.collection.immutable.HashMap;
 import scala.collection.immutable.Map;
@@ -84,8 +85,8 @@ public class LocationBuildNode extends ExpressionNode {
   private LocationSettingValue buildLocationSettingValue(
       Object value, Rql2TypeWithProperties type) {
     try {
-      IntervalNodes.IntervalToMillisNode toMillisNode =
-          IntervalNodesFactory.IntervalToMillisNodeGen.getUncached();
+      IntervalNodes.IntervalToMillisStaticNode toMillisNode =
+          IntervalNodesFactory.IntervalToMillisStaticNodeGen.getUncached();
       if (TypeGuards.isIntKind(type)) {
         return new LocationIntSetting((Integer) value);
       } else if (TypeGuards.isStringKind(type)) {
@@ -102,7 +103,7 @@ public class LocationBuildNode extends ExpressionNode {
       } else if (TypeGuards.isIntervalKind(type)) {
         return new LocationDurationSetting(
             Duration.ofMillis(
-                (IntervalNodesFactory.IntervalToMillisNodeGen.getUncached()
+                (IntervalNodesFactory.IntervalToMillisStaticNodeGen.getUncached()
                     .execute(this, (IntervalObject) value))));
       } else if (TypeGuards.isListKind(type)
           && ((Rql2ListType) type).innerType() instanceof Rql2IntType) {
