@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -22,6 +23,7 @@ import java.time.ZoneId;
 import java.time.ZoneOffset;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.primitives.IntervalNodes;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
@@ -32,12 +34,16 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
   @Specialization
   @TruffleBoundary
   protected TimestampObject fromUnixTimestamp(
-      IntervalObject intervalObj, TimestampObject timestampObj) {
+      IntervalObject intervalObj,
+      TimestampObject timestampObj,
+      @Cached(inline = true) IntervalNodes.IntervalToMillisNode toMillisNode) {
 
     LocalDateTime timestamp = timestampObj.getTimestamp();
     LocalDateTime result;
 
-    if (intervalObj.toMillis() == 0)
+    long millis = toMillisNode.execute(this, intervalObj);
+
+    if (millis == 0)
       throw new RawTruffleRuntimeException("interval cannot be empty in time_bucket", this);
 
     if (intervalObj.getWeeks() == 0
@@ -61,8 +67,7 @@ public abstract class TimestampTimeBucketIntervalNode extends ExpressionNode {
       // correct
       long offset = LocalDateTime.of(1973, 1, 1, 0, 0).toInstant(ZoneOffset.UTC).toEpochMilli();
       long millis1 = timestamp.toInstant(ZoneOffset.UTC).toEpochMilli();
-      long millis2 = intervalObj.toMillis();
-      long truncated = ((millis1 + offset) / millis2) * millis2 - offset;
+      long truncated = ((millis1 + offset) / millis) * millis - offset;
 
       result = LocalDateTime.ofInstant(Instant.ofEpochMilli(truncated), ZoneId.of("UTC"));
     } else {

@@ -115,7 +115,7 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    void closeParserSilently(Node node, JsonParser parser) {
+    static void closeParserSilently(Node node, JsonParser parser) {
       try {
         if (parser != null) {
           parser.close();
@@ -136,11 +136,11 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    void nextToken(Node node, JsonParser parser) {
+    static void nextToken(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         parser.nextToken();
       } catch (IOException e) {
-        throw new JsonReaderRawTruffleException(e.getMessage(), this);
+        throw new JsonReaderRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -154,11 +154,11 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    String getCurrentFieldName(Node node, JsonParser parser) {
+    static String getCurrentFieldName(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         return parser.getCurrentName();
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -172,7 +172,7 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    JsonToken getCurrentToken(Node node, JsonParser parser) {
+    static JsonToken getCurrentToken(Node node, JsonParser parser) {
       return parser.getCurrentToken();
     }
   }
@@ -186,7 +186,7 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    void skip(Node node, JsonParser parser) {
+    static void skip(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         parser.skipChildren(); // finish reading lists and records children (do nothing if
         // not a list
@@ -194,7 +194,7 @@ public final class JsonParserNodes {
         parser.nextToken(); // swallow the next token (swallow closing braces, or int,
         // float, etc.)
       } catch (IOException e) {
-        throw new JsonReaderRawTruffleException(e.getMessage(), this);
+        throw new JsonReaderRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -208,13 +208,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    BinaryObject doParse(Node node, JsonParser parser) {
+    static BinaryObject doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         String binary = parser.getText();
         parser.nextToken();
         return new BinaryObject(Base64.getDecoder().decode(binary));
       } catch (IOException | IllegalArgumentException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -228,13 +228,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    boolean doParse(Node node, JsonParser parser) {
+    static boolean doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         boolean v = parser.getBooleanValue();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -248,13 +248,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    byte doParse(Node node, JsonParser parser) {
+    static byte doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         byte v = parser.getByteValue();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -268,14 +268,15 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    DateObject doParse(Node node, JsonParser parser, String format) {
+    static DateObject doParse(
+        Node node, JsonParser parser, String format, @Bind("$node") Node thisNode) {
       try {
         String text = parser.getText();
         DateObject date = new DateObject(LocalDate.parse(text, DateTimeFormatCache.get(format)));
         parser.nextToken();
         return date;
       } catch (IOException | IllegalArgumentException | DateTimeParseException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -289,13 +290,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    DecimalObject doParse(Node node, JsonParser parser) {
+    static DecimalObject doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         BigDecimal v = parser.getDecimalValue();
         parser.nextToken();
         return new DecimalObject(v);
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -309,13 +310,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    double doParse(Node node, JsonParser parser) {
+    static double doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         double v = parser.getDoubleValue();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -329,13 +330,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    float doParse(Node node, JsonParser parser) {
+    static float doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         float v = parser.getFloatValue();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -349,14 +350,18 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    IntervalObject doParse(Node node, JsonParser parser) {
+    static IntervalObject doParse(
+        Node node,
+        JsonParser parser,
+        @Bind("$node") Node thisNode,
+        @Cached IntervalNodes.IntervalBuildFromStringNode buildNode) {
       try {
         String text = parser.getText();
-        IntervalObject interval = new IntervalObject(text);
+        IntervalObject interval = buildNode.execute(thisNode, text);
         parser.nextToken();
         return interval;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -370,13 +375,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    int doParse(Node node, JsonParser parser) {
+    static int doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         int v = parser.getIntValue();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -390,13 +395,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    long doParse(JsonParser parser) {
+    static long doParse(JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         long v = parser.getLongValue();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -410,13 +415,13 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    short doParse(Node node, JsonParser parser) {
+    static short doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         short v = parser.getShortValue();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -430,17 +435,17 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    String doParse(Node node, JsonParser parser) {
+    static String doParse(Node node, JsonParser parser, @Bind("$node") Node thisNode) {
       try {
         if (!parser.currentToken().isScalarValue()) {
           throw new JsonParserRawTruffleException(
-              "unexpected token: " + parser.currentToken(), this);
+              "unexpected token: " + parser.currentToken(), thisNode);
         }
         String v = parser.getText();
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -454,14 +459,15 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    TimeObject doParse(Node node, JsonParser parser, String format) {
+    static TimeObject doParse(
+        Node node, JsonParser parser, String format, @Bind("$node") Node thisNode) {
       try {
         String text = parser.getText();
         TimeObject time = new TimeObject(LocalTime.parse(text, DateTimeFormatCache.get(format)));
         parser.nextToken();
         return time;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }
@@ -475,7 +481,8 @@ public final class JsonParserNodes {
 
     @Specialization
     @TruffleBoundary
-    TimestampObject doParse(Node node, JsonParser parser, String format) {
+    static TimestampObject doParse(
+        Node node, JsonParser parser, String format, @Bind("$node") Node thisNode) {
       try {
         String text = parser.getText();
         TimestampObject timestamp =
@@ -483,7 +490,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return timestamp;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), this);
+        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
       }
     }
   }

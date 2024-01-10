@@ -12,12 +12,14 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.iterable.sources.TimestampRangeCollection;
+import raw.runtime.truffle.runtime.primitives.IntervalNodes;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
@@ -30,8 +32,12 @@ public abstract class TimestampRangeNode extends ExpressionNode {
   private static final IntervalObject zero = new IntervalObject(0, 0, 0, 0, 0, 0, 0, 0);
 
   @Specialization
-  protected Object doRange(TimestampObject start, TimestampObject end, IntervalObject step) {
-    if (step.compareTo(zero) <= 0)
+  protected Object doRange(
+      TimestampObject start,
+      TimestampObject end,
+      IntervalObject step,
+      @Cached(inline = true) IntervalNodes.IntervalCompareNode compareNode) {
+    if (compareNode.execute(this, step, zero) <= 0)
       throw new RawTruffleRuntimeException("range step has to be strictly positive", this);
     return new TimestampRangeCollection(start, end, step);
   }

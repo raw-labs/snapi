@@ -154,8 +154,13 @@ public class OperatorNodes {
 
     @Specialization
     @TruffleBoundary
-    static int doInterval(Node node, IntervalObject left, IntervalObject right) {
-      return left.compareTo(right);
+    static int doInterval(
+        Node node,
+        IntervalObject left,
+        IntervalObject right,
+        @Bind("$node") Node thisNode,
+        @Cached IntervalNodes.IntervalCompareNode compareNode) {
+      return compareNode.execute(thisNode, left, right);
     }
 
     @Specialization(limit = "3")
