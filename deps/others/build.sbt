@@ -1,8 +1,8 @@
-import java.nio.file.Files
-import java.nio.file.StandardCopyOption
+import java.nio.file.{Files, Paths, StandardCopyOption}
 import java.io.{BufferedWriter, FileWriter, File}
 import scala.io.Source
 import scala.xml.{Node => XmlNode, Elem, Text, XML}
+import scala.util.{Try, Success, Failure}
 import sys.process._
 
 val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4"
@@ -24,11 +24,33 @@ val moduleNames = Map(
   "jackson-module-scala" -> "com.fasterxml.jackson.scala",
 )
 
+def getCoursierCachePath: String = {
+  // Standard path
+  val standardPath = sys.props("user.home") + "/.cache/coursier/v1"
+
+  // Check if the standard path exists
+  if (Files.exists(Paths.get(standardPath))) {
+    standardPath
+  } else {
+    // Check for a custom path in an environment variable
+    val envVar = "COURSIER_CACHE"
+    sys.env.get(envVar) match {
+      case Some(customPath) =>
+        if (Files.exists(Paths.get(customPath))) {
+          customPath
+        } else {
+          throw new IllegalStateException(s"Custom Coursier cache path specified in $envVar does not exist: $customPath")
+        }
+      case None =>
+        throw new IllegalStateException(s"Coursier cache path not found at $standardPath and no custom path specified in $envVar.")
+    }
+  }
+}
+
 def locateOriginalPom(groupID: String, artifactID: String, version: String): File = {
-  val coursierCachePath = sys.props("user.home") + "/.cache/coursier/v1"
+  val coursierCachePath = getCoursierCachePath
   // Convert groupID to URL-like structure (e.g., "com.fasterxml.jackson.module" to "com/fasterxml/jackson/module")
   val groupPath = groupID.replaceAll("\\.", "/")
-  
   // Construct the path to the POM in the Coursier cache
   val pomPath = s"$coursierCachePath/https/repo1.maven.org/maven2/$groupPath/$artifactID/$version/$artifactID-$version.pom"
   new File(pomPath)
