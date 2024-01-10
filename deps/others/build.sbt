@@ -2,7 +2,8 @@ import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.io.BufferedWriter
 import java.io.FileWriter
-
+import java.io.File
+import scala.xml.{Node => XmlNode, Elem, Text, XML}
 import sys.process._
 
 val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4"
@@ -24,10 +25,48 @@ val moduleNames = Map(
   "jackson-module-scala" -> "com.fasterxml.jackson.scala",
 )
 
+def locateOriginalPom(groupID: String, artifactID: String, version: String): File = {
+  val coursierCachePath = sys.props("user.home") + "/.cache/coursier/v1"
+  // Convert groupID to URL-like structure (e.g., "com.fasterxml.jackson.module" to "com/fasterxml/jackson/module")
+  val groupPath = groupID.replaceAll("\\.", "/")
+  
+  // Construct the path to the POM in the Coursier cache
+  val pomPath = s"$coursierCachePath/https/repo1.maven.org/maven2/$groupPath/$artifactID/$version/$artifactID-$version.pom"
+  new File(pomPath)
+}
+
+def updatePom(pomFile: File, newVersion: String): Unit = {
+  val pomXml = XML.loadFile(pomFile)
+
+  // Function to remove unwanted nodes
+  def removeUnwantedNodes(nodes: Seq[XmlNode]): Seq[XmlNode] = nodes.flatMap {
+    case elem: Elem =>
+      elem.label match {
+        case "url" | "scm" | "licenses" | "developers" | "contributors" => None // Exclude these nodes
+        case "properties" => Some(elem.copy(child = elem.child.filterNot(child => child.label == "info.apiUrl")))
+        case _ => Some(elem.copy(child = removeUnwantedNodes(elem.child)))
+      }
+    case other => Some(other)
+  }
+
+  // Update version and remove unwanted nodes
+  val updatedXml = pomXml.copy(child = removeUnwantedNodes(pomXml.child).map {
+    case elem: Elem if elem.label == "version" => elem.copy(child = Text(newVersion))
+    case other => other
+  })
+
+  // Save the updated XML to the same file
+  XML.save(pomFile.getAbsolutePath, updatedXml, "UTF-8", xmlDecl = true)
+}
+
+
+
+
 // Task to patch dependencies
 val patchDependencies = taskKey[Unit]("Patch dependencies")
 
 patchDependencies := {
+  (update.value) // Make sure update task is run before patchDependencies task
   val log = streams.value.log
   val updateReport = update.value
 
@@ -80,8 +119,16 @@ patchDependencies := {
       throw new Exception(s"Failed to patch JAR $newJar")
     }
 
+    // Locate and copy the original pom.xml
+    val originalPom = locateOriginalPom(groupID, artifactID, version) // Implement this function
+    val copiedPom = new File(originalPom.getParent, s"$artifactID-$version-rawlabs.pom")
+    Files.copy(originalPom.toPath, copiedPom.toPath, StandardCopyOption.REPLACE_EXISTING)
+
+    // Modify the copied pom.xml
+    updatePom(copiedPom, version)
+
     // Publish the patched JAR file to the local Maven repository
-    val publish = s"mvn install:install-file -Dfile=$newJar -DgroupId=$groupID -DartifactId=$artifactID -Dversion=$version-rawlabs -Dpackaging=jar"
+    val publish = s"mvn install:install-file -Dfile=$newJar -DpomFile=${copiedPom.getAbsolutePath} -DgroupId=$groupID -DartifactId=$artifactID -Dversion=$version-rawlabs -Dpackaging=jar"
     val publishExitCode = publish.!
     if (publishExitCode != 0) {
       throw new Exception(s"Failed to publish JAR $newJar")
