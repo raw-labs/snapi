@@ -1,8 +1,7 @@
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
-import java.io.BufferedWriter
-import java.io.FileWriter
-import java.io.File
+import java.io.{BufferedWriter, FileWriter, File}
+import scala.io.Source
 import scala.xml.{Node => XmlNode, Elem, Text, XML}
 import sys.process._
 
@@ -55,12 +54,19 @@ def updatePom(pomFile: File, newVersion: String): Unit = {
     case other => other
   })
 
-  // Save the updated XML to the same file
+  // Save the updated XML to the file
   XML.save(pomFile.getAbsolutePath, updatedXml, "UTF-8", xmlDecl = true)
+
+  // Read the file, remove blank lines, and rewrite
+  val fileContent = Source.fromFile(pomFile).getLines
+  val noBlankLines = fileContent.filter(_.trim.nonEmpty).mkString("\n")
+  val writer = new BufferedWriter(new FileWriter(pomFile))
+  try {
+    writer.write(noBlankLines)
+  } finally {
+    writer.close()
+  }
 }
-
-
-
 
 // Task to patch dependencies
 val patchDependencies = taskKey[Unit]("Patch dependencies")
