@@ -65,12 +65,12 @@ public class IntervalNodes {
 
     public abstract IntervalObject execute(Node node, String interval);
 
+    private static final Pattern pattern =
+        Pattern.compile(
+            "^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)(?:\\.(\\d{1,3}))?S)?)?$");
+
     @Specialization
     static IntervalObject build(Node node, String interval) {
-
-      Pattern pattern =
-          Pattern.compile(
-              "^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)(?:\\.(\\d{1,3}))?S)?)?$");
 
       Matcher matcher = pattern.matcher(interval);
 
