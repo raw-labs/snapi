@@ -50,7 +50,7 @@ def getCoursierCachePath: String = {
 def locateOriginalPom(groupID: String, artifactID: String, version: String): File = {
   val coursierCachePath = getCoursierCachePath
   // Convert groupID to URL-like structure (e.g., "com.fasterxml.jackson.module" to "com/fasterxml/jackson/module")
-  val groupPath = groupID.replaceAll("\\.", "/")
+  val groupPath = groupID.replaceAll(".", "/")
   // Construct the path to the POM in the Coursier cache
   val pomPath = s"$coursierCachePath/https/repo1.maven.org/maven2/$groupPath/$artifactID/$version/$artifactID-$version.pom"
   new File(pomPath)
