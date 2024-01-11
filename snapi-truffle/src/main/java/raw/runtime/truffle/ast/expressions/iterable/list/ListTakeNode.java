@@ -25,7 +25,7 @@ import raw.runtime.truffle.runtime.list.*;
 public abstract class ListTakeNode extends ExpressionNode {
 
   @Specialization
-  protected Object doByte(
+  protected Object take(
       Object list, long num, @Cached(inline = true) ListNodes.TakeNode takeNode) {
     return takeNode.execute(this, list, (int) num);
   }
