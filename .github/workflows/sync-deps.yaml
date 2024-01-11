@@ -37,4 +37,5 @@ jobs:
           aws s3 sync $M2_HOME s3://$BUCKET/maven --exclude '*' --include '**kiama**'
           cd deps/others
           sbt createS3SyncScript
+          export M2_HOME BUCKET
           ./s3-sync-deps.sh
