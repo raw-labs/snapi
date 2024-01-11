@@ -16,22 +16,24 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.instrumentation.Tag;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.ClosureFactory;
 
 @NodeInfo(shortName = "invoke")
 public final class InvokeNode extends ExpressionNode {
 
   @Child private ExpressionNode functionNode;
-  @Child private InteropLibrary interop = InteropLibrary.getFactory().createDispatched(3);
+
+  @Child
+  private Closure.ClosureExecuteWithNamesNode closureExec =
+      ClosureFactory.ClosureExecuteWithNamesNodeGen.create();
+
   @Children private final ExpressionNode[] argumentNodes;
+
+  private final Object[] argumentValues;
 
   private final String[] argNames;
 
@@ -41,6 +43,7 @@ public final class InvokeNode extends ExpressionNode {
     assert (argNames.length == argumentNodes.length);
     this.argNames = argNames;
     this.argumentNodes = argumentNodes;
+    this.argumentValues = new Object[argumentNodes.length];
   }
 
   @ExplodeLoop
@@ -49,18 +52,11 @@ public final class InvokeNode extends ExpressionNode {
     CompilerAsserts.compilationConstant(argumentNodes.length);
 
     Closure closure = (Closure) functionNode.executeGeneric(frame);
-    Object[] argumentValues = new Object[argumentNodes.length];
     for (int i = 0; i < argumentNodes.length; i++) {
       argumentValues[i] = argumentNodes[i].executeGeneric(frame);
     }
-
     closure.setNamedArgNames(argNames);
-
-    try {
-      return interop.execute(closure, argumentValues);
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
-    }
+    return closureExec.execute(this, closure, argumentValues);
   }
 
   @Override

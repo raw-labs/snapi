@@ -31,13 +31,41 @@ trait ConstTest extends CompilerTestContext with TableDrivenPropertyChecks {
     it should evaluateTo(""""Hello"""")
   }
 
+  test("\"x\\u2192x+1\" // RD-10265") { it =>
+    // The source code contains the escaped unicode character. It should parse and run as if the character
+    // was in the source code.
+    it should parse
+    it should typeAs("string")
+    it should astTypeAs(Rql2StringType())
+    it should run
+    it should evaluateTo(""""x\u2192x+1"""")
+  }
+
+  test("\"x\u2192x+1\" // RD-10265") { it =>
+    // The source code contains the unicode character. It should parse and run.
+    it should parse
+    it should typeAs("string")
+    it should astTypeAs(Rql2StringType())
+    it should run
+    it should evaluateTo(""""x\u2192x+1"""")
+  }
+
+  test("\"\"\"x\u2192x+1\"\"\"// RD-10265") { it =>
+    // The source code is using triple quoted string, it can contain the unicode character
+    it should parse
+    it should typeAs("string")
+    it should astTypeAs(Rql2StringType())
+    it should run
+    it should evaluateTo(""""x\u2192x+1"""")
+  }
+
   test("""  true """) { it =>
     it should typeAs("bool")
     it should astTypeAs(Rql2BoolType())
     it should evaluateTo("""true""")
   }
 
-  val consts = Table(
+  private val consts = Table(
     "constants",
     TestValue("byte", "1b"),
     TestValue("short", "Short.From(1)"),

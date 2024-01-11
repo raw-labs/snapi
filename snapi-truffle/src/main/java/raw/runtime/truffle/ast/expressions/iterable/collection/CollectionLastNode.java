@@ -12,34 +12,36 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 
 @NodeInfo(shortName = "Collection.Last")
 @NodeChild("parent")
 public abstract class CollectionLastNode extends ExpressionNode {
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doObject(
       Object iterable,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators,
-      @CachedLibrary("iterable") IterableLibrary iterables) {
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode) {
     try {
-      Object generator = iterables.getGenerator(iterable);
-      generators.init(generator);
-      if (!generators.hasNext(generator)) {
+      Object generator = getGeneratorNode.execute(this, iterable);
+      initNode.execute(this, generator);
+      if (!hasNextNode.execute(this, generator)) {
         return NullObject.INSTANCE;
       }
-      Object next = generators.next(generator);
-      while (generators.hasNext(generator)) {
-        next = generators.next(generator);
+      Object next = nextNode.execute(this, generator);
+      while (hasNextNode.execute(this, generator)) {
+        next = nextNode.execute(this, generator);
       }
       return next;
     } catch (RawTruffleRuntimeException e) {

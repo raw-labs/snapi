@@ -29,6 +29,6 @@ public class DecimalWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeDate.execute((DecimalObject) args[0], (JsonGenerator) args[1]);
+    writeDate.execute(this, (DecimalObject) args[0], (JsonGenerator) args[1]);
   }
 }

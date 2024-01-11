@@ -12,12 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDateTime;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
 import raw.runtime.truffle.runtime.primitives.IntervalObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 
@@ -26,12 +27,15 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeChild("timestamp2")
 public abstract class TimestampSubtractNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
-  protected IntervalObject subtract(TimestampObject timestampObj1, TimestampObject timestampObj2) {
+  protected IntervalObject subtract(
+      TimestampObject timestampObj1,
+      TimestampObject timestampObj2,
+      @Cached(inline = false) IntervalNodes.IntervalNormalizeNode normalizeNode) {
     LocalDateTime timestamp1 = timestampObj1.getTimestamp();
     LocalDateTime timestamp2 = timestampObj2.getTimestamp();
 
-    return IntervalObject.normalize(
+    return normalizeNode.execute(
+        this,
         timestamp1.getYear() - timestamp2.getYear(),
         timestamp1.getMonthValue() - timestamp2.getMonthValue(),
         0,

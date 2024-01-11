@@ -43,7 +43,7 @@ public class TryableWriteJsonNode extends StatementNode {
     if (Tryable.isSuccess(tryable)) {
       childDirectCall.call(tryable, gen);
     } else {
-      writeString.execute(Tryable.getFailure(tryable), gen);
+      writeString.execute(this, Tryable.getFailure(tryable), gen);
     }
   }
 }

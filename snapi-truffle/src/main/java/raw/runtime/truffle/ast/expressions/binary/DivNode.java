@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.binary;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
@@ -67,7 +67,7 @@ public abstract class DivNode extends BinaryNode {
   }
 
   @Specialization(guards = "!doubleIsZero(b.getBigDecimal().doubleValue())")
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected Object divDecimal(DecimalObject a, DecimalObject b) {
     // Without the MathContext.DECIMAL128, we would get a:
     // java.lang.ArithmeticException: Non-terminating decimal expansion; no exact representable

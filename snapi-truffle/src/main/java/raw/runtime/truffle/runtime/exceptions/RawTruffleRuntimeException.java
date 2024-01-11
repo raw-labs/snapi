@@ -12,10 +12,15 @@
 
 package raw.runtime.truffle.runtime.exceptions;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
+import com.oracle.truffle.api.interop.ExceptionType;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 
+@ExportLibrary(InteropLibrary.class)
 public class RawTruffleRuntimeException extends AbstractTruffleException {
 
   //    private static final TruffleLogger LOG = TruffleLogger.getLogger(RawLanguage.ID,
@@ -23,27 +28,32 @@ public class RawTruffleRuntimeException extends AbstractTruffleException {
   //
   //    private Node location;
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public RawTruffleRuntimeException(String message, Node location) {
     super(message, location);
     //        this.location = location;
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public RawTruffleRuntimeException(String message, Throwable cause, Node location) {
     super(message, cause, UNLIMITED_STACK_TRACE, location);
     //        this.location = location;
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public RawTruffleRuntimeException(String message) {
     super(message);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public RawTruffleRuntimeException(Exception ex, Node location) {
 
     super(ex.toString(), location);
     //        this.location = location;
+  }
+
+  @ExportMessage
+  public ExceptionType getExceptionType() {
+    return ExceptionType.RUNTIME_ERROR;
   }
 }

@@ -12,8 +12,11 @@
 
 package raw.runtime.truffle.runtime.function;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.GenerateInline;
+import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.ArityException;
@@ -24,6 +27,8 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
+import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -49,7 +54,7 @@ public class Closure implements TruffleObject {
     this.defaultArguments = defaultArguments;
     for (int i = 0; i < defaultArguments.length; i++) {
       if (defaultArguments[i] != null) {
-        namedArgs.put(function.getArgNames()[i], defaultArguments[i]);
+        putNamedArg(function.getArgNames()[i], defaultArguments[i]);
       }
     }
   }
@@ -82,68 +87,44 @@ public class Closure implements TruffleObject {
 
   @ExportMessage
   abstract static class Execute {
+
     @Specialization(limit = "INLINE_CACHE_SIZE", guards = "closure.getCallTarget() == cachedTarget")
     protected static Object doDirect(
         Closure closure,
         Object[] arguments,
         @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
-      Object[] args =
-          closure.getNamedArgNames() == null
-              ? getArgs(closure, arguments)
-              : getNamedArgs(closure, closure.getNamedArgNames(), arguments);
-
-      return callNode.call(args);
+      Object[] finalArgs = new Object[closure.getArgNames().length + 1];
+      finalArgs[0] = closure.frame;
+      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
+      setArgs(closure, arguments, finalArgs);
+      return callNode.call(finalArgs);
     }
 
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
         Closure closure, Object[] arguments, @Cached IndirectCallNode callNode) {
+      Object[] finalArgs = new Object[closure.getArgNames().length + 1];
+      finalArgs[0] = closure.frame;
+      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
+      setArgs(closure, arguments, finalArgs);
 
-      Object[] args =
-          closure.getNamedArgNames() == null
-              ? getArgs(closure, arguments)
-              : getNamedArgs(closure, closure.getNamedArgNames(), arguments);
-
-      return callNode.call(closure.getCallTarget(), args);
+      return callNode.call(closure.getCallTarget(), finalArgs);
     }
 
-    private static Object[] getArgs(Closure closure, Object[] arguments) {
+    private static void setArgs(Closure closure, Object[] arguments, Object[] finalArgs) {
       String[] namedArgsNames = new String[arguments.length];
       String[] argNames = closure.getArgNames();
       System.arraycopy(argNames, 0, namedArgsNames, 0, namedArgsNames.length);
-      return getNamedArgs(closure, namedArgsNames, arguments);
-    }
 
-    // Don't explode loop, graph becomes too big.
-    private static Object[] getNamedArgs(
-        Closure closure, String[] namedArgsNames, Object[] arguments) {
-      Object[] args = new Object[closure.getArgNames().length + 1];
-      args[0] = closure.frame;
-      String[] argNames = closure.getArgNames();
-      // first fill in the default arguments (nulls if no default).
-      System.arraycopy(closure.defaultArguments, 0, args, 1, argNames.length);
       for (int i = 0; i < namedArgsNames.length; i++) {
-        String currentArgName = namedArgsNames[i];
-        if (currentArgName == null) {
-          // no arg name was provided, use the index.
-          args[i + 1] = arguments[i];
-        } else {
-          // an arg name, ignore the current index 'i' and instead walk the arg names to find
-          // the
-          // real, and fill it in.
-
-          int idx = 0;
-          for (; idx < argNames.length; idx++) {
-            if (Objects.equals(currentArgName, argNames[idx])) {
-              break;
-            }
+        for (int j = 0; j < argNames.length; j++) {
+          if (Objects.equals(namedArgsNames[i], argNames[j])) {
+            finalArgs[j + 1] = arguments[i];
+            break;
           }
-          args[idx + 1] = arguments[i];
         }
       }
-
-      return args;
     }
   }
 
@@ -161,13 +142,14 @@ public class Closure implements TruffleObject {
   final boolean isMemberInvocable(String member) {
     if (member.startsWith(GET_DEFAULT_PREFIX)) {
       String argName = member.substring(GET_DEFAULT_PREFIX.length());
-      return namedArgs.containsKey(argName);
+      return containsKey(argName);
     } else {
       return false;
     }
   }
 
   @ExportMessage
+  @CompilerDirectives.TruffleBoundary
   final Object getMembers(boolean includeInternal) {
     return new StringList(
         namedArgs.keySet().stream().map(s -> GET_DEFAULT_PREFIX + s).toArray(String[]::new));
@@ -176,14 +158,114 @@ public class Closure implements TruffleObject {
   @ExportMessage
   final Object invokeMember(String member, Object... arguments)
       throws UnknownIdentifierException, ArityException {
-    if (member.startsWith(GET_DEFAULT_PREFIX)) {
+    if (startsWith(member)) {
       if (arguments.length > 0) {
         throw ArityException.create(0, 0, arguments.length);
       }
-      String argName = member.substring(GET_DEFAULT_PREFIX.length());
-      return namedArgs.get(argName);
+      String argName = substring(member, GET_DEFAULT_PREFIX.length());
+      return getNamedArg(argName);
     } else {
       throw UnknownIdentifierException.create(member);
+    }
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private boolean startsWith(String member) {
+    return member.startsWith(Closure.GET_DEFAULT_PREFIX);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private String substring(String member, int from) {
+    return member.substring(from);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private Object getNamedArg(String argName) {
+    return namedArgs.get(argName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void putNamedArg(String argName, Object value) {
+    namedArgs.put(argName, value);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private boolean containsKey(String argName) {
+    return namedArgs.containsKey(argName);
+  }
+
+  @NodeInfo(shortName = "Closure.Execute")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class ClosureExecuteWithNamesNode extends Node {
+
+    public abstract Object execute(Node node, Closure closure, Object[] arguments);
+
+    private static void setArgsWithNames(Closure closure, Object[] arguments, Object[] finalArgs) {
+      for (int i = 0; i < closure.getNamedArgNames().length; i++) {
+        String currentArgName = closure.getNamedArgNames()[i];
+        if (currentArgName == null) {
+          // no arg name was provided, use the index.
+          finalArgs[i + 1] = arguments[i];
+        } else {
+          // an arg name, ignore the current index 'i' and instead walk the arg names to find
+          // the
+          // real, and fill it in.
+
+          int idx = 0;
+          for (; idx < closure.getArgNames().length; idx++) {
+            if (Objects.equals(currentArgName, closure.getArgNames()[idx])) {
+              break;
+            }
+          }
+          finalArgs[idx + 1] = arguments[i];
+        }
+      }
+    }
+
+    //    public static Object[] getFinalArgs(Closure closure) {
+    //      Object[] finalArgs = new Object[closure.getArgNames().length + 1];
+    //      finalArgs[0] = closure.frame;
+    //      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1,
+    // closure.getArgNames().length);
+    //      return finalArgs;
+    //    }
+
+    @Specialization(guards = "closure.getCallTarget() == cachedTarget", limit = "3")
+    protected static Object doDirect(
+        Closure closure,
+        Object[] arguments,
+        //        @Cached(
+        //                value = "getFinalArgs(closure)",
+        //                allowUncached = true,
+        //                dimensions = 0,
+        //                neverDefault = true)
+        //            Object[] finalArgs,
+        @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
+        @Cached("create(cachedTarget)") DirectCallNode callNode) {
+      Object[] finalArgs = new Object[closure.getArgNames().length + 1];
+      finalArgs[0] = closure.frame;
+      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
+      setArgsWithNames(closure, arguments, finalArgs);
+      return callNode.call(finalArgs);
+    }
+
+    @Specialization(replaces = "doDirect")
+    protected static Object doIndirect(
+        Closure closure,
+        Object[] arguments,
+        //        @Cached(
+        //                value = "getFinalArgs(closure)",
+        //                allowUncached = true,
+        //                dimensions = 0,
+        //                neverDefault = true)
+        //            Object[] finalArgs,
+        @Cached(inline = false) IndirectCallNode callNode) {
+      Object[] finalArgs = new Object[closure.getArgNames().length + 1];
+      finalArgs[0] = closure.frame;
+      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
+      setArgsWithNames(closure, arguments, finalArgs);
+      return callNode.call(closure.getCallTarget(), finalArgs);
     }
   }
 }

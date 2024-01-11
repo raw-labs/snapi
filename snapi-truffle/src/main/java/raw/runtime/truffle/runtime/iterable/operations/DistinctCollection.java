@@ -12,24 +12,21 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.iterable.OffHeapDistinct;
-import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.sources.api.SourceContext;
 
-@ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
-public final class DistinctCollection implements TruffleObject {
-
+public class DistinctCollection implements TruffleObject {
   final Object iterable;
 
   final RawLanguage language;
@@ -45,34 +42,20 @@ public final class DistinctCollection implements TruffleObject {
     this.context = context;
   }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
+  public Object getIterable() {
+    return iterable;
   }
 
-  private final OperatorNodes.CompareNode compare =
-      OperatorNodesFactory.CompareNodeGen.getUncached();
-
-  private int compareKey(Object key1, Object key2) {
-    return compare.execute(key1, key2);
+  public Rql2TypeWithProperties getRowType() {
+    return rowType;
   }
 
-  @ExportMessage
-  Object getGenerator(
-      @CachedLibrary(limit = "5") IterableLibrary iterables,
-      @CachedLibrary(limit = "5") GeneratorLibrary generators) {
-    OffHeapDistinct index = new OffHeapDistinct(this::compareKey, rowType, language, context);
-    Object generator = iterables.getGenerator(iterable);
-    try {
-      generators.init(generator);
-      while (generators.hasNext(generator)) {
-        Object next = generators.next(generator);
-        index.put(next);
-      }
-    } finally {
-      generators.close(generator);
-    }
-    return index.generator();
+  public SourceContext getContext() {
+    return context;
+  }
+
+  public RawLanguage getLang() {
+    return language;
   }
 
   // InteropLibrary: Iterable
@@ -82,13 +65,13 @@ public final class DistinctCollection implements TruffleObject {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary =
-      GeneratorLibrary.getFactory().createDispatched(1);
-
   @ExportMessage
-  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(this);
-    generatorLibrary.init(generator);
+  Object getIterator(
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
+    Object generator = getGeneratorNode.execute(thisNode, this);
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

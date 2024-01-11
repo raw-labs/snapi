@@ -44,7 +44,7 @@ public class TryableParseJsonNode extends ExpressionNode {
       return childDirectCall.call(parser);
     } catch (JsonParserRawTruffleException ex) {
       try {
-        skipNext.execute(parser);
+        skipNext.execute(this, parser);
       } catch (JsonReaderRawTruffleException e) {
         return new ErrorObject(ex.getMessage());
       }

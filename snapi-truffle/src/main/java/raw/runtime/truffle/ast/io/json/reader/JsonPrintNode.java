@@ -36,10 +36,10 @@ public abstract class JsonPrintNode extends ExpressionNode {
   @Specialization
   protected Object doParse(
       Object result,
-      @Cached JsonWriteNodes.InitGeneratorJsonWriterNode initGenerator,
+      @Cached(inline = true) JsonWriteNodes.InitGeneratorJsonWriterNode initGenerator,
       @Cached("create(getChildNode().getCallTarget())") DirectCallNode childDirectCall) {
     try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        JsonGenerator gen = initGenerator.execute(stream)) {
+        JsonGenerator gen = initGenerator.execute(this, stream)) {
       childDirectCall.call(result, gen);
       gen.flush();
       return stream.toString();

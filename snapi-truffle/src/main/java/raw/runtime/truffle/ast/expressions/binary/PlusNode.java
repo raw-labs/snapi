@@ -37,6 +37,6 @@ public class PlusNode extends BinaryNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     Object leftValue = left.executeGeneric(virtualFrame);
     Object rightValue = right.executeGeneric(virtualFrame);
-    return add.execute(leftValue, rightValue);
+    return add.execute(this, leftValue, rightValue);
   }
 }

@@ -17,11 +17,8 @@ import com.fasterxml.jackson.core.JsonFactory;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
@@ -46,13 +43,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.InitGenerator")
   @GenerateUncached
+  @GenerateInline
   public abstract static class InitGeneratorJsonWriterNode extends Node {
 
-    public abstract JsonGenerator execute(OutputStream os);
+    public abstract JsonGenerator execute(Node node, OutputStream os);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    JsonGenerator createGenerator(OutputStream os) {
+    @TruffleBoundary
+    JsonGenerator createGenerator(Node node, OutputStream os) {
       try {
         JsonFactory jsonFactory = new JsonFactory();
         jsonFactory.disable(JsonParser.Feature.AUTO_CLOSE_SOURCE);
@@ -65,13 +63,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteStartArray")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteStartArrayJsonWriterNode extends Node {
 
-    public abstract void execute(JsonGenerator gen);
+    public abstract void execute(Node node, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void writeStartArray(JsonGenerator gen) {
+    @TruffleBoundary
+    void writeStartArray(Node node, JsonGenerator gen) {
       try {
         gen.writeStartArray();
       } catch (IOException e) {
@@ -82,12 +81,13 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteEndArray")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteEndArrayJsonWriterNode extends Node {
 
-    public abstract void execute(JsonGenerator gen);
+    public abstract void execute(Node node, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeStartArray(JsonGenerator gen) {
       try {
         gen.writeEndArray();
@@ -99,12 +99,13 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteStartObject")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteStartObjectJsonWriterNode extends Node {
 
-    public abstract void execute(JsonGenerator gen);
+    public abstract void execute(Node node, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
+    @TruffleBoundary
     void writeStartObject(JsonGenerator gen) {
       try {
         gen.writeStartObject();
@@ -116,13 +117,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteEndObject")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteEndObjectJsonWriterNode extends Node {
 
-    public abstract void execute(JsonGenerator gen);
+    public abstract void execute(Node node, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void writeStartObject(JsonGenerator gen) {
+    @TruffleBoundary
+    void writeStartObject(Node node, JsonGenerator gen) {
       try {
         gen.writeEndObject();
       } catch (IOException e) {
@@ -133,13 +135,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteEndObject")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteFieldNameJsonWriterNode extends Node {
 
-    public abstract void execute(String fieldName, JsonGenerator gen);
+    public abstract void execute(Node node, String fieldName, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void writeField(String fieldName, JsonGenerator gen) {
+    @TruffleBoundary
+    void writeField(Node node, String fieldName, JsonGenerator gen) {
       try {
         gen.writeFieldName(fieldName);
       } catch (IOException e) {
@@ -150,13 +153,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteBinary")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteBinaryJsonWriterNode extends Node {
 
-    public abstract void execute(BinaryObject value, JsonGenerator gen);
+    public abstract void execute(Node node, BinaryObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(BinaryObject value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, BinaryObject value, JsonGenerator gen) {
       try {
         String result = Base64.getEncoder().encodeToString(value.getBytes());
         gen.writeString(result);
@@ -168,13 +172,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteBoolean")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteBooleanJsonWriterNode extends Node {
 
-    public abstract void execute(boolean value, JsonGenerator gen);
+    public abstract void execute(Node node, boolean value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(boolean value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, boolean value, JsonGenerator gen) {
       try {
         gen.writeBoolean(value);
       } catch (IOException e) {
@@ -185,13 +190,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteByte")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteByteJsonWriterNode extends Node {
 
-    public abstract void execute(byte value, JsonGenerator gen);
+    public abstract void execute(Node node, byte value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(byte value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, byte value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
@@ -202,13 +208,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteDate")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteDateJsonWriterNode extends Node {
 
-    public abstract void execute(DateObject value, JsonGenerator gen);
+    public abstract void execute(Node node, DateObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(DateObject value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, DateObject value, JsonGenerator gen) {
       try {
         gen.writeString(value.getDate().toString());
       } catch (IOException e) {
@@ -219,13 +226,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteDecimal")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteDecimalJsonWriterNode extends Node {
 
-    public abstract void execute(DecimalObject value, JsonGenerator gen);
+    public abstract void execute(Node node, DecimalObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(DecimalObject value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, DecimalObject value, JsonGenerator gen) {
       try {
         gen.writeNumber(value.getBigDecimal());
       } catch (IOException e) {
@@ -236,13 +244,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteDouble")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteDoubleJsonWriterNode extends Node {
 
-    public abstract void execute(double value, JsonGenerator gen);
+    public abstract void execute(Node node, double value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(double value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, double value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
@@ -253,13 +262,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteFloat")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteFloatJsonWriterNode extends Node {
 
-    public abstract void execute(float value, JsonGenerator gen);
+    public abstract void execute(Node node, float value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(float value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, float value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
@@ -270,13 +280,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteInterval")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteIntervalJsonWriterNode extends Node {
 
-    public abstract void execute(IntervalObject value, JsonGenerator gen);
+    public abstract void execute(Node node, IntervalObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(IntervalObject value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, IntervalObject value, JsonGenerator gen) {
       try {
         gen.writeString(value.toString());
       } catch (IOException e) {
@@ -287,13 +298,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteInt")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteIntJsonWriterNode extends Node {
 
-    public abstract void execute(int value, JsonGenerator gen);
+    public abstract void execute(Node node, int value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(int value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, int value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
@@ -304,13 +316,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteLong")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteLongJsonWriterNode extends Node {
 
-    public abstract void execute(long value, JsonGenerator gen);
+    public abstract void execute(Node node, long value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(long value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, long value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
@@ -321,13 +334,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteNull")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteNullJsonWriterNode extends Node {
 
-    public abstract void execute(JsonGenerator gen);
+    public abstract void execute(Node node, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void writeNull(JsonGenerator gen) {
+    @TruffleBoundary
+    void writeNull(Node node, JsonGenerator gen) {
       try {
         gen.writeNull();
       } catch (IOException e) {
@@ -338,13 +352,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteShort")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteShortJsonWriterNode extends Node {
 
-    public abstract void execute(short value, JsonGenerator gen);
+    public abstract void execute(Node node, short value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(short value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, short value, JsonGenerator gen) {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
@@ -355,13 +370,14 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteString")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteStringJsonWriterNode extends Node {
 
-    public abstract void execute(String value, JsonGenerator gen);
+    public abstract void execute(Node node, String value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(String value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, String value, JsonGenerator gen) {
       try {
         gen.writeString(value);
       } catch (IOException e) {
@@ -372,16 +388,17 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteTimestamp")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteTimestampJsonWriterNode extends Node {
 
     private static final DateTimeFormatter fmtWithMS =
         DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS");
 
-    public abstract void execute(TimestampObject value, JsonGenerator gen);
+    public abstract void execute(Node node, TimestampObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(TimestampObject value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, TimestampObject value, JsonGenerator gen) {
       try {
         LocalDateTime ts = value.getTimestamp();
         // .format throws DateTimeException if its internal StringBuilder throws an
@@ -396,16 +413,17 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonWriter.WriteTimestamp")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteTimeJsonWriterNode extends Node {
 
     // two different formatters, depending on whether there are milliseconds or not.
     private static final DateTimeFormatter fmtWithMS = DateTimeFormatter.ofPattern("HH:mm:ss.SSS");
 
-    public abstract void execute(TimeObject value, JsonGenerator gen);
+    public abstract void execute(Node node, TimeObject value, JsonGenerator gen);
 
     @Specialization
-    @CompilerDirectives.TruffleBoundary
-    void doWrite(TimeObject value, JsonGenerator gen) {
+    @TruffleBoundary
+    void doWrite(Node node, TimeObject value, JsonGenerator gen) {
       try {
         LocalTime ts = value.getTime();
         // .format throws DateTimeException if its internal StringBuilder throws an
@@ -420,49 +438,54 @@ public final class JsonWriteNodes {
 
   @NodeInfo(shortName = "JsonParser.WriteAny")
   @ImportStatic(JsonNodeType.class)
+  @GenerateInline
   public abstract static class WriteAnyJsonParserNode extends Node {
 
-    public abstract void execute(Object value, JsonGenerator gen);
+    public abstract void execute(Node node, Object value, JsonGenerator gen);
 
     @Specialization
-    protected void doWriteList(
+    protected static void doWriteList(
+        Node node,
         ObjectList list,
         JsonGenerator gen,
-        @Cached("create()") WriteStartArrayJsonWriterNode startArray,
-        @Cached("create()") WriteEndArrayJsonWriterNode endArray,
-        @Cached("create()") WriteAnyJsonParserNode writeAny) {
+        @Bind("$node") Node thisNode,
+        @Cached WriteStartArrayJsonWriterNode startArray,
+        @Cached WriteEndArrayJsonWriterNode endArray,
+        @Cached(inline = false) @Cached.Shared("writeAny") WriteAnyJsonParserNode writeAny) {
       Object[] objList = list.getInnerList();
 
-      startArray.execute(gen);
+      startArray.execute(thisNode, gen);
       for (Object o : objList) {
-        writeAny.execute(o, gen);
+        writeAny.execute(thisNode, o, gen);
       }
-      endArray.execute(gen);
+      endArray.execute(thisNode, gen);
     }
 
     @Specialization
-    protected void doWriteRecord(
+    protected static void doWriteRecord(
+        Node node,
         RecordObject record,
         JsonGenerator gen,
-        @Cached("create()") WriteAnyJsonParserNode writeAny,
-        @Cached("create()") WriteFieldNameJsonWriterNode writeField,
-        @Cached("create()") WriteStartObjectJsonWriterNode startObject,
-        @Cached("create()") WriteEndObjectJsonWriterNode endObject,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("writeAny") WriteAnyJsonParserNode writeAny,
+        @Cached WriteFieldNameJsonWriterNode writeField,
+        @Cached WriteStartObjectJsonWriterNode startObject,
+        @Cached WriteEndObjectJsonWriterNode endObject,
         @CachedLibrary(limit = "3") InteropLibrary interops) {
       try {
         Object keys = interops.getMembers(record);
         int size = (int) interops.getArraySize(keys);
 
-        startObject.execute(gen);
+        startObject.execute(thisNode, gen);
         String fieldName;
         Object member;
         for (int i = 0; i < size; i++) {
           fieldName = (String) interops.readArrayElement(keys, i);
-          writeField.execute(fieldName, gen);
+          writeField.execute(thisNode, fieldName, gen);
           member = interops.readMember(record, fieldName);
-          writeAny.execute(member, gen);
+          writeAny.execute(thisNode, member, gen);
         }
-        endObject.execute(gen);
+        endObject.execute(thisNode, gen);
       } catch (UnsupportedMessageException
           | InvalidArrayIndexException
           | UnknownIdentifierException e) {
@@ -471,67 +494,103 @@ public final class JsonWriteNodes {
     }
 
     @Specialization
-    protected void doWrite(
-        String str, JsonGenerator gen, @Cached("create()") WriteStringJsonWriterNode write) {
-      write.execute(str, gen);
+    protected static void doWrite(
+        Node node,
+        String str,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteStringJsonWriterNode write) {
+      write.execute(thisNode, str, gen);
     }
 
     @Specialization
-    protected void doWrite(
+    protected static void doWrite(
+        Node node,
         BinaryObject binary,
         JsonGenerator gen,
-        @Cached("create()") WriteBinaryJsonWriterNode write) {
-      write.execute(binary, gen);
+        @Bind("$node") Node thisNode,
+        @Cached WriteBinaryJsonWriterNode write) {
+      write.execute(thisNode, binary, gen);
     }
 
     @Specialization
-    protected void doWrite(
-        boolean bool, JsonGenerator gen, @Cached("create()") WriteBooleanJsonWriterNode write) {
-      write.execute(bool, gen);
+    protected static void doWrite(
+        Node node,
+        boolean bool,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteBooleanJsonWriterNode write) {
+      write.execute(thisNode, bool, gen);
     }
 
     @Specialization
-    protected void doWrite(
-        short num, JsonGenerator gen, @Cached("create()") WriteShortJsonWriterNode write) {
-      write.execute(num, gen);
+    protected static void doWrite(
+        Node node,
+        short num,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteShortJsonWriterNode write) {
+      write.execute(thisNode, num, gen);
     }
 
     @Specialization
-    protected void doWrite(
-        int num, JsonGenerator gen, @Cached("create()") WriteIntJsonWriterNode write) {
-      write.execute(num, gen);
+    protected static void doWrite(
+        Node node,
+        int num,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteIntJsonWriterNode write) {
+      write.execute(thisNode, num, gen);
     }
 
     @Specialization
-    protected void doWrite(
-        long num, JsonGenerator gen, @Cached("create()") WriteLongJsonWriterNode write) {
-      write.execute(num, gen);
+    protected static void doWrite(
+        Node node,
+        long num,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteLongJsonWriterNode write) {
+      write.execute(thisNode, num, gen);
     }
 
     @Specialization
-    protected void doWrite(
-        float num, JsonGenerator gen, @Cached("create()") WriteFloatJsonWriterNode write) {
-      write.execute(num, gen);
+    protected static void doWrite(
+        Node node,
+        float num,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteFloatJsonWriterNode write) {
+      write.execute(thisNode, num, gen);
     }
 
     @Specialization
-    protected void doWrite(
-        double num, JsonGenerator gen, @Cached("create()") WriteDoubleJsonWriterNode write) {
-      write.execute(num, gen);
+    protected static void doWrite(
+        Node node,
+        double num,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteDoubleJsonWriterNode write) {
+      write.execute(thisNode, num, gen);
     }
 
     @Specialization
-    protected void doWrite(
+    protected static void doWrite(
+        Node node,
         DecimalObject num,
         JsonGenerator gen,
-        @Cached("create()") WriteDecimalJsonWriterNode write) {
-      write.execute(num, gen);
+        @Bind("$node") Node thisNode,
+        @Cached WriteDecimalJsonWriterNode write) {
+      write.execute(thisNode, num, gen);
     }
 
     @Specialization(guards = "nullObj == null")
-    protected void doWrite(
-        Object nullObj, JsonGenerator gen, @Cached("create()") WriteNullJsonWriterNode write) {
-      write.execute(gen);
+    protected static void doWrite(
+        Node node,
+        Object nullObj,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached WriteNullJsonWriterNode write) {
+      write.execute(thisNode, gen);
     }
   }
 }

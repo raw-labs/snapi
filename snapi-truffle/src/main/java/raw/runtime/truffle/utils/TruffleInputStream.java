@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.utils;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.InputStream;
 import java.io.Reader;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -34,12 +34,12 @@ public class TruffleInputStream {
     this.locationObject = locationObject;
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public String getUrl() {
     return locationObject.getLocationDescription().url();
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public ByteStreamLocation getLocation() {
     try {
       return ByteStreamLocationProvider.build(locationObject.getLocationDescription(), context);
@@ -48,7 +48,7 @@ public class TruffleInputStream {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public boolean testAccess() {
     try {
       getLocation().testAccess();
@@ -58,7 +58,7 @@ public class TruffleInputStream {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public InputStream getInputStream() {
     try {
       return getLocation().getInputStream();
@@ -67,7 +67,7 @@ public class TruffleInputStream {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public Reader getReader(String encoding) {
     try {
       return getLocation().getReader(toEncoding(encoding));
@@ -76,7 +76,7 @@ public class TruffleInputStream {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private static Encoding toEncoding(String s) {
     Either<String, Encoding> r = Encoding.fromEncodingString(s);
     if (r.isRight()) {
@@ -86,7 +86,7 @@ public class TruffleInputStream {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public Reader getReader(Encoding encoding) {
     try {
       return getLocation().getReader(encoding);

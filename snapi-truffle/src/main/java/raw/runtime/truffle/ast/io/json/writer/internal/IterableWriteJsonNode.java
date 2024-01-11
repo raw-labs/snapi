@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -21,17 +20,35 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 
 @NodeInfo(shortName = "IterableWriteJson")
 public class IterableWriteJsonNode extends StatementNode {
 
   @Child private DirectCallNode childDirectCall;
 
-  @Child private IterableLibrary itrables = IterableLibrary.getFactory().createDispatched(1);
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
 
-  @Child private GeneratorLibrary generators = GeneratorLibrary.getFactory().createDispatched(1);
+  @Child
+  private GeneratorNodes.GeneratorInitNode generatorInitNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorCloseNode generatorCloseNodeNode =
+      GeneratorNodesFactory.GeneratorCloseNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorNextNode generatorNextNode =
+      GeneratorNodesFactory.GeneratorNextNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorHasNextNode generatorHasNextNode =
+      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
 
   @Child
   private JsonWriteNodes.WriteStartArrayJsonWriterNode writeStartArrayNode =
@@ -50,23 +67,18 @@ public class IterableWriteJsonNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object iterable = args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
-    Object generator = itrables.getGenerator(iterable);
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generators.init(generator);
-      writeStartArrayNode.execute(gen);
+      generatorInitNode.execute(this, generator);
+      writeStartArrayNode.execute(this, gen);
 
-      executeWhile(generator, gen);
+      while (generatorHasNextNode.execute(this, generator)) {
+        childDirectCall.call(generatorNextNode.execute(this, generator), gen);
+      }
 
-      writeEndArrayNode.execute(gen);
+      writeEndArrayNode.execute(this, gen);
     } finally {
-      generators.close(generator);
-    }
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private void executeWhile(Object generator, JsonGenerator gen) {
-    while (generators.hasNext(generator)) {
-      childDirectCall.call(generators.next(generator), gen);
+      generatorCloseNodeNode.execute(this, generator);
     }
   }
 }

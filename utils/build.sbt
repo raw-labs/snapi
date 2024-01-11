@@ -13,7 +13,7 @@ sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
 sonatypeProfileName := "com.raw-labs"
 
-val licenseHeader = s"""Copyright ${Year.now.getValue} RAW Labs S.A.
+val licenseHeader = """Copyright 2023 RAW Labs S.A.
 
 Use of this software is governed by the Business Source License
 included in the file licenses/BSL.txt.
@@ -151,6 +151,7 @@ libraryDependencies ++= Seq(
   typesafeConfig,
   loki4jAppender,
   commonsIO,
+  commonsText,
   scalatest % Test
 ) ++
   slf4j ++

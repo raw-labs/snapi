@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.io.jdbc;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
@@ -36,7 +36,7 @@ public class JdbcQuery {
   private final JdbcExceptionHandler exceptionHandler;
   private final String url;
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JdbcQuery(
       LocationDescription locationDescription,
       String query,
@@ -62,7 +62,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public void close() {
     if (rs != null) {
       try {
@@ -73,7 +73,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public boolean next() {
     try {
       return rs.next();
@@ -82,7 +82,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   byte getByte(String colName, Node node) {
     try {
       return rs.getByte(colName);
@@ -91,7 +91,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   short getShort(String colName, Node node) {
     try {
       return rs.getShort(colName);
@@ -100,7 +100,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   int getInt(String colName, Node node) {
     try {
       return rs.getInt(colName);
@@ -109,7 +109,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   long getLong(String colName, Node node) {
     try {
       return rs.getLong(colName);
@@ -118,7 +118,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   float getFloat(String colName, Node node) {
     try {
       return rs.getFloat(colName);
@@ -127,7 +127,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   double getDouble(String colName, Node node) {
     try {
       return rs.getDouble(colName);
@@ -136,7 +136,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   DecimalObject getDecimal(String colName, Node node) {
     try {
       return new DecimalObject(rs.getBigDecimal(colName));
@@ -145,7 +145,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   String getString(String colName, Node node) {
     try {
       return rs.getString(colName);
@@ -154,7 +154,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   boolean getBool(String colName, Node node) {
     try {
       return rs.getBoolean(colName);
@@ -163,7 +163,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   DateObject getDate(String colName, Node node) {
     try {
       java.sql.Date sqlDate = rs.getDate(colName);
@@ -173,7 +173,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   TimeObject getTime(String colName, Node node) {
     try {
       java.sql.Time sqlTime = rs.getTime(colName);
@@ -183,7 +183,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   TimestampObject getTimestamp(String colName, Node node) {
     try {
       java.sql.Timestamp sqlTimestamp = rs.getTimestamp(colName);
@@ -193,7 +193,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   byte[] getBytes(String colName, Node node) {
     try {
       return rs.getBytes(colName);
@@ -202,7 +202,7 @@ public class JdbcQuery {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   boolean isNull(String colName, Node node) {
     try {
       rs.getObject(colName);

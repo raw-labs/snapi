@@ -8,14 +8,14 @@
         <maven.compiler.source>21</maven.compiler.source>
         <maven.compiler.target>21</maven.compiler.target>
         <raw-launcher.version>1.0-SNAPSHOT</raw-launcher.version>
-        <raw-client.version>0.27.2+1-a4e1c3ff+20231121-1853-SNAPSHOT</raw-client.version>
-        <raw-snapi-client.version>0.27.2+1-a4e1c3ff+20231121-1855-SNAPSHOT</raw-snapi-client.version>
-        <raw-python-client.version>0.27.2+1-a4e1c3ff+20231121-1855-SNAPSHOT</raw-python-client.version>
+        <raw-client.version>0.27.11+0-4b936904+20231210-1131-SNAPSHOT</raw-client.version>
+        <raw-snapi-client.version>0.27.11+0-4b936904+20231210-1132-SNAPSHOT</raw-snapi-client.version>
+        <raw-python-client.version>0.27.11+0-4b936904+20231210-1133-SNAPSHOT</raw-python-client.version>
     </properties>
 
     <groupId>com.raw-labs.com</groupId>
     <artifactId>raw-launcher</artifactId>
-    <version>0.27.2+1-a4e1c3ff+20231121-1855-SNAPSHOT</version>
+    <version>0.27.11+0-4b936904+20231210-1132-SNAPSHOT</version>
 
     <dependencies>
         <!-- GraalVM Polyglot Dependency -->
@@ -30,6 +30,12 @@
             <version>${raw-client.version}</version>
         </dependency>
         <!-- Language Dependencies -->
+        <dependency>
+            <groupId>com.raw-labs</groupId>
+            <artifactId>raw-snapi-truffle_2.12</artifactId>
+            <version>${raw-snapi-truffle.version}</version>
+            <scope>runtime</scope>
+        </dependency>
         <dependency>
             <groupId>com.raw-labs</groupId>
             <artifactId>raw-snapi-client_2.12</artifactId>
@@ -150,6 +156,32 @@
                     <mainClass>raw.cli.RawCli</mainClass>
                 </configuration>
             </plugin>
+            <!-- Required for native image generation. -->
+             <!-- <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <executions>
+                    <execution>
+                        <id>make_native</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>
+                                ${env.JAVA_HOME}/bin/native-image</executable>
+                            <commandlineArgs>
+                                -p %classpath
+                                --module-path %classpath
+                                -H:+UnlockExperimentalVMOptions
+                                -H:+ReportExceptionStackTraces
+                                -m ${launcherClass}
+                                -o ${project.build.directory}/slnative
+                            </commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin> -->
         </plugins>
     </build>
 

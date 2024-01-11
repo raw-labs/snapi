@@ -928,4 +928,10 @@ trait LspCommentsFormatTest extends CompilerTestContext {
     )
   }
 
+  test("\"x\\u2192x+1\" // RD-10265")(it => assertFormattedCode(it.q, "\"x\\u2192x+1\" // RD-10265"))
+
+  test("\"x\u2192x+1\" // RD-10265")(it => assertFormattedCode(it.q, "\"x\\u2192x+1\" // RD-10265"))
+
+  test("\"\"\"x\u2192x+1\"\"\" // RD-10265")(it => assertFormattedCode(it.q, "\"\"\"x\u2192x+1\"\"\" // RD-10265"))
+
 }

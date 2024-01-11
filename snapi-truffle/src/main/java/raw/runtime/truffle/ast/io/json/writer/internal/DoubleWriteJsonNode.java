@@ -28,6 +28,6 @@ public class DoubleWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeDouble.execute((double) args[0], (JsonGenerator) args[1]);
+    writeDouble.execute(this, (double) args[0], (JsonGenerator) args[1]);
   }
 }

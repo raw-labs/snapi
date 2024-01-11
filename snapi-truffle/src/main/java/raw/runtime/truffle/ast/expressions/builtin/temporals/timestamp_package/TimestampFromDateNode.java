@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.timestamp_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -26,7 +26,7 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeChild("date")
 public abstract class TimestampFromDateNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected TimestampObject from(DateObject dateObj) {
     LocalDate date = dateObj.getDate();
     return new TimestampObject(

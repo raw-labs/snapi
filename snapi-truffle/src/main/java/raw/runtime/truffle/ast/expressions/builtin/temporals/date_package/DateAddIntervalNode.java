@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.date_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -29,7 +29,7 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 public abstract class DateAddIntervalNode extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected TimestampObject addInterval(DateObject dateObj, IntervalObject intervalObj) {
 
     LocalDate date = dateObj.getDate();

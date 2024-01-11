@@ -1,20 +1,14 @@
-#!/bin/bash -exu
+#!/bin/bash -ex
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
 # snapi-frontend
 
 cd "${SCRIPT_HOME}"/snapi-frontend
 
-rm -rfv test-results
-mkdir -p test-results
-
-sbt test
+./test.sh
 
 # snapi-client
 
 cd "${SCRIPT_HOME}"/snapi-client
 
-rm -rfv test-results
-mkdir -p test-results
-
-sbt test
+./test.sh

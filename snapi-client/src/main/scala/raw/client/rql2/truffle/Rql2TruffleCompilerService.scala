@@ -385,25 +385,37 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
         } else if (ex.getMessage.startsWith("java.lang.InterruptedException")) {
           throw new InterruptedException()
         } else if (ex.isGuestException) {
-          val err = ex.getGuestObject
-          if (err != null && err.hasMembers && err.hasMember("errors")) {
-            val errorsValue = err.getMember("errors")
-            val errors = (0L until errorsValue.getArraySize).map { i =>
-              val errorValue = errorsValue.getArrayElement(i)
-              val message = errorValue.asString
-              val positions = (0L until errorValue.getArraySize).map { j =>
-                val posValue = errorValue.getArrayElement(j)
-                val beginValue = posValue.getMember("begin")
-                val endValue = posValue.getMember("end")
-                val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
-                val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
-                ErrorRange(begin, end)
-              }
-              ErrorMessage(message, positions.to)
-            }
-            ExecutionValidationFailure(errors.to)
+          if (ex.isInternalError) {
+            // An internal error. It means a regular Exception thrown from the language (e.g. a Java Exception,
+            // or a RawTruffleInternalErrorException, which isn't an AbstractTruffleException)
+            val programContext = getProgramContext(environment.user, environment)
+            throw new CompilerServiceException(ex, programContext.dumpDebugInfo)
           } else {
-            ExecutionRuntimeFailure(ex.getMessage)
+            val err = ex.getGuestObject
+            if (err != null && err.hasMembers && err.hasMember("errors")) {
+              // A validation exception, semantic or syntax error (both come as the same kind of error)
+              // that has a list of errors and their positions.
+              val errorsValue = err.getMember("errors")
+              val errors = (0L until errorsValue.getArraySize).map { i =>
+                val errorValue = errorsValue.getArrayElement(i)
+                val message = errorValue.asString
+                val positions = (0L until errorValue.getArraySize).map { j =>
+                  val posValue = errorValue.getArrayElement(j)
+                  val beginValue = posValue.getMember("begin")
+                  val endValue = posValue.getMember("end")
+                  val begin = ErrorPosition(beginValue.getMember("line").asInt, beginValue.getMember("column").asInt)
+                  val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
+                  ErrorRange(begin, end)
+                }
+                ErrorMessage(message, positions.to)
+              }
+              ExecutionValidationFailure(errors.to)
+            } else {
+              // A runtime failure during execution. The query could be a failed tryable, or a runtime error (e.g. a
+              // file not found) hit when processing a reader that evaluates as a _collection_ (processed outside the
+              // evaluation of the query).
+              ExecutionRuntimeFailure(ex.getMessage)
+            }
           }
         } else {
           // Unexpected error. For now we throw the PolyglotException.

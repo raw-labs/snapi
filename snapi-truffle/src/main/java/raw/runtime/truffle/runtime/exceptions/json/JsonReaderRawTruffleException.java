@@ -13,43 +13,43 @@
 package raw.runtime.truffle.runtime.exceptions.json;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 public class JsonReaderRawTruffleException extends RawTruffleRuntimeException {
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonReaderRawTruffleException() {
     super("failed to read JSON");
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonReaderRawTruffleException(String message) {
     super(message);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonReaderRawTruffleException(String message, Node location) {
     super(message, location);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonReaderRawTruffleException(Node location) {
     super("failed to read JSON", location);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonReaderRawTruffleException(JsonParser parser, TruffleCharInputStream stream) {
     super(createMessage("failed to read JSON", parser, stream));
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonReaderRawTruffleException(String message, TruffleCharInputStream stream) {
     super(createMessage(message, null, stream));
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonReaderRawTruffleException(
       String message, JsonParser parser, TruffleCharInputStream stream) {
     super(createMessage(message, parser, stream));

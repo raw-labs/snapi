@@ -13,7 +13,7 @@ sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
 sonatypeProfileName := "com.raw-labs"
 
-val licenseHeader = s"""Copyright ${Year.now.getValue} RAW Labs S.A.
+val licenseHeader = """Copyright 2023 RAW Labs S.A.
 
 Use of this software is governed by the Business Source License
 included in the file licenses/BSL.txt.
@@ -117,7 +117,8 @@ Test / javaOptions ++= Seq(
   // Limit overall memory and force crashing hard and early.
   // Useful for debugging memleaks.
   "-Xmx8G",
-  "-XX:+CrashOnOutOfMemoryError"
+  "-XX:+CrashOnOutOfMemoryError",
+  "-Dpolyglotimpl.CompilationFailureAction=Throw"
 )
 
 // Add dependency resolvers

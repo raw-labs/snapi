@@ -14,7 +14,7 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -37,7 +37,7 @@ public class CheckNonNullJsonNode extends ExpressionNode {
     return childDirectCall.call(parser);
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private void doCheck(JsonParser parser) {
     if (parser.currentToken() == JsonToken.VALUE_NULL) {
       throw new JsonParserRawTruffleException("null value found", this);

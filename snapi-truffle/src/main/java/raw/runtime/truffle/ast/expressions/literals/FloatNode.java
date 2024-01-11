@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 
@@ -34,7 +34,7 @@ public class FloatNode extends ExpressionNode {
     return parseFloat();
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private float parseFloat() {
     return Float.parseFloat(value);
   }
