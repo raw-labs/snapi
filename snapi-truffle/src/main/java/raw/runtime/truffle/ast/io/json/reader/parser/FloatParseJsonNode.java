@@ -23,9 +23,9 @@ public abstract class FloatParseJsonNode extends ExpressionNode {
 
   @Specialization
   protected float doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseFloatJsonParserNode parse) {
+      VirtualFrame frame, @Cached(inline = true) JsonParserNodes.ParseFloatJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
+    return parse.execute(this, parser);
   }
 }

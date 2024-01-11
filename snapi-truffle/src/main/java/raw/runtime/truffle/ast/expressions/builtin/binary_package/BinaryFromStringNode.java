@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.binary_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -23,7 +23,7 @@ import raw.runtime.truffle.runtime.primitives.BinaryObject;
 @NodeChild(value = "binary")
 public abstract class BinaryFromStringNode extends ExpressionNode {
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected BinaryObject doFromString(String str) {
     return new BinaryObject(str.getBytes());
   }

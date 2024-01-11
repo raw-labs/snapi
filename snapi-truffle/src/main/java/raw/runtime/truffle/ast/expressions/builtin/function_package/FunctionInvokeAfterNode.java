@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.function_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.ArityException;
@@ -30,7 +30,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 public abstract class FunctionInvokeAfterNode extends ExpressionNode {
 
   @Specialization(limit = "3")
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected Object invokeAfter(
       Object closure, long sleepTime, @CachedLibrary("closure") InteropLibrary interops) {
     try {

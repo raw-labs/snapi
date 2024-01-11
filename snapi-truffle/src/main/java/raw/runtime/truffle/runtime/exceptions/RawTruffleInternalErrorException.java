@@ -12,23 +12,28 @@
 
 package raw.runtime.truffle.runtime.exceptions;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 
 // This exception is thrown when an internal error occurs in the Raw Truffle runtime.
 public class RawTruffleInternalErrorException extends RuntimeException {
 
+  @CompilerDirectives.TruffleBoundary
   public RawTruffleInternalErrorException() {
     super("internal error");
   }
 
+  @CompilerDirectives.TruffleBoundary
   public RawTruffleInternalErrorException(String message) {
     super(message);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public RawTruffleInternalErrorException(Throwable cause, Node location) {
     super(location.getDescription(), cause);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public RawTruffleInternalErrorException(Throwable cause) {
     super(cause);
   }

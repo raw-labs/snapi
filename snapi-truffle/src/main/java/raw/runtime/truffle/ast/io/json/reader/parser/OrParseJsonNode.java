@@ -15,7 +15,7 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -67,8 +67,8 @@ public class OrParseJsonNode extends ExpressionNode {
     try {
       nodeString = getFromMapper(mapper, parser);
       for (int i = 0; i < childDirectCalls.length; i++) {
-        localParser = initParserNode.execute(nodeString);
-        nextTokenNode.execute(localParser);
+        localParser = initParserNode.execute(this, nodeString);
+        nextTokenNode.execute(this, localParser);
         try {
           value = childDirectCalls[i].call(localParser);
           // No exception was thrown. Local parser was consumed successfully by the
@@ -76,12 +76,12 @@ public class OrParseJsonNode extends ExpressionNode {
           // parser.
           // The real parser had been consumed as well, so we need to move to the next
           // token.
-          nextTokenNode.execute(parser);
+          nextTokenNode.execute(this, parser);
           return new OrObject(i, value);
         } catch (RawTruffleRuntimeException ex) {
           messages[i] = ex.getMessage();
         } finally {
-          closeParserNode.execute(localParser);
+          closeParserNode.execute(this, localParser);
           localParser = null;
         }
       }
@@ -89,11 +89,11 @@ public class OrParseJsonNode extends ExpressionNode {
     } catch (IOException e) {
       throw new JsonParserRawTruffleException(e.getMessage(), this);
     } finally {
-      closeParserNode.execute(localParser);
+      closeParserNode.execute(this, localParser);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private String getFromMapper(ObjectMapper mapper, JsonParser parser) throws IOException {
     return mapper.readValue(parser, JsonNode.class).toPrettyString();
   }

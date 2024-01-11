@@ -12,14 +12,11 @@
 
 package raw.runtime.truffle.runtime.or;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.math.BigInteger;
-import java.nio.ByteOrder;
 import java.time.*;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.list.StringList;
@@ -53,7 +50,6 @@ public final class OrObject implements TruffleObject {
   }
 
   @ExportMessage
-  @CompilerDirectives.TruffleBoundary
   Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
     return "OrObject";
   }

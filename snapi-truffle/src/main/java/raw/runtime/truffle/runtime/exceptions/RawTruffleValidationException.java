@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.exceptions;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.exception.AbstractTruffleException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -28,7 +28,7 @@ public class RawTruffleValidationException extends AbstractTruffleException {
 
   private final ValidationErrorObject errors;
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public RawTruffleValidationException(List<ErrorMessage> errors) {
     super("validation failure");
     this.errors = new ValidationErrorObject(errors);

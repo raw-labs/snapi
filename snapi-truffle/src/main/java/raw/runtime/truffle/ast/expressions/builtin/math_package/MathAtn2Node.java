@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.math_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -24,7 +24,7 @@ import raw.runtime.truffle.ExpressionNode;
 public abstract class MathAtn2Node extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected double doubleAtn2(double left, double right) {
     return Math.atan2(left, right);
   }

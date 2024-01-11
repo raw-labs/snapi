@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.numeric.decimal_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -26,37 +26,37 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 public abstract class DecimalFromNode extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject fromByte(byte argument) {
     return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject fromShort(short argument) {
     return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject fromInt(int argument) {
     return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject fromLong(long argument) {
     return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject fromFloat(float argument) {
     return new DecimalObject(new BigDecimal(argument));
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected DecimalObject fromDouble(double argument) {
     return new DecimalObject(new BigDecimal(argument));
   }
@@ -67,7 +67,7 @@ public abstract class DecimalFromNode extends ExpressionNode {
   }
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected Object fromString(String argument) {
     try {
       return new DecimalObject(new BigDecimal(argument));

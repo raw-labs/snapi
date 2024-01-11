@@ -13,10 +13,7 @@
 package raw.runtime.truffle.ast.io.json.reader;
 
 import com.fasterxml.jackson.core.JsonParser;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.RootNode;
@@ -30,25 +27,26 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException
 @NodeField(name = "childNode", type = RootNode.class)
 public abstract class JsonParseNode extends ExpressionNode {
 
+  @Idempotent
   protected abstract RootNode getChildNode();
 
   @Specialization
   protected Object doParse(
       String str,
-      @Cached InitJsonParserNode initParserNode,
-      @Cached CloseJsonParserNode closeParserNode,
-      @Cached NextTokenJsonParserNode nextTokenNode,
+      @Cached(inline = true) InitJsonParserNode initParserNode,
+      @Cached(inline = true) CloseJsonParserNode closeParserNode,
+      @Cached(inline = true) NextTokenJsonParserNode nextTokenNode,
       @Cached("create(getChildNode().getCallTarget())") DirectCallNode childDirectCall) {
     JsonParser parser = null;
     try {
-      parser = initParserNode.execute(str);
-      nextTokenNode.execute(parser);
+      parser = initParserNode.execute(this, str);
+      nextTokenNode.execute(this, parser);
       return childDirectCall.call(parser);
     } catch (RawTruffleRuntimeException e) {
       throw new JsonReaderRawTruffleException();
     } finally {
       if (parser != null) {
-        closeParserNode.execute(parser);
+        closeParserNode.execute(this, parser);
       }
     }
   }

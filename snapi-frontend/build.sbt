@@ -117,7 +117,8 @@ Test / javaOptions ++= Seq(
   // Limit overall memory and force crashing hard and early.
   // Useful for debugging memleaks.
   "-Xmx8G",
-  "-XX:+CrashOnOutOfMemoryError"
+  "-XX:+CrashOnOutOfMemoryError",
+  "-Dpolyglotimpl.CompilationFailureAction=Throw"
 )
 
 // Add dependency resolvers

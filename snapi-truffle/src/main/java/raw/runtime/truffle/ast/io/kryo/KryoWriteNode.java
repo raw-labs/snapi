@@ -17,12 +17,12 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import java.io.ByteArrayOutputStream;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.kryo.KryoWriter;
-import raw.runtime.truffle.runtime.kryo.KryoWriterLibrary;
+import raw.runtime.truffle.runtime.kryo.KryoNodes;
+import raw.runtime.truffle.runtime.kryo.KryoNodesFactory;
 
 public class KryoWriteNode extends ExpressionNode {
   @Child private ExpressionNode valueNode;
-  private final KryoWriterLibrary writers = KryoWriterLibrary.getUncached();
+  @Child private KryoNodes.KryoWriteNode writer = KryoNodesFactory.KryoWriteNodeGen.create();
   private final Rql2TypeWithProperties t;
 
   public KryoWriteNode(ExpressionNode valueNode, Rql2TypeWithProperties t) {
@@ -34,8 +34,7 @@ public class KryoWriteNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     ByteArrayOutputStream array = new ByteArrayOutputStream();
     Output output = new Output(array);
-    KryoWriter writer = new KryoWriter();
-    writers.write(writer, output, t, valueNode.executeGeneric(virtualFrame));
+    writer.execute(this, output, t, valueNode.executeGeneric(virtualFrame));
     output.close();
     return array.toByteArray();
   }

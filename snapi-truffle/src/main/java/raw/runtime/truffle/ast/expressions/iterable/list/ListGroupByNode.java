@@ -12,14 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -27,13 +26,13 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
-import raw.runtime.truffle.runtime.iterable.OffHeapListGroupByKey;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.sources.api.SourceContext;
 
@@ -44,55 +43,60 @@ import raw.sources.api.SourceContext;
 @NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
 public abstract class ListGroupByNode extends ExpressionNode {
 
-  @Child
-  OperatorNodes.CompareNode compare = insert(OperatorNodesFactory.CompareNodeGen.getUncached());
+  @Idempotent
+  public abstract Rql2TypeWithProperties getKeyType();
 
-  protected abstract Rql2TypeWithProperties getKeyType();
-
-  protected abstract Rql2TypeWithProperties getRowType();
-
-  private int compareKey(Object key1, Object key2) {
-    return compare.execute(key1, key2);
-  }
+  @Idempotent
+  public abstract Rql2TypeWithProperties getRowType();
 
   static final int LIB_LIMIT = 2;
 
   @Specialization(limit = "3")
-  protected Object doGroup(
+  protected static Object doGroup(
       Object input,
       Object keyFun,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) OffHeapNodes.OffHeapGroupByPutNode putNode,
+      @Cached(inline = true) OffHeapNodes.OffHeapGeneratorNode generatorNode,
       @CachedLibrary("keyFun") InteropLibrary keyFunLib,
-      @CachedLibrary("input") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators) {
-    Object iterable = lists.toIterable(input);
-    SourceContext context = RawContext.get(this).getSourceContext();
-    OffHeapListGroupByKey map =
-        new OffHeapListGroupByKey(
-            this::compareKey, getKeyType(), getRowType(), RawLanguage.get(this), context);
-    Object generator = iterables.getGenerator(iterable);
+      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
+    Object iterable = toIterableNode.execute(thisNode, input);
+    SourceContext context = RawContext.get(thisNode).getSourceContext();
+    OffHeapGroupByKey map =
+        new OffHeapGroupByKey(
+            ((ListGroupByNode) thisNode.getParent()).getKeyType(),
+            ((ListGroupByNode) thisNode.getParent()).getRowType(),
+            RawLanguage.get(thisNode),
+            context,
+            new RecordShaper(RawLanguage.get(thisNode), true));
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
-      generators.init(generator);
-      while (generators.hasNext(generator)) {
-        Object v = generators.next(generator);
+      initNode.execute(thisNode, generator);
+      while (hasNextNode.execute(thisNode, generator)) {
+        Object v = nextNode.execute(thisNode, generator);
         Object key = keyFunLib.execute(keyFun, v);
-        map.put(key, v);
+        putNode.execute(thisNode, map, key, v);
       }
     } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
       throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
-      generators.close(generator);
+      closeNode.execute(thisNode, generator);
     }
     ArrayList<RecordObject> items = new ArrayList<>();
-    Object mapGenerator = map.generator();
+    Object mapGenerator = generatorNode.execute(thisNode, map);
     try {
-      generators.init(mapGenerator);
-      while (generators.hasNext(mapGenerator)) {
-        RecordObject record = (RecordObject) generators.next(mapGenerator);
+      initNode.execute(thisNode, mapGenerator);
+      while (hasNextNode.execute(thisNode, mapGenerator)) {
+        RecordObject record = (RecordObject) nextNode.execute(thisNode, mapGenerator);
         items.add(record);
       }
     } finally {
-      generators.close(mapGenerator);
+      closeNode.execute(thisNode, mapGenerator);
     }
     return new ObjectList(items.toArray());
   }

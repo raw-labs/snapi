@@ -12,10 +12,8 @@
 
 package raw.runtime.truffle.runtime.record;
 
-import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
@@ -26,12 +24,14 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 public class RecordNodes {
   @NodeInfo(shortName = "Record.ReadIndexNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ReadIndexNode extends Node {
 
-    public abstract Object execute(RecordObject record, int idx);
+    public abstract Object execute(Node node, RecordObject record, int idx);
 
     @Specialization(limit = "3")
-    Object exec(
+    static Object exec(
+        Node node,
         RecordObject record,
         int idx,
         @CachedLibrary("record.values") DynamicObjectLibrary valuesLibrary) {
@@ -44,24 +44,32 @@ public class RecordNodes {
 
   @NodeInfo(shortName = "Record.ReadByKeyNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class ReadByKeyNode extends Node {
 
-    public abstract Object execute(RecordObject record, String key);
+    public abstract Object execute(Node node, RecordObject record, String key);
 
     @Specialization
-    Object exec(RecordObject record, String key, @Cached("create()") ReadIndexNode readIdx) {
-      return readIdx.execute(record, record.keys.indexOf(key));
+    static Object exec(
+        Node node,
+        RecordObject record,
+        String key,
+        @Bind("$node") Node thisNode,
+        @Cached ReadIndexNode readIdx) {
+      return readIdx.execute(thisNode, record, record.keys.indexOf(key));
     }
   }
 
   @NodeInfo(shortName = "Record.WriteIndexNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class WriteIndexNode extends Node {
 
-    public abstract void execute(RecordObject record, int idx, String key, Object value);
+    public abstract void execute(Node node, RecordObject record, int idx, String key, Object value);
 
     @Specialization(limit = "3")
-    void exec(
+    static void exec(
+        Node node,
         RecordObject record,
         int idx,
         String key,
@@ -78,13 +86,14 @@ public class RecordNodes {
 
   @NodeInfo(shortName = "Record.AddByKeyNode")
   @GenerateUncached
+  @GenerateInline
   public abstract static class AddByKeyNode extends Node {
 
-    public abstract void execute(RecordObject record, String key, Object value);
+    public abstract void execute(Node node, RecordObject record, String key, Object value);
 
-    @CompilerDirectives.TruffleBoundary
     @Specialization(limit = "3")
-    void exec(
+    static void exec(
+        Node node,
         RecordObject record,
         String key,
         Object value,
@@ -93,8 +102,13 @@ public class RecordNodes {
           record.values,
           record.keys.size(),
           value); // "key" to use in the dynamic object is the current index.
-      record.keys.add(key); // the original key is added (possible duplicate)
+      addKey(record, key); // the original key is added (possible duplicate)
       record.invalidateDistinctKeys();
+    }
+
+    @TruffleBoundary
+    private static void addKey(RecordObject record, String key) {
+      record.keys.add(key);
     }
   }
 }

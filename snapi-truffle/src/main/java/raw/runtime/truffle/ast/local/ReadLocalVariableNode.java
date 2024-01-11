@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.local;
 
+import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -25,8 +26,10 @@ import raw.runtime.truffle.ast.TypeGuards;
 @NodeField(name = "rql2Type", type = Rql2Type.class)
 public abstract class ReadLocalVariableNode extends ExpressionNode {
 
+  @Idempotent
   protected abstract int getSlot();
 
+  @Idempotent
   protected abstract Rql2Type getRql2Type();
 
   @Specialization(guards = "isBooleanKind(getRql2Type())")

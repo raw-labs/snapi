@@ -43,7 +43,7 @@ public class NullableWriteJsonNode extends StatementNode {
     if (Nullable.isNotNull(option)) {
       childDirectCall.call(option, gen);
     } else {
-      writeNullNode.execute(gen);
+      writeNullNode.execute(this, gen);
     }
   }
 }
