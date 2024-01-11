@@ -205,7 +205,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       maybeIndent: Option[Int],
       maybeWidth: Option[Int]
   ): FormatCodeResponse = {
-    FormatCodeResponse(Some(source), List.empty)
+    FormatCodeResponse(Some(source))
   }
 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
@@ -220,7 +220,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           LetBindCompletion(name, tipe)
         }
     }
-    AutoCompleteResponse(matches.toArray, List.empty)
+    AutoCompleteResponse(matches.toArray)
   }
 
   override def wordAutoComplete(
@@ -243,7 +243,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     ) yield {
       LetBindCompletion(word, value)
     }
-    AutoCompleteResponse(matches.toArray, List.empty)
+    AutoCompleteResponse(matches.toArray)
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
@@ -253,12 +253,12 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     val scope = getFullyQualifiedScope(environment)
     scope
       .find(_._1 == token)
-      .map { case (name, tipe) => HoverResponse(Some(TypeCompletion(name, tipe)), List.empty) }
-      .getOrElse(HoverResponse(None, List.empty))
+      .map { case (name, tipe) => HoverResponse(Some(TypeCompletion(name, tipe))) }
+      .getOrElse(HoverResponse(None))
   }
 
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
-    RenameResponse(Array.empty, List.empty)
+    RenameResponse(Array.empty)
   }
 
   override def goToDefinition(
@@ -266,7 +266,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       environment: ProgramEnvironment,
       position: Pos
   ): GoToDefinitionResponse = {
-    GoToDefinitionResponse(None, List.empty)
+    GoToDefinitionResponse(None)
   }
 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
