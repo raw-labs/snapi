@@ -32,6 +32,12 @@
         <!-- Language Dependencies -->
         <dependency>
             <groupId>com.raw-labs</groupId>
+            <artifactId>raw-snapi-truffle_2.12</artifactId>
+            <version>${raw-snapi-truffle.version}</version>
+            <scope>runtime</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.raw-labs</groupId>
             <artifactId>raw-snapi-client_2.12</artifactId>
             <version>${raw-snapi-client.version}</version>
             <scope>runtime</scope>
@@ -150,6 +156,32 @@
                     <mainClass>raw.cli.RawCli</mainClass>
                 </configuration>
             </plugin>
+            <!-- Required for native image generation. -->
+             <!-- <plugin>
+                <artifactId>exec-maven-plugin</artifactId>
+                <groupId>org.codehaus.mojo</groupId>
+                <executions>
+                    <execution>
+                        <id>make_native</id>
+                        <phase>package</phase>
+                        <goals>
+                            <goal>exec</goal>
+                        </goals>
+                        <configuration>
+                            <executable>
+                                ${env.JAVA_HOME}/bin/native-image</executable>
+                            <commandlineArgs>
+                                -p %classpath
+                                --module-path %classpath
+                                -H:+UnlockExperimentalVMOptions
+                                -H:+ReportExceptionStackTraces
+                                -m ${launcherClass}
+                                -o ${project.build.directory}/slnative
+                            </commandlineArgs>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin> -->
         </plugins>
     </build>
 

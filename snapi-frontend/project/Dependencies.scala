@@ -8,7 +8,6 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
   val aws =
@@ -32,7 +31,7 @@ object Dependencies {
 
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
 
-  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0"
+  val mysqlDeps = "com.mysql" % "mysql-connector-j" % "8.1.0-rawlabs"
 
   val mssqlDeps = "com.microsoft.sqlserver" % "mssql-jdbc" % "7.0.0.jre10"
 
@@ -50,7 +49,7 @@ object Dependencies {
 
   val jwtImpl = "io.jsonwebtoken" % "jjwt-impl" % "0.11.5"
 
-  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4"
+  val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4-rawlabs"
 
   val springCore = "org.springframework" % "spring-core" % "5.3.13"
 
