@@ -227,7 +227,7 @@ public class IntervalNodes {
         @Bind("$node") Node thisNode,
         @Cached IntervalToMillisStaticNode toMillisNode) {
       long mil1 = toMillisNode.execute(thisNode, interval1);
-      long mil2 = toMillisNode.execute(thisNode, interval1);
+      long mil2 = toMillisNode.execute(thisNode, interval2);
 
       return Long.compare(mil1, mil2);
     }
