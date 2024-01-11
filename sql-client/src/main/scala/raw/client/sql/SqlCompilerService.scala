@@ -280,11 +280,13 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
             case Right(_) => ValidateResponse(List.empty)
             case Left(errors) => ValidateResponse(errors)
           }
+          logger.debug("Closing validate statement")
           stmt.close()
           result
         } catch {
           case e: SQLException => ValidateResponse(mkError(source, e))
         } finally {
+          logger.debug("Closing validate connection")
           conn.close()
         }
       } catch {
