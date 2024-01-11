@@ -169,5 +169,28 @@ patchDependencies := {
 }
 
 
+val createS3SyncScript = taskKey[Unit]("Create a bash script for syncing dependencies to S3")
 
+val scriptFile = "s3-sync-deps.sh"
 
+createS3SyncScript := {
+  val dependencies = libraryDependencies.value
+
+  val writer = new BufferedWriter(new FileWriter(scriptFile))
+
+  try {
+    writer.write("#!/bin/bash\n\n")
+    dependencies.foreach { dep =>
+      writer.write(s"aws s3 sync $$M2_HOME s3://$$BUCKET/maven --exclude '*' --include '**${dep.name}**'\n")
+    }
+  } finally {
+    // Always close the writer to release resources
+    writer.close()
+  }
+
+  // Make the script executable
+  new File(scriptFile).setExecutable(true)
+
+  // Notify that the task is completed
+  println(s"Bash script created: $scriptFile")
+}
