@@ -15,6 +15,7 @@ import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.utils.{AuthenticatedUser, RawSettings}
 
 import java.sql.SQLException
+import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
 class SqlConnectionPool(settings: RawSettings) {
@@ -40,6 +41,10 @@ class SqlConnectionPool(settings: RawSettings) {
       case None =>
         val config = new HikariConfig()
         config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
+        config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
+        config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
+        config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
+        config.setConnectionTimeout(settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS))
         config.setUsername(readOnlyUser)
         config.setPassword(password)
         val pool = new HikariDataSource(config)
