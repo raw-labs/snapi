@@ -247,24 +247,35 @@ public class OperatorNodes {
         @Cached(inline = false) GeneratorNodes.GeneratorHasNextNode hasNextNodeLeft,
         @Cached(inline = false) GeneratorNodes.GeneratorHasNextNode hasNextNodeRight,
         @Cached(inline = false) GeneratorNodes.GeneratorNextNode nextNodeLeft,
-        @Cached(inline = false) GeneratorNodes.GeneratorNextNode nextNodeRight) {
+        @Cached(inline = false) GeneratorNodes.GeneratorNextNode nextNodeRight,
+        @Cached(inline = false) GeneratorNodes.GeneratorInitNode initNodeLeft,
+        @Cached(inline = false) GeneratorNodes.GeneratorInitNode initNodeRight,
+        @Cached(inline = false) GeneratorNodes.GeneratorCloseNode closeNodeLeft,
+        @Cached(inline = false) GeneratorNodes.GeneratorCloseNode closeNodeRight) {
       Object leftGenerator = getGeneratorNodeLeft.execute(thisNode, left);
       Object rightGenerator = getGeneratorNodeRight.execute(thisNode, right);
-      while (hasNextNodeLeft.execute(thisNode, leftGenerator)
-          && hasNextNodeRight.execute(thisNode, rightGenerator)) {
-        Object leftElement = nextNodeLeft.execute(thisNode, leftGenerator);
-        Object rightElement = nextNodeRight.execute(thisNode, rightGenerator);
-        int result = compare.execute(thisNode, leftElement, rightElement);
-        if (result != 0) {
-          return result;
+      try {
+        initNodeLeft.execute(thisNode, leftGenerator);
+        initNodeRight.execute(thisNode, rightGenerator);
+        while (hasNextNodeLeft.execute(thisNode, leftGenerator)
+            && hasNextNodeRight.execute(thisNode, rightGenerator)) {
+          Object leftElement = nextNodeLeft.execute(thisNode, leftGenerator);
+          Object rightElement = nextNodeRight.execute(thisNode, rightGenerator);
+          int result = compare.execute(thisNode, leftElement, rightElement);
+          if (result != 0) {
+            return result;
+          }
         }
-      }
-      if (hasNextNodeLeft.execute(thisNode, leftGenerator)) {
-        return 1;
-      } else if (hasNextNodeRight.execute(thisNode, rightGenerator)) {
-        return -1;
-      } else {
-        return 0;
+        if (hasNextNodeLeft.execute(thisNode, leftGenerator)) {
+          return 1;
+        } else if (hasNextNodeRight.execute(thisNode, rightGenerator)) {
+          return -1;
+        } else {
+          return 0;
+        }
+      } finally {
+        closeNodeLeft.execute(thisNode, leftGenerator);
+        closeNodeRight.execute(thisNode, rightGenerator);
       }
     }
   }

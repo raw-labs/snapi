@@ -32,9 +32,10 @@ public abstract class CollectionLastNode extends ExpressionNode {
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode) {
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      Object generator = getGeneratorNode.execute(this, iterable);
       initNode.execute(this, generator);
       if (!hasNextNode.execute(this, generator)) {
         return NullObject.INSTANCE;
@@ -46,6 +47,8 @@ public abstract class CollectionLastNode extends ExpressionNode {
       return next;
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
+    } finally {
+      closeNode.execute(this, generator);
     }
   }
 }
