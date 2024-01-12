@@ -76,7 +76,7 @@ TRUE_TOKEN: 'true';
 FALSE_TOKEN: 'false';
 
 // Strings
-STRING: '"' (ESC | ~["\\])* '"';
+STRING: '"' (UNICODE | ESC | ~["\\])* '"';
 START_TRIPLE_QUOTE: '"""' -> pushMode(INSIDE_TRIPLE_QUOTE);
 
 // Identifiers
@@ -88,6 +88,8 @@ LINE_COMMENT : '//' ~('\n'|'\r')* ('\r'? '\n' | EOF) -> channel(HIDDEN) ;
 fragment DIGIT: [0-9];
 fragment EXPONENT: E [+-]? DIGIT+;
 fragment ESC: '\\' (["\\/'bfnrt]) ;
+UNICODE: '\\u' HEX HEX HEX HEX;
+HEX: [0-9a-fA-F];
 fragment INTEGER_FR: DIGIT+;
 fragment FLOAT_FR: DIGIT+ '.' DIGIT* EXPONENT?;
 // For cace insensitive. you can write things like fragment

@@ -21,6 +21,7 @@ import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
 import raw.compiler.rql2.source.{LetDecl, _}
+import raw.utils.RawUtils
 
 import scala.collection.JavaConverters._
 import scala.util.Try
@@ -1180,16 +1181,10 @@ class RawSnapiVisitor(
         Option(context.STRING())
           .map { stringConst =>
             val result = StringConst(
-              stringConst.getText
-                .substring(1, context.STRING.getText.length - 1)
-                .replace("\\b", "\b")
-                .replace("\\n", "\n")
-                .replace("\\f", "\f")
-                .replace("\\r", "\r")
-                .replace("\\'", "'") // should we replace all?
-                .replace("\\t", "\t")
-                .replace("\\\\", "\\")
-                .replace("\\\"", "\"")
+              RawUtils.escape(
+                stringConst.getText
+                  .substring(1, context.STRING.getText.length - 1)
+              )
             )
             positionsWrapper.setPosition(context, result)
             result

@@ -714,4 +714,9 @@ class FrontendSyntaxAnalyzerCompareTest extends RawTestSuite {
     compare(prog)
   }
 
+  test("Escaped Identifier") { _ =>
+    val prog = """"\"x\\u2192x+1\" // RD-10265"""".stripMargin
+    compare(prog)
+  }
+
 }
