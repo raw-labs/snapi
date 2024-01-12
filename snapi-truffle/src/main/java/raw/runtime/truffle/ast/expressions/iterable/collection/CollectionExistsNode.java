@@ -48,7 +48,9 @@ public abstract class CollectionExistsNode extends ExpressionNode {
       while (generatorHasNextNode.execute(thisNode, generator)) {
         boolean predicate =
             TryableNullable.handlePredicate(
-                closureExecuteOneNode.execute(thisNode, closure, generatorNextNode.execute(thisNode, generator)), false);
+                closureExecuteOneNode.execute(
+                    thisNode, closure, generatorNextNode.execute(thisNode, generator)),
+                false);
         if (predicate) {
           return true;
         }
