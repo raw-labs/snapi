@@ -223,24 +223,10 @@ public class Closure implements TruffleObject {
       }
     }
 
-    //    public static Object[] getFinalArgs(Closure closure) {
-    //      Object[] finalArgs = new Object[closure.getArgNames().length + 1];
-    //      finalArgs[0] = closure.frame;
-    //      System.arraycopy(closure.defaultArguments, 0, finalArgs, 1,
-    // closure.getArgNames().length);
-    //      return finalArgs;
-    //    }
-
     @Specialization(guards = "closure.getCallTarget() == cachedTarget", limit = "3")
     protected static Object doDirect(
         Closure closure,
         Object[] arguments,
-        //        @Cached(
-        //                value = "getFinalArgs(closure)",
-        //                allowUncached = true,
-        //                dimensions = 0,
-        //                neverDefault = true)
-        //            Object[] finalArgs,
         @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
       Object[] finalArgs = new Object[closure.getArgNames().length + 1];
@@ -252,20 +238,84 @@ public class Closure implements TruffleObject {
 
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
-        Closure closure,
-        Object[] arguments,
-        //        @Cached(
-        //                value = "getFinalArgs(closure)",
-        //                allowUncached = true,
-        //                dimensions = 0,
-        //                neverDefault = true)
-        //            Object[] finalArgs,
-        @Cached(inline = false) IndirectCallNode callNode) {
+        Closure closure, Object[] arguments, @Cached(inline = false) IndirectCallNode callNode) {
       Object[] finalArgs = new Object[closure.getArgNames().length + 1];
       finalArgs[0] = closure.frame;
       System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
       setArgsWithNames(closure, arguments, finalArgs);
       return callNode.call(closure.getCallTarget(), finalArgs);
+    }
+  }
+
+  @NodeInfo(shortName = "Closure.ExecuteZero")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class ClosureExecuteZeroNode extends Node {
+
+    public abstract Object execute(Node node, Closure closure);
+
+    @Specialization(guards = "closure.getCallTarget() == cachedTarget", limit = "3")
+    protected static Object doDirect(
+        Closure closure,
+        @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
+        @Cached("create(cachedTarget)") DirectCallNode callNode) {
+      return callNode.call(closure.frame);
+    }
+
+    @Specialization(replaces = "doDirect")
+    protected static Object doIndirect(
+        Closure closure, @Cached(inline = false) IndirectCallNode callNode) {
+      return callNode.call(closure.getCallTarget(), closure.frame);
+    }
+  }
+
+  @NodeInfo(shortName = "Closure.ExecuteOne")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class ClosureExecuteOneNode extends Node {
+
+    public abstract Object execute(Node node, Closure closure, Object argument);
+
+    @Specialization(guards = "closure.getCallTarget() == cachedTarget", limit = "8")
+    protected static Object doDirect(
+        Closure closure,
+        Object argument,
+        @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
+        @Cached("create(cachedTarget)") DirectCallNode callNode) {
+      return callNode.call(closure.frame, argument);
+    }
+
+    @Specialization(replaces = "doDirect")
+    protected static Object doIndirect(
+        Closure closure, Object argument, @Cached(inline = false) IndirectCallNode callNode) {
+      return callNode.call(closure.getCallTarget(), closure.frame, argument);
+    }
+  }
+
+  @NodeInfo(shortName = "Closure.ExecuteTwo")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class ClosureExecuteTwoNode extends Node {
+
+    public abstract Object execute(Node node, Closure closure, Object argument1, Object argument2);
+
+    @Specialization(guards = "closure.getCallTarget() == cachedTarget", limit = "3")
+    protected static Object doDirect(
+        Closure closure,
+        Object argument1,
+        Object argument2,
+        @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
+        @Cached("create(cachedTarget)") DirectCallNode callNode) {
+      return callNode.call(closure.frame, argument1, argument2);
+    }
+
+    @Specialization(replaces = "doDirect")
+    protected static Object doIndirect(
+        Closure closure,
+        Object argument1,
+        Object argument2,
+        @Cached(inline = false) IndirectCallNode callNode) {
+      return callNode.call(closure.getCallTarget(), closure.frame, argument1, argument2);
     }
   }
 }

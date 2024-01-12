@@ -21,6 +21,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
 
 @NodeInfo(shortName = "Collection.OrderBy")
@@ -59,9 +60,9 @@ public class CollectionOrderByNode extends ExpressionNode {
         throw new RawTruffleRuntimeException(e.getMessage());
       }
     }
-    Object[] keyFunctions = new Object[this.keyFuns.length];
+    Closure[] keyFunctions = new Closure[this.keyFuns.length];
     for (int i = 0; i < this.keyFuns.length; i++) {
-      keyFunctions[i] = this.keyFuns[i].executeGeneric(frame);
+      keyFunctions[i] = (Closure) this.keyFuns[i].executeGeneric(frame);
     }
     return new OrderByCollection(
         iterable,

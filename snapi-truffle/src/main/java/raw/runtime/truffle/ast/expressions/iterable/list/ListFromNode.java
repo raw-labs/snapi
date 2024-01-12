@@ -309,11 +309,7 @@ public abstract class ListFromNode extends ExpressionNode {
       while (hasNextGeneratorNode.execute(this, generator)) {
         llist.add(nextGeneratorNode.execute(this, generator));
       }
-      Object[] list = new Object[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new ObjectList(list);
+      return new RawArrayList(llist);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     } finally {

@@ -13,11 +13,6 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
@@ -25,7 +20,7 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
@@ -51,10 +46,10 @@ public abstract class ListGroupByNode extends ExpressionNode {
 
   static final int LIB_LIMIT = 2;
 
-  @Specialization(limit = "3")
+  @Specialization
   protected static Object doGroup(
       Object input,
-      Object keyFun,
+      Closure keyFun,
       @Bind("this") Node thisNode,
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
@@ -63,7 +58,7 @@ public abstract class ListGroupByNode extends ExpressionNode {
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) OffHeapNodes.OffHeapGroupByPutNode putNode,
       @Cached(inline = true) OffHeapNodes.OffHeapGeneratorNode generatorNode,
-      @CachedLibrary("keyFun") InteropLibrary keyFunLib,
+      @Cached(inline = true) Closure.ClosureExecuteOneNode closureExecuteOneNode,
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
     Object iterable = toIterableNode.execute(thisNode, input);
     SourceContext context = RawContext.get(thisNode).getSourceContext();
@@ -79,11 +74,9 @@ public abstract class ListGroupByNode extends ExpressionNode {
       initNode.execute(thisNode, generator);
       while (hasNextNode.execute(thisNode, generator)) {
         Object v = nextNode.execute(thisNode, generator);
-        Object key = keyFunLib.execute(keyFun, v);
+        Object key = closureExecuteOneNode.execute(thisNode, keyFun, v);
         putNode.execute(thisNode, map, key, v);
       }
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
       closeNode.execute(thisNode, generator);
     }
