@@ -64,8 +64,8 @@ public abstract class ListGroupByNode extends ExpressionNode {
     SourceContext context = RawContext.get(thisNode).getSourceContext();
     OffHeapGroupByKey map =
         new OffHeapGroupByKey(
-            ((ListGroupByNode) thisNode.getParent()).getKeyType(),
-            ((ListGroupByNode) thisNode.getParent()).getRowType(),
+            ((ListGroupByNode) thisNode).getKeyType(),
+            ((ListGroupByNode) thisNode).getRowType(),
             RawLanguage.get(thisNode),
             context,
             new RecordShaper(RawLanguage.get(thisNode), true));
