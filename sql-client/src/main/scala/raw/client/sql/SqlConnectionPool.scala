@@ -22,20 +22,14 @@ class SqlConnectionPool(settings: RawSettings) {
 
   // one pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
-//  private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
-//  private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
-//  private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
-//  private val password = settings.getString("raw.creds.jdbc.fdw.password")
-
-  private val dbHost = "localhost"
-  private val dbPort = 5433
-  private val readOnlyUser = "bgaidioz"
-  private val password = "tralala"
+  private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
+  private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
+  private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
+  private val password = settings.getString("raw.creds.jdbc.fdw.password")
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
-    // val db = user.uid.toString().replace("-", "_")
-    val db = "bgaidioz"
+    val db = user.uid.toString().replace("-", "_")
     val userPool = pools.get(db) match {
       case Some(pool) => pool
       case None =>
@@ -44,7 +38,9 @@ class SqlConnectionPool(settings: RawSettings) {
         config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
         config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
         config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
-        config.setConnectionTimeout(settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS))
+        config.setConnectionTimeout(
+          settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
+        )
         config.setUsername(readOnlyUser)
         config.setPassword(password)
         val pool = new HikariDataSource(config)
