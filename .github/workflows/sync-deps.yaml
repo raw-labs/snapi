@@ -35,6 +35,7 @@ jobs:
         run: |
           M2_HOME=/home/sbtuser/.m2/repository
           aws s3 sync $M2_HOME s3://$BUCKET/maven --exclude '*' --include '**kiama**'
-          aws s3 sync $M2_HOME s3://$BUCKET/maven --exclude '*' --include '**jackson**'
-          aws s3 sync $M2_HOME s3://$BUCKET/maven --exclude '*' --include '**scala-logging**'
-          aws s3 sync $M2_HOME s3://$BUCKET/maven --exclude '*' --include '**jwt-core**'
+          cd deps/others
+          sbt createS3SyncScript
+          export M2_HOME BUCKET
+          ./s3-sync-deps.sh
