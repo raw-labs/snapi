@@ -358,20 +358,23 @@ public class KryoNodes {
         @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
         @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
         @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo,
-        @Cached(inline = false) IterableNodes.GetGeneratorNode iterators) {
+        @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNode) {
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType();
-      Object generator = iterators.execute(thisNode, o);
-      generatorInitNode.execute(thisNode, generator);
-      ArrayList<Object> contents = new ArrayList<>();
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object content = generatorNextNode.execute(thisNode, generator);
-        contents.add(content);
-      }
-      generatorCloseNode.execute(thisNode, generator);
-      output.writeInt(contents.size());
-      for (Object content : contents) {
-        kryo.execute(thisNode, output, elementType, content);
+      Object generator = getGeneratorNode.execute(thisNode, o);
+      try {
+        generatorInitNode.execute(thisNode, generator);
+        ArrayList<Object> contents = new ArrayList<>();
+        while (generatorHasNextNode.execute(thisNode, generator)) {
+          Object content = generatorNextNode.execute(thisNode, generator);
+          contents.add(content);
+        }
+        output.writeInt(contents.size());
+        for (Object content : contents) {
+          kryo.execute(thisNode, output, elementType, content);
+        }
+      } finally {
+        generatorCloseNode.execute(thisNode, generator);
       }
     }
 

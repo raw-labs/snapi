@@ -55,21 +55,28 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    byte[] values = new byte[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (byte) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      initNode.execute(thisNode, generator);
+      byte[] values = new byte[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (byte) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new ByteList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new ByteList(values);
   }
 
   @Specialization(
@@ -87,21 +94,27 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    short[] values = new short[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (short) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      short[] values = new short[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (short) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new ShortList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new ShortList(values);
   }
 
   @Specialization(
@@ -119,21 +132,27 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    int[] values = new int[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (int) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      int[] values = new int[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (int) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new IntList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new IntList(values);
   }
 
   @Specialization(
@@ -151,21 +170,27 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    long[] values = new long[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (long) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      long[] values = new long[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (long) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new LongList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new LongList(values);
   }
 
   @Specialization(
@@ -183,21 +208,27 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    float[] values = new float[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (float) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      float[] values = new float[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (float) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new FloatList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new FloatList(values);
   }
 
   @Specialization(
@@ -215,21 +246,27 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    double[] values = new double[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (double) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      double[] values = new double[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (double) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new DoubleList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new DoubleList(values);
   }
 
   @Specialization(
@@ -247,21 +284,27 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    boolean[] values = new boolean[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (boolean) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      boolean[] values = new boolean[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (boolean) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new BooleanList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new BooleanList(values);
   }
 
   @Specialization(
@@ -279,21 +322,27 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    String[] values = new String[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = (String) interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      String[] values = new String[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = (String) interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new StringList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new StringList(values);
   }
 
   @Specialization(limit = "3")
@@ -309,20 +358,26 @@ public abstract class ListTransformNode extends ExpressionNode {
           GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    Object[] values = new Object[(int) sizeNode.execute(thisNode, list)];
-    int cnt = 0;
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      try {
-        values[cnt] = interops.execute(closure, v);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      Object[] values = new Object[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        try {
+          values[cnt] = interops.execute(closure, v);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        cnt++;
       }
-      cnt++;
+      return new ObjectList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new ObjectList(values);
   }
 }

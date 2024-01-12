@@ -44,22 +44,29 @@ public abstract class ListFilterNode extends ExpressionNode {
       @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
       @CachedLibrary("closure") InteropLibrary interops) {
     ArrayList<Object> llist = new ArrayList<>();
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      Boolean predicate = null;
-      try {
-        predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        Boolean predicate = null;
+        try {
+          predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);
+        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
+          throw new RawTruffleRuntimeException("failed to execute function");
+        }
+        if (predicate) {
+          llist.add(v);
+        }
       }
-      if (predicate) {
-        llist.add(v);
-      }
+      return new RawArrayList(llist);
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
     }
-    return new RawArrayList(llist);
   }
 }
