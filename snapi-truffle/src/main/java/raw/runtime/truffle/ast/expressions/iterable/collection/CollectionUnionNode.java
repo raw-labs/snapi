@@ -23,14 +23,16 @@ public class CollectionUnionNode extends ExpressionNode {
 
   @Children private final ExpressionNode[] inputExps;
 
+  private final Object[] inputs;
+
   public CollectionUnionNode(ExpressionNode[] inputExps) {
     this.inputExps = inputExps;
+    inputs = new Object[this.inputExps.length];
   }
 
   @Override
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    Object[] inputs = new Object[this.inputExps.length];
     for (int i = 0; i < this.inputExps.length; i++) {
       inputs[i] = this.inputExps[i].executeGeneric(virtualFrame);
     }

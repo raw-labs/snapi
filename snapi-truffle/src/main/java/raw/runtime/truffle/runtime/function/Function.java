@@ -14,6 +14,8 @@ package raw.runtime.truffle.runtime.function;
 
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
+import java.util.HashMap;
+import java.util.Map;
 
 public final class Function implements TruffleObject {
 
@@ -22,6 +24,8 @@ public final class Function implements TruffleObject {
   private final RootCallTarget rootCallTarget;
 
   public final String[] argNames;
+
+  public final Map<Integer, Map<String, Object>> namedArgsCache = new HashMap<>();
 
   public Function(RootCallTarget rootCallTarget, String[] argNames) {
     this.name = rootCallTarget.getRootNode().getName();

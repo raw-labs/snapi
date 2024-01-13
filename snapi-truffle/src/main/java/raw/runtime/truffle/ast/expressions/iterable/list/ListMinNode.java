@@ -26,13 +26,14 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 @NodeChild("list")
 public abstract class ListMinNode extends ExpressionNode {
 
+  private final SingleAggregation aggregation = new SingleAggregation(Aggregators.MIN);
+
   @Specialization
   protected Object doCollection(
       Object list,
       @Cached(inline = true) AggregationNodes.Aggregate aggregate,
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
     Object iterable = toIterableNode.execute(this, list);
-    Object aggregation = new SingleAggregation(Aggregators.MIN);
     return aggregate.execute(this, aggregation, iterable);
   }
 }
