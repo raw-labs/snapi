@@ -29,6 +29,8 @@ import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -42,7 +44,6 @@ public class Closure implements TruffleObject {
   private final MaterializedFrame frame;
   private final Object[] defaultArguments;
   private String[] namedArgNames = null;
-  private final Map<String, Object> namedArgs = new HashMap<>();
   private static final String GET_DEFAULT_PREFIX = "default_";
 
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
@@ -52,11 +53,6 @@ public class Closure implements TruffleObject {
     this.function = function;
     this.frame = frame;
     this.defaultArguments = defaultArguments;
-    for (int i = 0; i < defaultArguments.length; i++) {
-      if (defaultArguments[i] != null) {
-        putNamedArg(function.getArgNames()[i], defaultArguments[i]);
-      }
-    }
   }
 
   // for top-level functions. The internal 'frame' is null because it's never used to fetch values
@@ -142,17 +138,25 @@ public class Closure implements TruffleObject {
   final boolean isMemberInvocable(String member) {
     if (member.startsWith(GET_DEFAULT_PREFIX)) {
       String argName = member.substring(GET_DEFAULT_PREFIX.length());
-      return containsKey(argName);
-    } else {
-      return false;
+      for (int i = 0; i < defaultArguments.length; i++) {
+        if (defaultArguments[i] != null && argName.equals(function.getArgNames()[i])) {
+          return true;
+        }
+      }
     }
+    return false;
   }
 
   @ExportMessage
   @CompilerDirectives.TruffleBoundary
   final Object getMembers(boolean includeInternal) {
-    return new StringList(
-        namedArgs.keySet().stream().map(s -> GET_DEFAULT_PREFIX + s).toArray(String[]::new));
+    ArrayList<String> keys = new ArrayList<>();
+    for (int i = 0; i < defaultArguments.length; i++) {
+      if (defaultArguments[i] != null) {
+        keys.add(GET_DEFAULT_PREFIX + function.getArgNames()[i]);
+      }
+    }
+    return new StringList(keys.toArray(String[]::new));
   }
 
   @ExportMessage
@@ -163,10 +167,14 @@ public class Closure implements TruffleObject {
         throw ArityException.create(0, 0, arguments.length);
       }
       String argName = substring(member, GET_DEFAULT_PREFIX.length());
-      return getNamedArg(argName);
-    } else {
-      throw UnknownIdentifierException.create(member);
+
+      for (int i = 0; i < defaultArguments.length; i++) {
+        if (defaultArguments[i] != null && argName.equals(function.getArgNames()[i])) {
+          return defaultArguments[i];
+        }
+      }
     }
+    throw UnknownIdentifierException.create(member);
   }
 
   @CompilerDirectives.TruffleBoundary
@@ -177,21 +185,6 @@ public class Closure implements TruffleObject {
   @CompilerDirectives.TruffleBoundary
   private String substring(String member, int from) {
     return member.substring(from);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private Object getNamedArg(String argName) {
-    return namedArgs.get(argName);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private void putNamedArg(String argName, Object value) {
-    namedArgs.put(argName, value);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private boolean containsKey(String argName) {
-    return namedArgs.containsKey(argName);
   }
 
   @NodeInfo(shortName = "Closure.Execute")
