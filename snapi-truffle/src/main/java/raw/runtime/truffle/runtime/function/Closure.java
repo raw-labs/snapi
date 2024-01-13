@@ -42,33 +42,21 @@ public class Closure implements TruffleObject {
   private final MaterializedFrame frame;
   private final Object[] defaultArguments;
   private String[] namedArgNames = null;
+  private final Map<String, Object> namedArgs = new HashMap<>();
   private static final String GET_DEFAULT_PREFIX = "default_";
-  private final int cacheRef;
 
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
   // and used later.
-
   public Closure(Function function, Object[] defaultArguments, MaterializedFrame frame) {
     assert function != null;
     this.function = function;
     this.frame = frame;
     this.defaultArguments = defaultArguments;
-    this.cacheRef = initNamedArgs();
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  private int initNamedArgs() {
-    Map<String, Object> namedArgs = new HashMap<>();
     for (int i = 0; i < defaultArguments.length; i++) {
       if (defaultArguments[i] != null) {
-        namedArgs.put(function.getArgNames()[i], defaultArguments[i]);
+        putNamedArg(function.getArgNames()[i], defaultArguments[i]);
       }
     }
-    int hash = consistentHashCode(namedArgs);
-    if (!function.namedArgsCache.containsKey(hash)) {
-      function.namedArgsCache.put(hash, namedArgs);
-    }
-    return hash;
   }
 
   // for top-level functions. The internal 'frame' is null because it's never used to fetch values
@@ -95,20 +83,6 @@ public class Closure implements TruffleObject {
 
   public String[] getNamedArgNames() {
     return this.namedArgNames;
-  }
-
-  public static int consistentHashCode(Map<String, Object> map) {
-    return map.entrySet().stream()
-        .sorted(Map.Entry.comparingByKey())
-        .mapToInt(e -> computeKeyValueHash(e.getKey(), e.getValue()))
-        .sum();
-  }
-
-  private static int computeKeyValueHash(String key, Object value) {
-    int keyHash = (key == null) ? 0 : key.hashCode();
-    int valueHash = (value == null) ? 0 : value.hashCode();
-    // Combine the hashes in a way that is order-independent
-    return keyHash ^ valueHash; // XOR is a simple way, but you can use a more complex method
   }
 
   @ExportMessage
@@ -178,9 +152,7 @@ public class Closure implements TruffleObject {
   @CompilerDirectives.TruffleBoundary
   final Object getMembers(boolean includeInternal) {
     return new StringList(
-        function.namedArgsCache.get(cacheRef).keySet().stream()
-            .map(s -> GET_DEFAULT_PREFIX + s)
-            .toArray(String[]::new));
+        namedArgs.keySet().stream().map(s -> GET_DEFAULT_PREFIX + s).toArray(String[]::new));
   }
 
   @ExportMessage
@@ -209,12 +181,17 @@ public class Closure implements TruffleObject {
 
   @CompilerDirectives.TruffleBoundary
   private Object getNamedArg(String argName) {
-    return function.namedArgsCache.get(cacheRef).get(argName);
+    return namedArgs.get(argName);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void putNamedArg(String argName, Object value) {
+    namedArgs.put(argName, value);
   }
 
   @CompilerDirectives.TruffleBoundary
   private boolean containsKey(String argName) {
-    return function.namedArgsCache.get(cacheRef).containsKey(argName);
+    return namedArgs.containsKey(argName);
   }
 
   @NodeInfo(shortName = "Closure.Execute")
