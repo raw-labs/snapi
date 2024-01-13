@@ -40,7 +40,6 @@ public class Closure implements TruffleObject {
   private final Function function;
   private final MaterializedFrame frame;
   private final Object[] defaultArguments;
-  private String[] namedArgNames = null;
   private static final String GET_DEFAULT_PREFIX = "default_";
 
   // for regular closures. The 'frame' has to be a materialized one to make sure it can be stored
@@ -68,14 +67,6 @@ public class Closure implements TruffleObject {
 
   public String[] getArgNames() {
     return function.getArgNames();
-  }
-
-  public void setNamedArgNames(String[] namedArgNames) {
-    this.namedArgNames = namedArgNames;
-  }
-
-  public String[] getNamedArgNames() {
-    return this.namedArgNames;
   }
 
   @ExportMessage
@@ -189,11 +180,13 @@ public class Closure implements TruffleObject {
   @GenerateInline
   public abstract static class ClosureExecuteWithNamesNode extends Node {
 
-    public abstract Object execute(Node node, Closure closure, Object[] arguments);
+    public abstract Object execute(
+        Node node, Closure closure, String[] namedArgNames, Object[] arguments);
 
-    private static void setArgsWithNames(Closure closure, Object[] arguments, Object[] finalArgs) {
-      for (int i = 0; i < closure.getNamedArgNames().length; i++) {
-        String currentArgName = closure.getNamedArgNames()[i];
+    private static void setArgsWithNames(
+        Closure closure, String[] namedArgNames, Object[] arguments, Object[] finalArgs) {
+      for (int i = 0; i < namedArgNames.length; i++) {
+        String currentArgName = namedArgNames[i];
         if (currentArgName == null) {
           // no arg name was provided, use the index.
           finalArgs[i + 1] = arguments[i];
@@ -216,23 +209,27 @@ public class Closure implements TruffleObject {
     @Specialization(guards = "closure.getCallTarget() == cachedTarget", limit = "3")
     protected static Object doDirect(
         Closure closure,
+        String[] namedArgNames,
         Object[] arguments,
         @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
       Object[] finalArgs = new Object[closure.getArgNames().length + 1];
       finalArgs[0] = closure.frame;
       System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
-      setArgsWithNames(closure, arguments, finalArgs);
+      setArgsWithNames(closure, namedArgNames, arguments, finalArgs);
       return callNode.call(finalArgs);
     }
 
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
-        Closure closure, Object[] arguments, @Cached(inline = false) IndirectCallNode callNode) {
+        Closure closure,
+        String[] namedArgNames,
+        Object[] arguments,
+        @Cached(inline = false) IndirectCallNode callNode) {
       Object[] finalArgs = new Object[closure.getArgNames().length + 1];
       finalArgs[0] = closure.frame;
       System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
-      setArgsWithNames(closure, arguments, finalArgs);
+      setArgsWithNames(closure, namedArgNames, arguments, finalArgs);
       return callNode.call(closure.getCallTarget(), finalArgs);
     }
   }

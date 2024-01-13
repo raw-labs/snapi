@@ -25,18 +25,17 @@ public class ClosureNode extends ExpressionNode {
 
   @Children private final ExpressionNode[] defaultArgumentExps;
 
-  private final Object[] defaultArguments;
-
   public ClosureNode(Function f, ExpressionNode[] defaultArgumentExps) {
     this.function = f;
     this.defaultArgumentExps = defaultArgumentExps;
-    this.defaultArguments = new Object[defaultArgumentExps.length];
   }
 
   @Override
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    for (int i = 0; i < defaultArguments.length; i++) {
+    int nArgs = defaultArgumentExps.length;
+    Object[] defaultArguments = new Object[nArgs];
+    for (int i = 0; i < nArgs; i++) {
       if (defaultArgumentExps[i] != null) {
         defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
       } else {
