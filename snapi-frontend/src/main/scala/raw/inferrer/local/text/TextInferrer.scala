@@ -44,12 +44,12 @@ class TextInferrer(implicit protected val sourceContext: SourceContext)
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
   ): TextInputStreamFormatDescriptor = {
-      val r = getTextBuffer(is, maybeEncoding)
-      try {
-        TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
-      } finally {
-        r.reader.close()
-      }
+    val r = getTextBuffer(is, maybeEncoding)
+    try {
+      TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+    } finally {
+      r.reader.close()
+    }
   }
 
   def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {

@@ -45,52 +45,52 @@ class JsonInferrer(implicit protected val sourceContext: SourceContext)
     try {
       val result = infer(buffer.reader, maybeSampleSize)
       TextInputStreamFormatDescriptor(buffer.encoding, buffer.confidence, result)
-    }  finally {
+    } finally {
       buffer.reader.close()
     }
   }
 
   def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
-      try {
-        var nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
-        // if you define a sample-size < 0 then it will read the full file
-        if (nobjs < 0) {
-          nobjs = Int.MaxValue
-        }
-        val jsonFactory = new JsonFactory()
-        val parser = jsonFactory.createParser(reader)
-        parserFeatures.foreach(parser.enable)
-        val firstToken = parser.nextToken()
-        val (tipe, eof) = firstToken match {
-          case JsonToken.START_ARRAY =>
-            var count = 0
-            var globalType: SourceType = SourceNothingType()
-            while (parser.nextToken() != JsonToken.END_ARRAY && (nobjs < 0 || count < nobjs)) {
-              globalType = nextType(parser, globalType)
-              count += 1
-            }
-            val eof = parser.currentToken() == JsonToken.END_ARRAY
-
-            (SourceCollectionType(globalType, false), eof)
-          case _ => (nextType(parser, SourceNothingType()), true)
-        }
-        // checks if there are object after the end of array or object
-        if (eof && parser.nextToken() != null) {
-          throw new LocalInferrerException("unexpected token after object in JSON")
-        }
-        val result = uniquifyTemporalFormats(tipe)
-        JsonInputFormatDescriptor(
-          result.cleanedType,
-          !eof,
-          result.timeFormat,
-          result.dateFormat,
-          result.timestampFormat
-        )
-      } catch {
-        case ex: JsonProcessingException =>
-          logger.warn("Invalid JSON.", ex)
-          throw new LocalInferrerException(s"invalid JSON: ${ex.getMessage}")
+    try {
+      var nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
+      // if you define a sample-size < 0 then it will read the full file
+      if (nobjs < 0) {
+        nobjs = Int.MaxValue
       }
+      val jsonFactory = new JsonFactory()
+      val parser = jsonFactory.createParser(reader)
+      parserFeatures.foreach(parser.enable)
+      val firstToken = parser.nextToken()
+      val (tipe, eof) = firstToken match {
+        case JsonToken.START_ARRAY =>
+          var count = 0
+          var globalType: SourceType = SourceNothingType()
+          while (parser.nextToken() != JsonToken.END_ARRAY && (nobjs < 0 || count < nobjs)) {
+            globalType = nextType(parser, globalType)
+            count += 1
+          }
+          val eof = parser.currentToken() == JsonToken.END_ARRAY
+
+          (SourceCollectionType(globalType, false), eof)
+        case _ => (nextType(parser, SourceNothingType()), true)
+      }
+      // checks if there are object after the end of array or object
+      if (eof && parser.nextToken() != null) {
+        throw new LocalInferrerException("unexpected token after object in JSON")
+      }
+      val result = uniquifyTemporalFormats(tipe)
+      JsonInputFormatDescriptor(
+        result.cleanedType,
+        !eof,
+        result.timeFormat,
+        result.dateFormat,
+        result.timestampFormat
+      )
+    } catch {
+      case ex: JsonProcessingException =>
+        logger.warn("Invalid JSON.", ex)
+        throw new LocalInferrerException(s"invalid JSON: ${ex.getMessage}")
+    }
 
   }
 
