@@ -25,13 +25,15 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 @NodeInfo(shortName = "List.Sum")
 @NodeChild("list")
 public abstract class ListSumNode extends ExpressionNode {
+
+  private final SingleAggregation aggregation = new SingleAggregation(Aggregators.SUM);
+
   @Specialization
   protected Object doCollection(
       Object list,
       @Cached(inline = true) AggregationNodes.Aggregate aggregate,
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
     Object iterable = toIterableNode.execute(this, list);
-    Object aggregation = new SingleAggregation(Aggregators.SUM);
     return aggregate.execute(this, aggregation, iterable);
   }
 }

@@ -14,7 +14,7 @@ package raw.runtime.truffle.ast.controlflow;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
-import com.oracle.truffle.api.profiles.ConditionProfile;
+import com.oracle.truffle.api.profiles.CountingConditionProfile;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
@@ -26,7 +26,7 @@ public final class IfThenElseNode extends ExpressionNode {
 
   @Child private ExpressionNode elseNode;
 
-  private final ConditionProfile condition = ConditionProfile.createCountingProfile();
+  private final CountingConditionProfile condition = CountingConditionProfile.create();
 
   public IfThenElseNode(
       ExpressionNode conditionNode, ExpressionNode thenNode, ExpressionNode elseNode) {

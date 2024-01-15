@@ -35,6 +35,10 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 @NodeInfo(shortName = "Collection.TupleAvg")
 @NodeChild("iterable")
 public abstract class CollectionTupleAvgNode extends ExpressionNode {
+
+  private final Object aggregation =
+      new MultiAggregation(new byte[] {Aggregators.SUM, Aggregators.COUNT});
+
   @Specialization
   protected Object doCollection(
       Object iterable,
@@ -42,8 +46,7 @@ public abstract class CollectionTupleAvgNode extends ExpressionNode {
       @Cached(inline = true) AggregatorNodes.Zero zero,
       @CachedLibrary(limit = "1") InteropLibrary records) {
     try {
-      byte[] aggregators = new byte[] {Aggregators.SUM, Aggregators.COUNT};
-      Object aggregation = new MultiAggregation(aggregators);
+
       Object[] results = (Object[]) aggregate.execute(this, aggregation, iterable);
       RecordObject record = RawLanguage.get(this).createRecord();
       if ((long) results[1] == (long) zero.execute(this, Aggregators.COUNT)) {
