@@ -54,7 +54,6 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
   ): TextInputStreamFormatDescriptor = {
-    withErrorHandling {
       val r = getTextBuffer(is, maybeEncoding)
       try {
         val format = infer(
@@ -72,7 +71,6 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       } finally {
         r.reader.close()
       }
-    }
   }
 
   def infer(
@@ -86,7 +84,6 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
   ): TextInputFormatDescriptor = {
-    withErrorHandling {
       val delimiters = maybeDelimiters.getOrElse(defaultDelimiters)
 
       val nulls = maybeNulls.getOrElse(Seq(""))
@@ -153,7 +150,6 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       } else {
         throw new LocalInferrerException("could not find delimiter for CSV")
       }
-    }
   }
 
 }

@@ -45,7 +45,6 @@ class AutoInferrer(
   import AutoInferrer._
 
   def infer(location: ByteStreamLocation, maybeSampleSize: Option[Int]): InputStreamFormatDescriptor = {
-    withErrorHandling {
       val maybeFileExtension = {
         val i = location.rawUri.lastIndexOf('.')
         if (i != -1) {
@@ -81,7 +80,6 @@ class AutoInferrer(
               inferTextFormats(location, maybeSampleSize)
           }
       }
-    }
   }
 
   private def inferTextFormats(

@@ -44,8 +44,7 @@ trait InferrerErrorHandler extends StrictLogging {
       case NonFatal(t) =>
         // (msb): This is dangerous and should be removed: inferrers should fail gracefully and with proper messages.
         // But last time I checked, the XML inferrer would fail badly one of the URLTest, so this code is still necessary.
-//        throw new LocalInferrerException("inference failed unexpectedly", t)
-        throw t
+        throw new RawException("inference failed unexpectedly", t)
     }
   }
 
