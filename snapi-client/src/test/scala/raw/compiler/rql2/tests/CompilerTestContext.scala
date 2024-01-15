@@ -491,7 +491,7 @@ trait CompilerTestContext
     try {
       compilerService.parse(q, getQueryEnvironment()) match {
         case ParseSuccess(p) => Right(p)
-        case ParseFailure(error, _) => Left(error)
+        case ParseFailure(error) => Left(error.head.message)
       }
     } catch {
       case ex: RawException => Left(ex.getMessage)

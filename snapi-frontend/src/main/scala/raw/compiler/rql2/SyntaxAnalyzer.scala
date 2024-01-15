@@ -109,106 +109,90 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
   // Types
   ///////////////////////////////////////////////////////////////////////////
 
-  final override protected lazy val tipe: Parser[Type] = tipe1
-
-  final lazy val tipe1: PackratParser[Type] = {
-    tipe1 ~ ("->" ~> tipe2) ~ ("(" ~> typeProps <~ ")") ^^ {
-      case t ~ r ~ props => FunType(Vector(t), Vector.empty, r, props)
-    } | tipe1 ~ ("->" ~> tipe2) ^^ { case t ~ r => FunType(Vector(t), Vector.empty, r, Set.empty) } |
-      tipe2
-  }
-
-  protected lazy val tipe2: PackratParser[Type] = {
-    tipe2 ~ (tokOr ~> baseType) ~ ("(" ~> typeProps <~ ")") ^^ { case t1 ~ t2 ~ props => Rql2OrType(t1, t2, props) } |
-      tipe2 ~ (tokOr ~> baseType) ^^ { case t1 ~ t2 => Rql2OrType(t1, t2, Set.empty) } |
-      baseType
-  }
-
-  protected lazy val baseType: Parser[Type] = baseTypeAttr
-
-  private lazy val baseTypeAttr: Parser[Type] = primitiveType |
-    recordType |
-    iterableType |
-    listType |
-    funType |
-    packageType |
+  private lazy val plainType: Parser[Type] = packageType |
     packageEntryType |
     expType |
-    undefinedType |
     errorType |
-    typeAliasType |
-    "(" ~> tipe <~ ")"
+    typeAliasType | "(" ~> plainType <~ ")"
+
+  final override protected lazy val tipe: Parser[Type] = (rawType | "(" ~> tipe <~ ")") ~ opt(typeProps) ^^ {
+    case t ~ mProps => mProps match {
+        case Some(props) => t match {
+            case pType: Rql2TypeWithProperties =>
+              props.foldLeft(pType)((t, p) => t.cloneAndAddProp(p).asInstanceOf[Rql2TypeWithProperties])
+            case _ => t
+          }
+        case None => t
+      }
+  }
+  private lazy val rawType: Parser[Type] = orType
+  private lazy val basicType: Parser[Type] = propFriendlyType | plainType
+
+  final private lazy val propFriendlyType: Parser[Rql2TypeWithProperties] = funType | primitiveType |
+    recordType | iterableType | listType |
+    undefinedType | "(" ~> propFriendlyType <~ ")"
+
+  protected lazy val orType: PackratParser[Type] = {
+    tipe ~ rep1(tokOr ~> tipe) ^^ {
+      case t1 ~ ts => ts.tail.foldLeft(Rql2OrType(t1, ts.head, Set.empty))((agg, t) => Rql2OrType(agg, t, Set.empty))
+    } | basicType
+  }
 
   final protected lazy val primitiveType: Parser[Rql2PrimitiveType] =
     boolType | stringType | locationType | binaryType | numberType | temporalType
 
-  final protected lazy val boolType: Parser[Rql2BoolType] = tokBool ~> typeProps ^^ Rql2BoolType
+  final protected lazy val boolType: Parser[Rql2BoolType] = tokBool ^^^ Rql2BoolType()
 
-  final protected lazy val stringType: Parser[Rql2StringType] = tokString ~> typeProps ^^ Rql2StringType
+  final protected lazy val stringType: Parser[Rql2StringType] = tokString ^^^ Rql2StringType()
 
-  final protected lazy val locationType: Parser[Rql2LocationType] = tokLocation ~> typeProps ^^ Rql2LocationType
+  final protected lazy val locationType: Parser[Rql2LocationType] = tokLocation ^^^ Rql2LocationType()
 
-  final protected lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ~> typeProps ^^ Rql2BinaryType
+  final protected lazy val binaryType: Parser[Rql2BinaryType] = tokBinary ^^^ Rql2BinaryType()
 
   final protected lazy val numberType: Parser[Rql2NumberType] =
     byteType | shortType | intType | longType | floatType | doubleType | decimalType
 
-  final protected lazy val byteType: Parser[Rql2ByteType] = tokByte ~> typeProps ^^ Rql2ByteType
+  final protected lazy val byteType: Parser[Rql2ByteType] = tokByte ^^^ Rql2ByteType()
 
-  final protected lazy val shortType: Parser[Rql2ShortType] = tokShort ~> typeProps ^^ Rql2ShortType
+  final protected lazy val shortType: Parser[Rql2ShortType] = tokShort ^^^ Rql2ShortType()
 
-  final protected lazy val intType: Parser[Rql2IntType] = tokInt ~> typeProps ^^ Rql2IntType
+  final protected lazy val intType: Parser[Rql2IntType] = tokInt ^^^ Rql2IntType()
 
-  final protected lazy val longType: Parser[Rql2LongType] = tokLong ~> typeProps ^^ Rql2LongType
+  final protected lazy val longType: Parser[Rql2LongType] = tokLong ^^^ Rql2LongType()
 
-  final protected lazy val floatType: Parser[Rql2FloatType] = tokFloat ~> typeProps ^^ Rql2FloatType
+  final protected lazy val floatType: Parser[Rql2FloatType] = tokFloat ^^^ Rql2FloatType()
 
-  final protected lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ~> typeProps ^^ Rql2DoubleType
+  final protected lazy val doubleType: Parser[Rql2DoubleType] = tokDouble ^^^ Rql2DoubleType()
 
-  final protected lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ~> typeProps ^^ Rql2DecimalType
+  final protected lazy val decimalType: Parser[Rql2DecimalType] = tokDecimal ^^^ Rql2DecimalType()
 
   final protected lazy val temporalType: Parser[Rql2TemporalType] = dateType | timeType | intervalType | timestampType
 
-  final protected lazy val dateType: Parser[Rql2DateType] = tokDate ~> typeProps ^^ Rql2DateType
+  final protected lazy val dateType: Parser[Rql2DateType] = tokDate ^^^ Rql2DateType()
 
-  final protected lazy val timeType: Parser[Rql2TimeType] = tokTime ~> typeProps ^^ Rql2TimeType
+  final protected lazy val timeType: Parser[Rql2TimeType] = tokTime ^^^ Rql2TimeType()
 
-  final protected lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ~> typeProps ^^ Rql2IntervalType
+  final protected lazy val intervalType: Parser[Rql2IntervalType] = tokInterval ^^^ Rql2IntervalType()
 
-  final protected lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ~> typeProps ^^ Rql2TimestampType
+  final protected lazy val timestampType: Parser[Rql2TimestampType] = tokTimestamp ^^^ Rql2TimestampType()
 
   final protected lazy val recordType: Parser[Rql2RecordType] =
-    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ~ typeProps ^^ {
-      case atts ~ props => Rql2RecordType(atts, props)
-    }
+    tokRecord ~> ("(" ~> repsep(attrType, ",") <~ opt(",") <~ ")") ^^ (attrs => Rql2RecordType(attrs))
 
   final protected lazy val attrType: Parser[Rql2AttrType] = (ident <~ ":") ~ tipe ^^ Rql2AttrType
 
   final protected lazy val iterableType: Parser[Rql2IterableType] =
-    tokCollection ~> ("(" ~> tipe <~ ")") ~ typeProps ^^ { case t ~ props => Rql2IterableType(t, props) }
+    tokCollection ~> ("(" ~> tipe <~ ")") ^^ (innerType => Rql2IterableType(innerType))
 
-  final protected lazy val listType: Parser[Rql2ListType] = tokList ~> ("(" ~> tipe <~ ")") ~ typeProps ^^ {
-    case t ~ props => Rql2ListType(t, props)
-  }
+  final protected lazy val listType: Parser[Rql2ListType] =
+    tokList ~> ("(" ~> tipe <~ ")") ^^ (innerType => Rql2ListType(innerType))
 
   final protected lazy val funType: PackratParser[FunType] = {
-    // (msb): Note that the order "funOptTypeParam | tipe" is really important.
-    // Parser combinators will not backtrack in | if the case matches.
-    // So if we had "tipe | funOptTypeParam" and we had as input "x: int", then "x" would parse successfully as a typealias.
-    // So that repsep case was handled. We'd then expect "," and since none found, we'd require ")".
-    // By trying "funOptTypeParam" case first - the "longest case first" - we handle that issue.
-    //
-    // Wrap in parenthesis to disambiguate the type property annotations
-    // e.g. ((int) -> string) @null @try
-    ("(" ~> "(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe <~ ")") ~ typeProps ^^ {
-      case ts ~ r ~ props =>
-        FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, props)
+    ("(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe) ^^ {
+      case ts ~ r =>
+        FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, Set.empty)
     } |
-      // e.g. (int) -> string
-      ("(" ~> repsep(funOptTypeParam | tipe, ",") <~ ")") ~ ("->" ~> tipe) ^^ {
-        case ts ~ r =>
-          FunType(ts.collect { case t: Type => t }, ts.collect { case p: FunOptTypeParam => p }, r, Set.empty)
-      }
+      primitiveType ~ ("->" ~> tipe) ^^ { case i ~ r => FunType(Vector(i), Vector.empty, r) }
   }
 
   final private lazy val funOptTypeParam: Parser[FunOptTypeParam] = ident ~ (":" ~> tipe) ^^ FunOptTypeParam
@@ -220,7 +204,7 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
 
   final protected lazy val expType: Parser[ExpType] = tokType ~> tipe ^^ ExpType
 
-  final protected lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ~> typeProps ^^ Rql2UndefinedType
+  final protected lazy val undefinedType: Parser[Rql2UndefinedType] = tokUndefined ^^^ Rql2UndefinedType()
 
   final protected lazy val typeAliasType: Parser[TypeAliasType] = typeIdnUse ^^ TypeAliasType
 
@@ -230,7 +214,7 @@ class SyntaxAnalyzer(val positions: Positions) extends Parsers(positions) with b
     if (isReservedType(idn)) failure("reserved type keyword") else success(idn)
   }
 
-  final protected lazy val typeProps: Parser[Set[Rql2TypeProperty]] = {
+  final private lazy val typeProps: Parser[Set[Rql2TypeProperty]] = {
     ("@try" ~ "@null" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |
       ("@null" ~ "@try" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())) |
       ("@try" ^^^ Set[Rql2TypeProperty](Rql2IsTryableTypeProperty())) |

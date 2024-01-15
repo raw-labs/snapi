@@ -36,8 +36,8 @@ trait TypePackageTest extends CompilerTestContext {
     |in Collection.Transform(
     |   items,
     |   i -> Type.Match(i.disks,
-    |       x: collection(int) -> Collection.Count(x),
-    |       x: record(partitions: collection(string)) -> Collection.Count(x.partitions)
+    |       (x: collection(int)) -> Collection.Count(x),
+    |       (x: record(partitions: collection(string))) -> Collection.Count(x.partitions)
     |   )
     |)""".stripMargin)(_ should runErrorAs("expected")) // expected one of .... but got
 
