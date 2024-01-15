@@ -13,33 +13,29 @@
 package raw.runtime.truffle.ast.expressions.builtin.function_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.function.Closure;
 
 @NodeInfo(shortName = "Function.InvokeAfter")
 @NodeChild(value = "function")
 @NodeChild(value = "sleepTime")
 public abstract class FunctionInvokeAfterNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Specialization
   @TruffleBoundary
   protected Object invokeAfter(
-      Object closure, long sleepTime, @CachedLibrary("closure") InteropLibrary interops) {
+      Closure closure,
+      long sleepTime,
+      @Cached(inline = true) Closure.ClosureExecuteZeroNode closureExecuteZeroNode) {
     try {
       Thread.sleep(sleepTime);
-      return interops.execute(closure);
-    } catch (InterruptedException
-        | UnsupportedMessageException
-        | UnsupportedTypeException
-        | ArityException e) {
+      return closureExecuteZeroNode.execute(this, closure);
+    } catch (InterruptedException e) {
       throw new RawTruffleInternalErrorException(e);
     }
   }

@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -49,6 +50,7 @@ public class IntervalNodes {
     public abstract IntervalObject execute(Node node, long months, long millis);
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static IntervalObject build(Node node, long inMonths, long inMillis) {
       long rest;
       int years = (int) (inMonths / 12);
@@ -83,6 +85,7 @@ public class IntervalNodes {
             "^P(?:(\\d+)Y)?(?:(\\d+)M)?(?:(\\d+)W)?(?:(\\d+)D)?(?:T(?:(\\d+)H)?(?:(\\d+)M)?(?:(\\d+)(?:\\.(\\d{1,3}))?S)?)?$");
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static IntervalObject build(Node node, String interval) {
 
       Matcher matcher = pattern.matcher(interval);
@@ -198,6 +201,7 @@ public class IntervalNodes {
     public abstract long execute(Node node, IntervalObject interval);
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static long toMillis(Node node, IntervalObject interval) {
       double yearsInDays = 365.25 * interval.getYears();
       double monthsInDays = (365.25 / 12) * interval.getMonths();

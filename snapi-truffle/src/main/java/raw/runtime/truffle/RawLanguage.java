@@ -22,6 +22,7 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
+import com.oracle.truffle.api.object.Shape;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
@@ -68,6 +69,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   private static final RawLanguageCache languageCache = new RawLanguageCache();
 
+  private final Shape initialRecordShape = Shape.newBuilder().build();
+
   @Override
   protected final RawContext createContext(Env env) {
     return new RawContext(this, env);
@@ -89,7 +92,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   // FIXME (msb): Why is this here?
   public RecordObject createRecord() {
-    return new RecordObject();
+    return new RecordObject(initialRecordShape);
   }
 
   @Override

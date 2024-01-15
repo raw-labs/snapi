@@ -12,11 +12,13 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
+import raw.runtime.truffle.runtime.function.Closure;
+
 public class FilterComputeNext {
   private final Object parent;
-  private final Object predicate;
+  private final Closure predicate;
 
-  public FilterComputeNext(Object parent, Object predicate) {
+  public FilterComputeNext(Object parent, Closure predicate) {
     this.parent = parent;
     this.predicate = predicate;
   }
@@ -25,7 +27,7 @@ public class FilterComputeNext {
     return parent;
   }
 
-  public Object getPredicate() {
+  public Closure getPredicate() {
     return predicate;
   }
 }

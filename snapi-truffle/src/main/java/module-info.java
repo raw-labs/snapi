@@ -307,7 +307,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.aggregation.aggregator;
   exports raw.runtime.truffle.runtime.record;
   exports raw.runtime.truffle.runtime.operators;
-  exports raw.runtime.truffle.runtime.array;
   exports raw.runtime.truffle.runtime.function;
   exports raw.runtime.truffle.runtime.exceptions;
   exports raw.runtime.truffle.runtime.exceptions.xml;
@@ -316,7 +315,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.exceptions.binary;
   exports raw.runtime.truffle.runtime.exceptions.rdbms;
   exports raw.runtime.truffle.runtime.primitives;
-  exports raw.runtime.truffle.runtime.map;
   exports raw.runtime.truffle.runtime.list;
   exports raw.runtime.truffle.runtime.or;
   exports raw.runtime.truffle.runtime.generator.list;
@@ -362,7 +360,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.ast.expressions.iterable.collection;
   exports raw.runtime.truffle.ast.expressions.iterable.list;
   exports raw.runtime.truffle.ast.expressions.record;
-  exports raw.runtime.truffle.ast.expressions.array;
   exports raw.runtime.truffle.ast.expressions.option;
   exports raw.runtime.truffle.ast.expressions.function;
   exports raw.runtime.truffle.ast.expressions.tryable;

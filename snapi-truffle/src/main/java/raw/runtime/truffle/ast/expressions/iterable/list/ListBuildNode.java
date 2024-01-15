@@ -40,7 +40,6 @@ public class ListBuildNode extends ExpressionNode {
     Rql2ListType rql2Type = (Rql2ListType) type;
     Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) rql2Type.innerType();
 
-    // TODO: A.Z. Make case switch when upgraded to Java 17
     try {
       if (!innerType.props().isEmpty()) {
         Object[] values = new Object[exps.length];
@@ -48,61 +47,71 @@ public class ListBuildNode extends ExpressionNode {
           values[i] = exps[i].executeGeneric(frame);
         }
         return new ObjectList(values);
-      } else if (innerType instanceof Rql2ByteType) {
-        byte[] values = new byte[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeByte(frame);
+      }
+      switch (innerType) {
+        case Rql2ByteType rql2ByteType -> {
+          byte[] values = new byte[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeByte(frame);
+          }
+          return new ByteList(values);
         }
-        return new ByteList(values);
-      } else if (innerType instanceof Rql2ShortType) {
-        short[] values = new short[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeShort(frame);
+        case Rql2ShortType rql2ShortType -> {
+          short[] values = new short[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeShort(frame);
+          }
+          return new ShortList(values);
         }
-        return new ShortList(values);
-      } else if (innerType instanceof Rql2IntType) {
-        int[] values = new int[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeInt(frame);
+        case Rql2IntType rql2IntType -> {
+          int[] values = new int[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeInt(frame);
+          }
+          return new IntList(values);
         }
-        return new IntList(values);
-      } else if (innerType instanceof Rql2LongType) {
-        long[] values = new long[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeLong(frame);
+        case Rql2LongType rql2LongType -> {
+          long[] values = new long[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeLong(frame);
+          }
+          return new LongList(values);
         }
-        return new LongList(values);
-      } else if (innerType instanceof Rql2FloatType) {
-        float[] values = new float[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeFloat(frame);
+        case Rql2FloatType rql2FloatType -> {
+          float[] values = new float[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeFloat(frame);
+          }
+          return new FloatList(values);
         }
-        return new FloatList(values);
-      } else if (innerType instanceof Rql2DoubleType) {
-        double[] values = new double[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeDouble(frame);
+        case Rql2DoubleType rql2DoubleType -> {
+          double[] values = new double[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeDouble(frame);
+          }
+          return new DoubleList(values);
         }
-        return new DoubleList(values);
-      } else if (innerType instanceof Rql2BoolType) {
-        boolean[] values = new boolean[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeBoolean(frame);
+        case Rql2BoolType rql2BoolType -> {
+          boolean[] values = new boolean[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeBoolean(frame);
+          }
+          return new BooleanList(values);
         }
-        return new BooleanList(values);
-
-      } else if (innerType instanceof Rql2StringType) {
-        String[] values = new String[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeString(frame);
+        case Rql2StringType rql2StringType -> {
+          String[] values = new String[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeString(frame);
+          }
+          return new StringList(values);
         }
-        return new StringList(values);
-      } else {
-        Object[] values = new Object[exps.length];
-        for (int i = 0; i < exps.length; i++) {
-          values[i] = exps[i].executeGeneric(frame);
+        default -> {
+          Object[] values = new Object[exps.length];
+          for (int i = 0; i < exps.length; i++) {
+            values[i] = exps[i].executeGeneric(frame);
+          }
+          return new ObjectList(values);
         }
-        return new ObjectList(values);
       }
     } catch (UnexpectedResultException ex) {
       throw new RawTruffleInternalErrorException(ex, this);

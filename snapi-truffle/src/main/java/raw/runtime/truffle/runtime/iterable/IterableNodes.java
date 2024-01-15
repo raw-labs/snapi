@@ -13,14 +13,9 @@
 package raw.runtime.truffle.runtime.iterable;
 
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
@@ -205,7 +200,7 @@ public class IterableNodes {
       return collection.getGenerator();
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static Object getGenerator(
         Node node,
         GroupByCollection collection,
@@ -218,7 +213,7 @@ public class IterableNodes {
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
-        @CachedLibrary("collection.getKeyFun()") InteropLibrary keyFunLib) {
+        @Cached @Cached.Shared("closureOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
               collection.getKeyType(),
@@ -231,11 +226,9 @@ public class IterableNodes {
         initNode.execute(thisNode, inputGenerator);
         while (hasNextNode.execute(thisNode, inputGenerator)) {
           Object v = nextNode.execute(thisNode, inputGenerator);
-          Object key = keyFunLib.execute(collection.getKeyFun(), v);
+          Object key = closureExecuteOneNode.execute(thisNode, collection.getKeyFun(), v);
           putNode.execute(thisNode, map, key, v);
         }
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
       } finally {
         closeNode.execute(thisNode, inputGenerator);
       }
@@ -260,7 +253,7 @@ public class IterableNodes {
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
-        @CachedLibrary(limit = "8") InteropLibrary keyFunctionsLib) {
+        @Cached @Cached.Shared("closureOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
       Object generator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       OffHeapGroupByKeys groupByKeys =
           new OffHeapGroupByKeys(
@@ -276,12 +269,10 @@ public class IterableNodes {
           int len = collection.getKeyFunctions().length;
           Object[] key = new Object[len];
           for (int i = 0; i < len; i++) {
-            key[i] = keyFunctionsLib.execute(collection.getKeyFunctions()[i], v);
+            key[i] = closureExecuteOneNode.execute(thisNode, collection.getKeyFunctions()[i], v);
           }
           putNode.execute(thisNode, groupByKeys, key, v);
         }
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RuntimeException(e);
       } finally {
         closeNode.execute(thisNode, generator);
       }

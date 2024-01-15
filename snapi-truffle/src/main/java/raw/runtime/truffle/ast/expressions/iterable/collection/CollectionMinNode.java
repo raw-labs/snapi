@@ -27,11 +27,12 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeChild("iterable")
 public abstract class CollectionMinNode extends ExpressionNode {
 
+  private final SingleAggregation aggregation = new SingleAggregation(Aggregators.MIN);
+
   @Specialization
   protected Object doCollection(
       Object iterable, @Cached(inline = true) AggregationNodes.Aggregate aggregate) {
     try {
-      Object aggregation = new SingleAggregation(Aggregators.MIN);
       return aggregate.execute(this, aggregation, iterable);
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());

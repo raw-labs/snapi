@@ -26,11 +26,12 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeInfo(shortName = "Collection.Max")
 @NodeChild("iterable")
 public abstract class CollectionMaxNode extends ExpressionNode {
+  private final SingleAggregation aggregation = new SingleAggregation(Aggregators.MAX);
+
   @Specialization
   protected Object doCollection(
       Object iterable, @Cached(inline = true) AggregationNodes.Aggregate aggregate) {
     try {
-      Object aggregation = new SingleAggregation(Aggregators.MAX);
       return aggregate.execute(this, aggregation, iterable);
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());

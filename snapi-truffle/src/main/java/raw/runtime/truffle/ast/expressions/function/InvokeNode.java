@@ -55,8 +55,7 @@ public final class InvokeNode extends ExpressionNode {
     for (int i = 0; i < argumentNodes.length; i++) {
       argumentValues[i] = argumentNodes[i].executeGeneric(frame);
     }
-    closure.setNamedArgNames(argNames);
-    return closureExec.execute(this, closure, argumentValues);
+    return closureExec.execute(this, closure, argNames, argumentValues);
   }
 
   @Override

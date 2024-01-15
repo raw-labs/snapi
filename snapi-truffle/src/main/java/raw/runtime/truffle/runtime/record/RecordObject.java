@@ -35,11 +35,9 @@ public final class RecordObject implements TruffleObject {
   private final Vector<String> distinctKeys;
   private boolean validDistinctKeys = true;
   public final DynamicObject values;
-  private static final Shape rootShape =
-      Shape.newBuilder().layout(RecordStorageObject.class).build();
 
-  public RecordObject() {
-    this.values = new RecordStorageObject(rootShape);
+  public RecordObject(Shape shape) {
+    this.values = new RecordStorageObject(shape);
     this.distinctKeys = new Vector<>();
   }
 

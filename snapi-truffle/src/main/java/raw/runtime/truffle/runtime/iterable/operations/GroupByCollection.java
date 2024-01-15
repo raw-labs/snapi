@@ -21,6 +21,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.sources.api.SourceContext;
@@ -28,7 +29,7 @@ import raw.sources.api.SourceContext;
 @ExportLibrary(InteropLibrary.class)
 public class GroupByCollection implements TruffleObject {
   final Object iterable;
-  final Object keyFun;
+  final Closure keyFun;
 
   final RawLanguage language;
 
@@ -38,7 +39,7 @@ public class GroupByCollection implements TruffleObject {
 
   public GroupByCollection(
       Object iterable,
-      Object keyFun,
+      Closure keyFun,
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
@@ -55,7 +56,7 @@ public class GroupByCollection implements TruffleObject {
     return iterable;
   }
 
-  public Object getKeyFun() {
+  public Closure getKeyFun() {
     return keyFun;
   }
 
