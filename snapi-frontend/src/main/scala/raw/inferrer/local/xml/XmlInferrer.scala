@@ -69,7 +69,10 @@ class XmlInferrer(implicit protected val sourceContext: SourceContext)
       val tipe = if (count > 1) SourceCollectionType(result.cleanedType, false) else result.cleanedType
       XmlInputFormatDescriptor(tipe, xmlReader.hasNext(), result.timeFormat, result.dateFormat, result.timestampFormat)
     } catch {
-      case ex: XMLStreamException => throw new LocalInferrerException("inference failed unexpectedly", ex)
+      case ex: XMLStreamException =>
+        val col = ex.getLocation.getColumnNumber
+        val row = ex.getLocation.getLineNumber
+        throw new LocalInferrerException(s"error parsing XML at row: $row, col: $col", ex)
     }
   }
 }
