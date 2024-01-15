@@ -152,7 +152,7 @@ final case class Secret(name: String, value: String) extends Credential
 object HttpCredentialType extends Enumeration {
   type CredentialType = Value
 
-  val ClientCredentials, Token, UserPass = Value
+  val ClientCredentials, Token, UserPass, Salesforce = Value
 
   def apply(name: String): Value = {
     values
@@ -170,7 +170,8 @@ object HttpCredentialType extends Enumeration {
   Array(
     new JsonType(value = classOf[BasicAuthCredential], name = "basic-auth"),
     new JsonType(value = classOf[TokenCredential], name = "oauth2-token"),
-    new JsonType(value = classOf[ClientCredentialsCredential], name = "oauth2-client-credentials")
+    new JsonType(value = classOf[ClientCredentialsCredential], name = "oauth2-client-credentials"),
+    new JsonType(value = classOf[SalesforceCredential], name = "salesforce-credential")
   )
 )
 sealed trait NewHttpCredential extends Credential {
@@ -202,6 +203,17 @@ final case class ClientCredentialsCredential(
     maybeExpiresBy: Option[Instant] = None
 ) extends NewHttpCredential
 
+final case class SalesforceCredential(
+    url: String,
+    username: String,
+    password: String,
+    securityToken: String,
+    clientId: String,
+    apiVersion: String,
+    customObjects: Seq[String],
+    options: Map[String, String]
+) extends NewHttpCredential
+
 case class HttpCredentialId(name: String, credType: HttpCredentialType.Value)
 
 // For internal Http clients, represents the required information to open an Http connection from a query.
@@ -210,10 +222,18 @@ case class HttpCredentialId(name: String, credType: HttpCredentialType.Value)
   Array(
     new JsonType(value = classOf[BearerToken], name = "bearer-token"),
     new JsonType(value = classOf[BasicAuth], name = "basic-auth"),
-    new JsonType(value = classOf[CustomHeaderToken], name = "custom-header")
+    new JsonType(value = classOf[CustomHeaderToken], name = "custom-header"),
+    new JsonType(value = classOf[SalesforceAuth], name = "salesforce-auth")
   )
 )
 sealed trait NewHttpAuth
 final case class BearerToken(token: String, options: Map[String, String]) extends NewHttpAuth
 final case class BasicAuth(username: String, password: String, options: Map[String, String]) extends NewHttpAuth
 final case class CustomHeaderToken(header: String, token: String, options: Map[String, String]) extends NewHttpAuth
+final case class SalesforceAuth(
+    username: String,
+    password: String,
+    clientId: String,
+    securityToken: String,
+    options: Map[String, String]
+) extends NewHttpAuth
