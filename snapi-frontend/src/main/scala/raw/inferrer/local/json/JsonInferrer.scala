@@ -41,19 +41,16 @@ class JsonInferrer(implicit protected val sourceContext: SourceContext)
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
   ): TextInputStreamFormatDescriptor = {
-    withErrorHandling {
-      val buffer = getTextBuffer(is, maybeEncoding)
-      try {
-        val result = infer(buffer.reader, maybeSampleSize)
-        TextInputStreamFormatDescriptor(buffer.encoding, buffer.confidence, result)
-      } finally {
-        buffer.reader.close()
-      }
+    val buffer = getTextBuffer(is, maybeEncoding)
+    try {
+      val result = infer(buffer.reader, maybeSampleSize)
+      TextInputStreamFormatDescriptor(buffer.encoding, buffer.confidence, result)
+    }  finally {
+      buffer.reader.close()
     }
   }
 
   def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
-    withErrorHandling {
       try {
         var nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
         // if you define a sample-size < 0 then it will read the full file
@@ -94,7 +91,7 @@ class JsonInferrer(implicit protected val sourceContext: SourceContext)
           logger.warn("Invalid JSON.", ex)
           throw new LocalInferrerException(s"invalid JSON: ${ex.getMessage}")
       }
-    }
+
   }
 
   private def nextType(parser: JsonParser, currentType: SourceType): SourceType = {

@@ -41,60 +41,57 @@ class HjsonInferrer(implicit protected val sourceContext: SourceContext)
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
   ): TextInputStreamFormatDescriptor = {
-    withErrorHandling {
-      val r = getTextBuffer(is, maybeEncoding)
-      try {
-        TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
-      } finally {
-        r.reader.close()
-      }
+    val r = getTextBuffer(is, maybeEncoding)
+    try {
+      TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+    } finally {
+      r.reader.close()
     }
+
   }
 
   def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
-    withErrorHandling {
-      try {
-        val sampleSize = maybeSampleSize.getOrElse(defaultSampleSize)
-        val nObjs = if (sampleSize <= 0) Int.MaxValue else sampleSize
-        val it = new TextLineIterator(reader)
+    try {
+      val sampleSize = maybeSampleSize.getOrElse(defaultSampleSize)
+      val nObjs = if (sampleSize <= 0) Int.MaxValue else sampleSize
+      val it = new TextLineIterator(reader)
 
-        val jsonMapper = new ObjectMapper()
-        parserFeatures.foreach(jsonMapper.enable(_))
-        var n = 0;
-        var innerType: SourceType = SourceNothingType()
-        while (it.hasNext && n < nObjs) {
-          val line = it.next()
-          val obj = jsonMapper.readValue(line, classOf[Any])
-          obj match {
-            case _: String =>
-              val split = line.split('"')
-              if (split.length > 3 || (split.length == 3 && split(2) != "")) {
-                throw new LocalInferrerException("extra value found after string definition in HJSON")
-              }
-            case _ =>
-          }
-          innerType = inferType(obj, innerType)
-          n += 1
+      val jsonMapper = new ObjectMapper()
+      parserFeatures.foreach(jsonMapper.enable(_))
+      var n = 0;
+      var innerType: SourceType = SourceNothingType()
+      while (it.hasNext && n < nObjs) {
+        val line = it.next()
+        val obj = jsonMapper.readValue(line, classOf[Any])
+        obj match {
+          case _: String =>
+            val split = line.split('"')
+            if (split.length > 3 || (split.length == 3 && split(2) != "")) {
+              throw new LocalInferrerException("extra value found after string definition in HJSON")
+            }
+          case _ =>
         }
-
-        if (innerType == SourceNothingType()) {
-          throw new LocalInferrerException("could not get items from HJSON file")
-        }
-
-        val result = uniquifyTemporalFormats(innerType)
-        HjsonInputFormatDescriptor(
-          SourceCollectionType(result.cleanedType, false),
-          it.hasNext,
-          result.timeFormat,
-          result.dateFormat,
-          result.timestampFormat
-        )
-
-      } catch {
-        case ex: JsonProcessingException =>
-          logger.warn(s"Invalid HJSON.", ex)
-          throw new LocalInferrerException(s"invalid HJSON: ${ex.getMessage}")
+        innerType = inferType(obj, innerType)
+        n += 1
       }
+
+      if (innerType == SourceNothingType()) {
+        throw new LocalInferrerException("could not get items from HJSON file")
+      }
+
+      val result = uniquifyTemporalFormats(innerType)
+      HjsonInputFormatDescriptor(
+        SourceCollectionType(result.cleanedType, false),
+        it.hasNext,
+        result.timeFormat,
+        result.dateFormat,
+        result.timestampFormat
+      )
+
+    } catch {
+      case ex: JsonProcessingException =>
+        logger.warn(s"Invalid HJSON.", ex)
+        throw new LocalInferrerException(s"invalid HJSON: ${ex.getMessage}")
     }
   }
 

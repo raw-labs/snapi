@@ -19,6 +19,7 @@ import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
 
 import java.io.Reader
+import javax.xml.stream.XMLStreamException
 
 object XmlInferrer {
   private val XML_SAMPLE_SIZE = "raw.inferrer.local.xml.sample-size"
@@ -39,18 +40,17 @@ class XmlInferrer(implicit protected val sourceContext: SourceContext)
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
   ): TextInputStreamFormatDescriptor = {
-    withErrorHandling {
-      val r = getTextBuffer(is, maybeEncoding)
-      try {
-        TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
-      } finally {
-        r.reader.close()
-      }
+    val r = getTextBuffer(is, maybeEncoding)
+    try {
+      TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+    } finally {
+      r.reader.close()
     }
+
   }
 
   def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
-    withErrorHandling {
+    try {
       var nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
       if (nobjs < 0) {
         nobjs = Int.MaxValue
@@ -68,6 +68,8 @@ class XmlInferrer(implicit protected val sourceContext: SourceContext)
       // If multiple top-level XML documents, make it a collection.
       val tipe = if (count > 1) SourceCollectionType(result.cleanedType, false) else result.cleanedType
       XmlInputFormatDescriptor(tipe, xmlReader.hasNext(), result.timeFormat, result.dateFormat, result.timestampFormat)
+    } catch {
+      case ex: XMLStreamException => throw new LocalInferrerException("inference failed unexpectedly", ex)
     }
   }
 }
