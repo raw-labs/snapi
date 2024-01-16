@@ -64,7 +64,7 @@ jobs:
         PGP_SECRET: ${{ secrets.PGP_SECRET }}
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
+        CI_SNAPSHOT_RELEASE: outputVersion; generateParser; publishM2; publish
     - name: sbt ci-release snapi-frontend
       run: ./release.sh
       working-directory: snapi-frontend
