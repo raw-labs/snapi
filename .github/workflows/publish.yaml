@@ -30,30 +30,30 @@ jobs:
       with:
         ref: ${{ github.event.client_payload.pull_request.head.sha }}
         fetch-depth: 0
-    - name: build all
-      run: ./rebuild.sh
-    - name: sbt ci-release utils
-      run: ./release.sh
-      working-directory: utils
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release client
-      run: ./release.sh
-      working-directory: client
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
+    #- name: build all
+    #  run: ./rebuild.sh
+    #- name: sbt ci-release utils
+    #  run: ./release.sh
+    #  working-directory: utils
+    #  env:
+    #    SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+    #    SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+    #    PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+    #    PGP_SECRET: ${{ secrets.PGP_SECRET }}
+    #    CI_CLEAN: clean
+    #    CI_RELEASE: publishSigned
+    #    CI_SNAPSHOT_RELEASE: publish
+    #- name: sbt ci-release client
+    #  run: ./release.sh
+    #  working-directory: client
+    #  env:
+    #    SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+    #    SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+    #    PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+    #    PGP_SECRET: ${{ secrets.PGP_SECRET }}
+    #    CI_CLEAN: clean
+    #    CI_RELEASE: publishSigned
+    #    CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-parser
       run: ./release.sh
       working-directory: snapi-parser
