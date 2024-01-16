@@ -192,3 +192,4 @@ Compile / compile := (Compile / compile).dependsOn(generateParser).value
 
 publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, generateParser, publishM2)).value
 publish := (publish dependsOn Def.sequential(outputVersion, generateParser, publishM2)).value
+publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
