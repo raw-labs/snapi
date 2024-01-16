@@ -12,11 +12,19 @@
 
 package raw.runtime.truffle.runtime.exceptions.xml;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 
 public class XmlExpectedNothingException extends XmlParserRawTruffleException {
 
+  @CompilerDirectives.TruffleBoundary
+  public XmlExpectedNothingException(
+      String content, RawTruffleXmlParser parser, Throwable cause, Node location) {
+    super(String.format("unexpected value found: '%s'", content), parser, cause, location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public XmlExpectedNothingException(String content, RawTruffleXmlParser parser, Node location) {
     super(String.format("unexpected value found: '%s'", content), parser, location);
   }

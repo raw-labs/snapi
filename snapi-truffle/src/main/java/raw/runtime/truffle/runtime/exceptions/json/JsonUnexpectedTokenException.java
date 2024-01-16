@@ -17,6 +17,12 @@ import com.oracle.truffle.api.nodes.Node;
 
 public class JsonUnexpectedTokenException extends JsonParserRawTruffleException {
   @TruffleBoundary
+  public JsonUnexpectedTokenException(
+      String expected, String actual, Throwable cause, Node location) {
+    super(String.format("expected %s but token %s found", expected, actual), cause, location);
+  }
+
+  @TruffleBoundary
   public JsonUnexpectedTokenException(String expected, String actual, Node location) {
     super(String.format("expected %s but token %s found", expected, actual), location);
   }

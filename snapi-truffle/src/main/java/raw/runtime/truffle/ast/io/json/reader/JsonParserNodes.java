@@ -77,7 +77,7 @@ public final class JsonParserNodes {
         parser.enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature());
         return parser;
       } catch (IOException e) {
-        JsonReaderRawTruffleException ex = new JsonReaderRawTruffleException();
+        JsonReaderRawTruffleException ex = new JsonReaderRawTruffleException(e, thisNode);
         closeParser.execute(thisNode, parser);
         throw ex;
       }
@@ -100,7 +100,8 @@ public final class JsonParserNodes {
         parser.enable(JsonReadFeature.ALLOW_NON_NUMERIC_NUMBERS.mappedFeature());
         return parser;
       } catch (IOException e) {
-        JsonReaderRawTruffleException ex = new JsonReaderRawTruffleException(parser, stream);
+        JsonReaderRawTruffleException ex =
+            new JsonReaderRawTruffleException(parser, stream, e, thisNode);
         closeParser.execute(thisNode, parser);
         throw ex;
       }
@@ -141,7 +142,7 @@ public final class JsonParserNodes {
       try {
         parser.nextToken();
       } catch (IOException e) {
-        throw new JsonReaderRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonReaderRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -159,7 +160,7 @@ public final class JsonParserNodes {
       try {
         return parser.getCurrentName();
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -195,7 +196,7 @@ public final class JsonParserNodes {
         parser.nextToken(); // swallow the next token (swallow closing braces, or int,
         // float, etc.)
       } catch (IOException e) {
-        throw new JsonReaderRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonReaderRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -215,7 +216,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return new BinaryObject(Base64.getDecoder().decode(binary));
       } catch (IOException | IllegalArgumentException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -235,7 +236,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -255,7 +256,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -277,7 +278,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return date;
       } catch (IOException | IllegalArgumentException | DateTimeParseException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -297,7 +298,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return new DecimalObject(v);
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -317,7 +318,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -337,7 +338,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -362,7 +363,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return interval;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -382,7 +383,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -402,7 +403,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -422,7 +423,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -446,7 +447,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return v;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -468,7 +469,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return time;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }
@@ -491,7 +492,7 @@ public final class JsonParserNodes {
         parser.nextToken();
         return timestamp;
       } catch (IOException e) {
-        throw new JsonParserRawTruffleException(e.getMessage(), thisNode);
+        throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
   }

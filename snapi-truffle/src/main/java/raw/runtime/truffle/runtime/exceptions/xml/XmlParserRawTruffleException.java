@@ -12,16 +12,14 @@
 
 package raw.runtime.truffle.runtime.exceptions.xml;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
 
-  public XmlParserRawTruffleException(Throwable cause, Node location) {
-    super(cause.getMessage(), cause, location);
-  }
-
+  @CompilerDirectives.TruffleBoundary
   public XmlParserRawTruffleException(
       String message, RawTruffleXmlParser parser, Throwable cause, Node location) {
     super(
@@ -32,6 +30,7 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public XmlParserRawTruffleException(String message, RawTruffleXmlParser parser, Node location) {
     super(
         String.format(
@@ -40,11 +39,13 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public XmlParserRawTruffleException(Throwable cause, RawTruffleXmlParser parser) {
     // TODO
     super(cause.getMessage(), cause, null);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public XmlParserRawTruffleException(int line, int column, Throwable cause, Node location) {
     super(
         String.format(
@@ -53,6 +54,7 @@ public class XmlParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public XmlParserRawTruffleException(
       String message, int line, int column, Throwable cause, Node location) {
     super(

@@ -20,39 +20,29 @@ import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 public class JsonReaderRawTruffleException extends RawTruffleRuntimeException {
   @TruffleBoundary
-  public JsonReaderRawTruffleException() {
-    super("failed to read JSON");
+  public JsonReaderRawTruffleException(String message, Throwable cause, Node location) {
+    super(message, cause, location);
   }
 
   @TruffleBoundary
-  public JsonReaderRawTruffleException(String message) {
-    super(message);
-  }
-
-  @TruffleBoundary
-  public JsonReaderRawTruffleException(String message, Node location) {
-    super(message, location);
-  }
-
-  @TruffleBoundary
-  public JsonReaderRawTruffleException(Node location) {
-    super("failed to read JSON", location);
-  }
-
-  @TruffleBoundary
-  public JsonReaderRawTruffleException(JsonParser parser, TruffleCharInputStream stream) {
-    super(createMessage("failed to read JSON", parser, stream));
-  }
-
-  @TruffleBoundary
-  public JsonReaderRawTruffleException(String message, TruffleCharInputStream stream) {
-    super(createMessage(message, null, stream));
+  public JsonReaderRawTruffleException(Throwable cause, Node location) {
+    super("failed to read JSON", cause, location);
   }
 
   @TruffleBoundary
   public JsonReaderRawTruffleException(
-      String message, JsonParser parser, TruffleCharInputStream stream) {
-    super(createMessage(message, parser, stream));
+      JsonParser parser, TruffleCharInputStream stream, Throwable cause, Node location) {
+    super(createMessage("failed to read JSON", parser, stream), cause, location);
+  }
+
+  @TruffleBoundary
+  public JsonReaderRawTruffleException(
+      String message,
+      JsonParser parser,
+      TruffleCharInputStream stream,
+      Throwable cause,
+      Node location) {
+    super(createMessage(message, parser, stream), cause, location);
   }
 
   private static String createMessage(

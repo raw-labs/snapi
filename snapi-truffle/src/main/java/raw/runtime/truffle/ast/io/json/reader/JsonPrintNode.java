@@ -44,7 +44,7 @@ public abstract class JsonPrintNode extends ExpressionNode {
       gen.flush();
       return stream.toString();
     } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+      throw new RawTruffleRuntimeException(e.getMessage(), e, this);
     }
   }
 }

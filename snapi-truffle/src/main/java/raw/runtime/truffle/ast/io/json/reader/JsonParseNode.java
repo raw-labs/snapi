@@ -43,7 +43,7 @@ public abstract class JsonParseNode extends ExpressionNode {
       nextTokenNode.execute(this, parser);
       return childDirectCall.call(parser);
     } catch (RawTruffleRuntimeException e) {
-      throw new JsonReaderRawTruffleException();
+      throw new JsonReaderRawTruffleException(e, this);
     } finally {
       if (parser != null) {
         closeParserNode.execute(this, parser);

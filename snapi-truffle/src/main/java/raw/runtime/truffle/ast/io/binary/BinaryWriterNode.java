@@ -41,7 +41,7 @@ public class BinaryWriterNode extends StatementNode {
     try (OutputStream os = RawContext.get(this).getOutput()) {
       innerWriter.call(binaryObject, os);
     } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+      throw new RawTruffleRuntimeException(e.getMessage(), e, this);
     }
   }
 }

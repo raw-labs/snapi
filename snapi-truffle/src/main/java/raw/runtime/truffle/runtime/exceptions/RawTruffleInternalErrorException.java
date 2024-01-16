@@ -29,6 +29,11 @@ public class RawTruffleInternalErrorException extends RuntimeException {
   }
 
   @CompilerDirectives.TruffleBoundary
+  public RawTruffleInternalErrorException(String message, Throwable cause) {
+    super(message, cause);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public RawTruffleInternalErrorException(Throwable cause, Node location) {
     super(location.getDescription(), cause);
   }

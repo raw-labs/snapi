@@ -19,4 +19,8 @@ public class RawTruffleUnexpectedNullException extends RawTruffleRuntimeExceptio
   public RawTruffleUnexpectedNullException(Node location) {
     super("unexpected null value found", location);
   }
+
+  public RawTruffleUnexpectedNullException(Throwable cause, Node location) {
+    super("unexpected null value found", cause, location);
+  }
 }
