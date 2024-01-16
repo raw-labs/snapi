@@ -194,4 +194,4 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, generatePa
 publish := (publish dependsOn Def.sequential(outputVersion, generateParser, publishM2)).value
 publishLocalConfiguration := publishLocalConfiguration.value.withOverwrite(true)
 publishConfiguration := publishConfiguration.value.withOverwrite(true)
-pushRemoteCacheConfiguration := pushRemoteCacheConfiguration.value.withOverwrite(true)
+Compile / pushRemoteCacheConfiguration := (Compile / pushRemoteCacheConfiguration).value.withOverwrite(true)
