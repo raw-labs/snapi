@@ -13,13 +13,15 @@
 package raw.inferrer.local.csv
 
 import java.io.Reader
-
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.local._
 import raw.inferrer.local.text.TextLineIterator
 import raw.inferrer.api._
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.api.{Encoding, SourceContext}
+import raw.utils.RawException
+
+import scala.util.control.NonFatal
 
 object CsvInferrer {
   private val CSV_SAMPLE_SIZE = "raw.inferrer.local.csv.sample-size"
@@ -68,6 +70,8 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
         maybeQuoteChars
       )
       TextInputStreamFormatDescriptor(r.encoding, r.confidence, format)
+    } catch {
+      case NonFatal(e) => throw new RawException(s"csv inference failed unexpectedly", e)
     } finally {
       r.reader.close()
     }

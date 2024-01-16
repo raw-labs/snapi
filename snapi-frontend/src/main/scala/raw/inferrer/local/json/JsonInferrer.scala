@@ -19,8 +19,10 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
+import raw.utils.RawException
 
 import scala.collection.mutable.ArrayBuffer
+import scala.util.control.NonFatal
 
 object JsonInferrer {
   private val JSON_SAMPLE_SIZE = "raw.inferrer.local.json.sample-size"
@@ -45,6 +47,8 @@ class JsonInferrer(implicit protected val sourceContext: SourceContext)
     try {
       val result = infer(buffer.reader, maybeSampleSize)
       TextInputStreamFormatDescriptor(buffer.encoding, buffer.confidence, result)
+    } catch {
+      case NonFatal(e) => throw new RawException(s"json inference failed unexpectedly", e)
     } finally {
       buffer.reader.close()
     }

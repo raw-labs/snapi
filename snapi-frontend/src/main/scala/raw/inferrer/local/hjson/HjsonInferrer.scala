@@ -20,8 +20,10 @@ import raw.inferrer.local.json.JsonUtils
 import raw.inferrer.local.text.TextLineIterator
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
+import raw.utils.RawException
 
 import java.io.Reader
+import scala.util.control.NonFatal
 
 object HjsonInferrer {
   private val HJSON_SAMPLE_SIZE = "raw.inferrer.local.hjson.sample-size"
@@ -44,10 +46,11 @@ class HjsonInferrer(implicit protected val sourceContext: SourceContext)
     val r = getTextBuffer(is, maybeEncoding)
     try {
       TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+    } catch {
+      case NonFatal(e) => throw new RawException(s"hjson inference failed unexpectedly", e)
     } finally {
       r.reader.close()
     }
-
   }
 
   def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {

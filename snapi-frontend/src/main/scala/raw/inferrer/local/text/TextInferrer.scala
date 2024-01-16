@@ -18,7 +18,9 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
+import raw.utils.RawException
 
+import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 private case class RegexToType(regex: Regex, atts: Seq[SourceAttrType])
@@ -47,6 +49,8 @@ class TextInferrer(implicit protected val sourceContext: SourceContext)
     val r = getTextBuffer(is, maybeEncoding)
     try {
       TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+    } catch {
+      case NonFatal(e) => throw new RawException(s"text inference failed unexpectedly", e)
     } finally {
       r.reader.close()
     }
