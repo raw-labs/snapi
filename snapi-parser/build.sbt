@@ -8,6 +8,8 @@ import Dependencies.*
 import java.io.IOException
 import scala.sys.process.*
 
+import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
+
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
