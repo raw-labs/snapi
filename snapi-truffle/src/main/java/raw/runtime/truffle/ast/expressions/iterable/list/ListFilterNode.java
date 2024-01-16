@@ -13,17 +13,12 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
@@ -35,31 +30,36 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 @NodeChild("function")
 public abstract class ListFilterNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Specialization
   protected static RawArrayList doFilter(
       Object list,
-      Object closure,
+      Closure closure,
       @Bind("this") Node thisNode,
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
-      @CachedLibrary("closure") InteropLibrary interops) {
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
+      @Cached(inline = true) Closure.ClosureExecuteOneNode closureExecuteOneNode) {
     ArrayList<Object> llist = new ArrayList<>();
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
-    while (generatorHasNextNode.execute(thisNode, generator)) {
-      Object v = generatorNextNode.execute(thisNode, generator);
-      Boolean predicate = null;
-      try {
-        predicate = TryableNullable.handlePredicate(interops.execute(closure, v), false);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        Boolean predicate = null;
+        predicate =
+            TryableNullable.handlePredicate(
+                closureExecuteOneNode.execute(thisNode, closure, v), false);
+        if (predicate) {
+          llist.add(v);
+        }
       }
-      if (predicate) {
-        llist.add(v);
-      }
+      return new RawArrayList(llist);
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
     }
-    return new RawArrayList(llist);
   }
 }

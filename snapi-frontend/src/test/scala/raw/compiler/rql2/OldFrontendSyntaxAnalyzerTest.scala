@@ -42,7 +42,7 @@ import raw.compiler.rql2.source.{
 }
 import raw.utils.RawTestSuite
 
-class FrontendSyntaxAnalyzerTest extends RawTestSuite {
+class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
 
   def parseType(s: String): Type = {
     val positions = new org.bitbucket.inkytonik.kiama.util.Positions

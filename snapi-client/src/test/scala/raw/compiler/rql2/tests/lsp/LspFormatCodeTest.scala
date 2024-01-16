@@ -18,11 +18,10 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait LspFormatCodeTest extends CompilerTestContext {
 
   def assertFormattedCode(code: String, expected: String) = {
-    val FormatCodeResponse(Some(formattedCode), errors) = formatCode(code)
+    val FormatCodeResponse(Some(formattedCode)) = formatCode(code)
     logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
     // this is like a rtrim, kiama is putting extra spaces in the end
     assert(formattedCode.replaceAll("\\s+$", "") == expected)
-    assert(errors.isEmpty)
   }
 
   test("simple code format test") { _ =>

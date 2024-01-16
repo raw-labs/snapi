@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
@@ -27,6 +28,7 @@ import raw.runtime.truffle.runtime.iterable.operations.DistinctCollection;
 @NodeField(name = "valueType", type = Rql2TypeWithProperties.class)
 public abstract class CollectionDistinctNode extends ExpressionNode {
 
+  @Idempotent
   protected abstract Rql2TypeWithProperties getValueType();
 
   @Specialization

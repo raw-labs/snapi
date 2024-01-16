@@ -10,10 +10,8 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.record;
+module raw.snapi.parser {
+  requires truffle.dsl.processor;
 
-public class StaticRecordObject {
-
-  // todo
-
+  exports raw.compiler.rql2.generated;
 }

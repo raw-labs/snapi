@@ -65,6 +65,7 @@ module raw.snapi.frontend {
   requires mysql.connector.j;
   requires raw.utils;
   requires raw.client;
+  requires raw.snapi.parser;
 
   exports raw.auth.api;
   exports raw.creds.api;

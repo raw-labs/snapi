@@ -16,15 +16,10 @@ import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.ListNodes;
@@ -35,10 +30,10 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 @NodeChild("function")
 public abstract class ListExistsNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Specialization
   protected static boolean doList(
       Object list,
-      Object closure,
+      Closure closure,
       @Bind("this") Node thisNode,
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
@@ -46,7 +41,7 @@ public abstract class ListExistsNode extends ExpressionNode {
       @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
-      @CachedLibrary("closure") InteropLibrary interops) {
+      @Cached(inline = true) Closure.ClosureExecuteOneNode executeOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -54,14 +49,14 @@ public abstract class ListExistsNode extends ExpressionNode {
       while (generatorHasNextNode.execute(thisNode, generator)) {
         boolean predicate =
             TryableNullable.handlePredicate(
-                interops.execute(closure, generatorNextNode.execute(thisNode, generator)), false);
+                executeOneNode.execute(
+                    thisNode, closure, generatorNextNode.execute(thisNode, generator)),
+                false);
         if (predicate) {
           return true;
         }
       }
       return false;
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
     } finally {
       generatorCloseNode.execute(thisNode, generator);
     }

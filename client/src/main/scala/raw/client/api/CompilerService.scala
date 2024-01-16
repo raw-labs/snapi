@@ -12,12 +12,14 @@
 
 package raw.client.api
 
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import org.graalvm.polyglot.{Engine, Value}
 import raw.utils.{RawException, RawService, RawSettings}
 
 import java.io.OutputStream
 import scala.collection.mutable
 import scala.util.control.NonFatal
+import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 
 // Exception that wraps the underlying error so that it includes the extra debug info.
 final class CompilerServiceException(
@@ -41,10 +43,10 @@ object CompilerService {
       if (engine == null) {
         val options = new java.util.HashMap[String, String]()
         if (settings.onTrainingWheels) {
-          options.put("engine.CompileImmediately", "true")
-          options.put("engine.TraceCompilation", "true")
-          options.put("engine.BackgroundCompilation", "false")
-          //      options.put("engine.CompilationFailureAction", "Throw")
+//          options.put("engine.CompileImmediately", "true")
+          //          options.put("engine.TraceCompilation", "true")
+          //          options.put("engine.BackgroundCompilation", "false")
+//          options.put("engine.CompilationFailureAction", "Throw")
           //      options.put("engine.CompilationFailureAction", "Diagnose")
           //      options.put("compiler.LogInlinedTargets", "true")
           //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
@@ -311,10 +313,40 @@ case object ExecutionSuccess extends ExecutionResponse
 final case class ExecutionValidationFailure(errors: List[ErrorMessage]) extends ExecutionResponse
 final case class ExecutionRuntimeFailure(error: String) extends ExecutionResponse
 
-final case class FormatCodeResponse(code: Option[String], errors: List[ErrorMessage])
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[FormatCodeResponse], name = "formatCode"),
+    new JsonType(value = classOf[AutoCompleteResponse], name = "autoComplete"),
+    new JsonType(value = classOf[HoverResponse], name = "hover"),
+    new JsonType(value = classOf[GoToDefinitionResponse], name = "definition"),
+    new JsonType(value = classOf[RenameResponse], name = "rename"),
+    new JsonType(value = classOf[ErrorResponse], name = "error"),
+    new JsonType(value = classOf[ValidateResponse], name = "validate")
+  )
+)
+sealed trait ClientLspResponse
+final case class FormatCodeResponse(code: Option[String]) extends ClientLspResponse
+final case class HoverResponse(completion: Option[Completion]) extends ClientLspResponse
+final case class RenameResponse(positions: Array[Pos]) extends ClientLspResponse
+final case class GoToDefinitionResponse(position: Option[Pos]) extends ClientLspResponse
+final case class ValidateResponse(errors: List[ErrorMessage]) extends ClientLspResponse
+final case class ErrorResponse(errors: List[ErrorMessage]) extends ClientLspResponse
+final case class AutoCompleteResponse(completions: Array[Completion]) extends ClientLspResponse
 
-final case class AutoCompleteResponse(completions: Array[Completion], errors: List[ErrorMessage])
-
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[TypeCompletion], name = "tipe"),
+    new JsonType(value = classOf[FieldCompletion], name = "field"),
+    new JsonType(value = classOf[LetBindCompletion], name = "bind"),
+    new JsonType(value = classOf[LetFunCompletion], name = "function"),
+    new JsonType(value = classOf[LetFunRecCompletion], name = "recursiveFunction"),
+    new JsonType(value = classOf[FunParamCompletion], name = "functionParameter"),
+    new JsonType(value = classOf[PackageCompletion], name = "package"),
+    new JsonType(value = classOf[PackageEntryCompletion], name = "packageEntry")
+  )
+)
 sealed trait Completion
 final case class TypeCompletion(name: String, tipe: String) extends Completion
 final case class FieldCompletion(name: String, tipe: String) extends Completion
@@ -324,11 +356,3 @@ final case class LetFunRecCompletion(name: String, tipe: String) extends Complet
 final case class FunParamCompletion(name: String, tipe: String) extends Completion
 final case class PackageCompletion(name: String, doc: PackageDoc) extends Completion
 final case class PackageEntryCompletion(name: String, doc: EntryDoc) extends Completion
-
-final case class HoverResponse(completion: Option[Completion], errors: List[ErrorMessage])
-
-final case class RenameResponse(positions: Array[Pos], errors: List[ErrorMessage])
-
-final case class GoToDefinitionResponse(position: Option[Pos], errors: List[ErrorMessage])
-
-final case class ValidateResponse(errors: List[ErrorMessage])

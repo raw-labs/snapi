@@ -38,6 +38,7 @@ import raw.runtime.truffle.runtime.exceptions.csv.CsvReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.*;
@@ -237,24 +238,20 @@ public class ComputeNextNodes {
       throw new BreakException();
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static Object next(
         Node node,
         FilterComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @CachedLibrary("computeNext.getPredicate()") InteropLibrary interops) {
+        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
       while (hasNextNode.execute(thisNode, computeNext.getParent())) {
         Object v = nextNode.execute(thisNode, computeNext.getParent());
         Boolean isPredicateTrue = null;
-        try {
-          isPredicateTrue =
-              TryableNullable.handlePredicate(
-                  interops.execute(computeNext.getPredicate(), v), false);
-        } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-          throw new RawTruffleRuntimeException("failed to execute function");
-        }
+        isPredicateTrue =
+            TryableNullable.handlePredicate(
+                closureExecuteOneNode.execute(thisNode, computeNext.getPredicate(), v), false);
         if (isPredicateTrue) {
           return v;
         }
@@ -277,26 +274,24 @@ public class ComputeNextNodes {
       throw new BreakException();
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static Object next(
         Node node,
         TransformComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @CachedLibrary("computeNext.getTransform()") InteropLibrary interops) {
+        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
       if (!hasNextNode.execute(thisNode, computeNext.getParent())) {
         throw new BreakException();
       }
-      try {
-        return interops.execute(
-            computeNext.getTransform(), nextNode.execute(thisNode, computeNext.getParent()));
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
-      }
+      return closureExecuteOneNode.execute(
+          thisNode,
+          computeNext.getTransform(),
+          nextNode.execute(thisNode, computeNext.getParent()));
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static Object next(
         Node node,
         UnnestComputeNext computeNext,
@@ -306,7 +301,7 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-        @CachedLibrary("computeNext.getTransform()") InteropLibrary interops) {
+        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
       Object next = null;
 
       while (next == null) {
@@ -315,14 +310,11 @@ public class ComputeNextNodes {
             throw new BreakException();
           }
           Object functionResult = null;
-          try {
-            functionResult =
-                interops.execute(
-                    computeNext.getTransform(),
-                    nextNode.execute(thisNode, computeNext.getParent()));
-          } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-            throw new RawTruffleRuntimeException("failed to execute function");
-          }
+          functionResult =
+              closureExecuteOneNode.execute(
+                  thisNode,
+                  computeNext.getTransform(),
+                  nextNode.execute(thisNode, computeNext.getParent()));
           // the function result could be tryable/nullable. If error/null,
           // we replace it by an empty collection.
           Object iterable = TryableNullable.getOrElse(functionResult, EmptyCollection.INSTANCE);
@@ -348,7 +340,7 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode2,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode1,
         @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode2,
-        @CachedLibrary(limit = "5") @Cached.Shared("interop") InteropLibrary records) {
+        @CachedLibrary(limit = "5") InteropLibrary records) {
       try {
         if (hasNextNode1.execute(thisNode, computeNext.getParent1())
             && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
@@ -365,7 +357,7 @@ public class ComputeNextNodes {
       }
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static Object next(
         Node node,
         EquiJoinComputeNext computeNext,
@@ -373,7 +365,7 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached OperatorNodes.CompareNode compareKey,
-        @CachedLibrary("computeNext.getMkJoinedRecord()") InteropLibrary interops) {
+        @Cached @Cached.Shared("executeTwo") Closure.ClosureExecuteTwoNode closureExecuteTwoNode) {
 
       assert (computeNext.getLeftMapGenerator() != null);
       assert (computeNext.getRightMapGenerator() != null);
@@ -423,15 +415,13 @@ public class ComputeNextNodes {
 
       // record to return
       Object joinedRow = null;
-      try {
-        joinedRow =
-            interops.execute(
-                computeNext.getMkJoinedRecord(),
-                computeNext.getLeftRows()[computeNext.getLeftIndex()],
-                computeNext.getRightRows()[computeNext.getRightIndex()]);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
-      }
+
+      joinedRow =
+          closureExecuteTwoNode.execute(
+              thisNode,
+              computeNext.getMkJoinedRecord(),
+              computeNext.getLeftRows()[computeNext.getLeftIndex()],
+              computeNext.getRightRows()[computeNext.getRightIndex()]);
 
       // move to the next right row
       computeNext.setRightIndex(computeNext.getRightIndex() + 1);
@@ -469,7 +459,8 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached KryoNodes.KryoReadNode kryoReadNode,
-        @CachedLibrary(limit = "5") @Cached.Shared("interop") InteropLibrary interop) {
+        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode executeOneNode,
+        @Cached @Cached.Shared("executeTwo") Closure.ClosureExecuteTwoNode executeTwoNode) {
       Object row = null;
 
       while (row == null) {
@@ -494,36 +485,34 @@ public class ComputeNextNodes {
                       computeNext.getLanguage(),
                       computeNext.getKryoRight(),
                       computeNext.getRightRowType()));
-
-              try {
-                boolean pass;
-                if (computeNext.getReshapeBeforePredicate()) {
+              boolean pass;
+              if (computeNext.getReshapeBeforePredicate()) {
+                row =
+                    executeTwoNode.execute(
+                        thisNode,
+                        computeNext.getRemap(),
+                        computeNext.getLeftRow(),
+                        computeNext.getRightRow());
+                pass =
+                    TryableNullable.handlePredicate(
+                        executeOneNode.execute(thisNode, computeNext.getPredicate(), row), false);
+                if (!pass) row = null;
+              } else {
+                pass =
+                    TryableNullable.handlePredicate(
+                        executeTwoNode.execute(
+                            thisNode,
+                            computeNext.getPredicate(),
+                            computeNext.getLeftRow(),
+                            computeNext.getRightRow()),
+                        false);
+                if (pass)
                   row =
-                      interop.execute(
+                      executeTwoNode.execute(
+                          thisNode,
                           computeNext.getRemap(),
                           computeNext.getLeftRow(),
                           computeNext.getRightRow());
-                  pass =
-                      TryableNullable.handlePredicate(
-                          interop.execute(computeNext.getPredicate(), row), false);
-                  if (!pass) row = null;
-                } else {
-                  pass =
-                      TryableNullable.handlePredicate(
-                          interop.execute(
-                              computeNext.getPredicate(),
-                              computeNext.getLeftRow(),
-                              computeNext.getRightRow()),
-                          false);
-                  if (pass)
-                    row =
-                        interop.execute(
-                            computeNext.getRemap(),
-                            computeNext.getLeftRow(),
-                            computeNext.getRightRow());
-                }
-              } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-                throw new RawTruffleRuntimeException("failed to execute function");
               }
 
               computeNext.setReadRight(computeNext.getReadRight() + 1);
@@ -734,7 +723,7 @@ public class ComputeNextNodes {
       initNode2.execute(thisNode, computeNext.getParent2());
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static void init(
         Node node,
         EquiJoinComputeNext computeNext,
@@ -745,19 +734,20 @@ public class ComputeNextNodes {
         @Cached(inline = false) @Cached.Shared("init2")
             GeneratorNodes.GeneratorInitNode initRightNode,
         @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextLeftNode,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextRightNode,
+        @SuppressWarnings("truffle-sharing") @Cached
+            GeneratorNodes.GeneratorHasNextNode hasNextRightNode,
         @Cached(inline = false) @Cached.Shared("next1")
             GeneratorNodes.GeneratorNextNode nextLeftNode,
-        @Cached(inline = false) @Cached.Shared("next2")
+        @SuppressWarnings("truffle-sharing") @Cached(inline = false)
             GeneratorNodes.GeneratorNextNode nextRightNode,
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeLeftNode,
-        @Cached @Cached.Shared("close2") GeneratorNodes.GeneratorCloseNode closeRightNode,
+        @SuppressWarnings("truffle-sharing") @Cached
+            GeneratorNodes.GeneratorCloseNode closeRightNode,
         @Cached OffHeapNodes.OffHeapGroupByPutNode putLeftNode,
         @Cached OffHeapNodes.OffHeapGroupByPutNode putRightNode,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorLeft,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight,
-        @CachedLibrary("computeNext.getLeftKeyF()") InteropLibrary leftKeyFLib,
-        @CachedLibrary("computeNext.getRightKeyF()") InteropLibrary rightKeyFLib) {
+        @Cached Closure.ClosureExecuteOneNode closureExecuteOneNode) {
       // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
       OffHeapGroupByKey leftMap =
           new OffHeapGroupByKey(
@@ -771,11 +761,10 @@ public class ComputeNextNodes {
         initLeftNode.execute(thisNode, leftGenerator);
         while (hasNextLeftNode.execute(thisNode, leftGenerator)) {
           Object leftItem = nextLeftNode.execute(thisNode, leftGenerator);
-          Object leftKey = leftKeyFLib.execute(computeNext.getLeftKeyF(), leftItem);
+          Object leftKey =
+              closureExecuteOneNode.execute(thisNode, computeNext.getLeftKeyF(), leftItem);
           putLeftNode.execute(thisNode, leftMap, leftKey, leftItem);
         }
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
       } finally {
         closeLeftNode.execute(thisNode, leftGenerator);
       }
@@ -795,11 +784,10 @@ public class ComputeNextNodes {
         initRightNode.execute(thisNode, rightGenerator);
         while (hasNextRightNode.execute(thisNode, rightGenerator)) {
           Object rightItem = nextRightNode.execute(thisNode, rightGenerator);
-          Object rightKey = rightKeyFLib.execute(computeNext.getRightKeyF(), rightItem);
+          Object rightKey =
+              closureExecuteOneNode.execute(thisNode, computeNext.getRightKeyF(), rightItem);
           putRightNode.execute(thisNode, rightMap, rightKey, rightItem);
         }
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
       } finally {
         closeRightNode.execute(thisNode, rightGenerator);
       }
@@ -807,8 +795,18 @@ public class ComputeNextNodes {
       initRightNode.execute(thisNode, computeNext.getRightMapGenerator());
     }
 
-    @Specialization
     @TruffleBoundary
+    private static Output createOutput(JoinComputeNext computeNext) {
+      try {
+        return new Output(
+            new FileOutputStream(computeNext.getDiskRight()),
+            computeNext.getKryoOutputBufferSize());
+      } catch (FileNotFoundException e) {
+        throw new RawTruffleRuntimeException(e.getMessage());
+      }
+    }
+
+    @Specialization
     static void init(
         Node node,
         JoinComputeNext computeNext,
@@ -824,17 +822,8 @@ public class ComputeNextNodes {
       initNode.execute(thisNode, computeNext.getLeftGen());
 
       // save right to disk
-      Output buffer;
-      try {
-        buffer =
-            new Output(
-                new FileOutputStream(computeNext.getDiskRight()),
-                computeNext.getKryoOutputBufferSize());
-      } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
-      }
       Object rightGen = getGeneratorNode.execute(thisNode, computeNext.getRightIterable());
-      try {
+      try (Output buffer = createOutput(computeNext)) {
         initNode.execute(thisNode, rightGen);
         while (hasNextNode.execute(thisNode, rightGen)) {
           Object row = nextNode.execute(thisNode, rightGen);
@@ -843,7 +832,6 @@ public class ComputeNextNodes {
         }
       } finally {
         closeNode.execute(thisNode, rightGen);
-        buffer.close();
       }
     }
   }
