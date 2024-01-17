@@ -107,6 +107,57 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
     }
   }
 
+  /** Salesforce */
+
+  def registerSalesforceCredential(
+      user: AuthenticatedUser,
+      name: String,
+      salesforceCredential: SalesforceCredential
+  ): Boolean = {
+    try {
+      restClient.doJsonPostWithEmptyResponse(
+        "2/salesforce/register",
+        RegisterSalesforceCredential(user, name, salesforceCredential),
+        withAuth = false
+      )
+      true
+    } catch {
+      case ex: ClientAPIException if ex.errorCode == "salesforceCredentialAlreadyExists" => false
+    }
+  }
+
+  def getSalesforceCredential(user: AuthenticatedUser, name: String): Option[SalesforceCredential] = {
+    try {
+      Some(
+        restClient
+          .doJsonPost[SalesforceCredential]("2/salesforce/get", GetSalesforceCredential(user, name), withAuth = false)
+      )
+    } catch {
+      case ex: ClientAPIException if ex.errorCode == "salesforceCredentialNotFound" => None
+    }
+  }
+
+  def existsSalesforceCredential(user: AuthenticatedUser, name: String): Boolean =
+    getSalesforceCredential(user, name).isDefined
+
+  def listSalesforceCredentials(user: AuthenticatedUser): List[String] = {
+    restClient.doJsonPost[List[String]]("2/salesforce/list", ListSalesforceCredentials(user), withAuth = false)
+  }
+
+  def unregisterSalesforceCredential(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      restClient.doJsonPostWithEmptyResponse(
+        "2/salesforce/unregister",
+        UnregisterSalesforceCredential(user, name),
+        HttpStatus.SC_NO_CONTENT,
+        withAuth = false
+      )
+      true
+    } catch {
+      case ex: ClientAPIException if ex.errorCode == "salesforceCredentialNotFound" => false
+    }
+  }
+
   /** HTTP Credentials */
 
   def listHttpCredentials(user: AuthenticatedUser): List[HttpCredentialId] = {

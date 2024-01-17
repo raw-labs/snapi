@@ -85,7 +85,43 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
     }
   }
 
-  /** Named Dropbox Tokens * */
+  /** Salesforce */
+
+  override def registerSalesforceCredential(
+      user: AuthenticatedUser,
+      name: String,
+      salesforceCredential: SalesforceCredential
+  ): Boolean = {
+    try {
+      client.registerSalesforceCredential(user, name, salesforceCredential)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getSalesforceCredential(user: AuthenticatedUser, name: String): Option[SalesforceCredential] = {
+    try {
+      client.getSalesforceCredential(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def listSalesforceCredentials(user: AuthenticatedUser): List[String] = {
+    try {
+      client.listSalesforceCredentials(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterSalesforceCredential(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      client.unregisterSalesforceCredential(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
 
   /** Http Credentials */
 
