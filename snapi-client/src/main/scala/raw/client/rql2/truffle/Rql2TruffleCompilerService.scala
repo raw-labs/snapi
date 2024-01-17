@@ -66,7 +66,13 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     val inferrer = InferrerServiceProvider(maybeClassLoader)
 
     // Initialize compiler context
-    new CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader)
+    try {
+      new CompilerContext(language, user, inferrer, sourceContext, maybeClassLoader)
+    } catch {
+      case NonFatal(ex) =>
+        inferrer.stop()
+        throw ex
+    }
   }
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {

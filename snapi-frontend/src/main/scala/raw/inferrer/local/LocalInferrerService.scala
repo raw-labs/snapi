@@ -13,6 +13,7 @@
 package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
+import org.apache.commons.lang3.exception.ExceptionUtils
 import org.bitbucket.inkytonik.kiama.output.PrettyPrinter
 import raw.utils.RawException
 import raw.inferrer.api._
@@ -37,6 +38,7 @@ class LocalInferrerService(implicit sourceContext: SourceContext)
     with PrettyPrinter
     with StrictLogging {
 
+  logger.info(s"Creating inferrer service: ${this}\n${ExceptionUtils.getStackTrace(new Throwable)}")
   private val settings = sourceContext.settings
 
   private val textInferrer = new TextInferrer

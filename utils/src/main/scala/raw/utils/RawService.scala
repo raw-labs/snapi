@@ -44,7 +44,7 @@ trait RawService extends StrictLogging {
   import RawService._
   protected val stopped = new AtomicBoolean(false)
 
-  logger.debug(s"Adding service: $this")
+  logger.debug(s"Adding service: $this. Caller:\n${Thread.currentThread().getStackTrace.take(10).mkString("\t\n")}")
   services.add(this)
 
   /**
@@ -63,7 +63,9 @@ trait RawService extends StrictLogging {
       } finally {
         val removed = services.remove(this)
         if (removed) {
-          logger.debug(s"Stopping service: $this")
+          logger.debug(
+            s"Stopping service: $this. Caller:\n${Thread.currentThread().getStackTrace.take(10).mkString("\t\n")}"
+          )
         } else {
           logger.warn(s"Service was not found on active service list: $this")
         }

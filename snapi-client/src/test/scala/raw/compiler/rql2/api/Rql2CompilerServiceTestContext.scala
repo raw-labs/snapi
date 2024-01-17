@@ -36,6 +36,7 @@ trait Rql2CompilerServiceTestContext extends BeforeAndAfterAll {
   }
 
   override def afterAll(): Unit = {
+    instance.stop()
     setCompilerService(null)
     super.afterAll()
   }
