@@ -146,6 +146,17 @@ final case class SnowflakeCredential(
   val port = None
 }
 
+final case class SalesforceCredential(
+    url: String,
+    username: String,
+    password: String,
+    securityToken: String,
+    clientId: String,
+    apiVersion: String,
+    customObjects: Seq[String],
+    options: Map[String, String]
+) extends Credential
+
 final case class Secret(name: String, value: String) extends Credential
 
 // Http credentials
