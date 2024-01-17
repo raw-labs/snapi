@@ -13,10 +13,10 @@
 package raw.runtime.truffle.ast.io.json.reader;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.CloseJsonParserNode;
@@ -26,6 +26,7 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
 import raw.sources.api.SourceContext;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
 
 @NodeInfo(shortName = "Json.ReadArray")
 public class JsonReadValueNode extends ExpressionNode {
@@ -51,10 +52,10 @@ public class JsonReadValueNode extends ExpressionNode {
   private JsonParser parser;
 
   public JsonReadValueNode(
-      ExpressionNode locationExp, ExpressionNode encodingExp, RootNode readerNode) {
+      ExpressionNode locationExp, ExpressionNode encodingExp, RootCallTarget readRootCallTarget) {
     this.locationExp = locationExp;
     this.encodingExp = encodingExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+    this.childDirectCall = DirectCallNode.create(readRootCallTarget);
   }
 
   @Override
