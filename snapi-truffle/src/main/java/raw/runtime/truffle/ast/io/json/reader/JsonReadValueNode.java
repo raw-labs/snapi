@@ -26,7 +26,6 @@ import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
 import raw.sources.api.SourceContext;
-import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
 
 @NodeInfo(shortName = "Json.ReadArray")
 public class JsonReadValueNode extends ExpressionNode {

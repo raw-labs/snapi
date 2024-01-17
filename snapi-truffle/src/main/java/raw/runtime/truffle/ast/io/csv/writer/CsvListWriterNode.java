@@ -46,7 +46,10 @@ public class CsvListWriterNode extends StatementNode {
   private final String lineSeparator;
 
   public CsvListWriterNode(
-          ExpressionNode dataNode, RootCallTarget writeRootCallTarget, String[] columnNames, String lineSeparator) {
+      ExpressionNode dataNode,
+      RootCallTarget writeRootCallTarget,
+      String[] columnNames,
+      String lineSeparator) {
     this.dataNode = dataNode;
     itemWriter = DirectCallNode.create(writeRootCallTarget);
     this.columnNames = columnNames;
