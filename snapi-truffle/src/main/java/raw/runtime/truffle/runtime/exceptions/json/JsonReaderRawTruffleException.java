@@ -32,7 +32,7 @@ public class JsonReaderRawTruffleException extends RawTruffleRuntimeException {
   @TruffleBoundary
   public JsonReaderRawTruffleException(
       JsonParser parser, TruffleCharInputStream stream, Throwable cause, Node location) {
-    super(createMessage("failed to read JSON", parser, stream), cause, location);
+    super(createMessage(cause.getCause().getMessage(), parser, stream), cause, location);
   }
 
   @TruffleBoundary

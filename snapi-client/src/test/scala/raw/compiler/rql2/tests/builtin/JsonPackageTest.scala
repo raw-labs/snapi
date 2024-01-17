@@ -410,7 +410,7 @@ trait JsonPackageTest extends CompilerTestContext {
 
   test(snapi"""Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""") { it =>
     if (isTruffle) {
-      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+      it should runErrorAs(snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
     } else {
       it should runErrorAs(
         snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
@@ -439,7 +439,7 @@ trait JsonPackageTest extends CompilerTestContext {
     snapi"""Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
   ) { it =>
     if (isTruffle) {
-      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+      it should runErrorAs(snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
     } else {
       it should runErrorAs(
         snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
@@ -452,7 +452,7 @@ trait JsonPackageTest extends CompilerTestContext {
     snapi"""Collection.Count(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
   ) { it =>
     if (isTruffle) {
-      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+      it should runErrorAs(snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
     } else {
       it should runErrorAs(
         snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
