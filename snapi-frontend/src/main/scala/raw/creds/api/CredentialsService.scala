@@ -100,6 +100,23 @@ trait CredentialsService extends RawService {
 
   def unregisterDropboxToken(user: AuthenticatedUser): Boolean
 
+  /** Salesforce */
+
+  def registerSalesforceCredential(
+      user: AuthenticatedUser,
+      name: String,
+      salesforceCredential: SalesforceCredential
+  ): Boolean
+
+  def getSalesforceCredential(user: AuthenticatedUser, name: String): Option[SalesforceCredential]
+
+  def existsSalesforceCredential(user: AuthenticatedUser, name: String): Boolean =
+    getSalesforceCredential(user, name).isDefined
+
+  def listSalesforceCredentials(user: AuthenticatedUser): List[String]
+
+  def unregisterSalesforceCredential(user: AuthenticatedUser, name: String): Boolean
+
   /** Http Credentials */
 
   protected def validateNewHttpCredentialName(name: String) = {
