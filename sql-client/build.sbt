@@ -146,6 +146,7 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
   postgresqlDeps,
+  hikariCP,
   // pretending a dependency on 'python' in order to have a truffle language, otherwise one cannot use the polyglot API
   "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
 )
