@@ -51,6 +51,7 @@ object SqlCodeUtils {
           } else {
             // Here its not an identifier anymore so we exit.
             // Should we throw here?
+            idns += SqlIdentifier(idn, quoted)
             return idns
           }
         case "inQuote" =>
@@ -65,17 +66,14 @@ object SqlCodeUtils {
             state = "inQuote"
           } else {
             idns += SqlIdentifier(idn, quoted)
-            state = "checkDot"
-          }
-        case "checkDot" =>
-          if (char == '.') {
             idn = ""
             state = "startIdn"
             quoted = false
-          } else {
-            // Here its not an identifier anymore so we exit.
-            // Should we throw here?
-            return idns
+            if (char != '.') {
+              // The only thing valid after finishing a quote is a dot, so we return the current value
+              // Should we throw here?
+              return idns
+            }
           }
       }
     }

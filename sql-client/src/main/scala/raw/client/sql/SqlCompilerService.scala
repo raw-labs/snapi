@@ -234,6 +234,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     val analyzer = new SqlCodeUtils(source)
     val token = analyzer.getIdentifierUpTo(position)
     logger.debug(token)
+
     val matches = for (
       (key, value) <- scope; // for each entry in scope
       if key.startsWith(token); // if the key starts with the token
@@ -245,6 +246,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     }
     AutoCompleteResponse(matches.toArray)
   }
+
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     logger.debug(s"Hovering at position: $position")

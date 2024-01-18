@@ -13,7 +13,8 @@ class TestSqlCodeUtils extends AnyFunSuite {
     values.foreach {
       case (code, expected) =>
         val result = SqlCodeUtils.separateIdentifiers(code)
-        assert(result == expected)
+        if (result != expected)
+          throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }
   }
 
@@ -21,13 +22,13 @@ class TestSqlCodeUtils extends AnyFunSuite {
     val values = Seq(
       "\"table\"" -> Seq(SqlIdentifier("table", quoted = true)),
       "\"schema\".table" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = false)),
-      "schema.\"table\"" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = false)),
+      "schema.\"table\"" -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = true)),
       "\"schema\".\"table\"" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true)),
       "\"schema\"\"schema\".\"table\"" -> Seq(
         SqlIdentifier("schema\"schema", quoted = true),
         SqlIdentifier("table", quoted = true)
       ),
-      "\"schema . schema \".\"table . table\"" -> Seq(
+      "\"schema . schema\".\"table . table\"" -> Seq(
         SqlIdentifier("schema . schema", quoted = true),
         SqlIdentifier("table . table", quoted = true)
       )
@@ -35,28 +36,42 @@ class TestSqlCodeUtils extends AnyFunSuite {
     values.foreach {
       case (code, expected) =>
         val result = SqlCodeUtils.separateIdentifiers(code)
-        if (result != expected) throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
+        if (result != expected)
+          throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }
   }
 
   test("extract incomplete identifiers") {
     val values = Seq(
+      "schema." -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("", quoted = false)),
       "\"schema" -> Seq(SqlIdentifier("schema", quoted = true)),
-      "\"schema." -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("", quoted = false)),
-      "\"schema.\"" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("", quoted = true)),
-      "schema.\"table" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true))
+      "\"schema." -> Seq(SqlIdentifier("schema.", quoted = true)),
+      "\"schema\".\"" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("", quoted = true)),
+      "schema.\"table" -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = true))
     )
     values.foreach {
       case (code, expected) =>
         val result = SqlCodeUtils.separateIdentifiers(code)
-        assert(result == expected)
+        if (result != expected)
+          throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }
   }
 
-  test("bail out ") {
-    val code = "\"schema\".table"
-    val expected = Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = false))
-    val result = SqlCodeUtils.separateIdentifiers(code)
-    assert(result == expected)
+  test("bail out from extra chars") {
+    val values = Seq(
+      "schema " -> Seq(SqlIdentifier("schema", quoted = false)),
+      "\"schema\" " -> Seq(SqlIdentifier("schema", quoted = true)),
+      "\"schema\" .table" -> Seq(SqlIdentifier("schema", quoted = true)),
+      "\"schema\"table" -> Seq(SqlIdentifier("schema", quoted = true)),
+      "schema.table " -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = false)),
+      "\"schema\".\"table\" " -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true)),
+      "\"schema\".\"table\"table" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true)),
+    )
+    values.foreach {
+      case (code, expected) =>
+        val result = SqlCodeUtils.separateIdentifiers(code)
+        if (result != expected)
+          throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
+    }
   }
 }
