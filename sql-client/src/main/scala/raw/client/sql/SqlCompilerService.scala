@@ -233,6 +233,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     val scope = getFullyQualifiedScope(environment)
     val analyzer = new SqlCodeUtils(source)
     val token = analyzer.getIdentifierUpTo(position)
+    val idns = SqlCodeUtils.separateIdentifiers(token)
+    logger.debug(s"idns $idns")
     logger.debug(token)
 
     val matches = for (
@@ -246,7 +248,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     }
     AutoCompleteResponse(matches.toArray)
   }
-
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     logger.debug(s"Hovering at position: $position")

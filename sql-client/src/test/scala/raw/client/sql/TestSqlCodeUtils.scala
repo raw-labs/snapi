@@ -8,7 +8,11 @@ class TestSqlCodeUtils extends AnyFunSuite {
     val values = Seq(
       "table" -> Seq(SqlIdentifier("table", quoted = false)),
       "schema.table" -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = false)),
-      "schema." -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("", quoted = false))
+      "schema.table.row" -> Seq(
+        SqlIdentifier("schema", quoted = false),
+        SqlIdentifier("table", quoted = false),
+        SqlIdentifier("row", quoted = false)
+      )
     )
     values.foreach {
       case (code, expected) =>
@@ -20,17 +24,43 @@ class TestSqlCodeUtils extends AnyFunSuite {
 
   test("extract identifiers with quotes") {
     val values = Seq(
-      "\"table\"" -> Seq(SqlIdentifier("table", quoted = true)),
+      "\"schema\"" -> Seq(SqlIdentifier("schema", quoted = true)),
       "\"schema\".table" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = false)),
+      "\"schema\".table.row" -> Seq(
+        SqlIdentifier("schema", quoted = true),
+        SqlIdentifier("table", quoted = false),
+        SqlIdentifier("row", quoted = false)
+      ),
       "schema.\"table\"" -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = true)),
+      "schema.\"table\".row" -> Seq(
+        SqlIdentifier("schema", quoted = false),
+        SqlIdentifier("table", quoted = true),
+        SqlIdentifier("row", quoted = false)
+      ),
       "\"schema\".\"table\"" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true)),
-      "\"schema\"\"schema\".\"table\"" -> Seq(
-        SqlIdentifier("schema\"schema", quoted = true),
+      "\"schema\".\"table\".\"row\"" -> Seq(
+        SqlIdentifier("schema", quoted = true),
+        SqlIdentifier("table", quoted = true),
+        SqlIdentifier("row", quoted = true)
+      ),
+      "\"schema\".\"table\".row" -> Seq(
+        SqlIdentifier("schema", quoted = true),
+        SqlIdentifier("table", quoted = true),
+        SqlIdentifier("row", quoted = false)
+      ),
+      // escaped quotes in the schema name
+      "\"s\"\"s\".\"table\"" -> Seq(
+        SqlIdentifier("s\"s", quoted = true),
         SqlIdentifier("table", quoted = true)
       ),
-      "\"schema . schema\".\"table . table\"" -> Seq(
-        SqlIdentifier("schema . schema", quoted = true),
-        SqlIdentifier("table . table", quoted = true)
+      "\"s . s\".\"t . t\"" -> Seq(
+        SqlIdentifier("s . s", quoted = true),
+        SqlIdentifier("t . t", quoted = true)
+      ),
+      "\"s . s\".\"t . t\".\"r . r\"" -> Seq(
+        SqlIdentifier("s . s", quoted = true),
+        SqlIdentifier("t . t", quoted = true),
+        SqlIdentifier("r . r", quoted = true)
       )
     )
     values.foreach {
@@ -47,7 +77,17 @@ class TestSqlCodeUtils extends AnyFunSuite {
       "\"schema" -> Seq(SqlIdentifier("schema", quoted = true)),
       "\"schema." -> Seq(SqlIdentifier("schema.", quoted = true)),
       "\"schema\".\"" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("", quoted = true)),
-      "schema.\"table" -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = true))
+      "schema.\"table" -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = true)),
+      "schema.\"table\"." -> Seq(
+        SqlIdentifier("schema", quoted = false),
+        SqlIdentifier("table", quoted = true),
+        SqlIdentifier("", quoted = false)
+      ),
+      "schema.table.\"row" -> Seq(
+        SqlIdentifier("schema", quoted = false),
+        SqlIdentifier("table", quoted = false),
+        SqlIdentifier("row", quoted = true)
+      )
     )
     values.foreach {
       case (code, expected) =>
@@ -65,7 +105,7 @@ class TestSqlCodeUtils extends AnyFunSuite {
       "\"schema\"table" -> Seq(SqlIdentifier("schema", quoted = true)),
       "schema.table " -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = false)),
       "\"schema\".\"table\" " -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true)),
-      "\"schema\".\"table\"table" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true)),
+      "\"schema\".\"table\"table" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("table", quoted = true))
     )
     values.foreach {
       case (code, expected) =>
