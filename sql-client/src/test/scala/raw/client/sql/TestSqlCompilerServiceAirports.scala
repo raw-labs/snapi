@@ -29,7 +29,15 @@ import java.io.ByteArrayOutputStream
 class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
 
   private var compilerService: CompilerService = _
-  private val user = InteractiveUser(Uid("bgaidioz"), "Benjamin Gaidioz", "email", Seq.empty)
+  val database: String = sys.env.getOrElse("NEWBIE_DATABASE", "")
+  // Username equals the database
+  private val user = InteractiveUser(Uid(database), "newbie user", "email", Seq.empty)
+
+  property("raw.creds.jdbc.fdw.host", "localhost")
+  property("raw.creds.jdbc.fdw.port", "5432")
+  property("raw.creds.jdbc.fdw.user", "newbie")
+  property("raw.creds.jdbc.fdw.password", sys.env.getOrElse("NEWBIE_PASSWORD", ""))
+
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -49,7 +57,20 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
      are set to the example database straightaway.
    */
 
-  ignore("""SELECT * FROM example.airports
+  test("""SELECT * FROM example.airports
+         |WHERE airports."c
+         |""".stripMargin) { t =>
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 17))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("\"city\"", "character varying"),
+        LetBindCompletion("\"country\"", "character varying")
+      )
+    )
+  }
+
+  test("""SELECT * FROM example.airports
     |WHERE airports.c
     |""".stripMargin) { t =>
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
