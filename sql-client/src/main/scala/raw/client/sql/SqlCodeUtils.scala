@@ -14,12 +14,78 @@ package raw.client.sql
 
 import raw.client.api.Pos
 
-class SqlCodeUtils(code: String) {
+import scala.collection.mutable
 
-  // filter to recognize an identifier, e.g. a table name, a field name
-  private def identifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_'
+case class SqlIdentifier(value: String, quoted: Boolean)
+// filter to recognize an identifier, e.g. a table name, a field name
+
+object SqlCodeUtils {
+  def identifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_'
+
   // filter to recognize an identifier, possibly with dots, e.g. example.airports
-  private def fullIdentifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_' || c == '.'
+  def fullIdentifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_' || c == '.' || c == '"'
+  def separateIdentifiers(code: String): Seq[SqlIdentifier] = {
+    val idns = mutable.ArrayBuffer[SqlIdentifier]()
+    var idn = ""
+    var state = "startIdn"
+    var quoted = false
+    code.foreach { char =>
+      state match {
+        case "startIdn" =>
+          if (char == '"') {
+            quoted = true
+            state = "inQuote"
+          } else {
+            state = "outQuote"
+            quoted = false
+            idn += char
+          }
+        case "outQuote" =>
+          if (identifierChar(char)) {
+            idn += char
+          } else if (char == '.') {
+            idns += SqlIdentifier(idn, quoted)
+            idn = ""
+            state = "startIdn"
+            quoted = false
+          } else {
+            // Here its not an identifier anymore so we exit.
+            // Should we throw here?
+            return idns
+          }
+        case "inQuote" =>
+          if (char == '"') {
+            state = "checkQuote"
+          } else {
+            idn += char
+          }
+        case "checkQuote" =>
+          if (char == '"') {
+            idn += '"'
+            state = "inQuote"
+          } else {
+            idns += SqlIdentifier(idn, quoted)
+            state = "checkDot"
+          }
+        case "checkDot" =>
+          if (char == '.') {
+            idn = ""
+            state = "startIdn"
+            quoted = false
+          } else {
+            // Here its not an identifier anymore so we exit.
+            // Should we throw here?
+            return idns
+          }
+      }
+    }
+    // We reached the end of the string append what is left
+    idns += SqlIdentifier(idn, quoted)
+    idns.toSeq
+  }
+}
+class SqlCodeUtils(code: String) {
+  import SqlCodeUtils._
 
   // This is getting the (dotted) identifier under the cursor,
   // going left and right until it finds a non-identifier character
