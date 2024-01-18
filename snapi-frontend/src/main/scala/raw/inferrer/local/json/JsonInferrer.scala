@@ -48,6 +48,7 @@ class JsonInferrer(implicit protected val sourceContext: SourceContext)
       val result = infer(buffer.reader, maybeSampleSize)
       TextInputStreamFormatDescriptor(buffer.encoding, buffer.confidence, result)
     } catch {
+      case ex: RawException => throw ex
       case NonFatal(e) => throw new RawException(s"json inference failed unexpectedly", e)
     } finally {
       buffer.reader.close()

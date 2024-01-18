@@ -71,6 +71,7 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       )
       TextInputStreamFormatDescriptor(r.encoding, r.confidence, format)
     } catch {
+      case ex: RawException => throw ex
       case NonFatal(e) => throw new RawException(s"csv inference failed unexpectedly", e)
     } finally {
       r.reader.close()

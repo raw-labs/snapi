@@ -46,6 +46,7 @@ class XmlInferrer(implicit protected val sourceContext: SourceContext)
     try {
       TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
     } catch {
+      case ex: RawException => throw ex
       case NonFatal(e) => throw new RawException(s"xml inference failed unexpectedly", e)
     } finally {
       r.reader.close()
