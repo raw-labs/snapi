@@ -129,9 +129,7 @@ Compile / packageSrc / publishArtifact := true
 
 // Dependencies
 libraryDependencies ++= Seq(
-  // We depend directly on the Truffle DSL processor to use their Antlr4.
-  // If we'd use ours, they would conflict as Truffle DSL package defines the org.antlr4 package.
-  "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided
+  "org.antlr" % "antlr4-runtime" % "4.12.0"
 )
 
 val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")

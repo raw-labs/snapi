@@ -10,7 +10,6 @@ object Dependencies {
 
   val truffleCompiler = Seq(
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided,
     "org.graalvm.truffle" % "truffle-api" % "23.1.0",
     "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
     "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",

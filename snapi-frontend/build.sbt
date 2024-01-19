@@ -145,7 +145,6 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
   rawSnapiParser % "compile->compile;test->test",
-  "org.graalvm.truffle" % "truffle-dsl-processor" % "23.1.0" % Provided,
   commonsLang,
   commonsText,
   apacheHttpClient,

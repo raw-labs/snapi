@@ -24,7 +24,7 @@ sbt clean publishLocal
 
 cd ../snapi-truffle
 rm -rf target/
-sbt clean publishLocal
+sbt clean runJavaAnnotationProcessor publishLocal
 
 cd ../snapi-client
 rm -rf target/
