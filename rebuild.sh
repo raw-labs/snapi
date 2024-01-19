@@ -14,6 +14,9 @@ cd "${SCRIPT_HOME}/utils"
 cd "${SCRIPT_HOME}/client"
 ./build.sh
 
+cd "${SCRIPT_HOME}/snapi-parser-mvn"
+./build.sh
+
 cd "${SCRIPT_HOME}/snapi-parser"
 ./build.sh
 
