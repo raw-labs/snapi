@@ -15,7 +15,7 @@ package raw.client.sql
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import org.graalvm.polyglot.{Context, HostAccess, Value}
 import raw.client.api._
-import raw.client.sql.SqlCodeUtils.compareIdns
+import raw.client.sql.SqlCodeUtils._
 import raw.client.writers.{TypedPolyglotCsvWriter, TypedPolyglotJsonWriter}
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
@@ -234,51 +234,55 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     val scope = getFullyQualifiedScope(environment)
     val analyzer = new SqlCodeUtils(source)
     val token = analyzer.getIdentifierUpTo(position)
-    val idns = SqlCodeUtils.autoCompleteIdentifiers(token)
+    val idns = SqlCodeUtils.getIdentifiers(token)
     logger.debug(s"idns $idns")
     logger.debug(token)
 
-    val matches = for (
-      (key, value) <- scope; // for each entry in scope
-      if matchKey(key, idns);
-      word = key.last.value
-    ) yield {
-      LetBindCompletion(word, value)
-    }
-    AutoCompleteResponse(matches.toArray)
+    val matches = scope.map { case (key, value) => (matchKey(key, idns), value) }
+    val collectedValues = matches.collect { case (Some(word), value) => LetBindCompletion(word, value) }
+
+    AutoCompleteResponse(collectedValues.toArray)
   }
 
-  private def matchKey(key: Seq[SqlIdentifier], idns: Seq[SqlIdentifier]): Boolean = {
-    if (key.length != idns.length) return false
+  private def matchKey(key: Seq[SqlIdentifier], idns: Seq[SqlIdentifier]): Option[String] = {
+    if (key.length != idns.length) return None
     // compare all identifiers except the last one
-    key.take(key.length - 1).zip(idns.take(idns.length - 1)).foreach {
-      case (idn1, idn2) => if (!compareIdns(idn1, idn2)) return false
-    }
+    if (!compareIdentifiers(key.take(key.length - 1), idns.take(idns.length - 1))) return None
+
     // if all intermediate identifiers match now check the key contains the last identifier
     val lastIdn = idns.last
     val lastKey = key.last
-    if (lastIdn.quoted && lastKey.quoted) {
-      // case sensitive match
-      lastKey.value.contains(lastIdn.value)
-    } else {
-      // case insensitive
-      lastKey.value.toLowerCase.contains(lastIdn.value.toLowerCase())
-    }
+    val matches =
+      if (lastIdn.quoted && lastKey.quoted) {
+        // case sensitive match
+        lastKey.value.startsWith(lastIdn.value)
+      } else {
+        // case insensitive
+        lastKey.value.toLowerCase.startsWith(lastIdn.value.toLowerCase())
+      }
+
+    if (!matches) return None
+
+    // If the the idn to auto-complete was quoted return a value with quotes
+    if (lastIdn.quoted) Some('"' + lastKey.value + '"')
+    else Some(lastKey.value)
+
   }
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     logger.debug(s"Hovering at position: $position")
     val analyzer = new SqlCodeUtils(source)
     val token = analyzer.getIdentifierUnder(position)
+    val idns = SqlCodeUtils.getIdentifiers(token)
     val scope = getFullyQualifiedScope(environment)
     scope
-      .find(_._1 == token)
+      .find(x => SqlCodeUtils.compareIdentifiers(x._1, idns))
       .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
       .getOrElse(HoverResponse(None))
   }
 
   def formatIdns(idns: Seq[SqlIdentifier]): String = {
     def formatIdentifier(v: SqlIdentifier) = if (v.quoted) '"' + v.value + '"' else v.value
-    idns.foldLeft("") { case (acc, idn) => acc + "." + formatIdentifier(idn) }
+    idns.tail.foldLeft(idns.head.value) { case (acc, idn) => acc + "." + formatIdentifier(idn) }
   }
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
     RenameResponse(Array.empty)

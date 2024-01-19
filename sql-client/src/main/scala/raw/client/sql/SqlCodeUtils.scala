@@ -25,7 +25,7 @@ object SqlCodeUtils {
   // filter to recognize an identifier, possibly with dots, e.g. example.airports
   def fullIdentifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_' || c == '.' || c == '"'
 
-  def compareIdns(v1: SqlIdentifier, v2: SqlIdentifier): Boolean = {
+  def compareSingleIdentifiers(v1: SqlIdentifier, v2: SqlIdentifier): Boolean = {
     // both quoted , case sensitive comparison, so we just compare the strings
     if (v1.quoted && v2.quoted) {
       v1.value == v2.value
@@ -35,8 +35,15 @@ object SqlCodeUtils {
     }
   }
 
+  def compareIdentifiers(v1: Seq[SqlIdentifier], v2: Seq[SqlIdentifier]): Boolean = {
+    if (v1.length != v2.length) return false
+    v1.zip(v2).foreach { case (idn1, idn2) => if (!compareSingleIdentifiers(idn1, idn2)) return false }
+    true
+  }
 
-  def autoCompleteIdentifiers(code: String): Seq[SqlIdentifier] = {
+  // Parses sql identifiers from a String.
+  // It's used in auto completion so it will parse incomplete strings, e.g "schema"."tab
+  def getIdentifiers(code: String): Seq[SqlIdentifier] = {
     val idns = mutable.ArrayBuffer[SqlIdentifier]()
     var idn = ""
     var state = "startIdn"
