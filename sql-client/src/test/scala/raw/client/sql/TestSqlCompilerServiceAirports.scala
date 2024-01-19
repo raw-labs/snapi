@@ -57,23 +57,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
-  /* Tests are testd since we can't really run such tests against FDW. They pass if the JDBC credentials
-     are set to the example database straightaway.
-   */
 
-  test("""SELECT * FROM example.airports
-    |WHERE airports."c
-    |""".stripMargin) { t =>
-    assume(password != "")
-    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 17))
-    assert(
-      completion.completions.toSet === Set(
-        LetBindCompletion("\"city\"", "character varying"),
-        LetBindCompletion("\"country\"", "character varying")
-      )
-    )
-  }
 
   test("""SELECT * FROM example.airports
     |WHERE airports.c
@@ -85,6 +69,21 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       completion.completions.toSet === Set(
         LetBindCompletion("city", "character varying"),
         LetBindCompletion("country", "character varying")
+      )
+    )
+  }
+
+  // Quoted value
+  test("""SELECT * FROM example.airports
+         |WHERE airports."c
+         |""".stripMargin) { t =>
+    assume(password != "")
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 17))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("\"city\"", "character varying"),
+        LetBindCompletion("\"country\"", "character varying")
       )
     )
   }
@@ -104,6 +103,15 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
         LetBindCompletion("airports", "table")
       )
     )
+    val completion2 = compilerService.wordAutoComplete(t.q, environment, "\"air", Pos(2, 9))
+
+    assert(
+      completion2.completions.toSet === Set(
+        LetBindCompletion("\"airport_id\"", "integer"),
+        LetBindCompletion("\"airports\"", "table")
+      )
+    )
+
     val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 14))
     assert(
       dotCompletion.completions.toSet === Set(

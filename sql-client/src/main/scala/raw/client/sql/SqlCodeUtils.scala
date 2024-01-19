@@ -17,7 +17,6 @@ import raw.client.api.Pos
 import scala.collection.mutable
 
 case class SqlIdentifier(value: String, quoted: Boolean)
-// filter to recognize an identifier, e.g. a table name, a field name
 
 object SqlCodeUtils {
   def identifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_'
@@ -46,8 +45,8 @@ object SqlCodeUtils {
   def getIdentifiers(code: String): Seq[SqlIdentifier] = {
     val idns = mutable.ArrayBuffer[SqlIdentifier]()
     var idn = ""
-    var state = "startIdn"
     var quoted = false
+    var state = "startIdn"
     code.foreach { char =>
       state match {
         case "startIdn" =>
@@ -100,6 +99,68 @@ object SqlCodeUtils {
     idns += SqlIdentifier(idn, quoted)
     idns.toSeq
   }
+
+  def tokens(code: String): Seq[(String, Int)] = {
+    val tokens = mutable.ArrayBuffer[(String, Int)]()
+    var currentWord = ""
+    var currentPos = 0
+    var state = "idle"
+    var quoteType: Char = '"'
+    var pos = 1
+    code.foreach { char =>
+      state match {
+        case "idle" =>
+          if (char == '"' || char == '\'') {
+            state = "inQuote"
+            quoteType = char
+            currentPos = pos
+            currentWord += char
+          } else if (!char.isWhitespace) {
+            state = "inWord"
+            currentWord += char
+            currentPos = pos
+          }
+        case "inWord" =>
+          if (char == '"' || char == '\'') {
+            state = "inQuote"
+            quoteType = char
+            currentWord += char
+          } else if (!char.isWhitespace) {
+            currentWord += char
+          } else {
+            tokens.append((currentWord, currentPos))
+            currentWord = ""
+            currentPos = 0
+            state = "idle"
+          }
+        case "inQuote" =>
+          if (char == quoteType) {
+            state = "checkQuote"
+          } else {
+            currentWord += char
+          }
+        case "checkQuote" =>
+          if (char == quoteType) {
+            currentWord += char
+            state = "inQuote"
+          } else if (!char.isWhitespace) {
+            currentWord += quoteType
+            state = "inWord"
+            currentWord += char
+          } else {
+            currentWord += quoteType
+            tokens.append((currentWord, currentPos))
+            currentWord = ""
+            currentPos = 0
+            state = "idle"
+          }
+      }
+      pos += 1
+    }
+
+    if (currentWord != "") tokens.append((currentWord, currentPos))
+    tokens.toSeq
+  }
 }
 class SqlCodeUtils(code: String) {
   import SqlCodeUtils._
@@ -134,5 +195,4 @@ class SqlCodeUtils(code: String) {
     }
     line.substring(i + 1, p.column)
   }
-
 }

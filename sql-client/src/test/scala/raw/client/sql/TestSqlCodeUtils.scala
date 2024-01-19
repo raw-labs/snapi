@@ -114,4 +114,27 @@ class TestSqlCodeUtils extends AnyFunSuite {
           throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }
   }
+
+  test("extract tokens") {
+    val code = "select * from schema.table"
+    val results = SqlCodeUtils.tokens(code)
+    val expected = Seq(("select", 1), ("*", 8), ("from", 10), ("schema.table", 15))
+    assert(results == expected)
+  }
+
+  test("extract tokens with quotes") {
+    val code = """select * from "schema"."table" where name = 'john smith' """
+    val results = SqlCodeUtils.tokens(code)
+    val expected = Seq(
+      ("select", 1),
+      ("*", 8),
+      ("from", 10),
+      ("schema.table", 15),
+      ("where", 33),
+      ("name", 38),
+      ("=", 43),
+      ("'john smith'", 45)
+    )
+    assert(results == expected)
+  }
 }

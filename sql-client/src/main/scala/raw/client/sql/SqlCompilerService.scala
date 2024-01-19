@@ -235,8 +235,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     val analyzer = new SqlCodeUtils(source)
     val token = analyzer.getIdentifierUpTo(position)
     val idns = SqlCodeUtils.getIdentifiers(token)
-    logger.debug(s"idns $idns")
-    logger.debug(token)
+    logger.debug(s"token $token, idns $idns")
 
     val matches = scope.map { case (key, value) => (matchKey(key, idns), value) }
     val collectedValues = matches.collect { case (Some(word), value) => LetBindCompletion(word, value) }
