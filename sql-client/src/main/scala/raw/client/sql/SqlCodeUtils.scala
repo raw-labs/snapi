@@ -24,7 +24,19 @@ object SqlCodeUtils {
 
   // filter to recognize an identifier, possibly with dots, e.g. example.airports
   def fullIdentifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_' || c == '.' || c == '"'
-  def separateIdentifiers(code: String): Seq[SqlIdentifier] = {
+
+  def compareIdns(v1: SqlIdentifier, v2: SqlIdentifier): Boolean = {
+    // both quoted , case sensitive comparison, so we just compare the strings
+    if (v1.quoted && v2.quoted) {
+      v1.value == v2.value
+    } else {
+      // At least one is not quoted so we perform a case insensitive match
+      v1.value.toLowerCase == v2.value.toLowerCase
+    }
+  }
+
+
+  def autoCompleteIdentifiers(code: String): Seq[SqlIdentifier] = {
     val idns = mutable.ArrayBuffer[SqlIdentifier]()
     var idn = ""
     var state = "startIdn"
