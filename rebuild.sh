@@ -20,6 +20,9 @@ cd "${SCRIPT_HOME}/snapi-parser"
 cd "${SCRIPT_HOME}/snapi-frontend"
 ./build.sh
 
+cd "${SCRIPT_HOME}/snapi-truffle-mvn"
+./build.sh
+
 cd "${SCRIPT_HOME}/snapi-truffle"
 ./build.sh
 
