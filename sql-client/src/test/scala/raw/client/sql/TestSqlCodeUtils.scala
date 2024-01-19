@@ -16,7 +16,7 @@ class TestSqlCodeUtils extends AnyFunSuite {
     )
     values.foreach {
       case (code, expected) =>
-        val result = SqlCodeUtils.separateIdentifiers(code)
+        val result = SqlCodeUtils.autoCompleteIdentifiers(code)
         if (result != expected)
           throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }
@@ -65,7 +65,7 @@ class TestSqlCodeUtils extends AnyFunSuite {
     )
     values.foreach {
       case (code, expected) =>
-        val result = SqlCodeUtils.separateIdentifiers(code)
+        val result = SqlCodeUtils.autoCompleteIdentifiers(code)
         if (result != expected)
           throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }
@@ -91,7 +91,7 @@ class TestSqlCodeUtils extends AnyFunSuite {
     )
     values.foreach {
       case (code, expected) =>
-        val result = SqlCodeUtils.separateIdentifiers(code)
+        val result = SqlCodeUtils.autoCompleteIdentifiers(code)
         if (result != expected)
           throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }
@@ -109,7 +109,7 @@ class TestSqlCodeUtils extends AnyFunSuite {
     )
     values.foreach {
       case (code, expected) =>
-        val result = SqlCodeUtils.separateIdentifiers(code)
+        val result = SqlCodeUtils.autoCompleteIdentifiers(code)
         if (result != expected)
           throw new AssertionError(s"Values did not match for $code: expected $expected but got $result")
     }

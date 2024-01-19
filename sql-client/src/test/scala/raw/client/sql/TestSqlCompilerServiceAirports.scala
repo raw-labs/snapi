@@ -29,15 +29,19 @@ import java.io.ByteArrayOutputStream
 class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
 
   private var compilerService: CompilerService = _
-  val database: String = sys.env.getOrElse("NEWBIE_DATABASE", "")
+  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
+  private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
+  private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
+  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
+  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
+
+  property("raw.creds.jdbc.fdw.host", hostname)
+  property("raw.creds.jdbc.fdw.port", port)
+  property("raw.creds.jdbc.fdw.user", username)
+  property("raw.creds.jdbc.fdw.password", password)
+
   // Username equals the database
-  private val user = InteractiveUser(Uid(database), "newbie user", "email", Seq.empty)
-
-  property("raw.creds.jdbc.fdw.host", "localhost")
-  property("raw.creds.jdbc.fdw.port", "5432")
-  property("raw.creds.jdbc.fdw.user", "newbie")
-  property("raw.creds.jdbc.fdw.password", sys.env.getOrElse("NEWBIE_PASSWORD", ""))
-
+  private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)
 
   override def beforeAll(): Unit = {
     super.beforeAll()
@@ -53,13 +57,14 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
-  /* Tests are ignored since we can't really run such tests against FDW. They pass if the JDBC credentials
+  /* Tests are testd since we can't really run such tests against FDW. They pass if the JDBC credentials
      are set to the example database straightaway.
    */
 
   test("""SELECT * FROM example.airports
-         |WHERE airports."c
-         |""".stripMargin) { t =>
+    |WHERE airports."c
+    |""".stripMargin) { t =>
+    assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 17))
     assert(
@@ -73,6 +78,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   test("""SELECT * FROM example.airports
     |WHERE airports.c
     |""".stripMargin) { t =>
+    assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 16))
     assert(
@@ -83,9 +89,11 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     )
   }
 
-  ignore("""SELECT * FROM example.airports
+  test("""SELECT * FROM example.airports
     |WHERE airports.
     |""".stripMargin) { t =>
+    assume(password != "")
+
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val hover = compilerService.hover(t.q, environment, Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
@@ -115,10 +123,12 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     )
   }
 
-  ignore("""SELECT * FROM example.
+  test("""SELECT * FROM example.
     |WHERE airports.city = 'Porto'
     |AND airports.country = 'Portugal'
     |""".stripMargin) { t =>
+    assume(password != "")
+
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val hover = compilerService.hover(t.q, environment, Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
@@ -134,7 +144,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     )
   }
 
-  ignore("SELECT * FROM example.airports WHERE city = 'Braganca'") { t =>
+  test("SELECT * FROM example.airports WHERE city = 'Braganca'") { t =>
+    assume(password != "")
+
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
     assert(v.errors.isEmpty)
@@ -172,7 +184,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |]""".stripMargin.replaceAll("\\s+", ""))
   }
 
-  ignore("SELECT * FROM example.airports WHERE city = :city") { t =>
+  test("SELECT * FROM example.airports WHERE city = :city") { t =>
+    assume(password != "")
+
     val environment = ProgramEnvironment(
       user,
       Some(Array(("city", RawString("Braganca")))),
@@ -209,7 +223,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     )
   }
 
-  ignore("SELECT * FROM example.airports WHERE city = :city -- with null") { t =>
+  test("SELECT * FROM example.airports WHERE city = :city -- with null") { t =>
+    assume(password != "")
+
     val environment = ProgramEnvironment(
       user,
       Some(Array(("city", RawNull()))),
@@ -241,7 +257,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(baos.toString() == "[]")
   }
 
-  ignore("SELECT * FROM example.airports WHERE city = :param and airport_id = :param") { t =>
+  test("SELECT * FROM example.airports WHERE city = :param and airport_id = :param") { t =>
+    assume(password != "")
+
     val environment = ProgramEnvironment(
       user,
       Some(Array(("param", RawString("Braganca")))),
@@ -259,8 +277,10 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(errors.head.positions(1).end === ErrorPosition(1, 75)) //
   }
 
-  ignore("""SELECT *
+  test("""SELECT *
     |FROM""".stripMargin) { t =>
+    assume(password != "")
+
     val expectedError = "syntax error at end of input"
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val validation = compilerService.validate(t.q, environment)
@@ -272,7 +292,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(executionErrors.exists(_.message.contains(expectedError)))
   }
 
-  ignore("SELECT * FROM inexistent-table") { t =>
+  test("SELECT * FROM inexistent-table") { t =>
+    assume(password != "")
+
     val expectedError = "syntax error at or near \"-\""
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
@@ -284,7 +306,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(executionErrors.exists(_.message.contains(expectedError)))
   }
 
-  ignore("SELECT * FROM inexistent_table") { t =>
+  test("SELECT * FROM inexistent_table") { t =>
+    assume(password != "")
+
     val expectedError = "relation \"inexistent_table\" does not exist"
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
@@ -319,9 +343,11 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     false
   )
 
-  ignore("""
+  test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = :name OR country = :name""".stripMargin) { t =>
+    assume(password != "")
+
     val withCity = ProgramEnvironment(
       user,
       Some(Array(("name", RawString("Braganca")))),
@@ -369,9 +395,11 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(baos.toString() == """[{"count":39}]""")
   }
 
-  ignore("""
+  test("""
     |SELECT COUNT(*) FROM example.airports
     |WHERE city = COALESCE(:name, 'Lyon')""".stripMargin) { t =>
+    assume(password != "")
+
     val withCity = ProgramEnvironment(
       user,
       Some(Array(("name", RawString("Braganca")))),
