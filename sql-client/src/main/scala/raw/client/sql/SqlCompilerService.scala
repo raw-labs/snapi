@@ -62,6 +62,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         conn.close()
       }
     } catch {
+      case e: SqlClientException => GetProgramDescriptionFailure(mkError(source, e.getMessage))
       case e: SQLException => GetProgramDescriptionFailure(mkError(source, e))
       case e: SQLTimeoutException => GetProgramDescriptionFailure(mkError(source, e))
     }
@@ -121,6 +122,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         conn.close()
       }
     } catch {
+      case e: SqlClientException => ExecutionRuntimeFailure(e.getMessage)
       case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
       case e: SQLTimeoutException => ExecutionRuntimeFailure(e.getMessage)
     }
@@ -316,6 +318,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           conn.close()
         }
       } catch {
+        case e: SqlClientException => ValidateResponse(mkError(source, e.getMessage))
         case e: SQLException => ValidateResponse(mkError(source, e))
         case e: SQLTimeoutException => ValidateResponse(mkError(source, e))
       }
@@ -393,6 +396,9 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           .groupBy(_.tableSchema)
           .mapValues(_.groupBy(_.tableName).mapValues(_.map(column => column.columnName -> column.dataType).toMap))
       } catch {
+        case e: SqlClientException =>
+          logger.error(e.getMessage, e)
+          Map.empty
         case e: SQLException =>
           logger.error(e.getMessage, e)
           Map.empty

@@ -13,11 +13,13 @@
 package raw.client.sql
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import raw.utils.{AuthenticatedUser, RawSettings}
+import raw.utils.{AuthenticatedUser, RawException, RawSettings}
 
 import java.sql.SQLException
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
+
+class SqlClientException(message: String, cause: Throwable) extends RawException(message, cause)
 
 class SqlConnectionPool(settings: RawSettings) {
 
@@ -53,8 +55,8 @@ class SqlConnectionPool(settings: RawSettings) {
               case sqlException: SQLException => sqlException.getSQLState match {
                   case "3D000" =>
                     // We get that when the database does not exist. We throw a more explicit exception.
-                    ???
-                  case _ => throw sqlException
+                    throw new SqlClientException("SQL mode needs remote credentials to be entered", sqlException)
+                  case _ => throw hikariException
                 }
               case e: Throwable => throw e
             }
