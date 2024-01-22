@@ -56,7 +56,7 @@ class SqlConnectionPool(settings: RawSettings) {
                     ???
                   case _ => throw sqlException
                 }
-              case e => throw e
+              case e: Throwable => throw e
             }
           case e: Throwable => throw e
         }
