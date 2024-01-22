@@ -57,8 +57,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
-
-
   test("""SELECT * FROM example.airports
     |WHERE airports.c
     |""".stripMargin) { t =>
@@ -75,8 +73,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
   // Quoted value
   test("""SELECT * FROM example.airports
-         |WHERE airports."c
-         |""".stripMargin) { t =>
+    |WHERE airports."c
+    |""".stripMargin) { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 17))
@@ -96,7 +94,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val hover = compilerService.hover(t.q, environment, Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "air", Pos(2, 9))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("airport_id", "integer"),
@@ -121,6 +119,94 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
         LetBindCompletion("city", "character varying")
       )
     )
+  }
+
+  // Quoted identifiers
+  test("""SELECT * FROM "example"."airports"
+    |WHERE "airports".
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 17))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 10))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("\"airport_id\"", "integer"),
+        LetBindCompletion("\"airports\"", "table")
+      )
+    )
+
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
+    assert(
+      dotCompletion.completions.toSet === Set(
+        LetBindCompletion("icao", "character varying"),
+        LetBindCompletion("tz", "character varying"),
+        LetBindCompletion("latitude", "numeric"),
+        LetBindCompletion("altitude", "numeric"),
+        LetBindCompletion("airport_id", "integer"),
+        LetBindCompletion("country", "character varying"),
+        LetBindCompletion("timezone", "integer"),
+        LetBindCompletion("iata_faa", "character varying"),
+        LetBindCompletion("name", "character varying"),
+        LetBindCompletion("dst", "character varying"),
+        LetBindCompletion("longitude", "numeric"),
+        LetBindCompletion("city", "character varying")
+      )
+    )
+  }
+
+  // Upper case
+  test("""SELECT * FROM EXAMPLE.AIRPORTS
+    |WHERE AIRPORTS.
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 16))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("airport_id", "integer"),
+        LetBindCompletion("airports", "table")
+      )
+    )
+
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 14))
+    assert(
+      dotCompletion.completions.toSet === Set(
+        LetBindCompletion("icao", "character varying"),
+        LetBindCompletion("tz", "character varying"),
+        LetBindCompletion("latitude", "numeric"),
+        LetBindCompletion("altitude", "numeric"),
+        LetBindCompletion("airport_id", "integer"),
+        LetBindCompletion("country", "character varying"),
+        LetBindCompletion("timezone", "integer"),
+        LetBindCompletion("iata_faa", "character varying"),
+        LetBindCompletion("name", "character varying"),
+        LetBindCompletion("dst", "character varying"),
+        LetBindCompletion("longitude", "numeric"),
+        LetBindCompletion("city", "character varying")
+      )
+    )
+  }
+
+  // Wrong case with quotes (should not find a match)
+  test("""SELECT * FROM "EXAMPLE"."AIRPORTS"
+    |WHERE "AIRPORTS".
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 16))
+    assert(hover.completion.isEmpty)
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
+    assert(completion.completions.isEmpty)
+
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
+    assert(dotCompletion.completions.isEmpty)
   }
 
   test("""SELECT * FROM example.

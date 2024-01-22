@@ -42,8 +42,8 @@ object SqlCodeUtils {
 
   def compareIdentifiers(v1: Seq[SqlIdentifier], v2: Seq[SqlIdentifier]): Boolean = {
     if (v1.length != v2.length) return false
-    v1.zip(v2).foreach { case (idn1, idn2) => if (!compareSingleIdentifiers(idn1, idn2)) return false }
-    true
+
+    v1.zip(v2).forall{case (x1, x2) => compareSingleIdentifiers(x1, x2)}
   }
 
   // Parses sql identifiers from a String.
