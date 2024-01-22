@@ -133,9 +133,8 @@ publishLocal := (publishLocal dependsOn publishM2).value
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawUtils % "compile->compile;test->test",
-  rawSnapiFrontend % "compile->compile;test->test"
-) ++ truffleCompiler ++ scalaCompiler // Add the scala compiler explicitly to the classpath so that above we copy it to the modulepath.
+  mvnPackage % "compile->compile;test->test"
+) // Add the scala compiler explicitly to the classpath so that above we copy it to the modulepath.
 
 // Output version to a file on compile
 val initializeVersion = taskKey[Unit]("Initialize the version number early")

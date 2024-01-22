@@ -14,10 +14,16 @@ cd "${SCRIPT_HOME}/utils"
 cd "${SCRIPT_HOME}/client"
 ./build.sh
 
+cd "${SCRIPT_HOME}/snapi-parser-mvn"
+./build.sh
+
 cd "${SCRIPT_HOME}/snapi-parser"
 ./build.sh
 
 cd "${SCRIPT_HOME}/snapi-frontend"
+./build.sh
+
+cd "${SCRIPT_HOME}/snapi-truffle-mvn"
 ./build.sh
 
 cd "${SCRIPT_HOME}/snapi-truffle"
