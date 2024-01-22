@@ -193,8 +193,6 @@ resolvers += Resolver.sonatypeRepo("releases")
 // Publish settings
 Test / publishArtifact := true
 Compile / packageSrc / publishArtifact := true
-// When doing publishLocal, also publish to the local maven repository.
-publishLocal := (publishLocal dependsOn publishM2).value
 
 // Dependencies
 libraryDependencies ++= Seq(
@@ -220,3 +218,7 @@ outputVersion := {
 }
 
 Compile / compile := ((Compile / compile) dependsOn outputVersion).value
+
+publishLocal := (publishLocal dependsOn Def.sequential(runJavaAnnotationProcessor, outputVersion, publishM2)).value
+publish := (publish dependsOn Def.sequential(runJavaAnnotationProcessor, outputVersion)).value
+publishSigned := (publishSigned dependsOn Def.sequential(runJavaAnnotationProcessor, outputVersion)).value

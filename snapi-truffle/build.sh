@@ -7,4 +7,4 @@ yes | sdk install java 21.0.1-graalce || true
 sdk use java 21.0.1-graalce
 
 cd "$SCRIPT_HOME"
-sbt clean runJavaAnnotationProcessor publishLocal
+sbt clean publishLocal
