@@ -232,9 +232,11 @@ class SqlCodeUtils(code: String) {
       case (token, pos) => pos.column <= p.column && (pos.column + token.length) > p.column && pos.line == p.line
     }
     maybeToken
-      .map { case (token, pos) =>
-        val str = token.substring(0, p.column - pos.column)
-        identifiers(str) }
+      .map {
+        case (token, pos) =>
+          val str = token.substring(0, p.column + 1 - pos.column)
+          identifiers(str)
+      }
       .getOrElse(Seq.empty)
   }
 }

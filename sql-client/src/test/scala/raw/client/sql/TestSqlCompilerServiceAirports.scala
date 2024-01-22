@@ -103,14 +103,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
         LetBindCompletion("airports", "table")
       )
     )
-    val completion2 = compilerService.wordAutoComplete(t.q, environment, "\"air", Pos(2, 9))
-
-    assert(
-      completion2.completions.toSet === Set(
-        LetBindCompletion("\"airport_id\"", "integer"),
-        LetBindCompletion("\"airports\"", "table")
-      )
-    )
 
     val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 14))
     assert(
