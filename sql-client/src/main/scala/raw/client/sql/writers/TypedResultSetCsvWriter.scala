@@ -100,14 +100,14 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
       case _: RawDecimalType => gen.writeString(v.getBigDecimal(i).toString)
       case _: RawStringType => gen.writeString(v.getString(i))
       case _: RawAnyType => v.getMetaData.getColumnTypeName(i) match {
-          case "jsonb" =>
+          case "jsonb" | "json" =>
             val data = v.getString(i)
             // RawAnyType cannot be nullable, but jsonb can be null.
             if (v.wasNull()) gen.writeNull()
             else {
               gen.writeString(data)
             }
-          case _ => gen.writeString(v.getString(i))
+          case t => throw new IOException(s"unsupported type $t")
         }
       case _: RawDateType =>
         val date = v.getDate(i).toLocalDate
