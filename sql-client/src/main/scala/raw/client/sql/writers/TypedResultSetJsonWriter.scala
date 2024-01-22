@@ -13,6 +13,7 @@
 package raw.client.sql.writers
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
+import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import raw.client.api._
 import raw.utils.RecordFieldsNaming
 
@@ -45,6 +46,7 @@ class TypedResultSetJsonWriter(os: OutputStream) {
   final private val dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd")
   final private val timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss.SSS")
   final private val timestampFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm:ss.SSS")
+  final private val mapper = new ObjectMapper();
 
   @throws[IOException]
   def write(resultSet: ResultSet, t: RawType): Unit = {
@@ -70,7 +72,8 @@ class TypedResultSetJsonWriter(os: OutputStream) {
   @tailrec
   private def writeValue(v: ResultSet, i: Int, t: RawType): Unit = {
     if (t.nullable) {
-      if (v == null) gen.writeNull()
+      v.getObject(i)
+      if (v.wasNull()) gen.writeNull()
       else writeValue(v, i, t.cloneNotNullable)
     } else t match {
       case _: RawBoolType => gen.writeBoolean(v.getBoolean(i))
@@ -82,6 +85,18 @@ class TypedResultSetJsonWriter(os: OutputStream) {
       case _: RawDoubleType => gen.writeNumber(v.getDouble(i))
       case _: RawDecimalType => gen.writeString(v.getBigDecimal(i).toString)
       case _: RawStringType => gen.writeString(v.getString(i))
+      case _: RawAnyType => v.getMetaData.getColumnTypeName(i) match {
+          case "jsonb" =>
+            val data = v.getString(i)
+            // RawAnyType cannot be nullable, but jsonb can be null. Whether the field is null or
+            // jsonb contains a "null" json value, both will render as null in the output.
+            if (v.wasNull()) gen.writeNull()
+            else {
+              val json = mapper.readTree(data)
+              writeRawJson(json)
+            }
+          case _ => gen.writeString(v.getString(i))
+        }
       case _: RawDateType =>
         val date = v.getDate(i).toLocalDate
         gen.writeString(dateFormatter.format(date))
@@ -93,7 +108,33 @@ class TypedResultSetJsonWriter(os: OutputStream) {
         val dateTime = v.getTimestamp(i).toLocalDateTime
         val formatted = timestampFormatter.format(dateTime)
         gen.writeString(formatted)
-      case _ => throw new RuntimeException("unsupported type")
+      case _ => throw new IOException("unsupported type")
+    }
+  }
+
+  @throws[IOException]
+  private def writeRawJson(node: JsonNode): Unit = {
+    if (node.isObject) {
+      gen.writeStartObject()
+      node.fields().forEachRemaining { field =>
+        gen.writeFieldName(field.getKey)
+        writeRawJson(field.getValue)
+      }
+      gen.writeEndObject()
+    } else if (node.isArray) {
+      gen.writeStartArray()
+      node.elements().forEachRemaining(element => writeRawJson(element))
+      gen.writeEndArray()
+    } else if (node.isTextual) {
+      gen.writeString(node.asText())
+    } else if (node.isNumber) {
+      gen.writeNumber(node.asDouble())
+    } else if (node.isBoolean) {
+      gen.writeBoolean(node.asBoolean())
+    } else if (node.isNull) {
+      gen.writeNull()
+    } else {
+      throw new IOException("unsupported type")
     }
   }
 
