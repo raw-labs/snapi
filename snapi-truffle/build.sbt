@@ -6,6 +6,8 @@ import Dependencies.*
 
 import scala.sys.process.Process
 
+import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
+
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
 sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
