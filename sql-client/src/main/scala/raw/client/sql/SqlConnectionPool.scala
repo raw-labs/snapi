@@ -11,6 +11,7 @@
  */
 
 package raw.client.sql
+import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.utils.{AuthenticatedUser, RawSettings}
 
@@ -43,9 +44,22 @@ class SqlConnectionPool(settings: RawSettings) {
         )
         config.setUsername(readOnlyUser)
         config.setPassword(password)
-        val pool = new HikariDataSource(config)
-        pools.put(db, pool)
-        pool
+        try {
+          val pool = new HikariDataSource(config)
+          pools.put(db, pool)
+          pool
+        } catch {
+          case hikariException: PoolInitializationException => hikariException.getCause match {
+              case sqlException: SQLException => sqlException.getSQLState match {
+                  case "3D000" =>
+                    // We get that when the database does not exist. We throw a more explicit exception.
+                    ???
+                  case _ => throw sqlException
+                }
+              case e => throw e
+            }
+          case e: Throwable => throw e
+        }
     }
     userPool.getConnection
   }
