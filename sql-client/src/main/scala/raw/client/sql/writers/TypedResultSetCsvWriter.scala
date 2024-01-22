@@ -67,12 +67,15 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
     for (colName <- columnNames) {
       schemaBuilder.addColumn(colName)
     }
-    gen.setSchema(schemaBuilder.build)
+    gen.setSchema(schemaBuilder.build())
     gen.enable(STRICT_CHECK_FOR_QUOTING)
     while (resultSet.next()) {
+      gen.writeStartObject()
       for (i <- 0 until distincted.size()) {
+        gen.writeFieldName(distincted.get(i))
         writeValue(resultSet, i + 1, atts(i).tipe)
       }
+      gen.writeEndObject()
     }
   }
 
@@ -80,8 +83,12 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
   @tailrec
   private def writeValue(v: ResultSet, i: Int, t: RawType): Unit = {
     if (t.nullable) {
-      if (v == null) gen.writeNull()
-      else writeValue(v, i, t.cloneNotNullable)
+      v.getObject(i)
+      if (v.wasNull()) {
+        gen.writeNull()
+      } else {
+        writeValue(v, i, t.cloneNotNullable)
+      }
     } else t match {
       case _: RawBoolType => gen.writeBoolean(v.getBoolean(i))
       case _: RawByteType => gen.writeNumber(v.getByte(i).toInt)
@@ -92,6 +99,16 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
       case _: RawDoubleType => gen.writeNumber(v.getDouble(i))
       case _: RawDecimalType => gen.writeString(v.getBigDecimal(i).toString)
       case _: RawStringType => gen.writeString(v.getString(i))
+      case _: RawAnyType => v.getMetaData.getColumnTypeName(i) match {
+          case "jsonb" | "json" =>
+            val data = v.getString(i)
+            // RawAnyType cannot be nullable, but jsonb can be null.
+            if (v.wasNull()) gen.writeNull()
+            else {
+              gen.writeString(data)
+            }
+          case t => throw new IOException(s"unsupported type $t")
+        }
       case _: RawDateType =>
         val date = v.getDate(i).toLocalDate
         gen.writeString(dateFormatter.format(date))

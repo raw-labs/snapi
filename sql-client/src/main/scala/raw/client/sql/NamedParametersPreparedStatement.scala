@@ -179,7 +179,10 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
       val typeInfo = {
         val tipe = metadata.getColumnType(i)
         val nullable = metadata.isNullable(i) == ResultSetMetaData.columnNullable
-        SqlTypesUtils.rawTypeFromJdbc(tipe).right.map(_.cloneWithFlags(nullable, false))
+        SqlTypesUtils.rawTypeFromJdbc(tipe).right.map {
+          case t: RawAnyType => t
+          case t: RawType => t.cloneWithFlags(nullable, false)
+        }
       }
       typeInfo.right.map(t => RawAttrType(name, t))
     }
