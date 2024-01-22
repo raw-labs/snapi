@@ -83,6 +83,7 @@ module raw.snapi.frontend {
   exports raw.compiler.rql2.errors;
   exports raw.compiler.rql2.lsp;
   exports raw.compiler.rql2.source;
+  exports raw.compiler.rql2.antlr4;
   exports raw.compiler.utils;
   exports raw.inferrer.api;
   exports raw.inferrer.local;
