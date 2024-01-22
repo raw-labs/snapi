@@ -18,11 +18,17 @@ import scala.collection.mutable
 
 case class SqlIdentifier(value: String, quoted: Boolean)
 
+// Define a new enumeration with a type alias and work with the full set of enumerated values
+object SqlParseStates extends Enumeration {
+  type State = Value
+  val Idle, InQuote, OutQuote, CheckQuote = Value
+}
 object SqlCodeUtils {
-  def identifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_'
+  import SqlParseStates._
+  private def identifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_'
 
   // filter to recognize an identifier, possibly with dots, e.g. example.airports
-  def fullIdentifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_' || c == '.' || c == '"'
+//  private def fullIdentifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_' || c == '.' || c == '"'
 
   def compareSingleIdentifiers(v1: SqlIdentifier, v2: SqlIdentifier): Boolean = {
     // both quoted , case sensitive comparison, so we just compare the strings
@@ -42,50 +48,56 @@ object SqlCodeUtils {
 
   // Parses sql identifiers from a String.
   // It's used in auto completion so it will parse incomplete strings, e.g "schema"."tab
-  def getIdentifiers(code: String): Seq[SqlIdentifier] = {
+  // Can probably be done with regexes also, but this seemed safer
+  def identifiers(code: String): Seq[SqlIdentifier] = {
     val idns = mutable.ArrayBuffer[SqlIdentifier]()
-    var idn = ""
+    val idn = new StringBuilder()
     var quoted = false
-    var state = "startIdn"
+    var state: State = Idle
     code.foreach { char =>
       state match {
-        case "startIdn" =>
+        case Idle =>
           if (char == '"') {
             quoted = true
-            state = "inQuote"
-          } else {
-            state = "outQuote"
+            state = InQuote
+          } else if (identifierChar(char)) {
+            state = OutQuote
             quoted = false
             idn += char
+          } else {
+            // Here its not an identifier anymore so we exit.
+            // Should we throw here?
+            idns += SqlIdentifier(idn.toString(), quoted)
+            return idns
           }
-        case "outQuote" =>
+        case OutQuote =>
           if (identifierChar(char)) {
             idn += char
           } else if (char == '.') {
-            idns += SqlIdentifier(idn, quoted)
-            idn = ""
-            state = "startIdn"
+            idns += SqlIdentifier(idn.toString(), quoted)
+            idn.clear()
+            state = Idle
             quoted = false
           } else {
             // Here its not an identifier anymore so we exit.
             // Should we throw here?
-            idns += SqlIdentifier(idn, quoted)
+            idns += SqlIdentifier(idn.toString(), quoted)
             return idns
           }
-        case "inQuote" =>
+        case InQuote =>
           if (char == '"') {
-            state = "checkQuote"
+            state = CheckQuote
           } else {
             idn += char
           }
-        case "checkQuote" =>
+        case CheckQuote =>
           if (char == '"') {
             idn += '"'
-            state = "inQuote"
+            state = InQuote
           } else {
-            idns += SqlIdentifier(idn, quoted)
-            idn = ""
-            state = "startIdn"
+            idns += SqlIdentifier(idn.toString(), quoted)
+            idn.clear()
+            state = Idle
             quoted = false
             if (char != '.') {
               // The only thing valid after finishing a quote is a dot, so we return the current value
@@ -95,70 +107,87 @@ object SqlCodeUtils {
           }
       }
     }
+    // If we were checking for a second quote and we reached the end, then add the quote to the identifier
+    if (state == CheckQuote) {
+      idn += '"'
+    }
     // We reached the end of the string append what is left
-    idns += SqlIdentifier(idn, quoted)
+    idns += SqlIdentifier(idn.toString(), quoted)
     idns.toSeq
   }
 
-  def tokens(code: String): Seq[(String, Int)] = {
-    val tokens = mutable.ArrayBuffer[(String, Int)]()
-    var currentWord = ""
-    var currentPos = 0
-    var state = "idle"
+  // State machine to parse tokens, returns a sequence of (token, offset)
+  // It mostly separates by white-space with a state machine to handle quotes
+  // This can probably be done with regexes also, but has to handle incomplete input (the user is still typing the query)
+  def tokens(code: String): Seq[(String, Pos)] = {
+    val tokens = mutable.ArrayBuffer[(String, Pos)]()
+    val currentWord = new StringBuilder()
+    var state = Idle
     var quoteType: Char = '"'
-    var pos = 1
+    var currentPos = Pos(0, 0)
+    var line = 1
+    var row = 1
     code.foreach { char =>
       state match {
-        case "idle" =>
+        case Idle =>
           if (char == '"' || char == '\'') {
-            state = "inQuote"
-            quoteType = char
-            currentPos = pos
-            currentWord += char
-          } else if (!char.isWhitespace) {
-            state = "inWord"
-            currentWord += char
-            currentPos = pos
-          }
-        case "inWord" =>
-          if (char == '"' || char == '\'') {
-            state = "inQuote"
+            state = InQuote
             quoteType = char
             currentWord += char
+            currentPos = Pos(line, row)
+          } else if (!char.isWhitespace) {
+            state = OutQuote
+            currentWord += char
+            currentPos = Pos(line, row)
+          }
+        case OutQuote =>
+          if (char == '"' || char == '\'') {
+            state = InQuote
+            quoteType = char
+            currentWord += char
           } else if (!char.isWhitespace) {
             currentWord += char
           } else {
-            tokens.append((currentWord, currentPos))
-            currentWord = ""
-            currentPos = 0
-            state = "idle"
+            tokens.append((currentWord.toString(), currentPos))
+            currentWord.clear()
+            currentPos = Pos(line, row)
+            state = Idle
           }
-        case "inQuote" =>
+        case InQuote =>
           if (char == quoteType) {
-            state = "checkQuote"
+            state = CheckQuote
           } else {
             currentWord += char
           }
-        case "checkQuote" =>
+        case CheckQuote =>
           if (char == quoteType) {
             currentWord += char
-            state = "inQuote"
+            state = InQuote
           } else if (!char.isWhitespace) {
             currentWord += quoteType
-            state = "inWord"
+            state = OutQuote
             currentWord += char
           } else {
             currentWord += quoteType
-            tokens.append((currentWord, currentPos))
-            currentWord = ""
-            currentPos = 0
-            state = "idle"
+            tokens.append((currentWord.toString(), currentPos))
+            currentWord.clear()
+            state = Idle
           }
       }
-      pos += 1
+      if (char == '\n') {
+        line += 1
+        row = 1
+      } else {
+        row += 1
+      }
+
     }
 
-    if (currentWord != "") tokens.append((currentWord, currentPos))
+    // If we were checking a quote and we reached the end then we need to add the quote to the string
+    if (state == CheckQuote) {
+      currentWord += quoteType
+    }
+    if (currentWord.nonEmpty) tokens.append((currentWord.toString(), currentPos))
     tokens.toSeq
   }
 }
@@ -167,32 +196,45 @@ class SqlCodeUtils(code: String) {
 
   // This is getting the (dotted) identifier under the cursor,
   // going left and right until it finds a non-identifier character
-  def getIdentifierUnder(p: Pos): String = {
-    val lines = code.split("\n")
-    val line = lines(p.line - 1)
-    // go backwards while the token is a letter or digit or...
-    var i = p.column - 1
-    while (i >= 0 && fullIdentifierChar(line.charAt(i))) {
-      i -= 1
+  def getIdentifierUnder(p: Pos): Seq[SqlIdentifier] = {
+    val tokens = SqlCodeUtils.tokens(code)
+    // Finds the corresponding token
+    val maybeToken = tokens.find {
+      case (token, pos) => pos.column <= p.column && (pos.column + token.length) > p.column && pos.line == p.line
     }
-    // go forwards while the token is a letter or digit (not dots)
-    var j = p.column
-    while (j < line.length && identifierChar(line.charAt(j))) {
-      j += 1
-    }
-    line.substring(i + 1, j)
+
+    maybeToken
+      .map {
+        case (token, pos) =>
+          val idns = identifiers(token)
+          var currentCol = pos.column
+          // This is to get the idns with the column offset
+          val idnAtPos = idns.takeWhile { idn =>
+            {
+              val check = currentCol <= p.column
+              // +1 because of the dot
+              currentCol += idn.value.length + 1
+              check
+            }
+          }
+          Seq(idnAtPos.last)
+      }
+      .getOrElse(Seq.empty)
+
   }
 
   // This gets the fraction of the (dotted) identifier, up to the position. This permits to get the
   // beginning of the dotted identifier, and perform a completion on it (airports.c => city or country)
-  def getIdentifierUpTo(p: Pos): String = {
-    val lines = code.split("\n")
-    val line = lines(p.line - 1)
-    // go backwards while the token is a letter or digit or...
-    var i = p.column - 1
-    while (i >= 0 && fullIdentifierChar(line.charAt(i))) {
-      i -= 1
+  def getIdentifierUpTo(p: Pos): Seq[SqlIdentifier] = {
+    val tokens = SqlCodeUtils.tokens(code)
+    // Finds the corresponding token
+    val maybeToken = tokens.find {
+      case (token, pos) => pos.column <= p.column && (pos.column + token.length) > p.column && pos.line == p.line
     }
-    line.substring(i + 1, p.column)
+    maybeToken
+      .map { case (token, pos) =>
+        val str = token.substring(0, p.column - pos.column)
+        identifiers(str) }
+      .getOrElse(Seq.empty)
   }
 }

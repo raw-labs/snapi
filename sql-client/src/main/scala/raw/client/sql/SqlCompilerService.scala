@@ -212,12 +212,18 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
     logger.debug(s"dotAutocompleting at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUpTo(position)
+    val idns = analyzer.getIdentifierUpTo(position)
     val schemas = getSchemas(environment)
-    val matches = schemas.get(token) match {
-      case Some(tables) => tables.keys.map(name => LetBindCompletion(name, "table"))
-      case None =>
-        for (tables <- schemas.values; (table, columns) <- tables; if table == token; (name, tipe) <- columns) yield {
+    // check if we found a schema
+    val maybeSchema =
+      schemas.find { case (name, _) => compareIdentifiers(idns, Seq(SqlIdentifier(name, quoted = true))) }
+
+    val matches = maybeSchema match {
+      case Some((_, tables)) => tables.keys.map(name => LetBindCompletion(name, "table"))
+      case None => for (
+          tables <- schemas.values; (table, columns) <- tables;
+          if compareIdentifiers(Seq(SqlIdentifier(table, quoted = true)), idns); (name, tipe) <- columns
+        ) yield {
           LetBindCompletion(name, tipe)
         }
     }
@@ -233,9 +239,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     logger.debug(s"wordAutocompleting at position: $position")
     val scope = getFullyQualifiedScope(environment)
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUpTo(position)
-    val idns = SqlCodeUtils.getIdentifiers(token)
-    logger.debug(s"token $token, idns $idns")
+    val idns = analyzer.getIdentifierUpTo(position)
+    logger.debug(s"idns $idns")
 
     val matches = scope.map { case (key, value) => (matchKey(key, idns), value) }
     val collectedValues = matches.collect { case (Some(word), value) => LetBindCompletion(word, value) }
@@ -270,8 +275,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     logger.debug(s"Hovering at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUnder(position)
-    val idns = SqlCodeUtils.getIdentifiers(token)
+    val idns = analyzer.getIdentifierUnder(position)
     val scope = getFullyQualifiedScope(environment)
     scope
       .find(x => SqlCodeUtils.compareIdentifiers(x._1, idns))
