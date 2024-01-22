@@ -13,14 +13,19 @@
         <maven.compiler.target>21</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <antlr.version>4.13.1</antlr.version>
+        <antlr4-maven-plugin.version>3.11.0</antlr4-maven-plugin.version>
     </properties>
-
     <build>
         <plugins>
             <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>${antlr4-maven-plugin.version}</version>
+            </plugin>
+            <plugin>
                 <groupId>org.antlr</groupId>
                 <artifactId>antlr4-maven-plugin</artifactId>
-                <version>4.13.1</version>
+                <version>${antlr.version}</version>
                 <configuration>
                     <sourceDirectory>src/main/java/raw/parser/grammar</sourceDirectory>
                     <outputDirectory>src/main/java/raw/compiler/rql2/generated</outputDirectory>
