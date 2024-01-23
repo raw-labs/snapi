@@ -218,8 +218,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
 
     val matches = maybeSchema match {
       case Some((_, tables)) => tables.keys.map(name => LetBindCompletion(name, "table"))
-      case None =>
-        for (
+      case None => for (
           tables <- schemas.values; (table, columns) <- tables;
           if compareIdentifiers(Seq(SqlIdentifier(table, quoted = true)), idns); (name, tipe) <- columns
         ) yield {
