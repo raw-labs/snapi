@@ -13,14 +13,13 @@
 package raw.client.sql
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
-import org.graalvm.polyglot.{Context, HostAccess, Value}
 import raw.client.api._
 import raw.client.sql.SqlCodeUtils._
-import raw.client.writers.{TypedPolyglotCsvWriter, TypedPolyglotJsonWriter}
+import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
-import java.sql.{SQLException, SQLTimeoutException}
+import java.sql.{ResultSet, SQLException, SQLTimeoutException}
 import scala.collection.mutable
 
 class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
@@ -100,23 +99,22 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       val conn = connectionPool.getConnection(environment.user)
       try {
         val pstmt = new NamedParametersPreparedStatement(conn, source)
-        val result = pstmt.queryMetadata match {
-          case Right(info) =>
-            try {
-              val tipe = info.outputType
-              val access = HostAccess.newBuilder().allowMapAccess(true).allowIteratorAccess(true).build()
-              val ctx = Context.newBuilder().allowHostAccess(access).build()
-              environment.maybeArguments.foreach(array => setParams(pstmt, array))
-              val r = pstmt.executeQuery()
-              val v = ctx.asValue(new ResultSetIterator(r, ctx))
-              render(environment, tipe, v, outputStream)
-            } catch {
-              case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
-            }
-          case Left(errors) => ExecutionValidationFailure(errors)
+        try {
+          pstmt.queryMetadata match {
+            case Right(info) =>
+              try {
+                val tipe = info.outputType
+                environment.maybeArguments.foreach(array => setParams(pstmt, array))
+                val r = pstmt.executeQuery()
+                render(environment, tipe, r, outputStream)
+              } catch {
+                case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
+              }
+            case Left(errors) => ExecutionValidationFailure(errors)
+          }
+        } finally {
+          RawUtils.withSuppressNonFatalException(pstmt.close())
         }
-        pstmt.close()
-        result
       } catch {
         case e: SQLException => ExecutionValidationFailure(mkError(source, e))
       } finally {
@@ -131,14 +129,14 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   private def render(
       environment: ProgramEnvironment,
       tipe: RawType,
-      v: Value,
+      v: ResultSet,
       outputStream: OutputStream
   ): ExecutionResponse = {
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
       case Some("csv") =>
-        if (!TypedPolyglotCsvWriter.outputWriteSupport(tipe)) {
+        if (!TypedResultSetCsvWriter.outputWriteSupport(tipe)) {
           ExecutionRuntimeFailure("unsupported type")
         }
         val windowsLineEnding = environment.options.get("windows-line-ending") match {
@@ -146,7 +144,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           case _ => false //settings.config.getBoolean("raw.compiler.windows-line-ending")
         }
         val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-        val csvWriter = new TypedPolyglotCsvWriter(outputStream, lineSeparator)
+        val csvWriter = new TypedResultSetCsvWriter(outputStream, lineSeparator)
         try {
           csvWriter.write(v, tipe)
           ExecutionSuccess
@@ -156,10 +154,10 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           RawUtils.withSuppressNonFatalException(csvWriter.close())
         }
       case Some("json") =>
-        if (!TypedPolyglotJsonWriter.outputWriteSupport(tipe)) {
+        if (!TypedResultSetJsonWriter.outputWriteSupport(tipe)) {
           ExecutionRuntimeFailure("unsupported type")
         }
-        val w = new TypedPolyglotJsonWriter(outputStream)
+        val w = new TypedResultSetJsonWriter(outputStream)
         try {
           w.write(v, tipe)
           ExecutionSuccess
