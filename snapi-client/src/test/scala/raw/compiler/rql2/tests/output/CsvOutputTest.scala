@@ -23,9 +23,9 @@ trait CsvOutputTest extends CompilerTestContext {
   option("output-format", "csv")
 
   private val csvWithAllTypes = tempFile(
-    """byteCol;shortCol;intCol;longCol;floatCol;doubleCol;decimalCol;boolCol;dateCol;timeCol;timestampCol
-      |1;10;100;1000;3.14;6.28;9.42;true;2023-12-25;01:02:03;2023-12-25T01:02:03
-      |120;2500;25000;9223372036854775807;30.14;60.28;90.42;false;2023-02-05;11:12:13;2023-02-05T11:12:13""".stripMargin
+    """byteCol;shortCol;intCol;longCol;floatCol;doubleCol;decimalCol;boolCol;nullBoolCol;dateCol;timeCol;timestampCol
+      |1;10;100;1000;3.14;6.28;9.42;true;false;2023-12-25;01:02:03;2023-12-25T01:02:03
+      |120;2500;25000;9223372036854775807;30.14;60.28;90.42;false;;2023-02-05;11:12:13;2023-02-05T11:12:13""".stripMargin
   )
 
   test("""[
@@ -57,9 +57,9 @@ trait CsvOutputTest extends CompilerTestContext {
     try {
       it should saveToInFormat(path, "csv")
       path should contain(
-        """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol
-          |1,10,100,1000,3.14,6.28,9.42,true,2023-12-25,01:02:03,2023-12-25T01:02:03
-          |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,2023-02-05,11:12:13,2023-02-05T11:12:13
+        """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,nullBoolCol,dateCol,timeCol,timestampCol
+          |1,10,100,1000,3.14,6.28,9.42,true,false,2023-12-25,01:02:03,2023-12-25T01:02:03
+          |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,,2023-02-05,11:12:13,2023-02-05T11:12:13
           |""".stripMargin
       )
     } finally {
@@ -77,6 +77,7 @@ trait CsvOutputTest extends CompilerTestContext {
     |        doubleCol: double,
     |        decimalCol: decimal,
     |        boolCol: bool,
+    |        nullBoolCol: bool,
     |        dateCol: date,
     |        timeCol: time,
     |        timestampCol: timestamp
@@ -86,9 +87,9 @@ trait CsvOutputTest extends CompilerTestContext {
     try {
       it should saveToInFormat(path, "csv")
       path should contain(
-        """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol
-          |1,10,100,1000,3.14,6.28,9.42,true,2023-12-25,01:02:03,2023-12-25T01:02:03
-          |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,2023-02-05,11:12:13,2023-02-05T11:12:13
+        """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,nullBoolCol,dateCol,timeCol,timestampCol
+          |1,10,100,1000,3.14,6.28,9.42,true,false,2023-12-25,01:02:03,2023-12-25T01:02:03
+          |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,,2023-02-05,11:12:13,2023-02-05T11:12:13
           |""".stripMargin
       )
     } finally {
@@ -106,6 +107,7 @@ trait CsvOutputTest extends CompilerTestContext {
     |        doubleCol: double,
     |        decimalCol: decimal,
     |        boolCol: bool,
+    |        nullBoolCol: bool,
     |        dateCol: date,
     |        timeCol: time,
     |        timestampCol: timestamp
@@ -116,18 +118,18 @@ trait CsvOutputTest extends CompilerTestContext {
       it should saveToInFormat(path, "csv")
       if (compilerService.language.contains("rql2-truffle")) {
         path should contain(
-          snapi"""byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol
-            |"failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte","failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short","failed to parse CSV (url: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int","failed to parse CSV (url: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long","failed to parse CSV (url: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float","failed to parse CSV (url: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double","failed to parse CSV (url: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal","failed to parse CSV (url: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool","failed to parse CSV (url: $csvWithAllTypes: line 1, col 71), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 79), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 87), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'"
-            |1,10,100,1000,3.14,6.28,9.42,true,2023-12-25,01:02:03,2023-12-25T01:02:03
-            |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,2023-02-05,11:12:13,2023-02-05T11:12:13
+          snapi"""byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,nullBoolCol,dateCol,timeCol,timestampCol
+            |"failed to parse CSV (url: $csvWithAllTypes: line 1, col 1), cannot parse 'byteCol' as a byte","failed to parse CSV (url: $csvWithAllTypes: line 1, col 9), cannot parse 'shortCol' as a short","failed to parse CSV (url: $csvWithAllTypes: line 1, col 18), cannot parse 'intCol' as an int","failed to parse CSV (url: $csvWithAllTypes: line 1, col 25), cannot parse 'longCol' as a long","failed to parse CSV (url: $csvWithAllTypes: line 1, col 33), cannot parse 'floatCol' as a float","failed to parse CSV (url: $csvWithAllTypes: line 1, col 42), cannot parse 'doubleCol' as a double","failed to parse CSV (url: $csvWithAllTypes: line 1, col 52), cannot parse 'decimalCol' as a decimal","failed to parse CSV (url: $csvWithAllTypes: line 1, col 63), cannot parse 'boolCol' as a bool","failed to parse CSV (url: $csvWithAllTypes: line 1, col 71), cannot parse 'nullBoolCol' as a bool","failed to parse CSV (url: $csvWithAllTypes: line 1, col 83), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 91), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (url: $csvWithAllTypes: line 1, col 99), string 'timestampCol' does not match timestamp template 'HH:mm[:ss[.SSS]]'"
+            |1,10,100,1000,3.14,6.28,9.42,true,false,2023-12-25,01:02:03,2023-12-25T01:02:03
+            |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,,2023-02-05,11:12:13,2023-02-05T11:12:13
             |""".stripMargin
         )
       } else {
         path should contain(
-          """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol
-            |"failed to parse CSV (line 1, col 1), cannot cast 'byteCol' to byte","failed to parse CSV (line 1, col 2), cannot cast 'shortCol' to short","failed to parse CSV (line 1, col 3), cannot cast 'intCol' to int","failed to parse CSV (line 1, col 4), cannot cast 'longCol' to long","failed to parse CSV (line 1, col 5), cannot cast 'floatCol' to float","failed to parse CSV (line 1, col 6), cannot cast 'doubleCol' to double","failed to parse CSV (line 1, col 7), Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.","failed to parse CSV (line 1, col 8), cannot cast 'boolCol' to boolean","failed to parse CSV (line 1, col 9), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (line 1, col 10), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (line 1, col 11), string 'timestampCol' does not match timestamp template 'yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]'"
-            |1,10,100,1000,3.14,6.28,9.42,true,2023-12-25,01:02:03,2023-12-25T01:02:03
-            |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,2023-02-05,11:12:13,2023-02-05T11:12:13
+          """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,nullBoolCol,dateCol,timeCol,timestampCol
+            |"failed to parse CSV (line 1, col 1), cannot cast 'byteCol' to byte","failed to parse CSV (line 1, col 2), cannot cast 'shortCol' to short","failed to parse CSV (line 1, col 3), cannot cast 'intCol' to int","failed to parse CSV (line 1, col 4), cannot cast 'longCol' to long","failed to parse CSV (line 1, col 5), cannot cast 'floatCol' to float","failed to parse CSV (line 1, col 6), cannot cast 'doubleCol' to double","failed to parse CSV (line 1, col 7), Character d is neither a decimal digit number, decimal point, nor \"e\" notation exponential mark.","failed to parse CSV (line 1, col 8), cannot cast 'boolCol' to boolean","failed to parse CSV (line 1, col 9), cannot cast 'nullBoolCol' to boolean","failed to parse CSV (line 1, col 10), string 'dateCol' does not match date template 'yyyy-M-d'","failed to parse CSV (line 1, col 11), string 'timeCol' does not match time template 'HH:mm[:ss[.SSS]]'","failed to parse CSV (line 1, col 12), string 'timestampCol' does not match timestamp template 'yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]'"
+            |1,10,100,1000,3.14,6.28,9.42,true,false,2023-12-25,01:02:03,2023-12-25T01:02:03
+            |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,,2023-02-05,11:12:13,2023-02-05T11:12:13
             |""".stripMargin
         )
       }
