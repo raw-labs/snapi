@@ -18,12 +18,12 @@ trait RD10723Test extends CompilerTestContext {
 
   private val qqq = "\"\"\""
   test(s"""main() =
-         |  let financial = Csv.InferAndParse(${qqq}year;market_cap_in_billion
-         |${qqq}
-         |  ) in financial
-         |
-         |main()
-         |""".stripMargin)(
+    |  let financial = Csv.InferAndParse(${qqq}year;market_cap_in_billion
+    |$qqq
+    |  ) in financial
+    |
+    |main()
+    |""".stripMargin)(
     _ should run
   )
 

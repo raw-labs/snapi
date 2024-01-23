@@ -155,6 +155,7 @@ public class CsvParser {
         case Rql2DateType ignored -> new OptionDateParseCsvNode();
         case Rql2TimeType ignored -> new OptionTimeParseCsvNode();
         case Rql2TimestampType ignored -> new OptionTimestampParseCsvNode();
+        case Rql2UndefinedType ignored -> new OptionUndefinedParseCsvNode();
         default -> throw new RawTruffleInternalErrorException();
       };
       case Rql2TypeWithProperties r -> {
@@ -171,6 +172,7 @@ public class CsvParser {
           case Rql2DateType ignored -> new DateParseCsvNode();
           case Rql2TimeType ignored -> new TimeParseCsvNode();
           case Rql2TimestampType ignored -> new TimestampParseCsvNode();
+          case Rql2UndefinedType ignored -> new UndefinedParseCsvNode();
           default -> throw new RawTruffleInternalErrorException();
         };
       }
