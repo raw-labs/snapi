@@ -19,7 +19,8 @@ import java.sql.SQLException
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
-class SqlClientException(message: String, cause: Throwable) extends RawException(message, cause)
+//class SqlClientMissingCredentialsException(cause: Throwable) extends RawException("add credentials to use SQL", cause)
+class SqlClientMissingCredentialsException(cause: Throwable) extends RawException("to properly execute SQL queries, first add credentials", cause)
 
 class SqlConnectionPool(settings: RawSettings) {
 
@@ -55,7 +56,7 @@ class SqlConnectionPool(settings: RawSettings) {
               case sqlException: SQLException => sqlException.getSQLState match {
                   case "3D000" =>
                     // We get that when the database does not exist. We throw a more explicit exception.
-                    throw new SqlClientException("SQL mode needs remote credentials to be entered", sqlException)
+                    throw new SqlClientMissingCredentialsException(sqlException)
                   case _ => throw hikariException
                 }
               case e: Throwable => throw e
