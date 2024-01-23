@@ -110,22 +110,24 @@ class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) {
     val atts = recordType.atts
     atts.foreach(a => keys.add(a.idn))
     val distincted = RecordFieldsNaming.makeDistinct(keys)
-    gen.writeStartArray()
+    gen.writeStartObject()
     // We accept both RecordObject that have fields, and LinkedHashMap (records, as provided by the SQL language)
     if (value.hasHashEntries) {
       for (i <- 0 until distincted.size()) {
-        val field = distincted.get(i)
+        val field: String = distincted.get(i)
         val a = value.getHashValue(field)
+        gen.writeFieldName(field)
         writeValue(a, atts(i).tipe)
       }
     } else {
       for (i <- 0 until distincted.size()) {
-        val field = distincted.get(i)
+        val field: String = distincted.get(i)
         val a = value.getMember(field)
+        gen.writeFieldName(field)
         writeValue(a, atts(i).tipe)
       }
     }
-    gen.writeEndArray()
+    gen.writeEndObject()
   }
 
   @throws[IOException]
