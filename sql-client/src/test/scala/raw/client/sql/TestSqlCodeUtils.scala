@@ -179,29 +179,31 @@ class TestSqlCodeUtils extends AnyFunSuite {
       Pos(1, 15) -> Seq(SqlIdentifier("example", quoted = false)),
       Pos(1, 22) -> Seq(SqlIdentifier("example", quoted = false)),
       Pos(1, 23) -> Seq(SqlIdentifier("airports", quoted = false)),
-      Pos(2, 12) -> Seq(SqlIdentifier("airports", quoted = false)),
+      Pos(2, 12) -> Seq(SqlIdentifier("airports", quoted = false))
     )
     val analyzer = new SqlCodeUtils(code)
-    for((pos, expected) <- values ) {
+    for ((pos, expected) <- values) {
       val idns = analyzer.getIdentifierUnder(pos)
-      if (idns != expected) throw new AssertionError(s"getIdentifierUnder failed for pos $pos, expected $expected but got $idns")
+      if (idns != expected)
+        throw new AssertionError(s"getIdentifierUnder failed for pos $pos, expected $expected but got $idns")
     }
   }
 
   test("SqlCodeUtils.getIdentifierUpTo") {
     val code = """SELECT * FROM example.airports
-                 |WHERE airports.
-                 |""".stripMargin
+      |WHERE airports.
+      |""".stripMargin
 
     val values = Seq(
       Pos(1, 16) -> Seq(SqlIdentifier("ex", quoted = false)),
       Pos(1, 19) -> Seq(SqlIdentifier("examp", quoted = false)),
-      Pos(1, 28) -> Seq(SqlIdentifier("example", quoted = false), SqlIdentifier("airpor", quoted = false)),
+      Pos(1, 28) -> Seq(SqlIdentifier("example", quoted = false), SqlIdentifier("airpor", quoted = false))
     )
     val analyzer = new SqlCodeUtils(code)
-    for((pos, expected) <- values ) {
+    for ((pos, expected) <- values) {
       val idns = analyzer.getIdentifierUpTo(pos)
-      if (idns != expected) throw new AssertionError(s"getIdentifierUnder failed for pos $pos, expected $expected but got $idns")
+      if (idns != expected)
+        throw new AssertionError(s"getIdentifierUnder failed for pos $pos, expected $expected but got $idns")
     }
   }
 }
