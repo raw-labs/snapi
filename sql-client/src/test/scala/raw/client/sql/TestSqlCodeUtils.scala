@@ -182,9 +182,9 @@ class TestSqlCodeUtils extends AnyFunSuite {
                  |""".stripMargin
 
     val values = Seq(
-      Pos(1, 16) -> Seq(SqlIdentifier("e", quoted = false)),
-      Pos(1, 19) -> Seq(SqlIdentifier("exam", quoted = false)),
-      Pos(1, 28) -> Seq(SqlIdentifier("example", quoted = false), SqlIdentifier("airpo", quoted = false)),
+      Pos(1, 16) -> Seq(SqlIdentifier("ex", quoted = false)),
+      Pos(1, 19) -> Seq(SqlIdentifier("examp", quoted = false)),
+      Pos(1, 28) -> Seq(SqlIdentifier("example", quoted = false), SqlIdentifier("airpor", quoted = false)),
     )
     val analyzer = new SqlCodeUtils(code)
     for((pos, expected) <- values ) {

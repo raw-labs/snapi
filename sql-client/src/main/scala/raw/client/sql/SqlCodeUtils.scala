@@ -107,10 +107,7 @@ object SqlCodeUtils {
           }
       }
     }
-    // If we were checking for a second quote and we reached the end, then add the quote to the identifier
-    if (state == CheckQuote) {
-      idn += '"'
-    }
+
     // We reached the end of the string append what is left
     idns += SqlIdentifier(idn.toString(), quoted)
     idns.toSeq
