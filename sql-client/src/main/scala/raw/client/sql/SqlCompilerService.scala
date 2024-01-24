@@ -264,11 +264,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       }
 
     if (!matches) return None
-
-    // If the the idn to auto-complete was quoted return a value with quotes
-    if (lastIdn.quoted) Some('"' + lastKey.value + '"')
-    else Some(lastKey.value)
-
+    Some(lastKey.value)
   }
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     logger.debug(s"Hovering at position: $position")
@@ -282,8 +278,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   def formatIdns(idns: Seq[SqlIdentifier]): String = {
-    def formatIdentifier(v: SqlIdentifier) = if (v.quoted) '"' + v.value + '"' else v.value
-    idns.tail.foldLeft(idns.head.value) { case (acc, idn) => acc + "." + formatIdentifier(idn) }
+    idns.tail.foldLeft(idns.head.value) { case (acc, idn) => acc + "." + idn.value }
   }
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
     RenameResponse(Array.empty)
