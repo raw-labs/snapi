@@ -14,18 +14,9 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.api.MySqlCredential
-import raw.inferrer.api.{
-  SourceAttrType,
-  SourceCollectionType,
-  SourceFloatType,
-  SourceIntType,
-  SourceRecordType,
-  SourceStringType
-}
+import raw.inferrer.api._
 import raw.inferrer.local.jdbc.JdbcInferrer
-import raw.sources.api.SourceContext
 import raw.sources.jdbc.mysql.{MySqlClient, MySqlTable}
-import raw.utils.RawUtils.logger
 import raw.utils.{RawTestSuite, SettingsTestContext}
 
 class RD10439 extends RawTestSuite with SettingsTestContext with StrictLogging {
