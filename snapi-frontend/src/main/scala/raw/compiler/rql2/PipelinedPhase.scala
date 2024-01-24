@@ -20,6 +20,18 @@ trait PipelinedPhase extends raw.compiler.base.PipelinedPhase[SourceProgram] wit
 
   implicit protected val programContext: ProgramContext = baseProgramContext.asInstanceOf[ProgramContext]
 
+  override def preCheck(input: SourceProgram): Unit = {
+    // Check input tree.
+    val inputTree = new Tree(input)
+    assert(inputTree.checkTree(), s"Input tree to phase $phaseName is not valid")
+  }
+
+  override def postCheck(input: SourceProgram): Unit = {
+    // Check input tree.
+    val inputTree = new Tree(input)
+    assert(inputTree.checkTree(), s"Output tree of phase $phaseName is not valid")
+  }
+
   override protected def checkPhaseTypeStability(input: SourceProgram, output: SourceProgram): Unit = {
     // Check input tree.
     val inputTree = new Tree(input)

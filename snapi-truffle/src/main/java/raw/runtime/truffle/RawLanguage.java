@@ -23,10 +23,8 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
-
 import java.util.*;
 import java.util.stream.Collectors;
-
 import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
 import raw.compiler.base.CompilerContext;
@@ -55,13 +53,13 @@ import scala.collection.JavaConverters;
     defaultMimeType = RawLanguage.MIME_TYPE,
     characterMimeTypes = RawLanguage.MIME_TYPE)
 @ProvidedTags({
-    StandardTags.CallTag.class,
-    StandardTags.StatementTag.class,
-    StandardTags.RootTag.class,
-    StandardTags.RootBodyTag.class,
-    StandardTags.ExpressionTag.class,
-    StandardTags.ReadVariableTag.class,
-    StandardTags.WriteVariableTag.class
+  StandardTags.CallTag.class,
+  StandardTags.StatementTag.class,
+  StandardTags.RootTag.class,
+  StandardTags.RootBodyTag.class,
+  StandardTags.ExpressionTag.class,
+  StandardTags.ReadVariableTag.class,
+  StandardTags.WriteVariableTag.class
 })
 public final class RawLanguage extends TruffleLanguage<RawContext> {
 
@@ -139,8 +137,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
                       "@type:" + m.i().idn(),
                       InternalSourcePrettyPrinter.format(tree.analyzer().idnType(m.i())));
                 } catch (UnsupportedMessageException
-                         | UnknownIdentifierException
-                         | UnsupportedTypeException e) {
+                    | UnknownIdentifierException
+                    | UnsupportedTypeException e) {
                   throw new RuntimeException(e);
                 }
               });
@@ -183,8 +181,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
           new PhaseDescriptor(
               "ImplicitCasts",
               (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) ImplicitCasts.class)
-          );
+                  (Class<?>) ImplicitCasts.class));
 
   SourceProgram transpile(SourceProgram root, ProgramContext programContext) {
     if (phases.isEmpty()) {
@@ -208,9 +205,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     long distinctCount = phaseNames.stream().distinct().count();
     assert distinctCount == phaseNames.size()
         : "Phases have repeated names! Distinct names: "
-        + phaseNames.stream().distinct().collect(Collectors.toList())
-        + " All names: "
-        + phaseNames;
+            + phaseNames.stream().distinct().collect(Collectors.toList())
+            + " All names: "
+            + phaseNames;
 
     for (PhaseDescriptor phaseDescriptor : phases) {
       //      String name = phaseDescriptor.name();
