@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.annotation.{JsonProperty, JsonSubTypes, JsonTypeInfo}
 import raw.utils.Uid
 
 import java.time.Instant
@@ -146,16 +146,34 @@ final case class SnowflakeCredential(
   val port = None
 }
 
-final case class SalesforceCredential(
+trait AbstractConnectorType {
+  def repr: String
+}
+case object SalesforceConnectorType extends AbstractConnectorType {
+  override def repr: String = "SALESFORCE"
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "connectorType")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE")
+  )
+)
+sealed trait ExternalConnectorCredential extends Credential {
+  def connectorType: AbstractConnectorType
+}
+
+final case class ExternalConnectorSalesforceCredential(
     url: String,
     username: String,
     password: String,
     securityToken: String,
     clientId: String,
     apiVersion: String,
-    customObjects: Seq[String],
-    options: Map[String, String]
-) extends Credential
+    customObjects: Seq[String]
+) extends ExternalConnectorCredential {
+  override def connectorType: AbstractConnectorType = SalesforceConnectorType
+}
 
 final case class Secret(name: String, value: String) extends Credential
 
