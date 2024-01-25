@@ -68,6 +68,17 @@ trait JsonPackageTest extends CompilerTestContext {
 
   private val recordData = tempFile("""{"a": 1, "b": 10, "c": 100}""")
 
+  test(
+    """Json.Parse(" [ {\"a\" : \"2024-01-08T14:20:09.102\"}, {\"a\" : \"not a date\"} ] ", type list(record(a: timestamp)))"""
+  )(it => it should evaluateTo("""[
+    |  {
+    |    a: "2024-01-08T14:20:09.102"
+    |  },
+    |  {
+    |    a: "string 'not a date' does not match timestamp template 'yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]'"
+    |  }
+    |] """.stripMargin))
+
   test(snapi"""Json.Read("$data", type collection(undefined))""")(it => it should evaluateTo("""[
     |  Error.Build("expected null but got non-null"),
     |  Error.Build("expected null but got non-null"),

@@ -41,6 +41,7 @@ import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
@@ -277,7 +278,13 @@ public final class JsonParserNodes {
         DateObject date = new DateObject(LocalDate.parse(text, DateTimeFormatCache.get(format)));
         parser.nextToken();
         return date;
-      } catch (IOException | IllegalArgumentException | DateTimeParseException e) {
+      } catch (DateTimeParseException ex) {
+        throw new JsonParserRawTruffleException(
+            String.format(
+                "string '%s' does not match date template '%s'", ex.getParsedString(), format),
+            ex,
+            thisNode);
+      } catch (IOException | IllegalArgumentException e) {
         throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
     }
@@ -468,6 +475,12 @@ public final class JsonParserNodes {
         TimeObject time = new TimeObject(LocalTime.parse(text, DateTimeFormatCache.get(format)));
         parser.nextToken();
         return time;
+      } catch (DateTimeParseException ex) {
+        throw new JsonParserRawTruffleException(
+            String.format(
+                "string '%s' does not match time template '%s'", ex.getParsedString(), format),
+            ex,
+            thisNode);
       } catch (IOException e) {
         throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
@@ -491,6 +504,12 @@ public final class JsonParserNodes {
             new TimestampObject(LocalDateTime.parse(text, DateTimeFormatCache.get(format)));
         parser.nextToken();
         return timestamp;
+      } catch (DateTimeParseException ex) {
+        throw new JsonParserRawTruffleException(
+            String.format(
+                "string '%s' does not match timestamp template '%s'", ex.getParsedString(), format),
+            ex,
+            thisNode);
       } catch (IOException e) {
         throw new JsonParserRawTruffleException(e.getMessage(), e, thisNode);
       }
