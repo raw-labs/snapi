@@ -53,10 +53,13 @@ public final class ObjectList implements TruffleObject {
   public ObjectList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new ObjectList(new Object[0]);
+    } else {
+      Object[] result = new Object[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new ObjectList(result);
     }
-    Object[] result = new Object[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new ObjectList(result);
   }
 
   @ExportMessage

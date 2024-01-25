@@ -60,10 +60,13 @@ public final class LongList implements TruffleObject {
   public LongList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new LongList(new long[0]);
+    } else {
+      long[] result = new long[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new LongList(result);
     }
-    long[] result = new long[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new LongList(result);
   }
 
   // InteropLibrary: Array

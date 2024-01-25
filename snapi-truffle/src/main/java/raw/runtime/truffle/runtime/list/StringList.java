@@ -61,9 +61,13 @@ public final class StringList implements TruffleObject {
     if (num >= this.getInnerList().length) {
       return this;
     }
-    String[] result = new String[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new StringList(result);
+    if (num <= 0) {
+      return new StringList(new String[0]);
+    } else {
+      String[] result = new String[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new StringList(result);
+    }
   }
 
   // InteropLibrary: Array

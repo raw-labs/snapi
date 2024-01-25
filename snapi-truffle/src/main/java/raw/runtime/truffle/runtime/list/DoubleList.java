@@ -60,10 +60,13 @@ public final class DoubleList implements TruffleObject {
   public DoubleList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new DoubleList(new double[0]);
+    } else {
+      double[] result = new double[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new DoubleList(result);
     }
-    double[] result = new double[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new DoubleList(result);
   }
 
   // InteropLibrary: Array

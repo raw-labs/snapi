@@ -253,6 +253,16 @@ trait ListPackageTest extends CompilerTestContext {
     it should evaluateTo("List.Build(1,2,3,4,5)")
   }
 
+  test("""List.Take(List.Build(1,2,3,4,5), -10)""".stripMargin) { it =>
+    it should typeAs("list(int)")
+    it should evaluateTo("[]")
+  }
+
+  test("""List.Take(List.Build(1,2,3,4,5), 0)""".stripMargin) { it =>
+    it should typeAs("list(int)")
+    it should evaluateTo("[]")
+  }
+
   // Unnest
 
   test("""

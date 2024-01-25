@@ -183,6 +183,16 @@ trait CollectionPackageTest extends CompilerTestContext {
     it should evaluateTo("Collection.Build()")
   }
 
+  test("""Collection.Take(Collection.Build(1,2,3,4,5), -10)""".stripMargin) { it =>
+    it should typeAs("collection(int)")
+    it should evaluateTo("Collection.Build()")
+  }
+
+  test("""Collection.Take(Collection.Build(1,2,3,4,5), 0)""".stripMargin) { it =>
+    it should typeAs("collection(int)")
+    it should evaluateTo("Collection.Build()")
+  }
+
   // Unnest
 
   test("""

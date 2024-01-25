@@ -45,6 +45,26 @@ class LocalCredentialsService extends CredentialsService {
     false
   }
 
+  override def registerSalesforceCredential(
+      user: AuthenticatedUser,
+      name: String,
+      salesforceCredential: SalesforceCredential
+  ): Boolean = {
+    false
+  }
+
+  override def getSalesforceCredential(user: AuthenticatedUser, name: String): Option[SalesforceCredential] = {
+    None
+  }
+
+  override def listSalesforceCredentials(user: AuthenticatedUser): List[String] = {
+    List.empty
+  }
+
+  override def unregisterSalesforceCredential(user: AuthenticatedUser, name: String): Boolean = {
+    false
+  }
+
   override protected def doRegisterNewHttpCredential(
       user: AuthenticatedUser,
       name: String,
@@ -123,4 +143,5 @@ class LocalCredentialsService extends CredentialsService {
   }
 
   override def doStop(): Unit = {}
+
 }
