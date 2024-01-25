@@ -12,10 +12,12 @@
 
 package raw.runtime.truffle.runtime.exceptions.csv;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class CsvWriterRawTruffleException extends RawTruffleRuntimeException {
+  @CompilerDirectives.TruffleBoundary
   public CsvWriterRawTruffleException(String message, Throwable cause, Node location) {
     super("failed to write CSV: " + message, cause, location);
   }

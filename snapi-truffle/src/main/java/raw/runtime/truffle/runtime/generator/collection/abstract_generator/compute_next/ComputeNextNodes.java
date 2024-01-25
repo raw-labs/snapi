@@ -73,6 +73,7 @@ public class ComputeNextNodes {
     static Object next(
         Node node,
         CsvReadComputeNext computeNext,
+        @Bind("$node") Node thisNode,
         @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true)
             RootCallTarget cachedTarget,
         @Cached(value = "create(cachedTarget)", allowUncached = true, inline = false)
@@ -84,7 +85,8 @@ public class ComputeNextNodes {
         return rowParser.call(computeNext.getParser());
       } catch (CsvParserRawTruffleException e) {
         // wrap any error with the stream location
-        throw new CsvReaderRawTruffleException(e.getMessage(), null, computeNext.getStream());
+        throw new CsvReaderRawTruffleException(
+            e.getMessage(), computeNext.getStream(), e, thisNode);
       }
     }
 
@@ -92,6 +94,7 @@ public class ComputeNextNodes {
     static Object next(
         Node node,
         CsvReadFromStringComputeNext computeNext,
+        @Bind("$node") Node thisNode,
         @Cached(value = "computeNext.getRowParserCallTarget()", allowUncached = true)
             RootCallTarget cachedTarget,
         @Cached(value = "create(cachedTarget)", allowUncached = true, inline = false)
@@ -103,7 +106,8 @@ public class ComputeNextNodes {
         return rowParser.call(computeNext.getParser());
       } catch (CsvParserRawTruffleException e) {
         // wrap any error with the stream location
-        throw new CsvReaderRawTruffleException(e.getMessage(), null, computeNext.getStream());
+        throw new CsvReaderRawTruffleException(
+            e.getMessage(), computeNext.getStream(), e, thisNode);
       }
     }
 
@@ -146,7 +150,8 @@ public class ComputeNextNodes {
           throw new BreakException();
         }
       } catch (JsonReaderRawTruffleException e) {
-        throw new JsonReaderRawTruffleException(e.getMessage(), computeNext.getStream());
+        throw new JsonReaderRawTruffleException(
+            computeNext.getParser(), computeNext.getStream(), e, thisNode);
       }
     }
 
@@ -443,11 +448,11 @@ public class ComputeNextNodes {
     }
 
     @TruffleBoundary
-    private static Input createInput(File file) {
+    private static Input createInput(File file, Node node) {
       try {
         return new Input(new FileInputStream(file));
       } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, node);
       }
     }
 
@@ -474,7 +479,7 @@ public class ComputeNextNodes {
             }
           }
           if (computeNext.getKryoRight() == null) {
-            computeNext.setKryoRight(createInput(computeNext.getDiskRight()));
+            computeNext.setKryoRight(createInput(computeNext.getDiskRight(), thisNode));
             computeNext.setReadRight(0);
           }
           if (computeNext.getRightRow() == null) {
@@ -578,7 +583,8 @@ public class ComputeNextNodes {
             initParser.execute(thisNode, computeNext.getStream(), computeNext.getSettings()));
       } catch (CsvReaderRawTruffleException ex) {
         CsvReaderRawTruffleException newEx =
-            new CsvReaderRawTruffleException(ex.getMessage(), null, computeNext.getStream());
+            new CsvReaderRawTruffleException(
+                ex.getMessage(), computeNext.getStream(), ex.getCause(), thisNode);
         closeParser.execute(thisNode, computeNext.getParser());
         throw newEx;
       } catch (RawTruffleRuntimeException ex) {
@@ -617,7 +623,7 @@ public class ComputeNextNodes {
       } catch (JsonReaderRawTruffleException ex) {
         JsonReaderRawTruffleException newEx =
             new JsonReaderRawTruffleException(
-                ex.getMessage(), computeNext.getParser(), computeNext.getStream());
+                ex.getMessage(), computeNext.getParser(), computeNext.getStream(), ex, thisNode);
         closeParser.execute(thisNode, computeNext.getParser());
         throw newEx;
       } catch (RawTruffleRuntimeException ex) {
@@ -796,13 +802,13 @@ public class ComputeNextNodes {
     }
 
     @TruffleBoundary
-    private static Output createOutput(JoinComputeNext computeNext) {
+    private static Output createOutput(JoinComputeNext computeNext, Node node) {
       try {
         return new Output(
             new FileOutputStream(computeNext.getDiskRight()),
             computeNext.getKryoOutputBufferSize());
       } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, node);
       }
     }
 
@@ -823,7 +829,7 @@ public class ComputeNextNodes {
 
       // save right to disk
       Object rightGen = getGeneratorNode.execute(thisNode, computeNext.getRightIterable());
-      try (Output buffer = createOutput(computeNext)) {
+      try (Output buffer = createOutput(computeNext, thisNode)) {
         initNode.execute(thisNode, rightGen);
         while (hasNextNode.execute(thisNode, rightGen)) {
           Object row = nextNode.execute(thisNode, rightGen);

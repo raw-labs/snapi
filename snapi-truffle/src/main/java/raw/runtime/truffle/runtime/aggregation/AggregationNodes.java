@@ -16,7 +16,6 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorNodes;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 
@@ -53,8 +52,6 @@ public class AggregationNodes {
           result = mergeNode.execute(thisNode, aggregation.getAggregationType(), result, next);
         }
         return result;
-      } catch (RawTruffleRuntimeException ex) {
-        throw new RawTruffleRuntimeException(ex.getMessage());
       } finally {
         generatorCloseNode.execute(thisNode, generator);
       }
@@ -91,8 +88,6 @@ public class AggregationNodes {
           }
         }
         return results;
-      } catch (RawTruffleRuntimeException ex) {
-        throw new RawTruffleRuntimeException(ex.getMessage());
       } finally {
         generatorCloseNode.execute(thisNode, generator);
       }

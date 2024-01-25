@@ -43,7 +43,7 @@ public class ExpressionComputeNext {
     try {
       return this.getCurrent();
     } catch (RawTruffleRuntimeException e) {
-      return new RawTruffleRuntimeException(e.getMessage());
+      return new RawTruffleRuntimeException(e.getMessage(), e, null);
     } finally {
       this.incrementPosition();
     }

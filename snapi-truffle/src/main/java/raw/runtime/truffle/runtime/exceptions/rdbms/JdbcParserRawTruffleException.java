@@ -12,11 +12,13 @@
 
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class JdbcParserRawTruffleException extends RawTruffleRuntimeException {
 
+  @CompilerDirectives.TruffleBoundary
   public JdbcParserRawTruffleException(String message, Throwable e, Node location) {
     super(String.format("failed to read value: %s", message), e, location);
   }

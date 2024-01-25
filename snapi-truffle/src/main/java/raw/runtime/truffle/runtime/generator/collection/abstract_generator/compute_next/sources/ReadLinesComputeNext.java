@@ -52,7 +52,7 @@ public class ReadLinesComputeNext {
     try {
       return this.reader.readLine();
     } catch (IOException e) {
-      throw new ReadLinesRawTruffleException(e.getMessage(), stream);
+      throw new ReadLinesRawTruffleException(e.getMessage(), stream, e, null);
     }
   }
 }

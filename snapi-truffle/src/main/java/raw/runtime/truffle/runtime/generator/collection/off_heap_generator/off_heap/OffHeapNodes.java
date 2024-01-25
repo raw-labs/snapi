@@ -251,14 +251,15 @@ public class OffHeapNodes {
     public abstract FileOutputStream execute(Node node, Object offHeapGroupByKey);
 
     @Specialization
-    static FileOutputStream newDiskBuffer(Node node, OffHeapGroupByKey offHeapGroupByKey) {
+    static FileOutputStream newDiskBuffer(
+        Node node, OffHeapGroupByKey offHeapGroupByKey, @Bind("$node") Node thisNode) {
       File file;
       file = IOUtils.getScratchFile("groupby.", ".kryo", offHeapGroupByKey.getContext()).toFile();
       offHeapGroupByKey.getSpilledBuffers().add(file);
       try {
         return new FileOutputStream(file);
       } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e, thisNode);
       }
     }
   }
@@ -271,26 +272,28 @@ public class OffHeapNodes {
     public abstract FileOutputStream execute(Node node, Object offHeapGroupByKeys);
 
     @Specialization
-    static FileOutputStream nextFile(Node node, OffHeapGroupByKeys offHeapGroupByKeys) {
+    static FileOutputStream nextFile(
+        Node node, OffHeapGroupByKeys offHeapGroupByKeys, @Bind("$node") Node thisNode) {
       File file;
       file = IOUtils.getScratchFile("orderby.", ".kryo", offHeapGroupByKeys.getContext()).toFile();
       offHeapGroupByKeys.getSpilledBuffers().add(file);
       try {
         return new FileOutputStream(file);
       } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e, thisNode);
       }
     }
 
     @Specialization
-    static FileOutputStream nextFile(Node node, OffHeapDistinct offHeapDistinct) {
+    static FileOutputStream nextFile(
+        Node node, OffHeapDistinct offHeapDistinct, @Bind("$node") Node thisNode) {
       File file;
       file = IOUtils.getScratchFile("distinct.", ".kryo", offHeapDistinct.getContext()).toFile();
       offHeapDistinct.getSpilledBuffers().add(file);
       try {
         return new FileOutputStream(file);
       } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e, thisNode);
       }
     }
   }
