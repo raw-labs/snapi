@@ -63,10 +63,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(1, 30))
     assert(
-      completion.completions.toSet === Set(
-        LetBindCompletion("\"city\"", "character varying"),
-        LetBindCompletion("\"country\"", "character varying")
-      )
+      completion.completions.toSet === Set(LetBindCompletion("airports", "table"))
     )
   }
 
@@ -75,7 +72,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     |""".stripMargin) { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 16))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 17))
     assert(
       completion.completions.toSet === Set(
         LetBindCompletion("city", "character varying"),
@@ -90,11 +87,11 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     |""".stripMargin) { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 17))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(2, 18))
     assert(
       completion.completions.toSet === Set(
-        LetBindCompletion("\"city\"", "character varying"),
-        LetBindCompletion("\"country\"", "character varying")
+        LetBindCompletion("city", "character varying"),
+        LetBindCompletion("country", "character varying")
       )
     )
   }
@@ -115,7 +112,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       )
     )
 
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 14))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 16))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -146,12 +143,12 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 10))
     assert(
       completion.completions.toSet === Set(
-        LetBindCompletion("\"airport_id\"", "integer"),
-        LetBindCompletion("\"airports\"", "table")
+        LetBindCompletion("airport_id", "integer"),
+        LetBindCompletion("airports", "table")
       )
     )
 
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 18))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -187,7 +184,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       )
     )
 
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 14))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 16))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -218,7 +215,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
     assert(completion.completions.isEmpty)
 
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 18))
     assert(dotCompletion.completions.isEmpty)
   }
 
@@ -231,9 +228,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val hover = compilerService.hover(t.q, environment, Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "exa", Pos(1, 17))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "exa", Pos(1, 18))
     assert(completion.completions sameElements Array(LetBindCompletion("example", "schema")))
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(1, 21))
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(1, 23))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("airports", "table"),

@@ -211,6 +211,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     logger.debug(s"dotAutocompleting at position: $position")
     val analyzer = new SqlCodeUtils(source)
     val idns = analyzer.getIdentifierUpTo(position)
+
     val schemas = getSchemas(environment)
 
     // check if we found a schema

@@ -113,7 +113,7 @@ object SqlCodeUtils {
     }
 
     // We reached the end of the string append what is left
-    idns += SqlIdentifier(idn.toString(), quoted)
+    if (idn.nonEmpty) idns += SqlIdentifier(idn.toString(), quoted)
     idns.toSeq
   }
 
