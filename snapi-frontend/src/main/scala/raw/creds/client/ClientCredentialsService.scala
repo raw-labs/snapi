@@ -99,7 +99,10 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
     }
   }
 
-  override def getExternalConnectorCredential(user: AuthenticatedUser, name: String): Option[ExternalConnectorCredential] = {
+  override def getExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String
+  ): Option[ExternalConnectorCredential] = {
     try {
       client.getExternalConnectorCredential(user, name)
     } catch {

@@ -112,7 +112,7 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
   def registerExternalConnectorCredential(
       user: AuthenticatedUser,
       name: String,
-        externalConnectorCredential: ExternalConnectorCredential
+      externalConnectorCredential: ExternalConnectorCredential
   ): Boolean = {
     try {
       restClient.doJsonPostWithEmptyResponse(
@@ -130,7 +130,11 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
     try {
       Some(
         restClient
-          .doJsonPost[ExternalConnectorCredential]("2/connector/get", GetExternalConnectorCredential(user, name), withAuth = false)
+          .doJsonPost[ExternalConnectorCredential](
+            "2/connector/get",
+            GetExternalConnectorCredential(user, name),
+            withAuth = false
+          )
       )
     } catch {
       case ex: ClientAPIException if ex.errorCode == "externalConnectorCredentialNotFound" => None

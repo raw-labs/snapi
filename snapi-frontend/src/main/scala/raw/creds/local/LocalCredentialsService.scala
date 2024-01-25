@@ -53,7 +53,10 @@ class LocalCredentialsService extends CredentialsService {
     false
   }
 
-  override def getExternalConnectorCredential(user: AuthenticatedUser, name: String): Option[ExternalConnectorCredential] = {
+  override def getExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String
+  ): Option[ExternalConnectorCredential] = {
     None
   }
 
