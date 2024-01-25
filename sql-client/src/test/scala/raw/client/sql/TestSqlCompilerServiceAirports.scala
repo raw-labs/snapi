@@ -112,7 +112,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       )
     )
 
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 16))
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -147,8 +148,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
         LetBindCompletion("airports", "table")
       )
     )
-
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 18))
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 17))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -184,7 +185,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       )
     )
 
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 16))
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("icao", "character varying"),
@@ -215,7 +217,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
     assert(completion.completions.isEmpty)
 
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 18))
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 17))
     assert(dotCompletion.completions.isEmpty)
   }
 
@@ -230,7 +233,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
     val completion = compilerService.wordAutoComplete(t.q, environment, "exa", Pos(1, 18))
     assert(completion.completions sameElements Array(LetBindCompletion("example", "schema")))
-    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(1, 23))
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(1, 22))
     assert(
       dotCompletion.completions.toSet === Set(
         LetBindCompletion("airports", "table"),
