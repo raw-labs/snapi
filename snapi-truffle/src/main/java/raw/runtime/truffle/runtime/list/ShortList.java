@@ -64,10 +64,13 @@ public final class ShortList implements TruffleObject {
   public ShortList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new ShortList(new short[0]);
+    } else {
+      short[] result = new short[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new ShortList(result);
     }
-    short[] result = new short[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new ShortList(result);
   }
 
   // InteropLibrary: Array

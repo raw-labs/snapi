@@ -215,13 +215,9 @@ public class Closure implements TruffleObject {
         Closure closure,
         String[] namedArgNames,
         Object[] arguments,
-        @Cached(
-                value = "getObjectArray(closure.getArgNames().length)",
-                allowUncached = true,
-                dimensions = 0)
-            Object[] finalArgs,
         @Cached("closure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
+      Object[] finalArgs = getObjectArray(closure.getArgNames().length);
       finalArgs[0] = closure.frame;
       System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
       setArgsWithNames(closure, namedArgNames, arguments, finalArgs);
@@ -233,13 +229,8 @@ public class Closure implements TruffleObject {
         Closure closure,
         String[] namedArgNames,
         Object[] arguments,
-        @Cached(
-                value = "getObjectArray(closure.getArgNames().length)",
-                allowUncached = true,
-                dimensions = 0,
-                neverDefault = true)
-            Object[] finalArgs,
         @Cached(inline = false) IndirectCallNode callNode) {
+      Object[] finalArgs = getObjectArray(closure.getArgNames().length);
       finalArgs[0] = closure.frame;
       System.arraycopy(closure.defaultArguments, 0, finalArgs, 1, closure.getArgNames().length);
       setArgsWithNames(closure, namedArgNames, arguments, finalArgs);

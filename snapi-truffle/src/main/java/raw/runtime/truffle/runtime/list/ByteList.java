@@ -60,10 +60,13 @@ public final class ByteList implements TruffleObject {
   public ByteList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new ByteList(new byte[0]);
+    } else {
+      byte[] result = new byte[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new ByteList(result);
     }
-    byte[] result = new byte[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new ByteList(result);
   }
 
   // InteropLibrary: Array
