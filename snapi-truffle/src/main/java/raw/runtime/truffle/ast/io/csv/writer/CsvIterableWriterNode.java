@@ -19,9 +19,9 @@ import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.RootNode;
 import java.io.IOException;
 import java.io.OutputStream;
 import raw.runtime.truffle.ExpressionNode;
@@ -63,11 +63,14 @@ public class CsvIterableWriterNode extends StatementNode {
   private final String lineSeparator;
 
   public CsvIterableWriterNode(
-      ExpressionNode dataNode, RootNode writerNode, String[] columnNames, String lineSeparator) {
+      ExpressionNode dataNode,
+      RootCallTarget writeRootCallTarget,
+      String[] columnNames,
+      String lineSeparator) {
     this.dataNode = dataNode;
     this.columnNames = columnNames;
     this.lineSeparator = lineSeparator;
-    itemWriter = DirectCallNode.create(writerNode.getCallTarget());
+    itemWriter = DirectCallNode.create(writeRootCallTarget);
   }
 
   @Override
