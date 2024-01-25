@@ -14,6 +14,7 @@ package raw.client.sql
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import raw.client.api._
+import raw.client.sql.SqlCodeUtils._
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
@@ -209,15 +210,24 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
     logger.debug(s"dotAutocompleting at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUpTo(position)
+    val idns = analyzer.getIdentifierUpTo(position)
+
     val schemas = getSchemas(environment)
-    val matches = schemas.get(token) match {
-      case Some(tables) => tables.keys.map(name => LetBindCompletion(name, "table"))
-      case None =>
-        for (tables <- schemas.values; (table, columns) <- tables; if table == token; (name, tipe) <- columns) yield {
+
+    // check if we found a schema
+    val maybeSchema =
+      schemas.find { case (name, _) => compareIdentifiers(idns, Seq(SqlIdentifier(name, quoted = true))) }
+
+    val matches = maybeSchema match {
+      case Some((_, tables)) => tables.keys.map(name => LetBindCompletion(name, "table"))
+      case None => for (
+          tables <- schemas.values; (table, columns) <- tables;
+          if compareIdentifiers(Seq(SqlIdentifier(table, quoted = true)), idns); (name, tipe) <- columns
+        ) yield {
           LetBindCompletion(name, tipe)
         }
     }
+    logger.debug(s"idns $idns matches: $matches")
     AutoCompleteResponse(matches.toArray)
   }
 
@@ -230,31 +240,49 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     logger.debug(s"wordAutocompleting at position: $position")
     val scope = getFullyQualifiedScope(environment)
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUpTo(position)
-    logger.debug(token)
-    val matches = for (
-      (key, value) <- scope; // for each entry in scope
-      if key.startsWith(token); // if the key starts with the token
-      if !key.drop(token.length).contains('.'); // and the key doesn't contain a dot after the token
-      word =
-        key.split('.').last // then the word to complete with is the last part of the matching key (after the last dot)
-    ) yield {
-      LetBindCompletion(word, value)
-    }
-    AutoCompleteResponse(matches.toArray)
+    val idns = analyzer.getIdentifierUpTo(position)
+    logger.debug(s"idns $idns")
+
+    val matches = scope.map { case (key, value) => (matchKey(key, idns), value) }
+    val collectedValues = matches.collect { case (Some(word), value) => LetBindCompletion(word, value) }
+    logger.debug(s"values $collectedValues")
+    AutoCompleteResponse(collectedValues.toArray)
   }
 
+  private def matchKey(key: Seq[SqlIdentifier], idns: Seq[SqlIdentifier]): Option[String] = {
+    if (key.length != idns.length) return None
+    // compare all identifiers except the last one
+    if (!compareIdentifiers(key.take(key.length - 1), idns.take(idns.length - 1))) return None
+
+    // if all intermediate identifiers match now check the key contains the last identifier
+    val lastIdn = idns.last
+    val lastKey = key.last
+    val matches =
+      if (lastIdn.quoted && lastKey.quoted) {
+        // case sensitive match
+        lastKey.value.startsWith(lastIdn.value)
+      } else {
+        // case insensitive
+        lastKey.value.toLowerCase.startsWith(lastIdn.value.toLowerCase())
+      }
+
+    if (!matches) return None
+    Some(lastKey.value)
+  }
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     logger.debug(s"Hovering at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUnder(position)
+    val idns = analyzer.getIdentifierUnder(position)
     val scope = getFullyQualifiedScope(environment)
     scope
-      .find(_._1 == token)
-      .map { case (name, tipe) => HoverResponse(Some(TypeCompletion(name, tipe))) }
+      .find(x => SqlCodeUtils.compareIdentifiers(x._1, idns))
+      .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
       .getOrElse(HoverResponse(None))
   }
 
+  def formatIdns(idns: Seq[SqlIdentifier]): String = {
+    idns.tail.foldLeft(idns.head.value) { case (acc, idn) => acc + "." + idn.value }
+  }
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
     RenameResponse(Array.empty)
   }
@@ -296,23 +324,27 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     ValidateResponse(List.empty)
   }
 
-  private def getFullyQualifiedScope(environment: ProgramEnvironment): Map[String, String] = {
+  private def getFullyQualifiedScope(environment: ProgramEnvironment): Map[Seq[SqlIdentifier], String] = {
     val schema = getSchemas(environment)
-    val items = mutable.Map.empty[String, String]
+    val items = mutable.Map.empty[Seq[SqlIdentifier], String]
     for ((schemaName, tables) <- schema) {
+      // We are assuming that the values from JDBC are case sensitive so "quoted"
+      val schemaIdn = SqlIdentifier(schemaName, quoted = true)
       for ((tableName, columns) <- tables) {
+        val tableIdn = SqlIdentifier(tableName, quoted = true)
         for ((columnName, tipe) <- columns) {
-          // columns are available as: column, table.column, schema.table.column
-          items(columnName) = tipe
-          items(s"$tableName.$columnName") = tipe
-          items(s"$schemaName.$tableName.$columnName") = tipe
+          val columnIdn = SqlIdentifier(columnName, quoted = true)
+          // Columns are available as: column, table.column, schema.table.column
+          items(Seq(columnIdn)) = tipe
+          items(Seq(tableIdn, columnIdn)) = tipe
+          items(Seq(schemaIdn, tableIdn, columnIdn)) = tipe
         }
-        // tables are available as: table, schema.table. If such key overlaps with a column one, it takes precedence (stored last)
-        items(s"$tableName") = "table"
-        items(s"$schemaName.$tableName") = "table"
+        // Tables are available as: table, schema.table. If such key overlaps with a column one, it takes precedence (stored last)
+        items(Seq(tableIdn)) = "table"
+        items(Seq(schemaIdn, tableIdn)) = "table"
       }
       // schemas as stored last. If there's a table or a column with the same name, it takes precedence
-      items(s"$schemaName") = "schema"
+      items(Seq(schemaIdn)) = "schema"
     }
     items.toMap
   }
