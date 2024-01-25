@@ -86,15 +86,14 @@ class TestSqlCodeUtils extends AnyFunSuite {
 
   test("extract incomplete identifiers") {
     val values = Seq(
-      "schema." -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("", quoted = false)),
+      "schema." -> Seq(SqlIdentifier("schema", quoted = false)),
       "\"schema" -> Seq(SqlIdentifier("schema", quoted = true)),
       "\"schema." -> Seq(SqlIdentifier("schema.", quoted = true)),
-      "\"schema\".\"" -> Seq(SqlIdentifier("schema", quoted = true), SqlIdentifier("", quoted = true)),
+      "\"schema\".\"" -> Seq(SqlIdentifier("schema", quoted = true)),
       "schema.\"table" -> Seq(SqlIdentifier("schema", quoted = false), SqlIdentifier("table", quoted = true)),
       "schema.\"table\"." -> Seq(
         SqlIdentifier("schema", quoted = false),
-        SqlIdentifier("table", quoted = true),
-        SqlIdentifier("", quoted = false)
+        SqlIdentifier("table", quoted = true)
       ),
       "schema.table.\"row" -> Seq(
         SqlIdentifier("schema", quoted = false),
@@ -195,9 +194,9 @@ class TestSqlCodeUtils extends AnyFunSuite {
       |""".stripMargin
 
     val values = Seq(
-      Pos(1, 16) -> Seq(SqlIdentifier("ex", quoted = false)),
-      Pos(1, 19) -> Seq(SqlIdentifier("examp", quoted = false)),
-      Pos(1, 28) -> Seq(SqlIdentifier("example", quoted = false), SqlIdentifier("airpor", quoted = false))
+      Pos(1, 17) -> Seq(SqlIdentifier("ex", quoted = false)),
+      Pos(1, 20) -> Seq(SqlIdentifier("examp", quoted = false)),
+      Pos(1, 29) -> Seq(SqlIdentifier("example", quoted = false), SqlIdentifier("airpor", quoted = false))
     )
     val analyzer = new SqlCodeUtils(code)
     for ((pos, expected) <- values) {
