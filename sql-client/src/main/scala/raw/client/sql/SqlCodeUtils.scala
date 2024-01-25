@@ -18,7 +18,6 @@ import scala.collection.mutable
 
 case class SqlIdentifier(value: String, quoted: Boolean)
 
-// Define a new enumeration with a type alias and work with the full set of enumerated values
 object SqlParseStates extends Enumeration {
   type State = Value
   val Idle, InQuote, OutQuote, CheckQuote = Value
