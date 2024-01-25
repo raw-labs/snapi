@@ -14,18 +14,16 @@ package raw.runtime.truffle.ast.io.json.writer;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-
 import java.io.IOException;
 import java.io.OutputStream;
-
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
@@ -36,19 +34,19 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 @NodeField(name = "childCallTarget", type = RootCallTarget.class)
 public abstract class JsonWriterNode extends StatementNode {
 
-    protected abstract RootCallTarget getChildCallTarget();
+  protected abstract RootCallTarget getChildCallTarget();
 
-    @Specialization
-    public void doWrite(
-            Object value,
-            @Bind("$node") Node thisNode,
-            @Cached(inline = true) JsonWriteNodes.InitGeneratorJsonWriterNode initGeneratorNode,
-            @Cached("create(getChildCallTarget())") DirectCallNode childDirectCall) {
-        try (OutputStream os = RawContext.get(this).getOutput();
-             JsonGenerator gen = initGeneratorNode.execute(this, os)) {
-            childDirectCall.call(value, gen);
-        } catch (IOException e) {
-            throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
-        }
+  @Specialization
+  public void doWrite(
+      Object value,
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) JsonWriteNodes.InitGeneratorJsonWriterNode initGeneratorNode,
+      @Cached("create(getChildCallTarget())") DirectCallNode childDirectCall) {
+    try (OutputStream os = RawContext.get(this).getOutput();
+        JsonGenerator gen = initGeneratorNode.execute(this, os)) {
+      childDirectCall.call(value, gen);
+    } catch (IOException e) {
+      throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
     }
+  }
 }
