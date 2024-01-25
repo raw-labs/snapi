@@ -13,7 +13,7 @@ object Dependencies {
 
   val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5-rawlabs"
 
-  val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.11"
+  val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.12"
 
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.2"
 
