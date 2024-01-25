@@ -64,7 +64,7 @@ class FlatMapOptimizer(protected val parent: Phase[SourceProgram], protected val
       case FunApp(
             Proj(PackageIdnExp("NullableTryable"), "FlatMap"),
             Vector(FunAppArg(obj1, None), FunAppArg(FunAbs(FunProto(Vector(param1), _, body1)), None))
-          ) => attempt(congruence(s, s)) <* rule[Exp] {
+          ) => attempt(congruence(id, s)) <* rule[Exp] {
           case FunApp(
                 _,
                 Vector(FunAppArg(obj2, None), FunAppArg(FunAbs(FunProto(Vector(param2), _, body2)), None))
