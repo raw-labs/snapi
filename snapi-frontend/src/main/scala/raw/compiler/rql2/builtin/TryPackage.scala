@@ -88,7 +88,7 @@ class TryIsErrorEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs(0).t match {
-    case _: Rql2IterableType => Left("cannot be applied to a collection")
+//    case _: Rql2IterableType => Left("cannot be applied to a collection")
     case _ => Right(Rql2BoolType())
   }
 
@@ -123,7 +123,7 @@ class TryIsSuccessEntry extends EntryExtension {
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = mandatoryArgs(0).t match {
-    case _: Rql2IterableType => Left("cannot be applied to a collection")
+//    case _: Rql2IterableType => Left("cannot be applied to a collection")
     case _ => Right(Rql2BoolType())
   }
 

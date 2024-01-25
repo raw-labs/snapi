@@ -79,21 +79,45 @@ class FlatMapOptimizer(protected val parent: Phase[SourceProgram], protected val
               && outType.props.contains(nullable)
               && outType.props.contains(tryable)
             ) {
+              val v = IdnDef()
               val tGet = IdnDef()
-              IfThenElse(
-                isSuccess(obj2),
-                Let(
-                  Vector(LetBind(tryableGet(obj2), tGet, None)),
-                  IfThenElse(
-                    isNull(tGet),
-                    successNull(resetProps(outType, Set.empty)),
-                    Let(Vector(LetBind(nullableGet(tGet), param2.i, None)), body2.e)
-                  )
-                ),
-                errorBuild(errorGet(obj2))
+              Let(
+                Vector(LetBind(obj2, v, None)),
+                IfThenElse(
+                  isSuccess(IdnExp(v)),
+                  Let(
+                    Vector(LetBind(tryableGet(IdnExp(v)), tGet, None)),
+                    IfThenElse(
+                      isNull(tGet),
+                      successNull(resetProps(outType, Set.empty)),
+                      Let(Vector(LetBind(nullableGet(tGet), param2.i, None)), body2.e)
+                    )
+                  ),
+                  errorBuild(errorGet(IdnExp(v)))
+                )
               )
-            } else {
+            } else if (
+              eType.props.contains(nullable) && !eType.props.contains(tryable) && outType.props
+                .contains(nullable) && outType.props.contains(tryable)
+            ) {
               ???
+            } else if (eType.props.contains(tryable) && outType.props.contains(tryable)) {
+              val v = IdnDef()
+              Let(
+                Vector(LetBind(obj2, v, None)),
+                IfThenElse(
+                  isSuccess(IdnExp(v)),
+                  Let(
+                    Vector(LetBind(tryableGet(IdnExp(v)), param2.i, None)),
+                    body2.e
+                  ),
+                  errorBuild(errorGet(IdnExp(v)))
+                )
+              )
+            } else if (eType.props.contains(nullable) && outType.props.contains(nullable)) {
+              ???
+            } else {
+              ??? // unknown case, shouldn't happen
             }
         }
     })
