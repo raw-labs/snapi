@@ -72,10 +72,10 @@ trait JsonPackageTest extends CompilerTestContext {
     """Json.Parse(" [ {\"a\" : \"2024-01-08T14:20:09.102\"}, {\"a\" : \"not a date\"} ] ", type list(record(a: timestamp)))"""
   )(it => it should evaluateTo("""[
     |  {
-    |    a: "2024-01-08T14:20:09.102"
+    |    a: Timestamp.Parse("2024-01-08T14:20:09.102", "yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]")
     |  },
     |  {
-    |    a: "string 'not a date' does not match timestamp template 'yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]'"
+    |    a: Error.Build("string 'not a date' does not match timestamp template 'yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]'")
     |  }
     |] """.stripMargin))
 
