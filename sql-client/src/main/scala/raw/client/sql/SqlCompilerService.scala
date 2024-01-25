@@ -210,7 +210,9 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
     logger.debug(s"dotAutocompleting at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val idns = analyzer.getIdentifierUpTo(position)
+    // The editor removes the dot in the this completion event
+    // So we call the identifier with +1 column
+    val idns = analyzer.getIdentifierUpTo(Pos(position.line, position.column + 1))
 
     val schemas = getSchemas(environment)
 
