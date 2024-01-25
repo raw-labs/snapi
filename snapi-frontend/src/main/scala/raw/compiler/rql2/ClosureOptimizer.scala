@@ -36,17 +36,83 @@ class ClosureOptimizer(protected val parent: Phase[SourceProgram], protected val
     lazy val analyzer = tree.analyzer
 
     val newMethods = mutable.ListBuffer.empty[Rql2Method]
-    lazy val s1: Strategy = everywhere(rule[Exp] {
-      case fa: FunAbs if analyzer.freeVars(fa).isEmpty =>
+
+    def noFreeVars(node: SourceNode) = {
+      val fvs = analyzer.freeVars(node).filterNot(_.isInstanceOf[PackageEntity])
+      fvs.isEmpty
+    }
+
+    lazy val s1: Strategy = everywheretd(rule[Exp] {
+      case f: FunAbs if noFreeVars(f) =>
         val m = IdnDef()
         // make a new method
-        val method = Rql2Method(fa.p, m)
+        val arguments = f.p.ps.map(p => FunParam(p.i, p.t.orElse(Some(analyzer.idnType(p.i))), p.e))
+        val proto = FunProto(arguments, f.p.r, f.p.b)
+        val method = Rql2Method(proto, m)
         newMethods += method
         // replace the function by its matching IdnExp
         IdnExp(IdnUse(m.idn))
     })
 
-    val methodsRemoved = rewrite(s1)(tree.root).asInstanceOf[Rql2Program]
+    lazy val s2: Strategy = everywherebu(rule[Exp] {
+      case f: FunAbs if noFreeVars(f) =>
+        val m = IdnDef()
+        // make a new method
+        val arguments = f.p.ps.map(p => FunParam(p.i, p.t.orElse(Some(analyzer.idnType(p.i))), p.e))
+        val proto = FunProto(arguments, f.p.r, f.p.b)
+        val method = Rql2Method(proto, m)
+        newMethods += method
+        // replace the function by its matching IdnExp
+        IdnExp(IdnUse(m.idn))
+    })
+
+    lazy val s3: Strategy = sometd(rulefs[Exp] {
+      case f: FunAbs if noFreeVars(f) =>
+        attempt(congruence(s3)) <* rule[Exp] {
+          case f2: FunAbs =>
+            val newBody = f2.p.b
+            val m = IdnDef()
+            // make a new method
+            val arguments = f.p.ps.map(p => FunParam(p.i, p.t.orElse(Some(analyzer.idnType(p.i))), p.e))
+            val proto = FunProto(arguments, f.p.r, newBody)
+            val method = Rql2Method(proto, m)
+            newMethods += method
+            // replace the function by its matching IdnExp
+            IdnExp(IdnUse(m.idn))
+        }
+    })
+
+    lazy val s4: Strategy = sometd(rulefs[SourceNode] {
+      case f: FunAbs if noFreeVars(f) =>
+        attempt(congruence(s3)) <* rule[Exp] {
+          case f2: FunAbs =>
+            val newBody = f2.p.b
+            val m = IdnDef()
+            // make a new method
+            val arguments = f.p.ps.map(p => FunParam(p.i, p.t.orElse(Some(analyzer.idnType(p.i))), p.e))
+            val proto = FunProto(arguments, f.p.r, newBody)
+            val method = Rql2Method(proto, m)
+            newMethods += method
+            // replace the function by its matching IdnExp
+            IdnExp(IdnUse(m.idn))
+        }
+      case let: LetFun if noFreeVars(let) =>
+        attempt(congruence(s4, id)) <* rule[LetDecl] {
+          case let2: LetFun =>
+            val newBody = let2.p.b
+            val m = IdnDef()
+            // make a new method
+            val arguments = let.p.ps.map(p => FunParam(p.i, p.t.orElse(Some(analyzer.idnType(p.i))), p.e))
+            val proto = FunProto(arguments, let.p.r, newBody)
+            val method = Rql2Method(proto, m)
+            newMethods += method
+            // replace the function by its matching IdnExp
+            LetBind(IdnExp(IdnUse(m.idn)), let.i, None)
+        }
+
+    })
+
+    val methodsRemoved = rewrite(s4)(tree.root).asInstanceOf[Rql2Program]
     val newProgram = Rql2Program(newMethods.toVector ++ methodsRemoved.methods, methodsRemoved.me)
     logger.trace("ClosureOptimizer:\n" + format(newProgram))
     newProgram

@@ -16,7 +16,7 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait BenchmarkTests extends CompilerTestContext {
 
-  val shouldBeExecuted = false
+  val shouldBeExecuted = true
 
   val numberOfRuns = 10
 

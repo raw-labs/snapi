@@ -175,13 +175,18 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
               (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) Propagation.class),
           new PhaseDescriptor(
-              "ClosureOptimizer",
-              (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) ClosureOptimizer.class),
-          new PhaseDescriptor(
               "ImplicitCasts",
               (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
-                  (Class<?>) ImplicitCasts.class));
+                  (Class<?>) ImplicitCasts.class),
+          new PhaseDescriptor(
+              "FlatMapOptimizer",
+              (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
+                  (Class<?>) FlatMapOptimizer.class)
+          //          new PhaseDescriptor(
+          //              "ClosureOptimizer",
+          //              (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
+          //                  (Class<?>) ClosureOptimizer.class)
+          );
 
   SourceProgram transpile(SourceProgram root, ProgramContext programContext) {
     if (phases.isEmpty()) {
