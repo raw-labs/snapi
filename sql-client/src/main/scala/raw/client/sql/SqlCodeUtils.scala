@@ -48,7 +48,7 @@ object SqlCodeUtils {
 
   // Parses sql identifiers from a String.
   // It's used in auto completion so it will parse incomplete strings, e.g "schema"."tab
-  // Can probably be done with regexes also, but this seemed safer
+  // Can probably be done with regexes also, but a state machine seemed safer
   def identifiers(code: String): Seq[SqlIdentifier] = {
     val idns = mutable.ArrayBuffer[SqlIdentifier]()
     val idn = new StringBuilder()
@@ -56,6 +56,7 @@ object SqlCodeUtils {
     var state: State = Idle
     code.foreach { char =>
       state match {
+        // Idle state, start of an identifier, either a quote or a letter
         case Idle =>
           if (char == '"') {
             quoted = true
@@ -70,6 +71,7 @@ object SqlCodeUtils {
             idns += SqlIdentifier(idn.toString(), quoted)
             return idns
           }
+        // We are out of a quote, so we can have a dot (end of identifier) or a letter (continuation of identifier)
         case OutQuote =>
           if (identifierChar(char)) {
             idn += char
@@ -84,12 +86,14 @@ object SqlCodeUtils {
             idns += SqlIdentifier(idn.toString(), quoted)
             return idns
           }
+        // We are in a quote, so we can have a quote (check end of quote) or something else (continuation of identifier)
         case InQuote =>
           if (char == '"') {
             state = CheckQuote
           } else {
             idn += char
           }
+        // We are checking the end of a quote, so we can have a quote (continuation of quote) or something else (end of identifier)
         case CheckQuote =>
           if (char == '"') {
             idn += '"'
@@ -113,9 +117,9 @@ object SqlCodeUtils {
     idns.toSeq
   }
 
-  // State machine to parse tokens, returns a sequence of (token, offset)
-  // It mostly separates by white-space with a state machine to handle quotes
-  // This can probably be done with regexes also, but has to handle incomplete input (the user is still typing the query)
+  // State machine to parse tokens, returns a sequence of (token, position)
+  // It mostly separates by white-space with a state machine to handle quotes.
+  // Can probably be done with regexes also, but a state machine seemed safer
   def tokens(code: String): Seq[(String, Pos)] = {
     val tokens = mutable.ArrayBuffer[(String, Pos)]()
     val currentWord = new StringBuilder()
@@ -231,7 +235,7 @@ class SqlCodeUtils(code: String) {
     maybeToken
       .map {
         case (token, pos) =>
-          val str = token.substring(0, p.column + 1 - pos.column)
+          val str = token.substring(0, p.column - pos.column)
           identifiers(str)
       }
       .getOrElse(Seq.empty)
