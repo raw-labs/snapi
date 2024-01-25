@@ -36,6 +36,12 @@ trait LetFunRecTest extends CompilerTestContext {
     |in f(4)
     |""".stripMargin)(it => it should evaluateTo("24"))
 
+  test("""let rec fibo(maxN: int, n1: int, n2: int): list(int) =
+    |    if maxN < n1
+    |    then List.Empty(type int)
+    |    else List.Union([n1], fibo(maxN, n2, n2 + n1))
+    |in fibo(50, 1, 2)""".stripMargin)(_ should orderEvaluateTo("[1,2,3,5,8,13,21,34]"))
+
   // RD-5691
   test("""let primes(max: int) =
     |     let process(numbers: list(int)) = List.OrderBy(numbers, n -> n, "ASC"),

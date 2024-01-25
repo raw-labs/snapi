@@ -58,10 +58,13 @@ public final class BooleanList implements TruffleObject {
   public BooleanList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new BooleanList(new boolean[0]);
+    } else {
+      boolean[] result = new boolean[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new BooleanList(result);
     }
-    boolean[] result = new boolean[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new BooleanList(result);
   }
 
   // InteropLibrary: Array
