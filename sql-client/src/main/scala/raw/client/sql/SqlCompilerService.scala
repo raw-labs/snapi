@@ -212,6 +212,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     val analyzer = new SqlCodeUtils(source)
     val idns = analyzer.getIdentifierUpTo(position)
     val schemas = getSchemas(environment)
+
     // check if we found a schema
     val maybeSchema =
       schemas.find { case (name, _) => compareIdentifiers(idns, Seq(SqlIdentifier(name, quoted = true))) }
@@ -225,6 +226,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           LetBindCompletion(name, tipe)
         }
     }
+    logger.debug(s"idns $idns matches: $matches")
     AutoCompleteResponse(matches.toArray)
   }
 
@@ -242,7 +244,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
 
     val matches = scope.map { case (key, value) => (matchKey(key, idns), value) }
     val collectedValues = matches.collect { case (Some(word), value) => LetBindCompletion(word, value) }
-
+    logger.debug(s"values $collectedValues")
     AutoCompleteResponse(collectedValues.toArray)
   }
 
