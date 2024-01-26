@@ -28,7 +28,6 @@ import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
@@ -40,7 +39,8 @@ import raw.runtime.truffle.ast.expressions.binary.ModNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.MultNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.SubNodeGen;
 import raw.runtime.truffle.ast.expressions.function.ClosureNode;
-import raw.runtime.truffle.ast.expressions.function.InvokeNode;
+import raw.runtime.truffle.ast.expressions.function.InvokeWithNamesNode;
+import raw.runtime.truffle.ast.expressions.function.LambdaNode;
 import raw.runtime.truffle.ast.expressions.function.MethodNode;
 import raw.runtime.truffle.ast.expressions.literals.*;
 import raw.runtime.truffle.ast.expressions.option.OptionNoneNode;
@@ -128,7 +128,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fp.ps()).stream()
                 .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                 .toArray(ExpressionNode[]::new);
-        MethodNode functionLiteralNode = new MethodNode(f, defaultArgs);
+        MethodNode functionLiteralNode = new MethodNode(m.i().idn(),f, defaultArgs);
         int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
         addSlot(entity, Integer.toString(slot));
         return WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
@@ -364,11 +364,17 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 yield new ExpBlockNode(decls, recurseExp(let.e()));
             }
             case FunAbs fa -> {
-                Function f = recurseFunProto(fa.p());
-                ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()
-                        .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
-                        .toArray(ExpressionNode[]::new);
-                yield new ClosureNode(f, defaultArgs);
+                if (analyzer.freeVars(fa).isEmpty() && fa.p().ps().forall(p -> p.t().isEmpty())) {
+                    Function f = recurseFunProto(fa.p());
+                    yield new LambdaNode(f);
+                }
+                else{
+                    Function f = recurseFunProto(fa.p());
+                    ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()
+                            .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
+                            .toArray(ExpressionNode[]::new);
+                    yield new ClosureNode(f, defaultArgs);
+                }
             }
             case FunApp fa when tipe(fa.f()) instanceof PackageEntryType -> {
                 Type t = tipe(fa);
@@ -388,7 +394,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case FunApp fa -> {
                 String[] argNames = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> a.idn().isDefined() ? a.idn().get() : null).toArray(String[]::new);
                 ExpressionNode[] exps = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> recurseExp(a.e())).toArray(ExpressionNode[]::new);
-                yield new InvokeNode(recurseExp(fa.f()), argNames, exps);
+                yield new InvokeWithNamesNode(recurseExp(fa.f()), argNames, exps);
             }
             default -> throw new RawTruffleInternalErrorException("Unknown expression type");
         };

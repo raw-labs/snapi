@@ -16,6 +16,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Function;
 import raw.runtime.truffle.runtime.function.NonClosure;
 
@@ -29,9 +30,12 @@ public final class MethodNode extends ExpressionNode {
   @CompilerDirectives.CompilationFinal private NonClosure nonClosure;
   @Node.Children private final ExpressionNode[] defaultArgumentExps;
 
-  public MethodNode(Function f, ExpressionNode[] defaultArgumentExps) {
+  private final String name;
+
+  public MethodNode(String name, Function f, ExpressionNode[] defaultArgumentExps) {
     this.function = f;
     this.defaultArgumentExps = defaultArgumentExps;
+    this.name = name;
   }
 
   @Override
@@ -49,6 +53,7 @@ public final class MethodNode extends ExpressionNode {
         }
         nonClosure = new NonClosure(this.function, defaultArguments, virtualFrame);
       }
+      RawContext.get(this).getFunctionRegistry().register(name, nonClosure);
     }
     return nonClosure;
   }
