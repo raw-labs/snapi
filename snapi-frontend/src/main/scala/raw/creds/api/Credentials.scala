@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
-import com.fasterxml.jackson.annotation.{JsonProperty, JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import raw.utils.Uid
 
 import java.time.Instant
@@ -146,7 +146,7 @@ final case class SnowflakeCredential(
   val port = None
 }
 
-case class ExternalConnectorCredentialId(name: String, connectorType: AbstractConnectorType)
+case class ExternalConnectorCredentialId(name: String, connectorType: String)
 
 trait AbstractConnectorType {
   def repr: String
