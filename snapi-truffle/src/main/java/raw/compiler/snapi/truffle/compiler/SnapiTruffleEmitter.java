@@ -38,10 +38,7 @@ import raw.runtime.truffle.ast.expressions.binary.DivNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.ModNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.MultNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.SubNodeGen;
-import raw.runtime.truffle.ast.expressions.function.ClosureNode;
-import raw.runtime.truffle.ast.expressions.function.InvokeNode;
-import raw.runtime.truffle.ast.expressions.function.LambdaNode;
-import raw.runtime.truffle.ast.expressions.function.MethodNode;
+import raw.runtime.truffle.ast.expressions.function.*;
 import raw.runtime.truffle.ast.expressions.literals.*;
 import raw.runtime.truffle.ast.expressions.option.OptionNoneNode;
 import raw.runtime.truffle.ast.expressions.record.RecordProjNodeGen;
@@ -229,7 +226,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(lfr.p().ps()).stream()
                         .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                         .toArray(ExpressionNode[]::new);
-                ClosureNode functionLiteralNode = new ClosureNode(f, defaultArgs);
+                RecClosureNode functionLiteralNode = new RecClosureNode(f, defaultArgs);
                 yield WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
             }
             default -> throw new RawTruffleInternalErrorException();

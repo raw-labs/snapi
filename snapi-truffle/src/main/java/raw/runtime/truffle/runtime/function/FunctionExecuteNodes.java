@@ -34,6 +34,15 @@ public class FunctionExecuteNodes {
     }
 
     @Specialization
+    static Object doRecClosure(
+        Node node,
+        RecClosure recClosure,
+        @Bind("$node") Node thisNode,
+        @Cached RecClosure.RecClosureExecuteZeroNode executeZeroNode) {
+      return executeZeroNode.execute(thisNode, recClosure);
+    }
+
+    @Specialization
     static Object doNonClosure(
         Node node,
         NonClosure nonClosure,
@@ -67,6 +76,16 @@ public class FunctionExecuteNodes {
         @Bind("$node") Node thisNode,
         @Cached Closure.ClosureExecuteOneNode executeOneNode) {
       return executeOneNode.execute(thisNode, closure, argument);
+    }
+
+    @Specialization
+    static Object doClosure(
+        Node node,
+        RecClosure recClosure,
+        Object argument,
+        @Bind("$node") Node thisNode,
+        @Cached RecClosure.RecClosureExecuteOneNode executeOneNode) {
+      return executeOneNode.execute(thisNode, recClosure, argument);
     }
 
     @Specialization
@@ -109,6 +128,17 @@ public class FunctionExecuteNodes {
     }
 
     @Specialization
+    static Object doRecClosure(
+        Node node,
+        RecClosure recClosure,
+        Object argument1,
+        Object argument2,
+        @Bind("$node") Node thisNode,
+        @Cached RecClosure.RecClosureExecuteTwoNode executeTwoNode) {
+      return executeTwoNode.execute(thisNode, recClosure, argument1, argument2);
+    }
+
+    @Specialization
     static Object doNonClosure(
         Node node,
         NonClosure nonClosure,
@@ -148,6 +178,17 @@ public class FunctionExecuteNodes {
         @Bind("$node") Node thisNode,
         @Cached Closure.ClosureExecuteWithNamesNode executeWithNames) {
       return executeWithNames.execute(thisNode, closure, namedArgNames, arguments);
+    }
+
+    @Specialization
+    static Object doRecClosure(
+        Node node,
+        RecClosure recClosure,
+        String[] namedArgNames,
+        Object[] arguments,
+        @Bind("$node") Node thisNode,
+        @Cached RecClosure.RecClosureExecuteWithNamesNode executeWithNames) {
+      return executeWithNames.execute(thisNode, recClosure, namedArgNames, arguments);
     }
 
     @Specialization
