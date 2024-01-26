@@ -74,7 +74,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeStartArray();
       } catch (IOException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
       }
     }
   }
@@ -92,7 +92,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeEndArray();
       } catch (IOException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
       }
     }
   }
@@ -110,7 +110,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeStartObject();
       } catch (IOException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
       }
     }
   }
@@ -128,7 +128,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeEndObject();
       } catch (IOException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
       }
     }
   }
@@ -146,7 +146,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeFieldName(fieldName);
       } catch (IOException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
       }
     }
   }
@@ -165,7 +165,7 @@ public final class JsonWriteNodes {
         String result = Base64.getEncoder().encodeToString(value.getBytes());
         gen.writeString(result);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -183,7 +183,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeBoolean(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -201,7 +201,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -219,7 +219,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeString(value.getDate().toString());
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -237,7 +237,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNumber(value.getBigDecimal());
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -255,7 +255,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -273,7 +273,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -291,7 +291,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeString(value.toString());
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -309,7 +309,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -327,7 +327,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -345,7 +345,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNull();
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -363,7 +363,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeNumber(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -381,7 +381,7 @@ public final class JsonWriteNodes {
       try {
         gen.writeString(value);
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -406,7 +406,7 @@ public final class JsonWriteNodes {
         // We consider it as an internal error and let it propagate.
         gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }
@@ -431,7 +431,7 @@ public final class JsonWriteNodes {
         // We consider it as an internal error and let it propagate.
         gen.writeString(fmtWithMS.format(ts));
       } catch (IOException e) {
-        throw new JsonWriterRawTruffleException(e.getMessage(), this);
+        throw new JsonWriterRawTruffleException(e.getMessage(), e, this);
       }
     }
   }

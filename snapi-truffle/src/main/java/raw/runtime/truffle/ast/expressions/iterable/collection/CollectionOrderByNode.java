@@ -57,7 +57,7 @@ public class CollectionOrderByNode extends ExpressionNode {
         else if (order.equalsIgnoreCase("DESC")) orders[i] = -1;
         else throw new RawTruffleRuntimeException("Invalid ordering: " + order);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
       }
     }
     Closure[] keyFunctions = new Closure[this.keyFuns.length];

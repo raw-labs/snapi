@@ -13,13 +13,13 @@
 package raw.runtime.truffle.ast.io.json.reader;
 
 import com.fasterxml.jackson.core.JsonGenerator;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import raw.runtime.truffle.ExpressionNode;
@@ -28,23 +28,23 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @NodeInfo(shortName = "PrintJson")
 @NodeChild(value = "result")
-@NodeField(name = "childNode", type = RootNode.class)
+@NodeField(name = "childCallTarget", type = RootCallTarget.class)
 public abstract class JsonPrintNode extends ExpressionNode {
 
-  protected abstract RootNode getChildNode();
+  protected abstract RootCallTarget getChildCallTarget();
 
   @Specialization
   protected Object doParse(
       Object result,
       @Cached(inline = true) JsonWriteNodes.InitGeneratorJsonWriterNode initGenerator,
-      @Cached("create(getChildNode().getCallTarget())") DirectCallNode childDirectCall) {
+      @Cached("create(getChildCallTarget())") DirectCallNode childDirectCall) {
     try (ByteArrayOutputStream stream = new ByteArrayOutputStream();
         JsonGenerator gen = initGenerator.execute(this, stream)) {
       childDirectCall.call(result, gen);
       gen.flush();
       return stream.toString();
     } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+      throw new RawTruffleRuntimeException(e.getMessage(), e, this);
     }
   }
 }

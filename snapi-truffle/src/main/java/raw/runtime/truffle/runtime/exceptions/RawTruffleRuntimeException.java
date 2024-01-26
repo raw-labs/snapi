@@ -23,33 +23,29 @@ import com.oracle.truffle.api.nodes.Node;
 @ExportLibrary(InteropLibrary.class)
 public class RawTruffleRuntimeException extends AbstractTruffleException {
 
-  //    private static final TruffleLogger LOG = TruffleLogger.getLogger(RawLanguage.ID,
-  // RawTruffleRuntimeException.class);
-  //
-  //    private Node location;
-
-  @TruffleBoundary
-  public RawTruffleRuntimeException(String message, Node location) {
-    super(message, location);
-    //        this.location = location;
-  }
-
-  @TruffleBoundary
-  public RawTruffleRuntimeException(String message, Throwable cause, Node location) {
-    super(message, cause, UNLIMITED_STACK_TRACE, location);
-    //        this.location = location;
-  }
-
   @TruffleBoundary
   public RawTruffleRuntimeException(String message) {
     super(message);
   }
 
   @TruffleBoundary
-  public RawTruffleRuntimeException(Exception ex, Node location) {
+  public RawTruffleRuntimeException(String message, Throwable cause, Node location) {
+    super(message, cause, UNLIMITED_STACK_TRACE, location);
+  }
 
-    super(ex.toString(), location);
-    //        this.location = location;
+  @TruffleBoundary
+  public RawTruffleRuntimeException(String message, Node location) {
+    super(message, location);
+  }
+
+  @TruffleBoundary
+  public RawTruffleRuntimeException(String message, Throwable cause) {
+    super(message, cause, UNLIMITED_STACK_TRACE, null);
+  }
+
+  @TruffleBoundary
+  public RawTruffleRuntimeException(Throwable cause, Node location) {
+    super(cause.toString(), cause, UNLIMITED_STACK_TRACE, location);
   }
 
   @ExportMessage

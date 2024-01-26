@@ -44,7 +44,7 @@ public class TruffleInputStream {
     try {
       return ByteStreamLocationProvider.build(locationObject.getLocationDescription(), context);
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage());
+      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 
@@ -63,7 +63,7 @@ public class TruffleInputStream {
     try {
       return getLocation().getInputStream();
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage());
+      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 
@@ -72,7 +72,7 @@ public class TruffleInputStream {
     try {
       return getLocation().getReader(toEncoding(encoding));
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage());
+      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 
@@ -91,7 +91,7 @@ public class TruffleInputStream {
     try {
       return getLocation().getReader(encoding);
     } catch (RawException ex) {
-      throw new RawTruffleRuntimeException(ex.getMessage());
+      throw new RawTruffleRuntimeException(ex.getMessage(), ex, null);
     }
   }
 }

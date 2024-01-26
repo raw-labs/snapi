@@ -440,7 +440,8 @@ public class GeneratorNodes {
     static void init(Node node, GroupByMemoryGenerator generator) {}
 
     @Specialization
-    static void init(Node node, GroupBySpilledFilesGenerator generator) {
+    static void init(
+        Node node, GroupBySpilledFilesGenerator generator, @Bind("$node") Node thisNode) {
       // turn the list of spilled files into a list of Kryo buffers. Buffers will be read and
       // dropped from
       // the list as they are exhausted.
@@ -460,7 +461,7 @@ public class GeneratorNodes {
                       new GroupByInputBuffer(generator.getOffHeapGroupByKey(), kryoBuffer);
                   generator.addInputBuffer(buffer);
                 } catch (FileNotFoundException e) {
-                  throw new RawTruffleRuntimeException(e.getMessage());
+                  throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
                 }
               });
     }
@@ -469,7 +470,8 @@ public class GeneratorNodes {
     static void init(Node node, OrderByMemoryGenerator generator) {}
 
     @Specialization
-    static void init(Node node, OrderBySpilledFilesGenerator generator) {
+    static void init(
+        Node node, OrderBySpilledFilesGenerator generator, @Bind("$node") Node thisNode) {
       int nSpilledFiles = generator.getOffHeapGroupByKeys().getSpilledBuffers().size();
       generator.setInputBuffers(new ArrayList<>(nSpilledFiles));
       generator
@@ -486,7 +488,7 @@ public class GeneratorNodes {
                       new OrderByInputBuffer(generator.getOffHeapGroupByKeys(), kryoBuffer);
                   generator.addInputBuffer(buffer);
                 } catch (FileNotFoundException e) {
-                  throw new RawTruffleRuntimeException(e.getMessage());
+                  throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
                 }
               });
     }
@@ -495,7 +497,8 @@ public class GeneratorNodes {
     static void init(Node node, DistinctMemoryGenerator generator) {}
 
     @Specialization
-    static void init(Node node, DistinctSpilledFilesGenerator generator) {
+    static void init(
+        Node node, DistinctSpilledFilesGenerator generator, @Bind("$node") Node thisNode) {
       int nSpilledFiles = generator.getOffHeapDistinct().getSpilledBuffers().size();
       generator.setKryoBuffers(new ArrayList<>(nSpilledFiles));
       generator.setHeadKeys(new ArrayList<>(nSpilledFiles));
@@ -513,7 +516,7 @@ public class GeneratorNodes {
                               generator.getOffHeapDistinct().getKryoInputBufferSize()));
                   generator.getHeadKeys().add(null);
                 } catch (FileNotFoundException e) {
-                  throw new RawTruffleRuntimeException(e.getMessage());
+                  throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);
                 }
               });
     }

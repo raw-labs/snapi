@@ -14,11 +14,11 @@ package raw.runtime.truffle.ast.io.json.reader.parser;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
@@ -30,19 +30,19 @@ import raw.runtime.truffle.runtime.list.*;
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "IterableParseJson")
 @NodeField(name = "resultType", type = Rql2Type.class)
-@NodeField(name = "childRootNode", type = RootNode.class)
+@NodeField(name = "childCallTarget", type = RootCallTarget.class)
 public abstract class ListParseJsonNode extends ExpressionNode {
 
   @Idempotent
   protected abstract Rql2Type getResultType();
 
   @Idempotent
-  protected abstract RootNode getChildRootNode();
+  protected abstract RootCallTarget getChildCallTarget();
 
   @Specialization(guards = {"isByteKind(getResultType())"})
   protected ByteList doByte(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -75,7 +75,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization(guards = {"isShortKind(getResultType())"})
   protected ShortList doShort(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -108,7 +108,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization(guards = {"isIntKind(getResultType())"})
   protected IntList doInt(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -141,7 +141,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization(guards = {"isLongKind(getResultType())"})
   protected LongList doLong(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -174,7 +174,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization(guards = {"isFloatKind(getResultType())"})
   protected FloatList doFloat(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -207,7 +207,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected DoubleList doDouble(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -240,7 +240,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected BooleanList doBoolean(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -273,7 +273,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization(guards = {"isStringKind(getResultType())"})
   protected StringList doString(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,
@@ -306,7 +306,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
   @Specialization
   protected ObjectList doObject(
       VirtualFrame frame,
-      @Cached("create(getChildRootNode().getCallTarget())") @Cached.Shared("callTarget")
+      @Cached("create(getChildCallTarget())") @Cached.Shared("callTarget")
           DirectCallNode childCallNode,
       @Cached(inline = true) @Cached.Shared("currentToken")
           JsonParserNodes.CurrentTokenJsonParserNode currentToken,

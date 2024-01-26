@@ -173,7 +173,7 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as a byte", malformed), this, stream, location);
+            String.format("cannot parse '%s' as a byte", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -196,6 +196,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a byte", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -219,6 +220,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a short", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -235,7 +237,7 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as an int", malformed), this, stream, location);
+            String.format("cannot parse '%s' as an int", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -258,6 +260,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as an int", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -274,7 +277,7 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as a long", malformed), this, stream, location);
+            String.format("cannot parse '%s' as a long", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -297,6 +300,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a long", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -325,6 +329,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a float", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -348,6 +353,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a double", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -376,6 +382,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a double", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -393,7 +400,7 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as a decimal", malformed), this, stream, location);
+            String.format("cannot parse '%s' as a decimal", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -416,6 +423,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a decimal", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -499,6 +507,7 @@ public class RawTruffleCsvParser {
               "string '%s' does not match date template '%s'", ex.getParsedString(), dateFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -521,6 +530,7 @@ public class RawTruffleCsvParser {
               "string '%s' does not match date template '%s'", ex.getParsedString(), dateFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -538,6 +548,7 @@ public class RawTruffleCsvParser {
               "string '%s' does not match time template '%s'", ex.getParsedString(), timeFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -560,6 +571,7 @@ public class RawTruffleCsvParser {
               "string '%s' does not match time template '%s'", ex.getParsedString(), timeFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -578,6 +590,7 @@ public class RawTruffleCsvParser {
               ex.getParsedString(), timestampFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
@@ -601,6 +614,7 @@ public class RawTruffleCsvParser {
               ex.getParsedString(), timeFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);

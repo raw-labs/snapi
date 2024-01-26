@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.exceptions.xml;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -19,18 +20,28 @@ import raw.runtime.truffle.utils.RawTruffleCharStream;
 
 public class XmlReaderRawTruffleException extends RawTruffleRuntimeException {
 
+  @CompilerDirectives.TruffleBoundary
   public XmlReaderRawTruffleException(String message, Throwable cause, Node location) {
     super(message, cause, location);
   }
 
-  public XmlReaderRawTruffleException(String message, RawTruffleCharStream stream, Node location) {
-    super(createMessage(message, stream, null), null, location);
+  @CompilerDirectives.TruffleBoundary
+  public XmlReaderRawTruffleException(
+      String message, RawTruffleCharStream stream, Throwable cause, Node location) {
+    super(createMessage(message, stream, null), cause, location);
   }
 
+  @CompilerDirectives.TruffleBoundary
+  public XmlReaderRawTruffleException(String message, RawTruffleCharStream stream, Node location) {
+    super(createMessage(message, stream, null), location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public XmlReaderRawTruffleException(Throwable cause, RawTruffleCharStream stream, Node location) {
     super(createMessage(cause.getMessage(), stream, null), cause, location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public XmlReaderRawTruffleException(
       Throwable cause, RawTruffleXmlParser parser, RawTruffleCharStream stream, Node location) {
     super(createMessage(cause.getMessage(), stream, parser), cause, location);

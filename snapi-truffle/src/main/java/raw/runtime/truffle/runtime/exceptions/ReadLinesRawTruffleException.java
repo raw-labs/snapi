@@ -12,11 +12,13 @@
 
 package raw.runtime.truffle.runtime.exceptions;
 
+import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 public class ReadLinesRawTruffleException extends RawTruffleRuntimeException {
-  public ReadLinesRawTruffleException(String message, TruffleCharInputStream stream) {
-    super(createMessage(message, stream));
+  public ReadLinesRawTruffleException(
+      String message, TruffleCharInputStream stream, Throwable cause, Node location) {
+    super(createMessage(message, stream), cause, location);
   }
 
   private static String createMessage(String message, TruffleCharInputStream stream) {

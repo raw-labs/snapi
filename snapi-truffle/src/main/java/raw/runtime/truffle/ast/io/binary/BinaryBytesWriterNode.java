@@ -36,7 +36,7 @@ public class BinaryBytesWriterNode extends StatementNode {
     try {
       output.write(binaryData);
     } catch (IOException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+      throw new RawTruffleRuntimeException(e.getMessage(), e, this);
     }
   }
 

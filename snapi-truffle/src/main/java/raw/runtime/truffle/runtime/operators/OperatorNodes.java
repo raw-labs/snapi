@@ -340,7 +340,7 @@ public class OperatorNodes {
     }
 
     @Specialization(guards = {"isFailure(left) || isFailure(right)"})
-    static Object doNTryable(Node node, Object left, Object right) {
+    static Object doTryable(Node node, Object left, Object right) {
       if (Tryable.isFailure(left)) {
         throw new RawTruffleRuntimeException(Tryable.getFailure(left));
       } else {

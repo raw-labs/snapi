@@ -60,10 +60,13 @@ public final class IntList implements TruffleObject {
   public IntList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new IntList(new int[0]);
+    } else {
+      int[] result = new int[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new IntList(result);
     }
-    int[] result = new int[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new IntList(result);
   }
 
   // InteropLibrary: Array

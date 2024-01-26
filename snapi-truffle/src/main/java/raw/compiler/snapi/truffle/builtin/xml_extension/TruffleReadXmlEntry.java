@@ -33,12 +33,18 @@ import java.util.List;
 
 public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExtension {
 
-  private static ExpressionNode getArg(List<TruffleArg> namedArgs, String identifier, ExpressionNode defExp) {
-    return namedArgs.stream().filter(arg -> arg.identifier() != null && arg.identifier().equals(identifier)).map(TruffleArg::exprNode).findFirst().orElse(defExp);
+  private static ExpressionNode getArg(
+      List<TruffleArg> namedArgs, String identifier, ExpressionNode defExp) {
+    return namedArgs.stream()
+        .filter(arg -> arg.identifier() != null && arg.identifier().equals(identifier))
+        .map(TruffleArg::exprNode)
+        .findFirst()
+        .orElse(defExp);
   }
 
   private static final ExpressionNode defaultEncoding = new StringNode("utf-8");
-  private static final ExpressionNode defaultTimestampFormat = new StringNode("yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]");
+  private static final ExpressionNode defaultTimestampFormat =
+      new StringNode("yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]");
   private static final ExpressionNode defaultDateFormat = new StringNode("yyyy-M-d");
   private static final ExpressionNode defaultTimeFormat = new StringNode("HH:mm[:ss[.SSS]]");
 
@@ -49,18 +55,20 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
     ExpressionNode encoding = getArg(namedArgs, "encoding", defaultEncoding);
     ExpressionNode timeFormatExp = getArg(namedArgs, "timeFormat", defaultTimeFormat);
     ExpressionNode dateFormatExp = getArg(namedArgs, "dateFormat", defaultDateFormat);
-    ExpressionNode timestampFormatExp = getArg(namedArgs, "timestampFormat", defaultTimestampFormat);
+    ExpressionNode timestampFormatExp =
+        getArg(namedArgs, "timestampFormat", defaultTimestampFormat);
 
     return switch (type) {
       case Rql2IterableType iterableType -> {
-        ExpressionNode parseNode = new XmlReadCollectionNode(
-            unnamedArgs.get(0).exprNode(),
-            encoding,
-            dateFormatExp,
-            timeFormatExp,
-            timestampFormatExp,
-            XmlRecurse
-                .recurseXmlParser((Rql2TypeWithProperties) iterableType.innerType(), rawLanguage));
+        ExpressionNode parseNode =
+            new XmlReadCollectionNode(
+                unnamedArgs.get(0).exprNode(),
+                encoding,
+                dateFormatExp,
+                timeFormatExp,
+                timestampFormatExp,
+                XmlRecurse.recurseXmlParser(
+                    (Rql2TypeWithProperties) iterableType.innerType(), rawLanguage));
         if (XmlRecurse.isTryable(iterableType)) {
           // Probably will need to be either reused in json and xml or create a copy
           yield new TryableTopLevelWrapper(parseNode);
@@ -69,14 +77,15 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
         }
       }
       case Rql2ListType listType -> {
-        ExpressionNode parseNode = new XmlReadCollectionNode(
-            unnamedArgs.get(0).exprNode(),
-            encoding,
-            dateFormatExp,
-            timeFormatExp,
-            timestampFormatExp,
-            XmlRecurse
-                .recurseXmlParser((Rql2TypeWithProperties) listType.innerType(), rawLanguage));
+        ExpressionNode parseNode =
+            new XmlReadCollectionNode(
+                unnamedArgs.get(0).exprNode(),
+                encoding,
+                dateFormatExp,
+                timeFormatExp,
+                timestampFormatExp,
+                XmlRecurse.recurseXmlParser(
+                    (Rql2TypeWithProperties) listType.innerType(), rawLanguage));
         if (XmlRecurse.isTryable(listType)) {
           // Probably will need to be either reused in json and xml or create a copy
           yield ListFromNodeGen.create(parseNode, (Rql2Type) listType.innerType());
@@ -85,14 +94,14 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
         }
       }
       case Rql2TypeWithProperties t -> {
-        ExpressionNode parseNode = new XmlReadValueNode(
-            unnamedArgs.get(0).exprNode(),
-            encoding,
-            dateFormatExp,
-            timeFormatExp,
-            timestampFormatExp,
-            XmlRecurse
-                .recurseXmlParser(t, rawLanguage));
+        ExpressionNode parseNode =
+            new XmlReadValueNode(
+                unnamedArgs.get(0).exprNode(),
+                encoding,
+                dateFormatExp,
+                timeFormatExp,
+                timestampFormatExp,
+                XmlRecurse.recurseXmlParser(t, rawLanguage).getCallTarget());
         if (XmlRecurse.isTryable(t)) {
           yield new TryableTopLevelWrapper(parseNode);
         } else {
@@ -101,6 +110,5 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
       }
       default -> throw new IllegalStateException("Unexpected value: " + type);
     };
-
-    }
   }
+}

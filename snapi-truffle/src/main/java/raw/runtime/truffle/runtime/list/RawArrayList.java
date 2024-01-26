@@ -57,8 +57,11 @@ public class RawArrayList implements TruffleObject {
   public RawArrayList take(int num) {
     if (num >= this.list.size()) {
       return this;
+    } else if (num <= 0) {
+      return new RawArrayList(new ArrayList<>());
+    } else {
+      return new RawArrayList(new ArrayList<>(list.subList(0, num)));
     }
-    return new RawArrayList(new ArrayList<>(list.subList(0, num)));
   }
 
   // InteropLibrary: Array

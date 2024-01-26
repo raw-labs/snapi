@@ -46,7 +46,7 @@ public class NullableParseXmlNode extends ExpressionNode {
       try {
         return childDirectCall.call(parser);
       } catch (JsonExpectedNothingException ex) {
-        throw new JsonParserRawTruffleException("expected null but got non-null", this);
+        throw new JsonParserRawTruffleException("expected null but got non-null", ex, this);
       }
     }
   }

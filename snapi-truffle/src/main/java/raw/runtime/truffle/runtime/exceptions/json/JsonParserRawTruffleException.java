@@ -24,12 +24,12 @@ public class JsonParserRawTruffleException extends RawTruffleRuntimeException {
   }
 
   @TruffleBoundary
-  public JsonParserRawTruffleException(String message, Node location) {
-    super(message);
+  public JsonParserRawTruffleException(String message, Throwable cause, Node location) {
+    super(message, cause, location);
   }
 
   @TruffleBoundary
-  public JsonParserRawTruffleException(String message, Throwable cause, Node location) {
-    super(message, cause, location);
+  public JsonParserRawTruffleException(String message, Node location) {
+    super(message, location);
   }
 }

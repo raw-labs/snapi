@@ -87,7 +87,7 @@ public class OrParseJsonNode extends ExpressionNode {
       }
       throw new JsonOrTypeException(messages, this);
     } catch (IOException e) {
-      throw new JsonParserRawTruffleException(e.getMessage(), this);
+      throw new JsonParserRawTruffleException(e.getMessage(), e, this);
     } finally {
       closeParserNode.execute(this, localParser);
     }
