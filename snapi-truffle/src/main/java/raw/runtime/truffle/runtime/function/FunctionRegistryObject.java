@@ -26,15 +26,15 @@ import raw.runtime.truffle.runtime.list.StringList;
 @ExportLibrary(InteropLibrary.class)
 public final class FunctionRegistryObject implements TruffleObject {
 
-  private final Map<String, Closure> functions = new HashMap<>();
+  private final Map<String, Object> functions = new HashMap<>();
 
   @TruffleBoundary
-  public Closure get(String name) {
+  public Object get(String name) {
     return functions.get(name);
   }
 
   @TruffleBoundary
-  public void put(String name, Closure closure) {
+  public void put(String name, Object closure) {
     functions.put(name, closure);
   }
 

@@ -128,7 +128,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fp.ps()).stream()
                 .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                 .toArray(ExpressionNode[]::new);
-        ClosureNode functionLiteralNode = new MethodNode(m.i().idn(), f, defaultArgs);
+        MethodNode functionLiteralNode = new MethodNode(f, defaultArgs);
         int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
         addSlot(entity, Integer.toString(slot));
         return WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);

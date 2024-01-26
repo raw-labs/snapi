@@ -12,28 +12,44 @@
 
 package raw.runtime.truffle.ast.expressions.function;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
+import raw.runtime.truffle.runtime.function.NonClosure;
 
-public final class MethodNode extends ClosureNode {
+public final class MethodNode extends ExpressionNode {
 
-  private final String name;
+  @CompilerDirectives.CompilationFinal private final Function function;
 
-  public MethodNode(String name, Function f, ExpressionNode[] defaultArgumentExps) {
-    super(f, defaultArgumentExps);
-    this.name = name;
+  @CompilerDirectives.CompilationFinal(dimensions = 1)
+  private Object[] defaultArguments;
+
+  @CompilerDirectives.CompilationFinal private NonClosure nonClosure;
+  @Node.Children private final ExpressionNode[] defaultArgumentExps;
+
+  public MethodNode(Function f, ExpressionNode[] defaultArgumentExps) {
+    this.function = f;
+    this.defaultArgumentExps = defaultArgumentExps;
   }
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    Closure closure = RawContext.get(this).getFunctionRegistry().get(name);
-    if (closure == null) {
-      closure = (Closure) super.executeGeneric(virtualFrame);
-      RawContext.get(this).getFunctionRegistry().register(name, closure);
+    if (nonClosure == null) {
+      if (defaultArguments == null) {
+        int nArgs = defaultArgumentExps.length;
+        defaultArguments = new Object[nArgs];
+        for (int i = 0; i < nArgs; i++) {
+          if (defaultArgumentExps[i] != null) {
+            defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
+          } else {
+            defaultArguments[i] = null;
+          }
+        }
+        nonClosure = new NonClosure(this.function, defaultArguments, virtualFrame);
+      }
     }
-    return closure;
+    return nonClosure;
   }
 }

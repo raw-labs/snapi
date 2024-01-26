@@ -1,7 +1,6 @@
 package raw.runtime.truffle.runtime.function;
 
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
@@ -11,12 +10,11 @@ public class FunctionExecuteNodes {
   @GenerateInline
   public abstract static class FunctionExecuteZero extends Node {
 
-    public abstract Object execute(Node node, VirtualFrame frame, Object function);
+    public abstract Object execute(Node node, Object function);
 
     @Specialization
     static Object doClosure(
         Node node,
-        VirtualFrame frame,
         Closure closure,
         @Bind("$node") Node thisNode,
         @Cached Closure.ClosureExecuteZeroNode executeZeroNode) {
@@ -26,21 +24,19 @@ public class FunctionExecuteNodes {
     @Specialization
     static Object doNonClosure(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         @Bind("$node") Node thisNode,
         @Cached NonClosure.NonClosureExecuteZeroNode executeZeroNode) {
-      return executeZeroNode.execute(thisNode, frame, nonClosure);
+      return executeZeroNode.execute(thisNode, nonClosure);
     }
 
     @Specialization
     static Object doLambda(
         Node node,
-        VirtualFrame frame,
         Lambda lambda,
         @Bind("$node") Node thisNode,
         @Cached Lambda.LambdaExecuteZeroNode executeZeroNode) {
-      return executeZeroNode.execute(thisNode, frame, lambda);
+      return executeZeroNode.execute(thisNode, lambda);
     }
   }
 
@@ -49,12 +45,11 @@ public class FunctionExecuteNodes {
   @GenerateInline
   public abstract static class FunctionExecuteOne extends Node {
 
-    public abstract Object execute(Node node, VirtualFrame frame, Object function, Object argument);
+    public abstract Object execute(Node node, Object function, Object argument);
 
     @Specialization
     static Object doClosure(
         Node node,
-        VirtualFrame frame,
         Closure closure,
         Object argument,
         @Bind("$node") Node thisNode,
@@ -65,23 +60,21 @@ public class FunctionExecuteNodes {
     @Specialization
     static Object doNonClosure(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         Object argument,
         @Bind("$node") Node thisNode,
         @Cached NonClosure.NonClosureExecuteOneNode executeOneNode) {
-      return executeOneNode.execute(thisNode, frame, nonClosure, argument);
+      return executeOneNode.execute(thisNode, nonClosure, argument);
     }
 
     @Specialization
     static Object doLambda(
         Node node,
-        VirtualFrame frame,
         Lambda lambda,
         Object argument,
         @Bind("$node") Node thisNode,
         @Cached Lambda.LambdaExecuteOneNode executeOneNode) {
-      return executeOneNode.execute(thisNode, frame, lambda, argument);
+      return executeOneNode.execute(thisNode, lambda, argument);
     }
   }
 
@@ -90,13 +83,11 @@ public class FunctionExecuteNodes {
   @GenerateInline
   public abstract static class FunctionExecuteTwo extends Node {
 
-    public abstract Object execute(
-        Node node, VirtualFrame frame, Object function, Object argument1, Object argument2);
+    public abstract Object execute(Node node, Object function, Object argument1, Object argument2);
 
     @Specialization
     static Object doClosure(
         Node node,
-        VirtualFrame frame,
         Closure closure,
         Object argument1,
         Object argument2,
@@ -108,25 +99,23 @@ public class FunctionExecuteNodes {
     @Specialization
     static Object doNonClosure(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         Object argument1,
         Object argument2,
         @Bind("$node") Node thisNode,
         @Cached NonClosure.NonClosureExecuteTwoNode executeTwoNode) {
-      return executeTwoNode.execute(thisNode, frame, nonClosure, argument1, argument2);
+      return executeTwoNode.execute(thisNode, nonClosure, argument1, argument2);
     }
 
     @Specialization
     static Object doLambda(
         Node node,
-        VirtualFrame frame,
         Lambda lambda,
         Object argument1,
         Object argument2,
         @Bind("$node") Node thisNode,
         @Cached Lambda.LambdaExecuteTwoNode executeTwoNode) {
-      return executeTwoNode.execute(thisNode, frame, lambda, argument1, argument2);
+      return executeTwoNode.execute(thisNode, lambda, argument1, argument2);
     }
   }
 
@@ -136,12 +125,11 @@ public class FunctionExecuteNodes {
   public abstract static class FunctionExecuteWithNames extends Node {
 
     public abstract Object execute(
-        Node node, VirtualFrame frame, Object function, String[] namedArgNames, Object[] arguments);
+        Node node, Object function, String[] namedArgNames, Object[] arguments);
 
     @Specialization
     static Object doClosure(
         Node node,
-        VirtualFrame frame,
         Closure closure,
         String[] namedArgNames,
         Object[] arguments,
@@ -153,13 +141,12 @@ public class FunctionExecuteNodes {
     @Specialization
     static Object doNonClosure(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         String[] namedArgNames,
         Object[] arguments,
         @Bind("$node") Node thisNode,
         @Cached NonClosure.NonClosureExecuteWithNamesNode executeWithNames) {
-      return executeWithNames.execute(thisNode, frame, nonClosure, namedArgNames, arguments);
+      return executeWithNames.execute(thisNode, nonClosure, namedArgNames, arguments);
     }
   }
 }

@@ -18,7 +18,9 @@ import raw.sources.bytestream.api.HttpLocationsTestContext
 
 trait FunctionPackageTest extends CompilerTestContext with HttpLocationsTestContext {
 
-  test("""Function.InvokeAfter(() -> 1 +1, 10)""".stripMargin)(_ should evaluateTo("2"))
+  test(
+    """test() = 1 + 1
+      |Function.InvokeAfter(() -> test(), 2)""".stripMargin)(_ should evaluateTo("2"))
 
   test("invoke function after 5 seconds") { _ =>
     val start = System.nanoTime()

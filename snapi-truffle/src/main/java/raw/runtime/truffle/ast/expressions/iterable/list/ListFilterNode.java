@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
@@ -33,7 +33,7 @@ public abstract class ListFilterNode extends ExpressionNode {
   @Specialization
   protected static RawArrayList doFilter(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
@@ -41,7 +41,7 @@ public abstract class ListFilterNode extends ExpressionNode {
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
       @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     ArrayList<Object> llist = new ArrayList<>();
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
@@ -52,7 +52,7 @@ public abstract class ListFilterNode extends ExpressionNode {
         Boolean predicate = null;
         predicate =
             TryableNullable.handlePredicate(
-                closureExecuteOneNode.execute(thisNode, closure, v), false);
+                functionExecuteOneNode.execute(thisNode, function, v), false);
         if (predicate) {
           llist.add(v);
         }

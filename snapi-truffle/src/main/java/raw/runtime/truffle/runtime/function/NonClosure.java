@@ -27,10 +27,12 @@ public class NonClosure implements TruffleObject {
   public static final int INLINE_CACHE_SIZE = 3;
   private final Function function;
   private final Object[] defaultArguments;
+  private final VirtualFrame frame;
   private static final String GET_DEFAULT_PREFIX = "default_";
 
-  public NonClosure(Function function, Object[] defaultArguments) {
+  public NonClosure(Function function, Object[] defaultArguments, VirtualFrame frame) {
     assert function != null;
+    this.frame = frame;
     this.function = function;
     this.defaultArguments = defaultArguments;
   }
@@ -155,11 +157,7 @@ public class NonClosure implements TruffleObject {
   public abstract static class NonClosureExecuteWithNamesNode extends Node {
 
     public abstract Object execute(
-        Node node,
-        VirtualFrame frame,
-        NonClosure nonClosure,
-        String[] namedArgNames,
-        Object[] arguments);
+        Node node, NonClosure nonClosure, String[] namedArgNames, Object[] arguments);
 
     private static void setArgsWithNames(
         NonClosure nonClosure, String[] namedArgNames, Object[] arguments, Object[] finalArgs) {
@@ -191,18 +189,13 @@ public class NonClosure implements TruffleObject {
     @Specialization(guards = "nonClosure.getCallTarget() == cachedTarget", limit = "3")
     protected static Object doDirect(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         String[] namedArgNames,
         Object[] arguments,
-        @Cached(
-                value = "getObjectArray(nonClosure.getArgNames().length)",
-                allowUncached = true,
-                dimensions = 0)
-            Object[] finalArgs,
         @Cached("nonClosure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
-      finalArgs[0] = frame;
+      Object[] finalArgs = getObjectArray(nonClosure.getArgNames().length);
+      finalArgs[0] = nonClosure.frame;
       System.arraycopy(
           nonClosure.defaultArguments, 0, finalArgs, 1, nonClosure.getArgNames().length);
       setArgsWithNames(nonClosure, namedArgNames, arguments, finalArgs);
@@ -212,18 +205,12 @@ public class NonClosure implements TruffleObject {
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         String[] namedArgNames,
         Object[] arguments,
-        @Cached(
-                value = "getObjectArray(nonClosure.getArgNames().length)",
-                allowUncached = true,
-                dimensions = 0,
-                neverDefault = true)
-            Object[] finalArgs,
         @Cached(inline = false) IndirectCallNode callNode) {
-      finalArgs[0] = frame;
+      Object[] finalArgs = getObjectArray(nonClosure.getArgNames().length);
+      finalArgs[0] = nonClosure.frame;
       System.arraycopy(
           nonClosure.defaultArguments, 0, finalArgs, 1, nonClosure.getArgNames().length);
       setArgsWithNames(nonClosure, namedArgNames, arguments, finalArgs);
@@ -236,25 +223,21 @@ public class NonClosure implements TruffleObject {
   @GenerateInline
   public abstract static class NonClosureExecuteZeroNode extends Node {
 
-    public abstract Object execute(Node node, VirtualFrame frame, NonClosure nonClosure);
+    public abstract Object execute(Node node, NonClosure nonClosure);
 
     @Specialization(guards = "nonClosure.getCallTarget() == cachedTarget", limit = "3")
     protected static Object doDirect(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         @Cached("nonClosure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
-      return callNode.call(frame);
+      return callNode.call(nonClosure.frame);
     }
 
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
-        Node node,
-        VirtualFrame frame,
-        NonClosure nonClosure,
-        @Cached(inline = false) IndirectCallNode callNode) {
-      return callNode.call(nonClosure.getCallTarget(), frame);
+        Node node, NonClosure nonClosure, @Cached(inline = false) IndirectCallNode callNode) {
+      return callNode.call(nonClosure.getCallTarget(), nonClosure.frame);
     }
   }
 
@@ -263,28 +246,25 @@ public class NonClosure implements TruffleObject {
   @GenerateInline
   public abstract static class NonClosureExecuteOneNode extends Node {
 
-    public abstract Object execute(
-        Node node, VirtualFrame frame, NonClosure nonClosure, Object argument);
+    public abstract Object execute(Node node, NonClosure nonClosure, Object argument);
 
     @Specialization(guards = "nonClosure.getCallTarget() == cachedTarget", limit = "8")
     protected static Object doDirect(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         Object argument,
         @Cached("nonClosure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
-      return callNode.call(frame, argument);
+      return callNode.call(nonClosure.frame, argument);
     }
 
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         Object argument,
         @Cached(inline = false) IndirectCallNode callNode) {
-      return callNode.call(nonClosure.getCallTarget(), frame, argument);
+      return callNode.call(nonClosure.getCallTarget(), nonClosure.frame, argument);
     }
   }
 
@@ -294,29 +274,27 @@ public class NonClosure implements TruffleObject {
   public abstract static class NonClosureExecuteTwoNode extends Node {
 
     public abstract Object execute(
-        Node node, VirtualFrame frame, NonClosure nonClosure, Object argument1, Object argument2);
+        Node node, NonClosure nonClosure, Object argument1, Object argument2);
 
     @Specialization(guards = "nonClosure.getCallTarget() == cachedTarget", limit = "3")
     protected static Object doDirect(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         Object argument1,
         Object argument2,
         @Cached("nonClosure.getCallTarget()") RootCallTarget cachedTarget,
         @Cached("create(cachedTarget)") DirectCallNode callNode) {
-      return callNode.call(frame, argument1, argument2);
+      return callNode.call(nonClosure.frame, argument1, argument2);
     }
 
     @Specialization(replaces = "doDirect")
     protected static Object doIndirect(
         Node node,
-        VirtualFrame frame,
         NonClosure nonClosure,
         Object argument1,
         Object argument2,
         @Cached(inline = false) IndirectCallNode callNode) {
-      return callNode.call(nonClosure.getCallTarget(), frame, argument1, argument2);
+      return callNode.call(nonClosure.getCallTarget(), nonClosure.frame, argument1, argument2);
     }
   }
 }

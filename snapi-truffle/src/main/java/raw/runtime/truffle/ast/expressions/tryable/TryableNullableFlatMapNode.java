@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @NodeInfo(shortName = "TryableNullable.FlatMap")
@@ -30,13 +30,13 @@ public abstract class TryableNullableFlatMapNode extends ExpressionNode {
   @Specialization(guards = "isValue(maybeTryableNullable)")
   protected Object doTryableValue(
       Object maybeTryableNullable,
-      Closure closure,
-      @Cached(inline = true) Closure.ClosureExecuteOneNode closureExecuteOneNode) {
-    return closureExecuteOneNode.execute(this, closure, maybeTryableNullable);
+      Object function,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(this, function, maybeTryableNullable);
   }
 
   @Specialization(guards = "!isValue(maybeTryableNullable)")
-  protected Object doTryableNotValue(Object maybeTryableNullable, Object closure) {
+  protected Object doTryableNotValue(Object maybeTryableNullable, Object function) {
     return maybeTryableNullable;
   }
 }
