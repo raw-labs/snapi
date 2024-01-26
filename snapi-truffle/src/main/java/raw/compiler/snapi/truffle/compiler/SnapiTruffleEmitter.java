@@ -53,6 +53,7 @@ import raw.runtime.truffle.ast.local.ReadLocalVariableNodeGen;
 import raw.runtime.truffle.ast.local.WriteLocalVariableNodeGen;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.function.Function;
+import raw.runtime.truffle.runtime.function.NonClosure;
 import scala.collection.JavaConverters;
 
 public class SnapiTruffleEmitter extends TruffleEmitter {
@@ -364,9 +365,18 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 yield new ExpBlockNode(decls, recurseExp(let.e()));
             }
             case FunAbs fa -> {
-                if (analyzer.freeVars(fa).isEmpty() && fa.p().ps().forall(p -> p.t().isEmpty())) {
-                    Function f = recurseFunProto(fa.p());
-                    yield new LambdaNode(f);
+                if (analyzer.freeVars(fa).isEmpty() ) {
+                    if (fa.p().ps().forall(p -> p.t().isEmpty())){
+                        Function f = recurseFunProto(fa.p());
+                        yield new LambdaNode(f);
+                    }
+                    else {
+                        Function f = recurseFunProto(fa.p());
+                        ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()
+                                .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
+                                .toArray(ExpressionNode[]::new);
+                        yield new MethodNode(fa.p().toString(), f, defaultArgs);
+                    }
                 }
                 else{
                     Function f = recurseFunProto(fa.p());

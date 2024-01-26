@@ -149,7 +149,7 @@ abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
 
   /** Return the set of "free entities" inside the node. */
   final def freeVars(node: SourceNode): Set[Entity] = {
-    val in = scope(node)
+    val in = scope(node).filterNot(p => p.isInstanceOf[PackageEntity])
     val used = uses(node)
     in.intersect(used)
   }

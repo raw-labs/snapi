@@ -41,18 +41,16 @@ public final class MethodNode extends ExpressionNode {
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
     if (nonClosure == null) {
-      if (defaultArguments == null) {
-        int nArgs = defaultArgumentExps.length;
-        defaultArguments = new Object[nArgs];
-        for (int i = 0; i < nArgs; i++) {
-          if (defaultArgumentExps[i] != null) {
-            defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
-          } else {
-            defaultArguments[i] = null;
-          }
+      int nArgs = defaultArgumentExps.length;
+      defaultArguments = new Object[nArgs];
+      for (int i = 0; i < nArgs; i++) {
+        if (defaultArgumentExps[i] != null) {
+          defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
+        } else {
+          defaultArguments[i] = null;
         }
-        nonClosure = new NonClosure(this.function, defaultArguments, virtualFrame);
       }
+      nonClosure = new NonClosure(this.function, defaultArguments, virtualFrame);
       RawContext.get(this).getFunctionRegistry().register(name, nonClosure);
     }
     return nonClosure;
