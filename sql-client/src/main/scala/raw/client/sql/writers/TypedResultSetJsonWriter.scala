@@ -83,7 +83,7 @@ class TypedResultSetJsonWriter(os: OutputStream) {
       case _: RawLongType => gen.writeNumber(v.getLong(i))
       case _: RawFloatType => gen.writeNumber(v.getFloat(i))
       case _: RawDoubleType => gen.writeNumber(v.getDouble(i))
-      case _: RawDecimalType => gen.writeString(v.getBigDecimal(i).toString)
+      case _: RawDecimalType => gen.writeNumber(v.getBigDecimal(i))
       case _: RawStringType => gen.writeString(v.getString(i))
       case _: RawAnyType => v.getMetaData.getColumnTypeName(i) match {
           case "jsonb" | "json" =>

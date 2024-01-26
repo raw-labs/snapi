@@ -155,7 +155,7 @@ class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) {
       case _: RawLongType => gen.writeNumber(v.asLong())
       case _: RawFloatType => gen.writeNumber(v.asFloat())
       case _: RawDoubleType => gen.writeNumber(v.asDouble())
-      case _: RawDecimalType => gen.writeString(v.asHostObject[java.math.BigDecimal]().toString())
+      case _: RawDecimalType => gen.writeNumber(v.asHostObject[java.math.BigDecimal]())
       case _: RawStringType => gen.writeString(v.asString())
       case _: RawDateType =>
         val date = v.asDate()
