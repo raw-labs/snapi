@@ -60,7 +60,7 @@ class LocalCredentialsService extends CredentialsService {
     None
   }
 
-  override def listExternalConnectorCredentials(user: AuthenticatedUser): List[String] = {
+  override def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
     List.empty
   }
 

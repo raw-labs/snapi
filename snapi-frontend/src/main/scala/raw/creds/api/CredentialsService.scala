@@ -113,7 +113,7 @@ trait CredentialsService extends RawService {
   def existsExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean =
     getExternalConnectorCredential(user, name).isDefined
 
-  def listExternalConnectorCredentials(user: AuthenticatedUser): List[String]
+  def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId]
 
   def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean
 

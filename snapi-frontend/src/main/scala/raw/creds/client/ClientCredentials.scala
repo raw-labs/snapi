@@ -144,8 +144,12 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
   def existsExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean =
     getExternalConnectorCredential(user, name).isDefined
 
-  def listExternalConnectorCredentials(user: AuthenticatedUser): List[String] = {
-    restClient.doJsonPost[List[String]]("2/connector/list", ListExternalConnectorCredential(user), withAuth = false)
+  def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
+    restClient.doJsonPost[List[ExternalConnectorCredentialId]](
+      "2/connector/list",
+      ListExternalConnectorCredential(user),
+      withAuth = false
+    )
   }
 
   def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean = {

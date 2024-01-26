@@ -146,6 +146,8 @@ final case class SnowflakeCredential(
   val port = None
 }
 
+case class ExternalConnectorCredentialId(name: String, connectorType: AbstractConnectorType)
+
 trait AbstractConnectorType {
   def repr: String
 }
