@@ -19,30 +19,13 @@ import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
-import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
-import raw.runtime.truffle.runtime.function.Lambda;
 
 @NodeInfo(shortName = "InvokeWithNames")
-public final class InvokeWithNamesNode extends ExpressionNode {
+public final class InvokeNode extends ExpressionNode {
 
   @Child private ExpressionNode functionNode;
 
-  @Child
-  private FunctionExecuteNodes.FunctionExecuteWithNames functionExecWithNames =
-      FunctionExecuteNodesFactory.FunctionExecuteWithNamesNodeGen.create();
-
-  @Child
-  private FunctionExecuteNodes.FunctionExecuteZero functionExecZero =
-      FunctionExecuteNodesFactory.FunctionExecuteZeroNodeGen.create();
-
-  @Child
-  private FunctionExecuteNodes.FunctionExecuteOne functionExecOne =
-      FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
-
-  @Child
-  private FunctionExecuteNodes.FunctionExecuteTwo functionExecTwo =
-      FunctionExecuteNodesFactory.FunctionExecuteTwoNodeGen.create();
+  @Child private InvokeNodes.Invoke invoke = InvokeNodesFactory.InvokeNodeGen.create();
 
   @Children private final ExpressionNode[] argumentNodes;
 
@@ -50,7 +33,7 @@ public final class InvokeWithNamesNode extends ExpressionNode {
 
   private final String[] argNames;
 
-  public InvokeWithNamesNode(
+  public InvokeNode(
       ExpressionNode functionNode, String[] argNames, ExpressionNode[] argumentNodes) {
     this.functionNode = functionNode;
     assert (argNames.length == argumentNodes.length);
@@ -64,23 +47,10 @@ public final class InvokeWithNamesNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     CompilerAsserts.compilationConstant(argumentNodes.length);
     Object function = functionNode.executeGeneric(frame);
-    if (function instanceof Lambda) {
-      if (argNames.length == 0) {
-        return functionExecZero.execute(this, function);
-      } else if (argNames.length == 1) {
-        return functionExecOne.execute(this, function, argumentNodes[0].executeGeneric(frame));
-      } else if (argNames.length == 2) {
-        return functionExecTwo.execute(
-            this,
-            function,
-            argumentNodes[0].executeGeneric(frame),
-            argumentNodes[1].executeGeneric(frame));
-      }
-    }
     for (int i = 0; i < argumentNodes.length; i++) {
       argumentValues[i] = argumentNodes[i].executeGeneric(frame);
     }
-    return functionExecWithNames.execute(this, function, argNames, argumentValues);
+    return invoke.execute(this, function, argNames, argumentValues);
   }
 
   @Override

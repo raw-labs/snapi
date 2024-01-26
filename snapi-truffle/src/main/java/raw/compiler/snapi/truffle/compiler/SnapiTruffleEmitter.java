@@ -39,7 +39,7 @@ import raw.runtime.truffle.ast.expressions.binary.ModNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.MultNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.SubNodeGen;
 import raw.runtime.truffle.ast.expressions.function.ClosureNode;
-import raw.runtime.truffle.ast.expressions.function.InvokeWithNamesNode;
+import raw.runtime.truffle.ast.expressions.function.InvokeNode;
 import raw.runtime.truffle.ast.expressions.function.LambdaNode;
 import raw.runtime.truffle.ast.expressions.function.MethodNode;
 import raw.runtime.truffle.ast.expressions.literals.*;
@@ -394,7 +394,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case FunApp fa -> {
                 String[] argNames = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> a.idn().isDefined() ? a.idn().get() : null).toArray(String[]::new);
                 ExpressionNode[] exps = JavaConverters.asJavaCollection(fa.args()).stream().map(a -> recurseExp(a.e())).toArray(ExpressionNode[]::new);
-                yield new InvokeWithNamesNode(recurseExp(fa.f()), argNames, exps);
+                yield new InvokeNode(recurseExp(fa.f()), argNames, exps);
             }
             default -> throw new RawTruffleInternalErrorException("Unknown expression type");
         };

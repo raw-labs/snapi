@@ -9,8 +9,8 @@ import raw.runtime.truffle.runtime.function.Function;
 import raw.runtime.truffle.runtime.function.Lambda;
 
 public class LambdaNode extends ExpressionNode {
-
-  @CompilerDirectives.CompilationFinal private final RootCallTarget callTarget;
+  private final RootCallTarget callTarget;
+  @CompilerDirectives.CompilationFinal private Lambda lambda;
 
   public LambdaNode(Function f) {
     callTarget = f.getCallTarget();
@@ -19,6 +19,9 @@ public class LambdaNode extends ExpressionNode {
   @Override
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    return new Lambda(callTarget, virtualFrame);
+    if (lambda == null) {
+      lambda = new Lambda(callTarget, virtualFrame);
+    }
+    return lambda;
   }
 }
