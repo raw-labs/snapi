@@ -158,7 +158,7 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
       case _: Rql2LongType => gen.writeNumber(v.asLong())
       case _: Rql2FloatType => gen.writeNumber(v.asFloat())
       case _: Rql2DoubleType => gen.writeNumber(v.asDouble())
-      case _: Rql2DecimalType => gen.writeString(v.asString())
+      case _: Rql2DecimalType => gen.writeNumber(v.asString())
       case _: Rql2StringType => gen.writeString(v.asString())
       case _: Rql2DateType =>
         val date = v.asDate()
