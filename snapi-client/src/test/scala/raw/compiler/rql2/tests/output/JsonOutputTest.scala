@@ -23,11 +23,11 @@ trait JsonOutputTest extends CompilerTestContext {
 
   test("""[
     |{byteCol: Int.From("1"), shortCol:Int.From("10"), intCol: Int.From("100"), longCol: Int.From("1000"),
-    | floatCol: Double.From("3.14"), doubleCol: Double.From("6.28"), decimalCol: Double.From("9.42"), boolCol: true,
+    | floatCol: Double.From("3.14"), doubleCol: Double.From("6.28"), decimalCol: Decimal.From("9.42"), boolCol: true,
     | dateCol: Date.Parse("12/25/2023", "M/d/yyyy"), timeCol: Time.Parse("01:02:03", "H:m:s"),
     | timestampCol: Timestamp.Parse("12/25/2023 01:02:03", "M/d/yyyy H:m:s"), binaryCol: Binary.FromString("Hello World!")},
     |{byteCol: Int.From("120"), shortCol:Int.From("2500"), intCol: Int.From("25000"), longCol: Int.From("250000"),
-    | floatCol: Double.From("30.14"), doubleCol: Double.From("60.28"), decimalCol: Double.From("90.42"), boolCol: false,
+    | floatCol: Double.From("30.14"), doubleCol: Double.From("60.28"), decimalCol: Decimal.From("90.42"), boolCol: false,
     | dateCol: Date.Parse("2/5/2023", "M/d/yyyy"), timeCol: Time.Parse("11:12:13", "H:m:s"),
     | timestampCol: Timestamp.Parse("2/5/2023 11:12:13", "M/d/yyyy H:m:s"), binaryCol: Binary.FromString("Olala!")}
     |]""".stripMargin) { it =>

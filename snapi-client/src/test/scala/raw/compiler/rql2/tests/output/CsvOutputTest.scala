@@ -30,21 +30,23 @@ trait CsvOutputTest extends CompilerTestContext {
 
   test("""[
     |{byteCol: Int.From("1"), shortCol:Int.From("10"), intCol: Int.From("100"), longCol: Int.From("1000"),
-    | floatCol: Double.From("3.14"), doubleCol: Double.From("6.28"), decimalCol: Double.From("9.42"), boolCol: true,
+    | floatCol: Double.From("3.14"), doubleCol: Double.From("6.28"), decimalCol: Decimal.From("9.42"), boolCol: true,
     | dateCol: Date.Parse("12/25/2023", "M/d/yyyy"), timeCol: Time.Parse("01:02:03", "H:m:s"),
-    | timestampCol: Timestamp.Parse("12/25/2023 01:02:03", "M/d/yyyy H:m:s"), binaryCol: Binary.FromString("Hello World!")},
+    | timestampCol: Timestamp.Parse("12/25/2023 01:02:03", "M/d/yyyy H:m:s"), binaryCol: Binary.FromString("Hello World!"),
+    | stringCol:"Hello,World!"},
     |{byteCol: Int.From("120"), shortCol:Int.From("2500"), intCol: Int.From("25000"), longCol: Long.From("9223372036854775807"),
-    | floatCol: Double.From("30.14"), doubleCol: Double.From("60.28"), decimalCol: Double.From("90.42"), boolCol: false,
+    | floatCol: Double.From("30.14"), doubleCol: Double.From("60.28"), decimalCol: Decimal.From("90.42"), boolCol: false,
     | dateCol: Date.Parse("2/5/2023", "M/d/yyyy"), timeCol: Time.Parse("11:12:13", "H:m:s"),
-    | timestampCol: Timestamp.Parse("2/5/2023 11:12:13", "M/d/yyyy H:m:s"), binaryCol: Binary.FromString("Olala!")}
+    | timestampCol: Timestamp.Parse("2/5/2023 11:12:13", "M/d/yyyy H:m:s"), binaryCol: Binary.FromString("Olala!"),
+    | stringCol:"Ciao World!"}
     |]""".stripMargin) { it =>
     val path = Files.createTempFile("", "")
     try {
       it should saveToInFormat(path, "csv")
       path should contain(
-        """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol,binaryCol
-          |1,10,100,1000,3.14,6.28,9.42,true,2023-12-25,01:02:03,2023-12-25T01:02:03,SGVsbG8gV29ybGQh
-          |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,2023-02-05,11:12:13,2023-02-05T11:12:13,T2xhbGEh
+        """byteCol,shortCol,intCol,longCol,floatCol,doubleCol,decimalCol,boolCol,dateCol,timeCol,timestampCol,binaryCol,stringCol
+          |1,10,100,1000,3.14,6.28,9.42,true,2023-12-25,01:02:03,2023-12-25T01:02:03,SGVsbG8gV29ybGQh,"Hello,World!"
+          |120,2500,25000,9223372036854775807,30.14,60.28,90.42,false,2023-02-05,11:12:13,2023-02-05T11:12:13,T2xhbGEh,Ciao World!
           |""".stripMargin
       )
     } finally {
