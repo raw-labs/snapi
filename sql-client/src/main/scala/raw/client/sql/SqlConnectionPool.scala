@@ -20,7 +20,8 @@ import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
 //class SqlClientMissingCredentialsException(cause: Throwable) extends RawException("add credentials to use SQL", cause)
-class SqlClientMissingCredentialsException(cause: Throwable) extends RawException("to properly execute SQL queries, first add credentials", cause)
+class SqlClientMissingCredentialsException(cause: Throwable)
+    extends RawException("to properly execute SQL queries, first add credentials", cause)
 
 class SqlConnectionPool(settings: RawSettings) {
 
@@ -31,7 +32,22 @@ class SqlConnectionPool(settings: RawSettings) {
   private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
   private val password = settings.getString("raw.creds.jdbc.fdw.password")
 
-  private val defaultPool: HikariDataSource = null // set to a proper working pool against the default DB.
+  // Default pool for the users that haven't registered a credential yet.
+  private val defaultPool: HikariDataSource = {
+    val defaultDB = settings.getString("raw.creds.jdbc.fdw.default.db")
+    val defaultDBHost = settings.getString("raw.creds.jdbc.fdw.default.host")
+    val defaultDBPort = settings.getInt("raw.creds.jdbc.fdw.default.port")
+    val config = new HikariConfig()
+    config.setJdbcUrl(s"jdbc:postgresql://$defaultDBHost:$defaultDBPort/$defaultDB")
+    config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
+    config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
+    config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
+    config.setConnectionTimeout(
+      settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
+    )
+
+    new HikariDataSource(config)
+  }
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
@@ -58,7 +74,7 @@ class SqlConnectionPool(settings: RawSettings) {
               case sqlException: SQLException => sqlException.getSQLState match {
                   case "3D000" =>
                     // We get that when the database does not exist. We throw a more explicit exception.
-                    throw new SqlClientMissingCredentialsException(sqlException) // return default pool
+                    return defaultPool.getConnection // return default pool
                   case _ => throw hikariException
                 }
               case e: Throwable => throw e
