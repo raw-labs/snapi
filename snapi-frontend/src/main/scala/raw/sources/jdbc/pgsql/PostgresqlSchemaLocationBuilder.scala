@@ -26,7 +26,7 @@ class PostgresqlSchemaLocationBuilder extends JdbcSchemaLocationBuilder {
     location.url match {
       case schemaRegex(dbName, schema) =>
         val db = PostgresqlClients.get(dbName, location)
-        new PostgresqlSchema(db, dbName, schema)
+        new PostgresqlSchema(db, db.database.get, schema)
       case _ => throw new LocationException("not a postgresql schema location")
     }
   }

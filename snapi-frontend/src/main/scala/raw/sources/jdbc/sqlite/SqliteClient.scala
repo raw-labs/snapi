@@ -12,10 +12,10 @@
 
 package raw.sources.jdbc.sqlite
 
-import java.nio.file.{InvalidPathException, Path}
-import raw.sources.jdbc.api.{AuthenticationFailedException, JdbcClient, JdbcLocationException}
+import raw.sources.jdbc.api._
 import raw.utils.RawSettings
 
+import java.nio.file.{InvalidPathException, Path}
 import java.sql.SQLException
 import scala.util.control.NonFatal
 
@@ -41,6 +41,7 @@ class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClien
   override val connectionString: String = s"jdbc:$vendor:$sqlitePath"
   override val username: Option[String] = None
   override val password: Option[String] = None
+  override val database: Option[String] = None
 
   override val hostname: String = path.toAbsolutePath.toString
 

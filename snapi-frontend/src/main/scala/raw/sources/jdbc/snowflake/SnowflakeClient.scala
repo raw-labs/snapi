@@ -35,7 +35,7 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
   override val password: Option[String] = db.password
 
   override val hostname: String = db.host
-
+  override val database: Option[String] = Some(db.database)
   override def getConnection: Connection = {
     wrapSQLException {
       val parameters = db.parameters ++ Seq("db" -> db.database)
