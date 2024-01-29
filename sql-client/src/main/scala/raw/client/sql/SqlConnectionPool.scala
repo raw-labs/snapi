@@ -34,11 +34,12 @@ class SqlConnectionPool(settings: RawSettings) {
 
   // Default pool for the users that haven't registered a credential yet.
   private val defaultPool: HikariDataSource = {
+    val config = new HikariConfig()
     val defaultDB = settings.getString("raw.creds.jdbc.fdw.default.db")
     val defaultDBHost = settings.getString("raw.creds.jdbc.fdw.default.host")
     val defaultDBPort = settings.getInt("raw.creds.jdbc.fdw.default.port")
-    val config = new HikariConfig()
     config.setJdbcUrl(s"jdbc:postgresql://$defaultDBHost:$defaultDBPort/$defaultDB")
+    // (CTM)
     config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
     config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
     config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
