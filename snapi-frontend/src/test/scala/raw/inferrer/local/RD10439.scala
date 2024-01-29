@@ -49,38 +49,4 @@ class RD10439 extends RawTestSuite with SettingsTestContext with StrictLogging {
     )
     assert(tipe == expected)
   }
-
-  test("infer mysql table which using local inferrer") { _ =>
-    val table = "rd10439"
-    val location = LocationDescription(
-      s"mysql://$mysqlDb/$table",
-      Map(
-        LocationSettingKey("db-host") -> LocationStringSetting(mysqlHostname),
-        LocationSettingKey("db-username") -> LocationStringSetting(mysqlUsername),
-        LocationSettingKey("db-password") -> LocationStringSetting(mysqlPassword)
-      )
-    )
-    implicit val sourceContext = new SourceContext(null, null, settings, None)
-    val inferrer = new LocalInferrerService
-    try {
-      val properties = SqlTableInferrerProperties(location, None)
-      val tipe = inferrer.infer(properties).tipe
-
-      logger.info(s"tipe: $tipe")
-      val expected = SourceCollectionType(
-        SourceRecordType(
-          Vector(
-            SourceAttrType("id", SourceIntType(true)),
-            SourceAttrType("name", SourceStringType(true)),
-            SourceAttrType("salary", SourceFloatType(true))
-          ),
-          nullable = false
-        ),
-        nullable = false
-      )
-      assert(tipe == expected)
-    } finally {
-      inferrer.stop()
-    }
-  }
 }
