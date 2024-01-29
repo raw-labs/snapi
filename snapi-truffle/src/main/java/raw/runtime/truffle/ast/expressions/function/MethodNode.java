@@ -12,9 +12,9 @@
 
 package raw.runtime.truffle.ast.expressions.function;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.nodes.Node.Children;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Function;
@@ -22,13 +22,13 @@ import raw.runtime.truffle.runtime.function.NonClosure;
 
 public final class MethodNode extends ExpressionNode {
 
-  @CompilerDirectives.CompilationFinal private final Function function;
+  @CompilationFinal private final Function function;
 
-  @CompilerDirectives.CompilationFinal(dimensions = 1)
+  @CompilationFinal(dimensions = 1)
   private Object[] defaultArguments;
 
-  @CompilerDirectives.CompilationFinal private NonClosure nonClosure;
-  @Node.Children private final ExpressionNode[] defaultArgumentExps;
+  @CompilationFinal private NonClosure nonClosure;
+  @Children private final ExpressionNode[] defaultArgumentExps;
 
   private final String name;
 

@@ -67,8 +67,8 @@ public class InvokeNodes {
         String[] argNames,
         Object[] argumentValues,
         @Bind("$node") Node thisNode,
-        @Cached FunctionExecuteNodes.FunctionExecuteWithNames functionExecOne) {
-      return functionExecOne.execute(thisNode, function, argNames, argumentValues);
+        @Cached FunctionExecuteNodes.FunctionExecuteWithNames functionWithNames) {
+      return functionWithNames.execute(thisNode, function, argNames, argumentValues);
     }
   }
 }

@@ -56,6 +56,12 @@ trait CollectionPackageTest extends CompilerTestContext {
 
   test("""Collection.Build(1, 2, 3.14d)""")(_ should (typeAs("collection(double)") and run))
 
+  test("""let items = [1,2,3],
+    |    collections = List.Transform(items, i -> Collection.Build(i))
+    |in collections""".stripMargin) { it =>
+    it should evaluateTo("Collection.Build(Collection.Build(1), Collection.Build(2), Collection.Build(3))")
+  }
+
   test("Collection.Filter(Collection.Build(1,2,3), s -> s > 1)") { it =>
     it should typeAs("collection(int)")
     it should evaluateTo("Collection.Build(2,3)")

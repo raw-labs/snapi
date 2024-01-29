@@ -24,6 +24,14 @@ trait ClosureTest extends CompilerTestContext {
     |       f2 = List.Get(functions, 2)
     |in [f0(22), f1(10), f2(33)]""".stripMargin)(it => it should evaluateTo("""[22, 20, 99]"""))
 
+  test("""let
+    |    col = Collection.Build(1, 2),
+    |    functions = Collection.Transform(col, (n) -> let f(x: int) = x * n in f),
+    |    f0 = Collection.First(functions),
+    |    f1 = Collection.Last(functions)
+    |in
+    |    [f0(22), f1(10)]""".stripMargin)(it => it should evaluateTo("""[22, 20]"""))
+
   test("""let mkFun(n: int) = let f(x: int) = x * n in f,
     | f0 = mkFun(0),
     | f1 = mkFun(1),

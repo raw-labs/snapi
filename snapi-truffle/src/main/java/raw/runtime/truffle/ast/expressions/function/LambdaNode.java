@@ -32,7 +32,7 @@ public class LambdaNode extends ExpressionNode {
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame virtualFrame) {
     if (lambda == null) {
-      lambda = new Lambda(callTarget, virtualFrame);
+      lambda = new Lambda(callTarget);
     }
     return lambda;
   }
