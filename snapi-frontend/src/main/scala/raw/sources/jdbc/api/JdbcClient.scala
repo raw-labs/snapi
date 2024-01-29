@@ -58,6 +58,7 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
 
   def vendor: String
 
+  // Database is optional because some databases do not have the concept of database (Teradata and Sqlite).
   def database: Option[String]
 
   // Wrap vendor-specific calls and ensure only RelationalDatabaseException is thrown.
