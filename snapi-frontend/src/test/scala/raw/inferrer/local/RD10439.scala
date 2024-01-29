@@ -62,22 +62,25 @@ class RD10439 extends RawTestSuite with SettingsTestContext with StrictLogging {
     )
     implicit val sourceContext = new SourceContext(null, null, settings, None)
     val inferrer = new LocalInferrerService
+    try {
+      val properties = SqlTableInferrerProperties(location, None)
+      val tipe = inferrer.infer(properties).tipe
 
-    val properties = SqlTableInferrerProperties(location, None)
-    val tipe = inferrer.infer(properties).tipe
-
-    logger.info(s"tipe: $tipe")
-    val expected = SourceCollectionType(
-      SourceRecordType(
-        Vector(
-          SourceAttrType("id", SourceIntType(true)),
-          SourceAttrType("name", SourceStringType(true)),
-          SourceAttrType("salary", SourceFloatType(true))
+      logger.info(s"tipe: $tipe")
+      val expected = SourceCollectionType(
+        SourceRecordType(
+          Vector(
+            SourceAttrType("id", SourceIntType(true)),
+            SourceAttrType("name", SourceStringType(true)),
+            SourceAttrType("salary", SourceFloatType(true))
+          ),
+          nullable = false
         ),
         nullable = false
-      ),
-      nullable = false
-    )
-    assert(tipe == expected)
+      )
+      assert(tipe == expected)
+    } finally {
+      inferrer.stop()
+    }
   }
 }
