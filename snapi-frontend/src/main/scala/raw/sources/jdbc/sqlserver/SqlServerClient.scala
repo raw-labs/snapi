@@ -42,7 +42,7 @@ class SqlServerClient(protected val db: SqlServerCredential)(implicit settings: 
   override val password: Option[String] = db.password
 
   override val hostname: String = db.host
-
+  override val database: String = db.database
   override def wrapSQLException[T](f: => T): T = {
     try {
       f

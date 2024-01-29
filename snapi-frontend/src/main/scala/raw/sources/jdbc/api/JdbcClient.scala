@@ -58,6 +58,8 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
 
   def vendor: String
 
+  def database: String
+
   // Wrap vendor-specific calls and ensure only RelationalDatabaseException is thrown.
   def wrapSQLException[T](f: => T): T
 

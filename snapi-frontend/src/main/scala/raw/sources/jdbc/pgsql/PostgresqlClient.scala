@@ -40,6 +40,7 @@ class PostgresqlClient(db: PostgresqlCredential)(implicit settings: RawSettings)
 
   override val hostname: String = db.host
 
+  override val database: String = db.database
   //  override val datasource: DataSource = {
   //    val pgDatasource = new PGSimpleDataSource()
   //    pgDatasource.setURL(connectionString)

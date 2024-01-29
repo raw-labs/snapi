@@ -13,10 +13,19 @@
 package raw.sources.jdbc.sqlite
 
 import java.nio.file.{InvalidPathException, Path}
-import raw.sources.jdbc.api.{AuthenticationFailedException, JdbcClient, JdbcLocationException}
+import raw.sources.jdbc.api.{
+  AuthenticationFailedException,
+  JdbcClient,
+  JdbcColumnType,
+  JdbcLocationException,
+  SchemaMetadata,
+  TableColumn,
+  TableMetadata
+}
 import raw.utils.RawSettings
 
 import java.sql.SQLException
+import scala.collection.mutable
 import scala.util.control.NonFatal
 
 class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClient {
@@ -41,9 +50,36 @@ class SqliteClient(path: Path)(implicit settings: RawSettings) extends JdbcClien
   override val connectionString: String = s"jdbc:$vendor:$sqlitePath"
   override val username: Option[String] = None
   override val password: Option[String] = None
+  override val database: String = sqlitePath.toString
 
   override val hostname: String = path.toAbsolutePath.toString
 
+  override def tableMetadata(database: String, maybeSchema: Option[String], table: String): TableMetadata = {
+    val conn = getConnection
+    try {
+      val metaData = conn.getMetaData
+      val res = metaData.getColumns(
+        null,
+        maybeSchema.orNull,
+        table,
+        null // Read all columns
+      )
+      try {
+        val columns = mutable.ListBuffer[TableColumn]()
+        while (wrapSQLException(res.next)) {
+          val columnName = wrapSQLException(res.getString("COLUMN_NAME"))
+          val columnType = wrapSQLException(res.getInt("DATA_TYPE"))
+          val nullability = wrapSQLException(res.getInt("NULLABLE"))
+          columns += TableColumn(columnName, JdbcColumnType(columnType, nullability))
+        }
+        TableMetadata(columns.to, None)
+      } finally {
+        wrapSQLException(res.close())
+      }
+    } finally {
+      wrapSQLException(conn.close())
+    }
+  }
   override def wrapSQLException[T](f: => T): T = {
     try {
       f
