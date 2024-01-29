@@ -146,7 +146,33 @@ final case class SnowflakeCredential(
   val port = None
 }
 
-final case class SalesforceCredential(
+case class ExternalConnectorCredentialId(name: String, connectorType: AbstractConnectorType)
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "repr")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[SalesforceConnectorType], name = "SALESFORCE")
+  )
+)
+trait AbstractConnectorType {
+  def repr: String
+}
+case class SalesforceConnectorType() extends AbstractConnectorType {
+  override def repr: String = "SALESFORCE"
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "connectorType")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE")
+  )
+)
+sealed trait ExternalConnectorCredential extends Credential {
+  def connectorType: AbstractConnectorType
+  def sensitiveFields: List[String]
+}
+
+final case class ExternalConnectorSalesforceCredential(
     url: String,
     username: String,
     password: String,
@@ -154,8 +180,10 @@ final case class SalesforceCredential(
     clientId: String,
     apiVersion: String,
     customObjects: Seq[String],
-    options: Map[String, String]
-) extends Credential
+    override val sensitiveFields: List[String] = List("password", "securityToken")
+) extends ExternalConnectorCredential {
+  override def connectorType: AbstractConnectorType = SalesforceConnectorType()
+}
 
 final case class Secret(name: String, value: String) extends Credential
 
