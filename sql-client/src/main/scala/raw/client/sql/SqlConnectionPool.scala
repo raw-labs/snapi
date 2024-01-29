@@ -31,6 +31,8 @@ class SqlConnectionPool(settings: RawSettings) {
   private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
   private val password = settings.getString("raw.creds.jdbc.fdw.password")
 
+  private val defaultPool: HikariDataSource = null // set to a proper working pool against the default DB.
+
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
     val db = user.uid.toString().replace("-", "_")
@@ -56,7 +58,7 @@ class SqlConnectionPool(settings: RawSettings) {
               case sqlException: SQLException => sqlException.getSQLState match {
                   case "3D000" =>
                     // We get that when the database does not exist. We throw a more explicit exception.
-                    throw new SqlClientMissingCredentialsException(sqlException)
+                    throw new SqlClientMissingCredentialsException(sqlException) // return default pool
                   case _ => throw hikariException
                 }
               case e: Throwable => throw e
