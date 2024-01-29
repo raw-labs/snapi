@@ -25,11 +25,11 @@ abstract class JdbcTableLocation(
     with StrictLogging {
 
   final override def testAccess(): Unit = {
-    jdbcClient.testAccess(dbName, maybeSchema, table)
+    jdbcClient.testAccess(Some(dbName), maybeSchema, table)
   }
 
   final def getType(): TableMetadata = {
-    jdbcClient.tableMetadata(dbName, maybeSchema, table)
+    jdbcClient.tableMetadata(Some(dbName), maybeSchema, table)
   }
 
 }

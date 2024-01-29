@@ -58,7 +58,7 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
 
   def vendor: String
 
-  def database: String
+  def database: Option[String]
 
   // Wrap vendor-specific calls and ensure only RelationalDatabaseException is thrown.
   def wrapSQLException[T](f: => T): T
@@ -103,7 +103,7 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     listTables(schema).close()
   }
 
-  def testAccess(database: String, maybeSchema: Option[String], table: String): Unit = {
+  def testAccess(database: Option[String], maybeSchema: Option[String], table: String): Unit = {
     tableMetadata(database, maybeSchema, table)
   }
 
@@ -123,7 +123,7 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     SchemaMetadata()
   }
 
-  def tableMetadata(database: String, maybeSchema: Option[String], table: String): TableMetadata = {
+  def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
     val conn = getConnection
     try {
       val res = getTableMetadata(conn, database, maybeSchema, table)
@@ -139,14 +139,14 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
 
   private def getTableMetadata(
       conn: Connection,
-      database: String,
+      maybeDatabase: Option[String],
       maybeSchema: Option[String],
       table: String
   ): ResultSet = {
     wrapSQLException {
       val metaData = conn.getMetaData
       metaData.getColumns(
-        database,
+        maybeDatabase.orNull,
         maybeSchema.orNull,
         table,
         null // Read all columns

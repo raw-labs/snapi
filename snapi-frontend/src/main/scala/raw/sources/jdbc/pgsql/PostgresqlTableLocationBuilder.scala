@@ -26,7 +26,7 @@ class PostgresqlTableLocationBuilder extends JdbcTableLocationBuilder {
     location.url match {
       case postgresqlTableRegex(dbName, schema, table) =>
         val db = PostgresqlClients.get(dbName, location)
-        new PostgresqlTable(db, db.database, schema, table)
+        new PostgresqlTable(db, db.database.get, schema, table)
       case _ => throw new LocationException("not a postgresql location")
     }
 
