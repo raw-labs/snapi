@@ -58,6 +58,16 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   }
 
   // Quoted value
+  test("""select * from public."B """.stripMargin) { t =>
+    assume(password != "")
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "B", Pos(1, 24))
+    assert(
+      completion.completions.toSet === Set(LetBindCompletion("BLABLABLA", "table"))
+    )
+  }
+
+  // Quoted value
   test("""select * from "example"."airp""".stripMargin) { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
@@ -115,20 +125,30 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     // The calls to the dotAutoComplete have to point to the place before the dot
     val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
     assert(
-      dotCompletion.completions.toSet === Set(
-        LetBindCompletion("icao", "character varying"),
-        LetBindCompletion("tz", "character varying"),
-        LetBindCompletion("latitude", "numeric"),
-        LetBindCompletion("altitude", "numeric"),
-        LetBindCompletion("airport_id", "integer"),
-        LetBindCompletion("country", "character varying"),
-        LetBindCompletion("timezone", "integer"),
-        LetBindCompletion("iata_faa", "character varying"),
-        LetBindCompletion("name", "character varying"),
-        LetBindCompletion("dst", "character varying"),
-        LetBindCompletion("longitude", "numeric"),
-        LetBindCompletion("city", "character varying")
+      dotCompletion.completions.toSet === airportColumns
+    )
+  }
+
+  // dot completion with three items
+  test("""SELECT * FROM example.airports
+    |WHERE example.airports.
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 16))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 17))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("airports", "table")
       )
+    )
+
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 23))
+    assert(
+      dotCompletion.completions.toSet === airportColumns
     )
   }
 
@@ -577,4 +597,18 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |]""".stripMargin.replaceAll("\\s+", ""))
   }
 
+  private val airportColumns = Set(
+    LetBindCompletion("icao", "character varying"),
+    LetBindCompletion("tz", "character varying"),
+    LetBindCompletion("latitude", "numeric"),
+    LetBindCompletion("altitude", "numeric"),
+    LetBindCompletion("airport_id", "integer"),
+    LetBindCompletion("country", "character varying"),
+    LetBindCompletion("timezone", "integer"),
+    LetBindCompletion("iata_faa", "character varying"),
+    LetBindCompletion("name", "character varying"),
+    LetBindCompletion("dst", "character varying"),
+    LetBindCompletion("longitude", "numeric"),
+    LetBindCompletion("city", "character varying")
+  )
 }
