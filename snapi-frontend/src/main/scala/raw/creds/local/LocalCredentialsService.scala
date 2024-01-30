@@ -45,23 +45,26 @@ class LocalCredentialsService extends CredentialsService {
     false
   }
 
-  override def registerSalesforceCredential(
+  override def registerExternalConnectorCredential(
       user: AuthenticatedUser,
       name: String,
-      salesforceCredential: SalesforceCredential
+      credential: ExternalConnectorCredential
   ): Boolean = {
     false
   }
 
-  override def getSalesforceCredential(user: AuthenticatedUser, name: String): Option[SalesforceCredential] = {
+  override def getExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String
+  ): Option[ExternalConnectorCredential] = {
     None
   }
 
-  override def listSalesforceCredentials(user: AuthenticatedUser): List[String] = {
+  override def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
     List.empty
   }
 
-  override def unregisterSalesforceCredential(user: AuthenticatedUser, name: String): Boolean = {
+  override def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean = {
     false
   }
 
