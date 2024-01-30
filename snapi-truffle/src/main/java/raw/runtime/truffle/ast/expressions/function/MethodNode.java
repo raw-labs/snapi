@@ -31,11 +31,14 @@ public final class MethodNode extends ExpressionNode {
   @Children private final ExpressionNode[] defaultArgumentExps;
 
   private final String name;
+  private final boolean hasFreeVars;
 
-  public MethodNode(String name, Function f, ExpressionNode[] defaultArgumentExps) {
+  public MethodNode(
+      String name, Function f, ExpressionNode[] defaultArgumentExps, boolean hasFreeVars) {
     this.function = f;
     this.defaultArgumentExps = defaultArgumentExps;
     this.name = name;
+    this.hasFreeVars = hasFreeVars;
   }
 
   @Override
@@ -50,7 +53,9 @@ public final class MethodNode extends ExpressionNode {
           defaultArguments[i] = null;
         }
       }
-      nonClosure = new NonClosure(this.function, defaultArguments, virtualFrame);
+      nonClosure =
+          new NonClosure(
+              this.function, defaultArguments, hasFreeVars ? virtualFrame.materialize() : null);
       RawContext.get(this).getFunctionRegistry().register(name, nonClosure);
     }
     return nonClosure;

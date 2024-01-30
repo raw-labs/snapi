@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.GenerateInline;
 import com.oracle.truffle.api.dsl.GenerateUncached;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.ArityException;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -39,14 +39,18 @@ public class NonClosure implements TruffleObject {
   public static final int INLINE_CACHE_SIZE = 3;
   private final Function function;
   private final Object[] defaultArguments;
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
   private static final String GET_DEFAULT_PREFIX = "default_";
 
-  public NonClosure(Function function, Object[] defaultArguments, VirtualFrame frame) {
+  public NonClosure(Function function, Object[] defaultArguments, MaterializedFrame frame) {
     assert function != null;
     this.frame = frame;
     this.function = function;
     this.defaultArguments = defaultArguments;
+  }
+
+  public NonClosure(Function function, Object[] defaultArguments) {
+    this(function, defaultArguments, null);
   }
 
   public String getName() {
