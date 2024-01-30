@@ -55,6 +55,10 @@ class SnowflakeClient(db: SnowflakeCredential)(implicit settings: RawSettings) e
     }
   }
 
+  override def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
+    super.tableMetadata(None, maybeSchema, table)
+  }
+
   override def wrapSQLException[T](f: => T): T = {
     try {
       f
