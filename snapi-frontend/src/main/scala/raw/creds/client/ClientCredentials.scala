@@ -109,54 +109,46 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
 
   /** Salesforce */
 
-  def registerExternalConnectorCredential(
+  def registerSalesforceCredential(
       user: AuthenticatedUser,
       name: String,
-      externalConnectorCredential: ExternalConnectorCredential
+      salesforceCredential: SalesforceCredential
   ): Boolean = {
     try {
       restClient.doJsonPostWithEmptyResponse(
-        "2/connector/register",
-        RegisterExternalConnectorCredential(user, name, externalConnectorCredential),
+        "2/salesforce/register",
+        RegisterSalesforceCredential(user, name, salesforceCredential),
         withAuth = false
       )
       true
     } catch {
-      case ex: ClientAPIException if ex.errorCode == "externalConnectorCredentialAlreadyExists" => false
+      case ex: ClientAPIException if ex.errorCode == "salesforceCredentialAlreadyExists" => false
     }
   }
 
-  def getExternalConnectorCredential(user: AuthenticatedUser, name: String): Option[ExternalConnectorCredential] = {
+  def getSalesforceCredential(user: AuthenticatedUser, name: String): Option[SalesforceCredential] = {
     try {
       Some(
         restClient
-          .doJsonPost[ExternalConnectorCredential](
-            "2/connector/get",
-            GetExternalConnectorCredential(user, name),
-            withAuth = false
-          )
+          .doJsonPost[SalesforceCredential]("2/salesforce/get", GetSalesforceCredential(user, name), withAuth = false)
       )
     } catch {
-      case ex: ClientAPIException if ex.errorCode == "externalConnectorCredentialNotFound" => None
+      case ex: ClientAPIException if ex.errorCode == "salesforceCredentialNotFound" => None
     }
   }
 
-  def existsExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean =
-    getExternalConnectorCredential(user, name).isDefined
+  def existsSalesforceCredential(user: AuthenticatedUser, name: String): Boolean =
+    getSalesforceCredential(user, name).isDefined
 
-  def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
-    restClient.doJsonPost[List[ExternalConnectorCredentialId]](
-      "2/connector/list",
-      ListExternalConnectorCredential(user),
-      withAuth = false
-    )
+  def listSalesforceCredentials(user: AuthenticatedUser): List[String] = {
+    restClient.doJsonPost[List[String]]("2/salesforce/list", ListSalesforceCredentials(user), withAuth = false)
   }
 
-  def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean = {
+  def unregisterSalesforceCredential(user: AuthenticatedUser, name: String): Boolean = {
     try {
       restClient.doJsonPostWithEmptyResponse(
-        "2/connector/unregister",
-        UnregisterExternalConnectorCredential(user, name),
+        "2/salesforce/unregister",
+        UnregisterSalesforceCredential(user, name),
         HttpStatus.SC_NO_CONTENT,
         withAuth = false
       )
