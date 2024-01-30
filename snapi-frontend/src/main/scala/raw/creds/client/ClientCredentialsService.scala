@@ -85,42 +85,39 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
     }
   }
 
-  /** ExternalConnector */
+  /** Salesforce */
 
-  override def registerExternalConnectorCredential(
+  override def registerSalesforceCredential(
       user: AuthenticatedUser,
       name: String,
-      externalConnectorCredential: ExternalConnectorCredential
+      salesforceCredential: SalesforceCredential
   ): Boolean = {
     try {
-      client.registerExternalConnectorCredential(user, name, externalConnectorCredential)
+      client.registerSalesforceCredential(user, name, salesforceCredential)
     } catch {
       case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
     }
   }
 
-  override def getExternalConnectorCredential(
-      user: AuthenticatedUser,
-      name: String
-  ): Option[ExternalConnectorCredential] = {
+  override def getSalesforceCredential(user: AuthenticatedUser, name: String): Option[SalesforceCredential] = {
     try {
-      client.getExternalConnectorCredential(user, name)
+      client.getSalesforceCredential(user, name)
     } catch {
       case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
     }
   }
 
-  override def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
+  override def listSalesforceCredentials(user: AuthenticatedUser): List[String] = {
     try {
-      client.listExternalConnectorCredentials(user)
+      client.listSalesforceCredentials(user)
     } catch {
       case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
     }
   }
 
-  override def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean = {
+  override def unregisterSalesforceCredential(user: AuthenticatedUser, name: String): Boolean = {
     try {
-      client.unregisterExternalConnectorCredential(user, name)
+      client.unregisterSalesforceCredential(user, name)
     } catch {
       case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
     }
