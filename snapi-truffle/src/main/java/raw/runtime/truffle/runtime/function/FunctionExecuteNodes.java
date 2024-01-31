@@ -201,5 +201,16 @@ public class FunctionExecuteNodes {
         @Cached NonClosure.NonClosureExecuteWithNamesNode executeWithNames) {
       return executeWithNames.execute(thisNode, nonClosure, namedArgNames, arguments);
     }
+
+    @Specialization
+    static Object doLambda(
+        Node node,
+        Lambda lambda,
+        String[] namedArgNames,
+        Object[] arguments,
+        @Bind("$node") Node thisNode,
+        @Cached Lambda.LambdaExecuteManyNode executeWithNames) {
+      return executeWithNames.execute(thisNode, lambda, arguments);
+    }
   }
 }

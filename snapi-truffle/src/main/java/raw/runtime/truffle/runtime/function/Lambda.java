@@ -114,4 +114,37 @@ public class Lambda implements TruffleObject {
       return callNode.call(lambda.getCallTarget(), null, argument1, argument2);
     }
   }
+
+  @NodeInfo(shortName = "Lambda.ExecuteMany")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class LambdaExecuteManyNode extends Node {
+
+    public abstract Object execute(Node node, Lambda lambda, Object[] arguments);
+
+    @Specialization(guards = "lambda.getCallTarget() == cachedTarget", limit = "3")
+    protected static Object doDirect(
+        Node node,
+        Lambda lambda,
+        Object[] arguments,
+        @Cached("lambda.getCallTarget()") RootCallTarget cachedTarget,
+        @Cached("create(cachedTarget)") DirectCallNode callNode) {
+      Object[] finalArgs = new Object[arguments.length + 1];
+      finalArgs[0] = null;
+      System.arraycopy(arguments, 0, finalArgs, 1, arguments.length);
+      return callNode.call(finalArgs);
+    }
+
+    @Specialization(replaces = "doDirect")
+    protected static Object doIndirect(
+        Node node,
+        Lambda lambda,
+        Object[] arguments,
+        @Cached(inline = false) IndirectCallNode callNode) {
+      Object[] finalArgs = new Object[arguments.length + 1];
+      finalArgs[0] = null;
+      System.arraycopy(arguments, 0, finalArgs, 1, arguments.length);
+      return callNode.call(lambda.getCallTarget(), finalArgs);
+    }
+  }
 }
