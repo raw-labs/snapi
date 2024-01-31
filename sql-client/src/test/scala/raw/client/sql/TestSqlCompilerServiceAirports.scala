@@ -274,9 +274,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |    "country": "Portugal",
       |    "iata_faa": "BGC",
       |    "icao": "LPBG",
-      |    "latitude": "41.857800",
-      |    "longitude": "-6.707125",
-      |    "altitude": "2241.000",
+      |    "latitude": 41.857800,
+      |    "longitude": -6.707125,
+      |    "altitude": 2241.000,
       |    "timezone": 0,
       |    "dst": "E",
       |    "tz": "Europe/Lisbon"
