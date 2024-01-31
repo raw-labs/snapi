@@ -364,7 +364,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             }
             case FunAbs fa -> {
                 if (analyzer.freeVars(fa).isEmpty()) {
-                    if (fa.p().ps().forall(p -> p.t().isEmpty())) {
+                    if (((FunType) analyzer.tipe(fa)).os().isEmpty()) {
                         Function f = recurseFunProto(fa.p());
                         yield new LambdaNode(f);
                     }
