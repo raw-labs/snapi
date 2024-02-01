@@ -274,9 +274,9 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |    "country": "Portugal",
       |    "iata_faa": "BGC",
       |    "icao": "LPBG",
-      |    "latitude": "41.857800",
-      |    "longitude": "-6.707125",
-      |    "altitude": "2241.000",
+      |    "latitude": 41.857800,
+      |    "longitude": -6.707125,
+      |    "altitude": 2241.000,
       |    "timezone": 0,
       |    "dst": "E",
       |    "tz": "Europe/Lisbon"
@@ -473,7 +473,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val List(main) = description.decls("main")
     assert(
       main.outType == RawIterableType(
-        RawRecordType(Vector(RawAttrType("count", RawLongType(false, false))), false, false),
+        RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
         false,
         false
       )
@@ -519,7 +519,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val List(main) = description.decls("main")
     assert(
       main.outType == RawIterableType(
-        RawRecordType(Vector(RawAttrType("count", RawLongType(false, false))), false, false),
+        RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
         false,
         false
       )
@@ -537,4 +537,44 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(compilerService.execute(t.q, withNull, None, baos) == ExecutionSuccess)
     assert(baos.toString() == """[{"count":3}]""")
   }
+
+  test("""SELECT DATE '2002-01-01' - :s::int AS x -- RD-10538""") { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val v = compilerService.validate(t.q, environment)
+    assert(v.errors.isEmpty)
+    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
+    assert(description.maybeType.isEmpty)
+    val List(main) = description.decls("main")
+    assert(
+      main.outType == RawIterableType(
+        RawRecordType(
+          Vector(
+            RawAttrType("x", RawDateType(true, false))
+          ),
+          false,
+          false
+        ),
+        false,
+        false
+      )
+    )
+    assert(main.params.contains(Vector(ParamDescription("s", RawIntType(true, false), Some(RawNull()), false))))
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        environment,
+        None,
+        baos
+      ) == ExecutionSuccess
+    )
+    assert(baos.toString() == """[
+      |  {
+      |    "x": null
+      |  }
+      |]""".stripMargin.replaceAll("\\s+", ""))
+  }
+
 }
