@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 import raw.runtime.truffle.runtime.list.StringList;
 
+// A recursive function closure
+// Duplicate of Closure.java. It is differentiated in order to apply recursion optimizations in the
+// future.
 @ExportLibrary(InteropLibrary.class)
 public class RecClosure implements TruffleObject {
 
@@ -63,6 +66,7 @@ public class RecClosure implements TruffleObject {
     return function.getArgNames();
   }
 
+  // Execute function for interop
   @ExportMessage
   abstract static class Execute {
 
@@ -173,6 +177,7 @@ public class RecClosure implements TruffleObject {
     return member.substring(from);
   }
 
+  // A node that executes a closure without optional arguments
   @NodeInfo(shortName = "RecClosure.Execute")
   @GenerateUncached
   @GenerateInline
@@ -208,6 +213,8 @@ public class RecClosure implements TruffleObject {
       return new Object[size + 1];
     }
 
+    // A node to execute a closure without params
+    // It is used for reducing multiple Object[] allocations
     @Specialization(guards = "recClosure.getCallTarget() == cachedTarget", limit = "3")
     protected static Object doDirect(
         RecClosure recClosure,
@@ -238,6 +245,8 @@ public class RecClosure implements TruffleObject {
     }
   }
 
+  // A node to execute a closure without params
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "RecClosure.ExecuteZero")
   @GenerateUncached
   @GenerateInline
@@ -260,6 +269,8 @@ public class RecClosure implements TruffleObject {
     }
   }
 
+  // A node to execute a closure with 1 param
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "RecClosure.ExecuteOne")
   @GenerateUncached
   @GenerateInline
@@ -283,6 +294,8 @@ public class RecClosure implements TruffleObject {
     }
   }
 
+  // A node to execute a closure with 2 params
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "RecClosure.ExecuteTwo")
   @GenerateUncached
   @GenerateInline

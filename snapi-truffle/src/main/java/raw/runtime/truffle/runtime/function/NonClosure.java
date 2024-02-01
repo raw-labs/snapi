@@ -33,6 +33,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 import raw.runtime.truffle.runtime.list.StringList;
 
+// A function runtime object that is not a closure, it needs the frame only for methods that call
+// methods,
+// otherwise the frame is null. It also doesn't capture any free variables.
 @ExportLibrary(InteropLibrary.class)
 public class NonClosure implements TruffleObject {
 
@@ -65,6 +68,7 @@ public class NonClosure implements TruffleObject {
     return function.getArgNames();
   }
 
+  // Interop function execute
   @ExportMessage
   abstract static class Execute {
 
@@ -175,6 +179,7 @@ public class NonClosure implements TruffleObject {
     return member.substring(from);
   }
 
+  // Execute with optional named arguments
   @NodeInfo(shortName = "NonClosure.Execute")
   @GenerateUncached
   @GenerateInline
@@ -242,6 +247,8 @@ public class NonClosure implements TruffleObject {
     }
   }
 
+  // A node to execute a function without params
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "NonClosure.ExecuteZero")
   @GenerateUncached
   @GenerateInline
@@ -265,6 +272,8 @@ public class NonClosure implements TruffleObject {
     }
   }
 
+  // A node to execute a function with 1 param
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "NonClosure.ExecuteOne")
   @GenerateUncached
   @GenerateInline
@@ -292,6 +301,8 @@ public class NonClosure implements TruffleObject {
     }
   }
 
+  // A node to execute a function with 2 params
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "NonClosure.ExecuteTwo")
   @GenerateUncached
   @GenerateInline

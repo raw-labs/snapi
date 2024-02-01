@@ -33,6 +33,7 @@ import java.util.ArrayList;
 import java.util.Objects;
 import raw.runtime.truffle.runtime.list.StringList;
 
+// Runtime function object that encloses a materialized frame because it has free variables.
 @ExportLibrary(InteropLibrary.class)
 public class Closure implements TruffleObject {
 
@@ -63,6 +64,7 @@ public class Closure implements TruffleObject {
     return function.getArgNames();
   }
 
+  // Execute function for interop
   @ExportMessage
   abstract static class Execute {
 
@@ -169,6 +171,7 @@ public class Closure implements TruffleObject {
     return member.substring(from);
   }
 
+  // A node that executes a closure without optional arguments
   @NodeInfo(shortName = "Closure.Execute")
   @GenerateUncached
   @GenerateInline
@@ -232,6 +235,8 @@ public class Closure implements TruffleObject {
     }
   }
 
+  // A node to execute a closure without params
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "Closure.ExecuteZero")
   @GenerateUncached
   @GenerateInline
@@ -254,6 +259,8 @@ public class Closure implements TruffleObject {
     }
   }
 
+  // A node to execute a closure with 1 param
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "Closure.ExecuteOne")
   @GenerateUncached
   @GenerateInline
@@ -277,6 +284,8 @@ public class Closure implements TruffleObject {
     }
   }
 
+  // A node to execute a closure with 2 params
+  // It is used for reducing multiple Object[] allocations
   @NodeInfo(shortName = "Closure.ExecuteTwo")
   @GenerateUncached
   @GenerateInline

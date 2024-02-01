@@ -23,6 +23,8 @@ import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
+// A function runtime object that doesn't have any default arguments and doesn't capture any free
+// variables.
 public class Lambda implements TruffleObject {
 
   public static final int INLINE_CACHE_SIZE = 3;

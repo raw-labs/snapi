@@ -16,6 +16,7 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 
+// Proxy nodes that dispatches to the correct execute method of a function runtime object.
 public class FunctionExecuteNodes {
   @NodeInfo(shortName = "Function.ExecuteZero")
   @GenerateUncached

@@ -127,6 +127,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fp.ps()).stream()
                 .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                 .toArray(ExpressionNode[]::new);
+        // The NonClosureNode materializes the frame if there are free variables.
         MethodNode functionLiteralNode = new MethodNode(m.i().idn(),f, defaultArgs, !analyzer.freeVars(m).isEmpty());
         int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
         addSlot(entity, Integer.toString(slot));
@@ -255,6 +256,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return new Function(rootCallTarget, argNames);
     }
 
+    // Used only for tests at the moment
     public ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody) {
         addScope();
         ExpressionNode functionBody = truffleBuildBody.buildBody();
@@ -363,11 +365,14 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 yield new ExpBlockNode(decls, recurseExp(let.e()));
             }
             case FunAbs fa -> {
+                // Function doesn't have any free variable to capture it is not a Closure
                 if (analyzer.freeVars(fa).isEmpty()) {
+                    // Function doesn't have any default arguments it is a Lambda
                     if (((FunType) analyzer.tipe(fa)).os().isEmpty()) {
                         Function f = recurseFunProto(fa.p());
                         yield new LambdaNode(f);
                     }
+                    // Function has default arguments but no free vars it is a NonClosure
                     else {
                         Function f = recurseFunProto(fa.p());
                         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()

@@ -18,6 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.Lambda;
 
+// A proxy node that dispatches to the correct execute method of a function runtime object.
 public class InvokeNodes {
   @NodeInfo(shortName = "Invoke")
   @GenerateUncached
@@ -49,15 +50,15 @@ public class InvokeNodes {
       return functionExecOne.execute(thisNode, function, argumentValues[0]);
     }
 
-    @Specialization(guards = "argumentValues.length == 1")
+    @Specialization(guards = "argumentValues.length == 2")
     static Object execTwo(
         Node node,
         Lambda function,
         String[] argNames,
         Object[] argumentValues,
         @Bind("$node") Node thisNode,
-        @Cached Lambda.LambdaExecuteTwoNode functionExecOne) {
-      return functionExecOne.execute(thisNode, function, argumentValues[0], argumentValues[1]);
+        @Cached Lambda.LambdaExecuteTwoNode functionExecTwo) {
+      return functionExecTwo.execute(thisNode, function, argumentValues[0], argumentValues[1]);
     }
 
     @Specialization
