@@ -99,16 +99,6 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
     plainCodeBuffer.toString()
   }
 
-  // This is a convenient constant that represent an error range that spans the full code. Useful to report
-  // errors.
-  private val fullErrorRange = {
-    val lines = code.split("\n")
-    val nLines = lines.length
-    val lastLine = lines.last
-    val lastLineLength = lastLine.length
-    ErrorRange(ErrorPosition(1, 1), ErrorPosition(nLines, lastLineLength + 1))
-  }
-
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
   case class QueryInfo(parameters: Map[String, RawType], outputType: RawType)
 
@@ -164,12 +154,12 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
         val outputType = queryOutputType
         outputType match {
           case Right(t) => Right(QueryInfo(types.toMap, t))
-          case Left(error) => Left(List(ErrorMessage(error, List(fullErrorRange), ErrorCode.SqlErrorCode)))
+          case Left(error) => Left(ErrorHandling.asMessage(code, error))
         }
       }
     } catch {
       case e: SQLException => {
-        Left(List(ErrorMessage(e.getMessage, List(fullErrorRange), ErrorCode.SqlErrorCode)))
+        Left(ErrorHandling.asErrorMessage(code, e))
       }
     }
   }
