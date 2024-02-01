@@ -429,15 +429,29 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   test("SELECT * FROM inexistent_table") { t =>
     assume(password != "")
 
-    val expectedError = "relation \"inexistent_table\" does not exist"
+    val expectedErrors = Set("relation \"inexistent_table\" does not exist", "Did you forget to add credentials?")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.messages.exists(_.message.contains(expectedError)))
+    assert(v.errors.exists(error => expectedErrors.forall(error.message.contains)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
-    assert(descriptionErrors.exists(_.message.contains(expectedError)))
+    assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
     val baos = new ByteArrayOutputStream()
     val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, environment, None, baos)
-    assert(executionErrors.exists(_.message.contains(expectedError)))
+    assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
+  }
+
+  test("SELECT * FROM wrong.table") { t =>
+    assume(password != "")
+
+    val expectedErrors = Set("relation \"wrong.table\" does not exist", "Did you forget to add credentials?")
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val v = compilerService.validate(t.q, environment)
+    assert(v.errors.exists(error => expectedErrors.forall(error.message.contains)))
+    val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
+    assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
+    val baos = new ByteArrayOutputStream()
+    val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, environment, None, baos)
+    assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
   }
 
   private val airportType = RawIterableType(
