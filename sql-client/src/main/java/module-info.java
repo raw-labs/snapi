@@ -17,6 +17,7 @@ module raw.sql.client {
   requires raw.utils;
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.core;
+  requires com.fasterxml.jackson.databind;
   requires raw.client;
   requires java.sql;
   requires com.zaxxer.hikari;
