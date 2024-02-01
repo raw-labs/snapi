@@ -22,8 +22,7 @@ import raw.runtime.truffle.runtime.function.Lambda;
 
 // This lambda is constant when called (so it can be cashed), it should be evaluated only once, but
 // getting it happens
-// at runtime (reading from the
-// frame).
+// at runtime
 public class LambdaNode extends ExpressionNode {
   private final RootCallTarget callTarget;
   @CompilerDirectives.CompilationFinal private Lambda lambda;
