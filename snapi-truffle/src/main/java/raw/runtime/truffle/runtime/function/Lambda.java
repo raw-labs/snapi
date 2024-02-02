@@ -12,19 +12,27 @@
 
 package raw.runtime.truffle.runtime.function;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateInline;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.interop.ArityException;
+import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
+import com.oracle.truffle.api.interop.UnknownIdentifierException;
+import com.oracle.truffle.api.library.ExportLibrary;
+import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.IndirectCallNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.runtime.truffle.runtime.list.StringList;
+
+import java.util.ArrayList;
+import java.util.Objects;
 
 // A function runtime object that doesn't have any default arguments and doesn't capture any free
 // variables.
+@ExportLibrary(InteropLibrary.class)
 public class Lambda implements TruffleObject {
 
   public static final int INLINE_CACHE_SIZE = 3;
@@ -36,6 +44,46 @@ public class Lambda implements TruffleObject {
 
   public RootCallTarget getCallTarget() {
     return callTarget;
+  }
+
+  // interop execution
+  @ExportMessage
+  abstract static class Execute {
+    @Specialization
+    protected static Object doDirect(
+        Lambda lambda,
+        Object[] arguments,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = true) LambdaExecuteManyNode executeManyNode) {
+      return executeManyNode.execute(thisNode, lambda, arguments);
+    }
+  }
+
+  @ExportMessage
+  boolean isExecutable() {
+    return true;
+  }
+
+  @ExportMessage
+  final boolean hasMembers() {
+    return true;
+  }
+
+  @ExportMessage
+  final boolean isMemberInvocable(String member) {
+    return false;
+  }
+
+  @ExportMessage
+  @CompilerDirectives.TruffleBoundary
+  final Object getMembers(boolean includeInternal) {
+    return new StringList(new String[0]);
+  }
+
+  @ExportMessage
+  final Object invokeMember(String member, Object... arguments)
+      throws UnknownIdentifierException, ArityException {
+    throw UnknownIdentifierException.create(member);
   }
 
   @NodeInfo(shortName = "Lambda.ExecuteZero")

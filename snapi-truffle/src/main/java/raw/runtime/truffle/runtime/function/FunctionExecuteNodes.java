@@ -42,16 +42,6 @@ public class FunctionExecuteNodes {
         @Cached RecClosure.RecClosureExecuteZeroNode executeZeroNode) {
       return executeZeroNode.execute(thisNode, recClosure);
     }
-
-    @Specialization
-    static Object doNonClosure(
-        Node node,
-        NonClosure nonClosure,
-        @Bind("$node") Node thisNode,
-        @Cached NonClosure.NonClosureExecuteZeroNode executeZeroNode) {
-      return executeZeroNode.execute(thisNode, nonClosure);
-    }
-
     @Specialization
     static Object doLambda(
         Node node,
@@ -87,16 +77,6 @@ public class FunctionExecuteNodes {
         @Bind("$node") Node thisNode,
         @Cached RecClosure.RecClosureExecuteOneNode executeOneNode) {
       return executeOneNode.execute(thisNode, recClosure, argument);
-    }
-
-    @Specialization
-    static Object doNonClosure(
-        Node node,
-        NonClosure nonClosure,
-        Object argument,
-        @Bind("$node") Node thisNode,
-        @Cached NonClosure.NonClosureExecuteOneNode executeOneNode) {
-      return executeOneNode.execute(thisNode, nonClosure, argument);
     }
 
     @Specialization
@@ -140,17 +120,6 @@ public class FunctionExecuteNodes {
     }
 
     @Specialization
-    static Object doNonClosure(
-        Node node,
-        NonClosure nonClosure,
-        Object argument1,
-        Object argument2,
-        @Bind("$node") Node thisNode,
-        @Cached NonClosure.NonClosureExecuteTwoNode executeTwoNode) {
-      return executeTwoNode.execute(thisNode, nonClosure, argument1, argument2);
-    }
-
-    @Specialization
     static Object doLambda(
         Node node,
         Lambda lambda,
@@ -190,17 +159,6 @@ public class FunctionExecuteNodes {
         @Bind("$node") Node thisNode,
         @Cached RecClosure.RecClosureExecuteWithNamesNode executeWithNames) {
       return executeWithNames.execute(thisNode, recClosure, namedArgNames, arguments);
-    }
-
-    @Specialization
-    static Object doNonClosure(
-        Node node,
-        NonClosure nonClosure,
-        String[] namedArgNames,
-        Object[] arguments,
-        @Bind("$node") Node thisNode,
-        @Cached NonClosure.NonClosureExecuteWithNamesNode executeWithNames) {
-      return executeWithNames.execute(thisNode, nonClosure, namedArgNames, arguments);
     }
 
     @Specialization

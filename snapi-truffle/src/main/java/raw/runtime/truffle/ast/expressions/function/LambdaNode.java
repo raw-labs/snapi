@@ -17,6 +17,7 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Function;
 import raw.runtime.truffle.runtime.function.Lambda;
 
@@ -25,9 +26,11 @@ import raw.runtime.truffle.runtime.function.Lambda;
 // at runtime
 public class LambdaNode extends ExpressionNode {
   private final RootCallTarget callTarget;
+  private final String name;
   @CompilerDirectives.CompilationFinal private Lambda lambda;
 
-  public LambdaNode(Function f) {
+  public LambdaNode(String name, Function f) {
+    this.name = name;
     callTarget = f.getCallTarget();
   }
 
@@ -36,6 +39,9 @@ public class LambdaNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     if (lambda == null) {
       lambda = new Lambda(callTarget);
+      if (name != null) {
+        RawContext.get(this).getFunctionRegistry().register(name, lambda);
+      }
     }
     return lambda;
   }

@@ -17,6 +17,7 @@ import java.util.*;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
+import com.oracle.truffle.api.nodes.Node;
 import org.bitbucket.inkytonik.kiama.relation.TreeRelation;
 import org.bitbucket.inkytonik.kiama.util.Entity;
 import raw.compiler.base.source.Type;
@@ -50,7 +51,6 @@ import raw.runtime.truffle.ast.local.ReadLocalVariableNodeGen;
 import raw.runtime.truffle.ast.local.WriteLocalVariableNodeGen;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.function.Function;
-import raw.runtime.truffle.runtime.function.NonClosure;
 import scala.Option;
 import scala.collection.JavaConverters;
 
@@ -127,11 +127,23 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fp.ps()).stream()
                 .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                 .toArray(ExpressionNode[]::new);
-        // The NonClosureNode materializes the frame if there are free variables.
-        MethodNode functionLiteralNode = new MethodNode(m.i().idn(),f, defaultArgs, !analyzer.freeVars(m).isEmpty());
+        ExpressionNode node;
+        // The method materializes the frame if there are free variables.
+        if (analyzer.freeVars(m).isEmpty()){
+            // in case there are no optional arguments it can be lambda
+            if (m.p().ps().forall(p -> p.e().isEmpty())) {
+                node = new LambdaNode(m.i().idn(),f);
+            }
+            else {
+                node = new MethodNode(m.i().idn(), f, defaultArgs, false);
+            }
+        }
+        else {
+            node = new MethodNode(m.i().idn(),f, defaultArgs, !analyzer.freeVars(m).isEmpty());
+        }
         int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
         addSlot(entity, Integer.toString(slot));
-        return WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
+        return WriteLocalVariableNodeGen.create(node, slot, null);
     }
 
     private SlotLocation findSlot(Entity entity) {
@@ -367,12 +379,13 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case FunAbs fa -> {
                 // Function doesn't have any free variable to capture it is not a Closure
                 if (analyzer.freeVars(fa).isEmpty()) {
-                    // Function doesn't have any default arguments it is a Lambda
+                    // Function doesn't have any optional arguments it is a Lambda
                     if (((FunType) analyzer.tipe(fa)).os().isEmpty()) {
                         Function f = recurseFunProto(fa.p());
-                        yield new LambdaNode(f);
+                        yield new LambdaNode(null, f);
                     }
-                    // Function has default arguments but no free vars it is a NonClosure
+                    // Function has default arguments but no free vars it is a Closure without materializing the frame
+                    // and it can be cached
                     else {
                         Function f = recurseFunProto(fa.p());
                         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()

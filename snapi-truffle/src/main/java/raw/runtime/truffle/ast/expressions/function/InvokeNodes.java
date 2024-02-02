@@ -62,7 +62,7 @@ public class InvokeNodes {
     }
 
     @Specialization
-    static Object execTwo(
+    static Object execMany(
         Node node,
         Object function,
         String[] argNames,

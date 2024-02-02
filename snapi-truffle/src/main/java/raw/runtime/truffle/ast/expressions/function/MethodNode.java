@@ -17,8 +17,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node.Children;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
-import raw.runtime.truffle.runtime.function.NonClosure;
 
 public final class MethodNode extends ExpressionNode {
 
@@ -27,7 +27,7 @@ public final class MethodNode extends ExpressionNode {
   @CompilationFinal(dimensions = 1)
   private Object[] defaultArguments;
 
-  @CompilationFinal private NonClosure nonClosure;
+  @CompilationFinal private Closure closure;
   @Children private final ExpressionNode[] defaultArgumentExps;
 
   private final String name;
@@ -43,7 +43,8 @@ public final class MethodNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    if (nonClosure == null) {
+    // in case it is a FunAbs, we can cache the closure, otherwise it is executed only once.
+    if (closure == null) {
       int nArgs = defaultArgumentExps.length;
       defaultArguments = new Object[nArgs];
       for (int i = 0; i < nArgs; i++) {
@@ -53,11 +54,11 @@ public final class MethodNode extends ExpressionNode {
           defaultArguments[i] = null;
         }
       }
-      nonClosure =
-          new NonClosure(
+      closure =
+          new Closure(
               this.function, defaultArguments, hasFreeVars ? virtualFrame.materialize() : null);
-      RawContext.get(this).getFunctionRegistry().register(name, nonClosure);
+      RawContext.get(this).getFunctionRegistry().register(name, closure);
     }
-    return nonClosure;
+    return closure;
   }
 }

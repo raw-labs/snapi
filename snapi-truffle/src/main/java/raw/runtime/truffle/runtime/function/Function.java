@@ -15,7 +15,7 @@ package raw.runtime.truffle.runtime.function;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.interop.TruffleObject;
 
-// A parent runtime object that contains the CallTarget. It is referenced by NonClosure, Lambda,
+// A parent runtime object that contains the CallTarget. It is referenced by Lambda,
 // Closure, and RecClosure.
 public final class Function implements TruffleObject {
 
