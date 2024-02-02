@@ -65,7 +65,7 @@ public final class MethodNode extends ExpressionNode {
       }
       // Otherwise it is a lambda
       else {
-        return new Lambda(this.parentFunction.getCallTarget());
+        function = new Lambda(this.parentFunction.getCallTarget());
       }
       // Only put actual methods in registry
       if (name != null) {
