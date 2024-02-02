@@ -14,51 +14,64 @@ package raw.runtime.truffle.ast.expressions.function;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node.Children;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
+import raw.runtime.truffle.runtime.function.Lambda;
 
 public final class MethodNode extends ExpressionNode {
 
-  @CompilationFinal private final Function function;
+  @CompilationFinal private final Function parentFunction;
 
   @CompilationFinal(dimensions = 1)
   private Object[] defaultArguments;
 
-  @CompilationFinal private Closure closure;
+  @CompilationFinal private Object function;
   @Children private final ExpressionNode[] defaultArgumentExps;
-
   private final String name;
   private final boolean hasFreeVars;
+  private final boolean hasOptionalArgs;
 
   public MethodNode(
       String name, Function f, ExpressionNode[] defaultArgumentExps, boolean hasFreeVars) {
-    this.function = f;
+    this.parentFunction = f;
     this.defaultArgumentExps = defaultArgumentExps;
     this.name = name;
     this.hasFreeVars = hasFreeVars;
+    this.hasOptionalArgs = defaultArgumentExps.length > 0;
   }
 
   @Override
   public Object executeGeneric(VirtualFrame virtualFrame) {
-    // in case it is a FunAbs, we can cache the closure, otherwise it is executed only once.
-    if (closure == null) {
-      int nArgs = defaultArgumentExps.length;
-      defaultArguments = new Object[nArgs];
-      for (int i = 0; i < nArgs; i++) {
-        if (defaultArgumentExps[i] != null) {
-          defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
-        } else {
-          defaultArguments[i] = null;
+    // Method can be cached
+    if (function == null) {
+      // if the method has optional arguments, we need to create a closure
+      if (hasOptionalArgs) {
+        int nArgs = defaultArgumentExps.length;
+        defaultArguments = new Object[nArgs];
+        for (int i = 0; i < nArgs; i++) {
+          if (defaultArgumentExps[i] != null) {
+            defaultArguments[i] = defaultArgumentExps[i].executeGeneric(virtualFrame);
+          } else {
+            defaultArguments[i] = null;
+          }
         }
+        function =
+            new Closure(
+                this.parentFunction,
+                defaultArguments,
+                hasFreeVars ? virtualFrame.materialize() : null);
       }
-      closure =
-          new Closure(
-              this.function, defaultArguments, hasFreeVars ? virtualFrame.materialize() : null);
-      RawContext.get(this).getFunctionRegistry().register(name, closure);
+      // Otherwise it is a lambda
+      else {
+        return new Lambda(this.parentFunction.getCallTarget());
+      }
+      // Only put actual methods in registry
+      if (name != null) {
+        RawContext.get(this).getFunctionRegistry().register(name, function);
+      }
     }
-    return closure;
+    return function;
   }
 }

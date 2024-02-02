@@ -31,8 +31,6 @@ import raw.runtime.truffle.runtime.list.StringList;
 // variables.
 @ExportLibrary(InteropLibrary.class)
 public class Lambda implements TruffleObject {
-
-  public static final int INLINE_CACHE_SIZE = 3;
   private final RootCallTarget callTarget;
 
   public Lambda(RootCallTarget callTarget) {

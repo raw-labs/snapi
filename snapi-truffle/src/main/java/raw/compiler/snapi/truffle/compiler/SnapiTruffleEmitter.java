@@ -128,19 +128,8 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                 .toArray(ExpressionNode[]::new);
         ExpressionNode node;
-        // The method materializes the frame if there are free variables.
-        if (analyzer.freeVars(m).isEmpty()){
-            // in case there are no optional arguments it can be lambda
-            if (m.p().ps().forall(p -> p.e().isEmpty())) {
-                node = new LambdaNode(m.i().idn(),f);
-            }
-            else {
-                node = new MethodNode(m.i().idn(), f, defaultArgs, false);
-            }
-        }
-        else {
-            node = new MethodNode(m.i().idn(),f, defaultArgs, !analyzer.freeVars(m).isEmpty());
-        }
+        boolean hasFreeVars = analyzer.freeVars(m).nonEmpty();
+        node = new MethodNode(m.i().idn(), f, defaultArgs, hasFreeVars);
         int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
         addSlot(entity, Integer.toString(slot));
         return WriteLocalVariableNodeGen.create(node, slot, null);
@@ -224,13 +213,23 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case LetFun lf -> {
                 Entity entity = analyzer.entity().apply(lf.i());
                 Function f = recurseFunProto(lf.p());
+                boolean hasFreeVars = analyzer.freeVars(lf).nonEmpty();
                 ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(lf.p().ps()).stream()
                         .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                         .toArray(ExpressionNode[]::new);
-                ClosureNode functionLiteralNode = new ClosureNode(f, defaultArgs);
+
+                ExpressionNode node;
+                // If the function has free variables it is a Closure
+                if (hasFreeVars){
+                    node = new ClosureNode(f, defaultArgs);
+                }
+                // If the function has optional arguments it is a Method
+                else {
+                    node = new MethodNode(null, f, defaultArgs, hasFreeVars);
+                }
                 int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                 addSlot(entity, Integer.toString(slot));
-                yield WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
+                yield WriteLocalVariableNodeGen.create(node, slot, null);
             }
             case LetFunRec lfr -> {
                 Entity entity = analyzer.entity().apply(lfr.i());
@@ -377,29 +376,18 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 yield new ExpBlockNode(decls, recurseExp(let.e()));
             }
             case FunAbs fa -> {
-                // Function doesn't have any free variable to capture it is not a Closure
-                if (analyzer.freeVars(fa).isEmpty()) {
-                    // Function doesn't have any optional arguments it is a Lambda
-                    if (((FunType) analyzer.tipe(fa)).os().isEmpty()) {
-                        Function f = recurseFunProto(fa.p());
-                        yield new LambdaNode(null, f);
-                    }
-                    // Function has default arguments but no free vars it is a Closure without materializing the frame
-                    // and it can be cached
-                    else {
-                        Function f = recurseFunProto(fa.p());
-                        ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()
-                                .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
-                                .toArray(ExpressionNode[]::new);
-                        yield new MethodNode(fa.p().toString(), f, defaultArgs, false);
-                    }
-                }
-                else{
-                    Function f = recurseFunProto(fa.p());
-                    ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()
-                            .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
-                            .toArray(ExpressionNode[]::new);
+                Function f = recurseFunProto(fa.p());
+                boolean hasFreeVars = analyzer.freeVars(fa).nonEmpty();
+                ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()
+                        .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
+                        .toArray(ExpressionNode[]::new);
+                // If the function has free variables it is a Closure
+                if (hasFreeVars){
                     yield new ClosureNode(f, defaultArgs);
+                }
+                // If the function has optional arguments it is a Method
+                else {
+                    yield new MethodNode(null, f, defaultArgs, false);
                 }
             }
             case FunApp fa when tipe(fa.f()) instanceof PackageEntryType -> {
