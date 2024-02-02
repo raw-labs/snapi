@@ -19,7 +19,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 
 @NodeInfo(shortName = "Function.InvokeAfter")
 @NodeChild(value = "function")
@@ -29,12 +29,12 @@ public abstract class FunctionInvokeAfterNode extends ExpressionNode {
   @Specialization
   @TruffleBoundary
   protected Object invokeAfter(
-      Closure closure,
+      Object function,
       long sleepTime,
-      @Cached(inline = true) Closure.ClosureExecuteZeroNode closureExecuteZeroNode) {
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteZero functionExecuteZero) {
     try {
       Thread.sleep(sleepTime);
-      return closureExecuteZeroNode.execute(this, closure);
+      return functionExecuteZero.execute(this, function);
     } catch (InterruptedException e) {
       throw new RawTruffleInternalErrorException(e);
     }

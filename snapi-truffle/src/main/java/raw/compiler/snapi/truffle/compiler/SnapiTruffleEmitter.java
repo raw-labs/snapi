@@ -17,6 +17,7 @@ import java.util.*;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
+import com.oracle.truffle.api.nodes.Node;
 import org.bitbucket.inkytonik.kiama.relation.TreeRelation;
 import org.bitbucket.inkytonik.kiama.util.Entity;
 import raw.compiler.base.source.Type;
@@ -28,7 +29,6 @@ import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
@@ -39,9 +39,7 @@ import raw.runtime.truffle.ast.expressions.binary.DivNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.ModNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.MultNodeGen;
 import raw.runtime.truffle.ast.expressions.binary.SubNodeGen;
-import raw.runtime.truffle.ast.expressions.function.ClosureNode;
-import raw.runtime.truffle.ast.expressions.function.InvokeNode;
-import raw.runtime.truffle.ast.expressions.function.MethodNode;
+import raw.runtime.truffle.ast.expressions.function.*;
 import raw.runtime.truffle.ast.expressions.literals.*;
 import raw.runtime.truffle.ast.expressions.option.OptionNoneNode;
 import raw.runtime.truffle.ast.expressions.record.RecordProjNodeGen;
@@ -53,6 +51,7 @@ import raw.runtime.truffle.ast.local.ReadLocalVariableNodeGen;
 import raw.runtime.truffle.ast.local.WriteLocalVariableNodeGen;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.function.Function;
+import scala.Option;
 import scala.collection.JavaConverters;
 
 public class SnapiTruffleEmitter extends TruffleEmitter {
@@ -128,10 +127,12 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fp.ps()).stream()
                 .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                 .toArray(ExpressionNode[]::new);
-        ClosureNode functionLiteralNode = new MethodNode(m.i().idn(), f, defaultArgs);
+        ExpressionNode node;
+        boolean hasFreeVars = analyzer.freeVars(m).nonEmpty();
+        node = new MethodNode(m.i().idn(), f, defaultArgs, hasFreeVars);
         int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
         addSlot(entity, Integer.toString(slot));
-        return WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
+        return WriteLocalVariableNodeGen.create(node, slot, null);
     }
 
     private SlotLocation findSlot(Entity entity) {
@@ -212,13 +213,23 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             case LetFun lf -> {
                 Entity entity = analyzer.entity().apply(lf.i());
                 Function f = recurseFunProto(lf.p());
+                boolean hasFreeVars = analyzer.freeVars(lf).nonEmpty();
                 ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(lf.p().ps()).stream()
                         .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                         .toArray(ExpressionNode[]::new);
-                ClosureNode functionLiteralNode = new ClosureNode(f, defaultArgs);
+
+                ExpressionNode node;
+                // If the function has free variables it is a Closure
+                if (hasFreeVars){
+                    node = new ClosureNode(f, defaultArgs);
+                }
+                // If the function has optional arguments it is a Method
+                else {
+                    node = new MethodNode(null, f, defaultArgs, hasFreeVars);
+                }
                 int slot = getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                 addSlot(entity, Integer.toString(slot));
-                yield WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
+                yield WriteLocalVariableNodeGen.create(node, slot, null);
             }
             case LetFunRec lfr -> {
                 Entity entity = analyzer.entity().apply(lfr.i());
@@ -228,7 +239,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(lfr.p().ps()).stream()
                         .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                         .toArray(ExpressionNode[]::new);
-                ClosureNode functionLiteralNode = new ClosureNode(f, defaultArgs);
+                RecClosureNode functionLiteralNode = new RecClosureNode(f, defaultArgs);
                 yield WriteLocalVariableNodeGen.create(functionLiteralNode, slot, null);
             }
             default -> throw new RawTruffleInternalErrorException();
@@ -256,6 +267,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return new Function(rootCallTarget, argNames);
     }
 
+    // Used only for tests at the moment
     public ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody) {
         addScope();
         ExpressionNode functionBody = truffleBuildBody.buildBody();
@@ -365,10 +377,18 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
             }
             case FunAbs fa -> {
                 Function f = recurseFunProto(fa.p());
+                boolean hasFreeVars = analyzer.freeVars(fa).nonEmpty();
                 ExpressionNode[] defaultArgs = JavaConverters.asJavaCollection(fa.p().ps()).stream()
                         .map(p -> p.e().isDefined() ? recurseExp(p.e().get()) : null)
                         .toArray(ExpressionNode[]::new);
-                yield new ClosureNode(f, defaultArgs);
+                // If the function has free variables it is a Closure
+                if (hasFreeVars){
+                    yield new ClosureNode(f, defaultArgs);
+                }
+                // If the function has optional arguments it is a Method
+                else {
+                    yield new MethodNode(null, f, defaultArgs, false);
+                }
             }
             case FunApp fa when tipe(fa.f()) instanceof PackageEntryType -> {
                 Type t = tipe(fa);

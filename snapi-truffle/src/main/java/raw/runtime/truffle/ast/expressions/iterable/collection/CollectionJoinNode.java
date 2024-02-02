@@ -21,7 +21,6 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 
 @NodeInfo(shortName = "Collection.Join")
@@ -41,7 +40,7 @@ public abstract class CollectionJoinNode extends ExpressionNode {
 
   @Specialization
   protected Object doJoin(
-      Object leftIterable, Object rightIterable, Closure remap, Closure predicate) {
+      Object leftIterable, Object rightIterable, Object remap, Object predicate) {
     return new JoinCollection(
         leftIterable,
         rightIterable,

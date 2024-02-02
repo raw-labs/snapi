@@ -15,32 +15,32 @@ package raw.runtime.truffle.ast.expressions.builtin.type_package;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.function.ClosureFactory;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.or.OrObject;
 
 public class TypeMatchNode extends ExpressionNode {
   @Child private ExpressionNode typeExp;
 
-  @Children private final ExpressionNode[] closureExps;
+  @Children private final ExpressionNode[] functionExps;
 
   @Child
-  Closure.ClosureExecuteOneNode closureExecuteOneNode =
-      ClosureFactory.ClosureExecuteOneNodeGen.create();
+  FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
+      FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
   public TypeMatchNode(ExpressionNode child, ExpressionNode[] children) {
     this.typeExp = child;
-    this.closureExps = children;
+    this.functionExps = children;
   }
 
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     OrObject orType = (OrObject) this.typeExp.executeGeneric(frame);
     int index = orType.getIndex();
-    Closure[] closures = new Closure[closureExps.length];
-    for (int i = 0; i < closureExps.length; i++) {
-      closures[i] = (Closure) closureExps[i].executeGeneric(frame);
+    Object[] functions = new Object[functionExps.length];
+    for (int i = 0; i < functionExps.length; i++) {
+      functions[i] = functionExps[i].executeGeneric(frame);
     }
-    return closureExecuteOneNode.execute(this, closures[index], orType.getValue());
+    return functionExecuteOneNode.execute(this, functions[index], orType.getValue());
   }
 }

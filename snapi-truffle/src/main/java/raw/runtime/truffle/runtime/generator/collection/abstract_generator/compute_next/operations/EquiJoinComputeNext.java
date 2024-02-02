@@ -14,13 +14,12 @@ package raw.runtime.truffle.runtime.generator.collection.abstract_generator.comp
 
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.sources.api.SourceContext;
 
 public class EquiJoinComputeNext {
 
   private final Object leftIterable, rightIterable;
-  private final Closure leftKeyF, rightKeyF, mkJoinedRecord;
+  private final Object leftKeyF, rightKeyF, mkJoinedRecord;
   private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
   private final RawLanguage language;
   private final SourceContext context;
@@ -34,13 +33,13 @@ public class EquiJoinComputeNext {
 
   public EquiJoinComputeNext(
       Object leftIterable,
-      Closure leftKeyF,
+      Object leftKeyF,
       Rql2TypeWithProperties leftRowType,
       Object rightIterable,
-      Closure rightKeyF,
+      Object rightKeyF,
       Rql2TypeWithProperties rightRowType,
       Rql2TypeWithProperties keyType,
-      Closure mkJoinedRecord,
+      Object mkJoinedRecord,
       RawLanguage language,
       SourceContext context) {
     this.leftIterable = leftIterable;
@@ -63,15 +62,15 @@ public class EquiJoinComputeNext {
     return rightIterable;
   }
 
-  public Closure getLeftKeyF() {
+  public Object getLeftKeyF() {
     return leftKeyF;
   }
 
-  public Closure getRightKeyF() {
+  public Object getRightKeyF() {
     return rightKeyF;
   }
 
-  public Closure getMkJoinedRecord() {
+  public Object getMkJoinedRecord() {
     return mkJoinedRecord;
   }
 

@@ -15,7 +15,7 @@ package raw.runtime.truffle.runtime.iterable;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
@@ -213,7 +213,8 @@ public class IterableNodes {
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
-        @Cached @Cached.Shared("closureOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+        @Cached @Cached.Shared("functionOne")
+            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
               collection.getKeyType(),
@@ -226,7 +227,7 @@ public class IterableNodes {
         initNode.execute(thisNode, inputGenerator);
         while (hasNextNode.execute(thisNode, inputGenerator)) {
           Object v = nextNode.execute(thisNode, inputGenerator);
-          Object key = closureExecuteOneNode.execute(thisNode, collection.getKeyFun(), v);
+          Object key = functionExecuteOneNode.execute(thisNode, collection.getKeyFun(), v);
           putNode.execute(thisNode, map, key, v);
         }
       } finally {
@@ -253,7 +254,8 @@ public class IterableNodes {
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("put") OffHeapNodes.OffHeapGroupByPutNode putNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
-        @Cached @Cached.Shared("closureOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+        @Cached @Cached.Shared("functionOne")
+            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
       Object generator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       OffHeapGroupByKeys groupByKeys =
           new OffHeapGroupByKeys(
@@ -269,7 +271,7 @@ public class IterableNodes {
           int len = collection.getKeyFunctions().length;
           Object[] key = new Object[len];
           for (int i = 0; i < len; i++) {
-            key[i] = closureExecuteOneNode.execute(thisNode, collection.getKeyFunctions()[i], v);
+            key[i] = functionExecuteOneNode.execute(thisNode, collection.getKeyFunctions()[i], v);
           }
           putNode.execute(thisNode, groupByKeys, key, v);
         }

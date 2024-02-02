@@ -16,7 +16,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.FilterCollection;
 
 @NodeInfo(shortName = "Collection.Filter")
@@ -25,7 +24,7 @@ import raw.runtime.truffle.runtime.iterable.operations.FilterCollection;
 public abstract class CollectionFilterNode extends ExpressionNode {
 
   @Specialization
-  protected Object doFilter(Object iterable, Closure predicate) {
+  protected Object doFilter(Object iterable, Object predicate) {
     return new FilterCollection(iterable, predicate);
   }
 }
