@@ -14,14 +14,13 @@ package raw.runtime.truffle.ast.expressions.function;
 
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import java.util.Arrays;
+import java.util.Objects;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 import raw.runtime.truffle.runtime.function.Lambda;
-
-import java.util.Arrays;
-import java.util.Objects;
 
 public final class MethodNode extends ExpressionNode {
 
