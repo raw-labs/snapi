@@ -27,9 +27,6 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.list.StringList;
 
-import java.util.ArrayList;
-import java.util.Objects;
-
 // A function runtime object that doesn't have any default arguments and doesn't capture any free
 // variables.
 @ExportLibrary(InteropLibrary.class)

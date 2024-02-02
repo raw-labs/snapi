@@ -42,6 +42,7 @@ public class FunctionExecuteNodes {
         @Cached RecClosure.RecClosureExecuteZeroNode executeZeroNode) {
       return executeZeroNode.execute(thisNode, recClosure);
     }
+
     @Specialization
     static Object doLambda(
         Node node,
