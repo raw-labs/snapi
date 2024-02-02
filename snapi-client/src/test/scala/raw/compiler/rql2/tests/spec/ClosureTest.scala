@@ -47,4 +47,12 @@ trait ClosureTest extends CompilerTestContext {
     |
     |g("tralala")""".stripMargin)(_ should evaluateTo("70"))
 
+  test("""hh(x: int) = x + 1
+    |ii(x: int) = hh(x)
+    |let f = (x: int) -> x + 1,
+    |a = 1,
+    |g(x: int) = x + a,
+    |h(x: int, y: int = 12) = x + y
+    |in List.Transform([f, g, hh, ii], func -> func(1))""".stripMargin)(_ should evaluateTo("[2, 2, 2, 2]"))
+
 }
