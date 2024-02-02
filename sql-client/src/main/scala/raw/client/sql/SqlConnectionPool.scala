@@ -11,6 +11,7 @@
  */
 
 package raw.client.sql
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.utils.{AuthenticatedUser, RawException, RawSettings}
@@ -27,32 +28,44 @@ class SqlConnectionPool(settings: RawSettings) {
 
   // one pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
+  // Default pool for users that do not have a DB yet
+  // It will expire after 10s so that we can try to connect to the user's DB again.
+  private val defaultPools: LoadingCache[String, HikariDataSource] = CacheBuilder
+    .newBuilder()
+    .expireAfterWrite(10, TimeUnit.SECONDS)
+    .build(new CacheLoader[String, HikariDataSource] {
+      override def load(key: String): HikariDataSource = {
+        val config = new HikariConfig()
+        val defaultDB = settings.getString("raw.creds.jdbc.fdw.default.db")
+        val defaultDBHost = settings.getString("raw.creds.jdbc.fdw.default.host")
+        val defaultDBPort = settings.getInt("raw.creds.jdbc.fdw.default.port")
+        config.setJdbcUrl(s"jdbc:postgresql://$defaultDBHost:$defaultDBPort/$defaultDB")
+        config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
+        config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
+        config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
+        config.setConnectionTimeout(
+          settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
+        )
+        new HikariDataSource(config)
+      }
+    })
+
   private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
   private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
   private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
   private val password = settings.getString("raw.creds.jdbc.fdw.password")
 
-  // Default pool for the users that haven't registered a credential yet.
-  private val defaultPool: HikariDataSource = {
-    val config = new HikariConfig()
-    val defaultDB = settings.getString("raw.creds.jdbc.fdw.default.db")
-    val defaultDBHost = settings.getString("raw.creds.jdbc.fdw.default.host")
-    val defaultDBPort = settings.getInt("raw.creds.jdbc.fdw.default.port")
-    config.setJdbcUrl(s"jdbc:postgresql://$defaultDBHost:$defaultDBPort/$defaultDB")
-    // (CTM)
-    config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
-    config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
-    config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
-    config.setConnectionTimeout(
-      settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
-    )
-
-    new HikariDataSource(config)
-  }
-
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
     val db = user.uid.toString().replace("-", "_")
+    // If there is something in the defaultPools cache, it means that the user tried
+    // to connect before and his DB did not exist yet.
+    // Until this cache expires (10s), we will use the default DB.
+    // After that we will try to connect to the user's DB again
+    if (defaultPools.asMap().containsKey(db)) {
+      return defaultPools.get(db).getConnection
+    }
+
     val userPool = pools.get(db) match {
       case Some(pool) => pool
       case None =>
@@ -74,13 +87,12 @@ class SqlConnectionPool(settings: RawSettings) {
           case hikariException: PoolInitializationException => hikariException.getCause match {
               case sqlException: SQLException => sqlException.getSQLState match {
                   case "3D000" =>
-                    // We get that when the database does not exist. We throw a more explicit exception.
-                    return defaultPool.getConnection // return default pool
+                    // Put a new value in the cache to avoid trying to connect to the default DB again for the next 10s
+                    defaultPools.get(db)
                   case _ => throw hikariException
                 }
               case e: Throwable => throw e
             }
-          case e: Throwable => throw e
         }
     }
     userPool.getConnection
