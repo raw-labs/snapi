@@ -20,6 +20,9 @@ import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 import raw.runtime.truffle.runtime.function.Lambda;
 
+import java.util.Arrays;
+import java.util.Objects;
+
 public final class MethodNode extends ExpressionNode {
 
   @CompilationFinal private final Function parentFunction;
@@ -39,7 +42,7 @@ public final class MethodNode extends ExpressionNode {
     this.defaultArgumentExps = defaultArgumentExps;
     this.name = name;
     this.hasFreeVars = hasFreeVars;
-    this.hasOptionalArgs = defaultArgumentExps.length > 0;
+    this.hasOptionalArgs = Arrays.stream(defaultArgumentExps).anyMatch(Objects::nonNull);
   }
 
   @Override
