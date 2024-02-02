@@ -49,7 +49,7 @@ public final class MethodNode extends ExpressionNode {
     // Method can be cached
     if (function == null) {
       // if the method has optional arguments, we need to create a closure
-      if (hasOptionalArgs) {
+      if (hasOptionalArgs || hasFreeVars) {
         int nArgs = defaultArgumentExps.length;
         defaultArguments = new Object[nArgs];
         for (int i = 0; i < nArgs; i++) {
