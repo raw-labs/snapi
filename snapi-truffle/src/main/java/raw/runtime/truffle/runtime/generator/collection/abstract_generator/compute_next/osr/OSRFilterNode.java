@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -36,7 +37,7 @@ public class OSRFilterNode extends Node implements RepeatingNode {
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
-  private FilterComputeNext computeNext;
+  @CompilerDirectives.CompilationFinal private FilterComputeNext computeNext;
 
   private boolean hasNext = false;
 

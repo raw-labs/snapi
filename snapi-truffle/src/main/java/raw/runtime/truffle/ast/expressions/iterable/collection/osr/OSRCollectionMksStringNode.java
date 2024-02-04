@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection.osr;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -32,11 +33,10 @@ public class OSRCollectionMksStringNode extends Node implements RepeatingNode {
 
   @Child OperatorNodes.AddNode add = OperatorNodesFactory.AddNodeGen.create();
 
-  private Object generator;
+  @CompilerDirectives.CompilationFinal private Object generator;
+  @CompilerDirectives.CompilationFinal private String sep = "";
 
   private String currentString = "";
-
-  private String sep = "";
 
   private boolean hasNext = false;
 

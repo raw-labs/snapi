@@ -29,7 +29,7 @@ public class OSRMultiAggregationNode extends Node implements RepeatingNode {
       GeneratorNodesFactory.GeneratorNextNodeGen.create();
 
   @Child AggregatorNodes.Merge mergeNode = AggregatorNodesFactory.MergeNodeGen.create();
-  private byte[] aggregationTypes;
+  private final byte[] aggregationTypes;
 
   private Object generator;
 
@@ -37,10 +37,13 @@ public class OSRMultiAggregationNode extends Node implements RepeatingNode {
 
   private boolean hasNext = false;
 
-  public void init(Object generator, byte[] aggregationTypes, Object[] zeros) {
-    this.generator = generator;
+  public OSRMultiAggregationNode(byte[] aggregationTypes) {
     this.aggregationTypes = aggregationTypes;
-    this.currentResults = zeros;
+  }
+
+  public void init(Object generator, Object[] zeroes) {
+    this.generator = generator;
+    this.currentResults = zeroes;
   }
 
   public boolean executeRepeating(VirtualFrame frame) {

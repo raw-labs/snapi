@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list.osr;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -32,13 +33,11 @@ public class OSRListTransformNode extends Node implements RepeatingNode {
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
-  private Object function;
-
-  private Object list;
-  private int size;
-
   private final Rql2Type resultType;
 
+  @CompilerDirectives.CompilationFinal private Object function;
+  private Object list;
+  private int size;
   private int currentIdx;
 
   private Object result;

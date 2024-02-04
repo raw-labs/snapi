@@ -33,15 +33,18 @@ public class OSRSingleAggregationNode extends Node implements RepeatingNode {
 
   @CompilationFinal private Object generator;
 
-  @CompilationFinal private byte aggregationType;
+  private final byte aggregationType;
 
   private Object currentResult;
 
   private boolean hasNext = true;
 
-  public void init(Object generator, byte aggregationType, Object zero) {
-    this.generator = generator;
+  public OSRSingleAggregationNode(byte aggregationType) {
     this.aggregationType = aggregationType;
+  }
+
+  public void init(Object generator, Object zero) {
+    this.generator = generator;
     this.currentResult = zero;
   }
 

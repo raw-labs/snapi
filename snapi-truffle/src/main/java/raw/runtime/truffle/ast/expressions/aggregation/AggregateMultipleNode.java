@@ -50,7 +50,7 @@ public class AggregateMultipleNode extends ExpressionNode {
 
   public AggregateMultipleNode(ExpressionNode iterableNode, byte[] aggregationTypes) {
     this.iterableNode = iterableNode;
-    loop = Truffle.getRuntime().createLoopNode(new OSRMultiAggregationNode());
+    loop = Truffle.getRuntime().createLoopNode(new OSRMultiAggregationNode(aggregationTypes));
     this.aggregationTypes = aggregationTypes;
   }
 
@@ -67,7 +67,7 @@ public class AggregateMultipleNode extends ExpressionNode {
         return results;
       }
       OSRMultiAggregationNode OSRNode = (OSRMultiAggregationNode) loop.getRepeatingNode();
-      OSRNode.init(generator, aggregationTypes, results);
+      OSRNode.init(generator, results);
       return loop.execute(virtualFrame);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());

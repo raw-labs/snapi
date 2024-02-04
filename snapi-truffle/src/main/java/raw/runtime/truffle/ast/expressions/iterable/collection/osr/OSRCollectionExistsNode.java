@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection.osr;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -35,8 +36,8 @@ public class OSRCollectionExistsNode extends Node implements RepeatingNode {
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
-  private Object generator;
-  private Object function;
+  @CompilerDirectives.CompilationFinal private Object generator;
+  @CompilerDirectives.CompilationFinal private Object function;
 
   private boolean hasNext = false;
 

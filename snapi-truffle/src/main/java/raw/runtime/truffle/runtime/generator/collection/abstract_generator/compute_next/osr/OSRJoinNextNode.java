@@ -51,7 +51,7 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
 
   @Child KryoNodes.KryoReadNode kryoReadNode = KryoNodesFactory.KryoReadNodeGen.create();
 
-  private JoinComputeNext computeNext;
+  @CompilerDirectives.CompilationFinal private JoinComputeNext computeNext;
 
   @CompilerDirectives.TruffleBoundary
   private Input createInput(File file, Node node) {
