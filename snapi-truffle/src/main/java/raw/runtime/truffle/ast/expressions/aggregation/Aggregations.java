@@ -10,16 +10,12 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.aggregation;
+package raw.runtime.truffle.ast.expressions.aggregation;
 
-public class MultiAggregation {
-  private final byte[] aggregationTypes;
-
-  public MultiAggregation(byte[] aggregationTypes) {
-    this.aggregationTypes = aggregationTypes;
-  }
-
-  public byte[] getAggregationTypes() {
-    return aggregationTypes;
-  }
+public class Aggregations {
+  public static final byte COUNT = 0;
+  public static final byte MAX = 1;
+  public static final byte MIN = 2;
+  public static final byte SUM = 3;
+  public static final byte LAST = 4;
 }

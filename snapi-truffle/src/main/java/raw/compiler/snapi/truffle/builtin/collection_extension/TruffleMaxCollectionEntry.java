@@ -19,11 +19,12 @@ import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionMaxNodeGen;
+import raw.runtime.truffle.ast.expressions.aggregation.AggregateSingleNode;
+import raw.runtime.truffle.ast.expressions.aggregation.Aggregations;
 
 public class TruffleMaxCollectionEntry extends MaxCollectionEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return CollectionMaxNodeGen.create(args.get(0).exprNode());
+    return new AggregateSingleNode(args.get(0).exprNode(), Aggregations.MAX);
   }
 }

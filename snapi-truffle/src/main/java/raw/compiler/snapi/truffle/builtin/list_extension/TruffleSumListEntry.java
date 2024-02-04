@@ -19,11 +19,14 @@ import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.list.ListSumNodeGen;
+import raw.runtime.truffle.ast.expressions.aggregation.AggregateSingleNode;
+import raw.runtime.truffle.ast.expressions.aggregation.Aggregations;
+import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionFromNodeGen;
 
 public class TruffleSumListEntry extends SumListEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return ListSumNodeGen.create(args.get(0).exprNode());
+    return new AggregateSingleNode(
+        CollectionFromNodeGen.create(args.get(0).exprNode()), Aggregations.SUM);
   }
 }

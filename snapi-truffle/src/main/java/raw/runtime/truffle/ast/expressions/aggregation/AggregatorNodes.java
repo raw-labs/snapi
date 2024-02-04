@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.aggregation.aggregator;
+package raw.runtime.truffle.ast.expressions.aggregation;
 
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
@@ -23,7 +23,7 @@ public class AggregatorNodes {
   @NodeInfo(shortName = "Aggregator.Zero")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(Aggregators.class)
+  @ImportStatic(Aggregations.class)
   public abstract static class Zero extends Node {
 
     public abstract Object execute(Node node, byte aggregatorType);
@@ -47,12 +47,17 @@ public class AggregatorNodes {
     static Object sumZero(Node node, byte aggregatorType) {
       return NullObject.INSTANCE;
     }
+
+    @Specialization(guards = "aggregatorType == LAST")
+    static Object sumLast(Node node, byte aggregatorType) {
+      return NullObject.INSTANCE;
+    }
   }
 
   @NodeInfo(shortName = "Aggregator.Merge")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(Aggregators.class)
+  @ImportStatic(Aggregations.class)
   public abstract static class Merge extends Node {
 
     public abstract Object execute(Node node, byte aggregatorType, Object current, Object next);
@@ -123,6 +128,11 @@ public class AggregatorNodes {
         @Bind("$node") Node thisNode,
         @Cached OperatorNodes.AddNode add) {
       return add.execute(thisNode, current, next);
+    }
+
+    @Specialization(guards = "aggregatorType == LAST")
+    static Object mergeLast(Node node, byte aggregatorType, Object current, Object next) {
+      return next;
     }
   }
 }
