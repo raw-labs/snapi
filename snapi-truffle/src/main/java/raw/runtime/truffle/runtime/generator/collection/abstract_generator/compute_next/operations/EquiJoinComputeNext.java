@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
+import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
 import raw.sources.api.SourceContext;
@@ -31,6 +32,8 @@ public class EquiJoinComputeNext {
   private Object leftKey = null, rightKey = null;
   private Object[] leftRows = null, rightRows = null;
 
+  private final VirtualFrame frame;
+
   public EquiJoinComputeNext(
       Object leftIterable,
       Object leftKeyF,
@@ -41,7 +44,8 @@ public class EquiJoinComputeNext {
       Rql2TypeWithProperties keyType,
       Object mkJoinedRecord,
       RawLanguage language,
-      SourceContext context) {
+      SourceContext context,
+      VirtualFrame frame) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;
@@ -52,6 +56,7 @@ public class EquiJoinComputeNext {
     this.mkJoinedRecord = mkJoinedRecord;
     this.language = language;
     this.context = context;
+    this.frame = frame;
   }
 
   public Object getLeftIterable() {
@@ -172,5 +177,9 @@ public class EquiJoinComputeNext {
 
   public void setRightRows(Object[] rightRows) {
     this.rightRows = rightRows;
+  }
+
+  public VirtualFrame getFrame() {
+    return frame;
   }
 }

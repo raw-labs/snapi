@@ -13,7 +13,9 @@
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
 import com.esotericsoftware.kryo.io.Input;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import java.io.File;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
@@ -21,25 +23,24 @@ import raw.runtime.truffle.utils.IOUtils;
 import raw.sources.api.SourceContext;
 
 public class JoinComputeNext {
+  @CompilationFinal private int kryoOutputBufferSize;
+  @CompilationFinal private File diskRight;
   protected final Object leftIterable;
   protected final Object rightIterable;
   private Object leftGen = null;
   private final Object remap;
   private final Object predicate;
-
   private Object leftRow = null;
   private Object rightRow = null;
   Input kryoRight = null;
-  private final int kryoOutputBufferSize;
   private final Rql2TypeWithProperties rightRowType; // grouped key and value types.
   private int spilledRight = 0;
   private int readRight = 0;
-  private final File diskRight;
   private final Boolean reshapeBeforePredicate;
-
   private final RawLanguage language;
 
-  @TruffleBoundary // Needed because of SourceContext
+  private final VirtualFrame frame;
+
   public JoinComputeNext(
       Object leftIterable,
       Object rightIterable,
@@ -48,16 +49,23 @@ public class JoinComputeNext {
       Boolean reshapeBeforePredicate,
       Rql2TypeWithProperties rightRowType,
       SourceContext context,
-      RawLanguage language) {
+      RawLanguage language,
+      VirtualFrame frame) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;
     this.predicate = predicate;
-    this.kryoOutputBufferSize =
-        (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
     this.language = language;
     this.rightRowType = rightRowType;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
+    this.frame = frame;
+    init(context);
+  }
+
+  @TruffleBoundary // Needed because of SourceContext
+  private void init(SourceContext context) {
+    this.kryoOutputBufferSize =
+        (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
     this.diskRight = IOUtils.getScratchFile("cartesian.", ".kryo", context).toFile();
   }
 
@@ -143,5 +151,9 @@ public class JoinComputeNext {
 
   public RawLanguage getLanguage() {
     return language;
+  }
+
+  public VirtualFrame getFrame() {
+    return frame;
   }
 }

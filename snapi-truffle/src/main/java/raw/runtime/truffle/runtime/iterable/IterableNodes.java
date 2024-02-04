@@ -110,7 +110,7 @@ public class IterableNodes {
             IterableNodes.GetGeneratorNode getGeneratorNode) {
       Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
-          new FilterComputeNext(parentGenerator, collection.getPredicate()));
+          new FilterComputeNext(parentGenerator, collection.getPredicate(), collection.getFrame()));
     }
 
     @Specialization

@@ -16,6 +16,7 @@ import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
@@ -40,7 +41,11 @@ public abstract class CollectionJoinNode extends ExpressionNode {
 
   @Specialization
   protected Object doJoin(
-      Object leftIterable, Object rightIterable, Object remap, Object predicate) {
+      VirtualFrame frame,
+      Object leftIterable,
+      Object rightIterable,
+      Object remap,
+      Object predicate) {
     return new JoinCollection(
         leftIterable,
         rightIterable,
@@ -49,6 +54,7 @@ public abstract class CollectionJoinNode extends ExpressionNode {
         getRightType(),
         getReshapeBeforePredicate(),
         RawContext.get(this).getSourceContext(),
-        RawLanguage.get(this));
+        RawLanguage.get(this),
+        frame);
   }
 }
