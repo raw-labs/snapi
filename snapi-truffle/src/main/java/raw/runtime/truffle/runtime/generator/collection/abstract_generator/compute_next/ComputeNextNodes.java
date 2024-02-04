@@ -724,7 +724,11 @@ public class ComputeNextNodes {
         Node node,
         JoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getJoinInitLoopNode()", inline = false, allowUncached = true)
+        @Cached(
+                value = "getJoinInitLoopNode()",
+                inline = false,
+                allowUncached = true,
+                neverDefault = true)
             LoopNode loopNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,

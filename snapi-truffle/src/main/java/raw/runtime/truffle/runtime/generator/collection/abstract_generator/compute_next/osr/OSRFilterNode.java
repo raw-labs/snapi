@@ -48,14 +48,17 @@ public class OSRFilterNode extends Node implements RepeatingNode {
     return false;
   }
 
+  public Object initialLoopStatus() {
+    return null;
+  }
+
   public boolean shouldContinue(Object returnValue) {
-    return returnValue == this.initialLoopStatus()
-        || (returnValue == null && hasNextNode.execute(this, computeNext.getParent()));
+    return returnValue == null && hasNextNode.execute(this, computeNext.getParent());
   }
 
   public Object executeRepeatingWithValue(VirtualFrame frame) {
     Object v = nextNode.execute(this, computeNext.getParent());
-    Boolean isPredicateTrue = null;
+    boolean isPredicateTrue;
     isPredicateTrue =
         TryableNullable.handlePredicate(
             functionExecuteOneNode.execute(this, computeNext.getPredicate(), v), false);

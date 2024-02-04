@@ -72,8 +72,12 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
     return false;
   }
 
+  public Object initialLoopStatus() {
+    return null;
+  }
+
   public boolean shouldContinue(Object returnValue) {
-    return returnValue == this.initialLoopStatus() || returnValue == null;
+    return returnValue == null;
   }
 
   public Object executeRepeatingWithValue(VirtualFrame frame) {
