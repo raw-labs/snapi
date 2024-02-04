@@ -37,6 +37,8 @@ public class OSRSingleAggregationNode extends Node implements RepeatingNode {
 
   private Object currentResult;
 
+  private boolean hasNext = true;
+
   public void init(Object generator, byte aggregationType, Object zero) {
     this.generator = generator;
     this.aggregationType = aggregationType;
@@ -48,13 +50,20 @@ public class OSRSingleAggregationNode extends Node implements RepeatingNode {
     return false;
   }
 
+  // On first execution the return value is always CONTINUE_LOOP_STATUS
+  // We don't want to return this status as a result of this execution.
+  // In case of an empty input, hasNext will return false and executeRepeatingWithValue never
+  // executes leading to CONTINUE_LOOP_STATUS returning
   public boolean shouldContinue(Object returnValue) {
-    return hasNextNode.execute(this, generator);
+    hasNext = hasNextNode.execute(this, generator);
+    return hasNext || returnValue == this.initialLoopStatus();
   }
 
   public Object executeRepeatingWithValue(VirtualFrame frame) {
-    Object next = nextNode.execute(this, generator);
-    currentResult = mergeNode.execute(this, aggregationType, currentResult, next);
+    if (hasNext) {
+      Object next = nextNode.execute(this, generator);
+      currentResult = mergeNode.execute(this, aggregationType, currentResult, next);
+    }
     return currentResult;
   }
 }

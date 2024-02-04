@@ -13,7 +13,6 @@
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr;
 
 import com.esotericsoftware.kryo.io.Output;
-import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -35,9 +34,9 @@ public class OSRJoinInitNode extends Node implements RepeatingNode {
 
   @Child KryoNodes.KryoWriteNode kryoWrite = KryoNodesFactory.KryoWriteNodeGen.create();
 
-  @CompilationFinal private Object generator;
-  @CompilationFinal private JoinComputeNext computeNext;
-  @CompilationFinal private Output buffer;
+  private Object generator;
+  private JoinComputeNext computeNext;
+  private Output buffer;
 
   public void init(JoinComputeNext computeNext, Object generator, Output buffer) {
     this.computeNext = computeNext;

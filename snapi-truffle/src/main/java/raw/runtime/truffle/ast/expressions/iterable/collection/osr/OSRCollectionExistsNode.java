@@ -10,15 +10,18 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.expressions.aggregation;
+package raw.runtime.truffle.ast.expressions.iterable.collection.osr;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
-public class OSRMultiAggregationNode extends Node implements RepeatingNode {
+public class OSRCollectionExistsNode extends Node implements RepeatingNode {
 
   @Child
   private GeneratorNodes.GeneratorHasNextNode hasNextNode =
@@ -28,19 +31,18 @@ public class OSRMultiAggregationNode extends Node implements RepeatingNode {
   private GeneratorNodes.GeneratorNextNode nextNode =
       GeneratorNodesFactory.GeneratorNextNodeGen.create();
 
-  @Child AggregatorNodes.Merge mergeNode = AggregatorNodesFactory.MergeNodeGen.create();
-  private byte[] aggregationTypes;
+  @Child
+  FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
+      FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
   private Object generator;
-
-  private Object[] currentResults;
+  private Object function;
 
   private boolean hasNext = false;
 
-  public void init(Object generator, byte[] aggregationTypes, Object[] zeros) {
+  public void init(Object generator, Object function) {
     this.generator = generator;
-    this.aggregationTypes = aggregationTypes;
-    this.currentResults = zeros;
+    this.function = function;
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
@@ -48,22 +50,15 @@ public class OSRMultiAggregationNode extends Node implements RepeatingNode {
     return false;
   }
 
-  // On first execution the return value is always CONTINUE_LOOP_STATUS
-  // We don't want to return this status as a result of this execution.
-  // In case of an empty input, hasNext will return false and executeRepeatingWithValue never
-  // executes leading to CONTINUE_LOOP_STATUS returning
   public boolean shouldContinue(Object returnValue) {
     hasNext = hasNextNode.execute(this, generator);
-    return hasNext || returnValue == this.initialLoopStatus();
+    return returnValue == this.initialLoopStatus() || ((!((Boolean) returnValue)) && hasNext);
   }
 
   public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (hasNext) {
-      Object next = nextNode.execute(this, generator);
-      for (int i = 0; i < aggregationTypes.length; i++) {
-        currentResults[i] = mergeNode.execute(this, aggregationTypes[i], currentResults[i], next);
-      }
-    }
-    return currentResults;
+    return hasNext
+        && TryableNullable.handlePredicate(
+            functionExecuteOneNode.execute(this, function, nextNode.execute(this, generator)),
+            false);
   }
 }

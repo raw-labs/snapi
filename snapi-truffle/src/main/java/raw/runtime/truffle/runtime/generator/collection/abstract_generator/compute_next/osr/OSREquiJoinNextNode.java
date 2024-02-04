@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -35,7 +34,7 @@ public class OSREquiJoinNextNode extends Node implements RepeatingNode {
 
   @Child OperatorNodes.CompareNode compareKey = OperatorNodesFactory.CompareNodeGen.create();
 
-  @CompilerDirectives.CompilationFinal private EquiJoinComputeNext computeNext;
+  private EquiJoinComputeNext computeNext;
 
   public void init(EquiJoinComputeNext computeNext) {
     this.computeNext = computeNext;

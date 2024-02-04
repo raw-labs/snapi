@@ -14,7 +14,6 @@ package raw.runtime.truffle.runtime.generator.collection.abstract_generator.comp
 
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -52,7 +51,7 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
 
   @Child KryoNodes.KryoReadNode kryoReadNode = KryoNodesFactory.KryoReadNodeGen.create();
 
-  @CompilationFinal private JoinComputeNext computeNext;
+  private JoinComputeNext computeNext;
 
   @CompilerDirectives.TruffleBoundary
   private Input createInput(File file, Node node) {
@@ -72,12 +71,8 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
     return false;
   }
 
-  public Object initialLoopStatus() {
-    return null;
-  }
-
   public boolean shouldContinue(Object returnValue) {
-    return returnValue == null;
+    return returnValue == null || returnValue == this.initialLoopStatus();
   }
 
   public Object executeRepeatingWithValue(VirtualFrame frame) {

@@ -12,12 +12,17 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
+import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRListFromNode;
+import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRToArrayNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
@@ -33,31 +38,43 @@ public abstract class ListFromNode extends ExpressionNode {
   @Idempotent
   protected abstract Rql2Type getResultType();
 
+  public static LoopNode getFromLoopNode() {
+    return Truffle.getRuntime().createLoopNode(new OSRListFromNode());
+  }
+
+  public static LoopNode getToArrayLoopNode(Rql2Type resultType) {
+    return Truffle.getRuntime().createLoopNode(new OSRToArrayNode(resultType));
+  }
+
   @Specialization(guards = {"isByteKind(getResultType())"})
   protected Object doByte(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Byte> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((byte) nextGeneratorNode.execute(this, generator));
-      }
-      byte[] list = new byte[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new ByteList(list);
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new ByteList((byte[]) toArrayLoopNode.execute(frame));
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -67,29 +84,33 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization(guards = {"isShortKind(getResultType())"})
   protected Object doShort(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Short> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((short) nextGeneratorNode.execute(this, generator));
-      }
-      short[] list = new short[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new ShortList(list);
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new ShortList((short[]) toArrayLoopNode.execute(frame));
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -99,29 +120,33 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization(guards = {"isIntKind(getResultType())"})
   protected Object doInt(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Integer> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((int) nextGeneratorNode.execute(this, generator));
-      }
-      int[] list = new int[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new IntList(list);
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new IntList((int[]) toArrayLoopNode.execute(frame));
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -131,29 +156,33 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization(guards = {"isLongKind(getResultType())"})
   protected Object doLong(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Long> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((long) nextGeneratorNode.execute(this, generator));
-      }
-      long[] list = new long[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new LongList(list);
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new LongList((long[]) toArrayLoopNode.execute(frame));
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -163,29 +192,33 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization(guards = {"isFloatKind(getResultType())"})
   protected Object doFloat(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Float> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((float) nextGeneratorNode.execute(this, generator));
-      }
-      float[] list = new float[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new FloatList(list);
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new FloatList((float[]) toArrayLoopNode.execute(frame));
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -195,29 +228,33 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected Object doDouble(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Double> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((double) nextGeneratorNode.execute(this, generator));
-      }
-      double[] list = new double[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new DoubleList(list);
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new DoubleList((double[]) toArrayLoopNode.execute(frame));
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -227,29 +264,33 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected Object doBoolean(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Boolean> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((boolean) nextGeneratorNode.execute(this, generator));
-      }
-      boolean[] list = new boolean[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new BooleanList(list);
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new BooleanList((boolean[]) toArrayLoopNode.execute(frame));
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -259,31 +300,35 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization(guards = {"isStringKind(getResultType())"})
   protected Object doString(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<String> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add((String) nextGeneratorNode.execute(this, generator));
-      }
-      String[] list = new String[llist.size()];
-      for (int i = 0; i < list.length; i++) {
-        list[i] = llist.get(i);
-      }
-      return new StringList(list);
-    } catch (RawTruffleRuntimeException e) {
-      return new ErrorObject(e.getMessage());
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new StringList((String[]) toArrayLoopNode.execute(frame));
+    } catch (RawTruffleRuntimeException ex) {
+      return new ErrorObject(ex.getMessage());
     } finally {
       closeGeneratorNode.execute(this, generator);
     }
@@ -291,24 +336,24 @@ public abstract class ListFromNode extends ExpressionNode {
 
   @Specialization
   protected Object doObject(
+      VirtualFrame frame,
       Object iterable,
+      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFromLoopNode")
+          LoopNode loopNode,
       @Cached(inline = true) @Cached.Shared("getGeneratorNode")
           IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) @Cached.Shared("initNode")
           GeneratorNodes.GeneratorInitNode initGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNextNode")
-          GeneratorNodes.GeneratorHasNextNode hasNextGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("nextNode")
-          GeneratorNodes.GeneratorNextNode nextGeneratorNode,
       @Cached(inline = true) @Cached.Shared("closeNode")
           GeneratorNodes.GeneratorCloseNode closeGeneratorNode) {
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initGeneratorNode.execute(this, generator);
-      ArrayList<Object> llist = new ArrayList<>();
-      while (hasNextGeneratorNode.execute(this, generator)) {
-        llist.add(nextGeneratorNode.execute(this, generator));
-      }
+      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
+      osrNode.init(generator);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       return new RawArrayList(llist);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());

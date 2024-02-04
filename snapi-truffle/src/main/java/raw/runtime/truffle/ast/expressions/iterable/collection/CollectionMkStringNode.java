@@ -12,11 +12,15 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.expressions.iterable.collection.osr.OSRCollectionMksStringNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
@@ -29,12 +33,20 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeChild("sep")
 @NodeChild("end")
 public abstract class CollectionMkStringNode extends ExpressionNode {
+
+  public static LoopNode getMkStringLoopNode() {
+    return Truffle.getRuntime().createLoopNode(new OSRCollectionMksStringNode());
+  }
+
   @Specialization
   protected Object doCollection(
+      VirtualFrame frame,
       Object iterable,
       String start,
       String sep,
       String end,
+      @Cached(value = "getMkStringLoopNode()", allowUncached = true, neverDefault = true)
+          LoopNode loopNode,
       @Cached(inline = true) OperatorNodes.AddNode add,
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
@@ -51,10 +63,9 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
         Object next = nextNode.execute(this, generator);
         currentString = (String) add.execute(this, currentString, next);
       }
-      while (hasNextNode.execute(this, generator)) {
-        Object next = nextNode.execute(this, generator);
-        currentString = (String) add.execute(this, currentString + sep, next);
-      }
+      OSRCollectionMksStringNode osrNode = (OSRCollectionMksStringNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, currentString, sep);
+      currentString = (String) loopNode.execute(frame);
       return currentString + end;
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());

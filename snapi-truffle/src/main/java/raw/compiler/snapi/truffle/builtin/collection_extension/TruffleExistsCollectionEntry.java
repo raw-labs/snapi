@@ -15,7 +15,6 @@ package raw.compiler.snapi.truffle.builtin.collection_extension;
 import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.ExistsCollectionEntry;
-import raw.compiler.rql2.source.FunType;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
@@ -26,8 +25,6 @@ public class TruffleExistsCollectionEntry extends ExistsCollectionEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    FunType funType = (FunType) args.get(1).type();
-
     return CollectionExistsNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

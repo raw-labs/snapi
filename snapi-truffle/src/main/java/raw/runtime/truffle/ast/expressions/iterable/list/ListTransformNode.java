@@ -12,15 +12,15 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
-import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
-import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRListTransformNode;
 import raw.runtime.truffle.runtime.list.*;
 
 @ImportStatic(value = TypeGuards.class)
@@ -30,314 +30,163 @@ import raw.runtime.truffle.runtime.list.*;
 @NodeField(name = "resultType", type = Rql2Type.class)
 public abstract class ListTransformNode extends ExpressionNode {
 
-  static final int LIB_LIMIT = 2;
-
   @Idempotent
   protected abstract Rql2Type getResultType();
 
+  public static LoopNode getListTransformNode(Rql2Type resultType) {
+    return Truffle.getRuntime().createLoopNode(new OSRListTransformNode(resultType));
+  }
+
   @Specialization(guards = {"isByteKind(getResultType())"})
   protected static ByteList doByte(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      byte[] values = new byte[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (byte) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new ByteList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    byte[] values = (byte[]) transformLoopNode.execute(frame);
+    return new ByteList(values);
   }
 
   @Specialization(guards = {"isShortKind(getResultType())"})
   protected static ShortList doShort(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      short[] values = new short[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (short) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new ShortList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    short[] values = (short[]) transformLoopNode.execute(frame);
+    return new ShortList(values);
   }
 
   @Specialization(guards = {"isIntKind(getResultType())"})
   protected static IntList doInt(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      int[] values = new int[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (int) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new IntList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    int[] values = (int[]) transformLoopNode.execute(frame);
+    return new IntList(values);
   }
 
   @Specialization(guards = {"isLongKind(getResultType())"})
   protected static LongList doLong(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      long[] values = new long[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (long) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new LongList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    long[] values = (long[]) transformLoopNode.execute(frame);
+    return new LongList(values);
   }
 
   @Specialization(guards = {"isFloatKind(getResultType())"})
   protected static FloatList doFloat(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      float[] values = new float[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (float) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new FloatList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    float[] values = (float[]) transformLoopNode.execute(frame);
+    return new FloatList(values);
   }
 
   @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected static DoubleList doDouble(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      double[] values = new double[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (double) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new DoubleList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    double[] values = (double[]) transformLoopNode.execute(frame);
+    return new DoubleList(values);
   }
 
   @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected BooleanList doBoolean(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("$node") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      boolean[] values = new boolean[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (boolean) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new BooleanList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    boolean[] values = (boolean[]) transformLoopNode.execute(frame);
+    return new BooleanList(values);
   }
 
   @Specialization(guards = {"isStringKind(getResultType())"})
   protected static StringList doString(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      String[] values = new String[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (String) functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new StringList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    String[] values = (String[]) transformLoopNode.execute(frame);
+    return new StringList(values);
   }
 
   @Specialization
   protected ObjectList doObject(
+      VirtualFrame frame,
       Object list,
       Object function,
-      @Bind("$node") Node thisNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("hasNext")
-          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) @Cached.Shared("next")
-          GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
-      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) @Cached.Shared("executeOne")
-          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
-    try {
-      initNode.execute(thisNode, generator);
-      Object[] values = new Object[(int) sizeNode.execute(thisNode, list)];
-      int cnt = 0;
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = functionExecuteOneNode.execute(thisNode, function, v);
-        cnt++;
-      }
-      return new ObjectList(values);
-    } finally {
-      closeNode.execute(thisNode, generator);
-    }
+      @Cached(
+              value = "getListTransformNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("transformLoopNode")
+          LoopNode transformLoopNode) {
+    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
+    node.init(list, function);
+    Object[] values = (Object[]) transformLoopNode.execute(frame);
+    return new ObjectList(values);
   }
 }

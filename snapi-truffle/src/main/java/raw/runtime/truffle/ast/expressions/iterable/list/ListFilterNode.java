@@ -12,51 +12,368 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
+import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRListFilterNode;
+import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRToArrayNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.Filter")
 @NodeChild("list")
 @NodeChild("function")
+@NodeField(name = "resultType", type = Rql2Type.class)
 public abstract class ListFilterNode extends ExpressionNode {
 
-  @Specialization
-  protected static RawArrayList doFilter(
+  @Idempotent
+  protected abstract Rql2Type getResultType();
+
+  public static LoopNode getFilterLoopNode() {
+    return Truffle.getRuntime().createLoopNode(new OSRListFilterNode());
+  }
+
+  public static LoopNode getToArrayLoopNode(Rql2Type resultType) {
+    return Truffle.getRuntime().createLoopNode(new OSRToArrayNode(resultType));
+  }
+
+  @Specialization(guards = {"isByteKind(getResultType())"})
+  protected static Object doByte(
+      VirtualFrame frame,
       Object list,
       Object function,
       @Bind("this") Node thisNode,
-      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    ArrayList<Object> llist = new ArrayList<>();
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
       generatorInitNode.execute(thisNode, generator);
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        Boolean predicate = null;
-        predicate =
-            TryableNullable.handlePredicate(
-                functionExecuteOneNode.execute(thisNode, function, v), false);
-        if (predicate) {
-          llist.add(v);
-        }
-      }
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new ByteList((byte[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization(guards = {"isShortKind(getResultType())"})
+  protected static Object doShort(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new ShortList((short[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization(guards = {"isIntKind(getResultType())"})
+  protected static Object doInt(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new IntList((int[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization(guards = {"isLongKind(getResultType())"})
+  protected static Object doLong(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new LongList((long[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization(guards = {"isFloatKind(getResultType())"})
+  protected static Object doFloat(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new FloatList((float[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization(guards = {"isDoubleKind(getResultType())"})
+  protected static Object doDouble(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new DoubleList((double[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization(guards = {"isBooleanKind(getResultType())"})
+  protected static Object doBoolean(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new BooleanList((boolean[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization(guards = {"isStringKind(getResultType())"})
+  protected static Object doString(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(
+              value = "getToArrayLoopNode(getResultType())",
+              allowUncached = true,
+              neverDefault = true)
+          @Cached.Shared("getToArrayLoopNode")
+          LoopNode toArrayLoopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
+      osrToArrayNode.init(llist);
+      return new StringList((String[]) toArrayLoopNode.execute(frame));
+    } finally {
+      generatorCloseNode.execute(thisNode, generator);
+    }
+  }
+
+  @Specialization
+  protected static Object doObject(
+      VirtualFrame frame,
+      Object list,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(value = "getFilterLoopNode()", allowUncached = true, neverDefault = true)
+          @Cached.Shared("getFilterLoopNode")
+          LoopNode loopNode,
+      @Cached(inline = true) @Cached.Shared("getGeneratorNode")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("closeNode")
+          GeneratorNodes.GeneratorCloseNode generatorCloseNode,
+      @Cached(inline = true) @Cached.Shared("initNode")
+          GeneratorNodes.GeneratorInitNode generatorInitNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      generatorInitNode.execute(thisNode, generator);
+      OSRListFilterNode osrNode = (OSRListFilterNode) loopNode.getRepeatingNode();
+      osrNode.init(generator, function);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       return new RawArrayList(llist);
     } finally {
       generatorCloseNode.execute(thisNode, generator);

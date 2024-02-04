@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr;
 
-import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -42,9 +41,9 @@ public class OSREquiJoinInitNode extends Node implements RepeatingNode {
   OffHeapNodes.OffHeapGroupByPutNode putNode =
       OffHeapNodesFactory.OffHeapGroupByPutNodeGen.create();
 
-  @CompilationFinal private Object generator;
-  @CompilationFinal OffHeapGroupByKey map;
-  @CompilationFinal Object keyFunc;
+  private Object generator;
+  OffHeapGroupByKey map;
+  Object keyFunc;
 
   public void init(Object keyFunc, Object generator, OffHeapGroupByKey map) {
     this.keyFunc = keyFunc;

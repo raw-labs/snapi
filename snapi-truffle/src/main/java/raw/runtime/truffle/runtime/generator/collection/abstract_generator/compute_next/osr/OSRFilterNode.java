@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -37,7 +36,9 @@ public class OSRFilterNode extends Node implements RepeatingNode {
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
-  @CompilerDirectives.CompilationFinal private FilterComputeNext computeNext;
+  private FilterComputeNext computeNext;
+
+  private boolean hasNext = false;
 
   public void init(FilterComputeNext computeNext) {
     this.computeNext = computeNext;
@@ -48,15 +49,15 @@ public class OSRFilterNode extends Node implements RepeatingNode {
     return false;
   }
 
-  public Object initialLoopStatus() {
-    return null;
-  }
-
   public boolean shouldContinue(Object returnValue) {
-    return returnValue == null && hasNextNode.execute(this, computeNext.getParent());
+    hasNext = hasNextNode.execute(this, computeNext.getParent());
+    return returnValue == this.initialLoopStatus() || (returnValue == null && hasNext);
   }
 
   public Object executeRepeatingWithValue(VirtualFrame frame) {
+    if (!hasNext) {
+      return null;
+    }
     Object v = nextNode.execute(this, computeNext.getParent());
     boolean isPredicateTrue;
     isPredicateTrue =
