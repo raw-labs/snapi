@@ -11,7 +11,6 @@
  */
 
 package raw.client.sql
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache, RemovalListener, RemovalNotification}
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
@@ -27,13 +26,6 @@ class SqlClientMissingCredentialsException(cause: Throwable)
 
 class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
 
-  val listener: RemovalListener[String, HikariDataSource] = new RemovalListener[String, HikariDataSource]() {
-    def onRemoval(notification: RemovalNotification[String, HikariDataSource]): Unit = {
-      logger.info(s"Removing default pool for user ${notification.getKey}")
-    }
-  }
-
-  // one pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
 
   // Default pool for users that do not have a DB yet
@@ -55,19 +47,8 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
     new HikariDataSource(config)
   }
 
+  private val defaultPoolsLastTime = mutable.Map.empty[String, Long]
   private val expiration = settings.getDuration("raw.client.sql.default-pool.expiration-time")
-  logger.info(s"Default pool expiration time: ${expiration.toSeconds} seconds")
-  // Using this cache to make the default pool expire, so that users can connect to their own DB.
-  private val defaultPools: LoadingCache[String, HikariDataSource] = CacheBuilder
-    .newBuilder()
-    .expireAfterWrite(expiration)
-    .removalListener(listener)
-    .build(new CacheLoader[String, HikariDataSource] {
-      override def load(key: String): HikariDataSource = {
-        logger.info(s"Using default pool for user $key")
-        defaultPool
-      }
-    })
 
   private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
   private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
@@ -77,18 +58,18 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
     val db = user.uid.toString().replace("-", "_")
-    // If there is something in the defaultPools cache,
-    // it means that the user tried to connect before and his DB did not exist yet.
-    // Until this cache expires (10s), we will use the default DB.
-    // After that we will try to connect to the user's DB again
-    if (defaultPools.asMap().containsKey(db)) {
+    // Check is the last usage of the default pool is expired
+    if (
+      defaultPoolsLastTime.contains(db) && (System.currentTimeMillis() - defaultPoolsLastTime(db)) < expiration.toMillis
+    ) {
       logger.info(s"Using already existing default pool for user $db")
-      return defaultPools.get(db).getConnection
+      return defaultPool.getConnection
     }
 
     val userPool = pools.get(db) match {
       case Some(pool) => pool
       case None =>
+        logger.info(s"Checking user DB $db")
         val config = new HikariConfig()
         config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
         config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
@@ -101,14 +82,19 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
         config.setPassword(password)
         try {
           val pool = new HikariDataSource(config)
+          // remove the key from the map, we will now connect only to the user DB
+          logger.info(s"Connected to user deleting default entry for $db")
+          defaultPoolsLastTime.remove(db)
           pools.put(db, pool)
           pool
         } catch {
           case hikariException: PoolInitializationException => hikariException.getCause match {
               case sqlException: SQLException => sqlException.getSQLState match {
                   case "3D000" =>
-                    // Put a new value in the cache to avoid checking if the user DB exists for 10s
-                    defaultPools.get(db)
+                    logger.info(s"user $db not up yet, using default pool for now.")
+                    // Put a new value in the map to avoid checking if the user DB until expiration time
+                    defaultPoolsLastTime(db) = System.currentTimeMillis()
+                    defaultPool
                   case _ => throw hikariException
                 }
               case e: Throwable => throw e
