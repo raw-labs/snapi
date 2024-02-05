@@ -18,8 +18,17 @@ import raw.utils.RawException
  * Used for errors that are found during semantic analysis.
  * @param message The error message.
  * @param positions The positions where the error occurred.
+ * @param severity The severity of the error. 1 = Hint, 2 = Info, 4 = Warning, 8 = Error
+ * @param code An optional error code.
+ * @param tags Indication for the error Unnecessary = 1, Deprecated = 2
  */
-final case class ErrorMessage(message: String, positions: List[ErrorRange])
+final case class ErrorMessage(
+    message: String,
+    positions: List[ErrorRange],
+    severity: Int = 8,
+    code: Option[String] = None,
+    tags: List[Integer] = List.empty
+)
 final case class ErrorRange(begin: ErrorPosition, end: ErrorPosition)
 final case class ErrorPosition(line: Int, column: Int)
 
