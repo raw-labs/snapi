@@ -49,7 +49,7 @@ class RegexReplaceEntry extends EntryExtension {
   override def docs: EntryDoc = EntryDoc(
     summary = "Replaces matches of a regular expression pattern by a new string.",
     description = Some(
-      "For more information about regex patterns see the [Regex patterns documentation](/docs/snapi/regex-templates)."
+      "For more information about regex patterns see the [Regex patterns documentation](/snapi/regex-templates)."
     ),
     examples =
       List(ExampleDoc("""Regex.Replace("Heelloo John", "[aeiou]+", "_")""", result = Some(""" "H_ll__ J_hn" """))),
@@ -90,7 +90,7 @@ class RegexMatchesEntry extends EntryExtension {
   override def docs: EntryDoc = EntryDoc(
     summary = "Checks if a string matches a regular expression pattern.",
     description = Some(
-      "For more information about regex patterns see the [Regex patterns documentation](/docs/snapi/regex-templates)."
+      "For more information about regex patterns see the [Regex patterns documentation](/snapi/regex-templates)."
     ),
     examples = List(
       ExampleDoc("""Regex.Matches("1234", "\\d+")""", result = Some("true")),
@@ -128,7 +128,7 @@ class RegexFirstMatchInEntry extends EntryExtension {
   override def docs: EntryDoc = EntryDoc(
     summary = "Finds the first match of a regular expression in a string.",
     description = Some(
-      "For more information about regex patterns see the [Regex patterns documentation](/docs/snapi/regex-templates)."
+      "For more information about regex patterns see the [Regex patterns documentation](/snapi/regex-templates)."
     ),
     examples = List(
       ExampleDoc("""Regex.FirstMatch("1234", "\\d+")""", result = Some(""""1234"""")),
@@ -172,7 +172,7 @@ class RegexGroupsEntry extends EntryExtension {
   override def docs: EntryDoc = EntryDoc(
     summary = "Finds the list of capturing groups of a regular expression in a string.",
     description = Some(
-      "For more information about regex patterns see the [Regex patterns documentation](/docs/snapi/regex-templates)."
+      "For more information about regex patterns see the [Regex patterns documentation](/snapi/regex-templates)."
     ),
     examples = List(
       ExampleDoc("""Regex.Groups("23-06-1975", "(\\d+)-(\\d+)-(\\d+)")""", result = Some("""["23", "06", "1975"]""")),
