@@ -132,7 +132,7 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
               SqlTypesUtils
                 .mergeRawTypes(options)
                 .right
-                .map(_.cloneNullable)
+                .map { case any: RawAnyType => any; case other => other.cloneNullable }
                 .left
                 .map(message =>
                   ErrorMessage(
