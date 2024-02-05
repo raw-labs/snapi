@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.aggregation;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -31,8 +32,9 @@ public class OSRMultiAggregationNode extends Node implements RepeatingNode {
   @Child AggregatorNodes.Merge mergeNode = AggregatorNodesFactory.MergeNodeGen.create();
   private final byte[] aggregationTypes;
 
-  private Object generator;
+  @CompilerDirectives.CompilationFinal private Object generator;
 
+  @CompilerDirectives.CompilationFinal(dimensions = 0)
   private Object[] currentResults;
 
   private boolean hasNext = false;

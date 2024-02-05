@@ -16,6 +16,7 @@ import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
@@ -37,13 +38,14 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
   protected abstract Rql2TypeWithProperties getRowType();
 
   @Specialization
-  protected Object doGroup(Object iterable, Object keyFun) {
+  protected Object doGroup(VirtualFrame frame, Object iterable, Object keyFun) {
     return new GroupByCollection(
         iterable,
         keyFun,
         getKeyType(),
         getRowType(),
         RawLanguage.get(this),
-        RawContext.get(this).getSourceContext());
+        RawContext.get(this).getSourceContext(),
+        frame);
   }
 }

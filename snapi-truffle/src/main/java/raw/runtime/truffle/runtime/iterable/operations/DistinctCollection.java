@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -28,18 +29,22 @@ import raw.sources.api.SourceContext;
 @ExportLibrary(InteropLibrary.class)
 public class DistinctCollection implements TruffleObject {
   final Object iterable;
-
   final RawLanguage language;
-
   final Rql2TypeWithProperties rowType;
   private final SourceContext context;
+  private final VirtualFrame frame;
 
   public DistinctCollection(
-      Object iterable, Rql2TypeWithProperties vType, RawLanguage language, SourceContext context) {
+      Object iterable,
+      Rql2TypeWithProperties vType,
+      RawLanguage language,
+      SourceContext context,
+      VirtualFrame frame) {
     this.iterable = iterable;
     this.language = language;
     this.rowType = vType;
     this.context = context;
+    this.frame = frame;
   }
 
   public Object getIterable() {
@@ -56,6 +61,10 @@ public class DistinctCollection implements TruffleObject {
 
   public RawLanguage getLang() {
     return language;
+  }
+
+  public VirtualFrame getFrame() {
+    return frame;
   }
 
   // InteropLibrary: Iterable

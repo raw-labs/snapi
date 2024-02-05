@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -29,12 +30,12 @@ import raw.sources.api.SourceContext;
 public class OrderByCollection implements TruffleObject {
   final Object parentIterable;
   final Object[] keyFunctions;
-
   final int[] keyOrderings;
   final Rql2TypeWithProperties[] keyTypes;
   final Rql2TypeWithProperties rowType;
   private final RawLanguage language;
   private final SourceContext context;
+  private final VirtualFrame frame;
 
   public OrderByCollection(
       Object iterable,
@@ -43,7 +44,8 @@ public class OrderByCollection implements TruffleObject {
       Rql2TypeWithProperties[] keyTypes,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      SourceContext context) {
+      SourceContext context,
+      VirtualFrame frame) {
     this.parentIterable = iterable;
     this.keyFunctions = keyFunctions;
     this.keyOrderings = keyOrderings;
@@ -51,6 +53,7 @@ public class OrderByCollection implements TruffleObject {
     this.rowType = rowType;
     this.language = language;
     this.context = context;
+    this.frame = frame;
   }
 
   public Object getParentIterable() {
@@ -79,6 +82,10 @@ public class OrderByCollection implements TruffleObject {
 
   public RawLanguage getLang() {
     return language;
+  }
+
+  public VirtualFrame getFrame() {
+    return frame;
   }
 
   // InteropLibrary: Iterable
