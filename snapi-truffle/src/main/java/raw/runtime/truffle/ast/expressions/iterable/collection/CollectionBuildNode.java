@@ -23,16 +23,14 @@ public class CollectionBuildNode extends ExpressionNode {
 
   @Children private final ExpressionNode[] exps;
 
-  private final Object[] values;
-
   public CollectionBuildNode(ExpressionNode[] exps) {
     this.exps = exps;
-    values = new Object[exps.length];
   }
 
   @Override
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
+    Object[] values = new Object[exps.length];
     for (int i = 0; i < exps.length; i++) {
       values[i] = exps[i].executeGeneric(frame);
     }

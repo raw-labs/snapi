@@ -12,13 +12,11 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
-import raw.runtime.truffle.runtime.function.Closure;
-
 public class TransformComputeNext {
   final Object parent;
-  final Closure transform;
+  final Object transform;
 
-  public TransformComputeNext(Object parent, Closure transform) {
+  public TransformComputeNext(Object parent, Object transform) {
     this.parent = parent;
     this.transform = transform;
   }
@@ -27,7 +25,7 @@ public class TransformComputeNext {
     return parent;
   }
 
-  public Closure getTransform() {
+  public Object getTransform() {
     return transform;
   }
 }

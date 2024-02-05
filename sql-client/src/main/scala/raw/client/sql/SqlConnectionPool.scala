@@ -73,8 +73,9 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
         val config = new HikariConfig()
         config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
         config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
-        config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
+        config.setMinimumIdle(0)
         config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
+        config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
         config.setConnectionTimeout(
           settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
         )

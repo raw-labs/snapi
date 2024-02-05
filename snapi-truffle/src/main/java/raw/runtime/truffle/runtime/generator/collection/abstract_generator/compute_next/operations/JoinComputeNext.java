@@ -17,7 +17,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.sources.api.SourceContext;
 
@@ -25,8 +24,8 @@ public class JoinComputeNext {
   protected final Object leftIterable;
   protected final Object rightIterable;
   private Object leftGen = null;
-  private final Closure remap;
-  private final Closure predicate;
+  private final Object remap;
+  private final Object predicate;
 
   private Object leftRow = null;
   private Object rightRow = null;
@@ -44,8 +43,8 @@ public class JoinComputeNext {
   public JoinComputeNext(
       Object leftIterable,
       Object rightIterable,
-      Closure remap,
-      Closure predicate,
+      Object remap,
+      Object predicate,
       Boolean reshapeBeforePredicate,
       Rql2TypeWithProperties rightRowType,
       SourceContext context,
@@ -78,11 +77,11 @@ public class JoinComputeNext {
     this.leftGen = leftGen;
   }
 
-  public Closure getRemap() {
+  public Object getRemap() {
     return remap;
   }
 
-  public Closure getPredicate() {
+  public Object getPredicate() {
     return predicate;
   }
 

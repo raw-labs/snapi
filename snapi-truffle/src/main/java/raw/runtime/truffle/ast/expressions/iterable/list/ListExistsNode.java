@@ -19,7 +19,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.ListNodes;
@@ -33,7 +33,7 @@ public abstract class ListExistsNode extends ExpressionNode {
   @Specialization
   protected static boolean doList(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
@@ -41,7 +41,7 @@ public abstract class ListExistsNode extends ExpressionNode {
       @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
       @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) Closure.ClosureExecuteOneNode executeOneNode) {
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -49,8 +49,8 @@ public abstract class ListExistsNode extends ExpressionNode {
       while (generatorHasNextNode.execute(thisNode, generator)) {
         boolean predicate =
             TryableNullable.handlePredicate(
-                executeOneNode.execute(
-                    thisNode, closure, generatorNextNode.execute(thisNode, generator)),
+                functionExecuteOneNode.execute(
+                    thisNode, function, generatorNextNode.execute(thisNode, generator)),
                 false);
         if (predicate) {
           return true;

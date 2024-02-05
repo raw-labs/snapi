@@ -21,7 +21,6 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 
 @NodeInfo(shortName = "Collection.GroupBy")
@@ -38,7 +37,7 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
   protected abstract Rql2TypeWithProperties getRowType();
 
   @Specialization
-  protected Object doGroup(Object iterable, Closure keyFun) {
+  protected Object doGroup(Object iterable, Object keyFun) {
     return new GroupByCollection(
         iterable,
         keyFun,

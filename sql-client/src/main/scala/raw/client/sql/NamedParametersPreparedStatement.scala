@@ -132,7 +132,7 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
               SqlTypesUtils
                 .mergeRawTypes(options)
                 .right
-                .map(_.cloneNullable)
+                .map { case any: RawAnyType => any; case other => other.cloneNullable }
                 .left
                 .map(message =>
                   ErrorMessage(
@@ -178,7 +178,9 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
       val name = metadata.getColumnName(i)
       val typeInfo = {
         val tipe = metadata.getColumnType(i)
-        val nullable = metadata.isNullable(i) == ResultSetMetaData.columnNullable
+        val nullability = metadata.isNullable(i)
+        val nullable =
+          nullability == ResultSetMetaData.columnNullable || nullability == ResultSetMetaData.columnNullableUnknown
         SqlTypesUtils.rawTypeFromJdbc(tipe).right.map {
           case t: RawAnyType => t
           case t: RawType => t.cloneWithFlags(nullable, false)

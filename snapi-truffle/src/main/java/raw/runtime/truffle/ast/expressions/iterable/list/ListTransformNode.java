@@ -18,7 +18,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
@@ -38,7 +38,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isByteKind(getResultType())"})
   protected static ByteList doByte(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -51,7 +51,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -60,7 +60,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (byte) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (byte) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new ByteList(values);
@@ -72,7 +72,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isShortKind(getResultType())"})
   protected static ShortList doShort(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -85,7 +85,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -94,7 +94,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (short) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (short) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new ShortList(values);
@@ -106,7 +106,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isIntKind(getResultType())"})
   protected static IntList doInt(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -119,7 +119,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -128,7 +128,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (int) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (int) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new IntList(values);
@@ -140,7 +140,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isLongKind(getResultType())"})
   protected static LongList doLong(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -153,7 +153,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -162,7 +162,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (long) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (long) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new LongList(values);
@@ -174,7 +174,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isFloatKind(getResultType())"})
   protected static FloatList doFloat(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -187,7 +187,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -196,7 +196,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (float) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (float) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new FloatList(values);
@@ -208,7 +208,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isDoubleKind(getResultType())"})
   protected static DoubleList doDouble(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -221,7 +221,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -230,7 +230,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (double) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (double) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new DoubleList(values);
@@ -242,7 +242,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected BooleanList doBoolean(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("$node") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -255,7 +255,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -264,7 +264,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (boolean) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (boolean) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new BooleanList(values);
@@ -276,7 +276,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization(guards = {"isStringKind(getResultType())"})
   protected static StringList doString(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -289,7 +289,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -298,7 +298,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = (String) closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = (String) functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new StringList(values);
@@ -310,7 +310,7 @@ public abstract class ListTransformNode extends ExpressionNode {
   @Specialization
   protected ObjectList doObject(
       Object list,
-      Closure closure,
+      Object function,
       @Bind("$node") Node thisNode,
       @Cached(inline = true) @Cached.Shared("getGenerator")
           IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -323,7 +323,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
       @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
       @Cached(inline = true) @Cached.Shared("executeOne")
-          Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object iterable = toIterableNode.execute(thisNode, list);
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
@@ -332,7 +332,7 @@ public abstract class ListTransformNode extends ExpressionNode {
       int cnt = 0;
       while (generatorHasNextNode.execute(thisNode, generator)) {
         Object v = generatorNextNode.execute(thisNode, generator);
-        values[cnt] = closureExecuteOneNode.execute(thisNode, closure, v);
+        values[cnt] = functionExecuteOneNode.execute(thisNode, function, v);
         cnt++;
       }
       return new ObjectList(values);

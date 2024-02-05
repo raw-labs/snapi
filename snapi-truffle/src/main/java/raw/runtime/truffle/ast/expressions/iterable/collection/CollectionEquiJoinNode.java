@@ -18,7 +18,6 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.EquiJoinCollection;
 
 @NodeInfo(shortName = "Collection.EquiJoin")
@@ -57,10 +56,10 @@ public class CollectionEquiJoinNode extends ExpressionNode {
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     Object leftIterable = left.executeGeneric(frame);
-    Closure leftKeyF = (Closure) leftKeyFun.executeGeneric(frame);
+    Object leftKeyF = leftKeyFun.executeGeneric(frame);
     Object rightIterable = right.executeGeneric(frame);
-    Closure rightKeyF = (Closure) rightKeyFun.executeGeneric(frame);
-    Closure remapF = (Closure) remapFun.executeGeneric(frame);
+    Object rightKeyF = rightKeyFun.executeGeneric(frame);
+    Object remapF = remapFun.executeGeneric(frame);
     return new EquiJoinCollection(
         leftIterable,
         leftKeyF,

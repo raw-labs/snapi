@@ -19,17 +19,13 @@ import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.function.ClosureFactory;
 
-@NodeInfo(shortName = "invoke")
+@NodeInfo(shortName = "InvokeWithNames")
 public final class InvokeNode extends ExpressionNode {
 
   @Child private ExpressionNode functionNode;
 
-  @Child
-  private Closure.ClosureExecuteWithNamesNode closureExec =
-      ClosureFactory.ClosureExecuteWithNamesNodeGen.create();
+  @Child private InvokeNodes.Invoke invoke = InvokeNodesFactory.InvokeNodeGen.create();
 
   @Children private final ExpressionNode[] argumentNodes;
 
@@ -50,12 +46,11 @@ public final class InvokeNode extends ExpressionNode {
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     CompilerAsserts.compilationConstant(argumentNodes.length);
-
-    Closure closure = (Closure) functionNode.executeGeneric(frame);
+    Object function = functionNode.executeGeneric(frame);
     for (int i = 0; i < argumentNodes.length; i++) {
       argumentValues[i] = argumentNodes[i].executeGeneric(frame);
     }
-    return closureExec.execute(this, closure, argNames, argumentValues);
+    return invoke.execute(this, function, argNames, argumentValues);
   }
 
   @Override

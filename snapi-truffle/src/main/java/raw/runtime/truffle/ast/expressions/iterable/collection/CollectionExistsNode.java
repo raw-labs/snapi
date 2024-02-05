@@ -20,7 +20,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
@@ -34,22 +34,22 @@ public abstract class CollectionExistsNode extends ExpressionNode {
   @Specialization
   protected static Object doIterable(
       Object iterable,
-      Closure closure,
+      Object function,
       @Bind("this") Node thisNode,
       @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
       @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
       @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
       @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-      @Cached(inline = true) Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
     Object generator = getGeneratorNode.execute(thisNode, iterable);
     try {
       generatorInitNode.execute(thisNode, generator);
       while (generatorHasNextNode.execute(thisNode, generator)) {
         boolean predicate =
             TryableNullable.handlePredicate(
-                closureExecuteOneNode.execute(
-                    thisNode, closure, generatorNextNode.execute(thisNode, generator)),
+                functionExecuteOneNode.execute(
+                    thisNode, function, generatorNextNode.execute(thisNode, generator)),
                 false);
         if (predicate) {
           return true;

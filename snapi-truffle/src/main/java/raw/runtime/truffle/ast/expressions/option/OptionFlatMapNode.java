@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.FlatMap")
@@ -30,13 +30,13 @@ public abstract class OptionFlatMapNode extends ExpressionNode {
   @Specialization(guards = "isNotNull(option)")
   protected Object notNullFlatMap(
       Object option,
-      Closure closure,
-      @Cached(inline = true) Closure.ClosureExecuteOneNode closureExecuteOneNode) {
-    return closureExecuteOneNode.execute(this, closure, option);
+      Object function,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(this, function, option);
   }
 
   @Specialization(guards = "isNull(option)")
-  protected Object optionFlatMap(Object option, Object closure) {
+  protected Object optionFlatMap(Object option, Object function) {
     return option;
   }
 }
