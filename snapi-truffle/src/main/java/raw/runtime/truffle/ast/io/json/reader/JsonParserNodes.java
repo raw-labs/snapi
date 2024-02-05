@@ -44,7 +44,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
-import raw.runtime.truffle.runtime.list.ObjectList;
+import raw.runtime.truffle.runtime.list.RawArrayList;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
@@ -607,7 +607,7 @@ public final class JsonParserNodes {
     }
 
     @Specialization(guards = {"isArray(parser)"})
-    protected static ObjectList doParseList(
+    protected static RawArrayList doParseList(
         Node node,
         JsonParser parser,
         @Bind("$node") Node thisNode,
@@ -625,17 +625,13 @@ public final class JsonParserNodes {
 
       ArrayList<Object> alist = new ArrayList<>();
 
+      // (az) To do, make OSR when we use any type
       while (currentToken.execute(thisNode, parser) != JsonToken.END_ARRAY) {
         alist.add(parse.execute(thisNode, parser));
       }
+
       nextToken.execute(thisNode, parser);
-
-      Object[] result = new Object[alist.size()];
-      for (int i = 0; i < result.length; i++) {
-        result[i] = alist.get(i);
-      }
-
-      return new ObjectList(result);
+      return new RawArrayList(alist);
     }
 
     @Specialization(guards = {"isObject(parser)"})
