@@ -15,6 +15,7 @@ package raw.runtime.truffle.ast.io.json.writer.internal;
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import org.graalvm.polyglot.Value;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
@@ -28,6 +29,6 @@ public class LongWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeLong.execute(this, (long) args[0], (JsonGenerator) args[1]);
+    writeLong.execute(this, (Value) args[0], (JsonGenerator) args[1]);
   }
 }

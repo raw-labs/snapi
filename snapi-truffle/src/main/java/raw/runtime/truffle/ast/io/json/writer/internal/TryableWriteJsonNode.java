@@ -16,6 +16,7 @@ import com.fasterxml.jackson.core.JsonGenerator;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import org.graalvm.polyglot.Value;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
@@ -38,12 +39,12 @@ public class TryableWriteJsonNode extends StatementNode {
   @Override
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    Object tryable = args[0];
+    Value tryable = (Value) args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
     if (Tryable.isSuccess(tryable)) {
       childDirectCall.call(tryable, gen);
     } else {
-      writeString.execute(this, Tryable.getFailure(tryable), gen);
+      writeString.execute(this, tryable, gen);
     }
   }
 }
