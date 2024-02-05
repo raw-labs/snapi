@@ -29,37 +29,43 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
 
   val listener: RemovalListener[String, HikariDataSource] = new RemovalListener[String, HikariDataSource]() {
     def onRemoval(notification: RemovalNotification[String, HikariDataSource]): Unit = {
-      logger.info(s"Removing pool for user and closing ${notification.getKey}")
-      notification.getValue.close()
+      logger.info(s"Removing default pool for user ${notification.getKey}")
     }
   }
 
   // one pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
+
   // Default pool for users that do not have a DB yet
-  // It will expire after 10s so that we can try to connect to the user's DB again.
+  val defaultPool = {
+    val config = new HikariConfig()
+    val defaultDB = settings.getString("raw.creds.jdbc.fdw.default.db")
+    val defaultDBHost = settings.getString("raw.creds.jdbc.fdw.default.host")
+    val defaultDBPort = settings.getInt("raw.creds.jdbc.fdw.default.port")
+    config.setJdbcUrl(s"jdbc:postgresql://$defaultDBHost:$defaultDBPort/$defaultDB")
+    config.setMaximumPoolSize(settings.getInt("raw.client.sql.default-pool.max-connections"))
+    config.setMinimumIdle(settings.getInt("raw.client.sql.default-pool.min-idle"))
+    config.setMaxLifetime(settings.getDuration("raw.client.sql.default-pool.max-lifetime", TimeUnit.MILLISECONDS))
+    config.setIdleTimeout(settings.getDuration("raw.client.sql.default-pool.idle-timeout", TimeUnit.MILLISECONDS))
+    config.setConnectionTimeout(
+      settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
+    )
+    config.setUsername(settings.getString("raw.creds.jdbc.fdw.default.user"))
+    config.setPassword(settings.getString("raw.creds.jdbc.fdw.default.password"))
+    new HikariDataSource(config)
+  }
+
+  private val expiration = settings.getDuration("raw.client.sql.default-pool.expiration-time")
+  logger.info(s"Default pool expiration time: ${expiration.toSeconds} seconds")
+  // Using this cache to make the default pool expire, so that users can connect to their own DB.
   private val defaultPools: LoadingCache[String, HikariDataSource] = CacheBuilder
     .newBuilder()
-    .expireAfterWrite(10, TimeUnit.SECONDS)
-    .removalListener((listener))
+    .expireAfterWrite(expiration)
+    .removalListener(listener)
     .build(new CacheLoader[String, HikariDataSource] {
       override def load(key: String): HikariDataSource = {
-        logger.info(s"Creating default pool for user $key")
-        val config = new HikariConfig()
-        val defaultDB = settings.getString("raw.creds.jdbc.fdw.default.db")
-        val defaultDBHost = settings.getString("raw.creds.jdbc.fdw.default.host")
-        val defaultDBPort = settings.getInt("raw.creds.jdbc.fdw.default.port")
-        config.setJdbcUrl(s"jdbc:postgresql://$defaultDBHost:$defaultDBPort/$defaultDB")
-        config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
-        config.setMinimumIdle(0)
-        config.setMaxLifetime(settings.getDuration("raw.client.sql.pool.max-lifetime", TimeUnit.MILLISECONDS))
-        config.setIdleTimeout(settings.getDuration("raw.client.sql.pool.idle-timeout", TimeUnit.MILLISECONDS))
-        config.setConnectionTimeout(
-          settings.getDuration("raw.client.sql.pool.connection-timeout", TimeUnit.MILLISECONDS)
-        )
-        config.setUsername(settings.getString("raw.creds.jdbc.fdw.default.user"))
-        config.setPassword(settings.getString("raw.creds.jdbc.fdw.default.password"))
-        new HikariDataSource(config)
+        logger.info(s"Using default pool for user $key")
+        defaultPool
       }
     })
 
@@ -76,6 +82,7 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
     // Until this cache expires (10s), we will use the default DB.
     // After that we will try to connect to the user's DB again
     if (defaultPools.asMap().containsKey(db)) {
+      logger.info(s"Using already existing default pool for user $db")
       return defaultPools.get(db).getConnection
     }
 
