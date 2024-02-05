@@ -14,7 +14,7 @@ package raw.client.sql
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import raw.utils.{AuthenticatedUser, RawException, RawSettings}
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawException, RawSettings}
 
 import java.sql.SQLException
 import java.util.concurrent.TimeUnit
@@ -47,7 +47,7 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
     new HikariDataSource(config)
   }
 
-  private val defaultPoolsLastTime = mutable.Map.empty[String, Long]
+  private val defaultPoolsLastTime = new RawConcurrentHashMap[String, (String, Long)]()
   private val expiration = settings.getDuration("raw.client.sql.default-pool.expiration-time")
 
   private val dbHost = settings.getString("raw.creds.jdbc.fdw.host")
@@ -58,18 +58,18 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
     val db = user.uid.toString().replace("-", "_")
-    // Check is the last usage of the default pool is expired
-    if (
-      defaultPoolsLastTime.contains(db) && (System.currentTimeMillis() - defaultPoolsLastTime(db)) < expiration.toMillis
-    ) {
-      logger.info(s"Using already existing default pool for user $db")
-      return defaultPool.getConnection
+    // Checking if the user used the default pool recently
+    defaultPoolsLastTime.get(db) match {
+      case Some((_, lastTime)) if (System.currentTimeMillis() - lastTime) < expiration.toMillis =>
+        logger.debug(s"Reusing default pool for user $db")
+        return defaultPool.getConnection
+      case _ =>
     }
 
     val userPool = pools.get(db) match {
       case Some(pool) => pool
       case None =>
-        logger.info(s"Checking user DB $db")
+        logger.debug(s"Checking user DB $db")
         val config = new HikariConfig()
         config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
         config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
@@ -84,7 +84,7 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
         try {
           val pool = new HikariDataSource(config)
           // remove the key from the map, we will now connect only to the user DB
-          logger.info(s"Connected to user deleting default entry for $db")
+          logger.debug(s"Connected to user deleting default entry for $db")
           defaultPoolsLastTime.remove(db)
           pools.put(db, pool)
           pool
@@ -92,9 +92,9 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
           case hikariException: PoolInitializationException => hikariException.getCause match {
               case sqlException: SQLException => sqlException.getSQLState match {
                   case "3D000" =>
-                    logger.info(s"user $db not up yet, using default pool for now.")
+                    logger.debug(s"user $db not up yet, using default pool for now.")
                     // Put a new value in the map to avoid checking if the user DB until expiration time
-                    defaultPoolsLastTime(db) = System.currentTimeMillis()
+                    defaultPoolsLastTime.put(db, (db, System.currentTimeMillis()))
                     defaultPool
                   case _ => throw hikariException
                 }
