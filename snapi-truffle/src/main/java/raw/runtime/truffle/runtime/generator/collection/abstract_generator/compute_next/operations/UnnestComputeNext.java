@@ -12,15 +12,13 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
-import raw.runtime.truffle.runtime.function.Closure;
-
 public class UnnestComputeNext {
   final Object parent;
-  final Closure transform;
+  final Object transform;
 
   Object currentGenerator = null;
 
-  public UnnestComputeNext(Object parent, Closure transform) {
+  public UnnestComputeNext(Object parent, Object transform) {
     this.parent = parent;
     this.transform = transform;
   }
@@ -33,7 +31,7 @@ public class UnnestComputeNext {
     return parent;
   }
 
-  public Closure getTransform() {
+  public Object getTransform() {
     return transform;
   }
 

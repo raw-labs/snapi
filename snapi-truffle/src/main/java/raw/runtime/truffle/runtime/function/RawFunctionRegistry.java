@@ -22,11 +22,11 @@ public final class RawFunctionRegistry {
     registry = new FunctionRegistryObject();
   }
 
-  public Closure get(String name) {
+  public Object get(String name) {
     return registry.get(name);
   }
 
-  public void register(String name, Closure closure) {
+  public void register(String name, Object closure) {
     registry.put(name, closure);
   }
 

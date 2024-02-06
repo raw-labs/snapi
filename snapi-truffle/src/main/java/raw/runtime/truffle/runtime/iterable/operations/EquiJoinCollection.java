@@ -21,7 +21,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.EquiJoinComputeNext;
@@ -31,22 +30,21 @@ import raw.sources.api.SourceContext;
 @ExportLibrary(InteropLibrary.class)
 public class EquiJoinCollection implements TruffleObject {
   final Object leftIterable, rightIterable;
-  final Closure leftKeyF, rightKeyF;
+  final Object leftKeyF, rightKeyF, reshapeFun;
   final Rql2TypeWithProperties leftRowType, rightRowType;
   final Rql2TypeWithProperties keyType;
-  final Closure reshapeFun;
   private final RawLanguage language;
   private final SourceContext context;
 
   public EquiJoinCollection(
       Object leftIterable,
-      Closure leftKeyF,
+      Object leftKeyF,
       Rql2TypeWithProperties leftRowType,
       Object rightIterable,
-      Closure rightKeyF,
+      Object rightKeyF,
       Rql2TypeWithProperties rightRowType,
       Rql2TypeWithProperties keyType,
-      Closure reshapeFun,
+      Object reshapeFun,
       RawLanguage language,
       SourceContext context) {
     this.leftIterable = leftIterable;

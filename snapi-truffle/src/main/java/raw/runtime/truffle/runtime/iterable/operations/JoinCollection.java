@@ -21,7 +21,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.JoinComputeNext;
@@ -32,8 +31,7 @@ import raw.sources.api.SourceContext;
 public class JoinCollection implements TruffleObject {
   final Object leftIterable;
   final Object rightIterable;
-  final Closure predicate;
-  final Closure remap;
+  final Object predicate, remap;
   final Rql2TypeWithProperties rightType;
   final SourceContext context;
   final RawLanguage language;
@@ -42,8 +40,8 @@ public class JoinCollection implements TruffleObject {
   public JoinCollection(
       Object leftIterable,
       Object rightIterable,
-      Closure remap,
-      Closure predicate,
+      Object remap,
+      Object predicate,
       Rql2TypeWithProperties rightType,
       Boolean reshapeBeforePredicate,
       SourceContext context,

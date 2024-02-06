@@ -38,7 +38,7 @@ import raw.runtime.truffle.runtime.exceptions.csv.CsvReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.*;
@@ -250,13 +250,14 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+        @Cached @Cached.Shared("executeOne")
+            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
       while (hasNextNode.execute(thisNode, computeNext.getParent())) {
         Object v = nextNode.execute(thisNode, computeNext.getParent());
         Boolean isPredicateTrue = null;
         isPredicateTrue =
             TryableNullable.handlePredicate(
-                closureExecuteOneNode.execute(thisNode, computeNext.getPredicate(), v), false);
+                functionExecuteOneNode.execute(thisNode, computeNext.getPredicate(), v), false);
         if (isPredicateTrue) {
           return v;
         }
@@ -286,11 +287,12 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+        @Cached @Cached.Shared("executeOne")
+            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
       if (!hasNextNode.execute(thisNode, computeNext.getParent())) {
         throw new BreakException();
       }
-      return closureExecuteOneNode.execute(
+      return functionExecuteOneNode.execute(
           thisNode,
           computeNext.getTransform(),
           nextNode.execute(thisNode, computeNext.getParent()));
@@ -306,7 +308,8 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+        @Cached @Cached.Shared("executeOne")
+            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
       Object next = null;
 
       while (next == null) {
@@ -316,7 +319,7 @@ public class ComputeNextNodes {
           }
           Object functionResult = null;
           functionResult =
-              closureExecuteOneNode.execute(
+              functionExecuteOneNode.execute(
                   thisNode,
                   computeNext.getTransform(),
                   nextNode.execute(thisNode, computeNext.getParent()));
@@ -370,7 +373,8 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached OperatorNodes.CompareNode compareKey,
-        @Cached @Cached.Shared("executeTwo") Closure.ClosureExecuteTwoNode closureExecuteTwoNode) {
+        @Cached @Cached.Shared("executeTwo")
+            FunctionExecuteNodes.FunctionExecuteTwo functionExecuteTwoNode) {
 
       assert (computeNext.getLeftMapGenerator() != null);
       assert (computeNext.getRightMapGenerator() != null);
@@ -422,7 +426,7 @@ public class ComputeNextNodes {
       Object joinedRow = null;
 
       joinedRow =
-          closureExecuteTwoNode.execute(
+          functionExecuteTwoNode.execute(
               thisNode,
               computeNext.getMkJoinedRecord(),
               computeNext.getLeftRows()[computeNext.getLeftIndex()],
@@ -464,8 +468,9 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached KryoNodes.KryoReadNode kryoReadNode,
-        @Cached @Cached.Shared("executeOne") Closure.ClosureExecuteOneNode executeOneNode,
-        @Cached @Cached.Shared("executeTwo") Closure.ClosureExecuteTwoNode executeTwoNode) {
+        @Cached @Cached.Shared("executeOne") FunctionExecuteNodes.FunctionExecuteOne executeOneNode,
+        @Cached @Cached.Shared("executeTwo")
+            FunctionExecuteNodes.FunctionExecuteTwo executeTwoNode) {
       Object row = null;
 
       while (row == null) {
@@ -753,7 +758,7 @@ public class ComputeNextNodes {
         @Cached OffHeapNodes.OffHeapGroupByPutNode putRightNode,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorLeft,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight,
-        @Cached Closure.ClosureExecuteOneNode closureExecuteOneNode) {
+        @Cached FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
       // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
       OffHeapGroupByKey leftMap =
           new OffHeapGroupByKey(
@@ -768,7 +773,7 @@ public class ComputeNextNodes {
         while (hasNextLeftNode.execute(thisNode, leftGenerator)) {
           Object leftItem = nextLeftNode.execute(thisNode, leftGenerator);
           Object leftKey =
-              closureExecuteOneNode.execute(thisNode, computeNext.getLeftKeyF(), leftItem);
+              functionExecuteOneNode.execute(thisNode, computeNext.getLeftKeyF(), leftItem);
           putLeftNode.execute(thisNode, leftMap, leftKey, leftItem);
         }
       } finally {
@@ -791,7 +796,7 @@ public class ComputeNextNodes {
         while (hasNextRightNode.execute(thisNode, rightGenerator)) {
           Object rightItem = nextRightNode.execute(thisNode, rightGenerator);
           Object rightKey =
-              closureExecuteOneNode.execute(thisNode, computeNext.getRightKeyF(), rightItem);
+              functionExecuteOneNode.execute(thisNode, computeNext.getRightKeyF(), rightItem);
           putRightNode.execute(thisNode, rightMap, rightKey, rightItem);
         }
       } finally {

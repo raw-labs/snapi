@@ -16,7 +16,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.UnnestCollection;
 
 @NodeInfo(shortName = "Collection.Unnest")
@@ -24,7 +23,7 @@ import raw.runtime.truffle.runtime.iterable.operations.UnnestCollection;
 @NodeChild("transform")
 public abstract class CollectionUnnestNode extends ExpressionNode {
   @Specialization
-  protected Object doUnnest(Object iterable, Closure transform) {
+  protected Object doUnnest(Object iterable, Object transform) {
     return new UnnestCollection(iterable, transform);
   }
 }
