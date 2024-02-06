@@ -20,16 +20,13 @@ import java.sql.SQLException
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
-//class SqlClientMissingCredentialsException(cause: Throwable) extends RawException("add credentials to use SQL", cause)
-class SqlClientMissingCredentialsException(cause: Throwable)
-    extends RawException("to properly execute SQL queries, first add credentials", cause)
 
 class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
 
   private val pools = mutable.Map.empty[String, HikariDataSource]
 
   // Default pool for users that do not have a DB yet
-  val defaultPool = {
+  private val defaultPool = {
     val config = new HikariConfig()
     val defaultDB = settings.getString("raw.creds.jdbc.fdw.default.db")
     val defaultDBHost = settings.getString("raw.creds.jdbc.fdw.default.host")
