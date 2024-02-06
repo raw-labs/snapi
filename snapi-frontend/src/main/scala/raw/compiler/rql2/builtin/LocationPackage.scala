@@ -186,7 +186,7 @@ class LocationLsEntry extends EntryExtension {
     examples = List(ExampleDoc("""Location.Ls("s3://my-bucket/folder/")""", None)),
     ret = Some(ReturnDoc("The list of files in the location.", retType = Some(TypeDoc(List("list(string)"))))),
     description = Some(
-      "Urls with wildcards are also supported. For information about the use of wildcards see the [Locations with wildcards documentation](/docs/snapi/wildcards)."
+      "Urls with wildcards are also supported. For information about the use of wildcards see the [Locations with wildcards documentation](/snapi/wildcards)."
     )
   )
 
@@ -229,7 +229,7 @@ class LocationLlEntry() extends EntryExtension {
       )
     ),
     description = Some(
-      "URLs with wildcards are also supported. For information about the use of wildcards see the [Locations with wildcards documentation](/docs/snapi/wildcards)."
+      "URLs with wildcards are also supported. For information about the use of wildcards see the [Locations with wildcards documentation](/snapi/wildcards)."
     )
   )
 
