@@ -20,9 +20,9 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
  * Used for errors that are found during semantic analysis.
  * message The error message.
  * positions The positions where the error occurred.
- * severity The severity of the error. 1 = Hint, 2 = Info, 4 = Warning, 8 = Error
+ * severity The severity of the error. 1 = Hint, 2 = Info, 4 = Warning, 8 = Error (compliant with monaco editor).
  * code An optional error code.
- * tags Indication for the error Unnecessary = 1, Deprecated = 2
+ * tags Indication for the error Unnecessary = 1, Deprecated = 2 (compliant with monaco editor).
  */
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
@@ -35,17 +35,44 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
   )
 )
 sealed trait Message {
-  def message: String
-  def positions: List[ErrorRange]
-  def severity: Int
-  def code: Option[String] = None
-  def tags: List[Tag] = List.empty
+  val message: String
+  val positions: List[ErrorRange]
+  val code: Option[String]
+  val tags: List[Tag]
+  val severity: Int
 }
-final case class HintMessage(message: String, positions: List[ErrorRange], severity: Int = 1) extends Message
-final case class InfoMessage(message: String, positions: List[ErrorRange], severity: Int = 2) extends Message
-final case class WarningMessage(message: String, positions: List[ErrorRange], severity: Int = 4) extends Message
-final case class ErrorMessage(message: String, positions: List[ErrorRange], severity: Int = 8) extends Message
-
+final case class HintMessage(
+    message: String,
+    positions: List[ErrorRange],
+    code: Option[String] = None,
+    tags: List[Tag] = List.empty
+) extends Message {
+  val severity: Int = 1
+}
+final case class InfoMessage(
+    message: String,
+    positions: List[ErrorRange],
+    code: Option[String] = None,
+    tags: List[Tag] = List.empty
+) extends Message {
+  val severity: Int = 2
+}
+final case class WarningMessage(
+    message: String,
+    positions: List[ErrorRange],
+    code: Option[String] = None,
+    tags: List[Tag] = List.empty
+) extends Message {
+  val severity: Int = 4
+}
+final case class ErrorMessage(
+    message: String,
+    positions: List[ErrorRange],
+    code: Option[String] = None,
+    tags: List[Tag] = List.empty
+) extends Message {
+  val severity: Int = 8
+}
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
 @JsonSubTypes(
   Array(
@@ -54,10 +81,14 @@ final case class ErrorMessage(message: String, positions: List[ErrorRange], seve
   )
 )
 sealed trait Tag {
-  def tagNumber: Int
+  val tagNumber: Int
 }
-final case class UnnecessaryTag(tagNumber: Int = 1) extends Tag
-final case class DeprecatedTag(tagNumber: Int = 2) extends Tag
+final case class UnnecessaryTag() extends Tag {
+  val tagNumber: Int = 1
+}
+final case class DeprecatedTag() extends Tag {
+  val tagNumber: Int = 2
+}
 
 final case class ErrorRange(begin: ErrorPosition, end: ErrorPosition)
 final case class ErrorPosition(line: Int, column: Int)
