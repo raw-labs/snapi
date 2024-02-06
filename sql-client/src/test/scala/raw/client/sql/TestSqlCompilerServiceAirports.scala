@@ -31,7 +31,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   private var compilerService: CompilerService = _
   private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
-  private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
+  private val port = sys.env.getOrElse("FDW_PORT", "5432")
   private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
   private val password = sys.env.getOrElse("FDW_PASSWORD", "")
 
@@ -40,19 +40,20 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   property("raw.creds.jdbc.fdw.user", username)
   property("raw.creds.jdbc.fdw.password", password)
 
+  property("raw.creds.jdbc.fdw.default.db", database)
   property("raw.creds.jdbc.fdw.default.host", hostname)
   property("raw.creds.jdbc.fdw.default.port", port)
   property("raw.creds.jdbc.fdw.default.user", username)
   property("raw.creds.jdbc.fdw.default.password", password)
-
 
   // Username equals the database
   private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    compilerService = new SqlCompilerService(None)
-
+    if ( password != "" ) {
+      compilerService = new SqlCompilerService(None)
+    }
   }
 
   override def afterAll(): Unit = {

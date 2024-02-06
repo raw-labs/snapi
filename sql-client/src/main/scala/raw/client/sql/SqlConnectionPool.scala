@@ -14,7 +14,7 @@ package raw.client.sql
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.pool.HikariPool.PoolInitializationException
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawException, RawSettings}
+import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings}
 
 import java.sql.SQLException
 import java.util.concurrent.TimeUnit
