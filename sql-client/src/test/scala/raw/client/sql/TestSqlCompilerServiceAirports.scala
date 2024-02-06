@@ -40,6 +40,12 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   property("raw.creds.jdbc.fdw.user", username)
   property("raw.creds.jdbc.fdw.password", password)
 
+  property("raw.creds.jdbc.fdw.default.host", hostname)
+  property("raw.creds.jdbc.fdw.default.port", port)
+  property("raw.creds.jdbc.fdw.default.user", username)
+  property("raw.creds.jdbc.fdw.default.password", password)
+
+
   // Username equals the database
   private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)
 
