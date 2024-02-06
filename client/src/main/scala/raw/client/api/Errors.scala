@@ -59,8 +59,6 @@ sealed trait Tag {
 final case class UnnecessaryTag(tagNumber: Int = 1) extends Tag
 final case class DeprecatedTag(tagNumber: Int = 2) extends Tag
 
-
-
 final case class ErrorRange(begin: ErrorPosition, end: ErrorPosition)
 final case class ErrorPosition(line: Int, column: Int)
 
