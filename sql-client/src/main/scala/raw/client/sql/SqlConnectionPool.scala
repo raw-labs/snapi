@@ -20,7 +20,6 @@ import java.sql.SQLException
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
-
 class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
 
   private val pools = mutable.Map.empty[String, HikariDataSource]

@@ -51,7 +51,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    if ( password != "" ) {
+    if (password != "") {
       compilerService = new SqlCompilerService(None)
     }
   }
