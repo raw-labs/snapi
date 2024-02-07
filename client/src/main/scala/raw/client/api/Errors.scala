@@ -37,14 +37,14 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 sealed trait Message {
   val message: String
   val positions: List[ErrorRange]
-  val code: Option[String]
+  val code: MessageCode
   val tags: List[Tag]
   val severity: Int
 }
 final case class HintMessage(
     message: String,
     positions: List[ErrorRange],
-    code: Option[String] = None,
+    code: MessageCode = GenericMessageCode(),
     tags: List[Tag] = List.empty
 ) extends Message {
   val severity: Int = 1
@@ -52,7 +52,7 @@ final case class HintMessage(
 final case class InfoMessage(
     message: String,
     positions: List[ErrorRange],
-    code: Option[String] = None,
+    code: MessageCode = GenericMessageCode(),
     tags: List[Tag] = List.empty
 ) extends Message {
   val severity: Int = 2
@@ -60,7 +60,7 @@ final case class InfoMessage(
 final case class WarningMessage(
     message: String,
     positions: List[ErrorRange],
-    code: Option[String] = None,
+    code: MessageCode = GenericMessageCode(),
     tags: List[Tag] = List.empty
 ) extends Message {
   val severity: Int = 4
@@ -68,7 +68,7 @@ final case class WarningMessage(
 final case class ErrorMessage(
     message: String,
     positions: List[ErrorRange],
-    code: Option[String] = None,
+    code: MessageCode = GenericMessageCode(),
     tags: List[Tag] = List.empty
 ) extends Message {
   val severity: Int = 8
@@ -88,6 +88,26 @@ final case class UnnecessaryTag() extends Tag {
 }
 final case class DeprecatedTag() extends Tag {
   val tagNumber: Int = 2
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[UnnecessaryTag], name = "generic"),
+    new JsonType(value = classOf[DeprecatedTag], name = "missing-credential")
+  )
+)
+sealed trait MessageCode {
+  val code: String
+}
+final case class GenericMessageCode() extends MessageCode {
+  val code: String = "genericMessage"
+}
+final case class MissingCredential() extends MessageCode {
+  val code: String = "missingCredential"
+}
+final case class MissingSecret() extends MessageCode {
+  val code: String = "missingSecret"
 }
 
 final case class ErrorRange(begin: ErrorPosition, end: ErrorPosition)

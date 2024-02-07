@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.api
 
-import raw.compiler.base.errors.{BaseError, InvalidSemantic}
+import raw.compiler.base.errors.{ErrorCompilationMessage, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, LocationPackageBuilder, RecordPackageBuilder}
@@ -134,7 +134,7 @@ abstract class EntryExtension extends EntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
     returnType(mandatoryArgs, optionalArgs, varArgs).left.map(str => Seq(InvalidSemantic(node, str)))
   }
 

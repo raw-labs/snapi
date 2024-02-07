@@ -15,16 +15,27 @@ package raw.compiler.base.errors
 import raw.compiler.base.source._
 import raw.client.api.ErrorMessage
 
-trait BaseError extends BaseNode {
+trait CompilationMessage extends BaseNode {
   def node: BaseNode
 }
+
+trait WarningCompilationMessage extends CompilationMessage
+// It is named MissingSecretMessage and not MissingSecret do resolve ambiguity with the MissingSecret class in the raw.client.api package.
+final case class MissingSecretWarning(
+    node: BaseNode,
+    reason: String
+) extends WarningCompilationMessage
+
+trait InfoCompilationMessage extends CompilationMessage
+trait HintCompilationMessage extends CompilationMessage
+trait ErrorCompilationMessage extends CompilationMessage
 
 final case class InvalidSemantic(
     node: BaseNode,
     reason: String,
     hint: Option[String] = None,
     suggestions: Seq[String] = Seq.empty
-) extends BaseError
+) extends ErrorCompilationMessage
 
 final case class UnexpectedType(
     node: BaseNode,
@@ -32,7 +43,7 @@ final case class UnexpectedType(
     expected: Type,
     hint: Option[String] = None,
     suggestions: Seq[String] = Seq.empty
-) extends BaseError
+) extends ErrorCompilationMessage
 
 /**
  * Unexpected value
@@ -42,12 +53,12 @@ final case class UnexpectedType(
  * @param expected The expected type (possibly a constraint).
  * @param actual The actual value.
  */
-final case class UnexpectedValue(node: BaseNode, expected: Type, actual: String) extends BaseError
+final case class UnexpectedValue(node: BaseNode, expected: Type, actual: String) extends ErrorCompilationMessage
 
 final case class UnknownDecl(node: BaseIdnNode, hint: Option[String] = None, suggestions: Seq[String] = Seq.empty)
-    extends BaseError
+    extends ErrorCompilationMessage
 
-final case class MultipleDecl(node: BaseIdnNode) extends BaseError
+final case class MultipleDecl(node: BaseIdnNode) extends ErrorCompilationMessage
 
 /**
  * Unsupported type.
@@ -58,6 +69,7 @@ final case class MultipleDecl(node: BaseIdnNode) extends BaseError
  * @param t The type that is unsupported.
  * @param parent The top-level type. (e.g. if collection(int). Set to None if t == parent.
  */
-final case class UnsupportedType(node: BaseNode, t: Type, parent: Option[Type]) extends BaseError
+final case class UnsupportedType(node: BaseNode, t: Type, parent: Option[Type]) extends ErrorCompilationMessage
 
-final case class ExternalError(node: BaseNode, language: String, errors: Seq[ErrorMessage]) extends BaseError
+final case class ExternalError(node: BaseNode, language: String, errors: Seq[ErrorMessage])
+    extends ErrorCompilationMessage
