@@ -58,7 +58,7 @@ trait SourcePrettyPrinter
           d
         }
       case FunType(ms, os, r, props) =>
-        val args = ms.map(toDoc) ++ os.map(o => o.i <> ":" <+> o.t)
+        val args = ms.map(toDoc) ++ os.map(o => ident(o.i) <> ":" <+> o.t)
         val d = parens(enclosedList(args)) <+> "->" <+> r
         if (internal && props.nonEmpty) {
           // Wrap in parenthesis to disambiguate the type property annotations.
