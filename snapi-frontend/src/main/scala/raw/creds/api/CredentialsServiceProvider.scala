@@ -40,7 +40,12 @@ object CredentialsServiceProvider {
   }
 
   def apply(classLoader: ClassLoader)(implicit settings: RawSettings): CredentialsService = {
-    build(Some(classLoader))
+    instanceLock.synchronized {
+      instance match {
+        case Some(service) => service
+        case None => build(Some(classLoader))
+      }
+    }
   }
 
   private def build(
@@ -65,7 +70,11 @@ object CredentialsServiceProvider {
 
   private[raw] def set(credsService: CredentialsService): Unit = {
     instanceLock.synchronized {
-      instance = Some(credsService)
+      if (credsService == null) {
+        instance = None
+      } else {
+        instance = Some(credsService)
+      }
     }
   }
 

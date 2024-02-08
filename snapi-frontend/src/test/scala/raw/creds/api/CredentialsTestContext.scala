@@ -53,6 +53,7 @@ trait CredentialsTestContext extends BeforeAndAfterAll {
 
   def setCredentials(credentials: CredentialsService): Unit = {
     instance = credentials
+    CredentialsServiceProvider.set(credentials)
   }
 
   override def beforeAll(): Unit = {
