@@ -18,10 +18,15 @@ object DotSearchWithOneItem
     extends Completion(
       """SELECT item1, item2, type FROM (
         | -- tables that belong to schemas having that name
-        | SELECT table_schema AS item1, table_name AS item2, 'table' AS type FROM information_schema.tables WHERE table_schema = ?
+        | SELECT table_schema AS item1, table_name AS item2, 'table' AS type FROM information_schema.tables
+        |     WHERE table_schema = ?
+        |         AND table_schema NOT IN ('pg_catalog', 'information_schema')
         | UNION
         | -- columns that belong to tables having that name
-        | SELECT table_name AS item1, column_name AS item2, data_type AS type FROM information_schema.columns WHERE table_name = ?) T""".stripMargin
+        | SELECT table_name AS item1, column_name AS item2, data_type AS type FROM information_schema.columns
+        |     WHERE table_name = ?
+        |         AND table_schema NOT IN ('pg_catalog', 'information_schema')
+        |) T""".stripMargin
     ) {
   override protected def setParams(preparedStatement: PreparedStatement, items: Seq[String]): Unit = {
     val item = items.head
