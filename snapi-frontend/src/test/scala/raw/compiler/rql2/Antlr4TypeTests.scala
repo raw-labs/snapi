@@ -297,4 +297,5 @@ class Antlr4TypeTests extends RawTestSuite {
         )
     )
   }
+
 }
