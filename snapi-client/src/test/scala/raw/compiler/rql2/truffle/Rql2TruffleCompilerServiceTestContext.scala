@@ -14,6 +14,7 @@ package raw.compiler.rql2.truffle
 
 import raw.client.rql2.truffle.Rql2TruffleCompilerService
 import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
+import raw.runtime.truffle.RawLanguage
 import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 
 trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestContext {
@@ -23,6 +24,9 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 
   override def beforeAll(): Unit = {
     super.beforeAll()
+    // Forcibly drop all language caches before each test suite.
+    RawLanguage.dropCaches()
+
     property("raw.compiler.impl", "rql2-truffle")
 
     rql2TruffleCompilerService = new Rql2TruffleCompilerService
@@ -34,6 +38,8 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
       RawUtils.withSuppressNonFatalException(rql2TruffleCompilerService.stop())
       rql2TruffleCompilerService = null
     }
+    // Forcibly drop all language caches after each test suite.
+    RawLanguage.dropCaches()
     super.afterAll()
   }
 
