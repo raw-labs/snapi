@@ -12,8 +12,18 @@
 
 package raw.runtime.truffle.runtime.exceptions.json;
 
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.nodes.Node;
+
 public class JsonExpectedNothingException extends JsonParserRawTruffleException {
+
+  @CompilerDirectives.TruffleBoundary
   public JsonExpectedNothingException(String token) {
     super(String.format("unexpected value found, token '%s'", token));
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public JsonExpectedNothingException(String token, Throwable cause, Node location) {
+    super(String.format("unexpected value found, token '%s'", token), cause, location);
   }
 }

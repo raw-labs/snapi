@@ -38,6 +38,8 @@ class MySqlClient(db: MySqlCredential)(implicit settings: RawSettings) extends J
 
   override val hostname: String = db.host
 
+  override val database: Option[String] = Some(db.database)
+
   override def wrapSQLException[T](f: => T): T = {
     try {
       f

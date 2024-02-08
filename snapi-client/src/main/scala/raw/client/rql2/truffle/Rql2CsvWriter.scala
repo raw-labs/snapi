@@ -123,13 +123,14 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
     val keys = new java.util.Vector[String]
     recordType.atts.foreach(a => keys.add(a.idn))
     val distincted = RecordFieldsNaming.makeDistinct(keys)
-    gen.writeStartArray()
+    gen.writeStartObject()
     for (i <- 0 until distincted.size()) {
-      val field = distincted.get(i)
+      val field: String = distincted.get(i)
       val v = value.getMember(field)
+      gen.writeFieldName(field)
       writeValue(v, recordType.atts(i).tipe.asInstanceOf[Rql2TypeWithProperties])
     }
-    gen.writeEndArray()
+    gen.writeEndObject()
   }
 
   @throws[IOException]
@@ -157,7 +158,7 @@ class Rql2CsvWriter(os: OutputStream, lineSeparator: String) {
       case _: Rql2LongType => gen.writeNumber(v.asLong())
       case _: Rql2FloatType => gen.writeNumber(v.asFloat())
       case _: Rql2DoubleType => gen.writeNumber(v.asDouble())
-      case _: Rql2DecimalType => gen.writeString(v.asString())
+      case _: Rql2DecimalType => gen.writeNumber(v.asString())
       case _: Rql2StringType => gen.writeString(v.asString())
       case _: Rql2DateType =>
         val date = v.asDate()

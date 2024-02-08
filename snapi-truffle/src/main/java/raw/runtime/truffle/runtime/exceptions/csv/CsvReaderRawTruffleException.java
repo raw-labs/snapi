@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.exceptions.csv;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -19,19 +20,39 @@ import raw.runtime.truffle.utils.RawTruffleCharStream;
 
 public class CsvReaderRawTruffleException extends RawTruffleRuntimeException {
 
+  @CompilerDirectives.TruffleBoundary
+  public CsvReaderRawTruffleException(
+      String message,
+      RawTruffleCsvParser parser,
+      RawTruffleCharStream stream,
+      Throwable cause,
+      Node location) {
+    super(createMessage(message, parser, stream), cause, location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public CsvReaderRawTruffleException(
       String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
     super(createMessage(message, parser, stream));
   }
 
+  @CompilerDirectives.TruffleBoundary
+  public CsvReaderRawTruffleException(
+      String message, RawTruffleCharStream stream, Throwable cause, Node location) {
+    super(message, cause, location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public CsvReaderRawTruffleException(RawTruffleCharStream stream, Throwable cause) {
     super(createMessage(cause.getMessage(), null, stream), cause, null);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public CsvReaderRawTruffleException(RawTruffleCharStream stream, Throwable cause, Node location) {
     super(createMessage(cause.getMessage(), null, stream), cause, location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   private static String createMessage(
       String message, RawTruffleCsvParser parser, RawTruffleCharStream stream) {
     StringBuilder sb = new StringBuilder();

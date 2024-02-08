@@ -14,6 +14,7 @@ package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api.{
+  RawAnyType,
   RawBoolType,
   RawByteType,
   RawDateType,
@@ -37,7 +38,7 @@ object SqlTypesUtils extends StrictLogging {
 
   // a mapping from JDBC types to a RawType. We also store the name of the JDBC type for error reporting.
   private val typeMap: Map[Int, SqlType] = Map(
-    java.sql.Types.BIT -> SqlType("BIT", None),
+    java.sql.Types.BIT -> SqlType("BIT", Some(RawBoolType(false, false))),
     java.sql.Types.TINYINT -> SqlType("TINYINT", Some(RawByteType(false, false))),
     java.sql.Types.SMALLINT -> SqlType("SMALLINT", Some(RawShortType(false, false))),
     java.sql.Types.INTEGER -> SqlType("INTEGER", Some(RawIntType(false, false))),
@@ -57,7 +58,7 @@ object SqlTypesUtils extends StrictLogging {
     java.sql.Types.VARBINARY -> SqlType("VARBINARY", None),
     java.sql.Types.LONGVARBINARY -> SqlType("LONGVARBINARY", None),
     java.sql.Types.NULL -> SqlType("NULL", None),
-    java.sql.Types.OTHER -> SqlType("OTHER", None),
+    java.sql.Types.OTHER -> SqlType("OTHER", Some(RawAnyType())),
     java.sql.Types.JAVA_OBJECT -> SqlType("JAVA_OBJECT", None),
     java.sql.Types.DISTINCT -> SqlType("DISTINCT", None),
     java.sql.Types.STRUCT -> SqlType("STRUCT", None),

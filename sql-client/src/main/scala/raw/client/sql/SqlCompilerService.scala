@@ -13,14 +13,13 @@
 package raw.client.sql
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
-import org.graalvm.polyglot.{Context, HostAccess, Value}
 import raw.client.api._
-import raw.client.writers.{TypedPolyglotCsvWriter, TypedPolyglotJsonWriter}
+import raw.client.sql.metadata.UserMetadataCache
+import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
-import java.sql.{SQLException, SQLTimeoutException}
-import scala.collection.mutable
+import java.sql.{ResultSet, SQLException, SQLTimeoutException}
 
 class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
     extends CompilerService {
@@ -99,23 +98,22 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       val conn = connectionPool.getConnection(environment.user)
       try {
         val pstmt = new NamedParametersPreparedStatement(conn, source)
-        val result = pstmt.queryMetadata match {
-          case Right(info) =>
-            try {
-              val tipe = info.outputType
-              val access = HostAccess.newBuilder().allowMapAccess(true).allowIteratorAccess(true).build()
-              val ctx = Context.newBuilder().allowHostAccess(access).build()
-              environment.maybeArguments.foreach(array => setParams(pstmt, array))
-              val r = pstmt.executeQuery()
-              val v = ctx.asValue(new ResultSetIterator(r, ctx))
-              render(environment, tipe, v, outputStream)
-            } catch {
-              case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
-            }
-          case Left(errors) => ExecutionValidationFailure(errors)
+        try {
+          pstmt.queryMetadata match {
+            case Right(info) =>
+              try {
+                val tipe = info.outputType
+                environment.maybeArguments.foreach(array => setParams(pstmt, array))
+                val r = pstmt.executeQuery()
+                render(environment, tipe, r, outputStream)
+              } catch {
+                case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
+              }
+            case Left(errors) => ExecutionValidationFailure(errors)
+          }
+        } finally {
+          RawUtils.withSuppressNonFatalException(pstmt.close())
         }
-        pstmt.close()
-        result
       } catch {
         case e: SQLException => ExecutionValidationFailure(mkError(source, e))
       } finally {
@@ -130,14 +128,14 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   private def render(
       environment: ProgramEnvironment,
       tipe: RawType,
-      v: Value,
+      v: ResultSet,
       outputStream: OutputStream
   ): ExecutionResponse = {
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
       case Some("csv") =>
-        if (!TypedPolyglotCsvWriter.outputWriteSupport(tipe)) {
+        if (!TypedResultSetCsvWriter.outputWriteSupport(tipe)) {
           ExecutionRuntimeFailure("unsupported type")
         }
         val windowsLineEnding = environment.options.get("windows-line-ending") match {
@@ -145,7 +143,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           case _ => false //settings.config.getBoolean("raw.compiler.windows-line-ending")
         }
         val lineSeparator = if (windowsLineEnding) "\r\n" else "\n"
-        val csvWriter = new TypedPolyglotCsvWriter(outputStream, lineSeparator)
+        val csvWriter = new TypedResultSetCsvWriter(outputStream, lineSeparator)
         try {
           csvWriter.write(v, tipe)
           ExecutionSuccess
@@ -155,10 +153,10 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           RawUtils.withSuppressNonFatalException(csvWriter.close())
         }
       case Some("json") =>
-        if (!TypedPolyglotJsonWriter.outputWriteSupport(tipe)) {
+        if (!TypedResultSetJsonWriter.outputWriteSupport(tipe)) {
           ExecutionRuntimeFailure("unsupported type")
         }
-        val w = new TypedPolyglotJsonWriter(outputStream)
+        val w = new TypedResultSetJsonWriter(outputStream)
         try {
           w.write(v, tipe)
           ExecutionSuccess
@@ -209,18 +207,22 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
-    logger.debug(s"dotAutocompleting at position: $position")
+    logger.debug(s"dotAutoComplete at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUpTo(position)
-    val schemas = getSchemas(environment)
-    val matches = schemas.get(token) match {
-      case Some(tables) => tables.keys.map(name => LetBindCompletion(name, "table"))
-      case None =>
-        for (tables <- schemas.values; (table, columns) <- tables; if table == token; (name, tipe) <- columns) yield {
-          LetBindCompletion(name, tipe)
-        }
+    // The editor removes the dot in the this completion event
+    // So we call the identifier with +1 column
+    val idns = analyzer.getIdentifierUpTo(Pos(position.line, position.column + 1))
+
+    val metadataBrowser = metadataBrowsers.get(environment.user)
+    val matches = metadataBrowser.getDotCompletionMatches(idns)
+    val collectedValues = matches.collect {
+      case (idns, tipe) =>
+        // If the last identifier is quoted, we need to quote the completion
+        val name = if (idns.last.quoted) '"' + idns.last.value + '"' else idns.last.value
+        LetBindCompletion(name, tipe)
     }
-    AutoCompleteResponse(matches.toArray)
+    logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
+    AutoCompleteResponse(collectedValues.toArray)
   }
 
   override def wordAutoComplete(
@@ -229,34 +231,33 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       prefix: String,
       position: Pos
   ): AutoCompleteResponse = {
-    logger.debug(s"wordAutocompleting at position: $position")
-    val scope = getFullyQualifiedScope(environment)
+    logger.debug(s"wordAutoComplete at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUpTo(position)
-    logger.debug(token)
-    val matches = for (
-      (key, value) <- scope; // for each entry in scope
-      if key.startsWith(token); // if the key starts with the token
-      if !key.drop(token.length).contains('.'); // and the key doesn't contain a dot after the token
-      word =
-        key.split('.').last // then the word to complete with is the last part of the matching key (after the last dot)
-    ) yield {
-      LetBindCompletion(word, value)
-    }
-    AutoCompleteResponse(matches.toArray)
+    val idns = analyzer.getIdentifierUpTo(position)
+    logger.debug(s"idns $idns")
+
+    val metadataBrowser = metadataBrowsers.get(environment.user)
+    val matches = metadataBrowser.getWordCompletionMatches(idns)
+    val collectedValues = matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
+    logger.debug(s"wordAutoComplete returned ${collectedValues.size} matches")
+    AutoCompleteResponse(collectedValues.toArray)
   }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     logger.debug(s"Hovering at position: $position")
     val analyzer = new SqlCodeUtils(source)
-    val token = analyzer.getIdentifierUnder(position)
-    val scope = getFullyQualifiedScope(environment)
-    scope
-      .find(_._1 == token)
-      .map { case (name, tipe) => HoverResponse(Some(TypeCompletion(name, tipe))) }
+    val idns = analyzer.getIdentifierUnder(position)
+    val metadataBrowser = metadataBrowsers.get(environment.user)
+    val matches = metadataBrowser.getWordCompletionMatches(idns)
+    matches
+      .find(x => SqlCodeUtils.compareIdentifiers(x._1, idns))
+      .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
       .getOrElse(HoverResponse(None))
   }
 
+  def formatIdns(idns: Seq[SqlIdentifier]): String = {
+    idns.tail.foldLeft(idns.head.value) { case (acc, idn) => acc + "." + idn.value }
+  }
   override def rename(source: String, environment: ProgramEnvironment, position: Pos): RenameResponse = {
     RenameResponse(Array.empty)
   }
@@ -298,83 +299,17 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     ValidateResponse(List.empty)
   }
 
-  private def getFullyQualifiedScope(environment: ProgramEnvironment): Map[String, String] = {
-    val schema = getSchemas(environment)
-    val items = mutable.Map.empty[String, String]
-    for ((schemaName, tables) <- schema) {
-      for ((tableName, columns) <- tables) {
-        for ((columnName, tipe) <- columns) {
-          // columns are available as: column, table.column, schema.table.column
-          items(columnName) = tipe
-          items(s"$tableName.$columnName") = tipe
-          items(s"$schemaName.$tableName.$columnName") = tipe
-        }
-        // tables are available as: table, schema.table. If such key overlaps with a column one, it takes precedence (stored last)
-        items(s"$tableName") = "table"
-        items(s"$schemaName.$tableName") = "table"
-      }
-      // schemas as stored last. If there's a table or a column with the same name, it takes precedence
-      items(s"$schemaName") = "schema"
+  private val connectionPool = new SqlConnectionPool(settings)
+  private val metadataBrowsers = {
+    val loader = new CacheLoader[AuthenticatedUser, UserMetadataCache] {
+      override def load(user: AuthenticatedUser): UserMetadataCache =
+        new UserMetadataCache(user, connectionPool, settings)
     }
-    items.toMap
-  }
-
-  private type Schema = Map[String, Map[String, String]]
-
-  private def getSchemas(environment: ProgramEnvironment): Map[String, Schema] = schemaCache.get(environment.user)
-
-  private val loader = new CacheLoader[AuthenticatedUser, Map[String, Schema]] {
-    override def load(key: AuthenticatedUser): Map[String, Schema] =
-      try {
-        val conn = connectionPool.getConnection(key)
-        val stmt = conn.createStatement()
-        case class Column(
-            tableSchema: String,
-            tableName: String,
-            columnName: String,
-            dataType: String,
-            isNullable: String
-        )
-        val items = mutable.ArrayBuffer.empty[Column]
-        try {
-          val rs = stmt.executeQuery(
-            "SELECT table_schema, table_name, column_name, data_type, is_nullable FROM information_schema.columns"
-          )
-          try {
-            while (rs.next()) {
-              val schemaName = rs.getString(1)
-              val tableName = rs.getString(2)
-              val columnName = rs.getString(3)
-              val dataType = rs.getString(4)
-              val isNullable = rs.getString(5)
-              val column = Column(schemaName, tableName, columnName, dataType, isNullable)
-              items += column
-            }
-          } finally {
-            rs.close()
-          }
-        } finally {
-          stmt.close()
-        }
-        conn.close()
-        items
-          .groupBy(_.tableSchema)
-          .mapValues(_.groupBy(_.tableName).mapValues(_.map(column => column.columnName -> column.dataType).toMap))
-      } catch {
-        case e: SQLException =>
-          logger.error(e.getMessage, e)
-          Map.empty
-      }
-  }
-
-  private val schemaCache = {
     CacheBuilder
       .newBuilder()
-      .maximumSize(settings.getInt("raw.client.sql.schema-cache.size"))
-      .expireAfterAccess(settings.getDuration("raw.client.sql.schema-cache.duration"))
+      .maximumSize(settings.getInt("raw.client.sql.metadata-cache.size"))
+      .expireAfterAccess(settings.getDuration("raw.client.sql.metadata-cache.duration"))
       .build(loader)
   }
-
-  private val connectionPool = new SqlConnectionPool(settings)
 
 }

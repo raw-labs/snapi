@@ -61,10 +61,13 @@ public final class FloatList implements TruffleObject {
   public FloatList take(int num) {
     if (num >= this.getInnerList().length) {
       return this;
+    } else if (num <= 0) {
+      return new FloatList(new float[0]);
+    } else {
+      float[] result = new float[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new FloatList(result);
     }
-    float[] result = new float[num];
-    System.arraycopy(this.list, 0, result, 0, result.length);
-    return new FloatList(result);
   }
 
   // InteropLibrary: Array

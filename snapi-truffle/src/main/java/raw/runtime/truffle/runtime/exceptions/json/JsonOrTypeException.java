@@ -17,6 +17,11 @@ import com.oracle.truffle.api.nodes.Node;
 
 public class JsonOrTypeException extends JsonParserRawTruffleException {
   @TruffleBoundary
+  public JsonOrTypeException(String[] messages, Throwable cause, Node location) {
+    super(createMessage(messages), cause, location);
+  }
+
+  @TruffleBoundary
   public JsonOrTypeException(String[] messages, Node location) {
     super(createMessage(messages), location);
   }

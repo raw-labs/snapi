@@ -110,22 +110,24 @@ class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) {
     val atts = recordType.atts
     atts.foreach(a => keys.add(a.idn))
     val distincted = RecordFieldsNaming.makeDistinct(keys)
-    gen.writeStartArray()
+    gen.writeStartObject()
     // We accept both RecordObject that have fields, and LinkedHashMap (records, as provided by the SQL language)
     if (value.hasHashEntries) {
       for (i <- 0 until distincted.size()) {
-        val field = distincted.get(i)
+        val field: String = distincted.get(i)
         val a = value.getHashValue(field)
+        gen.writeFieldName(field)
         writeValue(a, atts(i).tipe)
       }
     } else {
       for (i <- 0 until distincted.size()) {
-        val field = distincted.get(i)
+        val field: String = distincted.get(i)
         val a = value.getMember(field)
+        gen.writeFieldName(field)
         writeValue(a, atts(i).tipe)
       }
     }
-    gen.writeEndArray()
+    gen.writeEndObject()
   }
 
   @throws[IOException]
@@ -153,7 +155,7 @@ class TypedPolyglotCsvWriter(os: OutputStream, lineSeparator: String) {
       case _: RawLongType => gen.writeNumber(v.asLong())
       case _: RawFloatType => gen.writeNumber(v.asFloat())
       case _: RawDoubleType => gen.writeNumber(v.asDouble())
-      case _: RawDecimalType => gen.writeString(v.asHostObject[java.math.BigDecimal]().toString())
+      case _: RawDecimalType => gen.writeNumber(v.asHostObject[java.math.BigDecimal]())
       case _: RawStringType => gen.writeString(v.asString())
       case _: RawDateType =>
         val date = v.asDate()

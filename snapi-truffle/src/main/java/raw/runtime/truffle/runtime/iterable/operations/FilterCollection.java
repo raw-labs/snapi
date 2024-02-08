@@ -19,16 +19,15 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 
 @ExportLibrary(InteropLibrary.class)
 public class FilterCollection implements TruffleObject {
   private final Object parentIterable;
-  private final Closure predicate;
+  private final Object predicate;
 
-  public FilterCollection(Object iterable, Closure predicate) {
+  public FilterCollection(Object iterable, Object predicate) {
     this.parentIterable = iterable;
     this.predicate = predicate;
   }
@@ -37,7 +36,7 @@ public class FilterCollection implements TruffleObject {
     return parentIterable;
   }
 
-  public Closure getPredicate() {
+  public Object getPredicate() {
     return predicate;
   }
 

@@ -135,7 +135,7 @@ public class OffHeapGroupByKey {
     try {
       return new FileOutputStream(file);
     } catch (FileNotFoundException e) {
-      throw new RawTruffleRuntimeException(e.getMessage());
+      throw new RawTruffleRuntimeException(e.getMessage(), e, null);
     }
   }
 }

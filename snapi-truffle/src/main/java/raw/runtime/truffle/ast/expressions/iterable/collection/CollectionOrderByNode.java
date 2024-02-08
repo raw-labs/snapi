@@ -21,7 +21,6 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
 
 @NodeInfo(shortName = "Collection.OrderBy")
@@ -57,12 +56,12 @@ public class CollectionOrderByNode extends ExpressionNode {
         else if (order.equalsIgnoreCase("DESC")) orders[i] = -1;
         else throw new RawTruffleRuntimeException("Invalid ordering: " + order);
       } catch (UnexpectedResultException e) {
-        throw new RawTruffleRuntimeException(e.getMessage());
+        throw new RawTruffleRuntimeException(e.getMessage(), e, this);
       }
     }
-    Closure[] keyFunctions = new Closure[this.keyFuns.length];
+    Object[] keyFunctions = new Object[this.keyFuns.length];
     for (int i = 0; i < this.keyFuns.length; i++) {
-      keyFunctions[i] = (Closure) this.keyFuns[i].executeGeneric(frame);
+      keyFunctions[i] = this.keyFuns[i].executeGeneric(frame);
     }
     return new OrderByCollection(
         iterable,

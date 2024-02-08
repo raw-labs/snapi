@@ -18,7 +18,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Tryable.Map")
@@ -30,13 +30,13 @@ public abstract class TryableMapNode extends ExpressionNode {
   @Specialization(guards = "isSuccess(tryable)")
   protected Object doObjectIsSuccess(
       Object tryable,
-      Closure closure,
-      @Cached(inline = true) Closure.ClosureExecuteOneNode closureExecuteOneNode) {
-    return closureExecuteOneNode.execute(this, closure, tryable);
+      Object function,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(this, function, tryable);
   }
 
   @Specialization(guards = "isFailure(tryable)")
-  protected Object doObjectIsFailure(Object tryable, Object closure) {
+  protected Object doObjectIsFailure(Object tryable, Object function) {
     return tryable;
   }
 }

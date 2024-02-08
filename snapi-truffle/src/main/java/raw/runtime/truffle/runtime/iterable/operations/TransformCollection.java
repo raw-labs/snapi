@@ -19,16 +19,15 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 
 @ExportLibrary(InteropLibrary.class)
 public class TransformCollection implements TruffleObject {
   private final Object parentIterable;
-  private final Closure transform;
+  private final Object transform;
 
-  public TransformCollection(Object iterable, Closure transform) {
+  public TransformCollection(Object iterable, Object transform) {
     this.parentIterable = iterable;
     this.transform = transform;
   }
@@ -37,7 +36,7 @@ public class TransformCollection implements TruffleObject {
     return parentIterable;
   }
 
-  public Closure getTransform() {
+  public Object getTransform() {
     return transform;
   }
 

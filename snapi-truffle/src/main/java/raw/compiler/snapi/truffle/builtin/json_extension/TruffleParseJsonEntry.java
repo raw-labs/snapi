@@ -39,7 +39,8 @@ public class TruffleParseJsonEntry extends ParseJsonEntry
 
     JsonParseNode parseNode =
         JsonParseNodeGen.create(
-            unnamedArgs[0], parser.recurse((Rql2TypeWithProperties) type, rawLanguage));
+            unnamedArgs[0],
+            parser.recurse((Rql2TypeWithProperties) type, rawLanguage).getCallTarget());
     if (((Rql2TypeWithProperties) type).props().contains(tryable))
       return new TryableTopLevelWrapper(parseNode);
     else return parseNode;

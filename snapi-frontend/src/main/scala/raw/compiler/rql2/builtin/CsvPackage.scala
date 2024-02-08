@@ -51,6 +51,7 @@ object CsvPackage extends CsvPackage {
       case Rql2ListType(rType: Rql2RecordType, iProps) =>
         if (iProps.nonEmpty) return false;
         rType
+      case _ => return false
     }
     if (innerRecordType.props.nonEmpty) return false;
 

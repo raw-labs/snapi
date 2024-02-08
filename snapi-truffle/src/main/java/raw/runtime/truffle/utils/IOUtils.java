@@ -29,7 +29,7 @@ public class IOUtils {
       try {
         Files.createDirectories(p);
       } catch (IOException ex) {
-        throw new RawTruffleRuntimeException("failed to create scratch file");
+        throw new RawTruffleRuntimeException("failed to create scratch file", ex);
       }
     }
     return p;
@@ -40,7 +40,7 @@ public class IOUtils {
     try {
       return Files.createTempFile(getScratchPath(context), prefix, suffix);
     } catch (IOException ex) {
-      throw new RawTruffleRuntimeException("failed to create scratch file");
+      throw new RawTruffleRuntimeException("failed to create scratch file", ex);
     }
   }
 }
