@@ -80,7 +80,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       val lastLineLength = lastLine.length
       ErrorRange(ErrorPosition(1, 1), ErrorPosition(nLines, lastLineLength + 1))
     }
-    List(ErrorMessage(message, List(fullRange)))
+    List(ErrorMessage(message, List(fullRange), ErrorCode.SqlErrorCode))
   }
 
   override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {

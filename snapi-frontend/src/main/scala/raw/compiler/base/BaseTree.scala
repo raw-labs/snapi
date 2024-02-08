@@ -12,9 +12,17 @@
 
 package raw.compiler.base
 
+import com.ibm.icu.text.IDNA.Info
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.relation.{EnsureTree, LeaveAlone, TreeRelation}
-import raw.client.api.ErrorMessage
+import raw.client.api.{ErrorMessage, HintMessage, InfoMessage, Message, WarningMessage}
+import raw.compiler.base.errors.{
+  CompilationMessageMapper,
+  ErrorCompilationMessage,
+  HintCompilationMessage,
+  InfoCompilationMessage,
+  WarningCompilationMessage
+}
 import raw.compiler.base.source._
 import raw.compiler.utils.ExtraRewriters
 
@@ -50,8 +58,8 @@ abstract class BaseTree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
 
   lazy val valid: Boolean = isTreeValid
 
-  lazy val errors: List[ErrorMessage] = {
-    analyzer.errors.map(err => ErrorMessage(format(err), List.empty)).to
+  lazy val errors: List[Message] = {
+    analyzer.errors.map(err => CompilationMessageMapper.toMessage(err, List.empty)).toList
   }
 
   protected def isTreeValid: Boolean = {

@@ -139,7 +139,8 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
                     message,
                     locations
                       .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
-                      .toList
+                      .toList,
+                    ErrorCode.SqlErrorCode
                   )
                 )
             } else {
@@ -148,7 +149,8 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
                   errors.mkString(", "),
                   locations
                     .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
-                    .toList
+                    .toList,
+                  ErrorCode.SqlErrorCode
                 )
               )
             }
@@ -162,12 +164,12 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
         val outputType = queryOutputType
         outputType match {
           case Right(t) => Right(QueryInfo(types.toMap, t))
-          case Left(error) => Left(List(ErrorMessage(error, List(fullErrorRange))))
+          case Left(error) => Left(List(ErrorMessage(error, List(fullErrorRange), ErrorCode.SqlErrorCode)))
         }
       }
     } catch {
       case e: SQLException => {
-        Left(List(ErrorMessage(e.getMessage, List(fullErrorRange))))
+        Left(List(ErrorMessage(e.getMessage, List(fullErrorRange), ErrorCode.SqlErrorCode)))
       }
     }
   }

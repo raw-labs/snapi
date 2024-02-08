@@ -21,6 +21,7 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
  * message The error message.
  * positions The positions where the error occurred.
  * severity The severity of the error. 1 = Hint, 2 = Info, 4 = Warning, 8 = Error (compliant with monaco editor).
+ * - The below two should only be set by compiler errors
  * code An optional error code.
  * tags Indication for the error Unnecessary = 1, Deprecated = 2 (compliant with monaco editor).
  */
@@ -37,77 +38,41 @@ import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 sealed trait Message {
   val message: String
   val positions: List[ErrorRange]
-  val code: MessageCode
-  val tags: List[Tag]
+  val code: String
+  val tags: List[Int]
   val severity: Int
 }
 final case class HintMessage(
     message: String,
     positions: List[ErrorRange],
-    code: MessageCode = GenericMessageCode(),
-    tags: List[Tag] = List.empty
+    code: String,
+    tags: List[Int] = List.empty
 ) extends Message {
   val severity: Int = 1
 }
 final case class InfoMessage(
     message: String,
     positions: List[ErrorRange],
-    code: MessageCode = GenericMessageCode(),
-    tags: List[Tag] = List.empty
+    code: String,
+    tags: List[Int] = List.empty
 ) extends Message {
   val severity: Int = 2
 }
 final case class WarningMessage(
     message: String,
     positions: List[ErrorRange],
-    code: MessageCode = GenericMessageCode(),
-    tags: List[Tag] = List.empty
+    code: String,
+    tags: List[Int] = List.empty
 ) extends Message {
   val severity: Int = 4
 }
 final case class ErrorMessage(
     message: String,
     positions: List[ErrorRange],
-    code: MessageCode = GenericMessageCode(),
-    tags: List[Tag] = List.empty
+    code: String,
+    tags: List[Int] = List.empty
 ) extends Message {
   val severity: Int = 8
-}
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-  Array(
-    new JsonType(value = classOf[UnnecessaryTag], name = "unnecessary"),
-    new JsonType(value = classOf[DeprecatedTag], name = "deprecated")
-  )
-)
-sealed trait Tag {
-  val tagNumber: Int
-}
-final case class UnnecessaryTag() extends Tag {
-  val tagNumber: Int = 1
-}
-final case class DeprecatedTag() extends Tag {
-  val tagNumber: Int = 2
-}
-
-@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "type")
-@JsonSubTypes(
-  Array(
-    new JsonType(value = classOf[UnnecessaryTag], name = "generic"),
-    new JsonType(value = classOf[DeprecatedTag], name = "missing-credential")
-  )
-)
-sealed trait MessageCode {
-  val code: String
-}
-final case class GenericMessageCode() extends MessageCode {
-  val code: String = "genericMessage"
-}
-final case class MissingCredential() extends MessageCode {
-  val code: String = "missingCredential"
-}
-final case class MissingSecret() extends MessageCode {
-  val code: String = "missingSecret"
 }
 
 final case class ErrorRange(begin: ErrorPosition, end: ErrorPosition)

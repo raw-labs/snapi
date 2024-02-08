@@ -22,12 +22,19 @@ import raw.compiler.rql2._
 import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 import raw.compiler.rql2.source._
 import raw.client.api._
+import raw.compiler.base.errors.{
+  CompilationMessageMapper,
+  ErrorCompilationMessage,
+  HintCompilationMessage,
+  InfoCompilationMessage,
+  WarningCompilationMessage
+}
 import raw.compiler.rql2.builtin.TypeEmptyEntry
 
 import scala.util.Try
 
 class CompilerLspService(
-    parseErrors: List[ErrorMessage],
+    parseErrors: List[Message],
     analyzer: SemanticAnalyzer,
     positions: Positions
 )(implicit programContext: ProgramContext)
@@ -436,11 +443,14 @@ class CompilerLspService(
 
   def validate: ValidateResponse = ValidateResponse(errors)
 
-  private lazy val errors: List[ErrorMessage] = {
+  private lazy val errors: List[Message] = {
     analyzer.errors.map { err =>
-      getRange(err.node) match {
-        case Some(range) => ErrorMessage(ErrorsPrettyPrinter.format(err), List(range))
-        case _ => ErrorMessage(ErrorsPrettyPrinter.format(err), List.empty)
+      {
+        val range = getRange(err.node) match {
+          case Some(r) => List(r)
+          case None => List.empty
+        }
+        CompilationMessageMapper.toMessage(err, range)
       }
     }.toList ++ parseErrors
   }

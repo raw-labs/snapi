@@ -17,17 +17,17 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import java.util.List;
-import raw.client.api.ErrorMessage;
+import raw.client.api.Message;
 
 @ExportLibrary(InteropLibrary.class)
 public class ValidationErrorObject implements TruffleObject {
 
   public final ValidationErrorMessage[] errors;
 
-  public ValidationErrorObject(List<ErrorMessage> errors) {
+  public ValidationErrorObject(List<Message> errors) {
     this.errors = new ValidationErrorMessage[errors.size()];
     for (int i = 0; i < errors.size(); i++) {
-      ErrorMessage error = errors.get(i);
+      Message error = errors.get(i);
       ValidationErrorRange[] positions = new ValidationErrorRange[error.positions().length()];
       for (int j = 0; j < error.positions().length(); j++) {
         positions[j] =

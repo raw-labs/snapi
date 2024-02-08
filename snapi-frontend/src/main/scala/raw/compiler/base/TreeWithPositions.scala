@@ -14,6 +14,13 @@ package raw.compiler.base
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api._
+import raw.compiler.base.errors.{
+  CompilationMessageMapper,
+  ErrorCompilationMessage,
+  HintCompilationMessage,
+  InfoCompilationMessage,
+  WarningCompilationMessage
+}
 import raw.compiler.base.source._
 import raw.compiler.rql2.antlr4.ParseProgramResult
 import raw.utils._
@@ -34,11 +41,14 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
     doParse()
   }
 
-  override lazy val errors: List[ErrorMessage] = {
+  override lazy val errors: List[Message] = {
     analyzer.errors.map { err =>
-      getRange(err.node) match {
-        case Some(range) => ErrorMessage(format(err), List(range))
-        case _ => ErrorMessage(format(err), List.empty)
+      {
+        val range = getRange(err.node) match {
+          case Some(r) => List(r)
+          case None => List.empty
+        }
+        CompilationMessageMapper.toMessage(err, range)
       }
     }.toList ++ originalResult.errors
   }
@@ -54,7 +64,7 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
   }
 
   override protected def isTreeValid: Boolean = {
-    val isValid = errors.isEmpty
+    val isValid = errors.collect { case e: ErrorMessage => e }.isEmpty
     if (programContext.settings.onTrainingWheels) logTree(isValid)
     isValid
   }
