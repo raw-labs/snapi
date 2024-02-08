@@ -18,7 +18,9 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
+import raw.utils.RawException
 
+import scala.util.control.NonFatal
 import scala.util.matching.Regex
 
 private case class RegexToType(regex: Regex, atts: Seq[SourceAttrType])
@@ -44,53 +46,52 @@ class TextInferrer(implicit protected val sourceContext: SourceContext)
       maybeEncoding: Option[Encoding],
       maybeSampleSize: Option[Int]
   ): TextInputStreamFormatDescriptor = {
-    withErrorHandling {
-      val r = getTextBuffer(is, maybeEncoding)
-      try {
-        TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
-      } finally {
-        r.reader.close()
-      }
+    val r = getTextBuffer(is, maybeEncoding)
+    try {
+      TextInputStreamFormatDescriptor(r.encoding, r.confidence, infer(r.reader, maybeSampleSize))
+    } catch {
+      case ex: RawException => throw ex
+      case NonFatal(e) => throw new RawException(s"text inference failed unexpectedly", e)
+    } finally {
+      r.reader.close()
     }
   }
 
   def infer(reader: Reader, maybeSampleSize: Option[Int]): TextInputFormatDescriptor = {
-    withErrorHandling {
-      var count = 0
-      val sampleSize = maybeSampleSize.getOrElse(defaultSampleSize)
-      val nObjs = if (sampleSize <= 0) Int.MaxValue else sampleSize
-      val it = new TextLineIterator(reader)
+    var count = 0
+    val sampleSize = maybeSampleSize.getOrElse(defaultSampleSize)
+    val nObjs = if (sampleSize <= 0) Int.MaxValue else sampleSize
+    val it = new TextLineIterator(reader)
 
-      val matchers = regexList.map(_.regex.pattern.matcher(""))
-      val stats = new Array[Double](regexList.length)
-      java.util.Arrays.fill(stats, 0.0d)
+    val matchers = regexList.map(_.regex.pattern.matcher(""))
+    val stats = new Array[Double](regexList.length)
+    java.util.Arrays.fill(stats, 0.0d)
 
-      while (it.hasNext && count < nObjs) {
-        val line = it.next()
-        count += 1
-        // loops over each regex in the list and increases the stat if there is a match
-        matchers.zipWithIndex.foreach {
-          case (regex, i) =>
-            regex.reset(line)
-            if (regex.matches()) stats(i) += 1.0
-        }
+    while (it.hasNext && count < nObjs) {
+      val line = it.next()
+      count += 1
+      // loops over each regex in the list and increases the stat if there is a match
+      matchers.zipWithIndex.foreach {
+        case (regex, i) =>
+          regex.reset(line)
+          if (regex.matches()) stats(i) += 1.0
       }
+    }
 
-      val matches = regexList.zip(stats)
+    val matches = regexList.zip(stats)
 
-      if (count == 0) throw new LocalInferrerException("could not read any line from file")
+    if (count == 0) throw new LocalInferrerException("could not read any line from file")
 
-      val (choice, v) = matches.maxBy(_._2)
-      val value = v / count
-      if (value < minMatch) {
-        val innerType = SourceStringType(false)
-        val tipe = SourceCollectionType(innerType, false)
-        LinesInputFormatDescriptor(tipe, None, false)
-      } else {
-        val innerType = SourceRecordType(choice.atts.toVector, true)
-        val tipe = SourceCollectionType(innerType, false)
-        LinesInputFormatDescriptor(tipe, Some(choice.regex.regex), it.hasNext)
-      }
+    val (choice, v) = matches.maxBy(_._2)
+    val value = v / count
+    if (value < minMatch) {
+      val innerType = SourceStringType(false)
+      val tipe = SourceCollectionType(innerType, false)
+      LinesInputFormatDescriptor(tipe, None, false)
+    } else {
+      val innerType = SourceRecordType(choice.atts.toVector, true)
+      val tipe = SourceCollectionType(innerType, false)
+      LinesInputFormatDescriptor(tipe, Some(choice.regex.regex), it.hasNext)
     }
   }
 
