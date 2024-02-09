@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
-import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty, JsonSubTypes, JsonTypeInfo}
 import raw.utils.Uid
 
 import java.time.Instant
@@ -151,7 +151,8 @@ case class ExternalConnectorCredentialId(name: String, connectorType: AbstractCo
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "repr")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[SalesforceConnectorType], name = "SALESFORCE")
+    new JsonType(value = classOf[SalesforceConnectorType], name = "SALESFORCE"),
+    new JsonType(value = classOf[JiraConnectorType], name = "JIRA")
   )
 )
 trait AbstractConnectorType {
@@ -160,11 +161,15 @@ trait AbstractConnectorType {
 case class SalesforceConnectorType() extends AbstractConnectorType {
   override def repr: String = "SALESFORCE"
 }
+case class JiraConnectorType() extends AbstractConnectorType {
+  override def repr: String = "JIRA"
+}
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "connectorType")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE")
+    new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE"),
+    new JsonType(value = classOf[ExternalConnectorJiraCredential], name = "JIRA")
   )
 )
 sealed trait ExternalConnectorCredential extends Credential {
@@ -183,6 +188,37 @@ final case class ExternalConnectorSalesforceCredential(
     override val sensitiveFields: List[String] = List("password", "securityToken")
 ) extends ExternalConnectorCredential {
   override def connectorType: AbstractConnectorType = SalesforceConnectorType()
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[StandardAccessToken], name = "StandardAccessToken"),
+    new JsonType(value = classOf[PersonalAccessToken], name = "PersonalAccessToken")
+  )
+)
+sealed trait TokenType
+
+@JsonCreator
+case class StandardAccessToken() extends TokenType {
+  @JsonProperty("type")
+  val typeName = "StandardAccessToken"
+}
+
+@JsonCreator
+case class PersonalAccessToken() extends TokenType {
+  @JsonProperty("type")
+  val typeName = "PersonalAccessToken"
+}
+
+final case class ExternalConnectorJiraCredential(
+    base_url: String,
+    username: String,
+    token: String,
+    tokenType: TokenType,
+    override val sensitiveFields: List[String] = List("token")
+) extends ExternalConnectorCredential {
+  override def connectorType: AbstractConnectorType = JiraConnectorType()
 }
 
 final case class Secret(name: String, value: String) extends Credential
