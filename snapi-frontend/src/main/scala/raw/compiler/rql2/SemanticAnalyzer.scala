@@ -531,7 +531,8 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
 
     // Warning, Hint, Info
     val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilationMessage]] = {
-      case e @ FunApp(Proj(exp, "Secret"), parameters) if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
+      case e @ FunApp(Proj(exp, "Secret"), parameters)
+          if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
         tipe(exp) match {
           case PackageType("Environment") =>
             val report = CompatibilityReport(tipe(e), tipe(e))
