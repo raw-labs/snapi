@@ -461,20 +461,22 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     with ExpectedTypes
     with Rql2TypeUtils {
 
+  def isStagedCompiler: Boolean = {
+    (programContext.runtimeContext.environment.options.contains(
+      "staged-compiler"
+    ) && programContext.runtimeContext.environment.options("staged-compiler") == "true") ||
+    (programContext.runtimeContext.environment.options.contains(
+      "rql.staged-compiler"
+    ) && programContext.runtimeContext.environment.options("rql.staged-compiler") == "true")
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // Errors
   ///////////////////////////////////////////////////////////////////////////
 
   override protected def errorDef: SourceNode ==> Seq[CompilationMessage] = {
+    // Errors
     val rql2Errors: PartialFunction[SourceNode, Seq[CompilationMessage]] = {
-      case e @ FunApp(Proj(exp, "Secret"), parameters) => tipe(exp) match {
-          case PackageType("Environment") =>
-            val report = CompatibilityReport(tipe(e), tipe(e))
-            getValue(report, e) match {
-              case Left(error) => Seq(MissingSecretWarning(e, "Missing secret, please add the secret"))
-              case Right(v) => Seq.empty
-            }
-        }
       case i: IdnUse if entity(i) == UnknownEntity() =>
         i match {
           // Try to see if this UnknownEntity is the user attempting to reference a package name but making a typo.
@@ -526,7 +528,22 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       case f: FunApp if funAppHasError(f).isDefined => funAppHasError(f).get
       case p @ Proj(e, idn) if idnIsAmbiguous(idn, e) => Seq(RepeatedFieldNames(p, idn))
     }
-    rql2Errors.orElse(super.errorDef)
+
+    // Warning, Hint, Info
+    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilationMessage]] = {
+      case e @ FunApp(Proj(exp, "Secret"), parameters) if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
+        tipe(exp) match {
+          case PackageType("Environment") =>
+            val report = CompatibilityReport(tipe(e), tipe(e))
+            getValue(report, e) match {
+              case Right(TryValue(Left(error))) => Seq(MissingSecretWarning(e))
+              case _ => Seq.empty
+            }
+          case _ => Seq.empty
+        }
+    }
+    // First report errors if any, then warnings, hints and info.
+    rql2Errors.orElse(rql2NonErrors.orElse(super.errorDef))
   }
 
   private def idnIsAmbiguous(idn: String, e: Exp): Boolean = {

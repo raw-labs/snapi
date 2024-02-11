@@ -330,7 +330,7 @@ final case class FormatCodeResponse(code: Option[String]) extends ClientLspRespo
 final case class HoverResponse(completion: Option[Completion]) extends ClientLspResponse
 final case class RenameResponse(positions: Array[Pos]) extends ClientLspResponse
 final case class GoToDefinitionResponse(position: Option[Pos]) extends ClientLspResponse
-final case class ValidateResponse(errors: List[Message]) extends ClientLspResponse
+final case class ValidateResponse(messages: List[Message]) extends ClientLspResponse
 final case class ErrorResponse(errors: List[ErrorMessage]) extends ClientLspResponse
 final case class AutoCompleteResponse(completions: Array[Completion]) extends ClientLspResponse
 

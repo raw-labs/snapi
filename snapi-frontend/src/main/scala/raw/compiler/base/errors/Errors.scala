@@ -37,7 +37,7 @@ trait WarningCompilationMessage extends CompilationMessage
 
 final case class MissingSecretWarning(
     node: BaseNode,
-    reason: String
+    reason: String = MissingSecretWarning.message
 ) extends WarningCompilationMessage {
   val code: String = MissingSecretWarning.code
 }

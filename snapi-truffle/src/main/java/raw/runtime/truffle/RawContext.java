@@ -73,6 +73,9 @@ public final class RawContext implements Closeable {
         JavaConverters.asScalaSetConverter(java.util.Set.of(this.scopes)).asScala().toSet();
 
     java.util.Map<String, String> javaOptions = new java.util.HashMap<>();
+    env.getOptions()
+        .getDescriptors()
+        .forEach(d -> javaOptions.put(d.getName(), env.getOptions().get(d.getKey()).toString()));
 
     Map<String, String> scalaOptions =
         JavaConverters.mapAsScalaMapConverter(javaOptions)
