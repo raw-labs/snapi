@@ -17,23 +17,22 @@ import raw.client.api.{ErrorMessage, ErrorRange, HintMessage, InfoMessage, Messa
 import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 
 object CompilationMessageMapper {
-  def toMessage(err: CompilationMessage, range: List[ErrorRange]): Message = {
+  def toMessage(err: CompilerMessage, range: List[ErrorRange]): Message = {
     err match {
       case e: ErrorCompilationMessage => ErrorMessage(ErrorsPrettyPrinter.format(e), range, e.code)
       case w: WarningCompilationMessage => WarningMessage(ErrorsPrettyPrinter.format(w), range, w.code)
       case i: InfoCompilationMessage => InfoMessage(ErrorsPrettyPrinter.format(i), range, i.code)
       case h: HintCompilationMessage => HintMessage(ErrorsPrettyPrinter.format(h), range, h.code)
-      case _ => throw new AssertionError("Unknown message type")
     }
   }
 }
 
-trait CompilationMessage extends BaseNode {
+sealed trait CompilerMessage extends BaseNode {
   def node: BaseNode
   val code: String
 }
 
-trait WarningCompilationMessage extends CompilationMessage
+trait WarningCompilationMessage extends CompilerMessage
 
 final case class MissingSecretWarning(
     node: BaseNode,
@@ -46,9 +45,9 @@ object MissingSecretWarning {
   val message: String = "secret is not defined"
 }
 
-trait InfoCompilationMessage extends CompilationMessage
-trait HintCompilationMessage extends CompilationMessage
-trait ErrorCompilationMessage extends CompilationMessage
+trait InfoCompilationMessage extends CompilerMessage
+trait HintCompilationMessage extends CompilerMessage
+trait ErrorCompilationMessage extends CompilerMessage
 
 final case class InvalidSemantic(
     node: BaseNode,

@@ -27,7 +27,7 @@ abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
     implicit protected val programContext: ProgramContext
 ) extends base.SemanticAnalyzer[SourceNode, SourceProgram, Exp](tree) {
 
-  override protected def errorDef: SourceNode ==> Seq[CompilationMessage] = {
+  override protected def errorDef: SourceNode ==> Seq[CompilerMessage] = {
     super.errorDef orElse {
       case i: IdnUse if entity(i) == UnknownEntity() => Seq(UnknownDecl(i))
       case i: IdnDef if entity(i).isInstanceOf[MultipleEntity] => Seq(MultipleDecl(i))

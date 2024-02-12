@@ -12,17 +12,10 @@
 
 package raw.compiler.base
 
-import com.ibm.icu.text.IDNA.Info
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.relation.{EnsureTree, LeaveAlone, TreeRelation}
-import raw.client.api.{ErrorMessage, HintMessage, InfoMessage, Message, WarningMessage}
-import raw.compiler.base.errors.{
-  CompilationMessageMapper,
-  ErrorCompilationMessage,
-  HintCompilationMessage,
-  InfoCompilationMessage,
-  WarningCompilationMessage
-}
+import raw.client.api.Message
+import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source._
 import raw.compiler.utils.ExtraRewriters
 

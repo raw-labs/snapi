@@ -474,9 +474,9 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   // Errors
   ///////////////////////////////////////////////////////////////////////////
 
-  override protected def errorDef: SourceNode ==> Seq[CompilationMessage] = {
+  override protected def errorDef: SourceNode ==> Seq[CompilerMessage] = {
     // Errors
-    val rql2Errors: PartialFunction[SourceNode, Seq[CompilationMessage]] = {
+    val rql2Errors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
       case i: IdnUse if entity(i) == UnknownEntity() =>
         i match {
           // Try to see if this UnknownEntity is the user attempting to reference a package name but making a typo.
@@ -530,7 +530,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     }
 
     // Warning, Hint, Info
-    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilationMessage]] = {
+    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
       case e @ FunApp(Proj(exp, "Secret"), parameters)
           if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
         tipe(exp) match {

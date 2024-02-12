@@ -19,13 +19,7 @@ import raw.client.api._
 import raw.client.rql2.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import raw.compiler.base
-import raw.compiler.base.errors.{
-  CompilationMessage,
-  CompilationMessageMapper,
-  UnexpectedType,
-  UnknownDecl,
-  UnsupportedType
-}
+import raw.compiler.base.errors._
 import raw.compiler.base.source.BaseNode
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
@@ -651,7 +645,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     List(ErrorMessage(error, List(range), ParserErrors.ParserErrorCode))
   }
 
-  private def formatErrors(errors: Seq[CompilationMessage], positions: Positions): List[Message] = {
+  private def formatErrors(errors: Seq[CompilerMessage], positions: Positions): List[Message] = {
     errors.map { err =>
       val ranges = positions.getStart(err.node) match {
         case Some(begin) =>

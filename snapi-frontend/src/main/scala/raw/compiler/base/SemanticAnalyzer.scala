@@ -49,14 +49,14 @@ abstract class SemanticAnalyzer[N <: BaseNode: Manifest, P <: N: Manifest, E <: 
 
   import decorators.{chain, Chain}
 
-  private def collectErrors(pf: Any ==> Seq[CompilationMessage]): Seq[CompilationMessage] = {
-    val c = collectNodes[N, Seq, Seq[CompilationMessage]](pf)
+  private def collectErrors(pf: Any ==> Seq[CompilerMessage]): Seq[CompilerMessage] = {
+    val c = collectNodes[N, Seq, Seq[CompilerMessage]](pf)
     c(tree.root).flatten
   }
 
-  protected def errorDef: N ==> Seq[CompilationMessage] = PartialFunction.empty[N, Seq[CompilationMessage]]
+  protected def errorDef: N ==> Seq[CompilerMessage] = PartialFunction.empty[N, Seq[CompilerMessage]]
 
-  lazy val errors: Seq[CompilationMessage] = collectErrors {
+  lazy val errors: Seq[CompilerMessage] = collectErrors {
     case n: N if errorDef.isDefinedAt(n) =>
       // If an error was triggered by errorDef, this is reported. In addition, however, we also report an additional
       // error if our actual/expected types are incompatible. One example why this is important:

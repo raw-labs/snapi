@@ -12,24 +12,15 @@
 
 package raw.compiler.rql2.lsp
 
-import com.esotericsoftware.minlog.Log.Logger
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
+import raw.client.api._
+import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source.{BaseIdnNode, BaseNode}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
-import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 import raw.compiler.rql2.source._
-import raw.client.api._
-import raw.compiler.base.errors.{
-  CompilationMessageMapper,
-  ErrorCompilationMessage,
-  HintCompilationMessage,
-  InfoCompilationMessage,
-  WarningCompilationMessage
-}
-import raw.compiler.rql2.builtin.TypeEmptyEntry
 
 import scala.util.Try
 

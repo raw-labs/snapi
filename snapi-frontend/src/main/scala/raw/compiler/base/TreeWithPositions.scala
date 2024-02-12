@@ -14,13 +14,7 @@ package raw.compiler.base
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api._
-import raw.compiler.base.errors.{
-  CompilationMessageMapper,
-  ErrorCompilationMessage,
-  HintCompilationMessage,
-  InfoCompilationMessage,
-  WarningCompilationMessage
-}
+import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source._
 import raw.compiler.rql2.antlr4.ParseProgramResult
 import raw.utils._
