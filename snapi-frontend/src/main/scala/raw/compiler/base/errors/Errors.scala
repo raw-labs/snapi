@@ -12,9 +12,8 @@
 
 package raw.compiler.base.errors
 
+import raw.client.api._
 import raw.compiler.base.source._
-import raw.client.api.{ErrorMessage, ErrorRange, HintMessage, InfoMessage, Message, WarningMessage}
-import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 
 object CompilationMessageMapper {
 
@@ -28,10 +27,10 @@ object CompilationMessageMapper {
    */
   def toMessage(compilerMessage: CompilerMessage, range: List[ErrorRange], format: BaseNode => String): Message = {
     compilerMessage match {
-      case e: ErrorCompilerMessage => ErrorMessage(ErrorsPrettyPrinter.format(e), range, e.code)
-      case w: WarningCompilerMessage => WarningMessage(ErrorsPrettyPrinter.format(w), range, w.code)
-      case i: InfoCompilerMessage => InfoMessage(ErrorsPrettyPrinter.format(i), range, i.code)
-      case h: HintCompilerMessage => HintMessage(ErrorsPrettyPrinter.format(h), range, h.code)
+      case e: ErrorCompilerMessage => ErrorMessage(format(e), range, e.code)
+      case w: WarningCompilerMessage => WarningMessage(format(w), range, w.code)
+      case i: InfoCompilerMessage => InfoMessage(format(i), range, i.code)
+      case h: HintCompilerMessage => HintMessage(format(h), range, h.code)
       case _ => throw new AssertionError("Unknown message type")
     }
   }
