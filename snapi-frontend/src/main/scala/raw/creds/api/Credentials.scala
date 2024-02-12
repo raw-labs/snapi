@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
-import com.fasterxml.jackson.annotation.{JsonCreator, JsonProperty, JsonSubTypes, JsonTypeInfo}
+import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import raw.utils.Uid
 
 import java.time.Instant
@@ -184,41 +184,31 @@ final case class ExternalConnectorSalesforceCredential(
     securityToken: String,
     clientId: String,
     apiVersion: String,
-    customObjects: Seq[String],
-    override val sensitiveFields: List[String] = List("password", "securityToken")
+    customObjects: Seq[String]
 ) extends ExternalConnectorCredential {
   override def connectorType: AbstractConnectorType = SalesforceConnectorType()
+  override def sensitiveFields: List[String] = List("password", "securityToken")
 }
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[StandardAccessToken], name = "StandardAccessToken"),
-    new JsonType(value = classOf[PersonalAccessToken], name = "PersonalAccessToken")
+    new JsonType(value = classOf[StandardAccessToken], name = "DEFAULT"),
+    new JsonType(value = classOf[PersonalAccessToken], name = "PAT")
   )
 )
 sealed trait TokenType
-
-@JsonCreator
-case class StandardAccessToken() extends TokenType {
-  @JsonProperty("type")
-  val typeName = "StandardAccessToken"
-}
-
-@JsonCreator
-case class PersonalAccessToken() extends TokenType {
-  @JsonProperty("type")
-  val typeName = "PersonalAccessToken"
-}
+case class StandardAccessToken() extends TokenType
+case class PersonalAccessToken() extends TokenType
 
 final case class ExternalConnectorJiraCredential(
-    base_url: String,
+    baseUrl: String,
     username: String,
     token: String,
-    tokenType: TokenType,
-    override val sensitiveFields: List[String] = List("token")
+    tokenType: TokenType
 ) extends ExternalConnectorCredential {
   override def connectorType: AbstractConnectorType = JiraConnectorType()
+  override def sensitiveFields: List[String] = List("token")
 }
 
 final case class Secret(name: String, value: String) extends Credential
