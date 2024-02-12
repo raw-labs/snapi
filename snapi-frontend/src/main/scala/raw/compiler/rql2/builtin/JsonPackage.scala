@@ -13,7 +13,7 @@
 package raw.compiler.rql2.builtin
 
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
-import raw.compiler.base.errors.{ErrorCompilationMessage, UnsupportedType}
+import raw.compiler.base.errors.{ErrorCompilerMessage, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -276,7 +276,7 @@ class ReadJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
     validateJsonType(t).right.map {
       case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
@@ -515,7 +515,7 @@ class ParseJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
     validateJsonType(t).right.map {
       case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)

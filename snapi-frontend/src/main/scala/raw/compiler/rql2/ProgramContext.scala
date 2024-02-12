@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2
 
-import raw.compiler.base.errors.ErrorCompilationMessage
+import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.rql2.api.{PackageExtension, PackageExtensionProvider, Value}
 import raw.compiler.rql2.source.Rql2Program
 import raw.inferrer.api.{InferrerProperties, InputFormatDescriptor}
@@ -25,7 +25,7 @@ trait ProgramContext extends raw.compiler.base.ProgramContext {
 
   private val dynamicPackageCache = new mutable.HashMap[String, PackageExtension]
 
-  private val stageCompilerCache = new mutable.HashMap[Rql2Program, Either[ErrorCompilationMessage, Value]]
+  private val stageCompilerCache = new mutable.HashMap[Rql2Program, Either[ErrorCompilerMessage, Value]]
 
   def infer(
       inferrerProperties: InferrerProperties
@@ -46,8 +46,8 @@ trait ProgramContext extends raw.compiler.base.ProgramContext {
 
   def getOrAddStagedCompilation(
       program: Rql2Program,
-      f: => Either[ErrorCompilationMessage, Value]
-  ): Either[ErrorCompilationMessage, Value] = {
+      f: => Either[ErrorCompilerMessage, Value]
+  ): Either[ErrorCompilerMessage, Value] = {
     stageCompilerCache.getOrElseUpdate(program, f)
   }
 

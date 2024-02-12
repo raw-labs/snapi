@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.errors.ErrorCompilationMessage
+import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -244,7 +244,7 @@ class SQLServerReadEntry extends SugarEntryExtension with SqlTableExtensionHelpe
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(3).t
     validateTableType(t)
   }
@@ -464,7 +464,7 @@ class SQLServerQueryEntry extends EntryExtension with SqlTableExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(2).t
     validateTableType(t)
   }

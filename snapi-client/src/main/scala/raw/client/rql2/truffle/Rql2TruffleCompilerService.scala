@@ -653,7 +653,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
           List(ErrorRange(ErrorPosition(begin.line, begin.column), ErrorPosition(end.line, end.column)))
         case _ => List.empty
       }
-      CompilationMessageMapper.toMessage(err, ranges)
+      CompilationMessageMapper.toMessage(err, ranges, ErrorsPrettyPrinter.format)
     }.toList
   }
 

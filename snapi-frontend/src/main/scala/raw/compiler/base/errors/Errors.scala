@@ -17,12 +17,19 @@ import raw.client.api.{ErrorMessage, ErrorRange, HintMessage, InfoMessage, Messa
 import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 
 object CompilationMessageMapper {
-  def toMessage(err: CompilerMessage, range: List[ErrorRange]): Message = {
-    err match {
-      case e: ErrorCompilationMessage => ErrorMessage(ErrorsPrettyPrinter.format(e), range, e.code)
-      case w: WarningCompilationMessage => WarningMessage(ErrorsPrettyPrinter.format(w), range, w.code)
-      case i: InfoCompilationMessage => InfoMessage(ErrorsPrettyPrinter.format(i), range, i.code)
-      case h: HintCompilationMessage => HintMessage(ErrorsPrettyPrinter.format(h), range, h.code)
+  /***
+   *
+   * @param compilerMessage internal compiler message to be converted into a message
+   * @param range range of the compiler message
+   * @param format function to format the message
+   * @return a message that is propagated to the user
+   */
+  def toMessage(compilerMessage: CompilerMessage, range: List[ErrorRange], format: BaseNode => String): Message = {
+    compilerMessage match {
+      case e: ErrorCompilerMessage => ErrorMessage(ErrorsPrettyPrinter.format(e), range, e.code)
+      case w: WarningCompilerMessage => WarningMessage(ErrorsPrettyPrinter.format(w), range, w.code)
+      case i: InfoCompilerMessage => InfoMessage(ErrorsPrettyPrinter.format(i), range, i.code)
+      case h: HintCompilerMessage => HintMessage(ErrorsPrettyPrinter.format(h), range, h.code)
       case _ => throw new AssertionError("Unknown message type")
     }
   }
@@ -33,12 +40,12 @@ trait CompilerMessage extends BaseNode {
   val code: String
 }
 
-trait WarningCompilationMessage extends CompilerMessage
+trait WarningCompilerMessage extends CompilerMessage
 
 final case class MissingSecretWarning(
     node: BaseNode,
     reason: String = MissingSecretWarning.message
-) extends WarningCompilationMessage {
+) extends WarningCompilerMessage {
   val code: String = MissingSecretWarning.code
 }
 object MissingSecretWarning {
@@ -46,16 +53,16 @@ object MissingSecretWarning {
   val message: String = "secret is not defined"
 }
 
-trait InfoCompilationMessage extends CompilerMessage
-trait HintCompilationMessage extends CompilerMessage
-trait ErrorCompilationMessage extends CompilerMessage
+trait InfoCompilerMessage extends CompilerMessage
+trait HintCompilerMessage extends CompilerMessage
+trait ErrorCompilerMessage extends CompilerMessage
 
 final case class InvalidSemantic(
     node: BaseNode,
     reason: String,
     hint: Option[String] = None,
     suggestions: Seq[String] = Seq.empty
-) extends ErrorCompilationMessage {
+) extends ErrorCompilerMessage {
   val code: String = InvalidSemantic.code
 }
 object InvalidSemantic {
@@ -69,7 +76,7 @@ final case class UnexpectedType(
     expected: Type,
     hint: Option[String] = None,
     suggestions: Seq[String] = Seq.empty
-) extends ErrorCompilationMessage {
+) extends ErrorCompilerMessage {
   val code: String = UnexpectedType.code
 }
 object UnexpectedType {
@@ -85,7 +92,7 @@ object UnexpectedType {
  * @param expected The expected type (possibly a constraint).
  * @param actual The actual value.
  */
-final case class UnexpectedValue(node: BaseNode, expected: Type, actual: String) extends ErrorCompilationMessage {
+final case class UnexpectedValue(node: BaseNode, expected: Type, actual: String) extends ErrorCompilerMessage {
   val code: String = UnexpectedValue.code
 }
 object UnexpectedValue {
@@ -94,7 +101,7 @@ object UnexpectedValue {
 }
 
 final case class UnknownDecl(node: BaseIdnNode, hint: Option[String] = None, suggestions: Seq[String] = Seq.empty)
-    extends ErrorCompilationMessage {
+    extends ErrorCompilerMessage {
   val code: String = code
 }
 object UnknownDecl {
@@ -102,7 +109,7 @@ object UnknownDecl {
   val message: String = "unknown declaration"
 }
 
-final case class MultipleDecl(node: BaseIdnNode) extends ErrorCompilationMessage {
+final case class MultipleDecl(node: BaseIdnNode) extends ErrorCompilerMessage {
   val code: String = MultipleDecl.code
 }
 object MultipleDecl {
@@ -119,7 +126,7 @@ object MultipleDecl {
  * @param t The type that is unsupported.
  * @param parent The top-level type. (e.g. if collection(int). Set to None if t == parent.
  */
-final case class UnsupportedType(node: BaseNode, t: Type, parent: Option[Type]) extends ErrorCompilationMessage {
+final case class UnsupportedType(node: BaseNode, t: Type, parent: Option[Type]) extends ErrorCompilerMessage {
   val code: String = code
 }
 object UnsupportedType {
@@ -128,7 +135,7 @@ object UnsupportedType {
 }
 
 final case class ExternalError(node: BaseNode, language: String, errors: Seq[ErrorMessage])
-    extends ErrorCompilationMessage {
+    extends ErrorCompilerMessage {
   val code: String = code
 }
 object ExternalError {

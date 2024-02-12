@@ -13,7 +13,7 @@
 package raw.compiler.rql2.builtin
 
 import raw.client.api._
-import raw.compiler.base.errors.ErrorCompilationMessage
+import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -861,7 +861,7 @@ class GroupListEntry extends EntryExtension with ListToCollectionHint {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val listType = mandatoryArgs.head.t
     val ExpArg(keyFunction, FunType(_, _, keyType, props)) = mandatoryArgs(1)
     assert(props.isEmpty, "Should have been handled as per arg 1 definition")
@@ -1025,7 +1025,7 @@ class EquiJoinListEntry extends SugarEntryExtension with RecordMerging with List
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val ExpArg(_, Rql2ListType(leftRowType, _)) = mandatoryArgs.head
     val ExpArg(_, Rql2ListType(rightRowType, _)) = mandatoryArgs(1)
     val ExpArg(keyFunction1, FunType(_, _, keyType1, _)) = mandatoryArgs(2)
@@ -1096,7 +1096,7 @@ class OrderByListEntry extends SugarEntryExtension with ListToCollectionHint {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val (orders, keyFunctions) = varArgs.partition(_.t.isInstanceOf[Rql2StringType])
     if (orders.size != keyFunctions.size) return Left(Seq(OrderSpecMustFollowOrderingFunction(node)))
     val keyErrors = for (
@@ -1158,7 +1158,7 @@ class DistinctListEntry extends SugarEntryExtension with ListToCollectionHint {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val ExpArg(list, Rql2ListType(itemType, _)) = mandatoryArgs.head
     if (isComparable(itemType)) Right(mandatoryArgs.head.t)
     else Left(Seq(ItemsNotComparable(list)))
@@ -1382,7 +1382,7 @@ class ContainsListEntry extends SugarEntryExtension with ListToCollectionHint {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilationMessage], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val ExpArg(list, Rql2ListType(itemType, _)) = mandatoryArgs.head
     if (isComparable(itemType)) Right(Rql2BoolType())
     else Left(Seq(ItemsNotComparable(list)))

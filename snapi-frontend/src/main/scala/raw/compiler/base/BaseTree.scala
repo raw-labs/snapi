@@ -52,7 +52,7 @@ abstract class BaseTree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
   lazy val valid: Boolean = isTreeValid
 
   lazy val errors: List[Message] = {
-    analyzer.errors.map(err => CompilationMessageMapper.toMessage(err, List.empty)).toList
+    analyzer.errors.map(err => CompilationMessageMapper.toMessage(err, List.empty, format)).toList
   }
 
   protected def isTreeValid: Boolean = {

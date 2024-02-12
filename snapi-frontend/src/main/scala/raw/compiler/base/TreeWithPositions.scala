@@ -42,7 +42,7 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
           case Some(r) => List(r)
           case None => List.empty
         }
-        CompilationMessageMapper.toMessage(err, range)
+        CompilationMessageMapper.toMessage(err, range, format)
       }
     }.toList ++ originalResult.errors
   }

@@ -618,7 +618,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     false
   }
 
-  private def funAppHasError(fa: FunApp): Option[Seq[ErrorCompilationMessage]] = {
+  private def funAppHasError(fa: FunApp): Option[Seq[ErrorCompilerMessage]] = {
     val FunApp(f, args) = fa
     // Check that arguments are defined in correct order.
     if (namedArgFoundAfterOptionalArg(args)) {
@@ -915,7 +915,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   def getArgumentsForFunAppPackageEntry(
       fa: FunApp,
       packageEntry: EntryExtension
-  ): Either[ErrorCompilationMessage, Option[FunAppPackageEntryArguments]] = {
+  ): Either[ErrorCompilerMessage, Option[FunAppPackageEntryArguments]] = {
     val args = fa.args
 
     val prevMandatoryArgs = mutable.ArrayBuffer[Arg]()
@@ -1202,7 +1202,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       fa: FunApp,
       pkgName: String,
       entName: String
-  ): Either[Seq[ErrorCompilationMessage], Type] = {
+  ): Either[Seq[ErrorCompilerMessage], Type] = {
     programContext.getPackage(pkgName) match {
       case Some(p) =>
         val entry = p.getEntry(entName)
@@ -1449,7 +1449,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   }
 
   // TODO (msb): Make it return "N errors" at once?
-  private def getFunAppFunType(fa: FunApp, f: FunType): Either[ErrorCompilationMessage, Type] = {
+  private def getFunAppFunType(fa: FunApp, f: FunType): Either[ErrorCompilerMessage, Type] = {
     val FunType(mandatoryParams, optionalParams, r, _) = f
     val args = fa.args
 
@@ -1503,12 +1503,12 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     Right(r)
   }
 
-  final private def getValue(report: CompatibilityReport, e: Exp): Either[ErrorCompilationMessage, Value] = {
+  final private def getValue(report: CompatibilityReport, e: Exp): Either[ErrorCompilerMessage, Value] = {
     // Recurse over all entities in the order of its dependencies.
     // Populate an ordered list of declarations as a side-effect.
     val lets: mutable.ArrayBuffer[LetDecl] = mutable.ArrayBuffer.empty[LetDecl]
 
-    class RecurseEntitiesException(val err: ErrorCompilationMessage) extends Exception
+    class RecurseEntitiesException(val err: ErrorCompilerMessage) extends Exception
 
     @throws[RecurseEntitiesException]
     def recurseEntities(
@@ -1661,7 +1661,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     )
   }
 
-  final def resolveParamType(p: FunParam): Either[Seq[ErrorCompilationMessage], Type] = {
+  final def resolveParamType(p: FunParam): Either[Seq[ErrorCompilerMessage], Type] = {
     val FunParam(i, mt, me) = p
     if (mt.isDefined) Right(mt.map(resolveType).get)
     else {

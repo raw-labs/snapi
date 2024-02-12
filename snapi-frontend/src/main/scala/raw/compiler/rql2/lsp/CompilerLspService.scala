@@ -21,6 +21,7 @@ import raw.compiler.base.source.{BaseIdnNode, BaseNode}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
 import raw.compiler.rql2.source._
+import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 
 import scala.util.Try
 
@@ -441,7 +442,7 @@ class CompilerLspService(
           case Some(r) => List(r)
           case None => List.empty
         }
-        CompilationMessageMapper.toMessage(err, range)
+        CompilationMessageMapper.toMessage(err, range, ErrorsPrettyPrinter.format)
       }
     }.toList ++ parseErrors
   }

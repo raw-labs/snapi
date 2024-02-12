@@ -16,7 +16,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Rewriter._
 import org.bitbucket.inkytonik.kiama.rewriting.Strategy
 import raw.client.api.CompilerException
 import raw.compiler.base.Phase
-import raw.compiler.base.errors.ErrorCompilationMessage
+import raw.compiler.base.errors.ErrorCompilerMessage
 import raw.compiler.base.source.Type
 import raw.compiler.common.source._
 import raw.compiler.rql2.api.SugarEntryExtension
@@ -56,7 +56,7 @@ class SugarExtensionDesugarer(protected val parent: Phase[SourceProgram], protec
             val FunAppPackageEntryArguments(mandatoryArgs, optionalArgs, varArgs, _) =
               analyzer.getArgumentsForFunAppPackageEntry(f, ent) match {
                 case Right(x) => x.get
-                case Left(error: ErrorCompilationMessage) =>
+                case Left(error: ErrorCompilerMessage) =>
                   // The code call to this package extension isn't typing (wrong parameters?)
                   // Report the error. That can happen when developing of a sugar package extension.
                   // Wrong desugaring isn't caught otherwise.
