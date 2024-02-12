@@ -155,8 +155,7 @@ object FailedToEvaluate {
   val message: String = "failed to evaluate"
   val code = "failedToEvaluate"
 }
-final case class FailedToEvaluate(node: BaseNode, optionalMessage: Option[String] = None)
-    extends ErrorCompilerMessage {
+final case class FailedToEvaluate(node: BaseNode, optionalMessage: Option[String] = None) extends ErrorCompilerMessage {
   val code: String = FailedToEvaluate.code
 }
 

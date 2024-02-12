@@ -17,7 +17,9 @@ import raw.client.api.{ErrorMessage, ErrorRange, HintMessage, InfoMessage, Messa
 import raw.compiler.rql2.errors.ErrorsPrettyPrinter
 
 object CompilationMessageMapper {
-  /***
+
+  /**
+   * *
    *
    * @param compilerMessage internal compiler message to be converted into a message
    * @param range range of the compiler message
