@@ -29,4 +29,11 @@ trait LspCompilationMessagesTest extends CompilerTestContext {
       case _ => fail("Expected a warning message")
     }
   }
+
+  test("should fail to evaluate silently without a warning") { _ =>
+    val code = """secret(key: string) = Environment.Secret(key)""".stripMargin
+    val res = validate(code)
+    res.messages.size should be(0)
+  }
+
 }
