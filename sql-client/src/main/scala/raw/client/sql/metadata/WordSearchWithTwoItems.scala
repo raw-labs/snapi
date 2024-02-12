@@ -25,12 +25,16 @@ object WordSearchWithTwoItems
         |    -- tables having a similar name, that belong to schemas having the name
         |    SELECT table_schema AS item1, table_name AS item2, 'table' AS type
         |    FROM information_schema.tables
-        |    WHERE table_schema = ? AND starts_with(table_name, ?)
+        |    WHERE table_schema = ?
+        |        AND starts_with(table_name, ?)
+        |        AND table_schema NOT IN ('pg_catalog', 'information_schema')
         |    UNION
         |    -- columns having a similar name, that belong to tables having the name
         |    SELECT table_name AS item1, column_name AS item2, data_type AS type
         |    FROM information_schema.columns
-        |    WHERE table_name = ? AND starts_with(column_name, ?)
+        |    WHERE table_name = ?
+        |        AND starts_with(column_name, ?)
+        |        AND table_schema NOT IN ('pg_catalog', 'information_schema')
         |  ) T""".stripMargin
     ) {
   override protected def setParams(preparedStatement: PreparedStatement, items: Seq[String]): Unit = {

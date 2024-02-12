@@ -20,7 +20,8 @@ object WordSearchWithThreeItems
         |SELECT table_schema, table_name, column_name, data_type AS type FROM information_schema.columns
         |WHERE table_schema = ?
         |      AND table_name = ?
-        |      AND starts_with(column_name, ?)""".stripMargin
+        |      AND starts_with(column_name, ?)
+        |      AND table_schema NOT IN ('pg_catalog', 'information_schema')""".stripMargin
     ) {
   override protected def setParams(preparedStatement: PreparedStatement, items: Seq[String]): Unit = {
     val item1 = items(0)

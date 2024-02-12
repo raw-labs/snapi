@@ -19,7 +19,9 @@ object DotSearchWithTwoItems
       """-- columns that belong to tables having the required name in schemas having the required name
         |SELECT table_schema, table_name, column_name, data_type AS type
         |FROM information_schema.columns
-        |WHERE table_schema = ? AND table_name = ?""".stripMargin
+        |WHERE table_schema = ?
+        |    AND table_name = ?
+        |    AND table_schema NOT IN ('pg_catalog', 'information_schema')""".stripMargin
     ) {
   override protected def setParams(preparedStatement: PreparedStatement, items: Seq[String]): Unit = {
     val item1 = items(0)
