@@ -23,11 +23,12 @@ object CompilationMessageMapper {
       case w: WarningCompilationMessage => WarningMessage(ErrorsPrettyPrinter.format(w), range, w.code)
       case i: InfoCompilationMessage => InfoMessage(ErrorsPrettyPrinter.format(i), range, i.code)
       case h: HintCompilationMessage => HintMessage(ErrorsPrettyPrinter.format(h), range, h.code)
+      case _ => throw new AssertionError("Unknown message type")
     }
   }
 }
 
-sealed trait CompilerMessage extends BaseNode {
+trait CompilerMessage extends BaseNode {
   def node: BaseNode
   val code: String
 }
