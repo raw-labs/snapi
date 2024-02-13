@@ -1,11 +1,12 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
-
-import sbt.Keys._
-import sbt._
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.*
+import sbt.Keys.*
+import sbt.*
 
 import java.time.Year
+import Dependencies.*
 
-import Dependencies._
+import java.io.IOException
+import scala.sys.process.ProcessLogger
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -146,6 +147,60 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
   postgresqlDeps,
-  hikariCP)
+  hikariCP,
+  antlr
+)
+
+
+def runAntlr(antlrJar: String, inputFile: String, outputPath: String, packageName: String, s: TaskStreams): Unit = {
+  val command: String = s"java -jar $antlrJar -visitor -package $packageName -o $outputPath"
+
+  val output = new StringBuilder
+  val logger = ProcessLogger(
+    (o: String) => output.append(o + "\n"), // for standard output
+    (e: String) => output.append(e + "\n") // for standard error
+  )
+
+  val result = s"$command  $inputFile".!(logger)
+  if (result == 0) {
+    s.log.info(s"Code generated successfully for file $inputFile")
+  } else {
+    s.log.error(s"ERROR: Code generation failed for file $inputFile exit code $result")
+    s.log.error("Output:\n" + output.toString)
+  }
+
+}
+
+val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
+
+generateParser := {
+
+  def deleteRecursively(file: File): Unit = {
+    if (file.isDirectory) {
+      file.listFiles.foreach(deleteRecursively)
+    }
+    if (file.exists && !file.delete()) {
+      throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
+    }
+  }
+
+  val basePath: String = s"${baseDirectory.value}/src/main/java"
+  val outputPath: String = s"$basePath/raw/client/sql/generated"
+
+  val file = new File(outputPath)
+  if (file.exists()) {
+    deleteRecursively(file)
+  }
+
+  val packageName: String = "raw.client.sql.generated"
+
+  val jarName = s" $basePath/../snapi-parser/antlr4/antlr-4.12.0-complete.jar"
+
+  val s: TaskStreams = streams.value
+  val grammarPath = s"$basePath/raw/client/sql/grammar"
+  runAntlr(jarName, s"$grammarPath/SQLLexer.g4", outputPath, packageName, s)
+  runAntlr(jarName, s"$grammarPath/SQLParser.g4", outputPath, packageName, s)
+
+}
 
 Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.sql.client")
