@@ -103,7 +103,7 @@ object UnexpectedValue {
 
 final case class UnknownDecl(node: BaseIdnNode, hint: Option[String] = None, suggestions: Seq[String] = Seq.empty)
     extends ErrorCompilerMessage {
-  val code: String = code
+  val code: String = UnknownDecl.code
 }
 object UnknownDecl {
   val code: String = "UnknownDecl"
@@ -128,7 +128,7 @@ object MultipleDecl {
  * @param parent The top-level type. (e.g. if collection(int). Set to None if t == parent.
  */
 final case class UnsupportedType(node: BaseNode, t: Type, parent: Option[Type]) extends ErrorCompilerMessage {
-  val code: String = code
+  val code: String = UnsupportedType.code
 }
 object UnsupportedType {
   val code: String = "unsupportedType"
@@ -137,7 +137,7 @@ object UnsupportedType {
 
 final case class ExternalError(node: BaseNode, language: String, errors: Seq[ErrorMessage])
     extends ErrorCompilerMessage {
-  val code: String = code
+  val code: String = ExternalError.code
 }
 object ExternalError {
   val code: String = "externalError"

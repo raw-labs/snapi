@@ -12,8 +12,8 @@
 
 package raw.compiler.rql2.tests.lsp
 
-import raw.client.api.WarningMessage
-import raw.compiler.base.errors.MissingSecretWarning
+import raw.client.api.{ErrorMessage, WarningMessage}
+import raw.compiler.base.errors.{MissingSecretWarning, UnknownDecl}
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait LspCompilationMessagesTest extends CompilerTestContext {
@@ -34,6 +34,18 @@ trait LspCompilationMessagesTest extends CompilerTestContext {
     val code = """secret(key: string) = Environment.Secret(key)""".stripMargin
     val res = validate(code)
     res.messages.size should be(0)
+  }
+
+  test("should not output warning if there is a semantic error") { _ =>
+    val code = """let a = Environment.Secret(asdf) in a""".stripMargin
+    val res = validate(code)
+    res.messages.size should be(1)
+    res.messages.foreach {
+      case ErrorMessage(message, _, code, _) =>
+        assert(message == "asdf is not declared")
+        assert(code == UnknownDecl.code)
+      case _ => fail("Expected a warning message")
+    }
   }
 
 }

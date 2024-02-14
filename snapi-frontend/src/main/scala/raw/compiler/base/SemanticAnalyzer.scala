@@ -55,26 +55,36 @@ abstract class SemanticAnalyzer[N <: BaseNode: Manifest, P <: N: Manifest, E <: 
   }
 
   protected def errorDef: N ==> Seq[CompilerMessage] = PartialFunction.empty[N, Seq[CompilerMessage]]
+  protected def nonErrorDef: N ==> Seq[CompilerMessage] = PartialFunction.empty[N, Seq[CompilerMessage]]
 
-  lazy val errors: Seq[CompilerMessage] = collectErrors {
-    case n: N if errorDef.isDefinedAt(n) =>
-      // If an error was triggered by errorDef, this is reported. In addition, however, we also report an additional
-      // error if our actual/expected types are incompatible. One example why this is important:
-      // Say we are a FunApp. We trigger an error in errorDef because one of our arguments is wrong.
-      // But we are also being used in a context where we should not be a function in the first place.
-      // The check on typeCompatible will also report that error; therefore, we get two errors, which is correct.
-      // (There may be cases where we end up reporting "an error too much"; if that ever happens, we should consider
-      // whether the error check should be done with actual/expected types or with specific cases on errorDef.)
-      val errs = errorDef(n)
-      n match {
-        case e: E if errs.isEmpty && !typeCompatible(e) =>
-          val ExpectedType(expected, hints, suggestions) = expectedType(e)
-          errs :+ UnexpectedType(e, actualType(e), expected, hints, suggestions)
-        case _ => errs
+  lazy val errors: Seq[CompilerMessage] = {
+    val errors = collectErrors {
+      // check for errors
+      case n: N if errorDef.isDefinedAt(n) =>
+        // If an error was triggered by errorDef, this is reported. In addition, however, we also report an additional
+        // error if our actual/expected types are incompatible. One example why this is important:
+        // Say we are a FunApp. We trigger an error in errorDef because one of our arguments is wrong.
+        // But we are also being used in a context where we should not be a function in the first place.
+        // The check on typeCompatible will also report that error; therefore, we get two errors, which is correct.
+        // (There may be cases where we end up reporting "an error too much"; if that ever happens, we should consider
+        // whether the error check should be done with actual/expected types or with specific cases on errorDef.)
+        val errs = errorDef(n)
+        n match {
+          case e: E if errs.isEmpty && !typeCompatible(e) =>
+            val ExpectedType(expected, hints, suggestions) = expectedType(e)
+            errs :+ UnexpectedType(e, actualType(e), expected, hints, suggestions)
+          case _ => errs
+        }
+      case e: E if !typeCompatible(e) =>
+        val ExpectedType(expected, hints, suggestions) = expectedType(e)
+        Seq(UnexpectedType(e, actualType(e), expected, hints, suggestions))
+    }
+    if (errors.isEmpty) {
+      collectErrors {
+        // check for warnings, hints, info
+        case n: N if nonErrorDef.isDefinedAt(n) => nonErrorDef(n)
       }
-    case e: E if !typeCompatible(e) =>
-      val ExpectedType(expected, hints, suggestions) = expectedType(e)
-      Seq(UnexpectedType(e, actualType(e), expected, hints, suggestions))
+    } else errors
   }
 
   final def tipe(e: E): Type = actualType(e)

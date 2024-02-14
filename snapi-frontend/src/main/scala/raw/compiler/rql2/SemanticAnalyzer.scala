@@ -474,6 +474,24 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   // Errors
   ///////////////////////////////////////////////////////////////////////////
 
+  override protected def nonErrorDef: SourceNode ==> Seq[CompilerMessage] = {
+    // Warning, Hint, Info
+    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
+      case e @ FunApp(Proj(exp, "Secret"), parameters)
+          if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
+        tipe(exp) match {
+          case PackageType("Environment") =>
+            val report = CompatibilityReport(tipe(e), tipe(e))
+            getValue(report, e) match {
+              case Right(TryValue(Left(error))) => Seq(MissingSecretWarning(e))
+              case _ => Seq.empty
+            }
+          case _ => Seq.empty
+        }
+    }
+    rql2NonErrors.orElse(super.nonErrorDef)
+  }
+
   override protected def errorDef: SourceNode ==> Seq[CompilerMessage] = {
     // Errors
     val rql2Errors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
@@ -528,23 +546,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       case f: FunApp if funAppHasError(f).isDefined => funAppHasError(f).get
       case p @ Proj(e, idn) if idnIsAmbiguous(idn, e) => Seq(RepeatedFieldNames(p, idn))
     }
-
-    // Warning, Hint, Info
-    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
-      case e @ FunApp(Proj(exp, "Secret"), parameters)
-          if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
-        tipe(exp) match {
-          case PackageType("Environment") =>
-            val report = CompatibilityReport(tipe(e), tipe(e))
-            getValue(report, e) match {
-              case Right(TryValue(Left(error))) => Seq(MissingSecretWarning(e))
-              case _ => Seq.empty
-            }
-          case _ => Seq.empty
-        }
-    }
-    // First report errors if any, then warnings, hints and info.
-    rql2Errors.orElse(rql2NonErrors.orElse(super.errorDef))
+    rql2Errors.orElse(super.errorDef)
   }
 
   private def idnIsAmbiguous(idn: String, e: Exp): Boolean = {
