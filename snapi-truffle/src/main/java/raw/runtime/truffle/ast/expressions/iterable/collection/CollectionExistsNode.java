@@ -53,7 +53,8 @@ public abstract class CollectionExistsNode extends ExpressionNode {
       generatorInitNode.execute(thisNode, generator);
       OSRCollectionExistsNode osrNode = (OSRCollectionExistsNode) loopNode.getRepeatingNode();
       osrNode.init(generator, function);
-      return loopNode.execute(frame);
+      loopNode.execute(frame);
+      return osrNode.getResult();
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {

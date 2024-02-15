@@ -74,7 +74,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new ByteList((byte[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new ByteList((byte[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -110,7 +111,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new ShortList((short[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new ShortList((short[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -146,7 +148,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new IntList((int[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new IntList((int[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -182,7 +185,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new LongList((long[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new LongList((long[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -218,7 +222,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new FloatList((float[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new FloatList((float[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -254,7 +259,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new DoubleList((double[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new DoubleList((double[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -290,7 +296,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new BooleanList((boolean[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new BooleanList((boolean[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {
@@ -326,7 +333,8 @@ public abstract class ListFromNode extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new StringList((String[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new StringList((String[]) osrToArrayNode.getResult());
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
     } finally {

@@ -20,7 +20,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.expressions.iterable.collection.osr.OSRCollectionMksStringNode;
+import raw.runtime.truffle.ast.expressions.iterable.collection.osr.OSRCollectionMkStringNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
@@ -35,7 +35,7 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 public abstract class CollectionMkStringNode extends ExpressionNode {
 
   public static LoopNode getMkStringLoopNode() {
-    return Truffle.getRuntime().createLoopNode(new OSRCollectionMksStringNode());
+    return Truffle.getRuntime().createLoopNode(new OSRCollectionMkStringNode());
   }
 
   @Specialization
@@ -63,9 +63,10 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
         Object next = nextNode.execute(this, generator);
         currentString = (String) add.execute(this, currentString, next);
       }
-      OSRCollectionMksStringNode osrNode = (OSRCollectionMksStringNode) loopNode.getRepeatingNode();
+      OSRCollectionMkStringNode osrNode = (OSRCollectionMkStringNode) loopNode.getRepeatingNode();
       osrNode.init(generator, currentString, sep);
-      currentString = (String) loopNode.execute(frame);
+      loopNode.execute(frame);
+      currentString = osrNode.getResult();
       return currentString + end;
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());

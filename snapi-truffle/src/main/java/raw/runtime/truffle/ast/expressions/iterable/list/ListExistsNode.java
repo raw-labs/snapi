@@ -54,7 +54,8 @@ public abstract class ListExistsNode extends ExpressionNode {
       generatorInitNode.execute(thisNode, generator);
       OSRCollectionExistsNode osrNode = (OSRCollectionExistsNode) loopNode.getRepeatingNode();
       osrNode.init(generator, function);
-      return (Boolean) loopNode.execute(frame);
+      loopNode.execute(frame);
+      return osrNode.getResult();
     } finally {
       generatorCloseNode.execute(thisNode, generator);
     }

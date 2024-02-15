@@ -39,7 +39,11 @@ public class OSRCollectionExistsNode extends Node implements RepeatingNode {
   @CompilerDirectives.CompilationFinal private Object generator;
   @CompilerDirectives.CompilationFinal private Object function;
 
-  private boolean hasNext = false;
+  private boolean result = false;
+
+  public boolean getResult() {
+    return result;
+  }
 
   public void init(Object generator, Object function) {
     this.generator = generator;
@@ -47,19 +51,14 @@ public class OSRCollectionExistsNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  public boolean shouldContinue(Object returnValue) {
-    hasNext = hasNextNode.execute(this, generator);
-    return returnValue == this.initialLoopStatus() || ((!((Boolean) returnValue)) && hasNext);
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    return hasNext
-        && TryableNullable.handlePredicate(
+    boolean hasNext = hasNextNode.execute(this, generator);
+    if (!hasNext) {
+      return false;
+    }
+    result =
+        TryableNullable.handlePredicate(
             functionExecuteOneNode.execute(this, function, nextNode.execute(this, generator)),
             false);
+    return !result;
   }
 }

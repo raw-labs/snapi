@@ -72,7 +72,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new ByteList((byte[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new ByteList((byte[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }
@@ -106,7 +107,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new ShortList((short[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new ShortList((short[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }
@@ -140,7 +142,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new IntList((int[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new IntList((int[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }
@@ -174,7 +177,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new LongList((long[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new LongList((long[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }
@@ -208,7 +212,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new FloatList((float[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new FloatList((float[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }
@@ -242,7 +247,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new DoubleList((double[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new DoubleList((double[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }
@@ -276,7 +282,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new BooleanList((boolean[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new BooleanList((boolean[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }
@@ -310,7 +317,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
       osrToArrayNode.init(llist);
-      return new StringList((String[]) toArrayLoopNode.execute(frame));
+      toArrayLoopNode.execute(frame);
+      return new StringList((String[]) osrToArrayNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }

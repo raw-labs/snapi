@@ -84,7 +84,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
-    return new ByteList((byte[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new ByteList((byte[]) osrToArrayNode.getResult());
   }
 
   @Specialization(guards = {"isShortKind(getResultType())"})
@@ -122,7 +123,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
     nextToken.execute(this, parser);
-    return new ShortList((short[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new ShortList((short[]) osrToArrayNode.getResult());
   }
 
   @Specialization(guards = {"isIntKind(getResultType())"})
@@ -160,7 +162,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
     nextToken.execute(this, parser);
-    return new IntList((int[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new IntList((int[]) osrToArrayNode.getResult());
   }
 
   @Specialization(guards = {"isLongKind(getResultType())"})
@@ -198,7 +201,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
     nextToken.execute(this, parser);
-    return new LongList((long[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new LongList((long[]) osrToArrayNode.getResult());
   }
 
   @Specialization(guards = {"isFloatKind(getResultType())"})
@@ -236,7 +240,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
     nextToken.execute(this, parser);
-    return new FloatList((float[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new FloatList((float[]) osrToArrayNode.getResult());
   }
 
   @Specialization(guards = {"isDoubleKind(getResultType())"})
@@ -274,7 +279,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
     nextToken.execute(this, parser);
-    return new DoubleList((double[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new DoubleList((double[]) osrToArrayNode.getResult());
   }
 
   @Specialization(guards = {"isBooleanKind(getResultType())"})
@@ -312,7 +318,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
     nextToken.execute(this, parser);
-    return new BooleanList((boolean[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new BooleanList((boolean[]) osrToArrayNode.getResult());
   }
 
   @Specialization(guards = {"isStringKind(getResultType())"})
@@ -350,7 +357,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(llist);
     nextToken.execute(this, parser);
-    return new StringList((String[]) toArrayLoopNode.execute(frame));
+    toArrayLoopNode.execute(frame);
+    return new StringList((String[]) osrToArrayNode.getResult());
   }
 
   @Specialization

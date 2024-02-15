@@ -40,9 +40,11 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
   @CompilerDirectives.CompilationFinal private Object generator;
   @CompilerDirectives.CompilationFinal private Object function;
 
-  ArrayList<Object> llist;
+  private ArrayList<Object> llist;
 
-  private boolean hasNext = false;
+  public ArrayList<Object> getResult() {
+    return llist;
+  }
 
   public void init(Object generator, Object function) {
     this.generator = generator;
@@ -51,25 +53,17 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  public boolean shouldContinue(Object returnValue) {
-    hasNext = hasNextNode.execute(this, generator);
-    return returnValue == this.initialLoopStatus() || hasNext;
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (hasNext) {
-      Object v = nextNode.execute(this, generator);
-      Boolean predicate = null;
-      predicate =
-          TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, function, v), false);
-      if (predicate) {
-        llist.add(v);
-      }
+    boolean hasNext = hasNextNode.execute(this, generator);
+    if (!hasNext) {
+      return false;
     }
-    return llist;
+    Object v = nextNode.execute(this, generator);
+    Boolean predicate = null;
+    predicate =
+        TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, function, v), false);
+    if (predicate) {
+      llist.add(v);
+    }
+    return true;
   }
 }

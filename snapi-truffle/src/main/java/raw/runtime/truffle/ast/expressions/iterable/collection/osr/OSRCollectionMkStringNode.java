@@ -21,7 +21,7 @@ import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 
-public class OSRCollectionMksStringNode extends Node implements RepeatingNode {
+public class OSRCollectionMkStringNode extends Node implements RepeatingNode {
 
   @Child
   private GeneratorNodes.GeneratorHasNextNode hasNextNode =
@@ -36,31 +36,25 @@ public class OSRCollectionMksStringNode extends Node implements RepeatingNode {
   @CompilerDirectives.CompilationFinal private Object generator;
   @CompilerDirectives.CompilationFinal private String sep = "";
 
-  private String currentString = "";
+  private String resultString = "";
 
-  private boolean hasNext = false;
+  public String getResult() {
+    return resultString;
+  }
 
   public void init(Object generator, String str, String sep) {
     this.generator = generator;
-    this.currentString = str;
+    this.resultString = str;
     this.sep = sep;
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  public boolean shouldContinue(Object returnValue) {
-    hasNext = hasNextNode.execute(this, generator);
-    return hasNext || returnValue == this.initialLoopStatus();
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (hasNext) {
-      Object next = nextNode.execute(this, generator);
-      currentString = (String) add.execute(this, currentString + sep, next);
+    boolean hasNext = hasNextNode.execute(this, generator);
+    if (!hasNext) {
+      return false;
     }
-    return currentString;
+    Object next = nextNode.execute(this, generator);
+    resultString = (String) add.execute(this, resultString + sep, next);
+    return true;
   }
 }
