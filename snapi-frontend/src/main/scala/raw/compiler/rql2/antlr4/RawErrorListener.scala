@@ -13,11 +13,11 @@
 package raw.compiler.rql2.antlr4
 
 import org.antlr.v4.runtime.{BaseErrorListener, RecognitionException, Recognizer, Token}
-import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
+import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange, Message}
 
 class RawErrorListener() extends BaseErrorListener {
 
-  private var errors = List[ErrorMessage]()
+  private var errors = List[Message]()
 
   private def improveErrorMessage(msg: String): String = {
     val extraneousPattern = "extraneous input '(.+)' expecting \\{(.*?)}".r
@@ -75,9 +75,9 @@ class RawErrorListener() extends BaseErrorListener {
           ErrorPosition(line, getCharPositionInLinePlusOne + 1)
         )
       }
-    errors = errors :+ ErrorMessage(improveErrorMessage(msg), List(positions))
+    errors = errors :+ ErrorMessage(improveErrorMessage(msg), List(positions), ParserErrors.ParserErrorCode)
   }
 
-  def getErrors: List[ErrorMessage] = errors
+  def getErrors: List[Message] = errors
   def hasErrors: Boolean = errors.nonEmpty
 }

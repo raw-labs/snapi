@@ -12,10 +12,6 @@
 
 package raw.compiler.rql2.antlr4
 
-import raw.client.api.Message
-
-case class RawVisitorParseErrors() {
-  private var errors: List[Message] = List.empty
-  def addError(error: Message): Unit = errors = errors :+ error
-  def getErrors: List[Message] = errors
+object ParserErrors {
+  val ParserErrorCode = "parserError"
 }
