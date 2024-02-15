@@ -19,12 +19,12 @@ import raw.client.api._
 import raw.client.rql2.api._
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotTextWriter}
 import raw.compiler.base
-import raw.compiler.base.errors.{BaseError, UnexpectedType, UnknownDecl}
+import raw.compiler.base.errors._
 import raw.compiler.base.source.BaseNode
 import raw.compiler.base.{CompilerContext, TreeDeclDescription, TreeDescription, TreeParamDescription}
 import raw.compiler.common.source.{SourceNode, SourceProgram}
 import raw.compiler.rql2._
-import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult}
+import raw.compiler.rql2.antlr4.{Antlr4SyntaxAnalyzer, ParseProgramResult, ParseTypeResult, ParserErrors}
 import raw.compiler.rql2.builtin.{BinaryPackage, CsvPackage, JsonPackage, StringPackage}
 import raw.compiler.rql2.errors._
 import raw.compiler.rql2.lsp.CompilerLspService
@@ -143,21 +143,24 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
                 val formattedDecls = programDecls.map {
                   case TreeDeclDescription(None, outType, comment) => rql2TypeToRawType(outType) match {
                       case Some(rawType) => DeclDescription(None, rawType, comment)
-                      case None =>
-                        return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                      case None => return GetProgramDescriptionFailure(
+                          List(ErrorMessage(UnsupportedType.message, List.empty, UnsupportedType.code))
+                        )
                     }
                   case TreeDeclDescription(Some(params), outType, comment) =>
                     val formattedParams = params.map {
                       case TreeParamDescription(idn, tipe, required) => rql2TypeToRawType(tipe) match {
                           case Some(rawType) => ParamDescription(idn, rawType, None, required)
-                          case None =>
-                            return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                          case None => return GetProgramDescriptionFailure(
+                              List(ErrorMessage(UnsupportedType.message, List.empty, UnsupportedType.code))
+                            )
                         }
                     }
                     rql2TypeToRawType(outType) match {
                       case Some(rawType) => DeclDescription(Some(formattedParams), rawType, comment)
-                      case None =>
-                        return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                      case None => return GetProgramDescriptionFailure(
+                          List(ErrorMessage(UnsupportedType.message, List.empty, UnsupportedType.code))
+                        )
                     }
                 }
                 (idn, formattedDecls)
@@ -167,14 +170,16 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
               maybeType.map { t =>
                 rql2TypeToRawType(t) match {
                   case Some(rawType) => rawType
-                  case None => return GetProgramDescriptionFailure(List(ErrorMessage("unsupported type", List.empty)))
+                  case None => return GetProgramDescriptionFailure(
+                      List(ErrorMessage(UnsupportedType.message, List.empty, UnsupportedType.code))
+                    )
                 }
               },
               comment
             )
             GetProgramDescriptionSuccess(programDescription)
           } else {
-            GetProgramDescriptionFailure(tree.errors)
+            GetProgramDescriptionFailure(tree.errors.collect { case e: ErrorMessage => e })
           }
         } catch {
           case NonFatal(t) => throw new CompilerServiceException(t, programContext.dumpDebugInfo)
@@ -224,7 +229,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
                     val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
                     ErrorRange(begin, end)
                   }
-                  ErrorMessage(message, positions.to)
+                  ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
                 }
                 EvalValidationFailure(errors.to)
               } else {
@@ -407,7 +412,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
                   val end = ErrorPosition(endValue.getMember("line").asInt, endValue.getMember("column").asInt)
                   ErrorRange(begin, end)
                 }
-                ErrorMessage(message, positions.to)
+                ErrorMessage(message, positions.to, ParserErrors.ParserErrorCode)
               }
               ExecutionValidationFailure(errors.to)
             } else {
@@ -637,10 +642,10 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
 
   private def parseError(error: String, position: Position): List[ErrorMessage] = {
     val range = ErrorRange(ErrorPosition(position.line, position.column), ErrorPosition(position.line, position.column))
-    List(ErrorMessage(error, List(range)))
+    List(ErrorMessage(error, List(range), ParserErrors.ParserErrorCode))
   }
 
-  private def formatErrors(errors: Seq[BaseError], positions: Positions): List[ErrorMessage] = {
+  private def formatErrors(errors: Seq[CompilerMessage], positions: Positions): List[Message] = {
     errors.map { err =>
       val ranges = positions.getStart(err.node) match {
         case Some(begin) =>
@@ -648,7 +653,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
           List(ErrorRange(ErrorPosition(begin.line, begin.column), ErrorPosition(end.line, end.column)))
         case _ => List.empty
       }
-      ErrorMessage(ErrorsPrettyPrinter.format(err), ranges)
+      CompilationMessageMapper.toMessage(err, ranges, ErrorsPrettyPrinter.format)
     }.toList
   }
 

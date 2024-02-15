@@ -14,7 +14,8 @@ package raw.compiler.base
 
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.relation.{EnsureTree, LeaveAlone, TreeRelation}
-import raw.client.api.ErrorMessage
+import raw.client.api.{ErrorMessage, Message}
+import raw.compiler.base.errors.{CompilationMessageMapper, ErrorCompilerMessage}
 import raw.compiler.base.source._
 import raw.compiler.utils.ExtraRewriters
 
@@ -50,12 +51,12 @@ abstract class BaseTree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manif
 
   lazy val valid: Boolean = isTreeValid
 
-  lazy val errors: List[ErrorMessage] = {
-    analyzer.errors.map(err => ErrorMessage(format(err), List.empty)).to
+  lazy val errors: List[Message] = {
+    analyzer.errors.map(err => CompilationMessageMapper.toMessage(err, List.empty, format)).toList
   }
 
   protected def isTreeValid: Boolean = {
-    val isValid = analyzer.errors.isEmpty
+    val isValid = analyzer.errors.collect { case e: ErrorCompilerMessage => e }.isEmpty
     if (programContext.settings.onTrainingWheels && !isValid) {
       // Errors were found.
       // We put them as log messages but next calls will try to re-render the tree (if they support that) so we get nice

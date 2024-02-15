@@ -58,6 +58,16 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   }
 
   // Quoted value
+  test("""select * from public."B """.stripMargin) { t =>
+    assume(password != "")
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "B", Pos(1, 24))
+    assert(
+      completion.completions.toSet === Set(LetBindCompletion("BLABLABLA", "table"))
+    )
+  }
+
+  // Quoted value
   test("""select * from "example"."airp""".stripMargin) { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
@@ -115,20 +125,30 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     // The calls to the dotAutoComplete have to point to the place before the dot
     val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
     assert(
-      dotCompletion.completions.toSet === Set(
-        LetBindCompletion("icao", "character varying"),
-        LetBindCompletion("tz", "character varying"),
-        LetBindCompletion("latitude", "numeric"),
-        LetBindCompletion("altitude", "numeric"),
-        LetBindCompletion("airport_id", "integer"),
-        LetBindCompletion("country", "character varying"),
-        LetBindCompletion("timezone", "integer"),
-        LetBindCompletion("iata_faa", "character varying"),
-        LetBindCompletion("name", "character varying"),
-        LetBindCompletion("dst", "character varying"),
-        LetBindCompletion("longitude", "numeric"),
-        LetBindCompletion("city", "character varying")
+      dotCompletion.completions.toSet === airportColumns
+    )
+  }
+
+  // dot completion with three items
+  test("""SELECT * FROM example.airports
+    |WHERE example.airports.
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 16))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 17))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("airports", "table")
       )
+    )
+
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 23))
+    assert(
+      dotCompletion.completions.toSet === airportColumns
     )
   }
 
@@ -249,7 +269,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -294,7 +314,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "csv")
     )
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -333,7 +353,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "json")
     )
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -367,7 +387,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "csv")
     )
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.nonEmpty)
+    assert(v.messages.nonEmpty)
     val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, environment)
     assert(errors.size === 1)
     assert(errors.head.message === "a parameter cannot be both string and int")
@@ -384,7 +404,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val expectedError = "syntax error at end of input"
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val validation = compilerService.validate(t.q, environment)
-    assert(validation.errors.exists(_.message.contains(expectedError)))
+    assert(validation.messages.exists(_.message.contains(expectedError)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
     val baos = new ByteArrayOutputStream()
@@ -398,7 +418,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val expectedError = "syntax error at or near \"-\""
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.exists(_.message.contains(expectedError)))
+    assert(v.messages.exists(_.message.contains(expectedError)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
     val baos = new ByteArrayOutputStream()
@@ -412,7 +432,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val expectedError = "relation \"inexistent_table\" does not exist"
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.exists(_.message.contains(expectedError)))
+    assert(v.messages.exists(_.message.contains(expectedError)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
     val baos = new ByteArrayOutputStream()
@@ -467,7 +487,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "json")
     )
     val v = compilerService.validate(t.q, withCity)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -513,7 +533,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "json")
     )
     val v = compilerService.validate(t.q, withCity)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -543,7 +563,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -577,4 +597,18 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |]""".stripMargin.replaceAll("\\s+", ""))
   }
 
+  private val airportColumns = Set(
+    LetBindCompletion("icao", "character varying"),
+    LetBindCompletion("tz", "character varying"),
+    LetBindCompletion("latitude", "numeric"),
+    LetBindCompletion("altitude", "numeric"),
+    LetBindCompletion("airport_id", "integer"),
+    LetBindCompletion("country", "character varying"),
+    LetBindCompletion("timezone", "integer"),
+    LetBindCompletion("iata_faa", "character varying"),
+    LetBindCompletion("name", "character varying"),
+    LetBindCompletion("dst", "character varying"),
+    LetBindCompletion("longitude", "numeric"),
+    LetBindCompletion("city", "character varying")
+  )
 }

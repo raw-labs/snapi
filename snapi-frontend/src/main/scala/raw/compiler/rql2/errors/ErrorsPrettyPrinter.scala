@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.errors
 
-import raw.compiler.base.errors.UnexpectedType
+import raw.compiler.base.errors.{MissingSecretWarning, UnexpectedType}
 import raw.compiler.base.source.BaseNode
 import raw.compiler.{base, rql2}
 import raw.compiler.rql2.source.{ExpectedProjType, PackageType}
@@ -55,6 +55,7 @@ trait ErrorsPrettyPrinter extends base.errors.ErrorsPrettyPrinter with rql2.sour
           ent <+> "is not declared in package" <+> pkgName
         }
       handleHintsAndSuggestions(message, hints, suggestions)
+    case MissingSecretWarning(_, reason) => reason
     case _ => super.toDoc(n)
   }
 

@@ -13,13 +13,15 @@
 package raw.inferrer.local.csv
 
 import java.io.Reader
-
 import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.local._
 import raw.inferrer.local.text.TextLineIterator
 import raw.inferrer.api._
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.api.{Encoding, SourceContext}
+import raw.utils.RawException
+
+import scala.util.control.NonFatal
 
 object CsvInferrer {
   private val CSV_SAMPLE_SIZE = "raw.inferrer.local.csv.sample-size"
@@ -54,24 +56,25 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
   ): TextInputStreamFormatDescriptor = {
-    withErrorHandling {
-      val r = getTextBuffer(is, maybeEncoding)
-      try {
-        val format = infer(
-          r.reader,
-          maybeHasHeader,
-          maybeDelimiters,
-          maybeNulls,
-          maybeNans,
-          maybeSampleSize,
-          skip,
-          maybeEscapeChar,
-          maybeQuoteChars
-        )
-        TextInputStreamFormatDescriptor(r.encoding, r.confidence, format)
-      } finally {
-        r.reader.close()
-      }
+    val r = getTextBuffer(is, maybeEncoding)
+    try {
+      val format = infer(
+        r.reader,
+        maybeHasHeader,
+        maybeDelimiters,
+        maybeNulls,
+        maybeNans,
+        maybeSampleSize,
+        skip,
+        maybeEscapeChar,
+        maybeQuoteChars
+      )
+      TextInputStreamFormatDescriptor(r.encoding, r.confidence, format)
+    } catch {
+      case ex: RawException => throw ex
+      case NonFatal(e) => throw new RawException(s"csv inference failed unexpectedly", e)
+    } finally {
+      r.reader.close()
     }
   }
 
@@ -86,73 +89,71 @@ class CsvInferrer(implicit protected val sourceContext: SourceContext)
       maybeEscapeChar: Option[Char],
       maybeQuoteChars: Option[Seq[Option[Char]]]
   ): TextInputFormatDescriptor = {
-    withErrorHandling {
-      val delimiters = maybeDelimiters.getOrElse(defaultDelimiters)
+    val delimiters = maybeDelimiters.getOrElse(defaultDelimiters)
 
-      val nulls = maybeNulls.getOrElse(Seq(""))
-      val nans = maybeNans.getOrElse(Seq.empty)
-      val quotes = maybeQuoteChars.getOrElse(Seq(Some('"'), None))
+    val nulls = maybeNulls.getOrElse(Seq(""))
+    val nans = maybeNans.getOrElse(Seq.empty)
+    val quotes = maybeQuoteChars.getOrElse(Seq(Some('"'), None))
 
-      // makes combinations of delimiters, quotes
-      val sniffers = {
-        for (quote <- quotes; delim <- delimiters) yield new CsvTypeSniffer(delim, quote, maybeEscapeChar, nulls, nans)
-      }
+    // makes combinations of delimiters, quotes
+    val sniffers = {
+      for (quote <- quotes; delim <- delimiters) yield new CsvTypeSniffer(delim, quote, maybeEscapeChar, nulls, nans)
+    }
 
-      val it = new TextLineIterator(reader)
-      // skipping lines
-      it.take(skip.getOrElse(0)).toList
+    val it = new TextLineIterator(reader)
+    // skipping lines
+    it.take(skip.getOrElse(0)).toList
 
-      // choosing the separator with a smaller sample (no need to read the full file)
-      it.take(separatorSampleSize).foreach(line => sniffers.foreach(p => p.parse(line + "\n")))
+    // choosing the separator with a smaller sample (no need to read the full file)
+    it.take(separatorSampleSize).foreach(line => sniffers.foreach(p => p.parse(line + "\n")))
 
-      val maxDelimiterCount = sniffers.map(p => p.delimCount).max
-      val grouped = sniffers
-        .filter(_.isUniform)
-        .groupBy { p =>
-          // scoring all sniffers by delimiter count and quotedRatio
-          if (maxDelimiterCount != 0) {
-            (p.delimCount.toDouble / maxDelimiterCount) + (quotedWeight * p.quotedRatio)
-          } else {
-            // no delimiter was found so only quoted-ration is used
-            // the (p.delimCount.toDouble / maxDelimiterCount) would generate NaN's and the inferrence would fail
-            p.quotedRatio
-          }
-        }
-
-      if (grouped.nonEmpty) {
-        val best = grouped.keySet.max
-        if (grouped(best).length > 1)
-          logger.debug(s"CSV file with more than one 'best' option for separator. Choosing first.")
-        val sniffer = grouped(best).head
-        // parsing the rest of the lines to get the type
-        val nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
-        if (nobjs > 0) {
-          it.take(nobjs).foreach(l => sniffer.parse(l + "\n"))
+    val maxDelimiterCount = sniffers.map(p => p.delimCount).max
+    val grouped = sniffers
+      .filter(_.isUniform)
+      .groupBy { p =>
+        // scoring all sniffers by delimiter count and quotedRatio
+        if (maxDelimiterCount != 0) {
+          (p.delimCount.toDouble / maxDelimiterCount) + (quotedWeight * p.quotedRatio)
         } else {
-          it.foreach(l => sniffer.parse(l + "\n"))
+          // no delimiter was found so only quoted-ration is used
+          // the (p.delimCount.toDouble / maxDelimiterCount) would generate NaN's and the inferrence would fail
+          p.quotedRatio
         }
-
-        val (result, hasHeader) = sniffer.infer(maybeHasHeader)
-        val linesToSkip = (if (hasHeader) 1 else 0) + skip.getOrElse(0)
-
-        CsvInputFormatDescriptor(
-          result.cleanedType,
-          hasHeader = hasHeader,
-          delimiter = sniffer.delimiter,
-          nulls = nulls.toVector,
-          sniffer.multiLineFields,
-          nans = nans.toVector,
-          skip = linesToSkip,
-          sniffer.escapeChar,
-          sniffer.quote,
-          it.hasNext,
-          result.timeFormat,
-          result.dateFormat,
-          result.timestampFormat
-        )
-      } else {
-        throw new LocalInferrerException("could not find delimiter for CSV")
       }
+
+    if (grouped.nonEmpty) {
+      val best = grouped.keySet.max
+      if (grouped(best).length > 1)
+        logger.debug(s"CSV file with more than one 'best' option for separator. Choosing first.")
+      val sniffer = grouped(best).head
+      // parsing the rest of the lines to get the type
+      val nobjs = maybeSampleSize.getOrElse(defaultSampleSize)
+      if (nobjs > 0) {
+        it.take(nobjs).foreach(l => sniffer.parse(l + "\n"))
+      } else {
+        it.foreach(l => sniffer.parse(l + "\n"))
+      }
+
+      val (result, hasHeader) = sniffer.infer(maybeHasHeader)
+      val linesToSkip = (if (hasHeader) 1 else 0) + skip.getOrElse(0)
+
+      CsvInputFormatDescriptor(
+        result.cleanedType,
+        hasHeader = hasHeader,
+        delimiter = sniffer.delimiter,
+        nulls = nulls.toVector,
+        sniffer.multiLineFields,
+        nans = nans.toVector,
+        skip = linesToSkip,
+        sniffer.escapeChar,
+        sniffer.quote,
+        it.hasNext,
+        result.timeFormat,
+        result.dateFormat,
+        result.timestampFormat
+      )
+    } else {
+      throw new LocalInferrerException("could not find delimiter for CSV")
     }
   }
 

@@ -10,12 +10,8 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.antlr4
+package raw.client.sql
 
-import raw.client.api.Message
-
-case class RawVisitorParseErrors() {
-  private var errors: List[Message] = List.empty
-  def addError(error: Message): Unit = errors = errors :+ error
-  def getErrors: List[Message] = errors
+object ErrorCode {
+  val SqlErrorCode = "sqlError"
 }

@@ -1293,7 +1293,8 @@ class RawSnapiVisitor(
                         ErrorPosition(context.getStart.getLine, context.getStart.getCharPositionInLine + 1),
                         ErrorPosition(context.getStop.getLine, context.getStop.getCharPositionInLine + 1)
                       )
-                    )
+                    ),
+                    ParserErrors.ParserErrorCode
                   )
                 )
                 ErrorExp()
@@ -1324,7 +1325,8 @@ class RawSnapiVisitor(
               ErrorPosition(context.getStart.getLine, context.getStart.getCharPositionInLine + 1),
               ErrorPosition(context.getStop.getLine, context.getStop.getCharPositionInLine + 1)
             )
-          )
+          ),
+          ParserErrors.ParserErrorCode
         )
       )
     }
