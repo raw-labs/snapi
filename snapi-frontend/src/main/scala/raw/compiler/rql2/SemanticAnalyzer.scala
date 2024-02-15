@@ -461,10 +461,14 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     with ExpectedTypes
     with Rql2TypeUtils {
 
-  def isStagedCompiler: Boolean = {
+  // This function checks if the semantic analysis is being run with the staged compiler
+  // We need it to prevent infinite recursion in the getValue function
+  private def isStagedCompiler: Boolean = {
+    // comes from scala
     (programContext.runtimeContext.environment.options.contains(
       "staged-compiler"
     ) && programContext.runtimeContext.environment.options("staged-compiler") == "true") ||
+    // Comes from truffle language
     (programContext.runtimeContext.environment.options.contains(
       "rql.staged-compiler"
     ) && programContext.runtimeContext.environment.options("rql.staged-compiler") == "true")
@@ -473,24 +477,6 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   ///////////////////////////////////////////////////////////////////////////
   // Errors
   ///////////////////////////////////////////////////////////////////////////
-
-  override protected def nonErrorDef: SourceNode ==> Seq[CompilerMessage] = {
-    // Warning, Hint, Info
-    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
-      case e @ FunApp(Proj(exp, "Secret"), parameters)
-          if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
-        tipe(exp) match {
-          case PackageType("Environment") =>
-            val report = CompatibilityReport(tipe(e), tipe(e))
-            getValue(report, e) match {
-              case Right(TryValue(Left(error))) => Seq(MissingSecretWarning(e))
-              case _ => Seq.empty
-            }
-          case _ => Seq.empty
-        }
-    }
-    rql2NonErrors.orElse(super.nonErrorDef)
-  }
 
   override protected def errorDef: SourceNode ==> Seq[CompilerMessage] = {
     // Errors
@@ -547,6 +533,30 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       case p @ Proj(e, idn) if idnIsAmbiguous(idn, e) => Seq(RepeatedFieldNames(p, idn))
     }
     rql2Errors.orElse(super.errorDef)
+  }
+
+  // we check for errors in errorDef, if there are no errors, we are interested in nonErrors(hints, warnings, infos)
+  override protected def nonErrorDef: SourceNode ==> Seq[CompilerMessage] = {
+    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
+      case e @ FunApp(Proj(exp, "Secret"), parameters)
+          if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
+        tipe(exp) match {
+          case PackageType("Environment") =>
+            // Use getValue to confirm Environment.Secret succeeds. The getValue function also handles potentially unexpected nullables and tryables.
+            // We give it a dummy report which states the expected type is the actual type, so that is skips these checks
+            val report = CompatibilityReport(tipe(e), tipe(e))
+            // Try execute  "Environment.Secret(<secret_name>)"
+            getValue(report, e) match {
+              // If getValue returns an error which means the staged compiler failed to execute "Environment.Secret(<secret_name>)" code
+              // We return a warning that the secret is missing.
+              case Right(TryValue(Left(error))) => Seq(MissingSecretWarning(e))
+              // In case of Right(TryValue(Right())) that <secret_name> in "Environment.Secret(<secret_name>)" is a free variable, we don't report that as a warning
+              case _ => Seq.empty
+            }
+          case _ => Seq.empty
+        }
+    }
+    rql2NonErrors.orElse(super.nonErrorDef)
   }
 
   private def idnIsAmbiguous(idn: String, e: Exp): Boolean = {
