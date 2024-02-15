@@ -20,8 +20,6 @@ import scala.collection.JavaConverters._
 object CredentialsServiceProvider {
 
   private val CREDS_IMPL = "raw.creds.impl"
-  private val instanceLock = new Object
-  private var instance: Option[CredentialsService] = None
 
   def apply(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings): CredentialsService = {
     maybeClassLoader match {
@@ -31,21 +29,11 @@ object CredentialsServiceProvider {
   }
 
   def apply()(implicit settings: RawSettings): CredentialsService = {
-    instanceLock.synchronized {
-      instance match {
-        case Some(service) => service
-        case None => build()
-      }
-    }
+    build()
   }
 
   def apply(classLoader: ClassLoader)(implicit settings: RawSettings): CredentialsService = {
-    instanceLock.synchronized {
-      instance match {
-        case Some(service) => service
-        case None => build(Some(classLoader))
-      }
-    }
+    build(Some(classLoader))
   }
 
   private def build(
@@ -65,16 +53,6 @@ object CredentialsServiceProvider {
       }
     } else {
       services.head.build
-    }
-  }
-
-  private[raw] def set(credsService: CredentialsService): Unit = {
-    instanceLock.synchronized {
-      if (credsService == null) {
-        instance = None
-      } else {
-        instance = Some(credsService)
-      }
     }
   }
 
