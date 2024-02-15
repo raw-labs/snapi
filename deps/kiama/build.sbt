@@ -173,6 +173,8 @@ val noPublishSettings =
 
 val extrasProject = ProjectRef(file("."), "extras")
 
+val isRelease = sys.props.getOrElse("release", "false").toBoolean
+
 lazy val core =
     setupSubProject(
         project in file("core"),
@@ -204,7 +206,8 @@ lazy val core =
         TestScalaUnidoc/unidoc/unidocProjectFilter := (ScalaUnidoc/unidoc/unidocProjectFilter).value,
 
         Compile / packageBin / packageOptions += Package.ManifestAttributes( "Automatic-Module-Name" -> "kiama"),
-        publishLocal := (publishLocal dependsOn publishM2).value
+        publishLocal := (publishLocal dependsOn publishM2).value,
+        isSnapshot := !isRelease
     )
 
 lazy val extras =

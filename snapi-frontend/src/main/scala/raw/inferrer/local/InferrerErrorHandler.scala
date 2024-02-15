@@ -33,19 +33,4 @@ trait InferrerErrorHandler extends StrictLogging {
     }
   }
 
-  protected def withErrorHandling[T](f: => T): T = {
-    try {
-      f
-    } catch {
-      case ex: RawException =>
-        // Propagate without changes as it is a terminal condition that contains public information.
-        // It will be caught by the main entrypoint of the inferrer to be displayed to the user.
-        throw ex
-      case NonFatal(t) =>
-        // (msb): This is dangerous and should be removed: inferrers should fail gracefully and with proper messages.
-        // But last time I checked, the XML inferrer would fail badly one of the URLTest, so this code is still necessary.
-        throw new LocalInferrerException("inference failed unexpectedly", t)
-    }
-  }
-
 }
