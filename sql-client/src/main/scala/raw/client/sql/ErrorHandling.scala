@@ -14,15 +14,16 @@ package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
+import raw.utils.RawSettings
 
 import java.sql.SQLException
 
 object ErrorHandling extends StrictLogging {
 
-  def asErrorMessage(source: String, exception: SQLException): List[ErrorMessage] = {
+  def asErrorMessage(source: String, exception: SQLException)(implicit rawSettings: RawSettings): List[ErrorMessage] = {
     val message = exception.getSQLState match {
       case "42P01" => // undefined table, add a hint
-        exception.getMessage + "\nDid you forget to add credentials?"
+        exception.getMessage + "\n" + rawSettings.getString("raw.client.sql.error-messages.missing-relation")
       case _ => exception.getMessage
     }
     logger.warn(message, exception)
