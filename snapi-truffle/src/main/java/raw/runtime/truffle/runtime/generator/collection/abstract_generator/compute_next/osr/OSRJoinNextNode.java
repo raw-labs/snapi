@@ -53,7 +53,7 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private JoinComputeNext computeNext;
 
-  private Object row;
+  private Object row = null;
 
   public Object getResult() {
     return row;
@@ -74,7 +74,6 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    row = null;
     if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
       if (computeNext.getLeftRow() == null) {
         if (hasNextNode.execute(this, computeNext.getLeftGen())) {
