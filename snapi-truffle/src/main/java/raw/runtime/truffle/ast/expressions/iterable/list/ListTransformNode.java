@@ -50,7 +50,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    byte[] values = (byte[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    byte[] values = (byte[]) node.getResult();
     return new ByteList(values);
   }
 
@@ -67,7 +68,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    short[] values = (short[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    short[] values = (short[]) node.getResult();
     return new ShortList(values);
   }
 
@@ -84,7 +86,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    int[] values = (int[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    int[] values = (int[]) node.getResult();
     return new IntList(values);
   }
 
@@ -101,7 +104,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    long[] values = (long[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    long[] values = (long[]) node.getResult();
     return new LongList(values);
   }
 
@@ -118,7 +122,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    float[] values = (float[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    float[] values = (float[]) node.getResult();
     return new FloatList(values);
   }
 
@@ -135,7 +140,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    double[] values = (double[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    double[] values = (double[]) node.getResult();
     return new DoubleList(values);
   }
 
@@ -152,7 +158,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    boolean[] values = (boolean[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    boolean[] values = (boolean[]) node.getResult();
     return new BooleanList(values);
   }
 
@@ -169,7 +176,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    String[] values = (String[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    String[] values = (String[]) node.getResult();
     return new StringList(values);
   }
 
@@ -186,7 +194,8 @@ public abstract class ListTransformNode extends ExpressionNode {
           LoopNode transformLoopNode) {
     OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
     node.init(list, function);
-    Object[] values = (Object[]) transformLoopNode.execute(frame);
+    transformLoopNode.execute(frame);
+    Object[] values = (Object[]) node.getResult();
     return new ObjectList(values);
   }
 }

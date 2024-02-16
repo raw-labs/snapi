@@ -32,9 +32,11 @@ public class OSRListFromNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private Object generator;
 
-  ArrayList<Object> llist;
+  private ArrayList<Object> llist;
 
-  private boolean hasNext = false;
+  public ArrayList<Object> getResult() {
+    return llist;
+  }
 
   public void init(Object generator) {
     this.generator = generator;
@@ -42,19 +44,10 @@ public class OSRListFromNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  public boolean shouldContinue(Object returnValue) {
-    hasNext = hasNextNode.execute(this, generator);
-    return returnValue == this.initialLoopStatus() || hasNext;
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (hasNext) {
-      llist.add(nextNode.execute(this, generator));
+    if (!hasNextNode.execute(this, generator)) {
+      return false;
     }
-    return llist;
+    llist.add(nextNode.execute(this, generator));
+    return true;
   }
 }

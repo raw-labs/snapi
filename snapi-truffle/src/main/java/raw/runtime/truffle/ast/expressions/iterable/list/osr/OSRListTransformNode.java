@@ -36,14 +36,18 @@ public class OSRListTransformNode extends Node implements RepeatingNode {
   private final Rql2Type resultType;
 
   @CompilerDirectives.CompilationFinal private Object function;
-  private Object list;
-  private int size;
+  @CompilerDirectives.CompilationFinal private Object list;
+  @CompilerDirectives.CompilationFinal private int size;
   private int currentIdx;
 
   private Object result;
 
   public OSRListTransformNode(Rql2Type resultType) {
     this.resultType = resultType;
+  }
+
+  public Object getResult() {
+    return result;
   }
 
   public void init(Object list, Object function) {
@@ -55,17 +59,8 @@ public class OSRListTransformNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  public boolean shouldContinue(Object returnValue) {
-    return returnValue == this.initialLoopStatus() || currentIdx < this.size;
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (currentIdx == sizeNode.execute(this, list)) {
-      return result;
+    if (currentIdx >= size) {
+      return false;
     }
     if (TypeGuards.isByteKind(resultType)) {
       ((byte[]) result)[currentIdx] =
@@ -112,6 +107,6 @@ public class OSRListTransformNode extends Node implements RepeatingNode {
           functionExecuteOneNode.execute(this, function, getNode.execute(this, list, currentIdx));
     }
     currentIdx++;
-    return result;
+    return true;
   }
 }

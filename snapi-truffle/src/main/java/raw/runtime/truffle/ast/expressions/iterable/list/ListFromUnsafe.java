@@ -17,7 +17,6 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
@@ -68,10 +67,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new ByteList((byte[]) osrToArrayNode.getResult());
     } finally {
@@ -103,10 +101,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new ShortList((short[]) osrToArrayNode.getResult());
     } finally {
@@ -138,10 +135,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new IntList((int[]) osrToArrayNode.getResult());
     } finally {
@@ -173,10 +169,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new LongList((long[]) osrToArrayNode.getResult());
     } finally {
@@ -208,10 +203,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new FloatList((float[]) osrToArrayNode.getResult());
     } finally {
@@ -243,10 +237,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new DoubleList((double[]) osrToArrayNode.getResult());
     } finally {
@@ -278,10 +271,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new BooleanList((boolean[]) osrToArrayNode.getResult());
     } finally {
@@ -313,10 +305,9 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+      loopNode.execute(frame);
       OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(llist);
+      osrToArrayNode.init(osrNode.getResult());
       toArrayLoopNode.execute(frame);
       return new StringList((String[]) osrToArrayNode.getResult());
     } finally {
@@ -342,9 +333,8 @@ public abstract class ListFromUnsafe extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
       osrNode.init(generator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
-      return new RawArrayList(llist);
+      loopNode.execute(frame);
+      return new RawArrayList(osrNode.getResult());
     } finally {
       generatorCloseNode.execute(this, generator);
     }

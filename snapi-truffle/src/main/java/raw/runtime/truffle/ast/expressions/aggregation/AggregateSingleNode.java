@@ -67,7 +67,8 @@ public class AggregateSingleNode extends ExpressionNode {
       Object result = zeroNode.execute(this, aggregationType);
       OSRSingleAggregationNode OSRNode = (OSRSingleAggregationNode) loop.getRepeatingNode();
       OSRNode.init(generator, result);
-      return loop.execute(virtualFrame);
+      loop.execute(virtualFrame);
+      return OSRNode.getResult();
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     } finally {

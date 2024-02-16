@@ -53,8 +53,7 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    boolean hasNext = hasNextNode.execute(this, generator);
-    if (!hasNext) {
+    if (!hasNextNode.execute(this, generator)) {
       return false;
     }
     Object v = nextNode.execute(this, generator);

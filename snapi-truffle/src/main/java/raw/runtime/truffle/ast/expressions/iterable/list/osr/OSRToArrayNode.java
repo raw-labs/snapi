@@ -24,7 +24,7 @@ public class OSRToArrayNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private ArrayList<Object> llist;
 
-  @CompilerDirectives.CompilationFinal private final Rql2Type resultType;
+  private final Rql2Type resultType;
 
   private int currentIdx;
 

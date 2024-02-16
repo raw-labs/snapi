@@ -18,7 +18,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
@@ -94,9 +93,8 @@ public abstract class ListGroupByNode extends ExpressionNode {
       initNode.execute(thisNode, mapGenerator);
       OSRListFromNode osrNode = (OSRListFromNode) fromLoopNode.getRepeatingNode();
       osrNode.init(mapGenerator);
-      @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) fromLoopNode.execute(frame);
-      return new RawArrayList(llist);
+      fromLoopNode.execute(frame);
+      return new RawArrayList(osrNode.getResult());
     } finally {
       closeNode.execute(thisNode, mapGenerator);
     }

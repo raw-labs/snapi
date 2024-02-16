@@ -68,7 +68,8 @@ public class AggregateMultipleNode extends ExpressionNode {
       }
       OSRMultiAggregationNode OSRNode = (OSRMultiAggregationNode) loop.getRepeatingNode();
       OSRNode.init(generator, results);
-      return loop.execute(virtualFrame);
+      loop.execute(virtualFrame);
+      return OSRNode.getResults();
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     } finally {

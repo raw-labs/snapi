@@ -37,10 +37,12 @@ public class OSRMultiAggregationNode extends Node implements RepeatingNode {
   @CompilerDirectives.CompilationFinal(dimensions = 0)
   private Object[] currentResults;
 
-  private boolean hasNext = false;
-
   public OSRMultiAggregationNode(byte[] aggregationTypes) {
     this.aggregationTypes = aggregationTypes;
+  }
+
+  public Object[] getResults() {
+    return currentResults;
   }
 
   public void init(Object generator, Object[] zeroes) {
@@ -49,26 +51,13 @@ public class OSRMultiAggregationNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  // On first execution the return value is always CONTINUE_LOOP_STATUS
-  // We don't want to return this status as a result of this execution.
-  // In case of an empty input, hasNext will return false and executeRepeatingWithValue never
-  // executes leading to CONTINUE_LOOP_STATUS returning
-  public boolean shouldContinue(Object returnValue) {
-    hasNext = hasNextNode.execute(this, generator);
-    return hasNext || returnValue == this.initialLoopStatus();
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (hasNext) {
-      Object next = nextNode.execute(this, generator);
-      for (int i = 0; i < aggregationTypes.length; i++) {
-        currentResults[i] = mergeNode.execute(this, aggregationTypes[i], currentResults[i], next);
-      }
+    if (!hasNextNode.execute(this, generator)) {
+      return false;
     }
-    return currentResults;
+    Object next = nextNode.execute(this, generator);
+    for (int i = 0; i < aggregationTypes.length; i++) {
+      currentResults[i] = mergeNode.execute(this, aggregationTypes[i], currentResults[i], next);
+    }
+    return true;
   }
 }

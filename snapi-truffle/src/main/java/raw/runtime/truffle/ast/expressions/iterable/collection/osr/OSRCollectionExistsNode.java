@@ -51,8 +51,7 @@ public class OSRCollectionExistsNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    boolean hasNext = hasNextNode.execute(this, generator);
-    if (!hasNext) {
+    if (!hasNextNode.execute(this, generator)) {
       return false;
     }
     result =
