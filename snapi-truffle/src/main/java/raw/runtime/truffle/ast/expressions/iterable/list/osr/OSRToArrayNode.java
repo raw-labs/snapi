@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list.osr;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
@@ -22,7 +21,7 @@ import raw.runtime.truffle.ast.TypeGuards;
 
 public class OSRToArrayNode extends Node implements RepeatingNode {
 
-  @CompilerDirectives.CompilationFinal private ArrayList<Object> llist;
+  private ArrayList<Object> llist;
 
   private final Rql2Type resultType;
 
