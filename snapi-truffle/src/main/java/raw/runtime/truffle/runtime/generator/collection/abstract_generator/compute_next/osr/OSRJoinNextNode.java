@@ -53,10 +53,10 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private JoinComputeNext computeNext;
 
-  private Object result = null;
+  private Object row = null;
 
   public Object getResult() {
-    return result;
+    return row;
   }
 
   @CompilerDirectives.TruffleBoundary
@@ -73,7 +73,7 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    Object row = null;
+    row = null;
     if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
       if (computeNext.getLeftRow() == null) {
         if (hasNextNode.execute(this, computeNext.getLeftGen())) {
@@ -136,10 +136,6 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
         }
       }
     }
-    if (row != null) {
-      result = row;
-      return false;
-    }
-    return true;
+    return row == null;
   }
 }
