@@ -20,7 +20,6 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
@@ -80,10 +79,10 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
+    nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new ByteList((byte[]) osrToArrayNode.getResult());
   }
@@ -118,10 +117,9 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
     nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new ShortList((short[]) osrToArrayNode.getResult());
@@ -157,10 +155,9 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
     nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new IntList((int[]) osrToArrayNode.getResult());
@@ -196,10 +193,9 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
     nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new LongList((long[]) osrToArrayNode.getResult());
@@ -235,10 +231,9 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
     nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new FloatList((float[]) osrToArrayNode.getResult());
@@ -274,10 +269,9 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
     nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new DoubleList((double[]) osrToArrayNode.getResult());
@@ -313,10 +307,9 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
     nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new BooleanList((boolean[]) osrToArrayNode.getResult());
@@ -352,10 +345,9 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(llist);
+    osrToArrayNode.init(osrNode.getResult());
     nextToken.execute(this, parser);
     toArrayLoopNode.execute(frame);
     return new StringList((String[]) osrToArrayNode.getResult());
@@ -385,9 +377,8 @@ public abstract class ListParseJsonNode extends ExpressionNode {
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
     osrNode.init(parser);
-    @SuppressWarnings("unchecked")
-    ArrayList<Object> llist = (ArrayList<Object>) loopNode.execute(frame);
+    loopNode.execute(frame);
     nextToken.execute(this, parser);
-    return new RawArrayList(llist);
+    return new RawArrayList(osrNode.getResult());
   }
 }

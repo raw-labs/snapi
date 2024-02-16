@@ -261,7 +261,8 @@ public class ComputeNextNodes {
             LoopNode loopNode) {
       OSRFilterNode osrNode = (OSRFilterNode) loopNode.getRepeatingNode();
       osrNode.init(computeNext);
-      Object result = loopNode.execute(computeNext.getFrame());
+      loopNode.execute(computeNext.getFrame());
+      Object result = osrNode.getResult();
       if (result == null) {
         throw new BreakException();
       }
@@ -443,7 +444,8 @@ public class ComputeNextNodes {
             LoopNode loopNode) {
       OSRJoinNextNode osrNode = (OSRJoinNextNode) loopNode.getRepeatingNode();
       osrNode.init(computeNext);
-      return loopNode.execute(computeNext.getFrame());
+      loopNode.execute(computeNext.getFrame());
+      return osrNode.getResult();
     }
   }
 

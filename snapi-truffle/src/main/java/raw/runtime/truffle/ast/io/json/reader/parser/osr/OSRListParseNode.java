@@ -34,12 +34,14 @@ public class OSRListParseNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private JsonParser parser;
 
-  ArrayList<Object> llist;
-
-  private boolean hasNext = false;
+  @CompilerDirectives.CompilationFinal ArrayList<Object> llist;
 
   public OSRListParseNode(RootCallTarget childRootCallTarget) {
     this.childCallNode = DirectCallNode.create(childRootCallTarget);
+  }
+
+  public ArrayList<Object> getResult() {
+    return llist;
   }
 
   public void init(JsonParser parser) {
@@ -48,19 +50,10 @@ public class OSRListParseNode extends Node implements RepeatingNode {
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  public boolean shouldContinue(Object returnValue) {
-    hasNext = currentToken.execute(this, parser) != JsonToken.END_ARRAY;
-    return returnValue == this.initialLoopStatus() || hasNext;
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (hasNext) {
-      llist.add(childCallNode.call(parser));
+    if (currentToken.execute(this, parser) == JsonToken.END_ARRAY) {
+      return false;
     }
-    return llist;
+    llist.add(childCallNode.call(parser));
+    return true;
   }
 }

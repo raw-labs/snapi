@@ -39,35 +39,28 @@ public class OSRFilterNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private FilterComputeNext computeNext;
 
-  private boolean hasNext = false;
+  Object result;
+
+  public Object getResult() {
+    return result;
+  }
 
   public void init(FilterComputeNext computeNext) {
     this.computeNext = computeNext;
+    result = null;
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
-    // ignored
-    return false;
-  }
-
-  public boolean shouldContinue(Object returnValue) {
-    hasNext = hasNextNode.execute(this, computeNext.getParent());
-    return returnValue == this.initialLoopStatus() || (returnValue == null && hasNext);
-  }
-
-  public Object executeRepeatingWithValue(VirtualFrame frame) {
-    if (!hasNext) {
-      return null;
+    if (!hasNextNode.execute(this, computeNext.getParent())) {
+      return false;
     }
     Object v = nextNode.execute(this, computeNext.getParent());
-    boolean isPredicateTrue;
-    isPredicateTrue =
+    boolean isPredicateTrue =
         TryableNullable.handlePredicate(
             functionExecuteOneNode.execute(this, computeNext.getPredicate(), v), false);
     if (isPredicateTrue) {
-      return v;
-    } else {
-      return null;
+      result = v;
     }
+    return !isPredicateTrue;
   }
 }
