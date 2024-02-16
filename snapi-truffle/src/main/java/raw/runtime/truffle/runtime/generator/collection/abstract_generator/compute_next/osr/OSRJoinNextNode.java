@@ -69,11 +69,12 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
   }
 
   public void init(JoinComputeNext computeNext) {
-    this.computeNext = computeNext;
     row = null;
+    this.computeNext = computeNext;
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
+    row = null;
     if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
       if (computeNext.getLeftRow() == null) {
         if (hasNextNode.execute(this, computeNext.getLeftGen())) {
