@@ -23,7 +23,8 @@ import scala.collection.mutable
  * It parses the SQL code and extract the named parameters, infer their types from how they're used.
  * It also provides methods to set the parameters by name, then execute the query.
  */
-class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit rawSettings: RawSettings) extends StrictLogging {
+class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit rawSettings: RawSettings)
+    extends StrictLogging {
 
   /* We have the query code in `code` (with named parameters). Internally we need to replace
    * the named parameters with question marks, and keep track of the mapping between the

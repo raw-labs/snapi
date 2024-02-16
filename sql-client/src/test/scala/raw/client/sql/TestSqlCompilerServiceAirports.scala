@@ -432,7 +432,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val expectedErrors = Set("relation \"inexistent_table\" does not exist", "Did you forget to add credentials?")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    val failures = v.messages.collect{case errorMessage: ErrorMessage => errorMessage }
+    val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
@@ -447,7 +447,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val expectedErrors = Set("relation \"wrong.table\" does not exist", "Did you forget to add credentials?")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    val failures = v.messages.collect{case errorMessage: ErrorMessage => errorMessage }
+    val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
     assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
     assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
