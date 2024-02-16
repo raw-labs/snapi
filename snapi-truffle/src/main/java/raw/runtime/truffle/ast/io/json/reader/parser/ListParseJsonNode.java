@@ -29,6 +29,8 @@ import raw.runtime.truffle.ast.io.json.reader.parser.osr.OSRListParseNode;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.list.*;
 
+import java.util.ArrayList;
+
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "IterableParseJson")
 @NodeField(name = "resultType", type = Rql2Type.class)
@@ -78,7 +80,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -116,7 +118,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -154,7 +156,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -192,7 +194,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -230,7 +232,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -268,7 +270,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -306,7 +308,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -344,7 +346,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
     osrToArrayNode.init(osrNode.getResult());
@@ -376,7 +378,7 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     nextToken.execute(this, parser);
 
     OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
+    osrNode.init(parser, new ArrayList<>());
     loopNode.execute(frame);
     nextToken.execute(this, parser);
     return new RawArrayList(osrNode.getResult());
