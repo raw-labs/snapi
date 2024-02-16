@@ -39,7 +39,7 @@ public class OSRFilterNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private FilterComputeNext computeNext;
 
-  Object result;
+  private Object result;
 
   public Object getResult() {
     return result;

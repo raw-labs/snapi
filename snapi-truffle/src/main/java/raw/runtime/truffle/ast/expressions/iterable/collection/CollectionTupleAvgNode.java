@@ -57,32 +57,4 @@ public class CollectionTupleAvgNode extends ExpressionNode {
       throw new RawTruffleInternalErrorException(ex);
     }
   }
-
-  //  private final Object aggregation =
-  //      new MultiAggregation(new byte[] {Aggregations.SUM, Aggregations.COUNT});
-  //
-  //  @Specialization
-  //  protected Object doCollection(
-  //      Object iterable,
-  //      @Cached("new()") AggregateSingleNode aggregateSingleNode,
-  //      @Cached(inline = true) AggregationNodes.Aggregate aggregate,
-  //      @Cached(inline = true) AggregatorNodes.Zero zero,
-  //      @CachedLibrary(limit = "1") InteropLibrary records) {
-  //    try {
-  //      Object[] results = (Object[]) aggregate.execute(this, aggregation, iterable);
-  //      RecordObject record = RawLanguage.get(this).createRecord();
-  //      if ((long) results[1] == (long) zero.execute(this, Aggregations.COUNT)) {
-  //        records.writeMember(record, "sum", zero.execute(this, Aggregations.SUM));
-  //      } else {
-  //        records.writeMember(
-  //            record, "sum", new DecimalObject(new BigDecimal(results[0].toString())));
-  //      }
-  //      records.writeMember(record, "count", results[1]);
-  //      return record;
-  //    } catch (UnsupportedMessageException
-  //        | UnknownIdentifierException
-  //        | UnsupportedTypeException ex) {
-  //      throw new RawTruffleInternalErrorException(ex);
-  //    }
-  //  }
 }
