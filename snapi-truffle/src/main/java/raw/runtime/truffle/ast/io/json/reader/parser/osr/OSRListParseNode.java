@@ -14,6 +14,7 @@ package raw.runtime.truffle.ast.io.json.reader.parser.osr;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -31,7 +32,7 @@ public class OSRListParseNode extends Node implements RepeatingNode {
 
   @Child DirectCallNode childCallNode;
 
-  private final ArrayList<Object> llist = new ArrayList<>();
+  @CompilerDirectives.CompilationFinal private ArrayList<Object> llist;
 
   private JsonParser parser;
 
@@ -45,7 +46,7 @@ public class OSRListParseNode extends Node implements RepeatingNode {
 
   public void init(JsonParser parser) {
     this.parser = parser;
-    llist.clear();
+    llist = new ArrayList<>();
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
