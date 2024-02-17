@@ -34,7 +34,7 @@ public class OSRListParseNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private JsonParser parser;
 
-  private ArrayList<Object> llist;
+  @CompilerDirectives.CompilationFinal private ArrayList<Object> llist;
 
   public OSRListParseNode(RootCallTarget childRootCallTarget) {
     this.childCallNode = DirectCallNode.create(childRootCallTarget);
@@ -45,6 +45,7 @@ public class OSRListParseNode extends Node implements RepeatingNode {
   }
 
   public void init(JsonParser parser) {
+    CompilerDirectives.transferToInterpreter();
     this.parser = parser;
     llist = new ArrayList<>();
   }
