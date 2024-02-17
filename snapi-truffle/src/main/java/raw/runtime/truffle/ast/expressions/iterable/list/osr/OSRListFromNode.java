@@ -32,7 +32,7 @@ public class OSRListFromNode extends Node implements RepeatingNode {
 
   @CompilerDirectives.CompilationFinal private Object generator;
 
-  private ArrayList<Object> llist;
+  private final ArrayList<Object> llist = new ArrayList<>();
 
   public ArrayList<Object> getResult() {
     return llist;
@@ -40,7 +40,7 @@ public class OSRListFromNode extends Node implements RepeatingNode {
 
   public void init(Object generator) {
     this.generator = generator;
-    llist = new ArrayList<>();
+    llist.clear();
   }
 
   public boolean executeRepeating(VirtualFrame frame) {

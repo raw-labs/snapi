@@ -40,7 +40,7 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
   @CompilerDirectives.CompilationFinal private Object generator;
   @CompilerDirectives.CompilationFinal private Object function;
 
-  private ArrayList<Object> llist;
+  private final ArrayList<Object> llist = new ArrayList<>();
 
   public ArrayList<Object> getResult() {
     return llist;
@@ -49,7 +49,7 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
   public void init(Object generator, Object function) {
     this.generator = generator;
     this.function = function;
-    llist = new ArrayList<>();
+    llist.clear();
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
