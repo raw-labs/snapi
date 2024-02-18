@@ -16,9 +16,11 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait BenchmarkTests extends CompilerTestContext {
 
-  val shouldBeExecuted = false
+  property("raw.training-wheels", "false")
 
-  val numberOfRuns = 10
+  val shouldBeExecuted = true
+
+  val numberOfRuns = 100
 
   test("Range Count test") { _ =>
     assume(shouldBeExecuted, "This test is disabled by default")
@@ -27,180 +29,36 @@ trait BenchmarkTests extends CompilerTestContext {
     fastExecute("""let a = 2 + 2 in a """) // some random query
     fastExecute("""let a = 2/2 in a """) // some random query
 
-    val prog = """// Utility functions
-      |min(a: double, b: double) = if(a<=b) then a else b
-      |max(a: double, b: double) = if(a>=b) then a else b
-      |//dayOfYear(d: date):int = Int.From(Interval.ToMillis(Date.Subtract(d, Date.Build(Date.Year(d), 1, 1))) / 8.64e+7) + 1
-      |dayOfYear(d: date) =
-      |let
-      |    getDaysOfMonth(year:int, month:int)=
-      |    let
-      |        start=Date.Build(year,month,1),
-      |        end=Date.FromTimestamp(Date.SubtractInterval(Date.Build(year, month+1, 1), Interval.Build(days=1)))
-      |    in
-      |        Interval.Days(Date.Subtract(end, start))+1
-      |    ,
-      |
-      |    rec m2(d:date, month:int):int =
-      |    let
-      |        year=Date.Year(d),
-      |        i1=Date.Subtract(d, Date.Build(year, month, 1)),
-      |        mondiff=Interval.Months(i1),
-      |        daysDiff=Interval.Days(i1),
-      |        output = 
-      |            if(mondiff<0) then 0
-      |            else if(mondiff==0) then daysDiff
-      |            else getDaysOfMonth(year, month)+m2(d, month+1)
-      |    in
-      |        output
-      |    ,
-      |    output=m2(d,1)+1
+    val prog = """let
+      |    range = 100000000L
       |in
-      |    output
-      |
-      |isLeapYear(year: int) = 
-      |    if (year % 4 == 0 and year % 100 != 0 ) or (year % 400 == 0) then true
-      |      else false
-      |      
-      |// Normalization functions
-      |//  we saw that some watt numbers where actually kilowatts, so we simply divided by 1000 - also negative watts numbers become zeros
-      |normalizeWatt(a: double) = if(a>=1000) then a/1000.0 else max(0,a)
-      |normalizeTemperature(a: double) =  a
-      |
-      |// Calculate PDC for a given time slot
-      |find_I_panel_pdc(r: record(timestamp: timestamp, watt: int, temperature: double), angle: double, method: string) =
-      |  let
-      |    std=1367.00,
-      |    year=Timestamp.Year(r.timestamp),
-      |    days_of_year=if(isLeapYear(year)) then 366.0 else 365.0,
-      |    day_of_year=dayOfYear(Date.FromTimestamp(r.timestamp)),
-      |    cur_time=Time.Build(Timestamp.Hour(r.timestamp), Timestamp.Minute(r.timestamp)),
-      |    latitude=37.97385,
-      |    time_math=Time.Hour(cur_time)+Time.Minute(cur_time)/Double.From(60.00),
-      |    beta=(360.00*(day_of_year-1.00))/days_of_year,
-      |    delta=23.45*Math.Sin(Math.Radians(360.00*(284.00+day_of_year)/days_of_year)),
-      |    e_min=229.2*(0.000075+(0.001868*Math.Cos(Math.Radians(beta)))-(0.032077*Math.Sin(Math.Radians(beta)))-(0.014615*Math.Cos(Math.Radians(2.00*beta)))-(0.04089*Math.Sin(Math.Radians(2.00*beta)))),
-      |    t_solar=time_math+e_min/60.00+4.00*(30.00-23.78743)/60.00,
-      |    omega=15.00*(t_solar-12.00),
-      |    sin_beta=(Math.Sin(Math.Radians(delta)))*Math.Sin(Math.Radians(latitude))+(Math.Cos(Math.Radians(delta)))*Math.Cos(Math.Radians(latitude))*Math.Cos(Math.Radians(omega)),
-      |    b_m=Math.Asin(sin_beta)*180.00/Math.Pi(),
-      |    e_o=1.0001+(0.034221*Math.Cos(Math.Radians(beta)))+(0.00128*Math.Sin(Math.Radians(beta)))+(0.000719*Math.Cos(Math.Radians(2.0*beta)))+(0.000077*Math.Sin(Math.Radians(2.0*beta))),
-      |    g_extraterrestrial=e_o*std,
-      |    g_global_h_oa_na=e_o*std*sin_beta,
-      |    g_global_h_oa=max(0,g_global_h_oa_na),
-      |    k_t_base=r.watt/g_global_h_oa,
-      |    k_t=
-      |      if(g_global_h_oa<=0) 
-      |      then 0 
-      |      else
-      |        if(k_t_base>1)
-      |        then 1
-      |        else k_t_base,
-      |    kappa=k_t,
-      |    kappa_d=
-      |        if(method=="erbs")
-      |        then 
-      |            if(kappa<=0.22) 
-      |            then 1.0-0.09*kappa 
-      |            else if(kappa>=0.8) 
-      |            then 0.165 
-      |            else 0.9511-0.1604*kappa+4.388*Math.Power(kappa,2)-16.638*Math.Power(kappa,3)+12.336*Math.Power(kappa,4)
-      |        else if(method=="karatasou")
-      |        then 
-      |            (if(kappa<=0.78) 
-      |            then 0.9995-0.05*kappa-2.4156*Math.Power(kappa,2) +1.4926*Math.Power(kappa,3) 
-      |            else 0.20)
-      |        else Error.Build("Illegal method. Valid methods are 'erbs' and 'karatasou'")
-      |    ,
-      |    g_beam_h_10min=(if(sin_beta>0) then (r.watt*(1-kappa_d)) else 0),
-      |    g_diff_10min=r.watt-g_beam_h_10min,
-      |    g_beam_i_10min=(if(g_beam_h_10min*Math.Sin(Math.Radians(angle+b_m))/Math.Sin(Math.Radians(b_m))>g_extraterrestrial) then 0 else (g_beam_h_10min*Math.Sin(Math.Radians((angle+b_m)))/Math.Sin(Math.Radians(b_m)))),
-      |    g_diff_i_10min=g_diff_10min*(1+Math.Cos(Math.Radians(angle)))/2.00,
-      |    g_albedo_i_10min=r.watt*0.2*(1-Math.Cos(Math.Radians(angle)))/2.00,
-      |    g_glogal_i_10min=g_beam_i_10min+g_diff_i_10min+g_albedo_i_10min,
-      |    output=g_glogal_i_10min/6000
-      |  in 
-      |    output
-      |    //Debugging: {timestamp:r.timestamp,sin_beta:sin_beta, e_o: e_o, g_global_h_oa: g_global_h_oa, k_t: k_t, kappa_d:kappa_d, g_diff_10min:g_diff_10min, g_beam_i_10min: g_beam_i_10min, g_diff_i_10min: g_diff_i_10min, g_albedo_i_10min: g_albedo_i_10min, t_cell: t_cell, p_dc: p_dc}
-      |
-      |    
-      |// Main method
-      |main(min_date_inclusive: date = Date.Build(1998,12,11), max_date_inclusive: date = Date.Build(2009,09,01), method: string = "erbs") =
-      |  let
-      |    // Iterate through angles [0..89]
-      |    min_angle=0,
-      |    max_angle=90,
-      |
-      |    output=
-      |      // Valid time period is [1998-12-11 .. 2009-09-01)  
-      |      if(Date.Build(1998,12,11)>min_date_inclusive or max_date_inclusive>Date.Build(2009,09,01)) then Error.Build("Illegal period. Permissible period is [1999/01/01 .. 2009/09/01]")
-      |      else
-      |        let
-      |          angles=List.From(Int.Range(min_angle, max_angle)),
-      |
-      |          // Get temperatures from meteo (uploaded to a public site)
-      |          temperature_raw=Csv.InferAndRead("file:/home/ld/Downloads/truffle_data/dataset_temperature_athens.csv"),
-      |          // Consider only temperature measurements that are within the valid time period and normalize them 
-      |          temperature_data=
-      |            List.From(Collection.Transform(
-      |                Collection.Filter(
-      |                    temperature_raw,
-      |                    c -> Date.FromTimestamp(c._1)>=min_date_inclusive and Date.FromTimestamp(c._1)<=max_date_inclusive
-      |                ),
-      |                c -> {timestamp: c._1, temperature: normalizeTemperature(c._2)}
-      |            )),
-      |
-      |          // Get solar radiation from meteo (uploaded to a public site)
-      |          solar_radiation_raw=Csv.InferAndRead("file:/home/ld/Downloads/truffle_data/dataset_solar_radiation_athens_v2.csv"),
-      |          // Consider only solar radiation measurements that are within the valid time period and normalize them 
-      |          solar_radiation_data=
-      |            Collection.Transform(
-      |                Collection.Filter(
-      |                    solar_radiation_raw,
-      |                    c -> Date.FromTimestamp(c._1)>=min_date_inclusive and Date.FromTimestamp(c._1)<=max_date_inclusive
-      |                ),
-      |                c -> {timestamp: c._1, watt: Int.From(normalizeWatt(c._2)*1000)}
-      |            ),
-      |          solar_radiation_list=List.From(solar_radiation_data),
-      |
-      |          // Join solar radiation and temperature lists, based on their timestamps
-      |          combined_data=
-      |            List.Transform(List.EquiJoin(temperature_data, solar_radiation_list, a -> a.timestamp, b -> b.timestamp),
-      |                r -> {timestamp: Record.GetFieldByIndex(r, 1), watt:r.watt, temperature: r.temperature}
-      |            ),
-      |
-      |          // For each angle [0..89] calculate the total output
-      |          output=List.Transform(angles, angle -> 
-      |            {
-      |              angle: Double.From(angle),
-      |              H: 
-      |                List.Sum(List.Transform(combined_data, r -> find_I_panel_pdc(r, Double.From(angle), method)))
-      |            }
-      |            )
-      |          in
-      |            output
-      |  in
-      |    // Sort angles by higher output 
-      |    //List.OrderBy(output, r -> r.H, "DESC")
-      |    output
-      |
-      |
-      |// Test run: entire 2006
-      |main(min_date_inclusive=Date.Build(2008,2,1), max_date_inclusive=Date.Build(2008,2,1))
-      |//dayOfYear(Date.Build(2006,3,1))
-      |//isLeapYear(2008)""".stripMargin
+      |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
 
     //Warmup
-    fastExecute(prog)
-    fastExecute(prog)
-    fastExecute(prog)
+    for (i <- 0 to 20) {
+      fastExecute(prog)
+    }
+    logger.info("++++++++++ Warmup finished")
+    val values = Array.fill(numberOfRuns + 1)(0L)
+
     val started = System.currentTimeMillis()
     for (i <- 0 to numberOfRuns) {
+      val startedIn = System.currentTimeMillis()
       fastExecute(prog)
+      val elapsedIn = System.currentTimeMillis()
+      values(i) = elapsedIn - startedIn
     }
     val elapsed = System.currentTimeMillis()
 
-    logger.info("++++++++++ Average execution time time: " + ((elapsed - started) / numberOfRuns))
+    val mean = (elapsed - started) / numberOfRuns
+
+    var standardDeviation = 0.0
+    for (num <- values) {
+      standardDeviation += Math.pow(num - mean, 2)
+    }
+
+    logger.info("++++++++++ Average execution time: " + mean)
+    logger.info("++++++++++ Standard deviation is: " + Math.sqrt(standardDeviation / numberOfRuns))
   }
 
   // A.Z. this one I use for the _experimental package test just to see how it works
