@@ -170,7 +170,7 @@ generateParser := {
     (e: String) => output.append(e + "\n") // for standard error
   )
 
-  val grammarPath = s"$basePath/raw/parser/grammar"
+  val grammarPath = s"$basePath/raw/snapi/grammar"
 
   val lexerResult = s"$command  $grammarPath/SnapiLexer.g4".!(logger)
   if (lexerResult == 0) {
