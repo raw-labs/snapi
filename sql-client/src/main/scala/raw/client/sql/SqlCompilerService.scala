@@ -56,31 +56,14 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         stmt.close()
         description
       } catch {
-        case e: SQLException => GetProgramDescriptionFailure(mkError(source, e))
+        case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
       } finally {
         conn.close()
       }
     } catch {
-      case e: SQLException => GetProgramDescriptionFailure(mkError(source, e))
-      case e: SQLTimeoutException => GetProgramDescriptionFailure(mkError(source, e))
+      case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
+      case e: SQLTimeoutException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
     }
-  }
-
-  private def mkError(source: String, exception: SQLException): List[ErrorMessage] = {
-    val message = exception.getMessage
-    logger.warn(message, exception)
-    mkError(source, message)
-  }
-
-  private def mkError(source: String, message: String): List[ErrorMessage] = {
-    val fullRange = {
-      val lines = source.split("\n")
-      val nLines = lines.length
-      val lastLine = lines.last
-      val lastLineLength = lastLine.length
-      ErrorRange(ErrorPosition(1, 1), ErrorPosition(nLines, lastLineLength + 1))
-    }
-    List(ErrorMessage(message, List(fullRange), ErrorCode.SqlErrorCode))
   }
 
   override def eval(source: String, tipe: RawType, environment: ProgramEnvironment): EvalResponse = {
@@ -115,7 +98,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           RawUtils.withSuppressNonFatalException(pstmt.close())
         }
       } catch {
-        case e: SQLException => ExecutionValidationFailure(mkError(source, e))
+        case e: SQLException => ExecutionValidationFailure(ErrorHandling.asErrorMessage(source, e))
       } finally {
         conn.close()
       }
@@ -284,13 +267,13 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           stmt.close()
           result
         } catch {
-          case e: SQLException => ValidateResponse(mkError(source, e))
+          case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
         } finally {
           conn.close()
         }
       } catch {
-        case e: SQLException => ValidateResponse(mkError(source, e))
-        case e: SQLTimeoutException => ValidateResponse(mkError(source, e))
+        case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
+        case e: SQLTimeoutException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
       }
     r
   }
