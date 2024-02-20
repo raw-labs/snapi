@@ -46,22 +46,21 @@ trait RawTestSuite extends FixtureAnyFunSuite with BeforeAndAfterAll with Strict
 
   var services: Seq[RawService] = _
   override def beforeAll(): Unit = {
-    // If a previous test suite crashed, clean its leftovers anyway.
-    RawService.stopAll()
-    services = RawService.services.asScala.toSeq
-    logger.debug(s"Services up at startup: ${services.map(_.toString).mkString(", ")}")
     super.beforeAll()
   }
 
   override def afterAll(): Unit = {
     logger.info("Checking if all services have stopped")
     var attempts = 10
-    while (RawService.services.size != services.size && attempts > 0) {
+    while (RawService.services.size() > 1 && attempts > 0) {
       logger.debug(s"Services up at teardown: ${RawService.services.asScala.map(_.toString).mkString(", ")}")
       attempts -= 1
       logger.debug(s"Waiting for services to terminate gracefully. Attempts left: $attempts")
       Thread.sleep(1000)
     }
-    assert(RawService.services.size == services.size, s"Not all services stopped properly. Still running: ${RawService.services}")
+    assert(
+      RawService.services.size == 1,
+      s"Not all services stopped properly. Still running: ${RawService.services}"
+    )
   }
 }
