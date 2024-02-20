@@ -125,6 +125,9 @@ outputVersion := {
 
 // Publish settings
 Test / publishArtifact := true
+// Useful for debugging 
+Test / packageSrc / publishArtifact := true
+
 Compile / packageSrc / publishArtifact := true
 
 // Dependencies
