@@ -17,6 +17,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RepeatingNode;
 import java.util.ArrayList;
+
+import raw.runtime.truffle.runtime.function.Function;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
@@ -37,30 +39,29 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
-  @CompilerDirectives.CompilationFinal private Object generator;
-  @CompilerDirectives.CompilationFinal private Object function;
+  private final int generatorSlot;
+  private final int functionSlot;
+  private final int llistSlot;
 
-  @CompilerDirectives.CompilationFinal private ArrayList<Object> llist;
-
-  public ArrayList<Object> getResult() {
-    return llist;
-  }
-
-  public void init(Object generator, Object function) {
-    this.generator = generator;
-    this.function = function;
-    llist = new ArrayList<>();
+  public OSRListFilterNode(int generatorSlot, int functionSlot, int llistSlot) {
+    this.generatorSlot = generatorSlot;
+    this.functionSlot = functionSlot;
+    this.llistSlot = llistSlot;
   }
 
   public boolean executeRepeating(VirtualFrame frame) {
+    Object generator = frame.getAuxiliarySlot(generatorSlot);
     if (!hasNextNode.execute(this, generator)) {
       return false;
     }
     Object v = nextNode.execute(this, generator);
     Boolean predicate = null;
+    Object function = frame.getAuxiliarySlot(functionSlot);
     predicate =
         TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, function, v), false);
     if (predicate) {
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) frame.getAuxiliarySlot(llistSlot);
       llist.add(v);
     }
     return true;

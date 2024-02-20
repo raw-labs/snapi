@@ -46,8 +46,6 @@ public class AggregateSingleNode extends ExpressionNode {
 
   @Child AggregatorNodes.Zero zeroNode = AggregatorNodesFactory.ZeroNodeGen.create();
 
-  @Child AggregatorNodes.Merge mergeNode = AggregatorNodesFactory.MergeNodeGen.create();
-
   private final byte aggregationType;
 
   public AggregateSingleNode(ExpressionNode iterableNode, byte aggregationType) {

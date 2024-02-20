@@ -26,10 +26,12 @@ trait BenchmarkTests extends CompilerTestContext {
     assume(shouldBeExecuted, "This test is disabled by default")
 
     for (i <- 0 to 20) {
-      fastExecute("""let
-                    |    range = 1000L
-                    |in
-                    |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin)
+      fastExecute(
+        """let
+          |    range = 1000L
+          |in
+          |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
+      )
     }
 
     val values = Array.fill(7)(0L)
