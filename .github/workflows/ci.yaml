@@ -117,7 +117,7 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - uses: oNaiPs/secrets-to-env-action@v1
+      - uses: oNaiPs/secrets-to-env-action@v1.5
         with:
           secrets: ${{ toJSON(secrets) }}
       - name: download ivy build artifacts
@@ -140,7 +140,7 @@ jobs:
           echo "Testing ${{ matrix.component }} version: $test_version"
           ./test.sh
         working-directory: ${{ matrix.component }}
-      - uses: mikepenz/action-junit-report@v3
+      - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
           report_paths: ./**/test-reports/*.xml
