@@ -18,16 +18,17 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRListFilterNode;
 import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRToArrayNode;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.filter.OSRListFilterBodyNode;
+import raw.runtime.truffle.ast.osr.filter.OSRListFilterConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
-
-import java.util.ArrayList;
 
 @ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.Filter")
@@ -52,7 +53,11 @@ public abstract class ListFilterNode extends ExpressionNode {
   }
 
   public static LoopNode getFilterLoopNode(int[] slots) {
-    return Truffle.getRuntime().createLoopNode(new OSRListFilterNode(slots[0], slots[1], slots[2]));
+    return Truffle.getRuntime()
+        .createLoopNode(
+            new OSRGeneratorNode(
+                new OSRListFilterConditionNode(slots[0]),
+                new OSRListFilterBodyNode(slots[0], slots[1], slots[2])));
   }
 
   public static LoopNode getToArrayLoopNode(Rql2Type resultType) {

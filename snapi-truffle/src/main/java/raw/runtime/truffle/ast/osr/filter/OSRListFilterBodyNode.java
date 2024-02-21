@@ -10,23 +10,18 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.expressions.iterable.list.osr;
+package raw.runtime.truffle.ast.osr.filter;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.RepeatingNode;
 import java.util.ArrayList;
+import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
-public class OSRListFilterNode extends Node implements RepeatingNode {
-
-  @Child
-  private GeneratorNodes.GeneratorHasNextNode hasNextNode =
-      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
+public class OSRListFilterBodyNode extends ExpressionNode {
 
   @Child
   private GeneratorNodes.GeneratorNextNode nextNode =
@@ -40,17 +35,15 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
   private final int functionSlot;
   private final int llistSlot;
 
-  public OSRListFilterNode(int generatorSlot, int functionSlot, int llistSlot) {
+  public OSRListFilterBodyNode(int generatorSlot, int functionSlot, int llistSlot) {
     this.generatorSlot = generatorSlot;
     this.functionSlot = functionSlot;
     this.llistSlot = llistSlot;
   }
 
-  public boolean executeRepeating(VirtualFrame frame) {
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
     Object generator = frame.getAuxiliarySlot(generatorSlot);
-    if (!hasNextNode.execute(this, generator)) {
-      return false;
-    }
     Object v = nextNode.execute(this, generator);
     Boolean predicate = null;
     Object function = frame.getAuxiliarySlot(functionSlot);
@@ -61,6 +54,11 @@ public class OSRListFilterNode extends Node implements RepeatingNode {
       ArrayList<Object> llist = (ArrayList<Object>) frame.getAuxiliarySlot(llistSlot);
       llist.add(v);
     }
-    return true;
+    return null;
+  }
+
+  @Override
+  public void executeVoid(VirtualFrame virtualFrame) {
+    executeGeneric(virtualFrame);
   }
 }
