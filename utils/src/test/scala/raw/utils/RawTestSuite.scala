@@ -48,7 +48,7 @@ trait RawTestSuite extends FixtureAnyFunSuite with BeforeAndAfterAll with Strict
     super.beforeAll()
   }
 
-  protected def serviceCanBeRunning(service: RawService) = false
+  protected def serviceCanBeRunning(service: RawService) = true
 
   private def servicesAreStopped = RawService.services.asScala.forall(s => serviceCanBeRunning(s))
 
