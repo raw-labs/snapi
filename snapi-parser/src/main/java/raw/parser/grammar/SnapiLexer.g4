@@ -4,6 +4,7 @@ lexer grammar SnapiLexer;
 
 TYPE_TOKEN: 'type';
 
+ANY_TOKEN: 'any';
 BOOL_TOKEN: 'bool';
 STRING_TOKEN: 'string';
 LOCATION_TOKEN: 'location';

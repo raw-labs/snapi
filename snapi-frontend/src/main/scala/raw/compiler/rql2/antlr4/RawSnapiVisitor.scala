@@ -533,6 +533,13 @@ class RawSnapiVisitor(
     .getOrElse(ErrorType())
     .asInstanceOf[Rql2RecordType]
 
+  override def visitAnyTypeType(ctx: SnapiParser.AnyTypeTypeContext): SourceNode = {
+    Option(ctx) match {
+      case Some(_) => AnyType()
+      case None => ErrorType()
+    }
+  }
+
   override def visitIterableTypeType(ctx: SnapiParser.IterableTypeTypeContext): SourceNode = Option(ctx)
     .flatMap(context =>
       Option(context.iterable_type).flatMap(iterableTypeContext => Option(visit(iterableTypeContext)))

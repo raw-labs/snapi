@@ -15,6 +15,7 @@ package raw.compiler.rql2.tests.builtin
 import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.testing.tags.TruffleTests
 
+@TruffleTests class BenTruffleTest extends TruffleCompilerTestContext with BenTest
 @TruffleTests class BinaryPackageTruffleTest extends TruffleCompilerTestContext with BinaryPackageTest
 @TruffleTests class BytePackageTruffleTest extends TruffleCompilerTestContext with BytePackageTest
 @TruffleTests class CsvPackageTruffleTest extends TruffleCompilerTestContext with CsvPackageTest

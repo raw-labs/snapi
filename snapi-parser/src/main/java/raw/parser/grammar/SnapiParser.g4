@@ -66,6 +66,7 @@ tipe: LEFT_PAREN tipe RIGHT_PAREN                                           # Ty
     | tipe OR_TOKEN or_type                                    # OrTypeType
     | primitive_types                                          # PrimitiveTypeType
     | record_type                                              # RecordTypeType
+    | any_type                                                 # AnyTypeType
     | iterable_type                                            # IterableTypeType
     | PACKAGE_TOKEN LEFT_PAREN string_literal RIGHT_PAREN      # PackageTypeType
     | PACKAGE_TOKEN LEFT_PAREN string_literal
@@ -83,6 +84,7 @@ or_type: tipe OR_TOKEN or_type
 
 param_list: (tipe | attr) (COMMA (tipe | attr))* COMMA?;
 
+any_type: ANY_TOKEN;
 record_type: RECORD_TOKEN LEFT_PAREN record_attr_list? RIGHT_PAREN;
 record_attr_list: type_attr (COMMA type_attr)* COMMA?;
 iterable_type: COLLECTION_TOKEN LEFT_PAREN tipe RIGHT_PAREN;
