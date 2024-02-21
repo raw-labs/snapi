@@ -30,6 +30,8 @@ public abstract class TruffleEmitter {
 
   public abstract ClosureNode recurseLambda(TruffleBuildBody truffleBuildBody);
 
+  public abstract FrameDescriptor.Builder getFrameDescriptorBuilder();
+
   protected abstract RawLanguage getLanguage();
 
   protected abstract StatementNode emitMethod(Rql2Method m);

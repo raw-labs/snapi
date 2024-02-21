@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.expressions.iterable.list.osr;
+package raw.runtime.truffle.ast.osr;
 
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ast.TypeGuards;
@@ -36,6 +36,28 @@ public class StaticArrayBuilder {
       return new String[size];
     } else {
       return new Object[size];
+    }
+  }
+
+  public static Object buildList(Rql2Type resultType, Object array) {
+    if (TypeGuards.isByteKind(resultType)) {
+      return new ByteList((byte[]) array);
+    } else if (TypeGuards.isShortKind(resultType)) {
+      return new ShortList((short[]) array);
+    } else if (TypeGuards.isIntKind(resultType)) {
+      return new IntList((int[]) array);
+    } else if (TypeGuards.isLongKind(resultType)) {
+      return new LongList((long[]) array);
+    } else if (TypeGuards.isFloatKind(resultType)) {
+      return new FloatList((float[]) array);
+    } else if (TypeGuards.isDoubleKind(resultType)) {
+      return new DoubleList((double[]) array);
+    } else if (TypeGuards.isBooleanKind(resultType)) {
+      return new BooleanList((boolean[]) array);
+    } else if (TypeGuards.isStringKind(resultType)) {
+      return new StringList((String[]) array);
+    } else {
+      return new ObjectList((Object[]) array);
     }
   }
 }

@@ -10,33 +10,27 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.osr.filter;
+package raw.runtime.truffle.ast.osr.conditions;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
-import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 
-public class OSRListFilterConditionNode extends ExpressionNode {
+public class OSRToArrayConditionNode extends ExpressionNode {
 
-  @Child
-  private GeneratorNodes.GeneratorHasNextNode hasNextNode =
-      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
+  private final int currentIdxSlot;
+  private final int listSizeSlot;
 
-  private final int generatorSlot;
-
-  public OSRListFilterConditionNode(int generatorSlot) {
-    this.generatorSlot = generatorSlot;
+  public OSRToArrayConditionNode(int currentIdxSlot, int listSizeSlot) {
+    this.currentIdxSlot = currentIdxSlot;
+    this.listSizeSlot = listSizeSlot;
   }
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
-    if (!hasNextNode.execute(this, generator)) {
-      return false;
-    }
-    return true;
+    int currentIdx = frame.getInt(currentIdxSlot);
+    int listSize = frame.getInt(listSizeSlot);
+    return currentIdx < listSize;
   }
 
   @Override

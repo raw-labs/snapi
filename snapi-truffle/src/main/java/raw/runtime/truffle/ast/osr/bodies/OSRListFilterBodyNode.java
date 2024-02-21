@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.osr.filter;
+package raw.runtime.truffle.ast.osr.bodies;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.util.ArrayList;
@@ -43,15 +43,15 @@ public class OSRListFilterBodyNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
+    Object generator = frame.getObject(generatorSlot);
     Object v = nextNode.execute(this, generator);
     Boolean predicate = null;
-    Object function = frame.getAuxiliarySlot(functionSlot);
+    Object function = frame.getObject(functionSlot);
     predicate =
         TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, function, v), false);
     if (predicate) {
       @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) frame.getAuxiliarySlot(llistSlot);
+      ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(llistSlot);
       llist.add(v);
     }
     return null;
