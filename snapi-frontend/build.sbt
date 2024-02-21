@@ -137,6 +137,9 @@ outputVersion := {
 
 // Publish settings
 Test / publishArtifact := true
+// Useful for debugging 
+Test / packageSrc / publishArtifact := true
+
 Compile / packageSrc / publishArtifact := true
 // When doing publishLocal, also publish to the local maven repository and generate the version number file.
 publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)).value
