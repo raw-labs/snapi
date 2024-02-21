@@ -60,7 +60,10 @@ trait RawTestSuite extends FixtureAnyFunSuite with BeforeAndAfterAll with Strict
       logger.debug(s"Waiting for services to terminate gracefully. Attempts left: $attempts")
       Thread.sleep(1000)
     }
-    assert(servicesAreStopped, s"Not all services stopped properly. Still running:\n"
-      + RawService.services.asScala.map(s => s"- $s: can be running = ${serviceCanBeRunning(s)}").mkString("\n"))
+    assert(
+      servicesAreStopped,
+      s"Not all services stopped properly. Still running:\n"
+        + RawService.services.asScala.map(s => s"- $s: can be running = ${serviceCanBeRunning(s)}").mkString("\n")
+    )
   }
 }
