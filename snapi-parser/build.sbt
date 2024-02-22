@@ -137,14 +137,14 @@ libraryDependencies ++= Seq(
 
 val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
 
-// List of output paths
-val basePath: String = s"${baseDirectory.value}/src/main/java"
-val parsers = List(
-  Tuple4(s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
-  Tuple4(s"${basePath}/raw/compiler/psql2/generated", "raw.compiler.psql.generated", s"$basePath/raw/psql/grammar", "Psql")
-)
-
 generateParser := {
+
+  // List of output paths
+  val basePath: String = s"${baseDirectory.value}/src/main/java"
+  val parsers = List(
+    Tuple4(s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
+    Tuple4(s"${basePath}/raw/compiler/psql/generated", "raw.compiler.psql.generated", s"$basePath/raw/psql/grammar", "Psql")
+  )
 
   def deleteRecursively(file: File): Unit = {
     if (file.isDirectory) {
@@ -154,6 +154,8 @@ generateParser := {
       throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
     }
   }
+
+  val s: TaskStreams = streams.value
 
   parsers.foreach(parser => {
 
@@ -170,7 +172,6 @@ generateParser := {
 
     val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
 
-    val s: TaskStreams = streams.value
     val output = new StringBuilder
     val logger = ProcessLogger(
       (o: String) => output.append(o + "\n"), // for standard output

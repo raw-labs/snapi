@@ -73,9 +73,15 @@ multiline_unknown_type_comment: ML_UNKNOWN_TOKEN (ML_WORD)*
 multiple_comment_value: (ML_WORD)+
                       ;
 
-stmt: (WORD | proj | SINGLE_QUOTED_STRING | STAR)+;
+stmt: (WORD | proj | SINGLE_QUOTED_STRING | STAR | keyword | operator | idnt | param | COMMA)+;
 
-proj: idnt (DOT idnt)*;
+keyword: KEYWORD;
 
-idnt: (WORD | DOUBLE_QUOTED_STRING | PARAM);
+operator: OPERATOR;
+
+proj: idnt (DOT idnt)+;
+
+idnt: (WORD | DOUBLE_QUOTED_STRING);
+
+param: PARAM;
 
