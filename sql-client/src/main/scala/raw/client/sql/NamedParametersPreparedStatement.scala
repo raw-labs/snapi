@@ -14,6 +14,7 @@ package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api._
+import raw.utils.RawSettings
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
 import scala.collection.mutable
@@ -22,7 +23,8 @@ import scala.collection.mutable
  * It parses the SQL code and extract the named parameters, infer their types from how they're used.
  * It also provides methods to set the parameters by name, then execute the query.
  */
-class NamedParametersPreparedStatement(conn: Connection, code: String) extends StrictLogging {
+class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit rawSettings: RawSettings)
+    extends StrictLogging {
 
   /* We have the query code in `code` (with named parameters). Internally we need to replace
    * the named parameters with question marks, and keep track of the mapping between the
@@ -99,16 +101,6 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
     plainCodeBuffer.toString()
   }
 
-  // This is a convenient constant that represent an error range that spans the full code. Useful to report
-  // errors.
-  private val fullErrorRange = {
-    val lines = code.split("\n")
-    val nLines = lines.length
-    val lastLine = lines.last
-    val lastLineLength = lastLine.length
-    ErrorRange(ErrorPosition(1, 1), ErrorPosition(nLines, lastLineLength + 1))
-  }
-
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
   case class QueryInfo(parameters: Map[String, RawType], outputType: RawType)
 
@@ -143,7 +135,8 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
                     message,
                     locations
                       .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
-                      .toList
+                      .toList,
+                    ErrorCode.SqlErrorCode
                   )
                 )
             } else {
@@ -152,7 +145,8 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
                   errors.mkString(", "),
                   locations
                     .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
-                    .toList
+                    .toList,
+                  ErrorCode.SqlErrorCode
                 )
               )
             }
@@ -166,12 +160,12 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
         val outputType = queryOutputType
         outputType match {
           case Right(t) => Right(QueryInfo(types.toMap, t))
-          case Left(error) => Left(List(ErrorMessage(error, List(fullErrorRange))))
+          case Left(error) => Left(ErrorHandling.asMessage(code, error))
         }
       }
     } catch {
       case e: SQLException => {
-        Left(List(ErrorMessage(e.getMessage, List(fullErrorRange))))
+        Left(ErrorHandling.asErrorMessage(code, e))
       }
     }
   }

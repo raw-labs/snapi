@@ -269,7 +269,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -314,7 +314,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "csv")
     )
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -353,7 +353,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "json")
     )
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -387,7 +387,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "csv")
     )
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.nonEmpty)
+    assert(v.messages.nonEmpty)
     val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, environment)
     assert(errors.size === 1)
     assert(errors.head.message === "a parameter cannot be both string and int")
@@ -404,7 +404,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val expectedError = "syntax error at end of input"
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val validation = compilerService.validate(t.q, environment)
-    assert(validation.errors.exists(_.message.contains(expectedError)))
+    assert(validation.messages.exists(_.message.contains(expectedError)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
     val baos = new ByteArrayOutputStream()
@@ -418,7 +418,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val expectedError = "syntax error at or near \"-\""
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.exists(_.message.contains(expectedError)))
+    assert(v.messages.exists(_.message.contains(expectedError)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
     assert(descriptionErrors.exists(_.message.contains(expectedError)))
     val baos = new ByteArrayOutputStream()
@@ -429,15 +429,31 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   test("SELECT * FROM inexistent_table") { t =>
     assume(password != "")
 
-    val expectedError = "relation \"inexistent_table\" does not exist"
+    val expectedErrors = Set("relation \"inexistent_table\" does not exist", "Did you forget to add credentials?")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.exists(_.message.contains(expectedError)))
+    val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
+    assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
     val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
-    assert(descriptionErrors.exists(_.message.contains(expectedError)))
+    assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
     val baos = new ByteArrayOutputStream()
     val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, environment, None, baos)
-    assert(executionErrors.exists(_.message.contains(expectedError)))
+    assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
+  }
+
+  test("SELECT * FROM wrong.table") { t =>
+    assume(password != "")
+
+    val expectedErrors = Set("relation \"wrong.table\" does not exist", "Did you forget to add credentials?")
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val v = compilerService.validate(t.q, environment)
+    val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
+    assert(failures.exists(failure => expectedErrors.forall(failure.message.contains)))
+    val GetProgramDescriptionFailure(descriptionErrors) = compilerService.getProgramDescription(t.q, environment)
+    assert(descriptionErrors.exists(error => expectedErrors.forall(error.message.contains)))
+    val baos = new ByteArrayOutputStream()
+    val ExecutionValidationFailure(executionErrors) = compilerService.execute(t.q, environment, None, baos)
+    assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
   }
 
   private val airportType = RawIterableType(
@@ -487,7 +503,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "json")
     )
     val v = compilerService.validate(t.q, withCity)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -533,7 +549,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       Map("output-format" -> "json")
     )
     val v = compilerService.validate(t.q, withCity)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")
@@ -563,7 +579,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
-    assert(v.errors.isEmpty)
+    assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
     assert(description.maybeType.isEmpty)
     val List(main) = description.decls("main")

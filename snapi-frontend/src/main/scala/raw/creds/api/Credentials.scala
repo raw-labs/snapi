@@ -151,7 +151,8 @@ case class ExternalConnectorCredentialId(name: String, connectorType: AbstractCo
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "repr")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[SalesforceConnectorType], name = "SALESFORCE")
+    new JsonType(value = classOf[SalesforceConnectorType], name = "SALESFORCE"),
+    new JsonType(value = classOf[JiraConnectorType], name = "JIRA")
   )
 )
 trait AbstractConnectorType {
@@ -160,11 +161,15 @@ trait AbstractConnectorType {
 case class SalesforceConnectorType() extends AbstractConnectorType {
   override def repr: String = "SALESFORCE"
 }
+case class JiraConnectorType() extends AbstractConnectorType {
+  override def repr: String = "JIRA"
+}
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "connectorType")
 @JsonSubTypes(
   Array(
-    new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE")
+    new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE"),
+    new JsonType(value = classOf[ExternalConnectorJiraCredential], name = "JIRA")
   )
 )
 sealed trait ExternalConnectorCredential extends Credential {
@@ -179,10 +184,31 @@ final case class ExternalConnectorSalesforceCredential(
     securityToken: String,
     clientId: String,
     apiVersion: String,
-    customObjects: Seq[String],
-    override val sensitiveFields: List[String] = List("password", "securityToken")
+    customObjects: Seq[String]
 ) extends ExternalConnectorCredential {
   override def connectorType: AbstractConnectorType = SalesforceConnectorType()
+  override def sensitiveFields: List[String] = List("password", "securityToken")
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[StandardAccessToken], name = "DEFAULT"),
+    new JsonType(value = classOf[PersonalAccessToken], name = "PAT")
+  )
+)
+sealed trait TokenType
+case class StandardAccessToken() extends TokenType
+case class PersonalAccessToken() extends TokenType
+
+final case class ExternalConnectorJiraCredential(
+    baseUrl: String,
+    username: String,
+    token: String,
+    tokenType: TokenType
+) extends ExternalConnectorCredential {
+  override def connectorType: AbstractConnectorType = JiraConnectorType()
+  override def sensitiveFields: List[String] = List("token")
 }
 
 final case class Secret(name: String, value: String) extends Credential

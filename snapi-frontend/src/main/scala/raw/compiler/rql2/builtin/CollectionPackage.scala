@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.errors.{BaseError, InvalidSemantic}
+import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -315,7 +315,7 @@ class OrderByCollectionEntry extends EntryExtension with CollectionToListHint {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val (orders, keyFunctions) = varArgs.partition(_.t.isInstanceOf[Rql2StringType])
     if (orders.size != keyFunctions.size) return Left(Seq(OrderSpecMustFollowOrderingFunction(node)))
     val keyErrors = for (
@@ -420,7 +420,7 @@ class DistinctCollectionEntry extends EntryExtension with CollectionToListHint {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val ExpArg(list, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
     if (isComparable(itemType)) Right(mandatoryArgs(0).t)
     else Left(Seq(ItemsNotComparable(list)))
@@ -440,7 +440,7 @@ abstract class AggregationCollectionEntry(aggregation: Aggregation) extends Aggr
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     returnType(mandatoryArgs, optionalArgs, varArgs).left.map { reason =>
       val ExpArg(arg, _) = mandatoryArgs(0)
       Seq(InvalidSemantic(arg, reason))
@@ -996,7 +996,7 @@ class GroupCollectionEntry extends EntryExtension with CollectionToListHint {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val listType = mandatoryArgs(0).t
     val ExpArg(keyFunction, FunType(_, _, keyType, props)) = mandatoryArgs(1)
     assert(props.isEmpty, "Should have been handled as per arg 1 definition")
@@ -1208,7 +1208,7 @@ class EquiJoinCollectionEntry extends SugarEntryExtension with RecordMerging wit
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val ExpArg(_, Rql2IterableType(leftRowType, _)) = mandatoryArgs(0)
     val ExpArg(_, Rql2IterableType(rightRowType, _)) = mandatoryArgs(1)
     val ExpArg(keyFunction1, FunType(_, _, keyType1, _)) = mandatoryArgs(2)
@@ -1534,7 +1534,7 @@ class ContainsCollectionEntry extends SugarEntryExtension with CollectionToListH
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val ExpArg(items, Rql2IterableType(itemType, _)) = mandatoryArgs(0)
     if (isComparable(itemType)) Right(Rql2BoolType(Set(Rql2IsTryableTypeProperty())))
     else Left(Seq(ItemsNotComparable(items)))

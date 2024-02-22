@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.errors.{BaseError, UnsupportedType}
+import raw.compiler.base.errors.{ErrorCompilerMessage, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -445,7 +445,7 @@ class CsvReadEntry extends EntryExtension with CsvEntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
     validateCsvType(t)
   }
@@ -819,7 +819,7 @@ class CsvParseEntry extends EntryExtension with CsvEntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[Seq[BaseError], Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
     validateCsvType(t)
   }
