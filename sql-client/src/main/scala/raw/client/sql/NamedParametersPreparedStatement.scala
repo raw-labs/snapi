@@ -123,8 +123,12 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
       val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
       val typesStatus = paramLocations.map {
         case (p, locations) =>
-          val typeOptions =
-            locations.map(location => SqlTypesUtils.rawTypeFromJdbc(metadata.getParameterType(location.index)))
+          val typeOptions = locations.map(location =>
+            SqlTypesUtils.rawTypeFromJdbc(
+              metadata.getParameterType(location.index),
+              metadata.getParameterTypeName(location.index)
+            )
+          )
           val errors = typeOptions.collect { case Left(error) => error }
           val typeStatus =
             if (errors.isEmpty) {
@@ -178,10 +182,11 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
       val name = metadata.getColumnName(i)
       val typeInfo = {
         val tipe = metadata.getColumnType(i)
+        val typeName = metadata.getColumnTypeName(i)
         val nullability = metadata.isNullable(i)
         val nullable =
           nullability == ResultSetMetaData.columnNullable || nullability == ResultSetMetaData.columnNullableUnknown
-        SqlTypesUtils.rawTypeFromJdbc(tipe).right.map {
+        SqlTypesUtils.rawTypeFromJdbc(tipe, typeName).right.map {
           case t: RawAnyType => t
           case t: RawType => t.cloneWithFlags(nullable, false)
         }
