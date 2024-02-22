@@ -148,6 +148,8 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 // Dependencies
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
+  rawSnapiParser % "compile->compile;test->test",
+  kiama,
   postgresqlDeps,
   hikariCP)
 

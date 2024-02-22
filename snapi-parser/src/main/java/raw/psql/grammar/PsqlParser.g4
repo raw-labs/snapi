@@ -4,54 +4,58 @@ options { tokenVocab=PsqlLexer; }
 prog: code EOF
     ;
 
-code: (comment | stmt)*
+code: (stmt_and_comment)*;
+
+stmt_and_comment: comment stmt    #statementWithComment
+                | comment         #commentNoStmt
+                | stmt            #stmtNoComment
     ;
 
-comment: single_line_comment
+comment: singleline_comment
        | multiline_comment
        ;
 
-multiline_comment: MULTI_LINE_COMMENT_START (multiple_value_comment)* MULTI_LINE_COMMENT_END
+multiline_comment: MULTI_LINE_COMMENT_START (multiline_value_comment)* MULTI_LINE_COMMENT_END
                  ;
 
-multiple_value_comment: multiline_param_comment
-                      | multiline_type_comment
-                      | multiline_default_comment
-                      | multiline_return_comment
-                      | multiline_unknown_type_comment
-                      | multiple_comment_value
-                      ;
+multiline_value_comment: multiline_param_comment
+                       | multiline_type_comment
+                       | multiline_default_comment
+                       | multiline_return_comment
+                       | multiline_unknown_type_comment
+                       | multiline_normal_comment_value
+                       ;
 
 
 
-single_line_comment: LINE_COMMENT_START single_value_comment (SL_LINE_COMMENT_END | EOF)
+singleline_comment: LINE_COMMENT_START singleline_value_comment (SL_LINE_COMMENT_END | EOF)
                    ;
 
-single_value_comment: single_param_comment          #paramComment
-             | single_type_comment           #typeComment
-             | single_return_comment         #returnComment
-             | single_default_comment        #defaultComment
-             | single_unknown_type_comment   #unknownTypeComment
-             | normal_comment_value          #normalComment
-             ;
+singleline_value_comment: singleline_param_comment          #paramComment
+                        | singleline_type_comment           #typeComment
+                        | singleline_return_comment         #returnComment
+                        | singleline_default_comment        #defaultComment
+                        | singleline_unknown_type_comment   #unknownTypeComment
+                        | singleline_normal_comment_value          #normalComment
+                        ;
 
 // single line comments
-single_param_comment:  SL_PARAM_KW (SL_WORD)+
+singleline_param_comment:  SL_PARAM_KW (SL_WORD)+
                     ;
 
-single_type_comment: SL_TYPE_KW SL_WORD SL_WORD
+singleline_type_comment: SL_TYPE_KW SL_WORD SL_WORD
                    ;
 
-single_default_comment: SL_DEFAULT_KW SL_WORD SL_WORD
+singleline_default_comment: SL_DEFAULT_KW SL_WORD SL_WORD
                       ;
 
-single_return_comment: SL_RETURN_KW (SL_WORD)+
+singleline_return_comment: SL_RETURN_KW (SL_WORD)+
                      ;
 
-single_unknown_type_comment: SL_UNKNOWN_TOKEN (SL_WORD)*
+singleline_unknown_type_comment: SL_UNKNOWN_TOKEN (SL_WORD)*
                            ;
 
-normal_comment_value: (SL_WORD)*
+singleline_normal_comment_value: (SL_WORD)*
              ;
 
 // Multiline comments
@@ -70,10 +74,10 @@ multiline_return_comment: ML_RETURN_KW (ML_WORD)+
 multiline_unknown_type_comment: ML_UNKNOWN_TOKEN (ML_WORD)*
                               ;
 
-multiple_comment_value: (ML_WORD)+
+multiline_normal_comment_value: (ML_WORD)+
                       ;
 
-stmt: (WORD | proj | SINGLE_QUOTED_STRING | STAR | keyword | operator | idnt | param | COMMA)+;
+stmt: (WORD | proj | literal | STAR | keyword | binary_exp | idnt | param | COMMA)+;
 
 keyword: KEYWORD;
 
@@ -83,5 +87,15 @@ proj: idnt (DOT idnt)+;
 
 idnt: (WORD | DOUBLE_QUOTED_STRING);
 
-param: PARAM;
+param: PARAM | param_with_tipe;
 
+binary_exp: (idnt | param | literal) operator (idnt | param | literal);
+
+literal: string_literal | integer | floating_point | boolean_literal;
+string_literal: SINGLE_QUOTED_STRING;
+integer: NO_FLOATING_NUMBER;
+floating_point: FLOATING_POINT;
+boolean_literal: TRUE | FALSE;
+
+tipe: PSQL_TYPE (L_PAREN (integer (COMMA integer)?) R_PAREN)? WITH_TIME_ZONE?;
+param_with_tipe: PARAM DOUBLE_COLON tipe;
