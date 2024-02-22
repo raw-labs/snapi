@@ -39,7 +39,8 @@ object SqlTypesUtils extends StrictLogging {
 
   private val otherTypeMap: Map[String, RawType] = Map(
     "interval" -> RawIntervalType(false, false),
-    "json" -> RawAnyType()
+    "json" -> RawAnyType(),
+    "jsonb" -> RawAnyType()
   )
   // a mapping from JDBC types to a RawType. We also store the name of the JDBC type for error reporting.
   private val typeMap: Map[Int, SqlType] = Map(
