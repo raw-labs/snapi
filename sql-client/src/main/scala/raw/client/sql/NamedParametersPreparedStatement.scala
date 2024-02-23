@@ -101,6 +101,17 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
     plainCodeBuffer.toString()
   }
 
+  private def validateParameterType(tipe: RawType): Either[String, RawType] = tipe match {
+    case _: RawNumberType => Right(tipe)
+    case _: RawStringType => Right(tipe)
+    case _: RawBoolType => Right(tipe)
+    case _: RawDateType => Right(tipe)
+    case _: RawTimeType => Right(tipe)
+    case _: RawTimestampType => Right(tipe)
+    case _: RawBinaryType => Right(tipe)
+    case _ => Left(s"Unsupported parameter type: $tipe")
+
+  }
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
   case class QueryInfo(parameters: Map[String, RawType], outputType: RawType)
 
@@ -115,11 +126,16 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
       val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
       val typesStatus = paramLocations.map {
         case (p, locations) =>
+          // For each parameter, we infer the type from the locations where it's used
+          // And we validate the if the type is supported
           val typeOptions = locations.map(location =>
             SqlTypesUtils.rawTypeFromJdbc(
               metadata.getParameterType(location.index),
               metadata.getParameterTypeName(location.index)
-            )
+            ) match {
+              case Right(t) => validateParameterType(t)
+              case Left(error) => Left(error)
+            }
           )
           val errors = typeOptions.collect { case Left(error) => error }
           val typeStatus =
