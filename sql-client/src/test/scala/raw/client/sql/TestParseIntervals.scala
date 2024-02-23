@@ -14,7 +14,7 @@ package raw.client.sql
 
 import org.scalatest.funsuite.AnyFunSuite
 import raw.client.api.RawInterval
-import raw.client.sql.SqlTypesUtils.parseInterval
+import raw.client.sql.SqlIntervals.parseInterval
 class TestParseIntervals extends AnyFunSuite {
 
   test("parse singular interval items") {

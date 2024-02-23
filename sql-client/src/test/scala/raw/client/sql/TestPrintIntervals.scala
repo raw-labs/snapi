@@ -14,8 +14,9 @@ package raw.client.sql
 
 import org.scalatest.funsuite.AnyFunSuite
 import raw.client.api.RawInterval
-import raw.client.sql.SqlTypesUtils.intervalToString
+import raw.client.sql.SqlIntervals.intervalToString
 class TestPrintIntervals extends AnyFunSuite {
+
   test("parse singular interval items") {
     Map(
       RawInterval(1, 0, 0, 0, 0, 0, 0, 0) -> "P1Y",
