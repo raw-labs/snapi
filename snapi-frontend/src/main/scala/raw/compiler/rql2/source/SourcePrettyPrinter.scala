@@ -68,6 +68,7 @@ trait SourcePrettyPrinter
           d
         }
       case other => other match {
+          case _: Rql2AnyType => "any"
           case _: Rql2BoolType => "bool"
           case _: Rql2StringType => "string"
           case _: Rql2LocationType => "location"

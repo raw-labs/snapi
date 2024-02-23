@@ -619,6 +619,7 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
       }
     case t: Rql2PrimitiveType => Right(t)
     case t: Rql2UndefinedType => Right(t)
+    case t: Rql2AnyType => Right(t)
     case t => Left(Seq(UnsupportedType(t, t, None)))
   }
 

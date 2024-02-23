@@ -122,6 +122,36 @@ class TypeProtectCastEntry extends EntryExtension {
 
 }
 
+// Internal node that performs `cast` but catches unexpected nulls/errors hit while processing
+// the nested objects. In case of error: replaces the expression by a null/error.
+class TypeCastAnyEntry extends EntryExtension {
+
+  override def packageName: String = "Type"
+
+  override def entryName: String = "CastAny"
+
+  override def docs: EntryDoc = ???
+
+  override def nrMandatoryParams: Int = 2
+
+  override def getMandatoryParam(prevMandatoryArgs: Seq[Arg], idx: Int): Either[String, Param] = {
+    idx match {
+      case 0 => Right(TypeParam(AnythingType())) // the target type
+      case 1 => Right(ExpParam(Rql2AnyType())) // an 'any' object
+    }
+  }
+
+  override def returnType(
+      mandatoryArgs: Seq[Arg],
+      optionalArgs: Seq[(String, Arg)],
+      varArgs: Seq[Arg]
+  )(implicit programContext: ProgramContext): Either[String, Type] = {
+    val TypeArg(target) = mandatoryArgs(0)
+    Right(addProp(target, Rql2IsTryableTypeProperty())) // type as tryable of the target
+  }
+
+}
+
 class TypeEmptyEntry extends EntryExtension {
 
   override def packageName: String = "Type"

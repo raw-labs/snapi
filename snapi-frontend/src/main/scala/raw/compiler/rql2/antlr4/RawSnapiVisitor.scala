@@ -535,7 +535,7 @@ class RawSnapiVisitor(
 
   override def visitAnyTypeType(ctx: SnapiParser.AnyTypeTypeContext): SourceNode = {
     Option(ctx) match {
-      case Some(_) => AnyType()
+      case Some(_) => Rql2AnyType()
       case None => ErrorType()
     }
   }

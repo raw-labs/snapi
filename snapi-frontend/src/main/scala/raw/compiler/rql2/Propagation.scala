@@ -125,6 +125,22 @@ class Propagation(protected val parent: Phase[SourceProgram], protected val phas
           case Proj(nRecord, _) =>
             trivialFix(proj, Vector((record, nRecord)), idns => Proj(idns(0), fieldName), Set.empty)
         }
+      case proj @ Proj(record, fieldName) if analyzer.tipe(record).isInstanceOf[Rql2AnyType] =>
+        congruence(s, id) <* rule[Any] {
+          case Proj(nRecord, _) =>
+            val argExpProps = ExpProps(
+              nRecord,
+              analyzer.tipe(record),
+              castNeeded = true,
+              Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+            )
+            coreFix(
+              analyzer.tipe(proj),
+              Vector(argExpProps),
+              idns => Proj(idns(0), fieldName),
+              Set.empty
+            )
+        }
       case ifThenElse @ IfThenElse(e1, e2, e3) => congruence(s, s, s) <* rule[Any] {
           case IfThenElse(ne1, ne2, ne3) =>
             val expType = analyzer.tipe(ifThenElse)

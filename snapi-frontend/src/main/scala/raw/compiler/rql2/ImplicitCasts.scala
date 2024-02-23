@@ -40,6 +40,7 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
     def cast(e: Exp, actual: Type, expected: Type): Option[Exp] = {
       if (actual == expected) None
       else if (actual == Rql2UndefinedType()) Some(TypePackageBuilder.Empty(expected))
+      else if (actual.isInstanceOf[Rql2AnyType]) Some(TypePackageBuilder.CastAny(expected, e))
       else expected match {
         case r: Rql2TypeWithProperties =>
           val expectedProps = r.props
@@ -416,6 +417,15 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
                 IfThenElse(ne1, ne2, ne3)
               case None => r
             }
+        }
+      case Proj(r, idn) if analyzer.tipe(r).isInstanceOf[Rql2AnyType] =>
+        // Proj: If the record is of type Any, we don't know its fields, so we can't cast the field.
+        congruence(s, id) <* rule[Any] {
+          case Proj(re, _) => cast(
+              re,
+              Rql2AnyType(),
+              Rql2RecordType(Vector(Rql2AttrType(idn, Rql2AnyType())), Set.empty)
+            ).map(Proj(_, idn)).getOrElse(Proj(re, idn))
         }
       case _ => fail
       // TODO (msb): LegacyCallLanguage args

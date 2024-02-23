@@ -28,6 +28,13 @@ object TypePackageBuilder {
       Vector(FunAppArg(TypeExp(actual), None), FunAppArg(TypeExp(target), None), FunAppArg(e, None))
     )
   }
+
+  def CastAny(target: Type, e: Exp): Exp = {
+    FunApp(
+      Proj(PackageIdnExp("Type"), "CastAny"),
+      Vector(FunAppArg(TypeExp(target), None), FunAppArg(e, None))
+    )
+  }
   def Empty(t: Type): Exp = {
     FunApp(Proj(PackageIdnExp("Type"), "Empty"), Vector(FunAppArg(TypeExp(t), None)))
   }

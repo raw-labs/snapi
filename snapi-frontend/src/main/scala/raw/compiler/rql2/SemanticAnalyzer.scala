@@ -249,6 +249,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
     } else {
       try {
         (actual, expected) match {
+          case (_: Rql2AnyType, whatever) => Some(CompatibilityReport(whatever, actual))
           case (Rql2ListType(actualItemType, actualProps), Rql2ListType(expectedItemType, expectedProps)) =>
             funParamTypeCompatibility(actualItemType, expectedItemType).map { report =>
               CompatibilityReport(
@@ -396,7 +397,11 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
         a.atts.zip(e.atts).map { case (a, e) => Rql2AttrType(a.idn, recurse(a.tipe, e.tipe)) },
         e.props
       )
-    // Iterable Type
+    // If actual type is 'any', we make it compatible with anything
+    case (a: Rql2AnyType, e) =>
+      if (hasTypeConstraint(e)) turnConstraintsOnAnyToAType(e)
+      else addProps(e, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
+    case (_, e: Rql2AnyType) => e // anything can be an anytype
     case (a: Rql2IterableType, e: Rql2IterableType) if a.props.subsetOf(e.props) =>
       Rql2IterableType(recurse(a.innerType, e.innerType), e.props)
     // List Type
@@ -452,6 +457,16 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
       // subsequent errors.
       actual
     case _ => throw new MergeTypeException
+  }
+
+  private def turnConstraintsOnAnyToAType(constraint: Type): Type = constraint match {
+    case AnythingType() => Rql2AnyType()
+    case MergeableType(t) => addProp(t, Rql2IsTryableTypeProperty())
+    case _: DoesNotHaveTypeProperties => Rql2AnyType()
+    case ExpectedProjType(f) => Rql2RecordType(
+        Vector(Rql2AttrType(f, Rql2AnyType())),
+        Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+      )
   }
 
 }
@@ -915,6 +930,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
                 Rql2IterableType(addProps(att.tipe, recordProps), listProps)
             }
             .getOrElse(ErrorType())
+        case _: Rql2AnyType => Rql2AnyType()
         case _ => ErrorType()
       }
     case PackageIdnExp(name) =>
@@ -1942,6 +1958,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
               if (names.isEmpty) ExpectedProjType(i)
               else ExpectedType(ExpectedProjType(i), hint = Some(s"did you mean ${names.mkString(" or ")}?"))
             }
+          case _: Rql2AnyType => Rql2RecordType(Vector(Rql2AttrType(i, Rql2AnyType())))
           case _ => ExpectedProjType(i)
         }
       } else {

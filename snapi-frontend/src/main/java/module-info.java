@@ -493,6 +493,7 @@ module raw.snapi.frontend {
       raw.compiler.rql2.builtin.TryUnsafeGetEntry,
       raw.compiler.rql2.builtin.TypeCastEntry,
       raw.compiler.rql2.builtin.TypeProtectCastEntry,
+      raw.compiler.rql2.builtin.TypeCastAnyEntry,
       raw.compiler.rql2.builtin.TypeEmptyEntry,
       raw.compiler.rql2.builtin.TypeMatchEntry,
       raw.compiler.rql2.builtin.InferAndReadXmlEntry,

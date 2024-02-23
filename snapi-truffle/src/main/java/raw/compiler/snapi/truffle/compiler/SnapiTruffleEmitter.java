@@ -159,6 +159,8 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
                 Entity entity = analyzer.entity().apply(lb.i());
                 Rql2Type rql2Type = (Rql2Type) tipe(lb.e());
                 int slot = switch (rql2Type) {
+                    case Rql2AnyType ignored ->
+                        getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case Rql2UndefinedType ignored ->
                             getFrameDescriptorBuilder().addSlot(FrameSlotKind.Object, getIdnName(entity), null);
                     case ExpType ignored ->

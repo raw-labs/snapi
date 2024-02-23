@@ -60,6 +60,13 @@ final case class Rql2UndefinedType(props: Set[Rql2TypeProperty] = Set.empty) ext
   override def cloneAndRemoveProp(p: Rql2TypeProperty): Type = Rql2UndefinedType(props - p)
 }
 
+final case class Rql2AnyType(
+    props: Set[Rql2TypeProperty] = Set(Rql2IsTryableTypeProperty(), Rql2IsNullableTypeProperty())
+) extends Rql2TypeWithProperties {
+  override def cloneAndAddProp(p: Rql2TypeProperty): Type = Rql2AnyType(props + p)
+  override def cloneAndRemoveProp(p: Rql2TypeProperty): Type = Rql2AnyType(props - p)
+}
+
 /**
  * Primitive types
  */

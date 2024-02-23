@@ -70,6 +70,7 @@ public class JsonParser {
       }
       case Rql2TypeWithProperties v when v.props().isEmpty() -> {
         ExpressionNode result =  switch (v){
+          case Rql2AnyType ignored -> AnyParseJsonNodeGen.create();
           case Rql2ListType r ->{
             ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);
             yield ListParseJsonNodeGen.create(

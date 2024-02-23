@@ -206,6 +206,7 @@ module raw.snapi.truffle {
       raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeCastEntry,
       raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeEmptyEntry,
       raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeMatchEntry,
+      raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeCastAnyEntry,
       raw.compiler.snapi.truffle.builtin.type_extension.TruffleTypeProtectCastEntry,
       raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryBase64Entry,
       raw.compiler.snapi.truffle.builtin.binary_extension.TruffleBinaryReadEntry,
