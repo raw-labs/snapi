@@ -13,25 +13,10 @@
 package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{
-  RawAnyType,
-  RawBoolType,
-  RawByteType,
-  RawDateType,
-  RawDecimalType,
-  RawDoubleType,
-  RawFloatType,
-  RawIntType,
-  RawIntervalType,
-  RawLongType,
-  RawShortType,
-  RawStringType,
-  RawTimeType,
-  RawTimestampType,
-  RawType
-}
+import raw.client.api.{RawAnyType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawInterval, RawIntervalType, RawLongType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
 
 import scala.annotation.tailrec
+import scala.util.matching.Regex
 
 object SqlTypesUtils extends StrictLogging {
 
@@ -158,4 +143,29 @@ object SqlTypesUtils extends StrictLogging {
     recurse(options.tail, options.head)
   }
 
+
+  val postgresIntervalRegex: Regex = """(?:(\d+)\s+years?)?(?:\s*(\d+) mons?)?(?:\s*(\d+) days?)?(?:\s*(\d+):(\d+):(\d+)(?:\.(\d+))?)?""".r
+
+  def padRight(s: String, n: Int): String = {
+    val padding = n - s.length
+    if (padding <= 0) s
+    else s + "0" * padding
+  }
+  def parseInterval(in: String): RawInterval = {
+    in match {
+      case postgresIntervalRegex(years, months, days, hours, minutes, seconds, fraction) =>
+        val yearsInt = Option(years).map(_.toInt).getOrElse(0)
+        val monthsInt = Option(months).map(_.toInt).getOrElse(0)
+        val daysInt = Option(days).map(_.toInt).getOrElse(0)
+        val hoursInt = Option(hours).map(_.toInt).getOrElse(0)
+        val minutesInt = Option(minutes).map(_.toInt).getOrElse(0)
+        val secondsInt = Option(seconds).map(_.toInt).getOrElse(0)
+        // Padding the fraction to the right and taking the first 3 digits
+        // 0.1 => 100, 0.01 => 010, 0.001 => 001
+        val fractionInt = Option(fraction).map(x => padRight(x, 3).take(3).toInt).getOrElse(0)
+        val weeks = 0
+        RawInterval(yearsInt, monthsInt, weeks, daysInt, hoursInt, minutesInt, secondsInt, fractionInt)
+      case _ => throw new IllegalArgumentException(s"Invalid interval format: $in")
+    }
+  }
 }
