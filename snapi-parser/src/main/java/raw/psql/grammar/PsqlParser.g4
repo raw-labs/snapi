@@ -4,12 +4,7 @@ options { tokenVocab=PsqlLexer; }
 prog: code EOF
     ;
 
-code: (stmt_and_comment)*;
-
-stmt_and_comment: comment stmt    #statementWithComment
-                | comment         #commentNoStmt
-                | stmt            #stmtNoComment
-    ;
+code: (comment)* stmt (SEMICOLON (comment)* stmt)* (comment)*;
 
 comment: singleline_comment
        | multiline_comment
@@ -77,7 +72,21 @@ multiline_unknown_type_comment: ML_UNKNOWN_TOKEN (ML_WORD)*
 multiline_normal_comment_value: (ML_WORD)+
                       ;
 
-stmt: (WORD | proj | literal | STAR | keyword | binary_exp | idnt | param | COMMA)+;
+stmt: (stmt_items)+;
+
+stmt_items: proj                  #projStmt
+          | literal               #literalStmt
+          | keyword               #keywordStmt
+          | binary_exp            #binaryExpStmt
+          | idnt                  #idntStmt
+          | param                 #paramStmt
+          | with_comma_sep        #withCommaSepStmt
+          | abstract_stmt_item    #abstractStmtItem
+          ;
+
+with_comma_sep: idnt (COMMA idnt)*;
+
+abstract_stmt_item: WORD | STAR;
 
 keyword: KEYWORD;
 

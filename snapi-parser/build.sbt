@@ -142,8 +142,8 @@ generateParser := {
   // List of output paths
   val basePath: String = s"${baseDirectory.value}/src/main/java"
   val parsers = List(
-    Tuple4(s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
-    Tuple4(s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql")
+    (s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
+    (s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql")
   )
 
   def deleteRecursively(file: File): Unit = {
