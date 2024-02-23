@@ -13,7 +13,24 @@
 package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{RawAnyType, RawBoolType, RawByteType, RawDateType, RawDecimalType, RawDoubleType, RawFloatType, RawIntType, RawInterval, RawIntervalType, RawLongType, RawShortType, RawStringType, RawTimeType, RawTimestampType, RawType}
+import raw.client.api.{
+  RawAnyType,
+  RawBoolType,
+  RawByteType,
+  RawDateType,
+  RawDecimalType,
+  RawDoubleType,
+  RawFloatType,
+  RawIntType,
+  RawInterval,
+  RawIntervalType,
+  RawLongType,
+  RawShortType,
+  RawStringType,
+  RawTimeType,
+  RawTimestampType,
+  RawType
+}
 
 import scala.annotation.tailrec
 import scala.util.matching.Regex
@@ -143,8 +160,8 @@ object SqlTypesUtils extends StrictLogging {
     recurse(options.tail, options.head)
   }
 
-
-  val postgresIntervalRegex: Regex = """(?:(\d+)\s+years?)?(?:\s*(\d+) mons?)?(?:\s*(\d+) days?)?(?:\s*(\d+):(\d+):(\d+)(?:\.(\d+))?)?""".r
+  val postgresIntervalRegex: Regex =
+    """(?:(\d+)\s+years?)?(?:\s*(\d+) mons?)?(?:\s*(\d+) days?)?(?:\s*(\d+):(\d+):(\d+)(?:\.(\d+))?)?""".r
 
   def padRight(s: String, n: Int): String = {
     val padding = n - s.length
@@ -167,5 +184,35 @@ object SqlTypesUtils extends StrictLogging {
         RawInterval(yearsInt, monthsInt, weeks, daysInt, hoursInt, minutesInt, secondsInt, fractionInt)
       case _ => throw new IllegalArgumentException(s"Invalid interval format: $in")
     }
+  }
+
+  def intervalToString(in: RawInterval): String = {
+
+    val time = new StringBuilder()
+    val result = new StringBuilder("P")
+
+    val totalMillis = in.seconds * 1000 + in.millis
+    val s = totalMillis / 1000
+
+    val ms =
+      if (totalMillis >= 0) totalMillis % 1000
+      else -totalMillis % 1000
+
+    // P1Y2M4W5DT6H5M7.008S// P1Y2M4W5DT6H5M7.008S
+    if (in.hours != 0) time += (in.hours + "H")
+    if (in.minutes != 0) time += (in.minutes + "M")
+    if (s != 0 || ms != 0) time += (s + "." + ms + "%03dS")
+
+    if (in.years != 0) result += (in.years + "Y")
+
+    if (in.months != 0) result += (in.months + "M")
+
+    if (in.weeks != 0) result += (in.weeks + "W")
+
+    if (in.days != 0) result += (in.days + "D")
+
+    if (time.nonEmpty) result += ("T" + time)
+
+    result.toString()
   }
 }

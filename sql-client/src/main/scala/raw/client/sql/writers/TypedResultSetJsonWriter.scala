@@ -15,7 +15,7 @@ package raw.client.sql.writers
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import raw.client.api._
-import raw.client.sql.SqlTypesUtils.parseInterval
+import raw.client.sql.SqlTypesUtils.{intervalToString, parseInterval}
 import raw.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
@@ -111,7 +111,7 @@ class TypedResultSetJsonWriter(os: OutputStream) {
         gen.writeString(formatted)
       case _: RawIntervalType =>
         val interval = parseInterval(v.getString(i))
-        gen.writeString(interval.toString)
+        gen.writeString(intervalToString(interval))
       case _ => throw new IOException("unsupported type")
     }
   }
