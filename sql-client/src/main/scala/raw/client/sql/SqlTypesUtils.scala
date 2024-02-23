@@ -199,19 +199,19 @@ object SqlTypesUtils extends StrictLogging {
       else -totalMillis % 1000
 
     // P1Y2M4W5DT6H5M7.008S// P1Y2M4W5DT6H5M7.008S
-    if (in.hours != 0) time += (in.hours + "H")
-    if (in.minutes != 0) time += (in.minutes + "M")
-    if (s != 0 || ms != 0) time += (s + "." + ms + "%03dS")
+    if (in.hours != 0) time.append(in.hours + "H")
+    if (in.minutes != 0) time.append(in.minutes + "M")
+    if (s != 0 || ms != 0) time.append(f"$s%d.$ms%03dS")
 
-    if (in.years != 0) result += (in.years + "Y")
+    if (in.years != 0) result.append(in.years + "Y")
 
-    if (in.months != 0) result += (in.months + "M")
+    if (in.months != 0) result.append(in.months + "M")
 
-    if (in.weeks != 0) result += (in.weeks + "W")
+    if (in.weeks != 0) result.append(in.weeks + "W")
 
-    if (in.days != 0) result += (in.days + "D")
+    if (in.days != 0) result.append(in.days + "D")
 
-    if (time.nonEmpty) result += ("T" + time)
+    if (time.nonEmpty) result.append("T" + time.toString())
 
     result.toString()
   }

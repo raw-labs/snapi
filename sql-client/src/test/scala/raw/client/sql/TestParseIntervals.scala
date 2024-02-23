@@ -45,4 +45,10 @@ class TestParseIntervals extends AnyFunSuite {
     assert(interval == RawInterval(1, 2, 0, 3, 4, 5, 6, 7))
   }
 
+  test("parse milliseconds") {
+    var interval = parseInterval("00:00:00.01")
+    assert(interval == RawInterval(0, 0, 0, 0, 0, 0, 0, 10))
+    interval = parseInterval("00:00:00.1234567")
+    assert(interval == RawInterval(0, 0, 0, 0, 0, 0, 0, 123))
+  }
 }
