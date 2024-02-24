@@ -81,7 +81,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return analyzer.tipe(e);
     }
 
-    protected RawLanguage getLanguage() {
+    public RawLanguage getLanguage() {
         return this.rawLanguage;
     }
 

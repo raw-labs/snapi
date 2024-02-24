@@ -12,22 +12,28 @@
 
 package raw.compiler.snapi.truffle.builtin.list_extension;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.Arrays;
 import java.util.List;
 import raw.compiler.base.source.Type;
+import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.GroupListEntry;
 import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.list.ListGroupByNodeGen;
+import raw.runtime.truffle.ast.expressions.iterable.list.ListGroupByNode;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashSet;
 
 public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+
+    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+
     Rql2ListType listType = (Rql2ListType) type;
     Rql2RecordType record = (Rql2RecordType) listType.innerType();
     Rql2AttrType[] atts =
@@ -48,10 +54,27 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
                 .findFirst()
                 .orElse(Rql2AttrType.apply("key", new Rql2UndefinedType(new HashSet<>())))
                 .tipe();
-    return ListGroupByNodeGen.create(
-        args.get(0).exprNode(),
-        args.get(1).exprNode(),
+
+    FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
+
+    int generatorSlot =
+        builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+    int keyFuncSlot =
+        builder.addSlot(
+            FrameSlotKind.Object, "keyFunction", "a slot to store the key function of osr");
+    int mapSlot =
+        builder.addSlot(FrameSlotKind.Object, "mapSlot", "a slot to store the map of osr");
+    int listSlot =
+        builder.addSlot(FrameSlotKind.Object, "listSize", "a slot to store the list of osr");
+
+    return new ListGroupByNode(
+        truffleArgs.get(0).exprNode(),
+        truffleArgs.get(1).exprNode(),
         keyType,
-        (Rql2TypeWithProperties) groupType.innerType());
+        (Rql2TypeWithProperties) groupType.innerType(),
+        generatorSlot,
+        keyFuncSlot,
+        mapSlot,
+        listSlot);
   }
 }

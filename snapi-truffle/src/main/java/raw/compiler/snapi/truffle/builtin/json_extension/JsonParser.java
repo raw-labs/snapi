@@ -13,6 +13,7 @@
 package raw.compiler.snapi.truffle.builtin.json_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -27,7 +28,6 @@ import raw.runtime.truffle.ast.io.json.reader.parser.DoubleParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.FloatParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.IntParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.IntervalParseJsonNodeGen;
-import raw.runtime.truffle.ast.io.json.reader.parser.ListParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.LongParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.ShortParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.StringParseJsonNodeGen;
@@ -57,7 +57,8 @@ public class JsonParser {
   }
 
   private ProgramExpressionNode recurse(Rql2TypeWithProperties tipe, boolean appendNullCheck, RawLanguage lang) {
-    return program(switch (tipe){
+    FrameDescriptor.Builder builder = FrameDescriptor.newBuilder();
+    ExpressionNode e = switch (tipe){
       case Rql2TypeWithProperties nt when nt.props().contains(tryable) -> {
         Rql2TypeWithProperties nextType = (Rql2TypeWithProperties) nt.cloneAndRemoveProp(tryable);
         ProgramExpressionNode child = recurse(nextType, !(nt instanceof Rql2UndefinedType), lang);
@@ -70,15 +71,52 @@ public class JsonParser {
       }
       case Rql2TypeWithProperties v when v.props().isEmpty() -> {
         ExpressionNode result =  switch (v){
-          case Rql2ListType r ->{
+          case Rql2ListType r -> {
             ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);
-            yield ListParseJsonNodeGen.create(
-                    (Rql2TypeWithProperties)r.innerType(), child.getCallTarget()
-            );
+            int parserSlot =
+                    builder.addSlot(
+                            FrameSlotKind.Object, "parser", "a slot to store the parser of osr");
+            int llistSlot =
+                    builder.addSlot(
+                            FrameSlotKind.Object, "list", "a slot to store the ArrayList of osr");
+            int currentIdxSlot =
+                    builder.addSlot(FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
+            int listSizeSlot =
+                    builder.addSlot(
+                            FrameSlotKind.Int, "listSize", "a slot to store the size of the list for osr");
+            int resultSlot =
+                    builder.addSlot(FrameSlotKind.Object, "list", "a slot to store the result internal array for osr");
+            yield new ListParseJsonNode(
+                    (Rql2TypeWithProperties)r.innerType(),
+                    child.getCallTarget(),
+                    parserSlot,
+                    llistSlot,
+                    currentIdxSlot,
+                    listSizeSlot,
+                    resultSlot);
           }
           case Rql2IterableType r ->{
             ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);
-            yield new IterableParseJsonNode(program(ListParseJsonNodeGen.create((Rql2TypeWithProperties)r.innerType(), child.getCallTarget()),lang));
+            FrameDescriptor.Builder localBuilder = FrameDescriptor.newBuilder();
+            int parserSlot =
+                    localBuilder.addSlot(
+                            FrameSlotKind.Object, "parser", "a slot to store the parser of osr");
+            int llistSlot =
+                    localBuilder.addSlot(
+                            FrameSlotKind.Object, "list", "a slot to store the ArrayList of osr");
+            int currentIdxSlot =
+                    localBuilder.addSlot(FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
+            int listSizeSlot =
+                    localBuilder.addSlot(
+                            FrameSlotKind.Int, "listSize", "a slot to store the size of the list for osr");
+            int resultSlot =
+                    localBuilder.addSlot(FrameSlotKind.Object, "list", "a slot to store the result internal array for osr");
+            yield new IterableParseJsonNode(
+                    program(new ListParseJsonNode(
+                                (Rql2TypeWithProperties)r.innerType(),
+                                child.getCallTarget(),
+                                parserSlot, llistSlot, currentIdxSlot, listSizeSlot, resultSlot),
+                              localBuilder.build(), lang));
           }
           case Rql2RecordType r ->{
             LinkedHashMap<String,Integer> hashMap = new LinkedHashMap<>();
@@ -118,15 +156,18 @@ public class JsonParser {
           case Rql2UndefinedType ignored -> new UndefinedParseJsonNode();
           default -> throw new RawTruffleInternalErrorException();
         };
-        if (appendNullCheck) yield new CheckNonNullJsonNode(program(result,lang));
+        if (appendNullCheck) {
+          FrameDescriptor.Builder localBuilder = FrameDescriptor.newBuilder();
+          yield new CheckNonNullJsonNode(program(result, localBuilder.build(), lang));
+        }
         else yield result;
       }
       default -> throw new RawTruffleInternalErrorException();
-    }, lang);
+    };
+    return program(e, builder.build(), lang);
   }
 
-  private ProgramExpressionNode program(ExpressionNode e, RawLanguage lang){
-    FrameDescriptor frameDescriptor = new FrameDescriptor();
+  private ProgramExpressionNode program(ExpressionNode e, FrameDescriptor frameDescriptor, RawLanguage lang){
     return new ProgramExpressionNode(lang, frameDescriptor, e);
   }
 }

@@ -19,183 +19,86 @@ import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRListTransformNode;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodes;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRListTransformBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
 import raw.runtime.truffle.runtime.list.*;
 
-@ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.Transform")
-@NodeChild("list")
-@NodeChild("function")
-@NodeField(name = "resultType", type = Rql2Type.class)
-public abstract class ListTransformNode extends ExpressionNode {
+public class ListTransformNode extends ExpressionNode {
 
-  @Idempotent
-  protected abstract Rql2Type getResultType();
+  @Child private ExpressionNode listNode;
+  @Child private ExpressionNode functionNode;
+  @Child private LoopNode listTransformLoopNode;
 
-  public static LoopNode getListTransformNode(Rql2Type resultType) {
-    return Truffle.getRuntime().createLoopNode(new OSRListTransformNode(resultType));
+  @Child
+  private ArrayOperationNodes.ArrayBuildListNode arrayBuildListNode =
+      ArrayOperationNodesFactory.ArrayBuildListNodeGen.create();
+
+  @Child
+  private ArrayOperationNodes.ArrayBuildNode arrayBuildNode =
+      ArrayOperationNodesFactory.ArrayBuildNodeGen.create();
+
+  @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
+
+  private final Rql2Type resultType;
+
+  private final int currentIndexSlot;
+  private final int listSizeSlot;
+  private final int listSlot;
+  private final int functionSlot;
+  private final int resultSlot;
+
+  public ListTransformNode(
+      ExpressionNode listNode,
+      ExpressionNode functionNode,
+      Rql2Type resultType,
+      int listSlot,
+      int functionSlot,
+      int currentIndexSlot,
+      int listSizeSlot,
+      int resultSlot) {
+    this.listNode = listNode;
+    this.functionNode = functionNode;
+    this.resultType = resultType;
+    this.listSizeSlot = listSizeSlot;
+    this.currentIndexSlot = currentIndexSlot;
+    this.functionSlot = functionSlot;
+    this.resultSlot = resultSlot;
+    this.listSlot = listSlot;
+
+    this.listTransformLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRIsLessThanSizeConditionNode(this.currentIndexSlot, this.listSizeSlot),
+                    new OSRListTransformBodyNode(
+                        this.listSlot, this.functionSlot, this.currentIndexSlot, this.resultSlot)));
   }
 
-  @Specialization(guards = {"isByteKind(getResultType())"})
-  protected static ByteList doByte(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    byte[] values = (byte[]) node.getResult();
-    return new ByteList(values);
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object list = listNode.executeGeneric(frame);
+    Object function = functionNode.executeGeneric(frame);
+
+    int listSize = (int) sizeNode.execute(this, list);
+
+    frame.setObject(this.listSlot, list);
+    frame.setObject(this.functionSlot, function);
+    frame.setInt(this.currentIndexSlot, 0);
+    frame.setInt(this.listSizeSlot, listSize);
+    frame.setObject(this.resultSlot, arrayBuildNode.execute(this, this.resultType, listSize));
+
+    listTransformLoopNode.execute(frame);
+    Object result = frame.getObject(this.resultSlot);
+
+    return arrayBuildListNode.execute(this, result);
   }
 
-  @Specialization(guards = {"isShortKind(getResultType())"})
-  protected static ShortList doShort(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    short[] values = (short[]) node.getResult();
-    return new ShortList(values);
-  }
-
-  @Specialization(guards = {"isIntKind(getResultType())"})
-  protected static IntList doInt(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    int[] values = (int[]) node.getResult();
-    return new IntList(values);
-  }
-
-  @Specialization(guards = {"isLongKind(getResultType())"})
-  protected static LongList doLong(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    long[] values = (long[]) node.getResult();
-    return new LongList(values);
-  }
-
-  @Specialization(guards = {"isFloatKind(getResultType())"})
-  protected static FloatList doFloat(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    float[] values = (float[]) node.getResult();
-    return new FloatList(values);
-  }
-
-  @Specialization(guards = {"isDoubleKind(getResultType())"})
-  protected static DoubleList doDouble(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    double[] values = (double[]) node.getResult();
-    return new DoubleList(values);
-  }
-
-  @Specialization(guards = {"isBooleanKind(getResultType())"})
-  protected BooleanList doBoolean(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    boolean[] values = (boolean[]) node.getResult();
-    return new BooleanList(values);
-  }
-
-  @Specialization(guards = {"isStringKind(getResultType())"})
-  protected static StringList doString(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    String[] values = (String[]) node.getResult();
-    return new StringList(values);
-  }
-
-  @Specialization
-  protected ObjectList doObject(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Cached(
-              value = "getListTransformNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("transformLoopNode")
-          LoopNode transformLoopNode) {
-    OSRListTransformNode node = (OSRListTransformNode) transformLoopNode.getRepeatingNode();
-    node.init(list, function);
-    transformLoopNode.execute(frame);
-    Object[] values = (Object[]) node.getResult();
-    return new ObjectList(values);
+  @Override
+  public boolean executeBoolean(VirtualFrame virtualFrame) {
+    return (boolean) executeGeneric(virtualFrame);
   }
 }

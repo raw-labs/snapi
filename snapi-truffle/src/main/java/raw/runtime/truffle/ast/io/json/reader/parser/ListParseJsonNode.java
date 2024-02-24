@@ -16,58 +16,90 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRToArrayNode;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodes;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
-import raw.runtime.truffle.ast.io.json.reader.parser.osr.OSRListParseNode;
+import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRListParseJsonBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRToArrayBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRListParseJsonConditionNode;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.list.*;
 
-@ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "IterableParseJson")
-@NodeField(name = "resultType", type = Rql2Type.class)
-@NodeField(name = "childCallTarget", type = RootCallTarget.class)
-public abstract class ListParseJsonNode extends ExpressionNode {
+public class ListParseJsonNode extends ExpressionNode {
 
-  @Idempotent
-  protected abstract Rql2Type getResultType();
+  @Child private LoopNode listParseLoopNode;
 
-  @Idempotent
-  protected abstract RootCallTarget getChildCallTarget();
+  @Child private LoopNode toArrayLoopNode;
 
-  public static LoopNode getListParseLoopNode(RootCallTarget childCallTarget) {
-    return Truffle.getRuntime().createLoopNode(new OSRListParseNode(childCallTarget));
+  @Child
+  private JsonParserNodes.CurrentTokenJsonParserNode currentToken =
+      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.create();
+
+  @Child
+  private JsonParserNodes.NextTokenJsonParserNode nextToken =
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+
+  @Child
+  private ArrayOperationNodes.ArrayBuildListNode arrayBuildListNode =
+      ArrayOperationNodesFactory.ArrayBuildListNodeGen.create();
+
+  @Child
+  private ArrayOperationNodes.ArrayBuildNode arrayBuildNode =
+      ArrayOperationNodesFactory.ArrayBuildNodeGen.create();
+
+  private final Rql2Type resultType;
+
+  private final int currentIdxSlot;
+  private final int listSizeSlot;
+  private final int llistSlot;
+  private final int resultSlot;
+
+  private final int parserSlot;
+
+  public ListParseJsonNode(
+      Rql2Type resultType,
+      RootCallTarget childCallTarget,
+      int parserSlot,
+      int llistSlot,
+      int currentIdxSlot,
+      int listSizeSlot,
+      int resultSlot) {
+    this.parserSlot = parserSlot;
+    this.resultType = resultType;
+    this.listSizeSlot = listSizeSlot;
+    this.currentIdxSlot = currentIdxSlot;
+    this.resultSlot = resultSlot;
+    this.llistSlot = llistSlot;
+
+    this.listParseLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRListParseJsonConditionNode(this.parserSlot),
+                    new OSRListParseJsonBodyNode(
+                        childCallTarget, this.llistSlot, this.parserSlot)));
+
+    toArrayLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRIsLessThanSizeConditionNode(currentIdxSlot, listSizeSlot),
+                    new OSRToArrayBodyNode(
+                        this.resultType, this.llistSlot, this.currentIdxSlot, this.resultSlot)));
   }
 
-  public static LoopNode getToArrayLoopNode(Rql2Type resultType) {
-    return Truffle.getRuntime().createLoopNode(new OSRToArrayNode(resultType));
-  }
-
-  @Specialization(guards = {"isByteKind(getResultType())"})
-  protected ByteList doByte(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
 
@@ -77,308 +109,19 @@ public abstract class ListParseJsonNode extends ExpressionNode {
     }
     nextToken.execute(this, parser);
 
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
+    frame.setObject(parserSlot, parser);
+    frame.setObject(llistSlot, new ArrayList<>());
+    listParseLoopNode.execute(frame);
+
+    @SuppressWarnings("unchecked")
+    ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(llistSlot);
+    int size = llist.size();
+
+    frame.setObject(resultSlot, arrayBuildNode.execute(this, resultType, size));
+    frame.setInt(this.currentIdxSlot, 0);
+    frame.setInt(listSizeSlot, size);
+    frame.setObject(llistSlot, llist);
     toArrayLoopNode.execute(frame);
-    return new ByteList((byte[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization(guards = {"isShortKind(getResultType())"})
-  protected ShortList doShort(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
-    toArrayLoopNode.execute(frame);
-    return new ShortList((short[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization(guards = {"isIntKind(getResultType())"})
-  protected IntList doInt(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
-    toArrayLoopNode.execute(frame);
-    return new IntList((int[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization(guards = {"isLongKind(getResultType())"})
-  protected LongList doLong(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
-    toArrayLoopNode.execute(frame);
-    return new LongList((long[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization(guards = {"isFloatKind(getResultType())"})
-  protected FloatList doFloat(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
-    toArrayLoopNode.execute(frame);
-    return new FloatList((float[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization(guards = {"isDoubleKind(getResultType())"})
-  protected DoubleList doDouble(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
-    toArrayLoopNode.execute(frame);
-    return new DoubleList((double[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization(guards = {"isBooleanKind(getResultType())"})
-  protected BooleanList doBoolean(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
-    toArrayLoopNode.execute(frame);
-    return new BooleanList((boolean[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization(guards = {"isStringKind(getResultType())"})
-  protected StringList doString(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-    osrToArrayNode.init(osrNode.getResult());
-    nextToken.execute(this, parser);
-    toArrayLoopNode.execute(frame);
-    return new StringList((String[]) osrToArrayNode.getResult());
-  }
-
-  @Specialization
-  protected RawArrayList doObject(
-      VirtualFrame frame,
-      @Cached(
-              value = "getListParseLoopNode(getChildCallTarget())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(inline = true) @Cached.Shared("currentToken")
-          JsonParserNodes.CurrentTokenJsonParserNode currentToken,
-      @Cached(inline = true) @Cached.Shared("nextToken")
-          JsonParserNodes.NextTokenJsonParserNode nextToken) {
-    Object[] args = frame.getArguments();
-    JsonParser parser = (JsonParser) args[0];
-
-    if (currentToken.execute(this, parser) != JsonToken.START_ARRAY) {
-      throw new JsonUnexpectedTokenException(
-          JsonToken.START_ARRAY.asString(), currentToken.execute(this, parser).toString(), this);
-    }
-    nextToken.execute(this, parser);
-
-    OSRListParseNode osrNode = (OSRListParseNode) loopNode.getRepeatingNode();
-    osrNode.init(parser);
-    loopNode.execute(frame);
-    nextToken.execute(this, parser);
-    return new RawArrayList(osrNode.getResult());
+    return arrayBuildListNode.execute(this, frame.getObject(resultSlot));
   }
 }

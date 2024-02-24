@@ -13,51 +13,85 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.dsl.Bind;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
-import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.expressions.iterable.collection.osr.OSRCollectionExistsNode;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRExistsBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRExistsConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 import raw.runtime.truffle.runtime.list.ListNodes;
+import raw.runtime.truffle.runtime.list.ListNodesFactory;
 
 @NodeInfo(shortName = "List.Exists")
-@NodeChild("list")
-@NodeChild("function")
-public abstract class ListExistsNode extends ExpressionNode {
+public class ListExistsNode extends ExpressionNode {
 
-  public static LoopNode getExistsLoopNode() {
-    return Truffle.getRuntime().createLoopNode(new OSRCollectionExistsNode());
+  @Child private ExpressionNode listNode;
+  @Child private ExpressionNode functionNode;
+  @Child private LoopNode existsLoopNode;
+
+  @Child
+  private GeneratorNodes.GeneratorInitNode generatorInitNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
+
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
+
+  @Child
+  private ListNodes.ToIterableNode toIterableNode = ListNodesFactory.ToIterableNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorCloseNode generatorCloseNode =
+      GeneratorNodesFactory.GeneratorCloseNodeGen.create();
+
+  private final int generatorSlot;
+  private final int functionSlot;
+  private final int predicateResultSlot;
+
+  public ListExistsNode(
+      ExpressionNode listNode,
+      ExpressionNode functionNode,
+      int generatorSlot,
+      int functionSlot,
+      int predicateResultSlot) {
+    this.listNode = listNode;
+    this.functionNode = functionNode;
+    this.generatorSlot = generatorSlot;
+    this.functionSlot = functionSlot;
+    this.predicateResultSlot = predicateResultSlot;
+    this.existsLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRExistsConditionNode(generatorSlot, predicateResultSlot),
+                    new OSRExistsBodyNode(generatorSlot, functionSlot, predicateResultSlot)));
   }
 
-  @Specialization
-  protected static boolean doList(
-      VirtualFrame frame,
-      Object list,
-      Object function,
-      @Bind("this") Node thisNode,
-      @Cached(value = "getExistsLoopNode()", allowUncached = true, neverDefault = true)
-          LoopNode loopNode,
-      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object list = listNode.executeGeneric(frame);
+    Object function = functionNode.executeGeneric(frame);
+    Object iterable = toIterableNode.execute(this, list);
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(thisNode, generator);
-      OSRCollectionExistsNode osrNode = (OSRCollectionExistsNode) loopNode.getRepeatingNode();
-      osrNode.init(generator, function);
-      loopNode.execute(frame);
-      return osrNode.getResult();
+      generatorInitNode.execute(this, generator);
+      frame.setObject(generatorSlot, generator);
+      frame.setObject(functionSlot, function);
+      frame.setBoolean(predicateResultSlot, false);
+      existsLoopNode.execute(frame);
+      return frame.getBoolean(predicateResultSlot);
     } finally {
-      generatorCloseNode.execute(thisNode, generator);
+      generatorCloseNode.execute(this, generator);
     }
+  }
+
+  @Override
+  public boolean executeBoolean(VirtualFrame virtualFrame) {
+    return (boolean) executeGeneric(virtualFrame);
   }
 }

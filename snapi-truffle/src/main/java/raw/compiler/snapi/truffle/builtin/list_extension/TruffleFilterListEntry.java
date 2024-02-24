@@ -30,23 +30,23 @@ public class TruffleFilterListEntry extends FilterListEntry implements TruffleEn
   @Override
   public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
     Rql2ListType listType = (Rql2ListType) type;
-    List<TruffleArg> truffleArgs = argsToTruffle(args, emitter);
+    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
     int generatorSlot =
         builder.addSlot(
-            FrameSlotKind.Object, "generator", "a slot to store the generator to be filtered");
+            FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
     int functionSlot =
-        builder.addSlot(FrameSlotKind.Object, "function", "a slot to store the filter function");
+        builder.addSlot(FrameSlotKind.Object, "function", "a slot to store the function of osr");
     int listSlot =
         builder.addSlot(
-            FrameSlotKind.Object, "filter_list", "a slot to store the filter ArrayList");
+            FrameSlotKind.Object, "filterList", "a slot to store the ArrayList of osr");
     int currentIdxSlot =
-        builder.addSlot(FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index");
+        builder.addSlot(FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
     int listSizeSlot =
         builder.addSlot(
-            FrameSlotKind.Int, "listSize", "a slot to store the size of the filter list");
+            FrameSlotKind.Int, "listSize", "a slot to store the size of the list for osr");
     int resultSlot =
-        builder.addSlot(FrameSlotKind.Object, "list", "a slot to store the result raw list");
+        builder.addSlot(FrameSlotKind.Object, "list", "a slot to store the result internal array for osr");
     return new ListFilterNode(
         truffleArgs.get(0).exprNode(),
         truffleArgs.get(1).exprNode(),

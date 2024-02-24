@@ -25,10 +25,10 @@ public interface TruffleEntryExtension {
   }
 
   default ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
-    return toTruffle(type, argsToTruffle(args, emitter), emitter.getLanguage());
+    return toTruffle(type, rql2argsToTruffleArgs(args, emitter), emitter.getLanguage());
   }
 
-  default List<TruffleArg> argsToTruffle(List<Rql2Arg> args, TruffleEmitter emitter) {
+  default List<TruffleArg> rql2argsToTruffleArgs(List<Rql2Arg> args, TruffleEmitter emitter) {
     return args.stream()
         .map(
             a ->

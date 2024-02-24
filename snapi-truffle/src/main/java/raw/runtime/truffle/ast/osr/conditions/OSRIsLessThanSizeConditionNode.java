@@ -16,20 +16,20 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
 
-public class OSRToArrayConditionNode extends ExpressionNode {
+public class OSRIsLessThanSizeConditionNode extends ExpressionNode {
 
   private final int currentIdxSlot;
-  private final int listSizeSlot;
+  private final int sizeSlot;
 
-  public OSRToArrayConditionNode(int currentIdxSlot, int listSizeSlot) {
+  public OSRIsLessThanSizeConditionNode(int currentIdxSlot, int listSizeSlot) {
     this.currentIdxSlot = currentIdxSlot;
-    this.listSizeSlot = listSizeSlot;
+    this.sizeSlot = listSizeSlot;
   }
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     int currentIdx = frame.getInt(currentIdxSlot);
-    int listSize = frame.getInt(listSizeSlot);
+    int listSize = frame.getInt(sizeSlot);
     return currentIdx < listSize;
   }
 

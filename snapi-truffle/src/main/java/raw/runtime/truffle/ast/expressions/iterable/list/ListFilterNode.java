@@ -13,19 +13,19 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodes;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
 import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
-import raw.runtime.truffle.ast.osr.StaticArrayBuilder;
 import raw.runtime.truffle.ast.osr.bodies.OSRListFilterBodyNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRToArrayBodyNode;
-import raw.runtime.truffle.ast.osr.conditions.OSRListFilterConditionNode;
-import raw.runtime.truffle.ast.osr.conditions.OSRToArrayConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
@@ -55,11 +55,19 @@ public class ListFilterNode extends ExpressionNode {
   private GeneratorNodes.GeneratorCloseNode generatorCloseNode =
       GeneratorNodesFactory.GeneratorCloseNodeGen.create();
 
+  @Child
+  ArrayOperationNodes.ArrayBuildNode arrayBuildNode =
+      ArrayOperationNodesFactory.ArrayBuildNodeGen.create();
+
+  @Child
+  ArrayOperationNodes.ArrayBuildListNode arrayBuildListNode =
+      ArrayOperationNodesFactory.ArrayBuildListNodeGen.create();
+
   private final Rql2Type resultType;
 
   private final int generatorSlot;
   private final int functionSlot;
-  private final int listSlot;
+  private final int llistSlot;
   private final int currentIdxSlot;
   private final int listSizeSlot;
   private final int resultSlot;
@@ -79,7 +87,7 @@ public class ListFilterNode extends ExpressionNode {
     this.functionNode = functionNode;
     this.generatorSlot = generatorSlot;
     this.functionSlot = functionSlot;
-    this.listSlot = listSlot;
+    this.llistSlot = listSlot;
     this.currentIdxSlot = currentIdxSlot;
     this.listSizeSlot = listSizeSlot;
     this.resultSlot = resultSlot;
@@ -87,13 +95,13 @@ public class ListFilterNode extends ExpressionNode {
         Truffle.getRuntime()
             .createLoopNode(
                 new OSRGeneratorNode(
-                    new OSRListFilterConditionNode(generatorSlot),
+                    new OSRHasNextConditionNode(generatorSlot),
                     new OSRListFilterBodyNode(generatorSlot, functionSlot, listSlot)));
     toArrayLoopNode =
         Truffle.getRuntime()
             .createLoopNode(
                 new OSRGeneratorNode(
-                    new OSRToArrayConditionNode(currentIdxSlot, listSizeSlot),
+                    new OSRIsLessThanSizeConditionNode(currentIdxSlot, listSizeSlot),
                     new OSRToArrayBodyNode(resultType, listSlot, currentIdxSlot, resultSlot)));
   }
 
@@ -107,18 +115,17 @@ public class ListFilterNode extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       frame.setObject(generatorSlot, generator);
       frame.setObject(functionSlot, function);
-      frame.setObject(listSlot, new ArrayList<>());
+      frame.setObject(llistSlot, new ArrayList<>());
       filterLoopNode.execute(frame);
       @SuppressWarnings("unchecked")
-      ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(listSlot);
+      ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(llistSlot);
       int size = llist.size();
-      frame.setObject(resultSlot, StaticArrayBuilder.build(size, resultType));
+      frame.setObject(resultSlot, arrayBuildNode.execute(this, resultType, size));
       frame.setInt(currentIdxSlot, 0);
       frame.setInt(listSizeSlot, size);
-      frame.setObject(listSlot, llist);
+      frame.setObject(llistSlot, llist);
       toArrayLoopNode.execute(frame);
-
-      return StaticArrayBuilder.buildList(resultType, frame.getObject(resultSlot));
+      return arrayBuildListNode.execute(this, frame.getObject(resultSlot));
     } finally {
       generatorCloseNode.execute(this, generator);
     }

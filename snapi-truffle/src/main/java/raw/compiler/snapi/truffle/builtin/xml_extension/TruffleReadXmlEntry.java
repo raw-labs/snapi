@@ -12,17 +12,20 @@
 
 package raw.compiler.snapi.truffle.builtin.xml_extension;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import raw.compiler.base.source.Type;
+import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.ReadXmlEntry;
 import raw.compiler.rql2.source.Rql2IterableType;
 import raw.compiler.rql2.source.Rql2ListType;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.list.ListFromNodeGen;
+import raw.runtime.truffle.ast.expressions.iterable.list.ListFromNode;
 import raw.runtime.truffle.ast.expressions.iterable.list.ListFromUnsafeNodeGen;
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.ast.io.json.reader.TryableTopLevelWrapper;
@@ -49,9 +52,14 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
   private static final ExpressionNode defaultTimeFormat = new StringNode("HH:mm[:ss[.SSS]]");
 
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    List<TruffleArg> unnamedArgs = args.stream().filter(arg -> arg.identifier() == null).toList();
-    List<TruffleArg> namedArgs = args.stream().filter(arg -> arg.identifier() != null).toList();
+  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
+
+    List<TruffleArg> unnamedArgs =
+        truffleArgs.stream().filter(arg -> arg.identifier() == null).toList();
+    List<TruffleArg> namedArgs =
+        truffleArgs.stream().filter(arg -> arg.identifier() != null).toList();
     ExpressionNode encoding = getArg(namedArgs, "encoding", defaultEncoding);
     ExpressionNode timeFormatExp = getArg(namedArgs, "timeFormat", defaultTimeFormat);
     ExpressionNode dateFormatExp = getArg(namedArgs, "dateFormat", defaultDateFormat);
@@ -68,7 +76,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
                 timeFormatExp,
                 timestampFormatExp,
                 XmlRecurse.recurseXmlParser(
-                    (Rql2TypeWithProperties) iterableType.innerType(), rawLanguage));
+                    (Rql2TypeWithProperties) iterableType.innerType(), emitter.getLanguage()));
         if (XmlRecurse.isTryable(iterableType)) {
           // Probably will need to be either reused in json and xml or create a copy
           yield new TryableTopLevelWrapper(parseNode);
@@ -85,10 +93,32 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
                 timeFormatExp,
                 timestampFormatExp,
                 XmlRecurse.recurseXmlParser(
-                    (Rql2TypeWithProperties) listType.innerType(), rawLanguage));
+                    (Rql2TypeWithProperties) listType.innerType(), emitter.getLanguage()));
         if (XmlRecurse.isTryable(listType)) {
           // Probably will need to be either reused in json and xml or create a copy
-          yield ListFromNodeGen.create(parseNode, (Rql2Type) listType.innerType());
+          int generatorSlot =
+              builder.addSlot(
+                  FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+          int listSlot =
+              builder.addSlot(
+                  FrameSlotKind.Object, "filterList", "a slot to store the ArrayList of osr");
+          int currentIdxSlot =
+              builder.addSlot(
+                  FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
+          int listSizeSlot =
+              builder.addSlot(
+                  FrameSlotKind.Int, "listSize", "a slot to store the size of the list of osr");
+          int resultSlot =
+              builder.addSlot(
+                  FrameSlotKind.Object, "list", "a slot to store the result array of osr");
+          yield new ListFromNode(
+              parseNode,
+              (Rql2Type) listType.innerType(),
+              generatorSlot,
+              listSlot,
+              currentIdxSlot,
+              listSizeSlot,
+              resultSlot);
         } else {
           yield ListFromUnsafeNodeGen.create(parseNode, (Rql2Type) listType.innerType());
         }
@@ -101,7 +131,7 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
                 dateFormatExp,
                 timeFormatExp,
                 timestampFormatExp,
-                XmlRecurse.recurseXmlParser(t, rawLanguage).getCallTarget());
+                XmlRecurse.recurseXmlParser(t, emitter.getLanguage()).getCallTarget());
         if (XmlRecurse.isTryable(t)) {
           yield new TryableTopLevelWrapper(parseNode);
         } else {
