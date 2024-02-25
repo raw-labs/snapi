@@ -13,7 +13,6 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -25,7 +24,7 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodes;
 import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
 import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
-import raw.runtime.truffle.ast.osr.bodies.OSREquiJoinInitBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRListEquiJoinInitBodyNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRListFromBodyNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
@@ -108,7 +107,7 @@ public class ListGroupByNode extends ExpressionNode {
             .createLoopNode(
                 new OSRGeneratorNode(
                     new OSRHasNextConditionNode(this.generatorSlot),
-                    new OSREquiJoinInitBodyNode(
+                    new OSRListEquiJoinInitBodyNode(
                         this.generatorSlot, this.keyFunctionSlot, this.mapSlot)));
 
     this.listFromLoopNode =

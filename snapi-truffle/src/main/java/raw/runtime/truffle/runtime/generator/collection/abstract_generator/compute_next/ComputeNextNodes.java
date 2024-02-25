@@ -19,6 +19,7 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -32,6 +33,14 @@ import java.io.FileOutputStream;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRCollectionEquiJoinInitBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRCollectionFilterBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSREquiJoinNextBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRCollectionFilterConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSREquiJoinNextConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionAuxNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -245,7 +254,10 @@ public class ComputeNextNodes {
     }
 
     public static LoopNode getFilterLoopNode() {
-      return Truffle.getRuntime().createLoopNode(new OSRFilterNode());
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRCollectionFilterConditionNode(), new OSRCollectionFilterBodyNode()));
     }
 
     @Specialization
@@ -259,10 +271,12 @@ public class ComputeNextNodes {
                 allowUncached = true,
                 neverDefault = true)
             LoopNode loopNode) {
-      OSRFilterNode osrNode = (OSRFilterNode) loopNode.getRepeatingNode();
-      osrNode.init(computeNext);
+      Frame frame = computeNext.getFrame();
+      int resultSlot =
+          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
+      frame.setAuxiliarySlot(resultSlot, null);
       loopNode.execute(computeNext.getFrame());
-      Object result = osrNode.getResult();
+      Object result = frame.getAuxiliarySlot(resultSlot);
       if (result == null) {
         throw new BreakException();
       }
@@ -369,8 +383,11 @@ public class ComputeNextNodes {
       }
     }
 
-    public static LoopNode getEquiJoinNextLoopNode() {
-      return Truffle.getRuntime().createLoopNode(new OSREquiJoinNextNode());
+    public static LoopNode getEquiJoinNextLoopNode(EquiJoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSREquiJoinNextConditionNode(), new OSREquiJoinNextBodyNode()));
     }
 
     @Specialization
@@ -378,15 +395,31 @@ public class ComputeNextNodes {
         Node node,
         EquiJoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getEquiJoinNextLoopNode()", inline = false, allowUncached = true)
+        @Cached(
+                value = "getEquiJoinNextLoopNode(computeNext)",
+                inline = false,
+                allowUncached = true)
             LoopNode loopNode,
         @Cached FunctionExecuteNodes.FunctionExecuteTwo functionExecuteTwoNode) {
 
       assert (computeNext.getLeftMapGenerator() != null);
       assert (computeNext.getRightMapGenerator() != null);
 
-      OSREquiJoinNextNode osrNode = (OSREquiJoinNextNode) loopNode.getRepeatingNode();
-      osrNode.init(computeNext);
+      Frame frame = computeNext.getFrame();
+      int shouldContinueSlot =
+          frame
+              .getFrameDescriptor()
+              .findOrAddAuxiliarySlot(
+                  raw.runtime.truffle.ast.osr.AuxiliarySlots.SHOULD_CONTINUE_SLOT);
+
+      int computeNextSlot =
+          frame
+              .getFrameDescriptor()
+              .findOrAddAuxiliarySlot(raw.runtime.truffle.ast.osr.AuxiliarySlots.COMPUTE_NEXT_SLOT);
+
+      frame.setAuxiliarySlot(computeNextSlot, computeNext);
+      frame.setAuxiliarySlot(shouldContinueSlot, true);
+
       loopNode.execute(computeNext.getFrame());
 
       // record to return
@@ -602,6 +635,14 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode) {
       initNode.execute(thisNode, computeNext.getParent());
+      Frame frame = computeNext.getFrame();
+      int generatorSlot =
+          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+      int functionSlot =
+          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
+
+      frame.setAuxiliarySlot(generatorSlot, computeNext.getParent());
+      frame.setAuxiliarySlot(functionSlot, computeNext.getPredicate());
     }
 
     @Specialization
@@ -643,7 +684,10 @@ public class ComputeNextNodes {
     }
 
     public static LoopNode getEquiJoinInitLoopNode() {
-      return Truffle.getRuntime().createLoopNode(new OSREquiJoinInitNode());
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionAuxNode(), new OSRCollectionEquiJoinInitBodyNode()));
     }
 
     @Specialization
@@ -665,6 +709,12 @@ public class ComputeNextNodes {
             GeneratorNodes.GeneratorCloseNode closeRightNode,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorLeft,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight) {
+      Frame frame = computeNext.getFrame();
+      int mapSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
+      int generatorSlot =
+          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+      int functionSlot =
+          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
       // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
       OffHeapGroupByKey leftMap =
           new OffHeapGroupByKey(
@@ -676,14 +726,15 @@ public class ComputeNextNodes {
       Object leftGenerator = getGenerator.execute(thisNode, computeNext.getLeftIterable());
       try {
         initLeftNode.execute(thisNode, leftGenerator);
-        OSREquiJoinInitNode osrNode = (OSREquiJoinInitNode) loopNode1.getRepeatingNode();
-        osrNode.init(computeNext.getLeftKeyF(), leftGenerator, leftMap);
+        frame.setAuxiliarySlot(mapSlot, leftMap);
+        frame.setAuxiliarySlot(generatorSlot, leftGenerator);
+        frame.setAuxiliarySlot(functionSlot, computeNext.getLeftKeyF());
         loopNode1.execute(computeNext.getFrame());
       } finally {
         closeLeftNode.execute(thisNode, leftGenerator);
       }
       computeNext.setLeftMapGenerator(offHeapGeneratorLeft.execute(thisNode, leftMap));
-      initRightNode.execute(thisNode, computeNext.getLeftMapGenerator());
+      initLeftNode.execute(thisNode, computeNext.getLeftMapGenerator());
 
       // same with right side
       OffHeapGroupByKey rightMap =
@@ -696,8 +747,9 @@ public class ComputeNextNodes {
       Object rightGenerator = getGenerator.execute(thisNode, computeNext.getRightIterable());
       try {
         initRightNode.execute(thisNode, rightGenerator);
-        OSREquiJoinInitNode osrNode = (OSREquiJoinInitNode) loopNode2.getRepeatingNode();
-        osrNode.init(computeNext.getRightKeyF(), rightGenerator, rightMap);
+        frame.setAuxiliarySlot(mapSlot, rightMap);
+        frame.setAuxiliarySlot(generatorSlot, rightGenerator);
+        frame.setAuxiliarySlot(functionSlot, computeNext.getRightKeyF());
         loopNode2.execute(computeNext.getFrame());
       } finally {
         closeRightNode.execute(thisNode, rightGenerator);

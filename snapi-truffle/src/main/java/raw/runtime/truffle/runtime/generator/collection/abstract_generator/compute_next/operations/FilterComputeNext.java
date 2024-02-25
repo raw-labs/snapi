@@ -12,15 +12,14 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 
 public class FilterComputeNext {
   private final Object parent;
   private final Object predicate;
+  private final MaterializedFrame frame;
 
-  private final VirtualFrame frame;
-
-  public FilterComputeNext(Object parent, Object predicate, VirtualFrame frame) {
+  public FilterComputeNext(Object parent, Object predicate, MaterializedFrame frame) {
     this.parent = parent;
     this.predicate = predicate;
     this.frame = frame;
@@ -34,7 +33,7 @@ public class FilterComputeNext {
     return predicate;
   }
 
-  public VirtualFrame getFrame() {
+  public MaterializedFrame getFrame() {
     return frame;
   }
 }

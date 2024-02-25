@@ -71,6 +71,6 @@ public class CollectionEquiJoinNode extends ExpressionNode {
         remapF,
         RawLanguage.get(this),
         RawContext.get(this).getSourceContext(),
-        frame);
+        frame.materialize());
   }
 }

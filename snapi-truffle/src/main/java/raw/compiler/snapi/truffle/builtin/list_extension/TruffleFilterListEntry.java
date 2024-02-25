@@ -46,7 +46,7 @@ public class TruffleFilterListEntry extends FilterListEntry implements TruffleEn
             FrameSlotKind.Int, "listSize", "a slot to store the size of the list for osr");
     int resultSlot =
         builder.addSlot(
-            FrameSlotKind.Object, "list", "a slot to store the result internal array for osr");
+            FrameSlotKind.Object, "result", "a slot to store the result internal array for osr");
     return new ListFilterNode(
         truffleArgs.get(0).exprNode(),
         truffleArgs.get(1).exprNode(),

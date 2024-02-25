@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -34,8 +34,7 @@ public class GroupByCollection implements TruffleObject {
   final Rql2TypeWithProperties keyType;
   final Rql2TypeWithProperties rowType;
   private final SourceContext context;
-
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
 
   public GroupByCollection(
       Object iterable,
@@ -44,7 +43,7 @@ public class GroupByCollection implements TruffleObject {
       Rql2TypeWithProperties rowType,
       RawLanguage language,
       SourceContext context,
-      VirtualFrame frame) {
+      MaterializedFrame frame) {
     this.iterable = iterable;
     this.keyFun = keyFun;
     this.language = language;
@@ -78,7 +77,7 @@ public class GroupByCollection implements TruffleObject {
     return language;
   }
 
-  public VirtualFrame getFrame() {
+  public MaterializedFrame getFrame() {
     return frame;
   }
 

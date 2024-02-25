@@ -12,20 +12,27 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.iterable.operations.FilterCollection;
 
 @NodeInfo(shortName = "Collection.Filter")
-@NodeChild("iterable")
-@NodeChild("predicate")
-public abstract class CollectionFilterNode extends ExpressionNode {
+public class CollectionFilterNode extends ExpressionNode {
 
-  @Specialization
-  protected Object doFilter(VirtualFrame frame, Object iterable, Object predicate) {
-    return new FilterCollection(iterable, predicate, frame);
+  @Child private ExpressionNode iterableNode;
+
+  @Child private ExpressionNode predicateNode;
+
+  public CollectionFilterNode(ExpressionNode iterableNode, ExpressionNode predicateNode) {
+    this.iterableNode = iterableNode;
+    this.predicateNode = predicateNode;
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object iterable = iterableNode.executeGeneric(frame);
+    Object predicate = predicateNode.executeGeneric(frame);
+    return new FilterCollection(iterable, predicate, frame.materialize());
   }
 }

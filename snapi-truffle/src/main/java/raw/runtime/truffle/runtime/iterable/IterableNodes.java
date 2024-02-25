@@ -14,13 +14,17 @@ package raw.runtime.truffle.runtime.iterable;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRCollectionEquiJoinInitBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionAuxNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
-import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr.OSREquiJoinInitNode;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
@@ -208,7 +212,10 @@ public class IterableNodes {
     }
 
     public static LoopNode getEquiJoinInitLoopNode() {
-      return Truffle.getRuntime().createLoopNode(new OSREquiJoinInitNode());
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionAuxNode(), new OSRCollectionEquiJoinInitBodyNode()));
     }
 
     @Specialization
@@ -227,6 +234,12 @@ public class IterableNodes {
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
+      Frame frame = collection.getFrame();
+      int mapSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
+      int generatorSlot =
+          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+      int functionSlot =
+          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
               collection.getKeyType(),
@@ -237,8 +250,9 @@ public class IterableNodes {
       Object inputGenerator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, inputGenerator);
-        OSREquiJoinInitNode osrNode = (OSREquiJoinInitNode) loopNode.getRepeatingNode();
-        osrNode.init(collection.getKeyFun(), inputGenerator, map);
+        frame.setAuxiliarySlot(generatorSlot, inputGenerator);
+        frame.setAuxiliarySlot(mapSlot, map);
+        frame.setAuxiliarySlot(functionSlot, collection.getKeyFun());
         loopNode.execute(collection.getFrame());
       } finally {
         closeNode.execute(thisNode, inputGenerator);

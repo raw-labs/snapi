@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -27,9 +27,9 @@ import raw.runtime.truffle.runtime.iterable.IterableNodes;
 public class FilterCollection implements TruffleObject {
   private final Object parentIterable;
   private final Object predicate;
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
 
-  public FilterCollection(Object iterable, Object predicate, VirtualFrame frame) {
+  public FilterCollection(Object iterable, Object predicate, MaterializedFrame frame) {
     this.parentIterable = iterable;
     this.predicate = predicate;
     this.frame = frame;
@@ -43,7 +43,7 @@ public class FilterCollection implements TruffleObject {
     return predicate;
   }
 
-  public VirtualFrame getFrame() {
+  public MaterializedFrame getFrame() {
     return frame;
   }
 

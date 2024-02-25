@@ -348,7 +348,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.ast.io.jdbc;
   exports raw.runtime.truffle.ast.io.json.reader;
   exports raw.runtime.truffle.ast.io.json.reader.parser;
-  exports raw.runtime.truffle.ast.io.json.reader.parser.osr;
   exports raw.runtime.truffle.ast.io.json.writer;
   exports raw.runtime.truffle.ast.io.json.writer.internal;
   exports raw.runtime.truffle.ast.io.csv.reader;

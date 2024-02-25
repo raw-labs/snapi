@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -36,8 +36,7 @@ public class EquiJoinCollection implements TruffleObject {
   final Rql2TypeWithProperties keyType;
   private final RawLanguage language;
   private final SourceContext context;
-
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
 
   public EquiJoinCollection(
       Object leftIterable,
@@ -50,7 +49,7 @@ public class EquiJoinCollection implements TruffleObject {
       Object reshapeFun,
       RawLanguage language,
       SourceContext context,
-      VirtualFrame frame) {
+      MaterializedFrame frame) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;

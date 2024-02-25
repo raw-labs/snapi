@@ -12,16 +12,17 @@
 
 package raw.runtime.truffle.ast.osr.bodies;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodesFactory;
+import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
-public class OSREquiJoinInitBodyNode extends ExpressionNode {
+public class OSRCollectionFilterBodyNode extends ExpressionNode {
 
   @Child
   private GeneratorNodes.GeneratorNextNode nextNode =
@@ -31,28 +32,22 @@ public class OSREquiJoinInitBodyNode extends ExpressionNode {
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
-  @Child
-  OffHeapNodes.OffHeapGroupByPutNode putNode =
-      OffHeapNodesFactory.OffHeapGroupByPutNodeGen.create();
-
-  private final int generatorSlot;
-  private final int keyFunctionSlot;
-  private final int mapSlot;
-
-  public OSREquiJoinInitBodyNode(int generatorSlot, int keyFunctionSlot, int mapSlot) {
-    this.generatorSlot = generatorSlot;
-    this.keyFunctionSlot = keyFunctionSlot;
-    this.mapSlot = mapSlot;
-  }
-
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getObject(generatorSlot);
-    Object keyFunc = frame.getObject(keyFunctionSlot);
-    Object map = frame.getObject(mapSlot);
-    Object item = nextNode.execute(this, generator);
-    Object key = functionExecuteOneNode.execute(this, keyFunc, item);
-    putNode.execute(this, map, key, item);
+    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
+    int generatorSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+    int functionSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
+
+    Object generator = frame.getAuxiliarySlot(generatorSlot);
+    Object predicate = frame.getAuxiliarySlot(functionSlot);
+    Object v = nextNode.execute(this, generator);
+
+    boolean isPredicateTrue =
+        TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, predicate, v), false);
+    if (isPredicateTrue) {
+      int resultSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
+      frame.setAuxiliarySlot(resultSlot, v);
+    }
     return null;
   }
 

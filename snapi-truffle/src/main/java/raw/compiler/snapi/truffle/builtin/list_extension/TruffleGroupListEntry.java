@@ -56,7 +56,6 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
                 .tipe();
 
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
-
     int generatorSlot =
         builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
     int keyFuncSlot =
