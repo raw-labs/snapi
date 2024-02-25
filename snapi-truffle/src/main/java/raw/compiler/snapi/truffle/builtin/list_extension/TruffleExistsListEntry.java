@@ -30,8 +30,7 @@ public class TruffleExistsListEntry extends ExistsListEntry implements TruffleEn
     List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
     int generatorSlot =
-        builder.addSlot(
-            FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+        builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
     int functionSlot =
         builder.addSlot(FrameSlotKind.Object, "function", "a slot to store the function of osr");
     int predicateResultSlot =

@@ -27,16 +27,18 @@ import raw.runtime.truffle.ast.osr.bodies.OSRListFromBodyNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRToArrayBodyNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
+import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 import raw.runtime.truffle.runtime.list.*;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @ImportStatic(value = TypeGuards.class)
 public class ListFromNode extends ExpressionNode {
 
-  @Child private ExpressionNode listNode;
+  @Child private ExpressionNode iterableNode;
   @Child private LoopNode listFromLoopNode;
   @Child private LoopNode toArrayLoopNode;
 
@@ -47,9 +49,6 @@ public class ListFromNode extends ExpressionNode {
   @Child
   private IterableNodes.GetGeneratorNode getGeneratorNode =
       IterableNodesFactory.GetGeneratorNodeGen.create();
-
-  @Child
-  private ListNodes.ToIterableNode toIterableNode = ListNodesFactory.ToIterableNodeGen.create();
 
   @Child
   private GeneratorNodes.GeneratorCloseNode generatorCloseNode =
@@ -72,7 +71,7 @@ public class ListFromNode extends ExpressionNode {
   private final int resultSlot;
 
   public ListFromNode(
-      ExpressionNode listNode,
+      ExpressionNode iterableNode,
       Rql2Type resultType,
       int generatorSlot,
       int listSlot,
@@ -80,7 +79,7 @@ public class ListFromNode extends ExpressionNode {
       int listSizeSlot,
       int resultSlot) {
     this.resultType = resultType;
-    this.listNode = listNode;
+    this.iterableNode = iterableNode;
     this.generatorSlot = generatorSlot;
     this.listSlot = listSlot;
     this.currentIdxSlot = currentIdxSlot;
@@ -102,8 +101,7 @@ public class ListFromNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object list = listNode.executeGeneric(frame);
-    Object iterable = toIterableNode.execute(this, list);
+    Object iterable = iterableNode.executeGeneric(frame);
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       generatorInitNode.execute(this, generator);
@@ -119,6 +117,8 @@ public class ListFromNode extends ExpressionNode {
       frame.setObject(listSlot, llist);
       toArrayLoopNode.execute(frame);
       return arrayBuildListNode.execute(this, frame.getObject(resultSlot));
+    } catch (RawTruffleRuntimeException ex) {
+      return new ErrorObject(ex.getMessage());
     } finally {
       generatorCloseNode.execute(this, generator);
     }

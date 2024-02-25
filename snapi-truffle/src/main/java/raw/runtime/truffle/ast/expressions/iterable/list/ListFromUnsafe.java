@@ -13,328 +13,107 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRListFromNode;
-import raw.runtime.truffle.ast.expressions.iterable.list.osr.OSRToArrayNode;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodes;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRListFromBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRToArrayBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 import raw.runtime.truffle.runtime.list.*;
 
-@ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.FromUnsafe")
-@NodeChild("list")
-@NodeField(name = "resultType", type = Rql2Type.class)
-public abstract class ListFromUnsafe extends ExpressionNode {
+public class ListFromUnsafe extends ExpressionNode {
 
-  @Idempotent
-  protected abstract Rql2Type getResultType();
+  @Child private ExpressionNode iterableNode;
+  @Child private LoopNode listFromLoopNode;
+  @Child private LoopNode toArrayLoopNode;
 
-  public static LoopNode getFromLoopNode() {
-    return Truffle.getRuntime().createLoopNode(new OSRListFromNode());
+  @Child
+  private GeneratorNodes.GeneratorInitNode generatorInitNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
+
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorCloseNode generatorCloseNode =
+      GeneratorNodesFactory.GeneratorCloseNodeGen.create();
+
+  @Child
+  private ArrayOperationNodes.ArrayBuildNode arrayBuildNode =
+      ArrayOperationNodesFactory.ArrayBuildNodeGen.create();
+
+  @Child
+  private ArrayOperationNodes.ArrayBuildListNode arrayBuildListNode =
+      ArrayOperationNodesFactory.ArrayBuildListNodeGen.create();
+
+  private final Rql2Type resultType;
+
+  private final int generatorSlot;
+  private final int listSlot;
+  private final int currentIdxSlot;
+  private final int listSizeSlot;
+  private final int resultSlot;
+
+  public ListFromUnsafe(
+      ExpressionNode iterableNode,
+      Rql2Type resultType,
+      int generatorSlot,
+      int listSlot,
+      int currentIdxSlot,
+      int listSizeSlot,
+      int resultSlot) {
+    this.resultType = resultType;
+    this.iterableNode = iterableNode;
+    this.generatorSlot = generatorSlot;
+    this.listSlot = listSlot;
+    this.currentIdxSlot = currentIdxSlot;
+    this.listSizeSlot = listSizeSlot;
+    this.resultSlot = resultSlot;
+    this.listFromLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRHasNextConditionNode(generatorSlot),
+                    new OSRListFromBodyNode(generatorSlot, listSlot)));
+    toArrayLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRIsLessThanSizeConditionNode(currentIdxSlot, listSizeSlot),
+                    new OSRToArrayBodyNode(resultType, listSlot, currentIdxSlot, resultSlot)));
   }
 
-  public static LoopNode getToArrayLoopNode(Rql2Type resultType) {
-    return Truffle.getRuntime().createLoopNode(new OSRToArrayNode(resultType));
-  }
-
-  @Specialization(guards = {"isByteKind(getResultType())"})
-  protected ByteList doByte(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object iterable = iterableNode.executeGeneric(frame);
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
+      frame.setObject(generatorSlot, generator);
+      frame.setObject(listSlot, new ArrayList<>());
+      listFromLoopNode.execute(frame);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(listSlot);
+      int size = llist.size();
+      frame.setObject(resultSlot, arrayBuildNode.execute(this, resultType, size));
+      frame.setInt(currentIdxSlot, 0);
+      frame.setInt(listSizeSlot, size);
+      frame.setObject(listSlot, llist);
       toArrayLoopNode.execute(frame);
-      return new ByteList((byte[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization(guards = {"isShortKind(getResultType())"})
-  protected ShortList doShort(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
-      toArrayLoopNode.execute(frame);
-      return new ShortList((short[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization(guards = {"isIntKind(getResultType())"})
-  protected IntList doInt(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
-      toArrayLoopNode.execute(frame);
-      return new IntList((int[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization(guards = {"isLongKind(getResultType())"})
-  protected LongList doLong(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
-      toArrayLoopNode.execute(frame);
-      return new LongList((long[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization(guards = {"isFloatKind(getResultType())"})
-  protected FloatList doFloat(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
-      toArrayLoopNode.execute(frame);
-      return new FloatList((float[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization(guards = {"isDoubleKind(getResultType())"})
-  protected DoubleList doDouble(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
-      toArrayLoopNode.execute(frame);
-      return new DoubleList((double[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization(guards = {"isBooleanKind(getResultType())"})
-  protected BooleanList doBoolean(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
-      toArrayLoopNode.execute(frame);
-      return new BooleanList((boolean[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization(guards = {"isStringKind(getResultType())"})
-  protected StringList doString(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(
-              value = "getToArrayLoopNode(getResultType())",
-              allowUncached = true,
-              neverDefault = true)
-          @Cached.Shared("getToArrayLoopNode")
-          LoopNode toArrayLoopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      OSRToArrayNode osrToArrayNode = (OSRToArrayNode) toArrayLoopNode.getRepeatingNode();
-      osrToArrayNode.init(osrNode.getResult());
-      toArrayLoopNode.execute(frame);
-      return new StringList((String[]) osrToArrayNode.getResult());
-    } finally {
-      generatorCloseNode.execute(this, generator);
-    }
-  }
-
-  @Specialization
-  protected RawArrayList doObject(
-      VirtualFrame frame,
-      Object iterable,
-      @Cached(value = "getFromLoopNode()", allowUncached = true, neverDefault = true)
-          @Cached.Shared("getFromLoopNode")
-          LoopNode loopNode,
-      @Cached(inline = true) @Cached.Shared("getGenerator")
-          IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) @Cached.Shared("initNode")
-          GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) @Cached.Shared("closeNode")
-          GeneratorNodes.GeneratorCloseNode generatorCloseNode) {
-    Object generator = getGeneratorNode.execute(this, iterable);
-    try {
-      generatorInitNode.execute(this, generator);
-      OSRListFromNode osrNode = (OSRListFromNode) loopNode.getRepeatingNode();
-      osrNode.init(generator);
-      loopNode.execute(frame);
-      return new RawArrayList(osrNode.getResult());
+      return arrayBuildListNode.execute(this, frame.getObject(resultSlot));
     } finally {
       generatorCloseNode.execute(this, generator);
     }

@@ -33,13 +33,12 @@ public class TruffleFromListEntry extends FromListEntry implements TruffleEntryE
     List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
     FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
     int generatorSlot =
-        builder.addSlot(
-            FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+        builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
     int listSlot =
-        builder.addSlot(
-            FrameSlotKind.Object, "filterList", "a slot to store the ArrayList of osr");
+        builder.addSlot(FrameSlotKind.Object, "filterList", "a slot to store the ArrayList of osr");
     int currentIdxSlot =
-        builder.addSlot(FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
+        builder.addSlot(
+            FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
     int listSizeSlot =
         builder.addSlot(
             FrameSlotKind.Int, "listSize", "a slot to store the size of the list of osr");

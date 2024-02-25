@@ -137,6 +137,7 @@ public class ListGroupByNode extends ExpressionNode {
       generatorInitNode.execute(this, generator);
       frame.setObject(generatorSlot, generator);
       frame.setObject(keyFunctionSlot, keyFun);
+      frame.setObject(mapSlot, map);
       equiJoinInitLoopNode.execute(frame);
     } finally {
       generatorCloseNode.execute(this, generator);

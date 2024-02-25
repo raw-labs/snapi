@@ -14,6 +14,7 @@ package raw.compiler.snapi.truffle.builtin.xml_extension;
 
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.FrameSlotKind;
+import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.ReadXmlEntry;
@@ -26,13 +27,11 @@ import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.iterable.list.ListFromNode;
-import raw.runtime.truffle.ast.expressions.iterable.list.ListFromUnsafeNodeGen;
+import raw.runtime.truffle.ast.expressions.iterable.list.ListFromUnsafe;
 import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.ast.io.json.reader.TryableTopLevelWrapper;
 import raw.runtime.truffle.ast.io.xml.parser.XmlReadCollectionNode;
 import raw.runtime.truffle.ast.io.xml.parser.XmlReadValueNode;
-
-import java.util.List;
 
 public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExtension {
 
@@ -94,23 +93,25 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
                 timestampFormatExp,
                 XmlRecurse.recurseXmlParser(
                     (Rql2TypeWithProperties) listType.innerType(), emitter.getLanguage()));
+
+        int generatorSlot =
+            builder.addSlot(
+                FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+        int listSlot =
+            builder.addSlot(
+                FrameSlotKind.Object, "filterList", "a slot to store the ArrayList of osr");
+        int currentIdxSlot =
+            builder.addSlot(
+                FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
+        int listSizeSlot =
+            builder.addSlot(
+                FrameSlotKind.Int, "listSize", "a slot to store the size of the list of osr");
+        int resultSlot =
+            builder.addSlot(
+                FrameSlotKind.Object, "list", "a slot to store the result array of osr");
+
         if (XmlRecurse.isTryable(listType)) {
           // Probably will need to be either reused in json and xml or create a copy
-          int generatorSlot =
-              builder.addSlot(
-                  FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
-          int listSlot =
-              builder.addSlot(
-                  FrameSlotKind.Object, "filterList", "a slot to store the ArrayList of osr");
-          int currentIdxSlot =
-              builder.addSlot(
-                  FrameSlotKind.Int, "currentIdxSlot", "a slot to store the current index of osr");
-          int listSizeSlot =
-              builder.addSlot(
-                  FrameSlotKind.Int, "listSize", "a slot to store the size of the list of osr");
-          int resultSlot =
-              builder.addSlot(
-                  FrameSlotKind.Object, "list", "a slot to store the result array of osr");
           yield new ListFromNode(
               parseNode,
               (Rql2Type) listType.innerType(),
@@ -120,7 +121,14 @@ public class TruffleReadXmlEntry extends ReadXmlEntry implements TruffleEntryExt
               listSizeSlot,
               resultSlot);
         } else {
-          yield ListFromUnsafeNodeGen.create(parseNode, (Rql2Type) listType.innerType());
+          yield new ListFromUnsafe(
+              parseNode,
+              (Rql2Type) listType.innerType(),
+              generatorSlot,
+              listSlot,
+              currentIdxSlot,
+              listSizeSlot,
+              resultSlot);
         }
       }
       case Rql2TypeWithProperties t -> {

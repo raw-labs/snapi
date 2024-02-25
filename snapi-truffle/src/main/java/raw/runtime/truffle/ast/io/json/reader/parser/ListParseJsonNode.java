@@ -113,6 +113,8 @@ public class ListParseJsonNode extends ExpressionNode {
     frame.setObject(llistSlot, new ArrayList<>());
     listParseLoopNode.execute(frame);
 
+    nextToken.execute(this, parser);
+
     @SuppressWarnings("unchecked")
     ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(llistSlot);
     int size = llist.size();
