@@ -10,18 +10,7 @@ import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
 import scala.collection.mutable
 
 class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) {
-  final case class ParseProgramResult[P](
-                                          errors: List[Message],
-                                          params: mutable.Map[String, SqlParam],
-                                          returnDescription: Option[String],
-                                          tree: P
-  ) {
-    def hasErrors: Boolean = errors.nonEmpty
-
-    def isSuccess: Boolean = errors.isEmpty
-  }
-
-  def parse(s: String): ParseProgramResult[BaseSqlNode] = {
+  def parse(s: String): ParseProgramResult = {
     val source = StringSource(s)
     val rawErrorListener = new RawSqlErrorListener()
 
@@ -43,4 +32,15 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
     ParseProgramResult(totalErrors, params, visitor.returnDescription, result)
   }
+}
+
+final case class ParseProgramResult(
+    errors: List[Message],
+    params: mutable.Map[String, SqlParam],
+    returnDescription: Option[String],
+    tree: BaseSqlNode
+) {
+  def hasErrors: Boolean = errors.nonEmpty
+
+  def isSuccess: Boolean = errors.isEmpty
 }

@@ -13,7 +13,9 @@
 package raw.client.sql
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
+import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api._
+import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer}
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
@@ -327,6 +329,12 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
+  }
+
+  def parse(prog: String): ParseProgramResult = {
+    val positions = new Positions
+    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+    syntaxAnalyzer.parse(prog)
   }
 
   private val connectionPool = new SqlConnectionPool(settings)
