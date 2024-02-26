@@ -39,6 +39,6 @@ public abstract class CollectionDistinctNode extends ExpressionNode {
         getValueType(),
         RawLanguage.get(this),
         RawContext.get(this).getSourceContext(),
-        frame);
+        frame.materialize());
   }
 }

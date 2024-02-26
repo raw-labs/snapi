@@ -328,7 +328,6 @@ module raw.snapi.truffle {
       .abstract_generator
       .compute_next
       .operations;
-  exports raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer;
   exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap;
@@ -339,7 +338,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.iterable.operations;
   exports raw.runtime.truffle.runtime.iterable.list;
   exports raw.runtime.truffle.runtime.iterable.sources;
-  exports raw.runtime.truffle.runtime.iterable.osr;
   exports raw.runtime.truffle.runtime.kryo;
   exports raw.runtime.truffle.utils;
   exports raw.runtime.truffle.ast;
@@ -359,7 +357,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.ast.expressions.unary;
   exports raw.runtime.truffle.ast.expressions.iterable;
   exports raw.runtime.truffle.ast.expressions.iterable.collection;
-  exports raw.runtime.truffle.ast.expressions.iterable.collection.osr;
   exports raw.runtime.truffle.ast.expressions.iterable.list;
   exports raw.runtime.truffle.ast.expressions.record;
   exports raw.runtime.truffle.ast.expressions.option;

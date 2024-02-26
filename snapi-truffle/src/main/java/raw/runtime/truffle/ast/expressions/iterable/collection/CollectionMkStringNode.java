@@ -13,46 +13,86 @@
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.expressions.iterable.collection.osr.OSRCollectionMkStringNode;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRCollectionMkStringBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
+import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Collection.MkString")
-@NodeChild("iterable")
-@NodeChild("start")
-@NodeChild("sep")
-@NodeChild("end")
-public abstract class CollectionMkStringNode extends ExpressionNode {
+public class CollectionMkStringNode extends ExpressionNode {
 
-  public static LoopNode getMkStringLoopNode() {
-    return Truffle.getRuntime().createLoopNode(new OSRCollectionMkStringNode());
+  @Child private ExpressionNode iterableNode;
+  @Child private ExpressionNode startNode;
+  @Child private ExpressionNode sepNode;
+  @Child private ExpressionNode endNode;
+  @Child private LoopNode mkStringLoopNode;
+
+  @Child
+  private GeneratorNodes.GeneratorInitNode initNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
+
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorCloseNode closeNode =
+      GeneratorNodesFactory.GeneratorCloseNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorHasNextNode hasNextNode =
+      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorNextNode nextNode =
+      GeneratorNodesFactory.GeneratorNextNodeGen.create();
+
+  @Child private OperatorNodes.AddNode add = OperatorNodesFactory.AddNodeGen.create();
+
+  private final int generatorSlot;
+  private final int sepSlot;
+  private final int resultSlot;
+
+  public CollectionMkStringNode(
+      ExpressionNode iterableNode,
+      ExpressionNode startNode,
+      ExpressionNode sepNode,
+      ExpressionNode endNode,
+      int generatorSlot,
+      int sepSlot,
+      int resultSlot) {
+    this.iterableNode = iterableNode;
+    this.startNode = startNode;
+    this.sepNode = sepNode;
+    this.endNode = endNode;
+    this.generatorSlot = generatorSlot;
+    this.sepSlot = sepSlot;
+    this.resultSlot = resultSlot;
+    this.mkStringLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRHasNextConditionNode(generatorSlot),
+                    new OSRCollectionMkStringBodyNode(generatorSlot, sepSlot, resultSlot)));
   }
 
-  @Specialization
-  protected Object doCollection(
-      VirtualFrame frame,
-      Object iterable,
-      String start,
-      String sep,
-      String end,
-      @Cached(value = "getMkStringLoopNode()", allowUncached = true, neverDefault = true)
-          LoopNode loopNode,
-      @Cached(inline = true) OperatorNodes.AddNode add,
-      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode) {
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object iterable = iterableNode.executeGeneric(frame);
+    String start = (String) startNode.executeGeneric(frame);
+    String sep = (String) sepNode.executeGeneric(frame);
+    String end = (String) endNode.executeGeneric(frame);
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       initNode.execute(this, generator);
@@ -63,10 +103,13 @@ public abstract class CollectionMkStringNode extends ExpressionNode {
         Object next = nextNode.execute(this, generator);
         currentString = (String) add.execute(this, currentString, next);
       }
-      OSRCollectionMkStringNode osrNode = (OSRCollectionMkStringNode) loopNode.getRepeatingNode();
-      osrNode.init(generator, currentString, sep);
-      loopNode.execute(frame);
-      currentString = osrNode.getResult();
+
+      frame.setObject(generatorSlot, generator);
+      frame.setObject(sepSlot, sep);
+      frame.setObject(resultSlot, currentString);
+      mkStringLoopNode.execute(frame);
+      currentString = (String) frame.getObject(resultSlot);
+
       return currentString + end;
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());

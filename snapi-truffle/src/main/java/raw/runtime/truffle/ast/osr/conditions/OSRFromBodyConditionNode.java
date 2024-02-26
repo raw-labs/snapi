@@ -16,7 +16,7 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
 
-public class OSREquiJoinNextConditionNode extends ExpressionNode {
+public class OSRFromBodyConditionNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {

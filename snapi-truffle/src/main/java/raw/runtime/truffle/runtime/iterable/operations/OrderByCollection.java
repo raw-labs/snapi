@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -35,7 +35,7 @@ public class OrderByCollection implements TruffleObject {
   final Rql2TypeWithProperties rowType;
   private final RawLanguage language;
   private final SourceContext context;
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
 
   public OrderByCollection(
       Object iterable,
@@ -45,7 +45,7 @@ public class OrderByCollection implements TruffleObject {
       Rql2TypeWithProperties rowType,
       RawLanguage language,
       SourceContext context,
-      VirtualFrame frame) {
+      MaterializedFrame frame) {
     this.parentIterable = iterable;
     this.keyFunctions = keyFunctions;
     this.keyOrderings = keyOrderings;
@@ -84,7 +84,7 @@ public class OrderByCollection implements TruffleObject {
     return language;
   }
 
-  public VirtualFrame getFrame() {
+  public MaterializedFrame getFrame() {
     return frame;
   }
 

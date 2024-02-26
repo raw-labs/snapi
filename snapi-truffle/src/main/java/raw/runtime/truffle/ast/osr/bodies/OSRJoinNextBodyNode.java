@@ -10,16 +10,17 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.osr;
+package raw.runtime.truffle.ast.osr.bodies;
 
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.RepeatingNode;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
@@ -31,7 +32,7 @@ import raw.runtime.truffle.runtime.kryo.KryoNodes;
 import raw.runtime.truffle.runtime.kryo.KryoNodesFactory;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
-public class OSRJoinNextNode extends Node implements RepeatingNode {
+public class OSRJoinNextBodyNode extends ExpressionNode {
 
   @Child
   private GeneratorNodes.GeneratorHasNextNode hasNextNode =
@@ -51,14 +52,6 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
 
   @Child KryoNodes.KryoReadNode kryoReadNode = KryoNodesFactory.KryoReadNodeGen.create();
 
-  @CompilerDirectives.CompilationFinal private JoinComputeNext computeNext;
-
-  private Object row = null;
-
-  public Object getResult() {
-    return row;
-  }
-
   @CompilerDirectives.TruffleBoundary
   private Input createInput(File file, Node node) {
     try {
@@ -68,12 +61,16 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
     }
   }
 
-  public void init(JoinComputeNext computeNext) {
-    this.computeNext = computeNext;
-  }
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    int computeNextSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
+    int shouldContinueSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.SHOULD_CONTINUE_SLOT);
+    int resultSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
 
-  public boolean executeRepeating(VirtualFrame frame) {
-    row = null;
+    Object row = null;
+    JoinComputeNext computeNext = (JoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
     if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
       if (computeNext.getLeftRow() == null) {
         if (hasNextNode.execute(this, computeNext.getLeftGen())) {
@@ -136,6 +133,15 @@ public class OSRJoinNextNode extends Node implements RepeatingNode {
         }
       }
     }
-    return row == null;
+    if (row != null) {
+      frame.setAuxiliarySlot(shouldContinueSlot, false);
+      frame.setAuxiliarySlot(resultSlot, row);
+    }
+    return null;
+  }
+
+  @Override
+  public void executeVoid(VirtualFrame virtualFrame) {
+    executeGeneric(virtualFrame);
   }
 }

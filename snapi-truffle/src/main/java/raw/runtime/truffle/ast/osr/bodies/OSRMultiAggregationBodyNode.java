@@ -10,54 +10,47 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.ast.expressions.aggregation;
+package raw.runtime.truffle.ast.osr.bodies;
 
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.RepeatingNode;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.expressions.aggregation.AggregatorNodes;
+import raw.runtime.truffle.ast.expressions.aggregation.AggregatorNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 
-public class OSRMultiAggregationNode extends Node implements RepeatingNode {
-
-  @Child
-  private GeneratorNodes.GeneratorHasNextNode hasNextNode =
-      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
+public class OSRMultiAggregationBodyNode extends ExpressionNode {
 
   @Child
   private GeneratorNodes.GeneratorNextNode nextNode =
       GeneratorNodesFactory.GeneratorNextNodeGen.create();
 
   @Child AggregatorNodes.Merge mergeNode = AggregatorNodesFactory.MergeNodeGen.create();
+
   private final byte[] aggregationTypes;
+  private final int resultSlot;
+  private final int generatorSlot;
 
-  @CompilerDirectives.CompilationFinal private Object generator;
-
-  @CompilerDirectives.CompilationFinal(dimensions = 0)
-  private Object[] currentResults;
-
-  public OSRMultiAggregationNode(byte[] aggregationTypes) {
+  public OSRMultiAggregationBodyNode(byte[] aggregationTypes, int generatorSlot, int resultSlot) {
+    this.resultSlot = resultSlot;
+    this.generatorSlot = generatorSlot;
     this.aggregationTypes = aggregationTypes;
   }
 
-  public Object[] getResults() {
-    return currentResults;
-  }
-
-  public void init(Object generator, Object[] zeroes) {
-    this.generator = generator;
-    this.currentResults = zeroes;
-  }
-
-  public boolean executeRepeating(VirtualFrame frame) {
-    if (!hasNextNode.execute(this, generator)) {
-      return false;
-    }
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object generator = frame.getObject(generatorSlot);
     Object next = nextNode.execute(this, generator);
+    Object[] currentResults = (Object[]) frame.getObject(resultSlot);
     for (int i = 0; i < aggregationTypes.length; i++) {
       currentResults[i] = mergeNode.execute(this, aggregationTypes[i], currentResults[i], next);
     }
-    return true;
+    frame.setObject(resultSlot, currentResults);
+    return null;
+  }
+
+  @Override
+  public void executeVoid(VirtualFrame virtualFrame) {
+    executeGeneric(virtualFrame);
   }
 }

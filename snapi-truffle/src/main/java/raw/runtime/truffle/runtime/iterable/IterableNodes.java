@@ -15,12 +15,16 @@ package raw.runtime.truffle.runtime.iterable;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.Frame;
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRCollectionEquiJoinInitBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRDistinctGetGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSROrderByGetGeneratorNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionAuxNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
@@ -32,8 +36,6 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 import raw.runtime.truffle.runtime.iterable.operations.*;
-import raw.runtime.truffle.runtime.iterable.osr.OSRDistinctGetGeneratorNode;
-import raw.runtime.truffle.runtime.iterable.osr.OSROrderByGetGeneratorNode;
 import raw.runtime.truffle.runtime.iterable.sources.*;
 
 public class IterableNodes {
@@ -175,7 +177,10 @@ public class IterableNodes {
     }
 
     public static LoopNode getDistinctGenLoopNode() {
-      return Truffle.getRuntime().createLoopNode(new OSRDistinctGetGeneratorNode());
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionAuxNode(), new OSRDistinctGetGeneratorNode()));
     }
 
     @Specialization
@@ -196,10 +201,15 @@ public class IterableNodes {
       Object generator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, generator);
-        OSRDistinctGetGeneratorNode osrNode =
-            (OSRDistinctGetGeneratorNode) loopNode.getRepeatingNode();
-        osrNode.init(generator, index);
-        loopNode.execute(collection.getFrame());
+
+        MaterializedFrame frame = collection.getFrame();
+        FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
+        frame.setAuxiliarySlot(
+            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT), generator);
+        frame.setAuxiliarySlot(
+            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_DISTINCT_SLOT), index);
+
+        loopNode.execute(frame);
       } finally {
         closeNode.execute(thisNode, generator);
       }
@@ -266,7 +276,10 @@ public class IterableNodes {
     }
 
     public static LoopNode getOrderByGenNode() {
-      return Truffle.getRuntime().createLoopNode(new OSROrderByGetGeneratorNode());
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionAuxNode(), new OSROrderByGetGeneratorNode()));
     }
 
     @Specialization
@@ -295,9 +308,17 @@ public class IterableNodes {
               collection.getContext());
       try {
         initNode.execute(thisNode, generator);
-        OSROrderByGetGeneratorNode osrNode =
-            (OSROrderByGetGeneratorNode) loopNode.getRepeatingNode();
-        osrNode.init(generator, collection, groupByKeys);
+
+        Frame frame = collection.getFrame();
+        FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
+        frame.setAuxiliarySlot(
+            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT), generator);
+        frame.setAuxiliarySlot(
+            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_GROUP_BY_KEYS_SLOT),
+            groupByKeys);
+        frame.setAuxiliarySlot(
+            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.COLLECTION_SLOT), collection);
+
         loopNode.execute(collection.getFrame());
       } finally {
         closeNode.execute(thisNode, generator);

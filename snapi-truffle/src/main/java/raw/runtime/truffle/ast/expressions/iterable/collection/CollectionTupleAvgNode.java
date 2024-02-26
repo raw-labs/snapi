@@ -30,12 +30,15 @@ import raw.runtime.truffle.runtime.record.RecordObject;
 public class CollectionTupleAvgNode extends ExpressionNode {
   @Child InteropLibrary records = InteropLibrary.getFactory().createDispatched(2);
   @Child AggregateMultipleNode aggregate;
-
   @Child AggregatorNodes.Zero zeroNode = AggregatorNodesFactory.ZeroNodeGen.create();
 
-  public CollectionTupleAvgNode(ExpressionNode iterableNode) {
+  public CollectionTupleAvgNode(ExpressionNode iterableNode, int generatorSlot, int resultSlot) {
     aggregate =
-        new AggregateMultipleNode(iterableNode, new byte[] {Aggregations.SUM, Aggregations.COUNT});
+        new AggregateMultipleNode(
+            iterableNode,
+            new byte[] {Aggregations.SUM, Aggregations.COUNT},
+            generatorSlot,
+            resultSlot);
   }
 
   @Override

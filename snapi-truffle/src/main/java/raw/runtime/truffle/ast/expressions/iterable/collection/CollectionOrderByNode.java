@@ -71,6 +71,6 @@ public class CollectionOrderByNode extends ExpressionNode {
         valueType,
         RawLanguage.get(this),
         RawContext.get(this).getSourceContext(),
-        frame);
+        frame.materialize());
   }
 }

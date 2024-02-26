@@ -10,23 +10,19 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.iterable.osr;
+package raw.runtime.truffle.ast.osr.bodies;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.nodes.RepeatingNode;
+import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;
 
-public class OSRDistinctGetGeneratorNode extends Node implements RepeatingNode {
-
-  @Child
-  private GeneratorNodes.GeneratorHasNextNode hasNextNode =
-      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
+public class OSRDistinctGetGeneratorNode extends ExpressionNode {
 
   @Child
   private GeneratorNodes.GeneratorNextNode nextNode =
@@ -36,21 +32,24 @@ public class OSRDistinctGetGeneratorNode extends Node implements RepeatingNode {
   OffHeapNodes.OffHeapGroupByPutNode putNode =
       OffHeapNodesFactory.OffHeapGroupByPutNodeGen.create();
 
-  @CompilerDirectives.CompilationFinal private Object generator;
-  @CompilerDirectives.CompilationFinal OffHeapDistinct index;
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
+    Object generator =
+        frame.getAuxiliarySlot(
+            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT));
+    OffHeapDistinct index =
+        (OffHeapDistinct)
+            frame.getAuxiliarySlot(
+                frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_DISTINCT_SLOT));
 
-  public void init(Object generator, OffHeapDistinct index) {
-    this.generator = generator;
-    this.index = index;
+    Object next = nextNode.execute(this, generator);
+    putNode.execute(this, index, next, null);
+    return null;
   }
 
-  // keep iterating until we find matching keys
-  public boolean executeRepeating(VirtualFrame frame) {
-    if (hasNextNode.execute(this, generator)) {
-      Object next = nextNode.execute(this, generator);
-      putNode.execute(this, index, next, null);
-      return true;
-    }
-    return false;
+  @Override
+  public void executeVoid(VirtualFrame virtualFrame) {
+    executeGeneric(virtualFrame);
   }
 }

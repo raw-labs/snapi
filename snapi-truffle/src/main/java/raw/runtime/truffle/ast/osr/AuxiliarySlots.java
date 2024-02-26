@@ -14,10 +14,13 @@ package raw.runtime.truffle.ast.osr;
 
 public final class AuxiliarySlots {
   public static final String GENERATOR_SLOT = "generatorSlot";
-  public static final String ITERABLE_SLOT = "iterableSlot";
   public static final String RESULT_SLOT = "resultSlot";
   public static final String FUNCTION_SLOT = "functionSlot";
   public static final String MAP_SLOT = "mapSlot";
   public static final String SHOULD_CONTINUE_SLOT = "shouldContinueSlot";
   public static final String COMPUTE_NEXT_SLOT = "computeNextSlot";
+  public static final String OUTPUT_BUFFER_SLOT = "outputBufferSlot";
+  public static final String OFF_HEAP_DISTINCT_SLOT = "offHeapDistinctSlot";
+  public static final String OFF_HEAP_GROUP_BY_KEYS_SLOT = "offHeapGroupByKeysSlot";
+  public static final String COLLECTION_SLOT = "collectionSlot";
 }

@@ -16,6 +16,9 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRMultiAggregationBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
@@ -48,10 +51,21 @@ public class AggregateMultipleNode extends ExpressionNode {
 
   private final byte[] aggregationTypes;
 
-  public AggregateMultipleNode(ExpressionNode iterableNode, byte[] aggregationTypes) {
+  private final int generatorSlot;
+  private final int resultSlot;
+
+  public AggregateMultipleNode(
+      ExpressionNode iterableNode, byte[] aggregationTypes, int generatorSlot, int resultSlot) {
     this.iterableNode = iterableNode;
-    loop = Truffle.getRuntime().createLoopNode(new OSRMultiAggregationNode(aggregationTypes));
+    loop =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRHasNextConditionNode(generatorSlot),
+                    new OSRMultiAggregationBodyNode(aggregationTypes, generatorSlot, resultSlot)));
     this.aggregationTypes = aggregationTypes;
+    this.generatorSlot = generatorSlot;
+    this.resultSlot = resultSlot;
   }
 
   @Override
@@ -66,10 +80,10 @@ public class AggregateMultipleNode extends ExpressionNode {
       if (!hasNextNode.execute(this, generator)) {
         return results;
       }
-      OSRMultiAggregationNode OSRNode = (OSRMultiAggregationNode) loop.getRepeatingNode();
-      OSRNode.init(generator, results);
+      virtualFrame.setObject(generatorSlot, generator);
+      virtualFrame.setObject(resultSlot, results);
       loop.execute(virtualFrame);
-      return OSRNode.getResults();
+      return virtualFrame.getObject(resultSlot);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     } finally {
