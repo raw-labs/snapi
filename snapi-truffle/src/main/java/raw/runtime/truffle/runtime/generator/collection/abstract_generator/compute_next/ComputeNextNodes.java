@@ -800,10 +800,6 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode) {
-      // initialize left
-      computeNext.setLeftGen(getGeneratorNode.execute(thisNode, computeNext.getLeftIterable()));
-      initNode.execute(thisNode, computeNext.getLeftGen());
-
       // save right to disk
       Object rightGen = getGeneratorNode.execute(thisNode, computeNext.getRightIterable());
       try (Output buffer = createOutput(computeNext, thisNode)) {
@@ -822,11 +818,13 @@ public class ComputeNextNodes {
         frame.setAuxiliarySlot(generatorSlot, rightGen);
         frame.setAuxiliarySlot(outputBufferSlot, buffer);
         frame.setAuxiliarySlot(computeNextSlot, computeNext);
-
         loopNode.execute(computeNext.getFrame());
       } finally {
         closeNode.execute(thisNode, rightGen);
       }
+      // initialize left
+      computeNext.setLeftGen(getGeneratorNode.execute(thisNode, computeNext.getLeftIterable()));
+      initNode.execute(thisNode, computeNext.getLeftGen());
     }
   }
 

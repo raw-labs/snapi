@@ -14,7 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -37,7 +37,7 @@ public class JoinCollection implements TruffleObject {
   final SourceContext context;
   final RawLanguage language;
   private final Boolean reshapeBeforePredicate;
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
 
   public JoinCollection(
       Object leftIterable,
@@ -48,7 +48,7 @@ public class JoinCollection implements TruffleObject {
       Boolean reshapeBeforePredicate,
       SourceContext context,
       RawLanguage language,
-      VirtualFrame frame) {
+      MaterializedFrame frame) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;

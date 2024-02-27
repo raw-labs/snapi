@@ -55,6 +55,6 @@ public abstract class CollectionJoinNode extends ExpressionNode {
         getReshapeBeforePredicate(),
         RawContext.get(this).getSourceContext(),
         RawLanguage.get(this),
-        frame);
+        frame.materialize());
   }
 }

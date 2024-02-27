@@ -15,7 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection.abstract_generator.comp
 import com.esotericsoftware.kryo.io.Input;
 import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import java.io.File;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
@@ -39,7 +39,7 @@ public class JoinComputeNext {
   private final Boolean reshapeBeforePredicate;
   private final RawLanguage language;
 
-  private final VirtualFrame frame;
+  private final MaterializedFrame frame;
 
   public JoinComputeNext(
       Object leftIterable,
@@ -50,7 +50,7 @@ public class JoinComputeNext {
       Rql2TypeWithProperties rightRowType,
       SourceContext context,
       RawLanguage language,
-      VirtualFrame frame) {
+      MaterializedFrame frame) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;
@@ -153,7 +153,7 @@ public class JoinComputeNext {
     return language;
   }
 
-  public VirtualFrame getFrame() {
+  public MaterializedFrame getFrame() {
     return frame;
   }
 }
