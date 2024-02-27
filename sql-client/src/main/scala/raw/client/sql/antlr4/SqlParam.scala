@@ -14,6 +14,6 @@ case class SqlParam(
     description: Option[String],
     tipe: Option[String],
     default: Option[String],
-    nodes: Vector[BaseSqlNode],
-    occurrences: Vector[SqlParamUse]
+    nodes: Vector[SqBaseNode],
+    occurrences: Vector[SqlParamUseNode]
 )

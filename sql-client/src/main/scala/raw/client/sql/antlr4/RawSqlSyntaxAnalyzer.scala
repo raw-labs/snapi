@@ -5,7 +5,7 @@ import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Positions, StringSource}
 import raw.client.api.Message
-import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
+import raw.client.sql.generated.{PsqlLexer, PsqlParser}
 
 import scala.collection.mutable
 
@@ -14,11 +14,11 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     val source = StringSource(s)
     val rawErrorListener = new RawSqlErrorListener()
 
-    val lexer = new SnapiLexer(CharStreams.fromString(s))
+    val lexer = new PsqlLexer(CharStreams.fromString(s))
     lexer.removeErrorListeners()
     lexer.addErrorListener(rawErrorListener)
 
-    val parser = new SnapiParser(new CommonTokenStream(lexer))
+    val parser = new PsqlParser(new CommonTokenStream(lexer))
 
     parser.removeErrorListeners()
     parser.addErrorListener(rawErrorListener)
@@ -27,10 +27,10 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     val visitorParseErrors = RawSqlVisitorParseErrors()
     val params = mutable.Map.empty[String, SqlParam]
     val visitor = new RawSqlVisitor(positions, params, source, visitorParseErrors)
-    val result = visitor.visit(tree).asInstanceOf[SqlProgram]
+    val result = visitor.visit(tree).asInstanceOf[SqlProgramNode]
 
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
-    ParseProgramResult(totalErrors, params, visitor.returnDescription, result)
+    ParseProgramResult(totalErrors, params, visitor.returnDescription, result, positions)
   }
 }
 
@@ -38,7 +38,8 @@ final case class ParseProgramResult(
     errors: List[Message],
     params: mutable.Map[String, SqlParam],
     returnDescription: Option[String],
-    tree: BaseSqlNode
+    tree: SqBaseNode,
+    positions: Positions
 ) {
   def hasErrors: Boolean = errors.nonEmpty
 

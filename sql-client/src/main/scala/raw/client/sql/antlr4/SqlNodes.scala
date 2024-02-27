@@ -1,42 +1,42 @@
 package raw.client.sql.antlr4
 
-trait BaseSqlNode extends Product
+trait SqBaseNode extends Product
 
-final case class SqlProgram(statements: Vector[SqlStatement], comments: Vector[SqlComment]) extends BaseSqlNode
+final case class SqlProgramNode(statements: Vector[SqBaseNode], comments: Vector[SqBaseNode]) extends SqBaseNode
 
 // A comment can be a single line or a multi line comment
 // The values that we are interested in are the subComments which are "@param", "@return", "@type", "@default"
-trait SqlComment extends BaseSqlNode
-final case class SqlSingleLineComment(subComment: SqlSubComment) extends SqlComment
-final case class SqlMultiLineComment(subComments: Vector[SqlSubComment]) extends SqlComment
+trait SqlCommentNode extends SqBaseNode
+final case class SqlSingleLineCommentNode(subComment: SqBaseNode) extends SqlCommentNode
+final case class SqlMultiLineCommentNode(subComments: Vector[SqBaseNode]) extends SqlCommentNode
 
-trait SqlSubComment extends BaseSqlNode
-final case class SqlParamDefComment(name: String, description: String) extends SqlSubComment
-final case class SqlParamTypeComment(name: String, tipe: String) extends SqlSubComment
-final case class SqlParamDefaultComment(name: String, value: String) extends SqlSubComment
-final case class SqlParamReturnsComment(value: String) extends SqlSubComment
-final case class SqlNormalComment(value: String) extends SqlSubComment
+trait SqlSubCommentNode extends SqBaseNode
+final case class SqlParamDefCommentNode(name: String, description: String) extends SqlSubCommentNode
+final case class SqlParamTypeCommentNode(name: String, tipe: String) extends SqlSubCommentNode
+final case class SqlParamDefaultCommentNode(name: String, value: String) extends SqlSubCommentNode
+final case class SqlParamReturnsCommentNode(value: String) extends SqlSubCommentNode
+final case class SqlNormalCommentNode(value: String) extends SqlSubCommentNode
 
-final case class SqlStatement(statementItems: Vector[SqlStatementItem]) extends BaseSqlNode
+final case class SqlStatementNode(statementItems: Vector[SqBaseNode]) extends SqBaseNode
 
-trait SqlStatementItem extends BaseSqlNode
+trait SqlStatementItemNode extends SqBaseNode
 
-final case class SqlProj(identifiers: Vector[SqlIdentifier]) extends SqlStatementItem
-final case class SqlIdentifier(idn: String) extends SqlStatementItem
+final case class SqlProjNode(identifiers: Vector[SqBaseNode]) extends SqlStatementItemNode
+final case class SqlIdentifierNode(name: String, isQuoted: Boolean) extends SqlStatementItemNode
 
-trait SqlLiteral extends SqlStatementItem
-final case class SqlStringLiteral(value: String) extends SqlLiteral
-final case class SqlIntLiteral(value: String) extends SqlLiteral
-final case class SqlFloatingPointLiteral(value: String) extends SqlLiteral
-final case class SqlBooleanLiteral(value: String) extends SqlLiteral
-final case class SqlKeyword(value: String) extends SqlStatementItem
-final case class SqlOperator(value: String) extends BaseSqlNode
-final case class SqlType(value: String) extends BaseSqlNode
+trait SqlLiteralNode extends SqlStatementItemNode
+final case class SqlStringLiteralNode(value: String) extends SqlLiteralNode
+final case class SqlIntLiteralNode(value: String) extends SqlLiteralNode
+final case class SqlFloatingPointLiteralNode(value: String) extends SqlLiteralNode
+final case class SqlBooleanLiteralNode(value: String) extends SqlLiteralNode
+final case class SqlKeywordNode(value: String) extends SqlStatementItemNode
+final case class SqlOperatorNode(value: String) extends SqBaseNode
+final case class SqlTypeNode(value: String) extends SqBaseNode
 
-final case class SqlBinaryExp(left: SqlStatement, op: SqlOperator, right: SqlStatement) extends SqlStatementItem
+final case class SqlBinaryExpNode(left: SqBaseNode, op: SqBaseNode, right: SqBaseNode) extends SqlStatementItemNode
 
-final case class SqlParamUse(name: String, tipe: Option[SqlType]) extends SqlStatementItem
+final case class SqlParamUseNode(name: String, tipe: Option[SqBaseNode]) extends SqlStatementItemNode
 
-final case class SqlWithComaSeparator(statements: Vector[SqlIdentifier]) extends SqlStatementItem
+final case class SqlWithComaSeparatorNode(statements: Vector[SqBaseNode]) extends SqlStatementItemNode
 
-final case class SqlErrorNode() extends BaseSqlNode
+final case class SqlErrorNode() extends SqBaseNode

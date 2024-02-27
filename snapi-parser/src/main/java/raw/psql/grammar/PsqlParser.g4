@@ -97,15 +97,21 @@ idnt: (WORD | DOUBLE_QUOTED_STRING);
 
 param: PARAM | param_with_tipe;
 
-binary_exp: (idnt | param | literal) operator (idnt | param | literal);
+binary_exp: binary_exp_elem operator binary_exp_elem;
 
-literal: string_literal | integer | floating_point | boolean_literal;
-string_literal: SINGLE_QUOTED_STRING;
-integer: NO_FLOATING_NUMBER;
-floating_point: FLOATING_POINT;
-boolean_literal: TRUE | FALSE;
+binary_exp_elem: idnt           #idntBinaryExpElem
+               | param          #paramBinaryExpElem
+               | literal        #literalBinaryExpElem
+               ;
 
-tipe: psql_type (L_PAREN (integer (COMMA integer)?) R_PAREN)? WITH_TIME_ZONE?;
+
+literal: SINGLE_QUOTED_STRING         #stringLiteral
+       | NO_FLOATING_NUMBER           #integerLiteral
+       | FLOATING_POINT               #floatingPointLiteral
+       | (TRUE | FALSE)              #booleanLiteral
+       ;
+
+tipe: psql_type (L_PAREN (NO_FLOATING_NUMBER (COMMA NO_FLOATING_NUMBER)?) R_PAREN)? WITH_TIME_ZONE?;
 
 psql_type: BIGINT | BIGSERIAL | BIT | BIT_VARYING | BOOLEAN | BOX | BYTEA | CHARACTER | CHARACTER_VARYING | VARCHAR | CIDR | CIRCLE | DATE | DOUBLE | INET | INTEGER | INTERVAL | JSON | JSONB | LINE | LSEG | MACADDR | MACADDR8 | MONEY | NUMERIC | PATH | PG_LSN | PG_SNAPSHOT | POINT | POLYGON | REAL | SMALLINT | SMALLSERIAL | SERIAL | TEXT | TIME | TIMESTAMP | TSQUERY | TSVECTOR | TXID_SNAPSHOT | UUID | XML;
 
