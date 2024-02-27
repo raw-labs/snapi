@@ -101,16 +101,17 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
     plainCodeBuffer.toString()
   }
 
-  private def validateParameterType(tipe: RawType, name: String, typeName: String): Either[String, RawType] = tipe match {
-    case _: RawNumberType => Right(tipe)
-    case _: RawStringType => Right(tipe)
-    case _: RawBoolType => Right(tipe)
-    case _: RawDateType => Right(tipe)
-    case _: RawTimeType => Right(tipe)
-    case _: RawTimestampType => Right(tipe)
-    case _: RawBinaryType => Right(tipe)
-    case _ => Left(s"parameter '$name' has an unsupported type '$typeName'")
-  }
+  private def validateParameterType(tipe: RawType, name: String, typeName: String): Either[String, RawType] =
+    tipe match {
+      case _: RawNumberType => Right(tipe)
+      case _: RawStringType => Right(tipe)
+      case _: RawBoolType => Right(tipe)
+      case _: RawDateType => Right(tipe)
+      case _: RawTimeType => Right(tipe)
+      case _: RawTimestampType => Right(tipe)
+      case _: RawBinaryType => Right(tipe)
+      case _ => Left(s"parameter '$name' has an unsupported type '$typeName'")
+    }
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
   case class QueryInfo(parameters: Map[String, RawType], outputType: RawType)
 

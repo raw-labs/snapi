@@ -102,7 +102,10 @@ object SqlTypesUtils extends StrictLogging {
               case None => Left(s"Unsupported SQL type: ${sqlTypeInfo.name}")
             }
           case None =>
-            logger.error(s"Unsupported SQL type: $typeName JDBC type: $jdbcType") // this is the internal JDBC integer type
+            // this is the postgres type and the internal JDBC integer type
+            logger.error(
+              s"Unsupported SQL type: $typeName JDBC type: $jdbcType"
+            )
             Left(s"Unsupported SQL type $typeName")
         }
     }
