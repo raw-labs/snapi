@@ -13,19 +13,11 @@ class RawSqlErrorListener() extends BaseErrorListener {
     val noViableAlternativePattern = "no viable alternative at input '(.+)'".r
     msg match {
       case extraneousPattern(input, expected) =>
-        val splitted = expected.split(", ").filter(x => !x.equals("'$'") && !x.equals("START_TRIPLE_QUOTE"))
-        val result =
-          if (splitted.contains("NON_ESC_IDENTIFIER") || splitted.contains("ESC_IDENTIFIER")) {
-            splitted.filter(x => !x.equals("NON_ESC_IDENTIFIER") && !x.equals("ESC_IDENTIFIER")) :+ "identifier"
-          } else {
-            splitted
-          }
+        val result = expected.split(", ")
         val expectedElements = result.mkString(", ")
         s"the input '$input' is not valid here; expected elements are: $expectedElements."
       case extraneousPattern2(input, expected) =>
         val res = expected
-          .replace("NON_ESC_IDENTIFIER", "identifier")
-          .replace("ESC_IDENTIFIER", "identifier")
         s"the input '$input' is not valid here; expected elements is: '$res'.'"
       case noViableAlternativePattern(_) => s"the input does not form a valid statement or expression."
       case _ => msg
@@ -33,13 +25,13 @@ class RawSqlErrorListener() extends BaseErrorListener {
   }
 
   override def syntaxError(
-                            recognizer: Recognizer[_, _],
-                            offendingSymbol: Any,
-                            line: Int,
-                            charPositionInLine: Int,
-                            msg: String,
-                            e: RecognitionException
-                          ): Unit = {
+      recognizer: Recognizer[_, _],
+      offendingSymbol: Any,
+      line: Int,
+      charPositionInLine: Int,
+      msg: String,
+      e: RecognitionException
+  ): Unit = {
     val getCharPositionInLinePlusOne = charPositionInLine + 1
     val positions =
       if (offendingSymbol.isInstanceOf[Token]) {
@@ -69,4 +61,3 @@ class RawSqlErrorListener() extends BaseErrorListener {
   def getErrors: List[Message] = errors
   def hasErrors: Boolean = errors.nonEmpty
 }
-
