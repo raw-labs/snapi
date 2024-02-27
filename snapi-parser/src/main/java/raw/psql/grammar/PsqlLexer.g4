@@ -944,12 +944,14 @@ SL_TYPE_KW: '@type';
 SL_DEFAULT_KW: '@default';
 SL_PARAM_KW: '@param';
 SL_RETURN_KW: '@return';
-SL_UNKNOWN_TOKEN: '@' .*?;
+SL_UNKNOWN_TOKEN: '@' SL_WORD;
 SL_WORD: [a-zA-Z0-9!@#$%^&*_+'"`.]+ '(' .*? ')' | [a-zA-Z0-9!@#$%^&*_+'"`.]+;
+
+SL_SPACES: [ ][ ][ ][ ][ ]+;
 
 SL_LINE_COMMENT_END: ('\n' | '\r' | '\r\n') -> popMode;
 
-SL_WS : [ ]+ -> skip;
+SL_WS : [ ] -> skip;
 
 
 mode INSIDE_MULTI_LINE_COMMENT;

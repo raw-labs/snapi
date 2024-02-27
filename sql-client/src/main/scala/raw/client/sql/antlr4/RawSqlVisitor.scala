@@ -120,8 +120,16 @@ class RawSqlVisitor(
         addError("Missing parameter name for syntax @param <name> <description>", context)
         SqlErrorNode()
       } else {
-        val name = context.SL_WORD(0).getText
-        val description = context.SL_WORD().asScala.drop(1).map(_.getText).mkString(" ")
+        val name = context.SL_WORD(0).getText.trim
+        val nextLinesComments = " " + Option(
+          context
+            .singleline_normal_comment_value()
+            .asScala
+            .map(snc => snc.SL_WORD().asScala.map(w => w.getText).mkString(" "))
+            .toVector
+            .mkString(" ")
+        ).getOrElse("")
+        val description = (context.SL_WORD().asScala.drop(1).map(_.getText).mkString(" ") + nextLinesComments).trim
         val paramDefComment = SqlParamDefCommentNode(name, description)
         positionsWrapper.setPosition(ctx, paramDefComment)
 
@@ -153,8 +161,8 @@ class RawSqlVisitor(
         addError("Missing type name for syntax @type <name> <type>", context)
         SqlErrorNode()
       } else {
-        val name = context.SL_WORD(0).getText
-        val tipe = context.SL_WORD(1).getText
+        val name = context.SL_WORD(0).getText.trim
+        val tipe = context.SL_WORD(1).getText.trim
         val paramTypeComment = SqlParamTypeCommentNode(name, tipe)
         positionsWrapper.setPosition(ctx, paramTypeComment)
 
@@ -187,8 +195,8 @@ class RawSqlVisitor(
         addError("Missing default value for syntax @default <name> <value>", context)
         SqlErrorNode()
       } else {
-        val name = context.SL_WORD(0).getText
-        val defaultValue = context.SL_WORD(1).getText
+        val name = context.SL_WORD(0).getText.trim
+        val defaultValue = context.SL_WORD(1).getText.trim
         val paramDefaultComment = SqlParamDefaultCommentNode(name, defaultValue)
         positionsWrapper.setPosition(ctx, paramDefaultComment)
 
@@ -225,7 +233,15 @@ class RawSqlVisitor(
         addError("Missing description for syntax @return <description>", context)
         SqlErrorNode()
       } else {
-        val description = context.SL_WORD().asScala.map(_.getText).mkString(" ")
+        val nextLinesComments = " " + Option(
+          context
+            .singleline_normal_comment_value()
+            .asScala
+            .map(snc => snc.SL_WORD().asScala.map(w => w.getText).mkString(" "))
+            .toVector
+            .mkString(" ")
+        ).getOrElse("")
+        val description = (context.SL_WORD().asScala.map(_.getText).mkString(" ") + nextLinesComments).trim
         val paramReturnsComment = SqlParamReturnsCommentNode(description)
         positionsWrapper.setPosition(ctx, paramReturnsComment)
 

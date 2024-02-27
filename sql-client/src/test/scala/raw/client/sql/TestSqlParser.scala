@@ -52,6 +52,7 @@ class TestSqlParser extends AnyFunSuite {
     val result = doTest(code)
     assert(result.isSuccess)
     assert(result.params.size == 1)
+    assert(result.returnDescription.contains("Returns lines when of the corresponding client name."))
     result.params.get("name") match {
       case Some(param) =>
         assert(param.name == "name")
@@ -76,14 +77,15 @@ class TestSqlParser extends AnyFunSuite {
 
   test("Test with all parameters values multiline line comments") {
     val code = """/* @param name Name of the client.
-                 | @type name VARCHAR
-                 | @default name 'john'
-                 | @return Returns lines when of the corresponding client name.
-                 | */
-                 |SELECT * FROM costumers WHERE "name" = :name""".stripMargin
+      | @type name VARCHAR
+      | @default name 'john'
+      | @return Returns lines when of the corresponding client name.
+      | */
+      |SELECT * FROM costumers WHERE "name" = :name""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
     assert(result.params.size == 1)
+    assert(result.returnDescription.contains("Returns lines when of the corresponding client name."))
     result.params.get("name") match {
       case Some(param) =>
         assert(param.name == "name")
@@ -117,6 +119,44 @@ class TestSqlParser extends AnyFunSuite {
     val result = doTest(code)
     assert(result.errors.size == 1)
     assert(result.errors.head.message == "Duplicate parameter default definition for name")
+  }
+
+  test("Test errors with unknown type") {
+    val code = """
+      | -- @asdfa name Name of the client.
+      |SELECT * FROM costumers WHERE "name" = :name""".stripMargin
+    val result = doTest(code)
+    assert(result.errors.size == 1)
+    assert(
+      result.errors.head.message == "Unknown param annotation the only keywords allowed are @param, @return, @type, @default"
+    )
+  }
+
+  test("Test type with params") {
+    val code = """
+      | -- @type name numeric(1,2)
+      |SELECT * FROM costumers WHERE "name" = :name""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+    assert(result.params.size == 1)
+    result.params.get("name") match {
+      case Some(param) => assert(param.tipe.get == "numeric(1,2)")
+      case None => fail("Expected parameter not found")
+    }
+  }
+
+  test("Test single line - multiline description") {
+    val code = """-- @param name this is
+                 |--      a multiline description
+                 |--      and another line
+                 |SELECT * FROM costumers WHERE "name" = :name""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+    assert(result.params.size == 1)
+    result.params.get("name") match {
+      case Some(param) => assert(param.description.get == "this is a multiline description and another line")
+      case None => fail("Expected parameter not found")
+    }
   }
 
 }
