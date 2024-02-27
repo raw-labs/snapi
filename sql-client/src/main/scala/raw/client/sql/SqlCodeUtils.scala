@@ -200,7 +200,7 @@ class SqlCodeUtils(code: String) {
     val tokens = SqlCodeUtils.tokens(code)
     // Finds the corresponding token
     val maybeToken = tokens.find {
-      case (token, pos) => pos.column <= p.column && (pos.column + token.length) > p.column && pos.line == p.line
+      case (token, pos) => pos.column <= p.column && (pos.column + token.length) >= p.column && pos.line == p.line
     }
 
     maybeToken
