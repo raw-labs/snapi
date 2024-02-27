@@ -33,18 +33,24 @@ public class DistinctCollection implements TruffleObject {
   final Rql2TypeWithProperties rowType;
   private final SourceContext context;
   private final MaterializedFrame frame;
+  private final int generatorSlot;
+  private final int offHeapDistinctSlot;
 
   public DistinctCollection(
       Object iterable,
       Rql2TypeWithProperties vType,
       RawLanguage language,
       SourceContext context,
-      MaterializedFrame frame) {
+      MaterializedFrame frame,
+      int generatorSlot,
+      int offHeapDistinctSlot) {
     this.iterable = iterable;
     this.language = language;
     this.rowType = vType;
     this.context = context;
     this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.offHeapDistinctSlot = offHeapDistinctSlot;
   }
 
   public Object getIterable() {
@@ -65,6 +71,14 @@ public class DistinctCollection implements TruffleObject {
 
   public MaterializedFrame getFrame() {
     return frame;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getOffHeapDistinctSlot() {
+    return offHeapDistinctSlot;
   }
 
   // InteropLibrary: Iterable

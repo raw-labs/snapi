@@ -38,8 +38,12 @@ public class JoinComputeNext {
   private int readRight = 0;
   private final Boolean reshapeBeforePredicate;
   private final RawLanguage language;
-
   private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int resultSlot;
+  private final int generatorSlot;
+  private final int outputBufferSlot;
 
   public JoinComputeNext(
       Object leftIterable,
@@ -50,7 +54,12 @@ public class JoinComputeNext {
       Rql2TypeWithProperties rightRowType,
       SourceContext context,
       RawLanguage language,
-      MaterializedFrame frame) {
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int resultSlot,
+      int generatorSlot,
+      int outputBufferSlot) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;
@@ -59,6 +68,11 @@ public class JoinComputeNext {
     this.rightRowType = rightRowType;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
     this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.resultSlot = resultSlot;
+    this.generatorSlot = generatorSlot;
+    this.outputBufferSlot = outputBufferSlot;
     init(context);
   }
 
@@ -155,5 +169,25 @@ public class JoinComputeNext {
 
   public MaterializedFrame getFrame() {
     return frame;
+  }
+
+  public int getComputeNextSlot() {
+    return computeNextSlot;
+  }
+
+  public int getShouldContinueSlot() {
+    return shouldContinueSlot;
+  }
+
+  public int getResultSlot() {
+    return resultSlot;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getOutputBufferSlot() {
+    return outputBufferSlot;
   }
 }

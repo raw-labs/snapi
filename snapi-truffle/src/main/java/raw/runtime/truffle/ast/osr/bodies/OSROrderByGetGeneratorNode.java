@@ -15,7 +15,6 @@ package raw.runtime.truffle.ast.osr.bodies;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
@@ -39,22 +38,26 @@ public class OSROrderByGetGeneratorNode extends ExpressionNode {
   private FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
+  private final int generatorSlot;
+  private final int collectionSlot;
+  private final int offHeapGroupByKeysSlot;
+
+  public OSROrderByGetGeneratorNode(
+      int generatorSlot, int collectionSlot, int offHeapGroupByKeysSlot) {
+    this.generatorSlot = generatorSlot;
+    this.collectionSlot = collectionSlot;
+    this.offHeapGroupByKeysSlot = offHeapGroupByKeysSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-    Object generator =
-        frame.getAuxiliarySlot(
-            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT));
+    Object generator = frame.getAuxiliarySlot(generatorSlot);
 
-    OrderByCollection collection =
-        (OrderByCollection)
-            frame.getAuxiliarySlot(
-                frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.COLLECTION_SLOT));
+    OrderByCollection collection = (OrderByCollection) frame.getAuxiliarySlot(collectionSlot);
 
     OffHeapGroupByKeys groupByKeys =
-        (OffHeapGroupByKeys)
-            frame.getAuxiliarySlot(
-                frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_GROUP_BY_KEYS_SLOT));
+        (OffHeapGroupByKeys) frame.getAuxiliarySlot(offHeapGroupByKeysSlot);
 
     int funLen = collection.getKeyFunctions().length;
 

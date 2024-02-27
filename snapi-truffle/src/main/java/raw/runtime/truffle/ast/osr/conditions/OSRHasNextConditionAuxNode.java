@@ -24,12 +24,14 @@ public class OSRHasNextConditionAuxNode extends ExpressionNode {
   private GeneratorNodes.GeneratorHasNextNode hasNextNode =
       GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
 
+  private final int generatorSlot;
+
+  public OSRHasNextConditionAuxNode(int generatorSlot) {
+    this.generatorSlot = generatorSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    int generatorSlot =
-        frame
-            .getFrameDescriptor()
-            .findOrAddAuxiliarySlot(raw.runtime.truffle.ast.osr.AuxiliarySlots.GENERATOR_SLOT);
     Object generator = frame.getAuxiliarySlot(generatorSlot);
     return hasNextNode.execute(this, generator);
   }

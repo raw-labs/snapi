@@ -36,6 +36,9 @@ public class OrderByCollection implements TruffleObject {
   private final RawLanguage language;
   private final SourceContext context;
   private final MaterializedFrame frame;
+  private final int generatorSlot;
+  private final int collectionSlot;
+  private final int offHeapGroupByKeysSlot;
 
   public OrderByCollection(
       Object iterable,
@@ -45,7 +48,10 @@ public class OrderByCollection implements TruffleObject {
       Rql2TypeWithProperties rowType,
       RawLanguage language,
       SourceContext context,
-      MaterializedFrame frame) {
+      MaterializedFrame frame,
+      int generatorSlot,
+      int collectionSlot,
+      int offHeapGroupByKeysSlot) {
     this.parentIterable = iterable;
     this.keyFunctions = keyFunctions;
     this.keyOrderings = keyOrderings;
@@ -54,6 +60,9 @@ public class OrderByCollection implements TruffleObject {
     this.language = language;
     this.context = context;
     this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.collectionSlot = collectionSlot;
+    this.offHeapGroupByKeysSlot = offHeapGroupByKeysSlot;
   }
 
   public Object getParentIterable() {
@@ -86,6 +95,18 @@ public class OrderByCollection implements TruffleObject {
 
   public MaterializedFrame getFrame() {
     return frame;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getCollectionSlot() {
+    return collectionSlot;
+  }
+
+  public int getOffHeapGroupByKeysSlot() {
+    return offHeapGroupByKeysSlot;
   }
 
   // InteropLibrary: Iterable

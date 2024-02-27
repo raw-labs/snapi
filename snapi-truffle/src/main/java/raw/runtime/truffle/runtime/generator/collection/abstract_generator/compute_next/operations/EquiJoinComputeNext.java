@@ -32,6 +32,11 @@ public class EquiJoinComputeNext {
   private Object leftKey = null, rightKey = null;
   private Object[] leftRows = null, rightRows = null;
   private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
 
   public EquiJoinComputeNext(
       Object leftIterable,
@@ -44,7 +49,12 @@ public class EquiJoinComputeNext {
       Object mkJoinedRecord,
       RawLanguage language,
       SourceContext context,
-      MaterializedFrame frame) {
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;
@@ -56,6 +66,11 @@ public class EquiJoinComputeNext {
     this.language = language;
     this.context = context;
     this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+    this.mapSlot = mapSlot;
   }
 
   public Object getLeftIterable() {
@@ -180,5 +195,25 @@ public class EquiJoinComputeNext {
 
   public MaterializedFrame getFrame() {
     return frame;
+  }
+
+  public int getComputeNextSlot() {
+    return computeNextSlot;
+  }
+
+  public int getShouldContinueSlot() {
+    return shouldContinueSlot;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getKeyFunctionSlot() {
+    return keyFunctionSlot;
+  }
+
+  public int getMapSlot() {
+    return mapSlot;
   }
 }

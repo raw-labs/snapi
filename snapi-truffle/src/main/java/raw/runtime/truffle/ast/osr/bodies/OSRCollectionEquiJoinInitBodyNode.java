@@ -12,10 +12,8 @@
 
 package raw.runtime.truffle.ast.osr.bodies;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
@@ -37,13 +35,18 @@ public class OSRCollectionEquiJoinInitBodyNode extends ExpressionNode {
   OffHeapNodes.OffHeapGroupByPutNode putNode =
       OffHeapNodesFactory.OffHeapGroupByPutNodeGen.create();
 
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
+
+  public OSRCollectionEquiJoinInitBodyNode(int generatorSlot, int keyFunctionSlot, int mapSlot) {
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+    this.mapSlot = mapSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-    int generatorSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
-    int keyFunctionSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
-    int mapSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
-
     Object generator = frame.getAuxiliarySlot(generatorSlot);
     Object keyFunc = frame.getAuxiliarySlot(keyFunctionSlot);
     Object map = frame.getAuxiliarySlot(mapSlot);

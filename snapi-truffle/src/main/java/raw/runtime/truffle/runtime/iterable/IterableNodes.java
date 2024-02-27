@@ -15,12 +15,10 @@ package raw.runtime.truffle.runtime.iterable;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.Frame;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRCollectionEquiJoinInitBodyNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRDistinctGetGeneratorNode;
@@ -120,7 +118,13 @@ public class IterableNodes {
             IterableNodes.GetGeneratorNode getGeneratorNode) {
       Object parentGenerator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       return new AbstractGenerator(
-          new FilterComputeNext(parentGenerator, collection.getPredicate(), collection.getFrame()));
+          new FilterComputeNext(
+              parentGenerator,
+              collection.getPredicate(),
+              collection.getFrame(),
+              collection.getGeneratorSlot(),
+              collection.getFunctionSlot(),
+              collection.getResultSlot()));
     }
 
     @Specialization
@@ -176,11 +180,13 @@ public class IterableNodes {
           new ZipComputeNext(parentGenerator1, parentGenerator2, collection.getLang()));
     }
 
-    public static LoopNode getDistinctGenLoopNode() {
+    public static LoopNode getDistinctGenLoopNode(DistinctCollection collection) {
       return Truffle.getRuntime()
           .createLoopNode(
               new OSRGeneratorNode(
-                  new OSRHasNextConditionAuxNode(), new OSRDistinctGetGeneratorNode()));
+                  new OSRHasNextConditionAuxNode(collection.getGeneratorSlot()),
+                  new OSRDistinctGetGeneratorNode(
+                      collection.getGeneratorSlot(), collection.getOffHeapDistinctSlot())));
     }
 
     @Specialization
@@ -188,7 +194,7 @@ public class IterableNodes {
         Node node,
         DistinctCollection collection,
         @Bind("$node") Node thisNode,
-        @Cached(value = "getDistinctGenLoopNode()", inline = false, allowUncached = true)
+        @Cached(value = "getDistinctGenLoopNode(collection)", inline = false, allowUncached = true)
             LoopNode loopNode,
         @Cached(inline = false) @Cached.Shared("getGenerator1")
             IterableNodes.GetGeneratorNode getGeneratorNode,
@@ -203,11 +209,8 @@ public class IterableNodes {
         initNode.execute(thisNode, generator);
 
         MaterializedFrame frame = collection.getFrame();
-        FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-        frame.setAuxiliarySlot(
-            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT), generator);
-        frame.setAuxiliarySlot(
-            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_DISTINCT_SLOT), index);
+        frame.setAuxiliarySlot(collection.getGeneratorSlot(), generator);
+        frame.setAuxiliarySlot(collection.getOffHeapDistinctSlot(), index);
 
         loopNode.execute(frame);
       } finally {
@@ -221,11 +224,15 @@ public class IterableNodes {
       return collection.getGenerator();
     }
 
-    public static LoopNode getEquiJoinInitLoopNode() {
+    public static LoopNode getEquiJoinInitLoopNode(GroupByCollection collection) {
       return Truffle.getRuntime()
           .createLoopNode(
               new OSRGeneratorNode(
-                  new OSRHasNextConditionAuxNode(), new OSRCollectionEquiJoinInitBodyNode()));
+                  new OSRHasNextConditionAuxNode(collection.getGeneratorSlot()),
+                  new OSRCollectionEquiJoinInitBodyNode(
+                      collection.getGeneratorSlot(),
+                      collection.getKeyFunctionSlot(),
+                      collection.getMapSlot())));
     }
 
     @Specialization
@@ -234,7 +241,7 @@ public class IterableNodes {
         GroupByCollection collection,
         @Bind("$node") Node thisNode,
         @Cached(
-                value = "getEquiJoinInitLoopNode()",
+                value = "getEquiJoinInitLoopNode(collection)",
                 inline = false,
                 allowUncached = true,
                 neverDefault = true)
@@ -245,11 +252,6 @@ public class IterableNodes {
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
       Frame frame = collection.getFrame();
-      int mapSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
-      int generatorSlot =
-          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
-      int functionSlot =
-          frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
               collection.getKeyType(),
@@ -260,9 +262,9 @@ public class IterableNodes {
       Object inputGenerator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, inputGenerator);
-        frame.setAuxiliarySlot(generatorSlot, inputGenerator);
-        frame.setAuxiliarySlot(mapSlot, map);
-        frame.setAuxiliarySlot(functionSlot, collection.getKeyFun());
+        frame.setAuxiliarySlot(collection.getGeneratorSlot(), inputGenerator);
+        frame.setAuxiliarySlot(collection.getMapSlot(), map);
+        frame.setAuxiliarySlot(collection.getKeyFunctionSlot(), collection.getKeyFun());
         loopNode.execute(collection.getFrame());
       } finally {
         closeNode.execute(thisNode, inputGenerator);
@@ -275,11 +277,15 @@ public class IterableNodes {
       return collection.getGenerator();
     }
 
-    public static LoopNode getOrderByGenNode() {
+    public static LoopNode getOrderByGenNode(OrderByCollection collection) {
       return Truffle.getRuntime()
           .createLoopNode(
               new OSRGeneratorNode(
-                  new OSRHasNextConditionAuxNode(), new OSROrderByGetGeneratorNode()));
+                  new OSRHasNextConditionAuxNode(collection.getGeneratorSlot()),
+                  new OSROrderByGetGeneratorNode(
+                      collection.getGeneratorSlot(),
+                      collection.getCollectionSlot(),
+                      collection.getOffHeapGroupByKeysSlot())));
     }
 
     @Specialization
@@ -288,7 +294,7 @@ public class IterableNodes {
         OrderByCollection collection,
         @Bind("$node") Node thisNode,
         @Cached(
-                value = "getOrderByGenNode()",
+                value = "getOrderByGenNode(collection)",
                 inline = false,
                 allowUncached = true,
                 neverDefault = true)
@@ -310,14 +316,9 @@ public class IterableNodes {
         initNode.execute(thisNode, generator);
 
         Frame frame = collection.getFrame();
-        FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-        frame.setAuxiliarySlot(
-            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT), generator);
-        frame.setAuxiliarySlot(
-            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_GROUP_BY_KEYS_SLOT),
-            groupByKeys);
-        frame.setAuxiliarySlot(
-            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.COLLECTION_SLOT), collection);
+        frame.setAuxiliarySlot(collection.getGeneratorSlot(), generator);
+        frame.setAuxiliarySlot(collection.getOffHeapGroupByKeysSlot(), groupByKeys);
+        frame.setAuxiliarySlot(collection.getCollectionSlot(), collection);
 
         loopNode.execute(collection.getFrame());
       } finally {

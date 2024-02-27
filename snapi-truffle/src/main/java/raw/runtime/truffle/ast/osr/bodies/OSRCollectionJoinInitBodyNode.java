@@ -13,10 +13,8 @@
 package raw.runtime.truffle.ast.osr.bodies;
 
 import com.esotericsoftware.kryo.io.Output;
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.JoinComputeNext;
@@ -31,14 +29,19 @@ public class OSRCollectionJoinInitBodyNode extends ExpressionNode {
 
   @Child KryoNodes.KryoWriteNode kryoWrite = KryoNodesFactory.KryoWriteNodeGen.create();
 
+  private final int generatorSlot;
+  private final int computeNextSlot;
+  private final int outputBufferSlot;
+
+  public OSRCollectionJoinInitBodyNode(
+      int generatorSlot, int computeNextSlot, int outputBufferSlot) {
+    this.generatorSlot = generatorSlot;
+    this.computeNextSlot = computeNextSlot;
+    this.outputBufferSlot = outputBufferSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-    int generatorSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
-    int computeNextSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
-    int outputBufferSlot =
-        frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OUTPUT_BUFFER_SLOT);
-
     Object generator = frame.getAuxiliarySlot(generatorSlot);
     JoinComputeNext computeNext = (JoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
     Output buffer = (Output) frame.getAuxiliarySlot(outputBufferSlot);

@@ -18,13 +18,14 @@ import raw.runtime.truffle.ExpressionNode;
 
 public class OSRFromBodyConditionNode extends ExpressionNode {
 
+  private final int shouldContinueSlot;
+
+  public OSRFromBodyConditionNode(int shouldContinueSlot) {
+    this.shouldContinueSlot = shouldContinueSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    int shouldContinueSlot =
-        frame
-            .getFrameDescriptor()
-            .findOrAddAuxiliarySlot(
-                raw.runtime.truffle.ast.osr.AuxiliarySlots.SHOULD_CONTINUE_SLOT);
     return frame.getAuxiliarySlot(shouldContinueSlot);
   }
 

@@ -29,10 +29,25 @@ public class FilterCollection implements TruffleObject {
   private final Object predicate;
   private final MaterializedFrame frame;
 
-  public FilterCollection(Object iterable, Object predicate, MaterializedFrame frame) {
+  private final int generatorSlot;
+
+  private final int functionSlot;
+
+  private final int resultSlot;
+
+  public FilterCollection(
+      Object iterable,
+      Object predicate,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int functionSlot,
+      int resultSlot) {
     this.parentIterable = iterable;
     this.predicate = predicate;
     this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.functionSlot = functionSlot;
+    this.resultSlot = resultSlot;
   }
 
   public Object getParentIterable() {
@@ -45,6 +60,18 @@ public class FilterCollection implements TruffleObject {
 
   public MaterializedFrame getFrame() {
     return frame;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getFunctionSlot() {
+    return functionSlot;
+  }
+
+  public int getResultSlot() {
+    return resultSlot;
   }
 
   // InteropLibrary: Iterable

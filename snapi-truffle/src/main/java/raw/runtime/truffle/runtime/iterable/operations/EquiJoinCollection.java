@@ -37,6 +37,11 @@ public class EquiJoinCollection implements TruffleObject {
   private final RawLanguage language;
   private final SourceContext context;
   private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
 
   public EquiJoinCollection(
       Object leftIterable,
@@ -49,7 +54,12 @@ public class EquiJoinCollection implements TruffleObject {
       Object reshapeFun,
       RawLanguage language,
       SourceContext context,
-      MaterializedFrame frame) {
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;
@@ -61,6 +71,11 @@ public class EquiJoinCollection implements TruffleObject {
     this.language = language;
     this.context = context;
     this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+    this.mapSlot = mapSlot;
   }
 
   public Object getGenerator() {
@@ -76,7 +91,12 @@ public class EquiJoinCollection implements TruffleObject {
             reshapeFun,
             language,
             context,
-            frame));
+            frame,
+            computeNextSlot,
+            shouldContinueSlot,
+            generatorSlot,
+            keyFunctionSlot,
+            mapSlot));
   }
 
   @ExportMessage

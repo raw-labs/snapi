@@ -15,7 +15,6 @@ package raw.runtime.truffle.ast.osr.bodies;
 import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
@@ -32,12 +31,21 @@ public class OSRCollectionFilterBodyNode extends ExpressionNode {
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
+  private final int generatorSlot;
+
+  private final int functionSlot;
+
+  private final int resultSlot;
+
+  public OSRCollectionFilterBodyNode(int generatorSlot, int functionSlot, int resultSlot) {
+    this.generatorSlot = generatorSlot;
+    this.functionSlot = functionSlot;
+    this.resultSlot = resultSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-    int generatorSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
-    int functionSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
-
     Object generator = frame.getAuxiliarySlot(generatorSlot);
     Object predicate = frame.getAuxiliarySlot(functionSlot);
     Object v = nextNode.execute(this, generator);
@@ -45,7 +53,6 @@ public class OSRCollectionFilterBodyNode extends ExpressionNode {
     boolean isPredicateTrue =
         TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, predicate, v), false);
     if (isPredicateTrue) {
-      int resultSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
       frame.setAuxiliarySlot(resultSlot, v);
     }
     return null;

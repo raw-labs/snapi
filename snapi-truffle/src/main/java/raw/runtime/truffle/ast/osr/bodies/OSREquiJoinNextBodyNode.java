@@ -12,10 +12,8 @@
 
 package raw.runtime.truffle.ast.osr.bodies;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
@@ -35,13 +33,16 @@ public class OSREquiJoinNextBodyNode extends ExpressionNode {
 
   @Child OperatorNodes.CompareNode compareKey = OperatorNodesFactory.CompareNodeGen.create();
 
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+
+  public OSREquiJoinNextBodyNode(int computeNextSlot, int shouldContinueSlot) {
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-    int computeNextSlot = frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
-    int shouldContinueSlot =
-        frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.SHOULD_CONTINUE_SLOT);
-
     EquiJoinComputeNext computeNext = (EquiJoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
     if (computeNext.getLeftKey() == null || computeNext.getRightKey() == null) {
       if (computeNext.getLeftKey() == null) {

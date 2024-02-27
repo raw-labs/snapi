@@ -38,6 +38,11 @@ public class JoinCollection implements TruffleObject {
   final RawLanguage language;
   private final Boolean reshapeBeforePredicate;
   private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int resultSlot;
+  private final int generatorSlot;
+  private final int outputBufferSlot;
 
   public JoinCollection(
       Object leftIterable,
@@ -48,7 +53,12 @@ public class JoinCollection implements TruffleObject {
       Boolean reshapeBeforePredicate,
       SourceContext context,
       RawLanguage language,
-      MaterializedFrame frame) {
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int resultSlot,
+      int generatorSlot,
+      int outputBufferSlot) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;
@@ -58,6 +68,11 @@ public class JoinCollection implements TruffleObject {
     this.language = language;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
     this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.resultSlot = resultSlot;
+    this.generatorSlot = generatorSlot;
+    this.outputBufferSlot = outputBufferSlot;
   }
 
   public Object getGenerator() {
@@ -71,7 +86,12 @@ public class JoinCollection implements TruffleObject {
             rightType,
             context,
             language,
-            frame));
+            frame,
+            computeNextSlot,
+            shouldContinueSlot,
+            resultSlot,
+            generatorSlot,
+            outputBufferSlot));
   }
 
   // InteropLibrary: Iterable

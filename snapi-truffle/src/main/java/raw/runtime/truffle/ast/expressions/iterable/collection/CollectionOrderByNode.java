@@ -20,6 +20,7 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
 
@@ -63,6 +64,16 @@ public class CollectionOrderByNode extends ExpressionNode {
     for (int i = 0; i < this.keyFuns.length; i++) {
       keyFunctions[i] = this.keyFuns[i].executeGeneric(frame);
     }
+
+    int generatorSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+    int collectionSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.COLLECTION_SLOT);
+    int offHeapGroupByKeysSlot =
+        frame
+            .getFrameDescriptor()
+            .findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_GROUP_BY_KEYS_SLOT);
+
     return new OrderByCollection(
         iterable,
         keyFunctions,
@@ -71,6 +82,9 @@ public class CollectionOrderByNode extends ExpressionNode {
         valueType,
         RawLanguage.get(this),
         RawContext.get(this).getSourceContext(),
-        frame.materialize());
+        frame.materialize(),
+        generatorSlot,
+        collectionSlot,
+        offHeapGroupByKeysSlot);
   }
 }

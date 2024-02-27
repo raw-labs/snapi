@@ -20,7 +20,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
@@ -52,6 +51,16 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
 
   @Child KryoNodes.KryoReadNode kryoReadNode = KryoNodesFactory.KryoReadNodeGen.create();
 
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int resultSlot;
+
+  public OSRJoinNextBodyNode(int computeNextSlot, int shouldContinueSlot, int resultSlot) {
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.resultSlot = resultSlot;
+  }
+
   @CompilerDirectives.TruffleBoundary
   private Input createInput(File file, Node node) {
     try {
@@ -63,12 +72,6 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    int computeNextSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
-    int shouldContinueSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.SHOULD_CONTINUE_SLOT);
-    int resultSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
-
     Object row = null;
     JoinComputeNext computeNext = (JoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
     if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {

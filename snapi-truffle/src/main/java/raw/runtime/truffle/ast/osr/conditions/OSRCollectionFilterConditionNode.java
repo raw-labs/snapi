@@ -15,7 +15,6 @@ package raw.runtime.truffle.ast.osr.conditions;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 
@@ -25,12 +24,18 @@ public class OSRCollectionFilterConditionNode extends ExpressionNode {
   private GeneratorNodes.GeneratorHasNextNode hasNextNode =
       GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
 
+  private final int generatorSlot;
+
+  private final int resultSlot;
+
+  public OSRCollectionFilterConditionNode(int generatorSlot, int resultSlot) {
+    this.generatorSlot = generatorSlot;
+    this.resultSlot = resultSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    int generatorSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
     Object generator = frame.getAuxiliarySlot(generatorSlot);
-    int resultSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
     Object result = frame.getAuxiliarySlot(resultSlot);
     return result == null && hasNextNode.execute(this, generator);
   }

@@ -35,6 +35,9 @@ public class GroupByCollection implements TruffleObject {
   final Rql2TypeWithProperties rowType;
   private final SourceContext context;
   private final MaterializedFrame frame;
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
 
   public GroupByCollection(
       Object iterable,
@@ -43,7 +46,10 @@ public class GroupByCollection implements TruffleObject {
       Rql2TypeWithProperties rowType,
       RawLanguage language,
       SourceContext context,
-      MaterializedFrame frame) {
+      MaterializedFrame frame,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.iterable = iterable;
     this.keyFun = keyFun;
     this.language = language;
@@ -51,6 +57,9 @@ public class GroupByCollection implements TruffleObject {
     this.rowType = rowType;
     this.context = context;
     this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+    this.mapSlot = mapSlot;
   }
 
   public Object getIterable() {
@@ -79,6 +88,18 @@ public class GroupByCollection implements TruffleObject {
 
   public MaterializedFrame getFrame() {
     return frame;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getKeyFunctionSlot() {
+    return keyFunctionSlot;
+  }
+
+  public int getMapSlot() {
+    return mapSlot;
   }
 
   // InteropLibrary: Iterable

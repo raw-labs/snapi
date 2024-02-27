@@ -12,10 +12,8 @@
 
 package raw.runtime.truffle.ast.osr.bodies;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
@@ -32,16 +30,19 @@ public class OSRDistinctGetGeneratorNode extends ExpressionNode {
   OffHeapNodes.OffHeapGroupByPutNode putNode =
       OffHeapNodesFactory.OffHeapGroupByPutNodeGen.create();
 
+  private final int generatorSlot;
+
+  private final int offHeapDistinctSlot;
+
+  public OSRDistinctGetGeneratorNode(int generatorSlot, int offHeapDistinctSlot) {
+    this.generatorSlot = generatorSlot;
+    this.offHeapDistinctSlot = offHeapDistinctSlot;
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-    Object generator =
-        frame.getAuxiliarySlot(
-            frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT));
-    OffHeapDistinct index =
-        (OffHeapDistinct)
-            frame.getAuxiliarySlot(
-                frameDescriptor.findOrAddAuxiliarySlot(AuxiliarySlots.OFF_HEAP_DISTINCT_SLOT));
+    Object generator = frame.getAuxiliarySlot(generatorSlot);
+    OffHeapDistinct index = (OffHeapDistinct) frame.getAuxiliarySlot(offHeapDistinctSlot);
 
     Object next = nextNode.execute(this, generator);
     putNode.execute(this, index, next, null);

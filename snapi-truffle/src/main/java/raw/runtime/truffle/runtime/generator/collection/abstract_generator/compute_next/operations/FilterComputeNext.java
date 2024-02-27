@@ -18,11 +18,25 @@ public class FilterComputeNext {
   private final Object parent;
   private final Object predicate;
   private final MaterializedFrame frame;
+  private final int generatorSlot;
 
-  public FilterComputeNext(Object parent, Object predicate, MaterializedFrame frame) {
+  private final int functionSlot;
+
+  private final int resultSlot;
+
+  public FilterComputeNext(
+      Object parent,
+      Object predicate,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int functionSlot,
+      int resultSlot) {
     this.parent = parent;
     this.predicate = predicate;
     this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.functionSlot = functionSlot;
+    this.resultSlot = resultSlot;
   }
 
   public Object getParent() {
@@ -35,5 +49,17 @@ public class FilterComputeNext {
 
   public MaterializedFrame getFrame() {
     return frame;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getFunctionSlot() {
+    return functionSlot;
+  }
+
+  public int getResultSlot() {
+    return resultSlot;
   }
 }

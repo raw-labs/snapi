@@ -22,6 +22,7 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 
 @NodeInfo(shortName = "Collection.GroupBy")
@@ -39,6 +40,11 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
 
   @Specialization
   protected Object doGroup(VirtualFrame frame, Object iterable, Object keyFun) {
+    int generatorSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+    int keyFunctionSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
+    int mapSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
     return new GroupByCollection(
         iterable,
         keyFun,
@@ -46,6 +52,9 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
         getRowType(),
         RawLanguage.get(this),
         RawContext.get(this).getSourceContext(),
-        frame.materialize());
+        frame.materialize(),
+        generatorSlot,
+        keyFunctionSlot,
+        mapSlot);
   }
 }
