@@ -101,6 +101,17 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
     plainCodeBuffer.toString()
   }
 
+  private def validateParameterType(tipe: RawType, name: String, typeName: String): Either[String, RawType] =
+    tipe match {
+      case _: RawNumberType => Right(tipe)
+      case _: RawStringType => Right(tipe)
+      case _: RawBoolType => Right(tipe)
+      case _: RawDateType => Right(tipe)
+      case _: RawTimeType => Right(tipe)
+      case _: RawTimestampType => Right(tipe)
+      case _: RawBinaryType => Right(tipe)
+      case _ => Left(s"parameter '$name' has an unsupported type '$typeName'")
+    }
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
   case class QueryInfo(parameters: Map[String, RawType], outputType: RawType)
 
@@ -115,8 +126,17 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
       val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
       val typesStatus = paramLocations.map {
         case (p, locations) =>
-          val typeOptions =
-            locations.map(location => SqlTypesUtils.rawTypeFromJdbc(metadata.getParameterType(location.index)))
+          // For each parameter, we infer the type from the locations where it's used
+          // And we validate the if the type is supported
+          val typeOptions = locations.map(location =>
+            SqlTypesUtils.rawTypeFromJdbc(
+              metadata.getParameterType(location.index),
+              metadata.getParameterTypeName(location.index)
+            ) match {
+              case Right(t) => validateParameterType(t, p, metadata.getParameterTypeName(location.index))
+              case Left(error) => Left(error)
+            }
+          )
           val errors = typeOptions.collect { case Left(error) => error }
           val typeStatus =
             if (errors.isEmpty) {
@@ -172,10 +192,11 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
       val name = metadata.getColumnName(i)
       val typeInfo = {
         val tipe = metadata.getColumnType(i)
+        val typeName = metadata.getColumnTypeName(i)
         val nullability = metadata.isNullable(i)
         val nullable =
           nullability == ResultSetMetaData.columnNullable || nullability == ResultSetMetaData.columnNullableUnknown
-        SqlTypesUtils.rawTypeFromJdbc(tipe).right.map {
+        SqlTypesUtils.rawTypeFromJdbc(tipe, typeName).right.map {
           case t: RawAnyType => t
           case t: RawType => t.cloneWithFlags(nullable, false)
         }
