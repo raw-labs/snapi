@@ -901,8 +901,8 @@ YEAR : Y E A R;
 YES : Y E S;
 ZONE : Z O N E;
 
-
 WORD: [_a-zA-Z] [_a-zA-Z0-9]*;
+UNKNOWN_WORD: ~[; \t\r\n] -> pushMode(INSIDE_UNKNOWN_WORD);
 
 // For cace insensitive. you can write things like fragment
 // C A S E and will much any case like CaSe or CASE or case
@@ -937,7 +937,7 @@ fragment DIGIT: [0-9];
 fragment EXPONENT: E [+-]? DIGIT+;
 
 fragment ESC: '\\' (["\\/'bfnrt]) ;
-WS : [ \t\r\n]+ -> skip;
+WS : [ \t\r\n]+ -> skip ;
 
 mode INSIDE_SINGLE_LINE_COMMENT;
 SL_TYPE_KW: '@type';
@@ -965,3 +965,9 @@ ML_WORD: [a-zA-Z0-9!@#$%^&*_+'"`.]+ '(' .*? ')' | [a-zA-Z0-9!@#$%^&*_+'"`.]+;
 ML_WS : [ \t\r\n]+ -> skip;
 
 MULTI_LINE_COMMENT_END: '*/' -> popMode;
+
+mode INSIDE_UNKNOWN_WORD;
+
+UNKNOWN_WORD_END: [ \t\r\n;EOF] -> popMode;
+
+IN_UNKNOWN_WORD: ~[;];

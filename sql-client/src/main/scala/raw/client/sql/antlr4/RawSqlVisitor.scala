@@ -14,7 +14,7 @@ class RawSqlVisitor(
     private val source: Source,
     private val errors: RawSqlVisitorParseErrors,
     var returnDescription: Option[String] = None
-) extends PsqlParserBaseVisitor[SqBaseNode] {
+) extends PsqlParserBaseVisitor[SqlBaseNode] {
 
   private val positionsWrapper = new RawSqlPositions(positions, source)
 
@@ -35,29 +35,22 @@ class RawSqlVisitor(
     )
   }
 
-  override def visitProg(ctx: PsqlParser.ProgContext): SqBaseNode =
+  override def visitProg(ctx: PsqlParser.ProgContext): SqlBaseNode =
     Option(ctx).flatMap(context => Option(context.code()).map(codeCtx => visit(codeCtx))).getOrElse(SqlErrorNode())
 
-  override def visitCode(ctx: PsqlParser.CodeContext): SqBaseNode = Option(ctx)
+  override def visitCode(ctx: PsqlParser.CodeContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val statements = Option(context.stmt())
-        .map(m =>
-          m.asScala.map(md =>
-            Option(md)
-              .flatMap(mdContext => Option(visit(mdContext)))
-              .getOrElse(SqlErrorNode())
-              .asInstanceOf[SqBaseNode]
-          )
-        )
-        .getOrElse(Vector.empty)
-        .toVector
+        .flatMap(mdContext => Option(visit(mdContext)))
+        .getOrElse(SqlErrorNode())
+
       val comments = Option(context.comment())
         .map(m =>
           m.asScala.map(md =>
             Option(md)
               .flatMap(mdContext => Option(visit(mdContext)))
               .getOrElse(SqlErrorNode())
-              .asInstanceOf[SqBaseNode]
+              .asInstanceOf[SqlBaseNode]
           )
         )
         .getOrElse(Vector.empty)
@@ -69,13 +62,13 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitComment(ctx: PsqlParser.CommentContext): SqBaseNode = Option(ctx)
+  override def visitComment(ctx: PsqlParser.CommentContext): SqlBaseNode = Option(ctx)
     .flatMap { context =>
       Option(context.multiline_comment()).map(visit).orElse(Option(context.singleline_comment()).map(visit))
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleline_comment(ctx: PsqlParser.Singleline_commentContext): SqBaseNode = Option(ctx)
+  override def visitSingleline_comment(ctx: PsqlParser.Singleline_commentContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val singleLineComment = SqlSingleLineCommentNode(visit(context.singleline_value_comment()))
       positionsWrapper.setPosition(ctx, singleLineComment)
@@ -83,23 +76,23 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleParamComment(ctx: PsqlParser.SingleParamCommentContext): SqBaseNode = Option(ctx)
+  override def visitSingleParamComment(ctx: PsqlParser.SingleParamCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.singleline_param_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleTypeComment(ctx: PsqlParser.SingleTypeCommentContext): SqBaseNode = Option(ctx)
+  override def visitSingleTypeComment(ctx: PsqlParser.SingleTypeCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.singleline_type_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleReturnComment(ctx: PsqlParser.SingleReturnCommentContext): SqBaseNode = Option(ctx)
+  override def visitSingleReturnComment(ctx: PsqlParser.SingleReturnCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.singleline_return_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleDefaultComment(ctx: PsqlParser.SingleDefaultCommentContext): SqBaseNode = Option(ctx)
+  override def visitSingleDefaultComment(ctx: PsqlParser.SingleDefaultCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.singleline_default_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleUnknownTypeComment(ctx: PsqlParser.SingleUnknownTypeCommentContext): SqBaseNode = {
+  override def visitSingleUnknownTypeComment(ctx: PsqlParser.SingleUnknownTypeCommentContext): SqlBaseNode = {
     Option(ctx)
       .foreach(context =>
         addError(
@@ -110,11 +103,11 @@ class RawSqlVisitor(
     SqlErrorNode()
   }
 
-  override def visitSingleNormalComment(ctx: PsqlParser.SingleNormalCommentContext): SqBaseNode = Option(ctx)
+  override def visitSingleNormalComment(ctx: PsqlParser.SingleNormalCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.singleline_normal_comment_value()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleline_param_comment(ctx: PsqlParser.Singleline_param_commentContext): SqBaseNode = Option(ctx)
+  override def visitSingleline_param_comment(ctx: PsqlParser.Singleline_param_commentContext): SqlBaseNode = Option(ctx)
     .map(context => {
       if (context.SL_WORD(0) == null) {
         addError("Missing parameter name for syntax @param <name> <description>", context)
@@ -152,7 +145,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleline_type_comment(ctx: PsqlParser.Singleline_type_commentContext): SqBaseNode = Option(ctx)
+  override def visitSingleline_type_comment(ctx: PsqlParser.Singleline_type_commentContext): SqlBaseNode = Option(ctx)
     .map(context => {
       if (context.SL_WORD(0) == null) {
         addError("Missing name for syntax @type <name> <type>", context)
@@ -184,7 +177,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleline_default_comment(ctx: PsqlParser.Singleline_default_commentContext): SqBaseNode = Option(
+  override def visitSingleline_default_comment(ctx: PsqlParser.Singleline_default_commentContext): SqlBaseNode = Option(
     ctx
   )
     .map(context => {
@@ -225,7 +218,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleline_return_comment(ctx: PsqlParser.Singleline_return_commentContext): SqBaseNode = Option(
+  override def visitSingleline_return_comment(ctx: PsqlParser.Singleline_return_commentContext): SqlBaseNode = Option(
     ctx
   )
     .map(context => {
@@ -257,7 +250,7 @@ class RawSqlVisitor(
 
   override def visitSingleline_normal_comment_value(
       ctx: PsqlParser.Singleline_normal_comment_valueContext
-  ): SqBaseNode = Option(
+  ): SqlBaseNode = Option(
     ctx
   )
     .map(context => {
@@ -268,7 +261,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitMultiline_comment(ctx: PsqlParser.Multiline_commentContext): SqBaseNode = Option(ctx)
+  override def visitMultiline_comment(ctx: PsqlParser.Multiline_commentContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val multilineComments = Option(context.multiline_value_comment())
         .map(m =>
@@ -276,7 +269,7 @@ class RawSqlVisitor(
             Option(md)
               .flatMap(mdContext => Option(visit(mdContext)))
               .getOrElse(SqlErrorNode())
-              .asInstanceOf[SqBaseNode]
+              .asInstanceOf[SqlBaseNode]
           )
         )
         .getOrElse(Vector.empty)
@@ -287,23 +280,23 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitMultilineParamComment(ctx: PsqlParser.MultilineParamCommentContext): SqBaseNode = Option(ctx)
+  override def visitMultilineParamComment(ctx: PsqlParser.MultilineParamCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.multiline_param_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitMultilineTypeComment(ctx: PsqlParser.MultilineTypeCommentContext): SqBaseNode = Option(ctx)
+  override def visitMultilineTypeComment(ctx: PsqlParser.MultilineTypeCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.multiline_type_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitMultilineDefaultComment(ctx: PsqlParser.MultilineDefaultCommentContext): SqBaseNode = Option(ctx)
+  override def visitMultilineDefaultComment(ctx: PsqlParser.MultilineDefaultCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.multiline_default_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitMultilineReturnComment(ctx: PsqlParser.MultilineReturnCommentContext): SqBaseNode = Option(ctx)
+  override def visitMultilineReturnComment(ctx: PsqlParser.MultilineReturnCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.multiline_return_comment()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitMultilineUnknownTypeComment(ctx: PsqlParser.MultilineUnknownTypeCommentContext): SqBaseNode = {
+  override def visitMultilineUnknownTypeComment(ctx: PsqlParser.MultilineUnknownTypeCommentContext): SqlBaseNode = {
     Option(ctx)
       .foreach(context =>
         addError(
@@ -314,11 +307,11 @@ class RawSqlVisitor(
     SqlErrorNode()
   }
 
-  override def visitMultilineNormalComment(ctx: PsqlParser.MultilineNormalCommentContext): SqBaseNode = Option(ctx)
+  override def visitMultilineNormalComment(ctx: PsqlParser.MultilineNormalCommentContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.multiline_normal_comment_value()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitMultiline_param_comment(ctx: PsqlParser.Multiline_param_commentContext): SqBaseNode = Option(ctx)
+  override def visitMultiline_param_comment(ctx: PsqlParser.Multiline_param_commentContext): SqlBaseNode = Option(ctx)
     .map(context => {
       if (context.ML_WORD(0) == null) {
         addError("Missing parameter name for syntax @param <name> <description>", context)
@@ -348,7 +341,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitMultiline_type_comment(ctx: PsqlParser.Multiline_type_commentContext): SqBaseNode = Option(ctx)
+  override def visitMultiline_type_comment(ctx: PsqlParser.Multiline_type_commentContext): SqlBaseNode = Option(ctx)
     .map(context => {
       if (context.ML_WORD(0) == null) {
         addError("Missing name for syntax @type <name> <type>", context)
@@ -380,7 +373,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitMultiline_default_comment(ctx: PsqlParser.Multiline_default_commentContext): SqBaseNode = Option(
+  override def visitMultiline_default_comment(ctx: PsqlParser.Multiline_default_commentContext): SqlBaseNode = Option(
     ctx
   )
     .map(context => {
@@ -421,7 +414,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitMultiline_return_comment(ctx: PsqlParser.Multiline_return_commentContext): SqBaseNode = Option(
+  override def visitMultiline_return_comment(ctx: PsqlParser.Multiline_return_commentContext): SqlBaseNode = Option(
     ctx
   )
     .map(context => {
@@ -443,7 +436,7 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitMultiline_normal_comment_value(ctx: PsqlParser.Multiline_normal_comment_valueContext): SqBaseNode =
+  override def visitMultiline_normal_comment_value(ctx: PsqlParser.Multiline_normal_comment_valueContext): SqlBaseNode =
     Option(
       ctx
     )
@@ -455,7 +448,7 @@ class RawSqlVisitor(
       })
       .getOrElse(SqlErrorNode())
 
-  override def visitStmtItems(ctx: PsqlParser.StmtItemsContext): SqBaseNode = Option(ctx)
+  override def visitStmtItems(ctx: PsqlParser.StmtItemsContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val statements = Option(context.stmt_items())
         .map(s =>
@@ -463,7 +456,7 @@ class RawSqlVisitor(
             Option(st)
               .flatMap(mdContext => Option(visit(mdContext)))
               .getOrElse(SqlErrorNode())
-              .asInstanceOf[SqBaseNode]
+              .asInstanceOf[SqlBaseNode]
           )
         )
         .getOrElse(Vector.empty)
@@ -474,62 +467,106 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitParenStmt(ctx: PsqlParser.ParenStmtContext): SqBaseNode = Option(ctx)
+  override def visitParenStmt(ctx: PsqlParser.ParenStmtContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.stmt()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitParenStmtItems(ctx: PsqlParser.ParenStmtItemsContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.stmt_items()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitProjStmt(ctx: PsqlParser.ProjStmtContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.proj()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitLiteralStmt(ctx: PsqlParser.LiteralStmtContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.literal()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitKeywordStmt(ctx: PsqlParser.KeywordStmtContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.keyword()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitBinaryExpStmt(ctx: PsqlParser.BinaryExpStmtContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.binary_exp()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitIdntStmt(ctx: PsqlParser.IdntStmtContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.idnt()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitParamStmt(ctx: PsqlParser.ParamStmtContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.param()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitWithCommaSepStmt(ctx: PsqlParser.WithCommaSepStmtContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.with_comma_sep()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitWith_comma_sep(ctx: PsqlParser.With_comma_sepContext): SqBaseNode = Option(ctx)
+  override def visitFunCallStmt(ctx: PsqlParser.FunCallStmtContext): SqlBaseNode = Option(ctx)
     .map { context =>
-      val idnts = Option(context.idnt())
-        .map(i =>
-          i.asScala.map(idn =>
-            Option(idn)
+      val name = Option(context.idnt())
+        .map(i => i.getText)
+        .getOrElse(context.keyword().getText)
+      val arguments = Option(context.stmt_items())
+        .map(visit)
+      val funCall = SqlFunctionCall(name, arguments)
+      positionsWrapper.setPosition(ctx, funCall)
+      funCall
+    }
+    .getOrElse(SqlErrorNode())
+
+  override def visitUnknownStmt(ctx: PsqlParser.UnknownStmtContext): SqlBaseNode = Option(ctx)
+    .map { context =>
+      val unknown = SqlUnknownNode(context.getText)
+      positionsWrapper.setPosition(ctx, unknown)
+      unknown
+    }
+    .getOrElse(SqlErrorNode())
+
+  override def visitCommaSeparated(ctx: PsqlParser.CommaSeparatedContext): SqlBaseNode = Option(ctx)
+    .map { context =>
+      val statements = Option(context.stmt_items())
+        .map(s =>
+          s.asScala.map(st =>
+            Option(st)
               .flatMap(mdContext => Option(visit(mdContext)))
               .getOrElse(SqlErrorNode())
-              .asInstanceOf[SqBaseNode]
+              .asInstanceOf[SqlBaseNode]
           )
         )
         .getOrElse(Vector.empty)
         .toVector
-      val withComaSeparator = SqlWithComaSeparatorNode(idnts)
+      val withComaSeparator = SqlWithComaSeparatorNode(statements)
       positionsWrapper.setPosition(ctx, withComaSeparator)
       withComaSeparator
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitKeyword(ctx: PsqlParser.KeywordContext): SqBaseNode = Option(ctx)
+  override def visitTypeCast(ctx: PsqlParser.TypeCastContext): SqlBaseNode = Option(ctx)
+    .map { context =>
+      val stmt = Option(context.stmt_items()).map(visit).getOrElse(SqlErrorNode())
+      val tipe = Option(context.tipe()).map(visit).getOrElse(SqlErrorNode())
+      val typeCast = SqlTypeCastNode(stmt, tipe)
+      positionsWrapper.setPosition(ctx, typeCast)
+      typeCast
+    }
+    .getOrElse(SqlErrorNode())
+
+  override def visitNestedStmt(ctx: PsqlParser.NestedStmtContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.stmt()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+  //  override def visitParenStmtItems(ctx: PsqlParser.ParenStmtItemsContext): SqBaseNode = Option(ctx)
+//    .flatMap(context => Option(context.stmt_items()).map(visit))
+//    .getOrElse(SqlErrorNode())
+
+  override def visitProjStmt(ctx: PsqlParser.ProjStmtContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.proj()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+  override def visitLiteralStmt(ctx: PsqlParser.LiteralStmtContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.literal()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+  override def visitKeywordStmt(ctx: PsqlParser.KeywordStmtContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.keyword()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+//  override def visitBinaryExpStmt(ctx: PsqlParser.BinaryExpStmtContext): SqBaseNode = Option(ctx)
+//    .flatMap(context => Option(context.binary_exp()).map(visit))
+//    .getOrElse(SqlErrorNode())
+
+  override def visitIdntStmt(ctx: PsqlParser.IdntStmtContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.idnt()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+  override def visitParamStmt(ctx: PsqlParser.ParamStmtContext): SqlBaseNode = Option(ctx)
+    .map(context => {
+      val name = context.getText.replace(":", "")
+      val param = SqlParamUseNode(name)
+
+      param match {
+        case use: SqlParamUseNode => params.get(use.name) match {
+            case Some(value) => params.update(use.name, value.copy(occurrences = value.occurrences :+ use))
+            case None => params += (use.name -> SqlParam(use.name, None, None, None, Vector.empty, Vector(use)))
+          }
+        case _ =>
+      }
+      positionsWrapper.setPosition(ctx, param)
+      param
+    })
+    .getOrElse(SqlErrorNode())
+
+  override def visitKeyword(ctx: PsqlParser.KeywordContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val keyword = SqlKeywordNode(context.getText)
       positionsWrapper.setPosition(ctx, keyword)
@@ -537,7 +574,7 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitOperator(ctx: PsqlParser.OperatorContext): SqBaseNode = Option(ctx)
+  override def visitOperator(ctx: PsqlParser.OperatorContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val operator = SqlOperatorNode(context.getText)
       positionsWrapper.setPosition(ctx, operator)
@@ -545,7 +582,11 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitProj(ctx: PsqlParser.ProjContext): SqBaseNode = Option(ctx)
+  override def visitOperatorStmt(ctx: PsqlParser.OperatorStmtContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.operator()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+  override def visitProj(ctx: PsqlParser.ProjContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val identifiers = Option(context.idnt())
         .map(i =>
@@ -553,7 +594,7 @@ class RawSqlVisitor(
             Option(idn)
               .flatMap(mdContext => Option(visit(mdContext)))
               .getOrElse(SqlErrorNode())
-              .asInstanceOf[SqBaseNode]
+              .asInstanceOf[SqlBaseNode]
           )
         )
         .getOrElse(Vector.empty)
@@ -564,7 +605,7 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitIdnt(ctx: PsqlParser.IdntContext): SqBaseNode = Option(ctx)
+  override def visitIdnt(ctx: PsqlParser.IdntContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val isDoubleQuoted = context.DOUBLE_QUOTED_STRING() != null
       val value =
@@ -577,52 +618,7 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitParam(ctx: PsqlParser.ParamContext): SqBaseNode = Option(ctx)
-    .map { context =>
-      val param =
-        if (context.PARAM() != null) {
-          val name = context.getText.replace(":", "")
-          SqlParamUseNode(name, None)
-        } else {
-          Option(context.param_with_tipe()).map(visit).getOrElse(SqlErrorNode())
-        }
-
-      param match {
-        case use: SqlParamUseNode => params.get(use.name) match {
-            case Some(value) => params.update(use.name, value.copy(occurrences = value.occurrences :+ use))
-            case None => params += (use.name -> SqlParam(use.name, None, None, None, Vector.empty, Vector(use)))
-          }
-        case _ =>
-      }
-      positionsWrapper.setPosition(ctx, param)
-      param
-    }
-    .getOrElse(SqlErrorNode())
-
-  override def visitBinary_exp(ctx: PsqlParser.Binary_expContext): SqBaseNode = Option(ctx)
-    .map { context =>
-      val left = Option(context.binary_exp_elem(0)).map(visit).getOrElse(SqlErrorNode())
-      val op = Option(context.operator()).map(visit).getOrElse(SqlErrorNode())
-      val right = Option(context.binary_exp_elem(1)).map(visit).getOrElse(SqlErrorNode())
-      val binaryExp = SqlBinaryExpNode(left, op, right)
-      positionsWrapper.setPosition(ctx, binaryExp)
-      binaryExp
-    }
-    .getOrElse(SqlErrorNode())
-
-  override def visitIdntBinaryExpElem(ctx: PsqlParser.IdntBinaryExpElemContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.idnt()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitParamBinaryExpElem(ctx: PsqlParser.ParamBinaryExpElemContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.param()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitLiteralBinaryExpElem(ctx: PsqlParser.LiteralBinaryExpElemContext): SqBaseNode = Option(ctx)
-    .flatMap(context => Option(context.literal()).map(visit))
-    .getOrElse(SqlErrorNode())
-
-  override def visitStringLiteral(ctx: PsqlParser.StringLiteralContext): SqBaseNode = Option(ctx)
+  override def visitStringLiteral(ctx: PsqlParser.StringLiteralContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val value = context.getText
       val stringLiteral = SqlStringLiteralNode(value)
@@ -631,7 +627,7 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitIntegerLiteral(ctx: PsqlParser.IntegerLiteralContext): SqBaseNode = Option(ctx)
+  override def visitIntegerLiteral(ctx: PsqlParser.IntegerLiteralContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val value = context.getText
       val intLiteral = SqlIntLiteralNode(value)
@@ -640,7 +636,7 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitFloatingPointLiteral(ctx: PsqlParser.FloatingPointLiteralContext): SqBaseNode = Option(ctx)
+  override def visitFloatingPointLiteral(ctx: PsqlParser.FloatingPointLiteralContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val value = context.getText
       val floatingPointLiteral = SqlFloatingPointLiteralNode(value)
@@ -649,7 +645,7 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitBooleanLiteral(ctx: PsqlParser.BooleanLiteralContext): SqBaseNode = Option(ctx)
+  override def visitBooleanLiteral(ctx: PsqlParser.BooleanLiteralContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val value = context.getText
       val booleanLiteral = SqlBooleanLiteralNode(value)
@@ -658,7 +654,7 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitTipe(ctx: PsqlParser.TipeContext): SqBaseNode = Option(ctx)
+  override def visitTipe(ctx: PsqlParser.TipeContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val tipe = SqlTypeNode(context.getText)
       positionsWrapper.setPosition(ctx, tipe)
@@ -666,23 +662,14 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitParam_with_tipe(ctx: PsqlParser.Param_with_tipeContext): SqBaseNode = Option(ctx)
-    .map { context =>
-      val name = context.PARAM().getText.replace(":", "")
-      val tipe = Option(context.tipe()).map(visit)
-      val param = SqlParamUseNode(name, tipe)
-      positionsWrapper.setPosition(ctx, param)
-      param
-    }
-    .getOrElse(SqlErrorNode())
-
 // ignored
-  override def visitPsql_type(ctx: PsqlParser.Psql_typeContext): SqBaseNode = throw new AssertionError(assertionMessage)
+  override def visitPsql_type(ctx: PsqlParser.Psql_typeContext): SqlBaseNode =
+    throw new AssertionError(assertionMessage)
 
   override def visitSingleline_unknown_type_comment(
       ctx: PsqlParser.Singleline_unknown_type_commentContext
-  ): SqBaseNode = throw new AssertionError(assertionMessage)
+  ): SqlBaseNode = throw new AssertionError(assertionMessage)
 
-  override def visitMultiline_unknown_type_comment(ctx: PsqlParser.Multiline_unknown_type_commentContext): SqBaseNode =
+  override def visitMultiline_unknown_type_comment(ctx: PsqlParser.Multiline_unknown_type_commentContext): SqlBaseNode =
     throw new AssertionError(assertionMessage)
 }

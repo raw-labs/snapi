@@ -10,10 +10,10 @@ package raw.client.sql.antlr4
  * @param occurrences tree nodes where the parameter occurs
  */
 case class SqlParam(
-    name: String,
-    description: Option[String],
-    tipe: Option[String],
-    default: Option[String],
-    nodes: Vector[SqBaseNode],
-    occurrences: Vector[SqlParamUseNode]
+                     name: String,
+                     description: Option[String],
+                     tipe: Option[String],
+                     default: Option[String],
+                     nodes: Vector[SqlBaseNode],
+                     occurrences: Vector[SqlParamUseNode]
 )
