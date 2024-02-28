@@ -615,8 +615,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
   // #RD-10612: hovering on a parameter name doesn't return the parameter type + fails internally
   // The problem is because we are at the limit of the token and we returned an empty list.
-  // However, because of the function SqlCodeUtils.identifiers right it returns an identifier with an empty string.
-  // the state machine in that function bails out because it finds the ':' at the start of the string.
+  // However, because of the function SqlCodeUtils.identifiers right now it returns an identifier with an empty string.
+  // The state machine in that function bails out because it finds the ':' at the start of the string.
   ignore("SELECT :v > 12 AS column") { t =>
     assume(password != "")
 
