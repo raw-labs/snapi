@@ -613,6 +613,19 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |]""".stripMargin.replaceAll("\\s+", ""))
   }
 
+  // #RD-10612: hovering on a parameter name doesn't return the parameter type + fails internally
+  // The problem is because we are at the limit of the token and we returned an empty list.
+  // However, because of the function SqlCodeUtils.identifiers right it returns an identifier with an empty string.
+  // the state machine in that function bails out because it finds the ':' at the start of the string.
+  ignore("SELECT :v > 12 AS column") { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 10))
+    assert(hover.completion.contains(TypeCompletion("v", "parameter")))
+
+  }
+
   private val airportColumns = Set(
     LetBindCompletion("icao", "character varying"),
     LetBindCompletion("tz", "character varying"),
