@@ -21,6 +21,22 @@ object SqlTypesUtils extends StrictLogging {
 
   private case class SqlType(name: String, rawType: Option[RawType])
 
+  // types accepted in declarations:
+  // https://www.postgresql.org/docs/current/datatype-numeric.html
+  val pgMap: Map[String, Int] = Map(
+    "smallint" -> java.sql.Types.SMALLINT,
+    "integer" -> java.sql.Types.INTEGER,
+    "bigint" -> java.sql.Types.BIGINT,
+    "decimal" -> java.sql.Types.DECIMAL,
+    "real" -> java.sql.Types.FLOAT,
+    "double precision" -> java.sql.Types.DOUBLE,
+    "date" -> java.sql.Types.DATE,
+    "time" -> java.sql.Types.TIME,
+    "timestamp" -> java.sql.Types.TIMESTAMP,
+    "boolean" -> java.sql.Types.BOOLEAN,
+    "varchar" -> java.sql.Types.VARCHAR
+  )
+
   private val otherTypeMap: Map[String, RawType] = Map(
     "interval" -> RawIntervalType(false, false),
     "json" -> RawAnyType(),
@@ -70,7 +86,7 @@ object SqlTypesUtils extends StrictLogging {
   )
 
   // returns the name of the RawType. Used to report errors. Maybe RawType should have a name field?
-  def rawTypeName(rawType: RawType): String = {
+  private def rawTypeName(rawType: RawType): String = {
     rawType match {
       case RawBoolType(_, _) => "boolean"
       case RawByteType(_, _) => "byte"
@@ -84,9 +100,12 @@ object SqlTypesUtils extends StrictLogging {
       case RawDateType(_, _) => "date"
       case RawTimeType(_, _) => "time"
       case RawTimestampType(_, _) => "timestamp"
+      case RawIntervalType(_, _) => "interval"
       case _ => throw new IllegalArgumentException(s"Unsupported type: $rawType")
     }
   }
+
+  def rawTypeFromJdbc(tipe: PostgresType): Either[String, RawType] = rawTypeFromJdbc(tipe.jdbcType, tipe.typeName)
 
   // returns the RawType corresponding to the given JDBC type, or an error message if the type is not supported
   def rawTypeFromJdbc(jdbcType: Int, typeName: String): Either[String, RawType] = {
@@ -113,7 +132,7 @@ object SqlTypesUtils extends StrictLogging {
 
   // This is merging the inferred types of parameters. For example, if a parameter is used as both
   // a double and an int, it will be inferred as a double.
-  def mergeRawTypes(options: Seq[RawType]): Either[String, RawType] = {
+  def mergeRawTypes(options: Seq[PostgresType]): Either[String, PostgresType] = {
     val prioritizedNumberTypes = Vector(
       RawDecimalType(false, false),
       RawDoubleType(false, false),
@@ -136,13 +155,32 @@ object SqlTypesUtils extends StrictLogging {
           } else {
             recurse(tipes.tail, head)
           }
-        } else if (current == head) { recurse(tipes.tail, current) }
-        else Left(
+        } else if (current == head) {
+          recurse(tipes.tail, current)
+        } else Left(
           s"a parameter cannot be both ${SqlTypesUtils.rawTypeName(current)} and ${SqlTypesUtils.rawTypeName(head)}"
         )
       }
     }
-    recurse(options.tail, options.head)
+
+    val rawOptions = options.map(SqlTypesUtils.rawTypeFromJdbc).collect { case Right(t) => t }
+    recurse(rawOptions.tail, rawOptions.head).right.map(jdbcTypeFromRawType)
+  }
+
+  private def jdbcTypeFromRawType(rawType: RawType): PostgresType = rawType match {
+    case RawBoolType(_, _) => PostgresType(java.sql.Types.BOOLEAN, "boolean")
+    case RawByteType(_, _) => PostgresType(java.sql.Types.SMALLINT, "smallint")
+    case RawShortType(_, _) => PostgresType(java.sql.Types.SMALLINT, "smallint")
+    case RawIntType(_, _) => PostgresType(java.sql.Types.INTEGER, "integer")
+    case RawLongType(_, _) => PostgresType(java.sql.Types.BIGINT, "bigint")
+    case RawFloatType(_, _) => PostgresType(java.sql.Types.FLOAT, "real")
+    case RawDoubleType(_, _) => PostgresType(java.sql.Types.DOUBLE, "double precision")
+    case RawDecimalType(_, _) => PostgresType(java.sql.Types.DECIMAL, "decimal")
+    case RawStringType(_, _) => PostgresType(java.sql.Types.VARCHAR, "varchar")
+    case RawDateType(_, _) => PostgresType(java.sql.Types.DATE, "date")
+    case RawTimeType(_, _) => PostgresType(java.sql.Types.TIME, "time")
+    case RawTimestampType(_, _) => PostgresType(java.sql.Types.TIMESTAMP, "timestamp")
+    case _ => ???
   }
 
 }

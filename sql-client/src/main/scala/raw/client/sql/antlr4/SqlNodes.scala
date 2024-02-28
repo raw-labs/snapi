@@ -33,8 +33,9 @@ final case class SqlStatementNode(statementItems: Vector[SqlBaseNode]) extends S
 
 trait SqlStatementItemNode extends SqlBaseNode
 
-final case class SqlProjNode(identifiers: Vector[SqlBaseNode]) extends SqlStatementItemNode
-final case class SqlIdentifierNode(name: String, isQuoted: Boolean) extends SqlStatementItemNode
+sealed trait SqlIdnNode extends SqlStatementItemNode
+final case class SqlProjNode(identifiers: Vector[SqlBaseNode]) extends SqlIdnNode
+final case class SqlIdentifierNode(name: String, isQuoted: Boolean) extends SqlIdnNode
 
 trait SqlLiteralNode extends SqlStatementItemNode
 final case class SqlStringLiteralNode(value: String) extends SqlLiteralNode

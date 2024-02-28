@@ -15,7 +15,7 @@ package raw.client.sql
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api._
-import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer}
+import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
@@ -29,46 +29,80 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
 
   override def language: Set[String] = Set("sql")
 
+  private def parseAnd[T](
+      prog: String,
+      whatToDo: ParseProgramResult => T,
+      whatToDoInCaseOfError: List[ErrorMessage] => T
+  ): T = {
+    val positions = new Positions
+    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+    val tree = syntaxAnalyzer.parse(prog)
+    val errors = tree.errors.collect { case e: ErrorMessage => e }
+    if (errors.nonEmpty) whatToDoInCaseOfError(errors)
+    else whatToDo(tree)
+  }
+
+  private def parse(prog: String): Either[List[ErrorMessage], ParseProgramResult] = {
+    val positions = new Positions
+    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+    val tree = syntaxAnalyzer.parse(prog)
+    val errors = tree.errors.collect { case e: ErrorMessage => e }
+    if (errors.nonEmpty) Left(errors)
+    else Right(tree)
+  }
+
   override def getProgramDescription(
       source: String,
       environment: ProgramEnvironment
   ): GetProgramDescriptionResponse = {
     try {
-      logger.debug(s"Getting program description: $source")
-      try {
-        val conn = connectionPool.getConnection(environment.user)
-        try {
-          val stmt = new NamedParametersPreparedStatement(conn, source)
-          val description = stmt.queryMetadata match {
-            case Right(info) =>
-              val parameters = info.parameters
-              val tableType = info.outputType
-              val description = {
-                // Regardless if there are parameters, we declare a main function with the output type.
-                // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
-                val ps = for ((name, rawType) <- parameters) yield {
-                  ParamDescription(name, rawType, Some(RawNull()), false)
-                }
-                ProgramDescription(
-                  Map("main" -> List(DeclDescription(Some(ps.toVector), tableType, None))),
-                  None,
-                  None
-                )
+      parseAnd(
+        source,
+        { parsedTree: ParseProgramResult =>
+          logger.debug(s"Getting program description: $source")
+          try {
+            val conn = connectionPool.getConnection(environment.user)
+            try {
+              val stmt = new NamedParametersPreparedStatement(conn, source, parsedTree)
+              val description = stmt.queryMetadata match {
+                case Right(info) =>
+                  val parameters = info.parameters
+                  val tableType = info.outputType
+                  val description = {
+                    // Regardless if there are parameters, we declare a main function with the output type.
+                    // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
+                    val ps = for ((name, tipe) <- parameters) yield {
+                      // parameters have been checked
+                      val rawType = SqlTypesUtils.rawTypeFromJdbc(tipe).right.get
+                      val nullableType = rawType match {
+                        case RawAnyType() => rawType;
+                        case other => other.cloneNullable
+                      }
+                      ParamDescription(name, nullableType, Some(RawNull()), false)
+                    }
+                    ProgramDescription(
+                      Map("main" -> List(DeclDescription(Some(ps.toVector), tableType, None))),
+                      None,
+                      None
+                    )
+                  }
+                  GetProgramDescriptionSuccess(description)
+                case Left(errors) => GetProgramDescriptionFailure(errors)
               }
-              GetProgramDescriptionSuccess(description)
-            case Left(errors) => GetProgramDescriptionFailure(errors)
+              stmt.close()
+              description
+            } catch {
+              case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
+            } finally {
+              conn.close()
+            }
+          } catch {
+            case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
+            case e: SQLTimeoutException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
           }
-          stmt.close()
-          description
-        } catch {
-          case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
-        } finally {
-          conn.close()
-        }
-      } catch {
-        case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
-        case e: SQLTimeoutException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
-      }
+        },
+        errors => GetProgramDescriptionFailure(errors)
+      )
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -90,35 +124,39 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   ): ExecutionResponse = {
     try {
       logger.debug(s"Executing: $source")
-      try {
-        val conn = connectionPool.getConnection(environment.user)
-        try {
-          val pstmt = new NamedParametersPreparedStatement(conn, source)
+      parse(source).fold(
+        errors => ExecutionValidationFailure(errors),
+        parsedTree =>
           try {
-            pstmt.queryMetadata match {
-              case Right(info) =>
-                try {
-                  val tipe = info.outputType
-                  environment.maybeArguments.foreach(array => setParams(pstmt, array))
-                  val r = pstmt.executeQuery()
-                  render(environment, tipe, r, outputStream)
-                } catch {
-                  case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
+            val conn = connectionPool.getConnection(environment.user)
+            try {
+              val pstmt = new NamedParametersPreparedStatement(conn, source, parsedTree)
+              try {
+                pstmt.queryMetadata match {
+                  case Right(info) =>
+                    try {
+                      val tipe = info.outputType
+                      environment.maybeArguments.foreach(array => setParams(pstmt, array))
+                      val r = pstmt.executeQuery()
+                      render(environment, tipe, r, outputStream)
+                    } catch {
+                      case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
+                    }
+                  case Left(errors) => ExecutionValidationFailure(errors)
                 }
-              case Left(errors) => ExecutionValidationFailure(errors)
+              } finally {
+                RawUtils.withSuppressNonFatalException(pstmt.close())
+              }
+            } catch {
+              case e: SQLException => ExecutionValidationFailure(ErrorHandling.asErrorMessage(source, e))
+            } finally {
+              conn.close()
             }
-          } finally {
-            RawUtils.withSuppressNonFatalException(pstmt.close())
+          } catch {
+            case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
+            case e: SQLTimeoutException => ExecutionRuntimeFailure(e.getMessage)
           }
-        } catch {
-          case e: SQLException => ExecutionValidationFailure(ErrorHandling.asErrorMessage(source, e))
-        } finally {
-          conn.close()
-        }
-      } catch {
-        case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
-        case e: SQLTimeoutException => ExecutionRuntimeFailure(e.getMessage)
-      }
+      )
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -213,20 +251,23 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     try {
       logger.debug(s"dotAutoComplete at position: $position")
       val analyzer = new SqlCodeUtils(source)
-      // The editor removes the dot in the this completion event
+      // The editor removes the dot in the completion event
       // So we call the identifier with +1 column
-      val idns = analyzer.getIdentifierUpTo(Pos(position.line, position.column + 1))
-
-      val metadataBrowser = metadataBrowsers.get(environment.user)
-      val matches = metadataBrowser.getDotCompletionMatches(idns)
-      val collectedValues = matches.collect {
-        case (idns, tipe) =>
-          // If the last identifier is quoted, we need to quote the completion
-          val name = if (idns.last.quoted) '"' + idns.last.value + '"' else idns.last.value
-          LetBindCompletion(name, tipe)
+      analyzer.identifierUnder(Pos(position.line, position.column + 1)) match {
+        case Some(idn: SqlIdnNode) =>
+          val metadataBrowser = metadataBrowsers.get(environment.user)
+          val matches = metadataBrowser.getDotCompletionMatches(idn)
+          val collectedValues = matches.collect {
+            case (idns, tipe) =>
+              // If the last identifier is quoted, we need to quote the completion
+              val name = if (idns.last.quoted) '"' + idns.last.value + '"' else idns.last.value
+              LetBindCompletion(name, tipe)
+          }
+          logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
+          AutoCompleteResponse(collectedValues.toArray)
+        case Some(use: SqlParamUseNode) => ???
+        case _ => AutoCompleteResponse(Array.empty)
       }
-      logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
-      AutoCompleteResponse(collectedValues.toArray)
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -241,29 +282,74 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     try {
       logger.debug(s"wordAutoComplete at position: $position")
       val analyzer = new SqlCodeUtils(source)
-      val idns = analyzer.getIdentifierUpTo(position)
-      logger.debug(s"idns $idns")
-
-      val metadataBrowser = metadataBrowsers.get(environment.user)
-      val matches = metadataBrowser.getWordCompletionMatches(idns)
-      val collectedValues = matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
-      logger.debug(s"wordAutoComplete returned ${collectedValues.size} matches")
-      AutoCompleteResponse(collectedValues.toArray)
+      //    val idns = analyzer.getIdentifierUpTo(position)
+      val item = analyzer.identifierUnder(position)
+      logger.debug(s"idn $item")
+      item match {
+        case Some(idn: SqlIdnNode) =>
+          val metadataBrowser = metadataBrowsers.get(environment.user)
+          val matches = metadataBrowser.getWordCompletionMatches(idn)
+          val collectedValues = matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
+          logger.debug(s"wordAutoComplete returned ${collectedValues.size} matches")
+          AutoCompleteResponse(collectedValues.toArray)
+        case Some(use: SqlParamUseNode) => ???
+        case _ => AutoCompleteResponse(Array.empty)
+      }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
+  //  private def compareIdentifiers(v1: Seq[SqlIdentifier], v2: Seq[SqlIdentifier]): Boolean = {
+  //    def compareSingleIdentifiers(v1: SqlIdentifier, v2: SqlIdentifier): Boolean = {
+  //      // both quoted , case sensitive comparison, so we just compare the strings
+  //      if (v1.quoted && v2.quoted) {
+  //        v1.value == v2.value
+  //      } else {
+  //        // At least one is not quoted so we perform a case insensitive match
+  //        v1.value.toLowerCase == v2.value.toLowerCase
+  //      }
+  //    }
+  //
+  //    if (v1.length != v2.length) return false
+  //
+  //    v1.zip(v2).forall { case (x1, x2) => compareSingleIdentifiers(x1, x2) }
+  //  }
+
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     try {
       logger.debug(s"Hovering at position: $position")
       val analyzer = new SqlCodeUtils(source)
-      val idns = analyzer.getIdentifierUnder(position)
-      val metadataBrowser = metadataBrowsers.get(environment.user)
-      val matches = metadataBrowser.getWordCompletionMatches(idns)
-      matches
-        .find(x => SqlCodeUtils.compareIdentifiers(x._1, idns))
-        .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
+      analyzer
+        .identifierUnder(position)
+        .map {
+          case identifier: SqlIdnNode =>
+            val metadataBrowser = metadataBrowsers.get(environment.user)
+            val matches = metadataBrowser.getWordCompletionMatches(identifier)
+            matches.headOption
+              .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
+              .getOrElse(HoverResponse(None))
+          case use: SqlParamUseNode =>
+            try {
+              val conn = connectionPool.getConnection(environment.user)
+              try {
+                val pstmt = new NamedParametersPreparedStatement(conn, source)
+                try {
+                  pstmt.parameterType(use.name) match {
+                    case Right(tipe) => HoverResponse(Some(TypeCompletion(use.name, tipe.typeName)))
+                    case Left(_) => HoverResponse(None)
+                  }
+                } finally {
+                  pstmt.close()
+                }
+              } finally {
+                conn.close()
+              }
+            } catch {
+              case e: SQLException => HoverResponse(None)
+              case e: SQLTimeoutException => HoverResponse(None)
+            }
+        }
         .getOrElse(HoverResponse(None))
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
@@ -297,27 +383,31 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
     try {
       logger.debug(s"Validating: $source")
-      val r =
-        try {
-          val conn = connectionPool.getConnection(environment.user)
-          try {
-            val stmt = new NamedParametersPreparedStatement(conn, source)
-            val result = stmt.queryMetadata match {
-              case Right(_) => ValidateResponse(List.empty)
-              case Left(errors) => ValidateResponse(errors)
+      parse(source) match {
+        case Right(parsedTree) =>
+          val r =
+            try {
+              val conn = connectionPool.getConnection(environment.user)
+              try {
+                val stmt = new NamedParametersPreparedStatement(conn, source, parsedTree)
+                val result = stmt.queryMetadata match {
+                  case Right(_) => ValidateResponse(List.empty)
+                  case Left(errors) => ValidateResponse(errors)
+                }
+                stmt.close()
+                result
+              } catch {
+                case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
+              } finally {
+                conn.close()
+              }
+            } catch {
+              case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
+              case e: SQLTimeoutException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
             }
-            stmt.close()
-            result
-          } catch {
-            case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
-          } finally {
-            conn.close()
-          }
-        } catch {
-          case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
-          case e: SQLTimeoutException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
-        }
-      r
+          r
+        case Left(errors) => ValidateResponse(errors)
+      }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -329,12 +419,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
-  }
-
-  def parse(prog: String): ParseProgramResult = {
-    val positions = new Positions
-    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
-    syntaxAnalyzer.parse(prog)
   }
 
   private val connectionPool = new SqlConnectionPool(settings)

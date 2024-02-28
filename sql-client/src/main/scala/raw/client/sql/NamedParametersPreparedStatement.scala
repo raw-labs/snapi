@@ -13,7 +13,9 @@
 package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
+import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api._
+import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlBaseNode, SqlProgramNode, SqlStatementNode}
 import raw.utils.RawSettings
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
@@ -23,168 +25,217 @@ import scala.collection.mutable
  * It parses the SQL code and extract the named parameters, infer their types from how they're used.
  * It also provides methods to set the parameters by name, then execute the query.
  */
-class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit rawSettings: RawSettings)
-    extends StrictLogging {
+case class PostgresType(jdbcType: Int, typeName: String)
+
+class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, parsedTree: ParseProgramResult)(
+    implicit rawSettings: RawSettings
+) extends StrictLogging {
 
   /* We have the query code in `code` (with named parameters). Internally we need to replace
    * the named parameters with question marks, and keep track of the mapping between the
    * parameter names and the question marks.
    */
 
-  // Each named parameter is mapped to a list of offsets in the original `code` where it appears (starting at the colon)
-  private case class ParamLocation(index: Int, start: Int, end: Int)
-  private val paramLocations = mutable.Map.empty[String, mutable.ListBuffer[ParamLocation]]
-
-  private var paramIndex = 0
-
-  private val plainCode = {
-    val startSkipTokens = Array("'", "--") // tokens that start a portion of code where named parameters aren't found
-    val endSkipTokens = Array("'", "\n") // tokens that end a portion of code where named parameters aren't found
-    var skippingTokenIndex = -1 // the current token that is being skipped
-    val codeSize = code.length
-
-    val plainCodeBuffer = new StringBuilder
-    var i = 0
-    while (i < codeSize) {
-      val currentChar = code.charAt(i)
-      if (skippingTokenIndex >= 0) {
-        val endSkipToken = endSkipTokens(skippingTokenIndex) // the token we'd need to see to stop skipping
-        val skippingOver =
-          code.regionMatches(i, endSkipToken, 0, endSkipToken.length) // does the token appear at the current position?
-        if (skippingOver) {
-          i += endSkipToken.length
-          plainCodeBuffer.append(endSkipToken)
-          skippingTokenIndex = -1
-        } else {
-          plainCodeBuffer.append(code.substring(i, i + 1))
-          i += 1
-        }
-      } else {
-        // not skipping, parse carefully
-        if (currentChar == ':') {
-          if (i < codeSize - 1 && code.charAt(i + 1) == ':') {
-            // postgres double colon syntax
-            plainCodeBuffer.append(code.substring(i, i + 2))
-            i += 2
-          } else {
-            // we're on a named parameter
-            paramIndex += 1
-            i += 1 // skip the colon (do not append it to plainCodeBuffer)
-            val start = i
-            while (i < codeSize && code.charAt(i).isLetterOrDigit) {
-              // skip the parameter name
-              i += 1
-            }
-            val end = i
-            val parameterName = code.substring(start, end)
-            plainCodeBuffer += '?' // replace the parameter name with a question mark
-            val location = ParamLocation(paramIndex, start, end)
-            paramLocations.get(parameterName) match {
-              case Some(indices) => indices += location
-              case None => paramLocations(parameterName) = mutable.ListBuffer(location)
-            }
-          }
-        } else {
-          // are we by any chance on a start-skipping token
-          val idx = startSkipTokens.indexWhere(token => code.regionMatches(i, token, 0, token.length))
-          if (idx != -1) {
-            // yes. Set that token as the current one so that we find the ending one later.
-            skippingTokenIndex = idx
-          } else {
-            // not, just append the current character
-            plainCodeBuffer.append(code.substring(i, i + 1))
-            i += 1
-          }
-        }
+  def this(conn: Connection, sourceCode: String)(implicit rawSettings: RawSettings) = {
+    this(
+      conn,
+      sourceCode, {
+        val positions = new Positions
+        val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+        syntaxAnalyzer.parse(sourceCode)
       }
-    }
-    plainCodeBuffer.toString()
+    )
   }
 
-  private def validateParameterType(tipe: RawType, name: String, typeName: String): Either[String, RawType] =
-    tipe match {
-      case _: RawNumberType => Right(tipe)
-      case _: RawStringType => Right(tipe)
-      case _: RawBoolType => Right(tipe)
-      case _: RawDateType => Right(tipe)
-      case _: RawTimeType => Right(tipe)
-      case _: RawTimestampType => Right(tipe)
-      case _: RawBinaryType => Right(tipe)
-      case _ => Left(s"parameter '$name' has an unsupported type '$typeName'")
+  // Each named parameter is mapped to a list of offsets in the original `code` where it appears (starting at the colon)
+  private case class ParamLocation(index: Int, start: Int, end: Int)
+
+  // parameters as they appear in the source code, by order of appearance.
+  private val paramUses = {
+    val allOccurrences = for (p <- parsedTree.params.valuesIterator; o <- p.occurrences) yield o
+    allOccurrences.toVector.sortBy(use => parsedTree.positions.getStart(use).map(_.optOffset))
+  }
+
+  // map from parameters to their locations
+  private val paramLocations = {
+    parsedTree.params.mapValues(p =>
+      for (
+        occ <- p.occurrences;
+        maybeStart <- parsedTree.positions.getStart(occ).flatMap(_.optOffset);
+        maybeEnd <- parsedTree.positions.getFinish(occ).flatMap(_.optOffset)
+      ) yield ParamLocation(paramUses.indexWhere(_ eq occ) + 1, maybeStart, maybeEnd)
+    )
+  }
+
+  private val offsets = mutable.ArrayBuffer.empty[(Int, Int)]
+  private var cumulatingOffset = 0
+
+  private val code = {
+    val SqlProgramNode(stmt: SqlStatementNode) = parsedTree.tree
+    val strippedCode = for (end <- parsedTree.positions.getFinish(stmt); offset <- end.optOffset)
+      yield sourceCode.take(offset)
+    strippedCode match {
+      case Some(subset) => subset
+      case None =>
+        logger.warn("Couldn't get the statement offset!")
+        sourceCode
     }
+  }
+  private val plainCode = {
+    val buffer = StringBuilder.newBuilder
+    var index = 0
+    for (use <- paramUses) {
+      // they are ordered
+      for (start <- parsedTree.positions.getStart(use); offset <- start.optOffset) {
+        offsets.append((offset, cumulatingOffset))
+        buffer.append(code.substring(index, offset))
+        // do we have declared type for that parameter
+        val token = parsedTree.params.get(use.name).flatMap(_.tipe) match {
+          // if so, force the type
+          case Some(t) => s"(?::$t)"
+          // else not
+          case _ => "?"
+        }
+        cumulatingOffset += (use.name.length + 1) /* :country */ - (token.length + 1) /* ? => $1 */
+        // todo $110
+        buffer.append(token)
+      }
+      for (start <- parsedTree.positions.getFinish(use); offset <- start.optOffset) {
+        index = offset
+      }
+    }
+    // finish
+    buffer.append(code.substring(index))
+    offsets.append((index, cumulatingOffset))
+    buffer.toString()
+  }
+
+  private def validateParameterType(tipe: PostgresType): Boolean = {
+    SqlTypesUtils
+      .rawTypeFromJdbc(tipe)
+      .fold(
+        _ => false,
+        {
+          case _: RawNumberType | _: RawStringType | _: RawBoolType | _: RawDateType | _: RawTimeType |
+              _: RawTimestampType | _: RawBinaryType => true
+          case _ => false
+        }
+      )
+  }
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
-  case class QueryInfo(parameters: Map[String, RawType], outputType: RawType)
+
+  case class QueryInfo(parameters: Map[String, PostgresType], outputType: RawType)
 
   private val stmt = conn.prepareStatement(plainCode)
   logger.debug(plainCode)
   paramLocations.foreach(p => logger.debug(p.toString))
 
+  //  assert(paramLocations2.keySet == paramLocations.keySet)
+  //  for ((key, locations) <- paramLocations2 ; loc <- locations) assert(paramLocations(key).contains(loc), loc.toString)
+
+  private def errorRange(node: SqlBaseNode): Option[ErrorRange] = {
+    for (
+      start <- parsedTree.positions.getStart(node); startPos = ErrorPosition(start.line, start.column);
+      end <- parsedTree.positions.getFinish(node);
+      endPos = ErrorPosition(end.line, end.column)
+    ) yield ErrorRange(startPos, endPos)
+  }
+
+  def parameterType(p: String): Either[List[ErrorMessage], PostgresType] = queryMetadata.right.map { info =>
+    info.parameters(p)
+  }
+
+  private val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
+
   // This is returning QueryInfo, which contains the inferred types of parameters + output type.
   // In case of SQL error, or unsupported JDBC type or..., it returns a list of error messages.
-  lazy val queryMetadata: Either[List[ErrorMessage], QueryInfo] = {
+  def queryMetadata: Either[List[ErrorMessage], QueryInfo] = {
+    // infer the type
+    validateParameterTypes().right.flatMap(typeMap =>
+      queryOutputType.right.map(t => QueryInfo(typeMap, t)).left.map(ErrorHandling.asMessage(code, _))
+    )
+  }
+
+  private def validateParameterTypes(): Either[List[ErrorMessage], Map[String, PostgresType]] =
     try {
-      val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
-      val typesStatus = paramLocations.map {
+      // parameter types are either declared with @type or inferred from their usage in the code
+      val typesStatus: Map[String, Either[ErrorMessage, PostgresType]] = paramLocations.map {
         case (p, locations) =>
-          // For each parameter, we infer the type from the locations where it's used
-          // And we validate the if the type is supported
-          val typeOptions = locations.map(location =>
-            SqlTypesUtils.rawTypeFromJdbc(
-              metadata.getParameterType(location.index),
-              metadata.getParameterTypeName(location.index)
-            ) match {
-              case Right(t) => validateParameterType(t, p, metadata.getParameterTypeName(location.index))
-              case Left(error) => Left(error)
-            }
-          )
-          val errors = typeOptions.collect { case Left(error) => error }
-          val typeStatus =
-            if (errors.isEmpty) {
-              val options = typeOptions.collect { case Right(t) => t }
-              SqlTypesUtils
-                .mergeRawTypes(options)
-                .right
-                .map { case any: RawAnyType => any; case other => other.cloneNullable }
-                .left
-                .map(message =>
-                  ErrorMessage(
-                    message,
-                    locations
-                      .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
-                      .toList,
-                    ErrorCode.SqlErrorCode
-                  )
-                )
-            } else {
+          val tStatus =
+            if (locations.isEmpty && parsedTree.params(p).tipe.isEmpty) {
+              // the parameter is declared (@param) but has no explicit type, and is never used
               Left(
                 ErrorMessage(
-                  errors.mkString(", "),
-                  locations
-                    .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
-                    .toList,
+                  "cannot guess parameter type",
+                  parsedTree.params(p).nodes.flatMap(errorRange).toList,
                   ErrorCode.SqlErrorCode
                 )
               )
+            } else {
+              parsedTree.params(p).tipe match {
+                case Some(tipe) => SqlTypesUtils.pgMap.get(tipe) match {
+                    case Some(jdbc) => Right(
+                        PostgresType(
+                          jdbc,
+                          tipe
+                        )
+                      )
+                    case None => Left(
+                        ErrorMessage(
+                          "unsupported type " + tipe,
+                          parsedTree.params(p).nodes.flatMap(errorRange).toList,
+                          ErrorCode.SqlErrorCode
+                        )
+                      )
+                  }
+                case None =>
+                  // For each parameter, we infer the type from the locations where it's used
+                  val options: Seq[PostgresType] = locations.map { location =>
+                    PostgresType(
+                      metadata.getParameterType(location.index),
+                      metadata.getParameterTypeName(location.index)
+                    )
+                  }
+                  assert(options.nonEmpty)
+                  // And we validate the if the type is supported by checking if all options have a supported type
+                  SqlTypesUtils
+                    .mergeRawTypes(options)
+                    .left
+                    .map(message =>
+                      ErrorMessage(
+                        message,
+                        locations
+                          .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
+                          .toList,
+                        ErrorCode.SqlErrorCode
+                      )
+                    )
+              }
             }
-          p -> typeStatus
+          p -> tStatus
+      }.toMap
+      val afterInputParamTypeValidation: Map[String, Either[ErrorMessage, PostgresType]] = typesStatus.map {
+        case (p: String, Right(t)) if !validateParameterType(t) =>
+          p -> Left(
+            ErrorMessage(
+              s"parameter '$p' has an unsupported type '${t.typeName}",
+              parsedTree.params(p).nodes.flatMap(errorRange).toList,
+              ErrorCode.SqlErrorCode
+            )
+          )
+        case (p: String, left) => p -> left
       }
-      val errors = typesStatus.collect { case (_, Left(error)) => error }.toList
-      if (errors.nonEmpty) {
-        Left(errors)
-      } else {
-        val types = typesStatus.mapValues(_.right.get)
-        val outputType = queryOutputType
-        outputType match {
-          case Right(t) => Right(QueryInfo(types.toMap, t))
-          case Left(error) => Left(ErrorHandling.asMessage(code, error))
-        }
+
+      val errors = afterInputParamTypeValidation.values.collect { case Left(error) => error }.toList
+      if (errors.nonEmpty) Left(errors)
+      else {
+        Right(afterInputParamTypeValidation.mapValues(_.right.get))
       }
     } catch {
       case e: SQLException => {
         Left(ErrorHandling.asErrorMessage(code, e))
       }
     }
-  }
 
   private def queryOutputType: Either[String, RawType] = {
     val metadata = stmt.getMetaData
@@ -213,6 +264,7 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
   }
 
   def executeQuery(): ResultSet = stmt.executeQuery()
+
   def close(): Unit = stmt.close()
 
   private def offsetToPosition(offset: Int): ErrorPosition = {
@@ -241,42 +293,55 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
   def setNull(parameter: String): Unit = {
     for (location <- paramLocations(parameter)) stmt.setNull(location.index, java.sql.Types.NULL)
   }
+
   def setByte(parameter: String, x: Byte): Unit = {
     for (location <- paramLocations(parameter)) stmt.setByte(location.index, x)
   }
+
   def setShort(parameter: String, x: Short): Unit = {
     for (location <- paramLocations(parameter)) stmt.setShort(location.index, x)
   }
+
   def setInt(parameter: String, x: Int): Unit = {
     for (location <- paramLocations(parameter)) stmt.setInt(location.index, x)
   }
+
   def setLong(parameter: String, x: Long): Unit = {
     for (location <- paramLocations(parameter)) stmt.setLong(location.index, x)
   }
+
   def setFloat(parameter: String, x: Float): Unit = {
     for (location <- paramLocations(parameter)) stmt.setFloat(location.index, x)
   }
+
   def setDouble(parameter: String, x: Double): Unit = {
     for (location <- paramLocations(parameter)) stmt.setDouble(location.index, x)
   }
+
   def setBigDecimal(parameter: String, x: java.math.BigDecimal): Unit = {
     for (location <- paramLocations(parameter)) stmt.setBigDecimal(location.index, x)
   }
+
   def setString(parameter: String, x: String): Unit = {
     for (location <- paramLocations(parameter)) stmt.setString(location.index, x)
   }
+
   def setBoolean(parameter: String, x: Boolean): Unit = {
     for (location <- paramLocations(parameter)) stmt.setBoolean(location.index, x)
   }
+
   def setBytes(parameter: String, x: Array[Byte]): Unit = {
     for (location <- paramLocations(parameter)) stmt.setBytes(location.index, x)
   }
+
   def setDate(parameter: String, x: java.sql.Date): Unit = {
     for (location <- paramLocations(parameter)) stmt.setDate(location.index, x)
   }
+
   def setTime(parameter: String, x: java.sql.Time): Unit = {
     for (location <- paramLocations(parameter)) stmt.setTime(location.index, x)
   }
+
   def setTimestamp(parameter: String, x: java.sql.Timestamp): Unit = {
     for (location <- paramLocations(parameter)) stmt.setTimestamp(location.index, x)
   }
