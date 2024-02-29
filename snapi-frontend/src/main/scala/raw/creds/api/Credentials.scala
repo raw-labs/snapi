@@ -93,7 +93,8 @@ final case class PostgresqlCredential(
     port: Option[Int],
     database: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 final case class MySqlCredential(
@@ -109,7 +110,8 @@ final case class OracleCredential(
     port: Option[Int],
     database: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 final case class SqlServerCredential(
@@ -117,7 +119,8 @@ final case class SqlServerCredential(
     port: Option[Int],
     database: String,
     username: Option[String],
-    password: Option[String]
+    password: Option[String],
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 // list of possible parameters (might include the port also)
@@ -127,7 +130,8 @@ final case class TeradataCredential(
     port: Option[Int],
     username: Option[String],
     password: Option[String],
-    parameters: Map[String, String] = Map.empty
+    parameters: Map[String, String] = Map.empty,
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential
 
 final case class SnowflakeCredential(
@@ -135,10 +139,76 @@ final case class SnowflakeCredential(
     database: String,
     username: Option[String],
     password: Option[String],
-    parameters: Map[String, String] = Map.empty
+    parameters: Map[String, String] = Map.empty,
+    schema: Option[String] = None
 ) extends RelationalDatabaseCredential {
   val host = s"$accountIdentifier.snowflakecomputing.com"
   val port = None
+}
+
+case class ExternalConnectorCredentialId(name: String, connectorType: AbstractConnectorType)
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "repr")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[SalesforceConnectorType], name = "SALESFORCE"),
+    new JsonType(value = classOf[JiraConnectorType], name = "JIRA")
+  )
+)
+trait AbstractConnectorType {
+  def repr: String
+}
+case class SalesforceConnectorType() extends AbstractConnectorType {
+  override def repr: String = "SALESFORCE"
+}
+case class JiraConnectorType() extends AbstractConnectorType {
+  override def repr: String = "JIRA"
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "connectorType")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE"),
+    new JsonType(value = classOf[ExternalConnectorJiraCredential], name = "JIRA")
+  )
+)
+sealed trait ExternalConnectorCredential extends Credential {
+  def connectorType: AbstractConnectorType
+  def sensitiveFields: List[String]
+}
+
+final case class ExternalConnectorSalesforceCredential(
+    url: String,
+    username: String,
+    password: String,
+    securityToken: String,
+    clientId: String,
+    apiVersion: String,
+    customObjects: Seq[String]
+) extends ExternalConnectorCredential {
+  override def connectorType: AbstractConnectorType = SalesforceConnectorType()
+  override def sensitiveFields: List[String] = List("password", "securityToken")
+}
+
+@JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "type")
+@JsonSubTypes(
+  Array(
+    new JsonType(value = classOf[StandardAccessToken], name = "DEFAULT"),
+    new JsonType(value = classOf[PersonalAccessToken], name = "PAT")
+  )
+)
+sealed trait TokenType
+case class StandardAccessToken() extends TokenType
+case class PersonalAccessToken() extends TokenType
+
+final case class ExternalConnectorJiraCredential(
+    baseUrl: String,
+    username: String,
+    token: String,
+    tokenType: TokenType
+) extends ExternalConnectorCredential {
+  override def connectorType: AbstractConnectorType = JiraConnectorType()
+  override def sensitiveFields: List[String] = List("token")
 }
 
 final case class Secret(name: String, value: String) extends Credential

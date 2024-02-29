@@ -19,7 +19,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
-@ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public final class ByteList implements TruffleObject {
   private final byte[] list;
@@ -28,22 +27,14 @@ public final class ByteList implements TruffleObject {
     this.list = list;
   }
 
-  @ExportMessage
-  boolean isList() {
-    return true;
-  }
-
-  @ExportMessage
   public byte[] getInnerList() {
     return list;
   }
 
-  @ExportMessage
   boolean isElementReadable(int index) {
     return index >= 0 && index < list.length;
   }
 
-  @ExportMessage
   public byte get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
@@ -52,21 +43,30 @@ public final class ByteList implements TruffleObject {
     return list[idx];
   }
 
-  @ExportMessage
   public int size() {
     return list.length;
   }
 
-  @ExportMessage
-  public Object toIterable() {
+  public ListIterable toIterable() {
     return new ListIterable(this);
   }
 
-  @ExportMessage
-  public Object sort() {
+  public ByteList sort() {
     byte[] result = this.list.clone();
     Arrays.sort(result);
     return new ByteList(result);
+  }
+
+  public ByteList take(int num) {
+    if (num >= this.getInnerList().length) {
+      return this;
+    } else if (num <= 0) {
+      return new ByteList(new byte[0]);
+    } else {
+      byte[] result = new byte[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new ByteList(result);
+    }
   }
 
   // InteropLibrary: Array

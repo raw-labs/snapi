@@ -12,24 +12,24 @@
 
 package raw.runtime.truffle.runtime.exceptions.json;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class JsonParserRawTruffleException extends RawTruffleRuntimeException {
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonParserRawTruffleException(String message) {
     super(message);
   }
 
-  @CompilerDirectives.TruffleBoundary
-  public JsonParserRawTruffleException(String message, Node location) {
-    super(message);
-  }
-
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public JsonParserRawTruffleException(String message, Throwable cause, Node location) {
     super(message, cause, location);
+  }
+
+  @TruffleBoundary
+  public JsonParserRawTruffleException(String message, Node location) {
+    super(message, location);
   }
 }

@@ -62,8 +62,10 @@ module raw.snapi.frontend {
   requires software.amazon.awssdk.utils;
   requires org.postgresql.jdbc;
   requires com.microsoft.sqlserver.jdbc;
+  requires mysql.connector.j;
   requires raw.utils;
   requires raw.client;
+  requires raw.snapi.parser;
 
   exports raw.auth.api;
   exports raw.creds.api;
@@ -81,6 +83,7 @@ module raw.snapi.frontend {
   exports raw.compiler.rql2.errors;
   exports raw.compiler.rql2.lsp;
   exports raw.compiler.rql2.source;
+  exports raw.compiler.rql2.antlr4;
   exports raw.compiler.utils;
   exports raw.inferrer.api;
   exports raw.inferrer.local;

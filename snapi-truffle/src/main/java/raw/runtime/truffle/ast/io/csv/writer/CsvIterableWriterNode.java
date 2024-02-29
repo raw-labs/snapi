@@ -18,18 +18,20 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.RootNode;
 import java.io.IOException;
 import java.io.OutputStream;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 
 public class CsvIterableWriterNode extends StatementNode {
 
@@ -37,38 +39,59 @@ public class CsvIterableWriterNode extends StatementNode {
 
   @Child private DirectCallNode itemWriter;
 
-  @Child private IterableLibrary iterables = IterableLibrary.getFactory().createDispatched(3);
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
 
-  @Child private GeneratorLibrary generators = GeneratorLibrary.getFactory().createDispatched(3);
+  @Child
+  private GeneratorNodes.GeneratorInitNode generatorInitNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorNextNode generatorNextNode =
+      GeneratorNodesFactory.GeneratorNextNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorHasNextNode generatorHasNextNode =
+      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorCloseNode generatorCloseNode =
+      GeneratorNodesFactory.GeneratorCloseNodeGen.create();
 
   private final String[] columnNames;
   private final String lineSeparator;
 
   public CsvIterableWriterNode(
-      ExpressionNode dataNode, RootNode writerNode, String[] columnNames, String lineSeparator) {
+      ExpressionNode dataNode,
+      RootCallTarget writeRootCallTarget,
+      String[] columnNames,
+      String lineSeparator) {
     this.dataNode = dataNode;
     this.columnNames = columnNames;
     this.lineSeparator = lineSeparator;
-    itemWriter = DirectCallNode.create(writerNode.getCallTarget());
+    itemWriter = DirectCallNode.create(writeRootCallTarget);
   }
 
   @Override
   public void executeVoid(VirtualFrame frame) {
+    Object iterable = dataNode.executeGeneric(frame);
+    Object generator = getGeneratorNode.execute(this, iterable);
     try (OutputStream os = RawContext.get(this).getOutput();
         CsvGenerator gen = createGenerator(os)) {
-      Object iterable = dataNode.executeGeneric(frame);
-      Object generator = iterables.getGenerator(iterable);
-      generators.init(generator);
-      while (generators.hasNext(generator)) {
-        Object item = generators.next(generator);
+      generatorInitNode.execute(this, generator);
+      while (generatorHasNextNode.execute(this, generator)) {
+        Object item = generatorNextNode.execute(this, generator);
         itemWriter.call(item, gen);
       }
     } catch (IOException e) {
       throw new CsvWriterRawTruffleException(e.getMessage(), e, this);
+    } finally {
+      generatorCloseNode.execute(this, generator);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private CsvGenerator createGenerator(OutputStream os) {
     try {
       CsvFactory factory = new CsvFactory();

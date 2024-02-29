@@ -12,18 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
 @NodeInfo(shortName = "TryableNullable.FlatMap")
@@ -32,22 +27,16 @@ import raw.runtime.truffle.tryable_nullable.TryableNullable;
 @ImportStatic(TryableNullable.class)
 public abstract class TryableNullableFlatMapNode extends ExpressionNode {
 
-  @Specialization(guards = "isValue(maybeTryableNullable)", limit = "1")
-  @CompilerDirectives.TruffleBoundary
+  @Specialization(guards = "isValue(maybeTryableNullable)")
   protected Object doTryableValue(
       Object maybeTryableNullable,
-      Object closure,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    try {
-      return interops.execute(closure, maybeTryableNullable);
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
-    }
+      Object function,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(this, function, maybeTryableNullable);
   }
 
   @Specialization(guards = "!isValue(maybeTryableNullable)")
-  @CompilerDirectives.TruffleBoundary
-  protected Object doTryableNotValue(Object maybeTryableNullable, Object closure) {
+  protected Object doTryableNotValue(Object maybeTryableNullable, Object function) {
     return maybeTryableNullable;
   }
 }

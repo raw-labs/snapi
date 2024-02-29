@@ -13,18 +13,14 @@
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.*;
 
 @ImportStatic(value = TypeGuards.class)
@@ -36,246 +32,312 @@ public abstract class ListTransformNode extends ExpressionNode {
 
   static final int LIB_LIMIT = 2;
 
+  @Idempotent
   protected abstract Rql2Type getResultType();
 
-  @Specialization(
-      guards = {"isByteKind(getResultType())"},
-      limit = "3")
-  protected ByteList doByte(
+  @Specialization(guards = {"isByteKind(getResultType())"})
+  protected static ByteList doByte(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    byte[] values = new byte[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (byte) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      byte[] values = new byte[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (byte) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new ByteList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new ByteList(values);
   }
 
-  @Specialization(
-      guards = {"isShortKind(getResultType())"},
-      limit = "3")
-  protected ShortList doShort(
+  @Specialization(guards = {"isShortKind(getResultType())"})
+  protected static ShortList doShort(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    short[] values = new short[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (short) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      short[] values = new short[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (short) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new ShortList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new ShortList(values);
   }
 
-  @Specialization(
-      guards = {"isIntKind(getResultType())"},
-      limit = "3")
-  protected IntList doInt(
+  @Specialization(guards = {"isIntKind(getResultType())"})
+  protected static IntList doInt(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    int[] values = new int[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (int) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      int[] values = new int[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (int) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new IntList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new IntList(values);
   }
 
-  @Specialization(
-      guards = {"isLongKind(getResultType())"},
-      limit = "3")
-  protected LongList doLong(
+  @Specialization(guards = {"isLongKind(getResultType())"})
+  protected static LongList doLong(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    long[] values = new long[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (long) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      long[] values = new long[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (long) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new LongList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new LongList(values);
   }
 
-  @Specialization(
-      guards = {"isFloatKind(getResultType())"},
-      limit = "3")
-  protected FloatList doFloat(
+  @Specialization(guards = {"isFloatKind(getResultType())"})
+  protected static FloatList doFloat(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    float[] values = new float[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (float) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      float[] values = new float[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (float) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new FloatList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new FloatList(values);
   }
 
-  @Specialization(
-      guards = {"isDoubleKind(getResultType())"},
-      limit = "3")
-  protected DoubleList doDouble(
+  @Specialization(guards = {"isDoubleKind(getResultType())"})
+  protected static DoubleList doDouble(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    double[] values = new double[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (double) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      double[] values = new double[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (double) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new DoubleList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new DoubleList(values);
   }
 
-  @Specialization(
-      guards = {"isBooleanKind(getResultType())"},
-      limit = "3")
+  @Specialization(guards = {"isBooleanKind(getResultType())"})
   protected BooleanList doBoolean(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    boolean[] values = new boolean[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (boolean) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      boolean[] values = new boolean[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (boolean) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new BooleanList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new BooleanList(values);
   }
 
-  @Specialization(
-      guards = {"isStringKind(getResultType())"},
-      limit = "3")
-  protected StringList doString(
+  @Specialization(guards = {"isStringKind(getResultType())"})
+  protected static StringList doString(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    String[] values = new String[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = (String) interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      String[] values = new String[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = (String) functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new StringList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new StringList(values);
   }
 
-  @Specialization(limit = "3")
+  @Specialization
   protected ObjectList doObject(
       Object list,
-      Object closure,
-      @CachedLibrary("list") ListLibrary lists,
-      @CachedLibrary(limit = "LIB_LIMIT") IterableLibrary iterables,
-      @CachedLibrary(limit = "LIB_LIMIT") GeneratorLibrary generators,
-      @CachedLibrary("closure") InteropLibrary interops) {
-    Object iterable = lists.toIterable(list);
-    Object generator = iterables.getGenerator(iterable);
-    Object[] values = new Object[(int) lists.size(list)];
-    int cnt = 0;
-    Object[] argumentValues = new Object[1];
-    while (generators.hasNext(generator)) {
-      argumentValues[0] = generators.next(generator);
-      try {
-        values[cnt] = interops.execute(closure, argumentValues);
-      } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-        throw new RawTruffleRuntimeException("failed to execute function");
+      Object function,
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) @Cached.Shared("getGenerator")
+          IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) @Cached.Shared("hasNext")
+          GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
+      @Cached(inline = true) @Cached.Shared("next")
+          GeneratorNodes.GeneratorNextNode generatorNextNode,
+      @Cached(inline = true) @Cached.Shared("toIterable") ListNodes.ToIterableNode toIterableNode,
+      @Cached(inline = true) @Cached.Shared("size") ListNodes.SizeNode sizeNode,
+      @Cached(inline = true) @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
+      @Cached(inline = true) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) @Cached.Shared("executeOne")
+          FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    Object iterable = toIterableNode.execute(thisNode, list);
+    Object generator = getGeneratorNode.execute(thisNode, iterable);
+    try {
+      initNode.execute(thisNode, generator);
+      Object[] values = new Object[(int) sizeNode.execute(thisNode, list)];
+      int cnt = 0;
+      while (generatorHasNextNode.execute(thisNode, generator)) {
+        Object v = generatorNextNode.execute(thisNode, generator);
+        values[cnt] = functionExecuteOneNode.execute(thisNode, function, v);
+        cnt++;
       }
-      cnt++;
+      return new ObjectList(values);
+    } finally {
+      closeNode.execute(thisNode, generator);
     }
-    return new ObjectList(values);
   }
 }

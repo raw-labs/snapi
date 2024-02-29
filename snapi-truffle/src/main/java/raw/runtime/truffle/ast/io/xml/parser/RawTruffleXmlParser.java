@@ -76,13 +76,11 @@ public class RawTruffleXmlParser {
 
   private final StringBuilder stringBuilder = new StringBuilder();
 
-  @TruffleBoundary
   public static RawTruffleXmlParser create(
       RawTruffleCharStream stream, RawTruffleXmlParserSettings settings) {
     return new RawTruffleXmlParser(stream, settings);
   }
 
-  @TruffleBoundary
   public RawTruffleXmlParser duplicateFor(String text) {
     RawTruffleCharStream subStream = new RawTruffleStringCharStream(text);
     return new RawTruffleXmlParser(subStream, settings);

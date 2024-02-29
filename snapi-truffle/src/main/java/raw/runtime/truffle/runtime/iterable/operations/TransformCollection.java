@@ -12,53 +12,47 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.TransformComputeNext;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import com.oracle.truffle.api.nodes.Node;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 
-@ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public class TransformCollection implements TruffleObject {
-  final Object parentIterable;
-  final Closure transform;
+  private final Object parentIterable;
+  private final Object transform;
 
-  public TransformCollection(Object iterable, Closure transform) {
+  public TransformCollection(Object iterable, Object transform) {
     this.parentIterable = iterable;
     this.transform = transform;
   }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
+  public Object getParentIterable() {
+    return parentIterable;
   }
 
-  @ExportMessage
-  Object getGenerator(@CachedLibrary("this.parentIterable") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(parentIterable);
-    return new CollectionAbstractGenerator(new TransformComputeNext(generator, transform));
+  public Object getTransform() {
+    return transform;
   }
 
   // InteropLibrary: Iterable
-
   @ExportMessage
   boolean hasIterator() {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary =
-      GeneratorLibrary.getFactory().createDispatched(1);
-
   @ExportMessage
-  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(this);
-    generatorLibrary.init(generator);
+  Object getIterator(
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
+    Object generator = getGeneratorNode.execute(thisNode, this);
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

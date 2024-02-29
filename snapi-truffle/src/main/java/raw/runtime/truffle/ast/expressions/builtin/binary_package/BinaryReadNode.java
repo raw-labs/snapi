@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.binary_package;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -33,7 +33,7 @@ import raw.sources.api.SourceContext;
 public abstract class BinaryReadNode extends ExpressionNode {
 
   @Specialization
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   protected Object doExecute(LocationObject locationObject) {
     SourceContext context = RawContext.get(this).getSourceContext();
     InputStream stream = null;

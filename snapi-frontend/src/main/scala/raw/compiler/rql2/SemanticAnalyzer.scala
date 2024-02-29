@@ -461,12 +461,26 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     with ExpectedTypes
     with Rql2TypeUtils {
 
+  // This function checks if the semantic analysis is being run with the staged compiler
+  // We need it to prevent infinite recursion in the getValue function
+  private def isStagedCompiler: Boolean = {
+    // comes from scala
+    (programContext.runtimeContext.environment.options.contains(
+      "staged-compiler"
+    ) && programContext.runtimeContext.environment.options("staged-compiler") == "true") ||
+    // Comes from truffle language
+    (programContext.runtimeContext.environment.options.contains(
+      "rql.staged-compiler"
+    ) && programContext.runtimeContext.environment.options("rql.staged-compiler") == "true")
+  }
+
   ///////////////////////////////////////////////////////////////////////////
   // Errors
   ///////////////////////////////////////////////////////////////////////////
 
-  override protected def errorDef: SourceNode ==> Seq[BaseError] = {
-    val rql2Errors: PartialFunction[SourceNode, Seq[BaseError]] = {
+  override protected def errorDef: SourceNode ==> Seq[CompilerMessage] = {
+    // Errors
+    val rql2Errors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
       case i: IdnUse if entity(i) == UnknownEntity() =>
         i match {
           // Try to see if this UnknownEntity is the user attempting to reference a package name but making a typo.
@@ -519,6 +533,30 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       case p @ Proj(e, idn) if idnIsAmbiguous(idn, e) => Seq(RepeatedFieldNames(p, idn))
     }
     rql2Errors.orElse(super.errorDef)
+  }
+
+  // we check for errors in errorDef, if there are no errors, we are interested in nonErrors(hints, warnings, infos)
+  override protected def nonErrorDef: SourceNode ==> Seq[CompilerMessage] = {
+    val rql2NonErrors: PartialFunction[SourceNode, Seq[CompilerMessage]] = {
+      case e @ FunApp(Proj(exp, "Secret"), parameters)
+          if tipe(exp) == PackageType("Environment") && !isStagedCompiler =>
+        tipe(exp) match {
+          case PackageType("Environment") =>
+            // Use getValue to confirm Environment.Secret succeeds. The getValue function also handles potentially unexpected nullables and tryables.
+            // We give it a dummy report which states the expected type is the actual type, so that is skips these checks
+            val report = CompatibilityReport(tipe(e), tipe(e))
+            // Try execute  "Environment.Secret(<secret_name>)"
+            getValue(report, e) match {
+              // If getValue returns an error which means the staged compiler failed to execute "Environment.Secret(<secret_name>)" code
+              // We return a warning that the secret is missing.
+              case Right(TryValue(Left(error))) => Seq(MissingSecretWarning(e))
+              // In case of Right(TryValue(Right())) that <secret_name> in "Environment.Secret(<secret_name>)" is a free variable, we don't report that as a warning
+              case _ => Seq.empty
+            }
+          case _ => Seq.empty
+        }
+    }
+    rql2NonErrors.orElse(super.nonErrorDef)
   }
 
   private def idnIsAmbiguous(idn: String, e: Exp): Boolean = {
@@ -592,7 +630,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     false
   }
 
-  private def funAppHasError(fa: FunApp): Option[Seq[BaseError]] = {
+  private def funAppHasError(fa: FunApp): Option[Seq[ErrorCompilerMessage]] = {
     val FunApp(f, args) = fa
     // Check that arguments are defined in correct order.
     if (namedArgFoundAfterOptionalArg(args)) {
@@ -889,7 +927,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   def getArgumentsForFunAppPackageEntry(
       fa: FunApp,
       packageEntry: EntryExtension
-  ): Either[BaseError, Option[FunAppPackageEntryArguments]] = {
+  ): Either[ErrorCompilerMessage, Option[FunAppPackageEntryArguments]] = {
     val args = fa.args
 
     val prevMandatoryArgs = mutable.ArrayBuffer[Arg]()
@@ -1176,7 +1214,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
       fa: FunApp,
       pkgName: String,
       entName: String
-  ): Either[Seq[BaseError], Type] = {
+  ): Either[Seq[ErrorCompilerMessage], Type] = {
     programContext.getPackage(pkgName) match {
       case Some(p) =>
         val entry = p.getEntry(entName)
@@ -1423,7 +1461,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
   }
 
   // TODO (msb): Make it return "N errors" at once?
-  private def getFunAppFunType(fa: FunApp, f: FunType): Either[BaseError, Type] = {
+  private def getFunAppFunType(fa: FunApp, f: FunType): Either[ErrorCompilerMessage, Type] = {
     val FunType(mandatoryParams, optionalParams, r, _) = f
     val args = fa.args
 
@@ -1477,12 +1515,12 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     Right(r)
   }
 
-  final private def getValue(report: CompatibilityReport, e: Exp): Either[BaseError, Value] = {
+  final private def getValue(report: CompatibilityReport, e: Exp): Either[ErrorCompilerMessage, Value] = {
     // Recurse over all entities in the order of its dependencies.
     // Populate an ordered list of declarations as a side-effect.
     val lets: mutable.ArrayBuffer[LetDecl] = mutable.ArrayBuffer.empty[LetDecl]
 
-    class RecurseEntitiesException(val err: BaseError) extends Exception
+    class RecurseEntitiesException(val err: ErrorCompilerMessage) extends Exception
 
     @throws[RecurseEntitiesException]
     def recurseEntities(
@@ -1635,7 +1673,7 @@ class SemanticAnalyzer(val tree: SourceTree.SourceTree)(implicit programContext:
     )
   }
 
-  final def resolveParamType(p: FunParam): Either[Seq[BaseError], Type] = {
+  final def resolveParamType(p: FunParam): Either[Seq[ErrorCompilerMessage], Type] = {
     val FunParam(i, mt, me) = p
     if (mt.isDefined) Right(mt.map(resolveType).get)
     else {

@@ -19,7 +19,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
 
-@ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public final class DoubleList implements TruffleObject {
   private final double[] list;
@@ -28,22 +27,14 @@ public final class DoubleList implements TruffleObject {
     this.list = list;
   }
 
-  @ExportMessage
-  boolean isList() {
-    return true;
-  }
-
-  @ExportMessage
   public double[] getInnerList() {
     return list;
   }
 
-  @ExportMessage
   boolean isElementReadable(int index) {
     return index >= 0 && index < list.length;
   }
 
-  @ExportMessage
   public double get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
@@ -52,21 +43,30 @@ public final class DoubleList implements TruffleObject {
     return list[idx];
   }
 
-  @ExportMessage
   public int size() {
     return list.length;
   }
 
-  @ExportMessage
-  public Object toIterable() {
+  public ListIterable toIterable() {
     return new ListIterable(this);
   }
 
-  @ExportMessage
-  public Object sort() {
+  public DoubleList sort() {
     double[] result = this.list.clone();
     Arrays.sort(result);
     return new DoubleList(result);
+  }
+
+  public DoubleList take(int num) {
+    if (num >= this.getInnerList().length) {
+      return this;
+    } else if (num <= 0) {
+      return new DoubleList(new double[0]);
+    } else {
+      double[] result = new double[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new DoubleList(result);
+    }
   }
 
   // InteropLibrary: Array

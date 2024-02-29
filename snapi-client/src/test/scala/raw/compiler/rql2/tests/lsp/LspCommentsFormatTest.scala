@@ -23,10 +23,9 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       indentation: Option[Int] = None,
       width: Option[Int] = None
   ) = {
-    val FormatCodeResponse(Some(formattedCode), errors) = formatCode(code, indentation, width)
+    val FormatCodeResponse(Some(formattedCode)) = formatCode(code, indentation, width)
     logger.info(s" ----- formattedCode -------\n$formattedCode\n-------------")
     assert(formattedCode.trim == expected.trim)
-    assert(errors.isEmpty)
   }
 
   test("comment after binary exp") { _ =>
@@ -585,7 +584,7 @@ trait LspCommentsFormatTest extends CompilerTestContext {
       |                          machineId: Int.From(List.Get(groups, 1)),
       |                          timestamp: Timestamp.Parse(
       |                              List.Get(groups, 0),
-      |                              "y-M-d'T'H:m:s"
+      |                              "y-M-d\'T\'H:m:s"
       |                          ),
       |                          error: List.Get(groups, 2)
       |                      }

@@ -12,7 +12,7 @@
 
 package raw.client.rql2.api
 
-import raw.client.api.{CompilerService, ErrorMessage, ErrorPosition, ProgramEnvironment}
+import raw.client.api.{CompilerService, Message, ProgramEnvironment}
 import raw.compiler.base.source.{BaseNode, Type}
 import raw.compiler.common.source.SourceProgram
 import raw.utils.AuthenticatedUser
@@ -34,12 +34,12 @@ trait Rql2CompilerService extends CompilerService {
 
 sealed trait ParseResponse
 final case class ParseSuccess(program: SourceProgram) extends ParseResponse
-final case class ParseFailure(error: String, pos: ErrorPosition) extends ParseResponse
+final case class ParseFailure(errorMessages: List[Message]) extends ParseResponse
 
 sealed trait ParseTypeResponse
 final case class ParseTypeSuccess(tipe: Type) extends ParseTypeResponse
-final case class ParseTypeFailure(error: String) extends ParseTypeResponse
+final case class ParseTypeFailure(errorMessages: List[Message]) extends ParseTypeResponse
 
 sealed trait GetTypeResponse
-final case class GetTypeFailure(errors: List[ErrorMessage]) extends GetTypeResponse
+final case class GetTypeFailure(errors: List[Message]) extends GetTypeResponse
 final case class GetTypeSuccess(tipe: Option[Type]) extends GetTypeResponse

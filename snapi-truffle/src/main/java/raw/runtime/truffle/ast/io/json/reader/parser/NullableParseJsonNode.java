@@ -43,14 +43,14 @@ public class NullableParseJsonNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    if (currentTokenNode.execute(parser) == JsonToken.VALUE_NULL) {
-      nextTokenNode.execute(parser);
+    if (currentTokenNode.execute(this, parser) == JsonToken.VALUE_NULL) {
+      nextTokenNode.execute(this, parser);
       return NullObject.INSTANCE;
     } else {
       try {
         return childDirectCall.call(parser);
       } catch (JsonExpectedNothingException ex) {
-        throw new JsonParserRawTruffleException("expected null but got non-null", this);
+        throw new JsonParserRawTruffleException("expected null but got non-null", ex, this);
       }
     }
   }

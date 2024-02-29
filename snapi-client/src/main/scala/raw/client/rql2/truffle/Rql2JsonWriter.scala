@@ -14,7 +14,8 @@ package raw.client.rql2.truffle
 
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import org.graalvm.polyglot.Value
-import raw.compiler.rql2.{RecordFieldsNaming, Rql2TypeUtils}
+import raw.compiler.rql2.Rql2TypeUtils
+import raw.utils.RecordFieldsNaming
 import raw.compiler.rql2.source._
 
 import java.io.{IOException, OutputStream}
@@ -75,7 +76,7 @@ class Rql2JsonWriter(os: OutputStream) {
       case _: Rql2LongType => gen.writeNumber(v.asLong())
       case _: Rql2FloatType => gen.writeNumber(v.asFloat())
       case _: Rql2DoubleType => gen.writeNumber(v.asDouble())
-      case _: Rql2DecimalType => gen.writeString(v.asString())
+      case _: Rql2DecimalType => gen.writeNumber(v.asString())
       case _: Rql2StringType => gen.writeString(v.asString())
       case _: Rql2DateType =>
         val date = v.asDate()

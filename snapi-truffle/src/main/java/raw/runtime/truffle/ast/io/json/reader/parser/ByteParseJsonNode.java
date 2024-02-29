@@ -25,9 +25,9 @@ public abstract class ByteParseJsonNode extends ExpressionNode {
 
   @Specialization
   protected byte doParse(
-      VirtualFrame frame, @Cached("create()") JsonParserNodes.ParseByteJsonParserNode parse) {
+      VirtualFrame frame, @Cached(inline = true) JsonParserNodes.ParseByteJsonParserNode parse) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
-    return parse.execute(parser);
+    return parse.execute(this, parser);
   }
 }

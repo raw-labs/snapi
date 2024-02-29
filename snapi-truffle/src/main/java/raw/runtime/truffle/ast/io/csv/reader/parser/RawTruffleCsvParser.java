@@ -17,7 +17,7 @@ import com.fasterxml.jackson.core.JsonToken;
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvParser;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLogger;
 import java.io.IOException;
 import java.io.Reader;
@@ -47,7 +47,7 @@ public class RawTruffleCsvParser {
   private final CsvParser jacksonParser;
   final RawTruffleCharStream stream;
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public RawTruffleCsvParser(RawTruffleCharStream stream, RawTruffleCsvParserSettings settings) {
     this.stream = stream;
     try {
@@ -78,7 +78,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   boolean startingNewLine(ExpressionNode location) {
     return jacksonParser.currentToken() == JsonToken.START_ARRAY;
   }
@@ -86,7 +86,7 @@ public class RawTruffleCsvParser {
   private int line = -1;
   private int column = -1;
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   void getNextField() {
     line = jacksonParser.getCurrentLocation().getLineNr();
     column = jacksonParser.getCurrentLocation().getColumnNr();
@@ -113,7 +113,7 @@ public class RawTruffleCsvParser {
     return column;
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public void finishLine(ExpressionNode location) {
     JsonToken token;
     do {
@@ -128,7 +128,7 @@ public class RawTruffleCsvParser {
   private static final TruffleLogger LOG =
       TruffleLogger.getLogger(RawLanguage.ID, RawTruffleRuntimeException.class);
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public void close() {
     try {
       jacksonParser.close();
@@ -138,7 +138,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public void skipHeaderLines() {
     try {
       for (int i = 0; i < headerLines; i++) {
@@ -155,7 +155,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public boolean done() {
     try {
       return jacksonParser.nextToken() == null;
@@ -164,7 +164,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   byte getByte(ExpressionNode location) {
     try {
       try {
@@ -173,14 +173,14 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as a byte", malformed), this, stream, location);
+            String.format("cannot parse '%s' as a byte", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionByte(ExpressionNode location) {
     try {
       try {
@@ -196,6 +196,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a byte", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -203,7 +204,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionShort(ExpressionNode location) {
     try {
       try {
@@ -219,6 +220,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a short", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -226,7 +228,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   int getInt(ExpressionNode location) {
     try {
       try {
@@ -235,14 +237,14 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as an int", malformed), this, stream, location);
+            String.format("cannot parse '%s' as an int", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionInt(ExpressionNode location) {
     try {
       try {
@@ -258,6 +260,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as an int", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -265,7 +268,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   long getLong(ExpressionNode location) {
     try {
       try {
@@ -274,14 +277,14 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as a long", malformed), this, stream, location);
+            String.format("cannot parse '%s' as a long", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionLong(ExpressionNode location) {
     try {
       try {
@@ -297,6 +300,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a long", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -304,7 +308,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionFloat(ExpressionNode location) {
     try {
       try {
@@ -325,6 +329,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a float", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -332,7 +337,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   double getDouble(ExpressionNode location) {
     try {
       try {
@@ -348,6 +353,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a double", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -355,7 +361,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionDouble(ExpressionNode location) {
     try {
       try {
@@ -376,6 +382,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a double", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -383,7 +390,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   DecimalObject getDecimal(ExpressionNode location) {
     try {
 
@@ -393,14 +400,14 @@ public class RawTruffleCsvParser {
         String malformed =
             jacksonParser.getText(); // shouldn't throw since we read already the token
         throw new CsvParserRawTruffleException(
-            String.format("cannot parse '%s' as a decimal", malformed), this, stream, location);
+            String.format("cannot parse '%s' as a decimal", malformed), this, stream, ex, location);
       }
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionDecimal(ExpressionNode location) {
     try {
       try {
@@ -416,6 +423,7 @@ public class RawTruffleCsvParser {
             String.format("cannot parse '%s' as a decimal", jacksonParser.getText()),
             this,
             stream,
+            ex,
             location);
       }
     } catch (IOException ex) {
@@ -423,7 +431,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   boolean getBool(ExpressionNode location) {
     try {
       String text = jacksonParser.getText();
@@ -441,7 +449,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionBool(ExpressionNode location) {
     try {
       String text = jacksonParser.getText();
@@ -464,7 +472,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   String getString(ExpressionNode location) {
     try {
       return jacksonParser.getText();
@@ -473,7 +481,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionString(ExpressionNode location) {
     try {
       String token = jacksonParser.getText();
@@ -488,7 +496,7 @@ public class RawTruffleCsvParser {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public DateObject getDate(ExpressionNode location) {
     try {
       String token = jacksonParser.getText();
@@ -499,13 +507,14 @@ public class RawTruffleCsvParser {
               "string '%s' does not match date template '%s'", ex.getParsedString(), dateFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionDate(ExpressionNode location) {
     try {
       String token = jacksonParser.getText();
@@ -521,13 +530,14 @@ public class RawTruffleCsvParser {
               "string '%s' does not match date template '%s'", ex.getParsedString(), dateFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public TimeObject getTime(ExpressionNode location) {
     try {
       String token = jacksonParser.getText();
@@ -538,13 +548,14 @@ public class RawTruffleCsvParser {
               "string '%s' does not match time template '%s'", ex.getParsedString(), timeFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionTime(ExpressionNode location) {
     try {
       String token = jacksonParser.getText();
@@ -560,13 +571,14 @@ public class RawTruffleCsvParser {
               "string '%s' does not match time template '%s'", ex.getParsedString(), timeFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public TimestampObject getTimestamp(ExpressionNode location) {
     try {
       String token = jacksonParser.getText();
@@ -578,13 +590,14 @@ public class RawTruffleCsvParser {
               ex.getParsedString(), timestampFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   Object getOptionTimestamp(ExpressionNode location) {
     try {
       String token = jacksonParser.getText();
@@ -601,6 +614,7 @@ public class RawTruffleCsvParser {
               ex.getParsedString(), timeFormat),
           this,
           stream,
+          ex,
           location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);

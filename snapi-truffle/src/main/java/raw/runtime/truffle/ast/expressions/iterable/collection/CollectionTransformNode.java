@@ -16,7 +16,6 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.iterable.operations.TransformCollection;
 
 @NodeInfo(shortName = "Collection.Transform")
@@ -24,7 +23,7 @@ import raw.runtime.truffle.runtime.iterable.operations.TransformCollection;
 @NodeChild("transform")
 public abstract class CollectionTransformNode extends ExpressionNode {
   @Specialization
-  protected Object doTransform(Object iterable, Closure transform) {
+  protected Object doTransform(Object iterable, Object transform) {
     return new TransformCollection(iterable, transform);
   }
 }

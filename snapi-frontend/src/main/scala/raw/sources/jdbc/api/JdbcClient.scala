@@ -58,6 +58,9 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
 
   def vendor: String
 
+  // Database is optional because some databases do not have the concept of database (Teradata and Sqlite).
+  def database: Option[String]
+
   // Wrap vendor-specific calls and ensure only RelationalDatabaseException is thrown.
   def wrapSQLException[T](f: => T): T
 
@@ -101,8 +104,8 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     listTables(schema).close()
   }
 
-  def testAccess(maybeSchema: Option[String], table: String): Unit = {
-    tableMetadata(maybeSchema, table)
+  def testAccess(database: Option[String], maybeSchema: Option[String], table: String): Unit = {
+    tableMetadata(database, maybeSchema, table)
   }
 
   def listSchemas: Iterator[String] with Closeable = {
@@ -121,10 +124,10 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     SchemaMetadata()
   }
 
-  def tableMetadata(maybeSchema: Option[String], table: String): TableMetadata = {
+  def tableMetadata(database: Option[String], maybeSchema: Option[String], table: String): TableMetadata = {
     val conn = getConnection
     try {
-      val res = getTableMetadata(conn, maybeSchema, table)
+      val res = getTableMetadata(conn, database, maybeSchema, table)
       try {
         getTableTypeFromTableMetadata(res)
       } finally {
@@ -135,11 +138,16 @@ abstract class JdbcClient()(implicit settings: RawSettings) extends StrictLoggin
     }
   }
 
-  private def getTableMetadata(conn: Connection, maybeSchema: Option[String], table: String): ResultSet = {
+  private def getTableMetadata(
+      conn: Connection,
+      maybeDatabase: Option[String],
+      maybeSchema: Option[String],
+      table: String
+  ): ResultSet = {
     wrapSQLException {
       val metaData = conn.getMetaData
       metaData.getColumns(
-        null, // Database/Catalog is set to null because we assume it is already set as part of the connection string
+        maybeDatabase.orNull,
         maybeSchema.orNull,
         table,
         null // Read all columns

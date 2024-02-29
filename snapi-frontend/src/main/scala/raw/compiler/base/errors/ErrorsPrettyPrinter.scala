@@ -19,6 +19,7 @@ import raw.client.api.{ErrorMessage, ErrorRange}
 trait ErrorsPrettyPrinter extends base.source.SourcePrettyPrinter {
 
   override def toDoc(n: BaseNode): Doc = n match {
+    // Errors
     case UnexpectedValue(_, expected, actual) => "expected" <+> expected <+> "but got" <+> actual
     case UnexpectedType(_, actual, expected, hints, suggestions) =>
       handleHintsAndSuggestions("expected" <+> expected <+> "but got" <+> actual, hints, suggestions)
@@ -29,6 +30,8 @@ trait ErrorsPrettyPrinter extends base.source.SourcePrettyPrinter {
     case UnsupportedType(_, NotValueType(), _) => "non-executable query"
     case UnsupportedType(_, _, _) => "unsupported type"
     case ExternalError(_, lang, errors) => lang <+> "error: " <+> ssep(errors.map(executorErrorToDoc).to, ",")
+    // Warnings
+    case MissingSecretWarning(_, reason) => reason
     case _ => super.toDoc(n)
   }
 

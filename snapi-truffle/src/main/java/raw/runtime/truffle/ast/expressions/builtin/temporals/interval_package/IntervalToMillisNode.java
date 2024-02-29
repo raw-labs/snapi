@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -22,7 +23,9 @@ import raw.runtime.truffle.runtime.primitives.IntervalObject;
 @NodeChild("interval")
 public abstract class IntervalToMillisNode extends ExpressionNode {
   @Specialization
-  protected long getMillis(IntervalObject interval) {
-    return interval.toMillis();
+  protected long getMillis(
+      IntervalObject interval,
+      @Cached(inline = true) IntervalNodes.IntervalToMillisStaticNode toMillisNode) {
+    return toMillisNode.execute(this, interval);
   }
 }

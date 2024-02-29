@@ -12,17 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Tryable.FlatMap")
@@ -31,24 +27,16 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 @ImportStatic(Tryable.class)
 public abstract class TryableFlatMapNode extends ExpressionNode {
 
-  //    here add more guads to try to find object value and then do executeLong instead and call
-  // LongTryable
-  //    that's the only thing I think
-  //    guarguars is tryable and object isSccess and type is null kind of thin
-
-  @Specialization(limit = "1", guards = "isSuccess(tryable)")
+  @Specialization(guards = "isSuccess(tryable)")
   protected Object doObjectIsSuccess(
-      Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
-    //    argumentValues[0] = tryable;
-    try {
-      return interops.execute(closure, tryable);
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
-    }
+      Object tryable,
+      Object function,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(this, function, tryable);
   }
 
   @Specialization(guards = "isFailure(tryable)")
-  protected Object doObjectFailure(Object tryable, Object closure) {
+  protected Object doObjectFailure(Object tryable, Object function) {
     return tryable;
   }
 }

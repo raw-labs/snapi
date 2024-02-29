@@ -14,7 +14,9 @@ package raw.compiler.base
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.api._
+import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source._
+import raw.compiler.rql2.antlr4.ParseProgramResult
 import raw.utils._
 
 abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](
@@ -23,22 +25,26 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
 )(implicit programContext: ProgramContext)
     extends BaseTree[N, P, E](ensureTree) {
 
-  @throws[CompilerParserException]
-  protected def doParse(): P
+  protected def doParse(): ParseProgramResult[P]
 
   val positions: Positions = new Positions()
 
-  override lazy val originalRoot: P = {
+  override lazy val originalRoot: P = originalResult.tree
+
+  private lazy val originalResult: ParseProgramResult[P] = {
     doParse()
   }
 
-  override lazy val errors: List[ErrorMessage] = {
+  override lazy val errors: List[Message] = {
     analyzer.errors.map { err =>
-      getRange(err.node) match {
-        case Some(range) => ErrorMessage(format(err), List(range))
-        case _ => ErrorMessage(format(err), List.empty)
+      {
+        val range = getRange(err.node) match {
+          case Some(r) => List(r)
+          case None => List.empty
+        }
+        CompilationMessageMapper.toMessage(err, range, format)
       }
-    }.to
+    }.toList ++ originalResult.errors
   }
 
   private def getRange(n: BaseNode): Option[ErrorRange] = {
@@ -52,7 +58,7 @@ abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <:
   }
 
   override protected def isTreeValid: Boolean = {
-    val isValid = super.isTreeValid
+    val isValid = errors.collect { case e: ErrorMessage => e }.isEmpty
     if (programContext.settings.onTrainingWheels) logTree(isValid)
     isValid
   }

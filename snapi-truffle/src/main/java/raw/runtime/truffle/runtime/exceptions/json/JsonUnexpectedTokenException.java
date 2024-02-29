@@ -12,11 +12,17 @@
 
 package raw.runtime.truffle.runtime.exceptions.json;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.nodes.Node;
 
 public class JsonUnexpectedTokenException extends JsonParserRawTruffleException {
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
+  public JsonUnexpectedTokenException(
+      String expected, String actual, Throwable cause, Node location) {
+    super(String.format("expected %s but token %s found", expected, actual), cause, location);
+  }
+
+  @TruffleBoundary
   public JsonUnexpectedTokenException(String expected, String actual, Node location) {
     super(String.format("expected %s but token %s found", expected, actual), location);
   }

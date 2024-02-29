@@ -13,10 +13,10 @@
 package raw.runtime.truffle.ast.io.json.reader;
 
 import com.fasterxml.jackson.core.JsonParser;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes.CloseJsonParserNode;
@@ -51,10 +51,10 @@ public class JsonReadValueNode extends ExpressionNode {
   private JsonParser parser;
 
   public JsonReadValueNode(
-      ExpressionNode locationExp, ExpressionNode encodingExp, RootNode readerNode) {
+      ExpressionNode locationExp, ExpressionNode encodingExp, RootCallTarget readRootCallTarget) {
     this.locationExp = locationExp;
     this.encodingExp = encodingExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+    this.childDirectCall = DirectCallNode.create(readRootCallTarget);
   }
 
   @Override
@@ -67,12 +67,12 @@ public class JsonReadValueNode extends ExpressionNode {
       TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
 
-      parser = initParserNode.execute(stream);
-      nextTokenNode.execute(parser);
+      parser = initParserNode.execute(this, stream);
+      nextTokenNode.execute(this, parser);
 
       return this.childDirectCall.call(parser);
     } finally {
-      closeParserNode.execute(parser);
+      closeParserNode.execute(this, parser);
       parser = null;
     }
   }

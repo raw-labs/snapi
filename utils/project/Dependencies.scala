@@ -2,9 +2,6 @@ import sbt._
 
 object Dependencies {
 
-  val scalaLoggingVersion = IO.read(new File("../deps/scala-logging/version")).trim
-  val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
-
   val scalatest = "org.scalatest" %% "scalatest" % "3.2.16"
 
   val slf4j = Seq(
@@ -14,9 +11,9 @@ object Dependencies {
     "org.slf4j" % "jul-to-slf4j" % "2.0.5"
   )
 
-  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % scalaLoggingVersion
+  val scalaLogging = "com.typesafe.scala-logging" %% "scala-logging" % "3.9.5-rawlabs"
 
-  val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.11"
+  val logbackClassic = "ch.qos.logback" % "logback-classic" % "1.4.12"
 
   val loki4jAppender = "com.github.loki4j" % "loki-logback-appender" % "1.4.2"
 

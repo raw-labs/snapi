@@ -143,12 +143,13 @@ class PolyglotCsvWriter(os: OutputStream) extends Closeable {
           writeValue(v1)
         }
       } else if (v.hasMembers) {
-        gen.writeStartArray()
+        gen.writeStartObject()
         v.getMemberKeys.forEach { key =>
+          gen.writeFieldName(key)
           val value = v.getMember(key)
           writeValue(value)
         }
-        gen.writeEndArray()
+        gen.writeEndObject()
       } else {
         throw new IOException("unsupported type")
       }

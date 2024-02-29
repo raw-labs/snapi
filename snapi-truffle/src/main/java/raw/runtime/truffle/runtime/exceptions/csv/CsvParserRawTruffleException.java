@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.exceptions.csv;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -19,10 +20,12 @@ import raw.runtime.truffle.utils.RawTruffleCharStream;
 
 public class CsvParserRawTruffleException extends RawTruffleRuntimeException {
 
+  @CompilerDirectives.TruffleBoundary
   public CsvParserRawTruffleException(Throwable cause, Node location) {
     super(cause.getMessage(), cause, location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public CsvParserRawTruffleException(int line, int column, Throwable cause, Node location) {
     super(
         String.format(
@@ -31,6 +34,7 @@ public class CsvParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public CsvParserRawTruffleException(
       String message, int line, int column, Throwable cause, Node location) {
     super(
@@ -39,6 +43,22 @@ public class CsvParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
+  @CompilerDirectives.TruffleBoundary
+  public CsvParserRawTruffleException(
+      String message,
+      RawTruffleCsvParser p,
+      RawTruffleCharStream stream,
+      Throwable cause,
+      Node location) {
+    super(
+        String.format(
+            "failed to parse CSV (%s: line %d, col %d), %s",
+            stream.positionDescription(), p.currentTokenLine(), p.currentTokenColumn(), message),
+        cause,
+        location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public CsvParserRawTruffleException(
       String message, RawTruffleCsvParser p, RawTruffleCharStream stream, Node location) {
     super(
@@ -48,6 +68,7 @@ public class CsvParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
+  @CompilerDirectives.TruffleBoundary
   public CsvParserRawTruffleException(
       String message, RawTruffleCsvParser p, Throwable cause, Node location) {
     super(
@@ -58,15 +79,7 @@ public class CsvParserRawTruffleException extends RawTruffleRuntimeException {
         location);
   }
 
-  public CsvParserRawTruffleException(String message, RawTruffleCsvParser p, Node location) {
-    super(
-        String.format(
-            "failed to parse CSV (line %d, col %d), %s",
-            p.currentTokenLine(), p.currentTokenColumn(), message),
-        null,
-        location);
-  }
-
+  @CompilerDirectives.TruffleBoundary
   public CsvParserRawTruffleException(RawTruffleCsvParser p, Throwable cause, Node location) {
     this(cause.getMessage(), p.currentTokenLine(), p.currentTokenColumn(), cause, location);
   }

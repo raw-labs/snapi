@@ -107,6 +107,65 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
     }
   }
 
+  /** Salesforce */
+
+  def registerExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String,
+      externalConnectorCredential: ExternalConnectorCredential
+  ): Boolean = {
+    try {
+      restClient.doJsonPostWithEmptyResponse(
+        "2/connector/register",
+        RegisterExternalConnectorCredential(user, name, externalConnectorCredential),
+        withAuth = false
+      )
+      true
+    } catch {
+      case ex: ClientAPIException if ex.errorCode == "externalConnectorCredentialAlreadyExists" => false
+    }
+  }
+
+  def getExternalConnectorCredential(user: AuthenticatedUser, name: String): Option[ExternalConnectorCredential] = {
+    try {
+      Some(
+        restClient
+          .doJsonPost[ExternalConnectorCredential](
+            "2/connector/get",
+            GetExternalConnectorCredential(user, name),
+            withAuth = false
+          )
+      )
+    } catch {
+      case ex: ClientAPIException if ex.errorCode == "externalConnectorCredentialNotFound" => None
+    }
+  }
+
+  def existsExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean =
+    getExternalConnectorCredential(user, name).isDefined
+
+  def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
+    restClient.doJsonPost[List[ExternalConnectorCredentialId]](
+      "2/connector/list",
+      ListExternalConnectorCredential(user),
+      withAuth = false
+    )
+  }
+
+  def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      restClient.doJsonPostWithEmptyResponse(
+        "2/connector/unregister",
+        UnregisterExternalConnectorCredential(user, name),
+        HttpStatus.SC_NO_CONTENT,
+        withAuth = false
+      )
+      true
+    } catch {
+      case ex: ClientAPIException if ex.errorCode == "salesforceCredentialNotFound" => false
+    }
+  }
+
   /** HTTP Credentials */
 
   def listHttpCredentials(user: AuthenticatedUser): List[HttpCredentialId] = {

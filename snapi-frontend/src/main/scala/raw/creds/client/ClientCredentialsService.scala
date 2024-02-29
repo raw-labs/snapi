@@ -85,7 +85,46 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
     }
   }
 
-  /** Named Dropbox Tokens * */
+  /** ExternalConnector */
+
+  override def registerExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String,
+      externalConnectorCredential: ExternalConnectorCredential
+  ): Boolean = {
+    try {
+      client.registerExternalConnectorCredential(user, name, externalConnectorCredential)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def getExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String
+  ): Option[ExternalConnectorCredential] = {
+    try {
+      client.getExternalConnectorCredential(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
+    try {
+      client.listExternalConnectorCredentials(user)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
+
+  override def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean = {
+    try {
+      client.unregisterExternalConnectorCredential(user, name)
+    } catch {
+      case ex: APIException => throw new ClientCredentialsException(ex.getMessage, ex)
+    }
+  }
 
   /** Http Credentials */
 

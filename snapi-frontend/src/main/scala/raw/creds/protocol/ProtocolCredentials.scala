@@ -25,6 +25,15 @@ final case class RegisterDropboxCredential(user: AuthenticatedUser, token: Dropb
 final case class GetDropboxCredential(user: AuthenticatedUser)
 final case class UnregisterDropboxCredential(user: AuthenticatedUser)
 
+final case class RegisterExternalConnectorCredential(
+    user: AuthenticatedUser,
+    name: String,
+    externalConnectorCredentialProtocol: ExternalConnectorCredential
+)
+final case class GetExternalConnectorCredential(user: AuthenticatedUser, name: String)
+final case class ListExternalConnectorCredential(user: AuthenticatedUser)
+final case class UnregisterExternalConnectorCredential(user: AuthenticatedUser, name: String)
+
 final case class RegisterHttpCredential(user: AuthenticatedUser, credential: HttpCredential)
 final case class ListHttpCredentials(user: AuthenticatedUser)
 final case class GetHttpCredential(user: AuthenticatedUser, name: String)

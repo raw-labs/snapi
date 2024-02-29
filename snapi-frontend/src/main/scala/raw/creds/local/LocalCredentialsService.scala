@@ -45,6 +45,29 @@ class LocalCredentialsService extends CredentialsService {
     false
   }
 
+  override def registerExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String,
+      credential: ExternalConnectorCredential
+  ): Boolean = {
+    false
+  }
+
+  override def getExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String
+  ): Option[ExternalConnectorCredential] = {
+    None
+  }
+
+  override def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId] = {
+    List.empty
+  }
+
+  override def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean = {
+    false
+  }
+
   override protected def doRegisterNewHttpCredential(
       user: AuthenticatedUser,
       name: String,
@@ -123,4 +146,5 @@ class LocalCredentialsService extends CredentialsService {
   }
 
   override def doStop(): Unit = {}
+
 }

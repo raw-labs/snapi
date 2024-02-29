@@ -12,17 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.option;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.FlatMap")
@@ -31,18 +27,16 @@ import raw.runtime.truffle.tryable_nullable.Nullable;
 @ImportStatic(Nullable.class)
 public abstract class OptionFlatMapNode extends ExpressionNode {
 
-  @Specialization(guards = "isNotNull(option)", limit = "1")
+  @Specialization(guards = "isNotNull(option)")
   protected Object notNullFlatMap(
-      Object option, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
-    try {
-      return interops.execute(closure, option);
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
-    }
+      Object option,
+      Object function,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(this, function, option);
   }
 
   @Specialization(guards = "isNull(option)")
-  protected Object optionFlatMap(Object option, Object closure) {
+  protected Object optionFlatMap(Object option, Object function) {
     return option;
   }
 }

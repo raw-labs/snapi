@@ -22,7 +22,7 @@ import raw.runtime.truffle.runtime.iterable.sources.JsonReadCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.sources.api.SourceContext;
 
-@NodeInfo(shortName = "Json.ReadArray")
+@NodeInfo(shortName = "Json.ReadCollection")
 public class JsonReadCollectionNode extends ExpressionNode {
   @Child private ExpressionNode locationExp;
 

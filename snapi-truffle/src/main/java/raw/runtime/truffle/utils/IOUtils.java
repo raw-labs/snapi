@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.utils;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -22,25 +22,25 @@ import raw.sources.api.SourceContext;
 
 public class IOUtils {
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public static Path getScratchPath(SourceContext context) {
     Path p = Paths.get(context.settings().getString("raw.runtime.scratch-path", true));
     if (!Files.exists(p)) {
       try {
         Files.createDirectories(p);
       } catch (IOException ex) {
-        throw new RawTruffleRuntimeException("failed to create scratch file");
+        throw new RawTruffleRuntimeException("failed to create scratch file", ex);
       }
     }
     return p;
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   public static Path getScratchFile(String prefix, String suffix, SourceContext context) {
     try {
       return Files.createTempFile(getScratchPath(context), prefix, suffix);
     } catch (IOException ex) {
-      throw new RawTruffleRuntimeException("failed to create scratch file");
+      throw new RawTruffleRuntimeException("failed to create scratch file", ex);
     }
   }
 }

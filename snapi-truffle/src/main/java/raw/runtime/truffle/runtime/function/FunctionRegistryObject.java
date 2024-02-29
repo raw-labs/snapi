@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.function;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -26,15 +26,15 @@ import raw.runtime.truffle.runtime.list.StringList;
 @ExportLibrary(InteropLibrary.class)
 public final class FunctionRegistryObject implements TruffleObject {
 
-  private final Map<String, Closure> functions = new HashMap<>();
+  private final Map<String, Object> functions = new HashMap<>();
 
-  @CompilerDirectives.TruffleBoundary
-  public Closure get(String name) {
+  @TruffleBoundary
+  public Object get(String name) {
     return functions.get(name);
   }
 
-  @CompilerDirectives.TruffleBoundary
-  public void put(String name, Closure closure) {
+  @TruffleBoundary
+  public void put(String name, Object closure) {
     functions.put(name, closure);
   }
 

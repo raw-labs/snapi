@@ -305,4 +305,12 @@ trait MySQLPackageTest extends CompilerTestContext with CredentialsTestContext w
       s"""failed to read from database mysql:${mysqlCreds.database}: Table '${mysqlCreds.database}.dont_exist' doesn't exist"""
     it should evaluateTo(s"""[3L, Error.Build("$error")]""")
   }
+
+  test(s"""MySQL.InferAndRead("$mysqlRegDb", "rd10439")""") { it =>
+    it should evaluateTo("""[
+      |  {id: 1, name: "john", salary: 23.5},
+      |  {id: 2, name: "jane", salary: 30.4},
+      |  {id: 3, name: "bob", salary: 17.8}
+      |]""".stripMargin)
+  }
 }

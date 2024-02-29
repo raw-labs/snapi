@@ -12,12 +12,20 @@
 
 package raw.runtime.truffle.runtime.exceptions.xml;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import java.util.List;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 
 public class XmlOrTypeParserException extends XmlParserRawTruffleException {
 
+  @CompilerDirectives.TruffleBoundary
+  public XmlOrTypeParserException(
+      List<String> parseErrors, RawTruffleXmlParser parser, Throwable cause, Node location) {
+    super(createMessage(parseErrors), parser, cause, location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public XmlOrTypeParserException(
       List<String> parseErrors, RawTruffleXmlParser parser, Node location) {
     super(createMessage(parseErrors), parser, location);

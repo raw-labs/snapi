@@ -100,6 +100,23 @@ trait CredentialsService extends RawService {
 
   def unregisterDropboxToken(user: AuthenticatedUser): Boolean
 
+  /** ExternalConnector */
+
+  def registerExternalConnectorCredential(
+      user: AuthenticatedUser,
+      name: String,
+      credential: ExternalConnectorCredential
+  ): Boolean
+
+  def getExternalConnectorCredential(user: AuthenticatedUser, name: String): Option[ExternalConnectorCredential]
+
+  def existsExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean =
+    getExternalConnectorCredential(user, name).isDefined
+
+  def listExternalConnectorCredentials(user: AuthenticatedUser): List[ExternalConnectorCredentialId]
+
+  def unregisterExternalConnectorCredential(user: AuthenticatedUser, name: String): Boolean
+
   /** Http Credentials */
 
   protected def validateNewHttpCredentialName(name: String) = {

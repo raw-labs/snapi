@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.primitives;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -44,7 +44,6 @@ public final class DecimalObject implements TruffleObject {
   }
 
   @ExportMessage
-  @CompilerDirectives.TruffleBoundary
   final Object toDisplayString(@SuppressWarnings("unused") boolean allowSideEffects) {
     return "Decimal";
   }
@@ -55,7 +54,7 @@ public final class DecimalObject implements TruffleObject {
   }
 
   @ExportMessage
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   final String asString() {
     return bigDecimal.toString();
   }

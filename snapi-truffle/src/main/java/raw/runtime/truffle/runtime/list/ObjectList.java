@@ -12,16 +12,12 @@
 
 package raw.runtime.truffle.runtime.list;
 
-import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
-import java.util.Arrays;
 import raw.runtime.truffle.runtime.iterable.list.ListIterable;
-import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
-@ExportLibrary(ListLibrary.class)
 @ExportLibrary(InteropLibrary.class)
 public final class ObjectList implements TruffleObject {
   private final Object[] list;
@@ -30,22 +26,14 @@ public final class ObjectList implements TruffleObject {
     this.list = list;
   }
 
-  @ExportMessage
-  boolean isList() {
-    return true;
-  }
-
-  @ExportMessage
   public Object[] getInnerList() {
     return list;
   }
 
-  @ExportMessage
   boolean isElementReadable(int index) {
     return index >= 0 && index < list.length;
   }
 
-  @ExportMessage
   public Object get(long index) {
     int idx = (int) index;
     if (!isElementReadable(idx)) {
@@ -54,21 +42,24 @@ public final class ObjectList implements TruffleObject {
     return list[idx];
   }
 
-  @ExportMessage
   public int size() {
     return list.length;
   }
 
-  @ExportMessage
-  public Object toIterable() {
+  public ListIterable toIterable() {
     return new ListIterable(this);
   }
 
-  @ExportMessage
-  public Object sort(@Cached OperatorNodes.CompareNode compare) {
-    Object[] result = this.list.clone();
-    Arrays.sort(result, compare::execute);
-    return new ObjectList(result);
+  public ObjectList take(int num) {
+    if (num >= this.getInnerList().length) {
+      return this;
+    } else if (num <= 0) {
+      return new ObjectList(new Object[0]);
+    } else {
+      Object[] result = new Object[num];
+      System.arraycopy(this.list, 0, result, 0, result.length);
+      return new ObjectList(result);
+    }
   }
 
   @ExportMessage

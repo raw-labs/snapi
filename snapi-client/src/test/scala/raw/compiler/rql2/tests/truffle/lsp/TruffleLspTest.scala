@@ -24,3 +24,4 @@ import raw.testing.tags.TruffleTests
 @TruffleTests class LspRenameTruffleTest extends TruffleCompilerTestContext with LspRenameTest
 @TruffleTests class LspValidateTruffleTest extends TruffleCompilerTestContext with LspValidateTest
 @TruffleTests class LspWordAutoCompleteTruffleTest extends TruffleCompilerTestContext with LspWordAutoCompleteTest
+@TruffleTests class LspCompilationMessagesTruffleTest extends TruffleCompilerTestContext with LspCompilationMessagesTest

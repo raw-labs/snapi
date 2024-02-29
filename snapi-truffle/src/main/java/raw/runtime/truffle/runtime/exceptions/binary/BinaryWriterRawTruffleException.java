@@ -12,11 +12,19 @@
 
 package raw.runtime.truffle.runtime.exceptions.binary;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.nodes.Node;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 public class BinaryWriterRawTruffleException extends RawTruffleRuntimeException {
+
+  @CompilerDirectives.TruffleBoundary
   public BinaryWriterRawTruffleException(String message, Node location) {
     super(message, location);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public BinaryWriterRawTruffleException(String message, Throwable cause, Node location) {
+    super(message, cause, location);
   }
 }

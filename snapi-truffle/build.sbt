@@ -1,11 +1,12 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.*
+import sbt.Keys.*
+import sbt.*
 
-import sbt.Keys._
-import sbt._
+import Dependencies.*
 
-import java.time.Year
+import scala.sys.process.Process
 
-import Dependencies._
+import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -13,7 +14,7 @@ sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 
 sonatypeProfileName := "com.raw-labs"
 
-val licenseHeader = s"""Copyright ${Year.now.getValue} RAW Labs S.A.
+val licenseHeader = """Copyright 2023 RAW Labs S.A.
 
 Use of this software is governed by the Business Source License
 included in the file licenses/BSL.txt.
@@ -87,6 +88,12 @@ Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
 
+Compile / unmanagedSourceDirectories += baseDirectory.value / "target" / "java-processed-sources"
+
+Compile / unmanagedResourceDirectories += baseDirectory.value / "target" / "java-processed-sources" / "META-INF"
+
+Compile / resourceDirectories += baseDirectory.value / "target" / "java-processed-sources" / "META-INF"
+
 // Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
   "--module-path",
@@ -117,8 +124,69 @@ Test / javaOptions ++= Seq(
   // Limit overall memory and force crashing hard and early.
   // Useful for debugging memleaks.
   "-Xmx8G",
-  "-XX:+CrashOnOutOfMemoryError"
+  "-XX:+CrashOnOutOfMemoryError",
+  "-Dpolyglotimpl.CompilationFailureAction=Throw"
 )
+
+val annotationProcessors = Seq(
+  "com.oracle.truffle.dsl.processor.TruffleProcessor",
+  "com.oracle.truffle.dsl.processor.verify.VerifyTruffleProcessor",
+  "com.oracle.truffle.dsl.processor.LanguageRegistrationProcessor",
+  "com.oracle.truffle.dsl.processor.InstrumentRegistrationProcessor",
+  "com.oracle.truffle.dsl.processor.OptionalResourceRegistrationProcessor",
+  "com.oracle.truffle.dsl.processor.InstrumentableProcessor",
+  "com.oracle.truffle.dsl.processor.verify.VerifyCompilationFinalProcessor",
+  "com.oracle.truffle.dsl.processor.OptionProcessor"
+).mkString(",")
+
+val calculateClasspath = taskKey[Seq[File]]("Calculate the full classpath")
+
+calculateClasspath := {
+  val dependencyFiles = (Compile / dependencyClasspath).value.files
+  val unmanagedFiles = (Compile / unmanagedClasspath).value.files
+  val classesDir = (Compile / classDirectory).value
+
+  dependencyFiles ++ unmanagedFiles ++ Seq(classesDir)
+}
+
+val runJavaAnnotationProcessor = taskKey[Unit]("Runs the Java annotation processor")
+
+runJavaAnnotationProcessor := {
+  println("Running Java annotation processor")
+
+  val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-23.1.0.jar"
+
+  val javaSources = baseDirectory.value / "src" / "main" / "java"
+  val targetDir = baseDirectory.value / "target" / "java-processed-sources"
+
+  val projectClasspath = calculateClasspath.value.mkString(":")
+
+  val javacOptions = Seq(
+    "javac",
+    "-source",
+    "21",
+    "-target",
+    "21",
+    "-d",
+    targetDir.getAbsolutePath,
+    "--module-path",
+    projectClasspath,
+    "-cp",
+    annotationProcessorJar.getAbsolutePath,
+    "-processor",
+    annotationProcessors,
+    "-proc:only"
+  ) ++ (javaSources ** "*.java").get.map(_.absolutePath)
+
+  // Create the target directory if it doesn't exist
+  targetDir.mkdirs()
+
+  // Execute the Java compiler
+  val result = Process(javacOptions).!
+  if (result != 0) {
+    throw new RuntimeException("Java annotation processing failed.")
+  }
+}
 
 // Add dependency resolvers
 resolvers += Resolver.mavenLocal
@@ -126,9 +194,10 @@ resolvers += Resolver.sonatypeRepo("releases")
 
 // Publish settings
 Test / publishArtifact := true
+// Useful for debugging 
+Test / packageSrc / publishArtifact := true
+
 Compile / packageSrc / publishArtifact := true
-// When doing publishLocal, also publish to the local maven repository.
-publishLocal := (publishLocal dependsOn publishM2).value
 
 // Dependencies
 libraryDependencies ++= Seq(
@@ -154,3 +223,7 @@ outputVersion := {
 }
 
 Compile / compile := ((Compile / compile) dependsOn outputVersion).value
+
+publishLocal := (publishLocal dependsOn Def.sequential(runJavaAnnotationProcessor, outputVersion, publishM2)).value
+publish := (publish dependsOn Def.sequential(runJavaAnnotationProcessor, outputVersion)).value
+publishSigned := (publishSigned dependsOn Def.sequential(runJavaAnnotationProcessor, outputVersion)).value

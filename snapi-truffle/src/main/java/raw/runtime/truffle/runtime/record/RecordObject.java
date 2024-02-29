@@ -14,17 +14,19 @@ package raw.runtime.truffle.runtime.record;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLanguage;
+import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
 import java.util.*;
-import raw.compiler.rql2.RecordFieldsNaming;
 import raw.runtime.truffle.RawLanguage;
+import raw.utils.RecordFieldsNaming;
 
 @ExportLibrary(InteropLibrary.class)
 public final class RecordObject implements TruffleObject {
@@ -33,11 +35,9 @@ public final class RecordObject implements TruffleObject {
   private final Vector<String> distinctKeys;
   private boolean validDistinctKeys = true;
   public final DynamicObject values;
-  private static final Shape rootShape =
-      Shape.newBuilder().layout(RecordStorageObject.class).build();
 
-  public RecordObject() {
-    this.values = new RecordStorageObject(rootShape);
+  public RecordObject(Shape shape) {
+    this.values = new RecordStorageObject(shape);
     this.distinctKeys = new Vector<>();
   }
 
@@ -158,8 +158,11 @@ public final class RecordObject implements TruffleObject {
 
   @ExportMessage
   public void writeMember(
-      String name, Object value, @Cached("create()") RecordNodes.AddByKeyNode addByKey) {
-    addByKey.execute(this, name, value);
+      String name,
+      Object value,
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) RecordNodes.AddByKeyNode addByKey) {
+    addByKey.execute(thisNode, this, name, value);
   }
 
   @ExportMessage

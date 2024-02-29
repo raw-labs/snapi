@@ -69,5 +69,10 @@ extensions/version
 utils/version
 client/version
 snapi-client/version
+sql-client/version
 snapi-frontend/version
 snapi-truffle/version
+snapi-parser/version
+python-client/version
+snapi-parser/src/main/java/raw/compiler/rql2/generated
+

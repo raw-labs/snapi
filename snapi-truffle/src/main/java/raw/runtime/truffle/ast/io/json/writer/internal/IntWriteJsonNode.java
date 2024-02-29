@@ -28,6 +28,6 @@ public class IntWriteJsonNode extends StatementNode {
 
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    writeInt.execute((int) args[0], (JsonGenerator) args[1]);
+    writeInt.execute(this, (int) args[0], (JsonGenerator) args[1]);
   }
 }

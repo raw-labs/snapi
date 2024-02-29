@@ -13,40 +13,34 @@
 package raw.runtime.truffle.ast.expressions.builtin.type_package;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.or.OrObject;
 
 public class TypeMatchNode extends ExpressionNode {
   @Child private ExpressionNode typeExp;
 
-  @Children private final ExpressionNode[] closureExps;
+  @Children private final ExpressionNode[] functionExps;
 
-  @Child InteropLibrary interop;
+  @Child
+  FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
+      FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
 
   public TypeMatchNode(ExpressionNode child, ExpressionNode[] children) {
     this.typeExp = child;
-    this.closureExps = children;
-    this.interop = InteropLibrary.getFactory().createDispatched(children.length);
+    this.functionExps = children;
   }
 
   @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     OrObject orType = (OrObject) this.typeExp.executeGeneric(frame);
     int index = orType.getIndex();
-    Object[] closures = new Object[closureExps.length];
-    for (int i = 0; i < closureExps.length; i++) {
-      closures[i] = closureExps[i].executeGeneric(frame);
+    Object[] functions = new Object[functionExps.length];
+    for (int i = 0; i < functionExps.length; i++) {
+      functions[i] = functionExps[i].executeGeneric(frame);
     }
-    try {
-      return interop.execute(closures[index], orType.getValue());
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
-    }
+    return functionExecuteOneNode.execute(this, functions[index], orType.getValue());
   }
 }

@@ -54,6 +54,17 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
+    - name: sbt ci-release snapi-parser
+      run: ./release.sh
+      working-directory: snapi-parser
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-frontend
       run: ./release.sh
       working-directory: snapi-frontend
@@ -87,14 +98,27 @@ jobs:
         CI_CLEAN: clean
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
+    - name: sbt ci-release sql-client
+      run: ./release.sh
+      working-directory: sql-client
+      env:
+        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+        PGP_SECRET: ${{ secrets.PGP_SECRET }}
+        CI_CLEAN: clean
+        CI_RELEASE: publishSigned
+        CI_SNAPSHOT_RELEASE: publish
     - name: evaluate produced version
       shell: bash
       run: |
         echo "UTILS_VER=$(cat utils/version)" >> $GITHUB_ENV
         echo "CLIENT_VER=$(cat client/version)" >> $GITHUB_ENV
+        echo "SNAPI_PARSER_VER=$(cat snapi-parser/version)" >> $GITHUB_ENV
         echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
         echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
         echo "SNAPI_CLIENT=$(cat snapi-client/version)" >> $GITHUB_ENV
+        echo "SQL_CLIENT=$(cat sql-client/version)" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
       with:
@@ -104,9 +128,11 @@ jobs:
         body: |
           > will publish utils version: ${{ env.UTILS_VER  }}
           > will publish client version: ${{ env.CLIENT_VER }}
+          > will publish snapi-parser version: ${{ env.SNAPI_PARSER_VER }}
           > will publish snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
           > will publish snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}
           > will publish snapi-client version: ${{ env.SNAPI_CLIENT }}
+          > will publish sql-client version: ${{ env.SQL_CLIENT }}
         reactions: rocket
     - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       uses: peter-evans/repository-dispatch@v2

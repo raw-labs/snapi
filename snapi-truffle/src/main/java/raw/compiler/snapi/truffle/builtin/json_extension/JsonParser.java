@@ -18,6 +18,21 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.parser.*;
+import raw.runtime.truffle.ast.io.json.reader.parser.BinaryParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.BooleanParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.ByteParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.DateParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.DecimalParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.DoubleParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.FloatParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.IntParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.IntervalParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.ListParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.LongParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.ShortParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.StringParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.TimeParseJsonNodeGen;
+import raw.runtime.truffle.ast.io.json.reader.parser.TimestampParseJsonNodeGen;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
@@ -58,12 +73,12 @@ public class JsonParser {
           case Rql2ListType r ->{
             ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);
             yield ListParseJsonNodeGen.create(
-                    (Rql2TypeWithProperties)r.innerType(),child
+                    (Rql2TypeWithProperties)r.innerType(), child.getCallTarget()
             );
           }
           case Rql2IterableType r ->{
             ProgramExpressionNode child = recurse((Rql2TypeWithProperties)r.innerType(), lang);
-            yield new IterableParseJsonNode(program(ListParseJsonNodeGen.create((Rql2TypeWithProperties)r.innerType(),child),lang));
+            yield new IterableParseJsonNode(program(ListParseJsonNodeGen.create((Rql2TypeWithProperties)r.innerType(), child.getCallTarget()),lang));
           }
           case Rql2RecordType r ->{
             LinkedHashMap<String,Integer> hashMap = new LinkedHashMap<>();

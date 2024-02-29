@@ -15,12 +15,11 @@ package raw.runtime.truffle.ast.expressions.iterable.collection;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
@@ -30,31 +29,37 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeChild("sep")
 @NodeChild("end")
 public abstract class CollectionMkStringNode extends ExpressionNode {
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doCollection(
       Object iterable,
       String start,
       String sep,
       String end,
-      @Cached("create()") OperatorNodes.AddNode add,
-      @CachedLibrary("iterable") IterableLibrary iterables,
-      @CachedLibrary(limit = "1") GeneratorLibrary generators) {
+      @Cached(inline = true) OperatorNodes.AddNode add,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode) {
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      Object generator = iterables.getGenerator(iterable);
+      initNode.execute(this, generator);
       String currentString = start;
-      if (!generators.hasNext(generator)) {
+      if (!hasNextNode.execute(this, generator)) {
         return start + end;
       } else {
-        Object next = generators.next(generator);
-        currentString = (String) add.execute(currentString, next);
+        Object next = nextNode.execute(this, generator);
+        currentString = (String) add.execute(this, currentString, next);
       }
-      while (generators.hasNext(generator)) {
-        Object next = generators.next(generator);
-        currentString = (String) add.execute(currentString + sep, next);
+      while (hasNextNode.execute(this, generator)) {
+        Object next = nextNode.execute(this, generator);
+        currentString = (String) add.execute(this, currentString + sep, next);
       }
       return currentString + end;
     } catch (RawTruffleRuntimeException ex) {
       return new ErrorObject(ex.getMessage());
+    } finally {
+      closeNode.execute(this, generator);
     }
   }
 }

@@ -18,17 +18,18 @@ import com.fasterxml.jackson.core.JsonEncoding;
 import com.fasterxml.jackson.dataformat.csv.CsvFactory;
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator;
 import com.fasterxml.jackson.dataformat.csv.CsvSchema;
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
-import com.oracle.truffle.api.nodes.RootNode;
 import java.io.IOException;
 import java.io.OutputStream;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.runtime.list.ListLibrary;
+import raw.runtime.truffle.runtime.list.ListNodes;
+import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.list.ObjectList;
 
 public class CsvListWriterNode extends StatementNode {
@@ -37,15 +38,20 @@ public class CsvListWriterNode extends StatementNode {
 
   @Child private DirectCallNode itemWriter;
 
-  @Child private ListLibrary lists = ListLibrary.getFactory().createDispatched(3);
+  @Child private ListNodes.SizeNode sizeNode = ListNodesFactory.SizeNodeGen.create();
+
+  @Child private ListNodes.GetNode getNode = ListNodesFactory.GetNodeGen.create();
 
   private final String[] columnNames;
   private final String lineSeparator;
 
   public CsvListWriterNode(
-      ExpressionNode dataNode, RootNode writerNode, String[] columnNames, String lineSeparator) {
+      ExpressionNode dataNode,
+      RootCallTarget writeRootCallTarget,
+      String[] columnNames,
+      String lineSeparator) {
     this.dataNode = dataNode;
-    itemWriter = DirectCallNode.create(writerNode.getCallTarget());
+    itemWriter = DirectCallNode.create(writeRootCallTarget);
     this.columnNames = columnNames;
     this.lineSeparator = lineSeparator;
   }
@@ -55,9 +61,9 @@ public class CsvListWriterNode extends StatementNode {
     try (OutputStream os = RawContext.get(this).getOutput();
         CsvGenerator gen = createGenerator(os)) {
       ObjectList list = (ObjectList) dataNode.executeGeneric(frame);
-      long size = lists.size(list);
+      long size = sizeNode.execute(this, list);
       for (long i = 0; i < size; i++) {
-        Object item = lists.get(list, i);
+        Object item = getNode.execute(this, list, i);
         itemWriter.call(item, gen);
       }
     } catch (IOException e) {
@@ -65,7 +71,7 @@ public class CsvListWriterNode extends StatementNode {
     }
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private CsvGenerator createGenerator(OutputStream os) {
     try {
       CsvFactory factory = new CsvFactory();

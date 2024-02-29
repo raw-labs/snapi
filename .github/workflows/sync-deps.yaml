@@ -1,0 +1,41 @@
+name: sync custom deps
+on:
+  push:
+    branches:
+      - master
+    paths:
+      - 'deps/**'
+  workflow_dispatch:
+
+permissions:
+  id-token: write # These permission is needed to interact with GitHub's OIDC Token endpoint
+  contents: read
+
+jobs:
+  sync:
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_IAM_AUTOMATION_ROLE }}
+          aws-region: ${{ secrets.AWS_AUTOMATION_REGION }}
+      - name: build
+        run: ./build.sh
+        working-directory: deps
+      - name: sync
+        env:
+          BUCKET: ${{ secrets.AWS_RAW_S3_BIN_BUCKET }}
+        run: |
+          M2_HOME=/home/sbtuser/.m2/repository
+          aws s3 sync $M2_HOME s3://$BUCKET/maven --exclude '*' --include '**kiama**'
+          cd deps/others
+          sbt createS3SyncScript
+          export M2_HOME BUCKET
+          ./s3-sync-deps.sh

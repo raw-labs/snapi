@@ -12,17 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.ArityException;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.tryable_nullable.Tryable;
 
 @NodeInfo(shortName = "Tryable.Map")
@@ -31,20 +27,16 @@ import raw.runtime.truffle.tryable_nullable.Tryable;
 @ImportStatic(Tryable.class)
 public abstract class TryableMapNode extends ExpressionNode {
 
-  @Specialization(guards = "isSuccess(tryable)", limit = "1")
+  @Specialization(guards = "isSuccess(tryable)")
   protected Object doObjectIsSuccess(
-      Object tryable, Object closure, @CachedLibrary("closure") InteropLibrary interops) {
-    Object result = null;
-    try {
-      result = interops.execute(closure, tryable);
-    } catch (UnsupportedMessageException | UnsupportedTypeException | ArityException e) {
-      throw new RawTruffleRuntimeException("failed to execute function");
-    }
-    return result;
+      Object tryable,
+      Object function,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(this, function, tryable);
   }
 
   @Specialization(guards = "isFailure(tryable)")
-  protected Object doObjectIsFailure(Object tryable, Object closure) {
+  protected Object doObjectIsFailure(Object tryable, Object function) {
     return tryable;
   }
 }

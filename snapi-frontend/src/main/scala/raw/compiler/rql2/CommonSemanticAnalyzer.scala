@@ -27,7 +27,7 @@ abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
     implicit protected val programContext: ProgramContext
 ) extends base.SemanticAnalyzer[SourceNode, SourceProgram, Exp](tree) {
 
-  override protected def errorDef: SourceNode ==> Seq[BaseError] = {
+  override protected def errorDef: SourceNode ==> Seq[CompilerMessage] = {
     super.errorDef orElse {
       case i: IdnUse if entity(i) == UnknownEntity() => Seq(UnknownDecl(i))
       case i: IdnDef if entity(i).isInstanceOf[MultipleEntity] => Seq(MultipleDecl(i))
@@ -149,7 +149,7 @@ abstract class CommonSemanticAnalyzer(tree: SourceTree.SourceTree)(
 
   /** Return the set of "free entities" inside the node. */
   final def freeVars(node: SourceNode): Set[Entity] = {
-    val in = scope(node)
+    val in = scope(node).filterNot(p => p.isInstanceOf[PackageEntity])
     val used = uses(node)
     in.intersect(used)
   }

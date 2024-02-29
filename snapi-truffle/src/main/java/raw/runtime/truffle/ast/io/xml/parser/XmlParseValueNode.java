@@ -12,10 +12,10 @@
 
 package raw.runtime.truffle.ast.io.xml.parser;
 
+import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import com.oracle.truffle.api.nodes.RootNode;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 
@@ -36,12 +36,12 @@ public class XmlParseValueNode extends ExpressionNode {
       ExpressionNode dateFormatExp,
       ExpressionNode timeFormatExp,
       ExpressionNode datetimeFormatExp,
-      RootNode readerNode) {
+      RootCallTarget readRootCallTarget) {
     this.stringExp = stringExp;
     this.dateFormatExp = dateFormatExp;
     this.timeFormatExp = timeFormatExp;
     this.datetimeFormatExp = datetimeFormatExp;
-    this.childDirectCall = DirectCallNode.create(readerNode.getCallTarget());
+    this.childDirectCall = DirectCallNode.create(readRootCallTarget);
   }
 
   @Override

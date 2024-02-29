@@ -28,7 +28,8 @@ import raw.runtime.truffle.ast.io.json.reader.TryableTopLevelWrapper;
 
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
 
-public class TruffleReadJsonEntry extends ReadJsonEntry implements TruffleEntryExtension, WithJsonArgs {
+public class TruffleReadJsonEntry extends ReadJsonEntry
+    implements TruffleEntryExtension, WithJsonArgs {
 
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
@@ -46,7 +47,9 @@ public class TruffleReadJsonEntry extends ReadJsonEntry implements TruffleEntryE
     } else {
       JsonReadValueNode parseNode =
           new JsonReadValueNode(
-              unnamedArgs[0], encoding, parser.recurse((Rql2TypeWithProperties) type, rawLanguage));
+              unnamedArgs[0],
+              encoding,
+              parser.recurse((Rql2TypeWithProperties) type, rawLanguage).getCallTarget());
       if (((Rql2TypeWithProperties) type).props().contains(tryable))
         return new TryableTopLevelWrapper(parseNode);
       else return parseNode;

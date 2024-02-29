@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
@@ -72,6 +73,9 @@ public final class RawContext implements Closeable {
         JavaConverters.asScalaSetConverter(java.util.Set.of(this.scopes)).asScala().toSet();
 
     java.util.Map<String, String> javaOptions = new java.util.HashMap<>();
+    env.getOptions()
+        .getDescriptors()
+        .forEach(d -> javaOptions.put(d.getName(), env.getOptions().get(d.getKey()).toString()));
 
     Map<String, String> scalaOptions =
         JavaConverters.mapAsScalaMapConverter(javaOptions)
@@ -123,6 +127,7 @@ public final class RawContext implements Closeable {
     return output;
   }
 
+  @CompilerDirectives.TruffleBoundary
   public SourceContext getSourceContext() {
     return language.getSourceContext(getUser());
   }

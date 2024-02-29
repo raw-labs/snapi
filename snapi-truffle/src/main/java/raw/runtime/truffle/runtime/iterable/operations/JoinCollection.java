@@ -12,28 +12,26 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.JoinComputeNext;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.JoinComputeNext;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.sources.api.SourceContext;
 
-@ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
-public final class JoinCollection implements TruffleObject {
-
+public class JoinCollection implements TruffleObject {
   final Object leftIterable;
   final Object rightIterable;
-  final Closure predicate;
-  final Closure remap;
+  final Object predicate, remap;
   final Rql2TypeWithProperties rightType;
   final SourceContext context;
   final RawLanguage language;
@@ -42,8 +40,8 @@ public final class JoinCollection implements TruffleObject {
   public JoinCollection(
       Object leftIterable,
       Object rightIterable,
-      Closure remap,
-      Closure predicate,
+      Object remap,
+      Object predicate,
       Rql2TypeWithProperties rightType,
       Boolean reshapeBeforePredicate,
       SourceContext context,
@@ -58,14 +56,8 @@ public final class JoinCollection implements TruffleObject {
     this.reshapeBeforePredicate = reshapeBeforePredicate;
   }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
-
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(
+  public Object getGenerator() {
+    return new AbstractGenerator(
         new JoinComputeNext(
             leftIterable,
             rightIterable,
@@ -76,20 +68,20 @@ public final class JoinCollection implements TruffleObject {
             context,
             language));
   }
-  // InteropLibrary: Iterable
 
+  // InteropLibrary: Iterable
   @ExportMessage
   boolean hasIterator() {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary =
-      GeneratorLibrary.getFactory().createDispatched(1);
-
   @ExportMessage
-  Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(this);
-    generatorLibrary.init(generator);
+  Object getIterator(
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
+    Object generator = getGeneratorNode.execute(thisNode, this);
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

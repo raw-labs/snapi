@@ -12,41 +12,39 @@
 
 package raw.runtime.truffle.runtime.iterable.operations;
 
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
+import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.Closure;
-import raw.runtime.truffle.runtime.generator.GeneratorLibrary;
-import raw.runtime.truffle.runtime.generator.collection.CollectionAbstractGenerator;
-import raw.runtime.truffle.runtime.generator.collection.compute_next.operations.EquiJoinComputeNext;
-import raw.runtime.truffle.runtime.iterable.IterableLibrary;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
+import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.EquiJoinComputeNext;
+import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.sources.api.SourceContext;
 
-@ExportLibrary(IterableLibrary.class)
 @ExportLibrary(InteropLibrary.class)
-public final class EquiJoinCollection implements TruffleObject {
-
+public class EquiJoinCollection implements TruffleObject {
   final Object leftIterable, rightIterable;
-  final Closure leftKeyF, rightKeyF;
+  final Object leftKeyF, rightKeyF, reshapeFun;
   final Rql2TypeWithProperties leftRowType, rightRowType;
   final Rql2TypeWithProperties keyType;
-  final Closure reshapeFun;
   private final RawLanguage language;
   private final SourceContext context;
 
   public EquiJoinCollection(
       Object leftIterable,
-      Closure leftKeyF,
+      Object leftKeyF,
       Rql2TypeWithProperties leftRowType,
       Object rightIterable,
-      Closure rightKeyF,
+      Object rightKeyF,
       Rql2TypeWithProperties rightRowType,
       Rql2TypeWithProperties keyType,
-      Closure reshapeFun,
+      Object reshapeFun,
       RawLanguage language,
       SourceContext context) {
     this.leftIterable = leftIterable;
@@ -61,14 +59,8 @@ public final class EquiJoinCollection implements TruffleObject {
     this.context = context;
   }
 
-  @ExportMessage
-  boolean isIterable() {
-    return true;
-  }
-
-  @ExportMessage
-  Object getGenerator() {
-    return new CollectionAbstractGenerator(
+  public Object getGenerator() {
+    return new AbstractGenerator(
         new EquiJoinComputeNext(
             leftIterable,
             leftKeyF,
@@ -82,20 +74,18 @@ public final class EquiJoinCollection implements TruffleObject {
             context));
   }
 
-  // InteropLibrary: Iterable
-
   @ExportMessage
-  final boolean hasIterator() {
+  boolean hasIterator() {
     return true;
   }
 
-  private final GeneratorLibrary generatorLibrary =
-      GeneratorLibrary.getFactory().createDispatched(1);
-
   @ExportMessage
-  final Object getIterator(@CachedLibrary("this") IterableLibrary iterables) {
-    Object generator = iterables.getGenerator(this);
-    generatorLibrary.init(generator);
+  Object getIterator(
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
+      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode) {
+    Object generator = getGeneratorNode.execute(thisNode, this);
+    initNode.execute(thisNode, generator);
     return generator;
   }
 }

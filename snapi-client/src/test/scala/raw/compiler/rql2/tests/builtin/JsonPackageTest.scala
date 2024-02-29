@@ -68,6 +68,17 @@ trait JsonPackageTest extends CompilerTestContext {
 
   private val recordData = tempFile("""{"a": 1, "b": 10, "c": 100}""")
 
+  test(
+    """Json.Parse(" [ {\"a\" : \"2024-01-08T14:20:09.102\"}, {\"a\" : \"not a date\"} ] ", type list(record(a: timestamp)))"""
+  )(it => it should evaluateTo("""[
+    |  {
+    |    a: Timestamp.Parse("2024-01-08T14:20:09.102", "yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]")
+    |  },
+    |  {
+    |    a: Error.Build("string 'not a date' does not match timestamp template 'yyyy-M-d['T'][ ]HH:mm[:ss[.SSS]]'")
+    |  }
+    |] """.stripMargin))
+
   test(snapi"""Json.Read("$data", type collection(undefined))""")(it => it should evaluateTo("""[
     |  Error.Build("expected null but got non-null"),
     |  Error.Build("expected null but got non-null"),
@@ -347,23 +358,27 @@ trait JsonPackageTest extends CompilerTestContext {
   )
   val triple = "\"\"\""
 
-  test(snapi"""Json.InferAndRead("$changeTypes", sampleSize = 5)""".stripMargin)(it => it should orderEvaluateTo(s"""[
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {a: 1, b: "1", c: [1, 2, 3]},
-    | {
-    |   a: Error.Build(${triple}Current token (VALUE_STRING) not numeric, can not use numeric value accessors
-    | at [Source: (InputStreamReader); line: 11, column: 9]$triple),
-    |   b: "1",
-    |   c: Error.Build("expected [ but token VALUE_STRING found")
-    | }
-    |]""".stripMargin))
+  test(snapi"""Json.InferAndRead("$changeTypes", sampleSize = 5)""".stripMargin)(it =>
+    it should orderEvaluateTo(
+      s"""[
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {a: 1, b: "1", c: [1, 2, 3]},
+        | {
+        |   a: Error.Build(${triple}Current token (VALUE_STRING) not numeric, can not use numeric value accessors
+        | at [Source: (InputStreamReader); line: 11, column: 9]$triple),
+        |   b: "1",
+        |   c: Error.Build("expected [ but token VALUE_STRING found")
+        | }
+        |]""".stripMargin
+    )
+  )
 
   private val recordInTheMiddle = tempFile("""[
     |  1,
@@ -406,7 +421,9 @@ trait JsonPackageTest extends CompilerTestContext {
 
   test(snapi"""Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double)))""") { it =>
     if (isTruffle) {
-      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+      it should runErrorAs(
+        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+      )
     } else {
       it should runErrorAs(
         snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
@@ -435,7 +452,9 @@ trait JsonPackageTest extends CompilerTestContext {
     snapi"""Collection.Take(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))), 11)"""
   ) { it =>
     if (isTruffle) {
-      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+      it should runErrorAs(
+        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+      )
     } else {
       it should runErrorAs(
         snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries
@@ -448,7 +467,9 @@ trait JsonPackageTest extends CompilerTestContext {
     snapi"""Collection.Count(Json.Read("$junkAfter10Items", type collection(record(a: int, b: string, c: double))))""".stripMargin
   ) { it =>
     if (isTruffle) {
-      it should runErrorAs(snapi"failed to read JSON (url: $junkAfter10Items): Unexpected character ('#' (code 35))")
+      it should runErrorAs(
+        snapi"failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35))"
+      )
     } else {
       it should runErrorAs(
         snapi"""failed to read JSON (line 11 column 37) (url: $junkAfter10Items): Unexpected character ('#' (code 35)): was expecting comma to separate Array entries

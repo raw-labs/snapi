@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.literals;
 
-import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
@@ -31,7 +31,7 @@ public class DecimalNode extends ExpressionNode {
     return createDecimal();
   }
 
-  @CompilerDirectives.TruffleBoundary
+  @TruffleBoundary
   private DecimalObject createDecimal() {
     return new DecimalObject(new BigDecimal(value));
   }
