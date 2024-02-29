@@ -41,10 +41,6 @@ class RawSqlVisitor(
   override def visitCode(ctx: PsqlParser.CodeContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val statements = Option(context.stmt())
-        .flatMap(mdContext => Option(visit(mdContext)))
-        .getOrElse(SqlErrorNode())
-
-      val comments = Option(context.comment())
         .map(m =>
           m.asScala.map(md =>
             Option(md)
@@ -56,7 +52,7 @@ class RawSqlVisitor(
         .getOrElse(Vector.empty)
         .toVector
 
-      val prog = SqlProgramNode(statements, comments)
+      val prog = SqlProgramNode(statements)
       positionsWrapper.setPosition(ctx, prog)
       prog
     }
@@ -475,7 +471,7 @@ class RawSqlVisitor(
     .map { context =>
       val name = Option(context.idnt())
         .map(i => i.getText)
-        .getOrElse(context.keyword().getText)
+        .getOrElse(context.reserved_keyword().getText)
       val arguments = Option(context.stmt_items())
         .map(visit)
       val funCall = SqlFunctionCall(name, arguments)
@@ -512,12 +508,14 @@ class RawSqlVisitor(
     .getOrElse(SqlErrorNode())
 
   override def visitTypeCast(ctx: PsqlParser.TypeCastContext): SqlBaseNode = Option(ctx)
-    .map { context =>
-      val stmt = Option(context.stmt_items()).map(visit).getOrElse(SqlErrorNode())
-      val tipe = Option(context.tipe()).map(visit).getOrElse(SqlErrorNode())
-      val typeCast = SqlTypeCastNode(stmt, tipe)
-      positionsWrapper.setPosition(ctx, typeCast)
-      typeCast
+    .flatMap { context =>
+      Option(context.stmt_items()).map { items =>
+        val stmt = Option(items.get(0)).map(visit).getOrElse(SqlErrorNode())
+        val tipe = Option(items.get(1)).map(visit).getOrElse(SqlErrorNode())
+        val typeCast = SqlTypeCastNode(stmt, tipe)
+        positionsWrapper.setPosition(ctx, typeCast)
+        typeCast
+      }
     }
     .getOrElse(SqlErrorNode())
 
@@ -538,7 +536,7 @@ class RawSqlVisitor(
     .getOrElse(SqlErrorNode())
 
   override def visitKeywordStmt(ctx: PsqlParser.KeywordStmtContext): SqlBaseNode = Option(ctx)
-    .flatMap(context => Option(context.keyword()).map(visit))
+    .flatMap(context => Option(context.reserved_keyword()).map(visit))
     .getOrElse(SqlErrorNode())
 
 //  override def visitBinaryExpStmt(ctx: PsqlParser.BinaryExpStmtContext): SqBaseNode = Option(ctx)
@@ -566,7 +564,15 @@ class RawSqlVisitor(
     })
     .getOrElse(SqlErrorNode())
 
-  override def visitKeyword(ctx: PsqlParser.KeywordContext): SqlBaseNode = Option(ctx)
+//  override def visitKeyword(ctx: PsqlParser.KeywordContext): SqlBaseNode = Option(ctx)
+//    .map { context =>
+//      val keyword = SqlKeywordNode(context.getText)
+//      positionsWrapper.setPosition(ctx, keyword)
+//      keyword
+//    }
+//    .getOrElse(SqlErrorNode())
+
+  override def visitReserved_keyword(ctx: PsqlParser.Reserved_keywordContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val keyword = SqlKeywordNode(context.getText)
       positionsWrapper.setPosition(ctx, keyword)
@@ -611,7 +617,6 @@ class RawSqlVisitor(
       val value =
         if (isDoubleQuoted) context.DOUBLE_QUOTED_STRING().getText.replace("\"", "")
         else context.getText
-
       val idnt = SqlIdentifierNode(value, isDoubleQuoted)
       positionsWrapper.setPosition(ctx, idnt)
       idnt
@@ -662,7 +667,11 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-// ignored
+  override def visitCommentStmt(ctx: PsqlParser.CommentStmtContext): SqlBaseNode = super.visitCommentStmt(ctx)
+
+  override def visitTypeStmt(ctx: PsqlParser.TypeStmtContext): SqlBaseNode = super.visitTypeStmt(ctx)
+
+  // ignored
   override def visitPsql_type(ctx: PsqlParser.Psql_typeContext): SqlBaseNode =
     throw new AssertionError(assertionMessage)
 
@@ -671,5 +680,8 @@ class RawSqlVisitor(
   ): SqlBaseNode = throw new AssertionError(assertionMessage)
 
   override def visitMultiline_unknown_type_comment(ctx: PsqlParser.Multiline_unknown_type_commentContext): SqlBaseNode =
+    throw new AssertionError(assertionMessage)
+
+  override def visitNon_reserved_keyword(ctx: PsqlParser.Non_reserved_keywordContext): SqlBaseNode =
     throw new AssertionError(assertionMessage)
 }

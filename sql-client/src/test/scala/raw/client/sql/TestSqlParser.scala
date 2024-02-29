@@ -28,7 +28,7 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.params.isEmpty)
     assert(result.returnDescription.isEmpty)
     result.tree match {
-      case SqlProgramNode(statement, comments) => statement match {
+      case SqlProgramNode(statements) => statements.head match {
           case SqlStatementNode(statementItems) =>
             assert(statementItems.size == 4)
             assert(statementItems(0).isInstanceOf[SqlKeywordNode])
@@ -191,7 +191,7 @@ class TestSqlParser extends AnyFunSuite {
     val result = doTest(code)
     assert(result.isSuccess)
     result.tree match {
-      case SqlProgramNode(statement, comments) => statement match {
+      case SqlProgramNode(statements) => statements.head match {
           case SqlStatementNode(statementItems) =>
             assert(statementItems.size == 4)
             statementItems(1) match {
@@ -231,6 +231,38 @@ class TestSqlParser extends AnyFunSuite {
 
   test("Test unknown tokens") {
     val code = """SELECT * FROM $$""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test OR Case") {
+    val code = """SELECT COUNT(*) FROM example.airports
+                 |WHERE city = :name OR country = :name""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test random keyword test") {
+    val code = """SELECT DATE '2002-01-01' - :s::int AS x -- RD-10538""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test complex random code") {
+    val code = """CREATE FUNCTION check_password(uname TEXT, pass TEXT)
+                 |RETURNS BOOLEAN AS $$
+                 |DECLARE passed BOOLEAN;
+                 |BEGIN
+                 |        SELECT  (pwd = $2) INTO passed
+                 |        FROM    pwds
+                 |        WHERE   username = $1;
+                 |
+                 |        RETURN passed;
+                 |END;
+                 |$$  LANGUAGE plpgsql
+                 |    SECURITY DEFINER
+                 |    -- Set a secure search_path: trusted schema(s), then 'pg_temp'.
+                 |    SET search_path = admin, pg_temp;""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
   }

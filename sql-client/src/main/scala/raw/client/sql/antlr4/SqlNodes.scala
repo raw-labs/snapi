@@ -2,7 +2,7 @@ package raw.client.sql.antlr4
 
 trait SqlBaseNode extends Product
 
-final case class SqlProgramNode(statements: SqlBaseNode, comments: Vector[SqlBaseNode]) extends SqlBaseNode
+final case class SqlProgramNode(statements: Vector[SqlBaseNode]) extends SqlBaseNode
 
 // A comment can be a single line or a multi line comment
 // The values that we are interested in are the subComments which are "@param", "@return", "@type", "@default"

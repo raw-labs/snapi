@@ -59,6 +59,23 @@ SERIAL: S E R I A L;
 CHARACTER_VARYING: CHARACTER VARYING;
 BIT_VARYING: BIT VARYING;
 
+// aliases
+INT_8: I N T '8';
+SERIAL_8: S E R I A L '8';
+VARBIT: V A R B I T;
+BOOL: B O O L;
+CHAR: C H A R;
+FLOAT_8: F L O A T '8';
+INT_4: I N T '4';
+INT: I N T;
+DECIMAL: D E C I M A L;
+FLOAT_4: F L O A T '4';
+INT_2: I N T '2';
+SERIAL_2: S E R I A L '2';
+SERIAL_4: S E R I A L '4';
+TIMESTAMPTZ: T I M E S T A M P T Z;
+
+
 A_KW : A;
 ABORT : A B O R T;
 ABS : A B S;
@@ -137,7 +154,6 @@ CEIL : C E I L;
 CEILING : C E I L I N G;
 CHAIN : C H A I N;
 CHAINING : C H A I N I N G;
-CHAR : C H A R;
 CHARACTER : C H A R A C T E R;
 CHARACTERISTICS : C H A R A C T E R I S T I C S;
 CHARACTERS : C H A R A C T E R S;
@@ -234,7 +250,6 @@ DB : D B;
 DEALLOCATE : D E A L L O C A T E;
 DEC : D E C;
 DECFLOAT : D E C F L O A T;
-DECIMAL : D E C I M A L;
 DECLARE : D E C L A R E;
 DEFAULT : D E F A U L T;
 DEFAULTS : D E F A U L T S;
@@ -398,7 +413,6 @@ INSERT : I N S E R T;
 INSTANCE : I N S T A N C E;
 INSTANTIABLE : I N S T A N T I A B L E;
 INSTEAD : I N S T E A D;
-INT : I N T;
 INTEGER : I N T E G E R;
 INTEGRITY : I N T E G R I T Y;
 INTERSECT : I N T E R S E C T;
@@ -945,7 +959,7 @@ SL_DEFAULT_KW: '@default';
 SL_PARAM_KW: '@param';
 SL_RETURN_KW: '@return';
 SL_UNKNOWN_TOKEN: '@' SL_WORD;
-SL_WORD: [a-zA-Z0-9!@#$%^&*_+'"`.]+ '(' .*? ')' | [a-zA-Z0-9!@#$%^&*_+'"`.]+;
+SL_WORD: ~[ \t\r\n]+ '(' .*? ')' | ~[ \t\r\n]+;
 
 SL_SPACES: [ ][ ][ ][ ][ ]+;
 
@@ -960,7 +974,8 @@ ML_DEFAULT_KW: '@default';
 ML_PARAM_KW: '@param';
 ML_RETURN_KW: '@return';
 ML_UNKNOWN_TOKEN: '@' .*?;
-ML_WORD: [a-zA-Z0-9!@#$%^&*_+'"`.]+ '(' .*? ')' | [a-zA-Z0-9!@#$%^&*_+'"`.]+;
+ML_WORD: ML_W+ '(' .*? ')' | ML_W+;
+ML_W: ([a-zA-Z0-9]+ | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '_' | '+' | '\'' | '"' | '`' | '.' | '-' | ',' | ':');
 
 ML_WS : [ \t\r\n]+ -> skip;
 
@@ -969,5 +984,6 @@ MULTI_LINE_COMMENT_END: '*/' -> popMode;
 mode INSIDE_UNKNOWN_WORD;
 
 UNKNOWN_WORD_END: [ \t\r\n;EOF] -> popMode;
+UNKNOWN_WORD_END2: [)] -> type(R_PAREN), popMode;
 
-IN_UNKNOWN_WORD: ~[;];
+IN_UNKNOWN_WORD: ~[;)];
