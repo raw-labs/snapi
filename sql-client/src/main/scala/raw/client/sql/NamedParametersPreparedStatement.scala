@@ -20,14 +20,17 @@ import raw.utils.RawSettings
 import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
 import scala.collection.mutable
 import scala.collection.mutable.ListBuffer
-
+import scala.util.matching.Regex
+object NamedParametersPreparedStatement {
+  val argRegex: Regex = """\W*:([a-zA-Z]\w*)\W*""".r
+}
 /* This class is wrapping the PreparedStatement class from the JDBC API.
  * It parses the SQL code and extract the named parameters, infer their types from how they're used.
  * It also provides methods to set the parameters by name, then execute the query.
  */
 class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit rawSettings: RawSettings)
     extends StrictLogging {
-
+  import NamedParametersPreparedStatement.argRegex
   /* We have the query code in `code` (with named parameters). Internally we need to replace
    * the named parameters with question marks, and keep track of the mapping between the
    * parameter names and the question marks.
@@ -36,12 +39,31 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
   // Each named parameter is mapped to a list of offsets in the original `code` where it appears (starting at the colon)
   case class ParamLocation(index: Int, start: Int, end: Int)
   private val paramLocations = mutable.Map.empty[String, mutable.ListBuffer[ParamLocation]]
+
+  private val arguments =
+    SqlCodeUtils.tokens(code).collect { case Token(argRegex(argName), pos, offset) => Token(argName, pos, offset) }
+
+  val paramLocations2: Map[String, Seq[ParamLocation]] =
+    arguments.zipWithIndex.groupBy { case (token, _) => token.token }.map {
+      case (argName, items) => argName -> items.map {
+        case (token, index) => ParamLocation(index + 1, token.offset, token.offset + argName.length)
+      }
+    }
+
+  val plainCode2: String = {
+    val plainCodeBuffer = new StringBuilder
+    var lastOffset = 0
+    for (arg <- arguments) {
+      plainCodeBuffer.append(code.substring(lastOffset, arg.offset -1))
+      plainCodeBuffer.append("?")
+      lastOffset = arg.offset + arg.token.length
+    }
+    plainCodeBuffer.append(code.substring(lastOffset))
+    plainCodeBuffer.toString()
+  }
   def getParamLocations: Map[String, ListBuffer[ParamLocation]] = paramLocations.toMap
 
   private var paramIndex = 0
-
-  private val argRegex = """:([a-zA-Z]\w*)""".r
-  val arguments = SqlCodeUtils.tokens(code).collect { case Token(argRegex(argName), pos, offset) => (argName, pos) }
 
   private val plainCode = {
     val startSkipTokens = Array("'", "--") // tokens that start a portion of code where named parameters aren't found
@@ -107,6 +129,7 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
     plainCodeBuffer.toString()
   }
 
+  assert(plainCode == plainCode2)
   private def validateParameterType(tipe: RawType, name: String, typeName: String): Either[String, RawType] =
     tipe match {
       case _: RawNumberType => Right(tipe)

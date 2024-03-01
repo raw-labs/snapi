@@ -34,15 +34,17 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     }
     super.afterAll()
   }
-
   test("Adding single parameter") { _ =>
-    val sql = "SELECT * FROM table WHERE column = :value"
+    val code = "SELECT :v1,:v2 FROM table WHERE column = :v1"
     val con = connectionPool.getConnection(user)
-    val statement = new NamedParametersPreparedStatement(con, sql)
+    val statement = new NamedParametersPreparedStatement(con, code)
 
-    logger.debug(s"Parameter locations${statement.getParamLocations}")
 
-    statement.setInt("value", 1)
+    val paramLocations = statement.getParamLocations
+    val paramLocation2 = statement.paramLocations2
+    logger.debug(s"Parameter locations$paramLocation2")
+    logger.debug(s"Parameter locations$paramLocations")
+
 
   }
 

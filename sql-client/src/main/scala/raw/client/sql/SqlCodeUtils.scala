@@ -178,13 +178,18 @@ object SqlCodeUtils {
             currentWord.clear()
             currentWord.append("/*")
             currentPos = Pos(line, row - 1)
-            currentOffset = offset 
-          } else if (!char.isWhitespace) {
-            currentWord += char
-          } else {
+            currentOffset = offset
+          } else if (char == ':') {
+            // to separate parameter definitions
+            addToken()
+            resetCurrentPos()
+            currentWord.append(char)
+          } else if (char.isWhitespace) {
             addToken()
             resetCurrentPos()
             state = Idle
+          } else {
+            currentWord += char
           }
         case Quote =>
           if (char == quoteType) {
