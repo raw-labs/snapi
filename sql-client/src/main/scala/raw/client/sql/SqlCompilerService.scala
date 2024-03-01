@@ -295,7 +295,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       .build(loader)
   }
 
-  override def doStop(): Unit = {
-  }
+  override def doStop(): Unit = {}
 
 }
