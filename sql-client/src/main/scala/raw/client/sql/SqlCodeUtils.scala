@@ -20,7 +20,7 @@ case class SqlIdentifier(value: String, quoted: Boolean)
 
 object SqlParseStates extends Enumeration {
   type State = Value
-  val Idle, Quote, InToken, CheckQuote, Comment, MultilineComment = Value
+  val Idle, InQuote, InToken, CheckQuote, Comment, MultilineComment = Value
 }
 object SqlCodeUtils {
   import SqlParseStates._
@@ -59,7 +59,7 @@ object SqlCodeUtils {
         case Idle =>
           if (char == '"') {
             quoted = true
-            state = Quote
+            state = InQuote
           } else if (identifierChar(char)) {
             state = InToken
             quoted = false
@@ -86,7 +86,7 @@ object SqlCodeUtils {
             return idns
           }
         // We are in a quote, so we can have a quote (check end of quote) or something else (continuation of identifier)
-        case Quote =>
+        case InQuote =>
           if (char == '"') {
             state = CheckQuote
           } else {
@@ -96,7 +96,7 @@ object SqlCodeUtils {
         case CheckQuote =>
           if (char == '"') {
             idn += '"'
-            state = Quote
+            state = InQuote
           } else {
             idns += SqlIdentifier(idn.toString(), quoted)
             idn.clear()
@@ -146,7 +146,7 @@ object SqlCodeUtils {
       state match {
         case Idle =>
           if (char == '"' || char == '\'') {
-            state = Quote
+            state = InQuote
             quoteType = char
             currentWord += char
             resetCurrentPos()
@@ -157,7 +157,7 @@ object SqlCodeUtils {
           }
         case InToken =>
           if (char == '"' || char == '\'') {
-            state = Quote
+            state = InQuote
             quoteType = char
             currentWord += char
           } else if (char == '-' && lastChar == '-') {
@@ -191,7 +191,7 @@ object SqlCodeUtils {
           } else {
             currentWord += char
           }
-        case Quote =>
+        case InQuote =>
           if (char == quoteType) {
             state = CheckQuote
           } else {
@@ -200,7 +200,7 @@ object SqlCodeUtils {
         case CheckQuote =>
           if (char == quoteType) {
             currentWord += char
-            state = Quote
+            state = InQuote
           } else if (!char.isWhitespace) {
             currentWord += quoteType
             state = InToken
