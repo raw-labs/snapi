@@ -14,10 +14,12 @@ package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api._
+import raw.client.sql.SqlCodeUtils.Token
 import raw.utils.RawSettings
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
 import scala.collection.mutable
+import scala.collection.mutable.ListBuffer
 
 /* This class is wrapping the PreparedStatement class from the JDBC API.
  * It parses the SQL code and extract the named parameters, infer their types from how they're used.
@@ -32,10 +34,14 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
    */
 
   // Each named parameter is mapped to a list of offsets in the original `code` where it appears (starting at the colon)
-  private case class ParamLocation(index: Int, start: Int, end: Int)
+  case class ParamLocation(index: Int, start: Int, end: Int)
   private val paramLocations = mutable.Map.empty[String, mutable.ListBuffer[ParamLocation]]
+  def getParamLocations: Map[String, ListBuffer[ParamLocation]] = paramLocations.toMap
 
   private var paramIndex = 0
+
+  private val argRegex = """:([a-zA-Z]\w*)""".r
+  val arguments = SqlCodeUtils.tokens(code).collect { case Token(argRegex(argName), pos, offset) => (argName, pos) }
 
   private val plainCode = {
     val startSkipTokens = Array("'", "--") // tokens that start a portion of code where named parameters aren't found

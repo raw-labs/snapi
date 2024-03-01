@@ -20,7 +20,7 @@ case class SqlIdentifier(value: String, quoted: Boolean)
 
 object SqlParseStates extends Enumeration {
   type State = Value
-  val Idle, Quote, Token, CheckQuote, Comment, MultilineComment = Value
+  val Idle, Quote, InToken, CheckQuote, Comment, MultilineComment = Value
 }
 object SqlCodeUtils {
   import SqlParseStates._
@@ -61,7 +61,7 @@ object SqlCodeUtils {
             quoted = true
             state = Quote
           } else if (identifierChar(char)) {
-            state = Token
+            state = InToken
             quoted = false
             idn += char
           } else {
@@ -71,7 +71,7 @@ object SqlCodeUtils {
             return idns
           }
         // We are out of a quote, so we can have a dot (end of identifier) or a letter (continuation of identifier)
-        case Token =>
+        case InToken =>
           if (identifierChar(char)) {
             idn += char
           } else if (char == '.') {
@@ -115,19 +115,33 @@ object SqlCodeUtils {
     if (idn.nonEmpty) idns += SqlIdentifier(idn.toString(), quoted)
     idns.toSeq
   }
+  case class Token(token: String, pos: Pos, offset: Int)
 
   // State machine to parse tokens, returns a sequence of (token, position)
   // It mostly separates by white-space with a state machine to handle quotes.
   // Can probably be done with regexes also, but a state machine seemed safer
-  def tokens(code: String): Seq[(String, Pos)] = {
-    val tokens = mutable.ArrayBuffer[(String, Pos)]()
+  def tokens(code: String): Seq[Token] = {
+    val tokens = mutable.ArrayBuffer[Token]()
     val currentWord = new StringBuilder()
     var state = Idle
     var quoteType: Char = '"'
     var currentPos = Pos(0, 0)
+    var currentOffset = 0
+    var offset = 0
     var line = 1
     var row = 1
     var lastChar = ' '
+
+    def resetCurrentPos(): Unit = {
+      currentPos = Pos(line, row)
+      currentOffset = offset + 1
+    }
+
+    def addToken(): Unit = {
+      tokens.append(Token(currentWord.toString(), currentPos, currentOffset))
+      currentWord.clear()
+    }
+
     code.foreach { char =>
       state match {
         case Idle =>
@@ -135,13 +149,13 @@ object SqlCodeUtils {
             state = Quote
             quoteType = char
             currentWord += char
-            currentPos = Pos(line, row)
+            resetCurrentPos()
           } else if (!char.isWhitespace) {
-            state = Token
+            state = InToken
             currentWord += char
-            currentPos = Pos(line, row)
+            resetCurrentPos()
           }
-        case Token =>
+        case InToken =>
           if (char == '"' || char == '\'') {
             state = Quote
             quoteType = char
@@ -150,25 +164,26 @@ object SqlCodeUtils {
             state = Comment
             // Add the current word to the tokens
             if (currentWord.length > 1) {
-              tokens.append((currentWord.substring(0, currentWord.length - 1), currentPos))
+              tokens.append(Token(currentWord.substring(0, currentWord.length - 1), currentPos, currentOffset))
             }
             currentWord.clear()
             currentWord.append("--")
             currentPos = Pos(line, row - 1)
+            currentOffset = offset
           } else if (lastChar == '/' && char == '*') {
             state = MultilineComment
             if (currentWord.length > 1) {
-              tokens.append((currentWord.substring(0, currentWord.length - 1), currentPos))
+              tokens.append(Token(currentWord.substring(0, currentWord.length - 1), currentPos, currentOffset))
             }
             currentWord.clear()
             currentWord.append("/*")
             currentPos = Pos(line, row - 1)
+            currentOffset = offset 
           } else if (!char.isWhitespace) {
             currentWord += char
           } else {
-            tokens.append((currentWord.toString(), currentPos))
-            currentWord.clear()
-            currentPos = Pos(line, row)
+            addToken()
+            resetCurrentPos()
             state = Idle
           }
         case Quote =>
@@ -183,26 +198,23 @@ object SqlCodeUtils {
             state = Quote
           } else if (!char.isWhitespace) {
             currentWord += quoteType
-            state = Token
+            state = InToken
             currentWord += char
           } else {
             currentWord += quoteType
-            tokens.append((currentWord.toString(), currentPos))
-            currentWord.clear()
+            addToken()
             state = Idle
           }
         case Comment =>
           currentWord += char
           if (char == '\n') {
-            tokens.append((currentWord.toString(), currentPos))
-            currentWord.clear()
+            addToken()
             state = Idle
           }
         case MultilineComment =>
           currentWord += char
           if (lastChar == '*' && char == '/') {
-            tokens.append((currentWord.toString(), currentPos))
-            currentWord.clear()
+            addToken()
             state = Idle
           }
       }
@@ -213,14 +225,14 @@ object SqlCodeUtils {
         row += 1
       }
       lastChar = char
-
+      offset += 1
     }
 
     // If we were checking a quote and we reached the end then we need to add the quote to the string
     if (state == CheckQuote) {
       currentWord += quoteType
     }
-    if (currentWord.nonEmpty) tokens.append((currentWord.toString(), currentPos))
+    if (currentWord.nonEmpty) addToken()
     tokens.toSeq
   }
 }
@@ -233,12 +245,13 @@ class SqlCodeUtils(code: String) {
     val tokens = SqlCodeUtils.tokens(code)
     // Finds the corresponding token
     val maybeToken = tokens.find {
-      case (token, pos) => pos.column <= p.column && (pos.column + token.length) > p.column && pos.line == p.line
+      case Token(token, pos, _) =>
+        pos.column <= p.column && (pos.column + token.length) > p.column && pos.line == p.line
     }
 
     maybeToken
       .map {
-        case (token, pos) =>
+        case Token(token, pos, _) =>
           val idns = identifiers(token)
           var currentCol = pos.column
           // This is to get the idns with the column offset
@@ -262,11 +275,12 @@ class SqlCodeUtils(code: String) {
     val tokens = SqlCodeUtils.tokens(code)
     // Finds the corresponding token
     val maybeToken = tokens.find {
-      case (token, pos) => pos.column <= p.column && (pos.column + token.length) >= p.column && pos.line == p.line
+      case Token(token, pos, _) =>
+        pos.column <= p.column && (pos.column + token.length) >= p.column && pos.line == p.line
     }
     maybeToken
       .map {
-        case (token, pos) =>
+        case Token(token, pos, _) =>
           val str = token.substring(0, p.column - pos.column)
           identifiers(str)
       }

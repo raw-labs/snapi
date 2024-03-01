@@ -14,6 +14,7 @@ package raw.client.sql
 
 import org.scalatest.funsuite.AnyFunSuite
 import raw.client.api.Pos
+import raw.client.sql.SqlCodeUtils.Token
 
 class TestSqlCodeUtils extends AnyFunSuite {
 
@@ -130,7 +131,12 @@ class TestSqlCodeUtils extends AnyFunSuite {
   test("extract tokens") {
     val code = "select * from schema.table"
     val results = SqlCodeUtils.tokens(code)
-    val expected = Seq(("select", Pos(1, 1)), ("*", Pos(1, 8)), ("from", Pos(1, 10)), ("schema.table", Pos(1, 15)))
+    val expected = Seq(
+      Token("select", Pos(1, 1), 1),
+      Token("*", Pos(1, 8), 8),
+      Token("from", Pos(1, 10), 10),
+      Token("schema.table", Pos(1, 15), 15)
+    )
     assert(results == expected)
   }
 
@@ -138,14 +144,14 @@ class TestSqlCodeUtils extends AnyFunSuite {
     val code = """select * from "schema"."table" where name = 'john smith' """
     val results = SqlCodeUtils.tokens(code)
     val expected = Seq(
-      ("select", Pos(1, 1)),
-      ("*", Pos(1, 8)),
-      ("from", Pos(1, 10)),
-      ("\"schema\".\"table\"", Pos(1, 15)),
-      ("where", Pos(1, 32)),
-      ("name", Pos(1, 38)),
-      ("=", Pos(1, 43)),
-      ("'john smith'", Pos(1, 45))
+      Token("select", Pos(1, 1), offset = 1),
+      Token("*", Pos(1, 8), offset = 8),
+      Token("from", Pos(1, 10), offset = 10),
+      Token("\"schema\".\"table\"", Pos(1, 15), offset = 15),
+      Token("where", Pos(1, 32), offset = 32),
+      Token("name", Pos(1, 38), offset = 38),
+      Token("=", Pos(1, 43), offset = 43),
+      Token("'john smith'", Pos(1, 45), offset = 45)
     )
     assert(results == expected)
   }
@@ -156,43 +162,41 @@ class TestSqlCodeUtils extends AnyFunSuite {
       |   where name = 'john smith'""".stripMargin
     val results = SqlCodeUtils.tokens(code)
     val expected = Seq(
-      ("select", Pos(1, 1)),
-      ("*", Pos(1, 8)),
-      ("from", Pos(2, 4)),
-      ("\"schema\".\"table\"", Pos(2, 9)),
-      ("where", Pos(3, 4)),
-      ("name", Pos(3, 10)),
-      ("=", Pos(3, 15)),
-      ("'john smith'", Pos(3, 17))
+      Token("select", Pos(1, 1), offset = 1),
+      Token("*", Pos(1, 8), offset = 8),
+      Token("from", Pos(2, 4), offset = 13),
+      Token("\"schema\".\"table\"", Pos(2, 9), offset = 18),
+      Token("where", Pos(3, 4), offset = 38),
+      Token("name", Pos(3, 10), offset = 44),
+      Token("=", Pos(3, 15), offset = 49),
+      Token("'john smith'", Pos(3, 17), offset = 51)
     )
     assert(results == expected)
   }
 
   test("extract tokens with comments") {
     val code = """/* some comment
-                 |on multiple lines */
-                 |select * -- a single line comment
-                 |   from "schema"."table"--another one
-                 |   where name/* inline comment */= 'john smith'""".stripMargin
+      |on multiple lines */
+      |select * -- a single line comment
+      |   from "schema"."table"--another one
+      |   where name/* inline comment */= 'john smith'""".stripMargin
     val results = SqlCodeUtils.tokens(code)
     val expected = Seq(
-      ("/* some comment\non multiple lines */", Pos(1, 1)),
-      ("select", Pos(3, 1)),
-      ("*", Pos(3, 8)),
-      ("-- a single line comment\n", Pos(3, 10)),
-      ("from", Pos(4, 4)),
-      ("\"schema\".\"table\"", Pos(4, 9)),
-      ("--another one\n", Pos(4, 25)),
-      ("where", Pos(5, 4)),
-      ("name", Pos(5, 10)),
-      ("/* inline comment */", Pos(5, 14)),
-      ("=", Pos(5, 34)),
-      ("'john smith'", Pos(5, 36)),
+      Token("/* some comment\non multiple lines */", Pos(1, 1), offset = 1),
+      Token("select", Pos(3, 1), offset = 38),
+      Token("*", Pos(3, 8), offset = 45),
+      Token("-- a single line comment\n", Pos(3, 10), offset = 47),
+      Token("from", Pos(4, 4), offset = 75),
+      Token("\"schema\".\"table\"", Pos(4, 9), offset = 80),
+      Token("--another one\n", Pos(4, 25), offset = 96),
+      Token("where", Pos(5, 4), offset = 113),
+      Token("name", Pos(5, 10), offset = 119),
+      Token("/* inline comment */", Pos(5, 14), offset = 123),
+      Token("=", Pos(5, 34), offset = 143),
+      Token("'john smith'", Pos(5, 36), offset = 145)
     )
     results.zip(expected).foreach {
-      case (r, e) =>
-        if (r != e)
-          throw new AssertionError(s"Values did not match: expected $e but got $r")
+      case (r, e) => if (r != e) throw new AssertionError(s"Values did not match: expected $e but got $r")
     }
     assert(results == expected)
   }
