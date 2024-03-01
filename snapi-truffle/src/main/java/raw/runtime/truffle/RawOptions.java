@@ -19,12 +19,21 @@ import org.graalvm.options.OptionKey;
 public class RawOptions {
 
   public static final String STAGED_COMPILER = optionName("staged-compiler");
-
   public static final OptionKey<String> STAGED_COMPILER_KEY = new OptionKey<>("");
   public static final OptionDescriptor STAGED_COMPILER_DESCRIPTOR =
       OptionDescriptor.newBuilder(STAGED_COMPILER_KEY, STAGED_COMPILER).build();
+
+
+  public static final String RAW_SETTINGS = optionName("settings");
+  public static final OptionKey<String> RAW_SETTINGS_KEY = new OptionKey<>("");
+  public static final OptionDescriptor RAW_SETTINGS_DESCRIPTOR =
+          OptionDescriptor.newBuilder(RAW_SETTINGS_KEY, RAW_SETTINGS).build();
+
+
+  // List of all available options
   public static final OptionDescriptors OPTION_DESCRIPTORS =
-      OptionDescriptors.create(java.util.Arrays.asList(STAGED_COMPILER_DESCRIPTOR));
+      OptionDescriptors.create(java.util.Arrays.asList(STAGED_COMPILER_DESCRIPTOR, RAW_SETTINGS_DESCRIPTOR));
+
 
   private static String optionName(String name) {
     return RawLanguage.ID + "." + name;

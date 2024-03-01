@@ -25,6 +25,8 @@ import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
 import java.util.*;
 import java.util.stream.Collectors;
+
+import com.typesafe.config.ConfigFactory;
 import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
 import raw.compiler.base.CompilerContext;
@@ -69,6 +71,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   private static final RawLanguageCache languageCache = new RawLanguageCache();
 
+  private static final RawSettings defaultRawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
+
   private final Shape initialRecordShape = Shape.newBuilder().build();
 
   @Override
@@ -104,11 +108,10 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   protected CallTarget parse(ParsingRequest request) throws Exception {
     RawContext context = RawContext.get(null);
 
-    ProgramEnvironment programEnvironment = context.getProgramEnvironment();
     RuntimeContext runtimeContext =
-        new RuntimeContext(context.getSourceContext(), getRawSettings(), programEnvironment);
+        new RuntimeContext(context.getSourceContext(), context.getProgramEnvironment());
     ProgramContext programContext =
-        new Rql2ProgramContext(runtimeContext, getCompilerContext(context.getUser()));
+        new Rql2ProgramContext(runtimeContext, getCompilerContext(context.getUser(), context.getSettings()));
 
     String source = request.getSource().getCharacters().toString();
 
@@ -221,23 +224,24 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return context.getFunctionRegistry().asPolyglot();
   }
 
-  public SourceContext getSourceContext(AuthenticatedUser user) {
-    return languageCache.getSourceContext(user);
+  public SourceContext getSourceContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return languageCache.getSourceContext(user, rawSettings);
   }
 
-  public CompilerContext getCompilerContext(AuthenticatedUser user) {
-    return languageCache.getCompilerContext(user);
+  public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return languageCache.getCompilerContext(user, rawSettings);
   }
 
-  public InferrerService getInferrer(AuthenticatedUser user) {
-    return languageCache.getInferrer(user);
+  public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
+    return languageCache.getInferrer(user, rawSettings);
   }
 
-  public RawSettings getRawSettings() {
-    return languageCache.rawSettings;
+  public RawSettings getDefaultRawSettings() {
+    return defaultRawSettings;
   }
 
-  public static void dropCaches() {
-    languageCache.reset();
+  // Method used only by the test suite.
+  private void dropCaches() {
+    languageCache.close();
   }
 }

@@ -42,6 +42,7 @@ public final class RawContext implements Closeable {
 
   private final RawLanguage language;
   private final Env env;
+  private RawSettings rawSettings;
   private OutputStream output;
   private AuthenticatedUser user;
   private String traceId;
@@ -54,11 +55,20 @@ public final class RawContext implements Closeable {
     this.env = env;
     this.output = env.out();
 
+    String rawSettingsConfigString = env.getOptions().get(RawOptions.RAW_SETTINGS_KEY);
+    // If settings were passed as Engine options, used those as our settings.
+    // Otherwise, default to the settings from the language, which are obtained from the system.
+    if (rawSettingsConfigString.isEmpty()) {
+      this.rawSettings = language.getDefaultRawSettings();
+    } else {
+      // Settings were serialized as a string, so we need to parse them.
+      // This is mostly required by the test suite.
+      this.rawSettings = new RawSettings(rawSettingsConfigString);
+    }
+
     // Set user from environment variable.
     String uid = Objects.toString(env.getEnvironment().get("RAW_USER"), "");
     this.user = new InteractiveUser(uid, uid, uid, (Seq<String>) Seq$.MODULE$.empty());
-
-    ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
     // Set traceId from environment variable.
     String traceId = Objects.toString(env.getEnvironment().get("RAW_TRACE_ID"), "");
@@ -107,10 +117,6 @@ public final class RawContext implements Closeable {
     return env;
   }
 
-  public RawSettings getRawSettings() {
-    return language.getRawSettings();
-  }
-
   public ProgramEnvironment getProgramEnvironment() {
     return programEnvironment;
   }
@@ -120,7 +126,7 @@ public final class RawContext implements Closeable {
   }
 
   public InferrerService getInferrer() {
-    return language.getInferrer(getUser());
+    return language.getInferrer(getUser(), rawSettings);
   }
 
   public OutputStream getOutput() {
@@ -129,7 +135,11 @@ public final class RawContext implements Closeable {
 
   @CompilerDirectives.TruffleBoundary
   public SourceContext getSourceContext() {
-    return language.getSourceContext(getUser());
+    return language.getSourceContext(getUser(), rawSettings);
+  }
+
+  public RawSettings getSettings() {
+    return rawSettings;
   }
 
   public Secret getSecret(String key) {

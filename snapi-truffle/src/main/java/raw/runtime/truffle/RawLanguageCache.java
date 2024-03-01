@@ -28,10 +28,12 @@ public class RawLanguageCache {
 
   private final ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
-  public final RawSettings rawSettings =
-      new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
-  public final CredentialsService credentialsService =
-      CredentialsServiceProvider.apply(classLoader, rawSettings);
+  private final ConcurrentHashMap<RawSettings, CredentialsService> credentialsCache = new ConcurrentHashMap<>();
+
+
+  // This will be initialized on first use and not here statically.
+  // That's because for the test suite we want the ability to define it dynamically depending on RAW settings.
+  public CredentialsService credentialsService;
 
   private final ConcurrentHashMap<AuthenticatedUser, Value> map = new ConcurrentHashMap<>();
 
@@ -59,7 +61,10 @@ public class RawLanguageCache {
     }
   }
 
-  private Value get(AuthenticatedUser user) {
+  private Value get(AuthenticatedUser user, RawSettings rawSettings) {
+    CredentialsService credentialsService = credentialsCache.computeIfAbsent(
+            rawSettings, k -> CredentialsServiceProvider.apply(classLoader, rawSettings)
+    );
     return map.computeIfAbsent(
         user,
         k -> {
@@ -78,19 +83,19 @@ public class RawLanguageCache {
         });
   }
 
-  public SourceContext getSourceContext(AuthenticatedUser user) {
-    return get(user).getSourceContext();
+  public SourceContext getSourceContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return get(user, rawSettings).getSourceContext();
   }
 
-  public CompilerContext getCompilerContext(AuthenticatedUser user) {
-    return get(user).getCompilerContext();
+  public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return get(user, rawSettings).getCompilerContext();
   }
 
-  public InferrerService getInferrer(AuthenticatedUser user) {
-    return get(user).getInferrer();
+  public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
+    return get(user, rawSettings).getInferrer();
   }
 
-  public void reset() {
+  public void close() {
     // Close all inferrer services and credential services.
     map.values()
         .forEach(
@@ -99,6 +104,9 @@ public class RawLanguageCache {
               v.getSourceContext().credentialsService().stop();
             });
     map.clear();
-    credentialsService.stop();
+    if (credentialsService != null) {
+      credentialsService.stop();
+      credentialsService = null;
+    }
   }
 }
