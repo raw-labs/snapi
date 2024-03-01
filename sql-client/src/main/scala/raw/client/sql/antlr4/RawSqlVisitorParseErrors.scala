@@ -7,4 +7,3 @@ case class RawSqlVisitorParseErrors() {
   def addError(error: Message): Unit = errors = errors :+ error
   def getErrors: List[Message] = errors
 }
-

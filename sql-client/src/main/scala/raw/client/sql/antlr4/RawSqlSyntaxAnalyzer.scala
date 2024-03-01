@@ -35,11 +35,11 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
 }
 
 final case class ParseProgramResult(
-                                     errors: List[Message],
-                                     params: mutable.Map[String, SqlParam],
-                                     returnDescription: Option[String],
-                                     tree: SqlBaseNode,
-                                     positions: Positions
+    errors: List[Message],
+    params: mutable.Map[String, SqlParam],
+    returnDescription: Option[String],
+    tree: SqlBaseNode,
+    positions: Positions
 ) {
   def hasErrors: Boolean = errors.nonEmpty
 
