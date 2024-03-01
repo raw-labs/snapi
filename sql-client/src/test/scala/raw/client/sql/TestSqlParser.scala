@@ -237,7 +237,7 @@ class TestSqlParser extends AnyFunSuite {
 
   test("Test OR Case") {
     val code = """SELECT COUNT(*) FROM example.airports
-                 |WHERE city = :name OR country = :name""".stripMargin
+      |WHERE city = :name OR country = :name""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
   }
@@ -248,21 +248,128 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.isSuccess)
   }
 
-  test("Test complex random code") {
+  test("Test complex random code 1") {
     val code = """CREATE FUNCTION check_password(uname TEXT, pass TEXT)
-                 |RETURNS BOOLEAN AS $$
-                 |DECLARE passed BOOLEAN;
-                 |BEGIN
-                 |        SELECT  (pwd = $2) INTO passed
-                 |        FROM    pwds
-                 |        WHERE   username = $1;
-                 |
-                 |        RETURN passed;
-                 |END;
-                 |$$  LANGUAGE plpgsql
-                 |    SECURITY DEFINER
-                 |    -- Set a secure search_path: trusted schema(s), then 'pg_temp'.
-                 |    SET search_path = admin, pg_temp;""".stripMargin
+      |RETURNS BOOLEAN AS $$
+      |DECLARE passed BOOLEAN;
+      |BEGIN
+      |        SELECT  (pwd = $2) INTO passed
+      |        FROM    pwds
+      |        WHERE   username = $1;
+      |
+      |        RETURN passed;
+      |END;
+      |$$  LANGUAGE plpgsql
+      |    SECURITY DEFINER
+      |    -- Set a secure search_path: trusted schema(s), then 'pg_temp'.
+      |    SET search_path = admin, pg_temp;""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test complex random code 2") {
+    val code = """WITH regional_sales AS (
+      |    SELECT region, SUM(amount) AS total_sales
+      |    FROM orders
+      |    GROUP BY region
+      |), top_regions AS (
+      |    SELECT region
+      |    FROM regional_sales
+      |    WHERE total_sales > (SELECT SUM(total_sales)/10 FROM regional_sales)
+      |)
+      |SELECT region,
+      |       product,
+      |       SUM(quantity) AS product_units,
+      |       SUM(amount) AS product_sales
+      |FROM orders
+      |WHERE region IN (SELECT region FROM top_regions)
+      |GROUP BY region, product;""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test complex random code 3") {
+    val code = """WITH regional_sales AS (
+      |    SELECT region, SUM(amount) AS total_sales
+      |    FROM orders
+      |    GROUP BY region
+      |), top_regions AS (
+      |    SELECT region
+      |    FROM regional_sales
+      |    WHERE total_sales > (SELECT SUM(total_sales)/10 FROM regional_sales)
+      |)
+      |SELECT region,
+      |       product,
+      |       SUM(quantity) AS product_units,
+      |       SUM(amount) AS product_sales
+      |FROM orders
+      |WHERE region IN (SELECT region FROM top_regions)
+      |GROUP BY region, product;""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test complex random code 4") {
+    val code = """WITH RECURSIVE included_parts(sub_part, part, quantity) AS (
+      |    SELECT sub_part, part, quantity FROM parts WHERE part = 'our_product'
+      |  UNION ALL
+      |    SELECT p.sub_part, p.part, p.quantity
+      |    FROM included_parts pr, parts p
+      |    WHERE p.part = pr.sub_part
+      |  )
+      |SELECT sub_part, SUM(quantity) as total_quantity
+      |FROM included_parts
+      |GROUP BY sub_part""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test complex random code 5") {
+    val code = """WITH RECURSIVE search_graph(id, link, data, depth, path, cycle) AS (
+      |        SELECT g.id, g.link, g.data, 1,
+      |          ARRAY[ROW(g.f1, g.f2)],
+      |          false
+      |        FROM graph g
+      |      UNION ALL
+      |        SELECT g.id, g.link, g.data, sg.depth + 1,
+      |          path || ROW(g.f1, g.f2),
+      |          ROW(g.f1, g.f2) = ANY(path)
+      |        FROM graph g, search_graph sg
+      |        WHERE g.id = sg.link AND NOT cycle
+      |)
+      |SELECT * FROM search_graph;""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test complex ChatGPT generated query") {
+    val code = """SELECT 
+      |    p.project_name,
+      |    SUM(e.salary) AS total_salary,
+      |    COUNT(DISTINCT e.department_id) AS unique_departments
+      |FROM 
+      |    projects p
+      |INNER JOIN 
+      |    employee_project ep ON p.project_id = ep.project_id
+      |INNER JOIN 
+      |    employees e ON e.employee_id = ep.employee_id
+      |WHERE 
+      |    p.project_id IN (
+      |        SELECT 
+      |            ep_inner.project_id
+      |        FROM 
+      |            employee_project ep_inner
+      |        JOIN 
+      |            employees e_inner ON ep_inner.employee_id = e_inner.employee_id
+      |        GROUP BY 
+      |            ep_inner.project_id
+      |        HAVING 
+      |            COUNT(DISTINCT e_inner.department_id) > 1
+      |    )
+      |GROUP BY 
+      |    p.project_name
+      |ORDER BY 
+      |    total_salary DESC;""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
   }

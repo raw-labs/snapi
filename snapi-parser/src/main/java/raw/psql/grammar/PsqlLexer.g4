@@ -22,6 +22,27 @@ LEQ: '<=';
 GEQ: '>=';
 NEQ1: '<>';
 NEQ2: '!=';
+
+PLUS: '+';
+MINUS: '-';
+DIV: '/';
+MOD_OP: '%';
+EXP_OP: '^';
+SQ_ROOT: '|/';
+CUBE_ROOT: '||/';
+FACTORIAL: '!';
+FACTORIAS: '!!';
+BITWISE_AND: '&';
+BITWISE_OR: '|';
+BITWISE_XOR: '#';
+BITWISE_NOT: '~';
+BITWISE_SHIFT_LEFT: '<<';
+BITWISE_SHIFT_RIGHT: '>>';
+CONCAT: '||';
+REGEX_CASE_INSENSITIVE_MATCH: '~*';
+REGEX_CASE_INSENSITIVE_NOT_MATCH: '!~*';
+
+
 DOUBLE_COLON: '::';
 
 NO_FLOATING_NUMBER: DIGIT+;
