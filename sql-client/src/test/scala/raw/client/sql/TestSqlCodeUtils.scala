@@ -168,6 +168,35 @@ class TestSqlCodeUtils extends AnyFunSuite {
     assert(results == expected)
   }
 
+  test("extract tokens with comments") {
+    val code = """/* some comment
+                 |on multiple lines */
+                 |select * -- a single line comment
+                 |   from "schema"."table"--another one
+                 |   where name/* inline comment */= 'john smith'""".stripMargin
+    val results = SqlCodeUtils.tokens(code)
+    val expected = Seq(
+      ("/* some comment\non multiple lines */", Pos(1, 1)),
+      ("select", Pos(3, 1)),
+      ("*", Pos(3, 8)),
+      ("-- a single line comment\n", Pos(3, 10)),
+      ("from", Pos(4, 4)),
+      ("\"schema\".\"table\"", Pos(4, 9)),
+      ("--another one\n", Pos(4, 25)),
+      ("where", Pos(5, 4)),
+      ("name", Pos(5, 10)),
+      ("/* inline comment */", Pos(5, 14)),
+      ("=", Pos(5, 34)),
+      ("'john smith'", Pos(5, 36)),
+    )
+    results.zip(expected).foreach {
+      case (r, e) =>
+        if (r != e)
+          throw new AssertionError(s"Values did not match: expected $e but got $r")
+    }
+    assert(results == expected)
+  }
+
   test("SqlCodeUtils.getIdentifierUnder") {
     val code = """SELECT * FROM example.airports
       |WHERE airports.

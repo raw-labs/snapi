@@ -20,7 +20,7 @@ case class SqlIdentifier(value: String, quoted: Boolean)
 
 object SqlParseStates extends Enumeration {
   type State = Value
-  val Idle, InQuote, OutQuote, CheckQuote = Value
+  val Idle, Quote, Token, CheckQuote, Comment, MultilineComment = Value
 }
 object SqlCodeUtils {
   import SqlParseStates._
@@ -59,9 +59,9 @@ object SqlCodeUtils {
         case Idle =>
           if (char == '"') {
             quoted = true
-            state = InQuote
+            state = Quote
           } else if (identifierChar(char)) {
-            state = OutQuote
+            state = Token
             quoted = false
             idn += char
           } else {
@@ -71,7 +71,7 @@ object SqlCodeUtils {
             return idns
           }
         // We are out of a quote, so we can have a dot (end of identifier) or a letter (continuation of identifier)
-        case OutQuote =>
+        case Token =>
           if (identifierChar(char)) {
             idn += char
           } else if (char == '.') {
@@ -86,7 +86,7 @@ object SqlCodeUtils {
             return idns
           }
         // We are in a quote, so we can have a quote (check end of quote) or something else (continuation of identifier)
-        case InQuote =>
+        case Quote =>
           if (char == '"') {
             state = CheckQuote
           } else {
@@ -96,7 +96,7 @@ object SqlCodeUtils {
         case CheckQuote =>
           if (char == '"') {
             idn += '"'
-            state = InQuote
+            state = Quote
           } else {
             idns += SqlIdentifier(idn.toString(), quoted)
             idn.clear()
@@ -127,24 +127,42 @@ object SqlCodeUtils {
     var currentPos = Pos(0, 0)
     var line = 1
     var row = 1
+    var lastChar = ' '
     code.foreach { char =>
       state match {
         case Idle =>
           if (char == '"' || char == '\'') {
-            state = InQuote
+            state = Quote
             quoteType = char
             currentWord += char
             currentPos = Pos(line, row)
           } else if (!char.isWhitespace) {
-            state = OutQuote
+            state = Token
             currentWord += char
             currentPos = Pos(line, row)
           }
-        case OutQuote =>
+        case Token =>
           if (char == '"' || char == '\'') {
-            state = InQuote
+            state = Quote
             quoteType = char
             currentWord += char
+          } else if (char == '-' && lastChar == '-') {
+            state = Comment
+            // Add the current word to the tokens
+            if (currentWord.length > 1) {
+              tokens.append((currentWord.substring(0, currentWord.length - 1), currentPos))
+            }
+            currentWord.clear()
+            currentWord.append("--")
+            currentPos = Pos(line, row - 1)
+          } else if (lastChar == '/' && char == '*') {
+            state = MultilineComment
+            if (currentWord.length > 1) {
+              tokens.append((currentWord.substring(0, currentWord.length - 1), currentPos))
+            }
+            currentWord.clear()
+            currentWord.append("/*")
+            currentPos = Pos(line, row - 1)
           } else if (!char.isWhitespace) {
             currentWord += char
           } else {
@@ -153,7 +171,7 @@ object SqlCodeUtils {
             currentPos = Pos(line, row)
             state = Idle
           }
-        case InQuote =>
+        case Quote =>
           if (char == quoteType) {
             state = CheckQuote
           } else {
@@ -162,13 +180,27 @@ object SqlCodeUtils {
         case CheckQuote =>
           if (char == quoteType) {
             currentWord += char
-            state = InQuote
+            state = Quote
           } else if (!char.isWhitespace) {
             currentWord += quoteType
-            state = OutQuote
+            state = Token
             currentWord += char
           } else {
             currentWord += quoteType
+            tokens.append((currentWord.toString(), currentPos))
+            currentWord.clear()
+            state = Idle
+          }
+        case Comment =>
+          currentWord += char
+          if (char == '\n') {
+            tokens.append((currentWord.toString(), currentPos))
+            currentWord.clear()
+            state = Idle
+          }
+        case MultilineComment =>
+          currentWord += char
+          if (lastChar == '*' && char == '/') {
             tokens.append((currentWord.toString(), currentPos))
             currentWord.clear()
             state = Idle
@@ -180,6 +212,7 @@ object SqlCodeUtils {
       } else {
         row += 1
       }
+      lastChar = char
 
     }
 
