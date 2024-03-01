@@ -18,11 +18,9 @@ import raw.client.sql.SqlCodeUtils.Token
 import raw.utils.RawSettings
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
-import scala.collection.mutable
-import scala.collection.mutable.ListBuffer
 import scala.util.matching.Regex
 object NamedParametersPreparedStatement {
-  val argRegex: Regex = """\W*:([a-zA-Z]\w*)\W*""".r
+  val argRegex: Regex = """:([a-zA-Z]\w*)\W*""".r
 }
 /* This class is wrapping the PreparedStatement class from the JDBC API.
  * It parses the SQL code and extract the named parameters, infer their types from how they're used.
