@@ -184,7 +184,7 @@ object SqlCodeUtils {
             addToken()
             resetCurrentPos()
             currentWord.append(char)
-          } else if (char.isWhitespace) {
+          }else if (char.isWhitespace) {
             addToken()
             resetCurrentPos()
             state = Idle

@@ -201,6 +201,25 @@ class TestSqlCodeUtils extends AnyFunSuite {
     assert(results == expected)
   }
 
+  test("token separate on ':' for parameters") {
+    val code = "SELECT :v1,:v2,city FROM example.airports WHERE city=:v1"
+    val results = SqlCodeUtils.tokens(code)
+    val expected = Seq(
+      Token("SELECT", Pos(1, 1), offset = 1),
+      Token(":v1,", Pos(1, 8), offset = 8),
+      Token(":v2,city", Pos(1, 12), offset = 12),
+      Token("FROM", Pos(1, 21), offset = 21),
+      Token("example.airports", Pos(1, 26), offset = 26),
+      Token("WHERE", Pos(1, 43), offset = 43),
+      Token("city=", Pos(1, 49), offset = 49),
+      Token(":v1", Pos(1, 54), offset = 54),
+
+    )
+    results.zip(expected).foreach {
+      case (r, e) => if (r != e) throw new AssertionError(s"Values did not match: expected $e but got $r")
+    }
+    assert(results == expected)
+  }
   test("SqlCodeUtils.getIdentifierUnder") {
     val code = """SELECT * FROM example.airports
       |WHERE airports.
