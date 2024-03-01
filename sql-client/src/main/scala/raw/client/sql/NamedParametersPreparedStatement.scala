@@ -37,99 +37,30 @@ class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit 
    */
 
   // Each named parameter is mapped to a list of offsets in the original `code` where it appears (starting at the colon)
-  case class ParamLocation(index: Int, start: Int, end: Int)
-  private val paramLocations = mutable.Map.empty[String, mutable.ListBuffer[ParamLocation]]
+  private case class ParamLocation(index: Int, start: Int, end: Int)
 
   private val arguments =
     SqlCodeUtils.tokens(code).collect { case Token(argRegex(argName), pos, offset) => Token(argName, pos, offset) }
 
-  val paramLocations2: Map[String, Seq[ParamLocation]] =
+  private val paramLocations: Map[String, Seq[ParamLocation]] =
     arguments.zipWithIndex.groupBy { case (token, _) => token.token }.map {
       case (argName, items) => argName -> items.map {
-        case (token, index) => ParamLocation(index + 1, token.offset, token.offset + argName.length)
-      }
+          case (token, index) => ParamLocation(index + 1, token.offset, token.offset + argName.length)
+        }
     }
 
-  val plainCode2: String = {
+  private val plainCode: String = {
     val plainCodeBuffer = new StringBuilder
     var lastOffset = 0
     for (arg <- arguments) {
-      plainCodeBuffer.append(code.substring(lastOffset, arg.offset -1))
+      plainCodeBuffer.append(code.substring(lastOffset, arg.offset - 1))
       plainCodeBuffer.append("?")
       lastOffset = arg.offset + arg.token.length
     }
     plainCodeBuffer.append(code.substring(lastOffset))
     plainCodeBuffer.toString()
   }
-  def getParamLocations: Map[String, ListBuffer[ParamLocation]] = paramLocations.toMap
 
-  private var paramIndex = 0
-
-  private val plainCode = {
-    val startSkipTokens = Array("'", "--") // tokens that start a portion of code where named parameters aren't found
-    val endSkipTokens = Array("'", "\n") // tokens that end a portion of code where named parameters aren't found
-    var skippingTokenIndex = -1 // the current token that is being skipped
-    val codeSize = code.length
-
-    val plainCodeBuffer = new StringBuilder
-    var i = 0
-    while (i < codeSize) {
-      val currentChar = code.charAt(i)
-      if (skippingTokenIndex >= 0) {
-        val endSkipToken = endSkipTokens(skippingTokenIndex) // the token we'd need to see to stop skipping
-        val skippingOver =
-          code.regionMatches(i, endSkipToken, 0, endSkipToken.length) // does the token appear at the current position?
-        if (skippingOver) {
-          i += endSkipToken.length
-          plainCodeBuffer.append(endSkipToken)
-          skippingTokenIndex = -1
-        } else {
-          plainCodeBuffer.append(code.substring(i, i + 1))
-          i += 1
-        }
-      } else {
-        // not skipping, parse carefully
-        if (currentChar == ':') {
-          if (i < codeSize - 1 && code.charAt(i + 1) == ':') {
-            // postgres double colon syntax
-            plainCodeBuffer.append(code.substring(i, i + 2))
-            i += 2
-          } else {
-            // we're on a named parameter
-            paramIndex += 1
-            i += 1 // skip the colon (do not append it to plainCodeBuffer)
-            val start = i
-            while (i < codeSize && code.charAt(i).isLetterOrDigit) {
-              // skip the parameter name
-              i += 1
-            }
-            val end = i
-            val parameterName = code.substring(start, end)
-            plainCodeBuffer += '?' // replace the parameter name with a question mark
-            val location = ParamLocation(paramIndex, start, end)
-            paramLocations.get(parameterName) match {
-              case Some(indices) => indices += location
-              case None => paramLocations(parameterName) = mutable.ListBuffer(location)
-            }
-          }
-        } else {
-          // are we by any chance on a start-skipping token
-          val idx = startSkipTokens.indexWhere(token => code.regionMatches(i, token, 0, token.length))
-          if (idx != -1) {
-            // yes. Set that token as the current one so that we find the ending one later.
-            skippingTokenIndex = idx
-          } else {
-            // not, just append the current character
-            plainCodeBuffer.append(code.substring(i, i + 1))
-            i += 1
-          }
-        }
-      }
-    }
-    plainCodeBuffer.toString()
-  }
-
-  assert(plainCode == plainCode2)
   private def validateParameterType(tipe: RawType, name: String, typeName: String): Either[String, RawType] =
     tipe match {
       case _: RawNumberType => Right(tipe)
