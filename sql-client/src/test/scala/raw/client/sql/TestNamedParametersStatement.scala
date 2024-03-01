@@ -35,7 +35,7 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     val rs = statement.executeQuery()
 
     rs.next()
-    assert(rs.getString("arg")== "Hello!")
+    assert(rs.getString("arg") == "Hello!")
   }
 
   test("several parameters") { _ =>
@@ -44,11 +44,12 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     val code = "SELECT :v1,:v2, city FROM example.airports WHERE city = :v1"
     val con = connectionPool.getConnection(user)
     val statement = new NamedParametersPreparedStatement(con, code)
+    val metadata = statement.queryMetadata.right.get
+    assert(metadata.parameters.keys == Set("v1", "v2"))
 
     statement.setString("v1", "Lisbon")
     statement.setInt("v2", 1)
     val rs = statement.executeQuery()
-
     rs.next()
     assert(rs.getString(1) == "Lisbon")
     assert(rs.getInt(2) == 1)
@@ -59,11 +60,10 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
   test("skip parameters in comments") { _ =>
     assume(password != "")
 
-    val code =
-      """/* this should not be a parameter
-        | :foo
-        |*/
-        |SELECT :v1 as arg  -- neither this one :bar """.stripMargin
+    val code = """/* this should not be a parameter
+      | :foo
+      |*/
+      |SELECT :v1 as arg  -- neither this one :bar """.stripMargin
     val statement = new NamedParametersPreparedStatement(con, code)
     statement.setString("v1", "Hello!")
     val rs = statement.executeQuery()
@@ -72,16 +72,29 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     assert(rs.getString("arg") == "Hello!")
   }
 
-  // RD-10681
-  test("skip parameters in strings") { _ =>
+  test("skip parameter in string") { _ =>
     assume(password != "")
 
-    val code =
-      """ SELECT '[1, 2, "3", {"a": "Hello"}]' as arg""".stripMargin
+    val code = """SELECT ':foo' as v1, :bar as v2""".stripMargin
     val statement = new NamedParametersPreparedStatement(con, code)
     val metadata = statement.queryMetadata.right.get
+    assert(metadata.parameters.keys == Set("bar"))
+    statement.setString("bar", "Hello!")
+    val rs = statement.executeQuery()
 
-    assert(metadata.parameters.isEmpty)
+    rs.next()
+    assert(rs.getString("v1") == ":foo")
+    assert(rs.getString("v2") == "Hello!")
+  }
+
+  test("RD-10681 SQL fails to validate string with json ") { _ =>
+    assume(password != "")
+
+    val code = """ SELECT '[1, 2, "3", {"a": "Hello"}]' as arg""".stripMargin
+    val statement = new NamedParametersPreparedStatement(con, code)
+    val metadata = statement.queryMetadata
+    assert(metadata.isRight)
+    assert(metadata.right.get.parameters.isEmpty)
     val rs = statement.executeQuery()
 
     rs.next()
