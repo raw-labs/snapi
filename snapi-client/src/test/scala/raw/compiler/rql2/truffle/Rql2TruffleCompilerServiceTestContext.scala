@@ -47,7 +47,7 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
       RawUtils.withSuppressNonFatalException(rql2TruffleCompilerService.stop())
       rql2TruffleCompilerService = null
     }
-    if (engine != null ) {
+    if (engine != null) {
       RawUtils.withSuppressNonFatalException(engine.close())
       engine = null
     }

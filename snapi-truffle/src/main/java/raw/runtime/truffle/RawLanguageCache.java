@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle;
 
-import com.typesafe.config.ConfigFactory;
 import java.util.concurrent.ConcurrentHashMap;
 import raw.compiler.base.CompilerContext;
 import raw.creds.api.CredentialsService;
@@ -28,11 +27,12 @@ public class RawLanguageCache {
 
   private final ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
-  private final ConcurrentHashMap<RawSettings, CredentialsService> credentialsCache = new ConcurrentHashMap<>();
-
+  private final ConcurrentHashMap<RawSettings, CredentialsService> credentialsCache =
+      new ConcurrentHashMap<>();
 
   // This will be initialized on first use and not here statically.
-  // That's because for the test suite we want the ability to define it dynamically depending on RAW settings.
+  // That's because for the test suite we want the ability to define it dynamically depending on RAW
+  // settings.
   public CredentialsService credentialsService;
 
   private final ConcurrentHashMap<AuthenticatedUser, Value> map = new ConcurrentHashMap<>();
@@ -62,9 +62,9 @@ public class RawLanguageCache {
   }
 
   private Value get(AuthenticatedUser user, RawSettings rawSettings) {
-    CredentialsService credentialsService = credentialsCache.computeIfAbsent(
-            rawSettings, k -> CredentialsServiceProvider.apply(classLoader, rawSettings)
-    );
+    CredentialsService credentialsService =
+        credentialsCache.computeIfAbsent(
+            rawSettings, k -> CredentialsServiceProvider.apply(classLoader, rawSettings));
     return map.computeIfAbsent(
         user,
         k -> {

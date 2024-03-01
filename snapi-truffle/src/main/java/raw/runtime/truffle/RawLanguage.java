@@ -23,10 +23,9 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
+import com.typesafe.config.ConfigFactory;
 import java.util.*;
 import java.util.stream.Collectors;
-
-import com.typesafe.config.ConfigFactory;
 import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
 import raw.compiler.base.CompilerContext;
@@ -71,7 +70,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   private static final RawLanguageCache languageCache = new RawLanguageCache();
 
-  private static final RawSettings defaultRawSettings = new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
+  private static final RawSettings defaultRawSettings =
+      new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
 
   private final Shape initialRecordShape = Shape.newBuilder().build();
 
@@ -111,7 +111,8 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     RuntimeContext runtimeContext =
         new RuntimeContext(context.getSourceContext(), context.getProgramEnvironment());
     ProgramContext programContext =
-        new Rql2ProgramContext(runtimeContext, getCompilerContext(context.getUser(), context.getSettings()));
+        new Rql2ProgramContext(
+            runtimeContext, getCompilerContext(context.getUser(), context.getSettings()));
 
     String source = request.getSource().getCharacters().toString();
 
