@@ -185,7 +185,7 @@ object SqlCodeUtils {
             currentWord.clear()
             currentWord.append("::")
             resetCurrentPos(-1)
-          } else if (lastChar == ':' && char.isLetterOrDigit) {
+          } else if (lastChar == ':' && identifierChar(char)) {
             // Starting a new token with the parameter
             // first we add the current token
             val token = currentWord.substring(0, currentWord.length - 1)
