@@ -29,8 +29,13 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
   // Username equals the database
   private val user = InteractiveUser(Uid(database), "fdw user", "email", Seq.empty)
 
-  private val connectionPool = new SqlConnectionPool(settings)
-  private val con = connectionPool.getConnection(user)
+  private var con: java.sql.Connection = _
+
+  override def beforeAll(): Unit = {
+    val connectionPool = new SqlConnectionPool(settings)
+    con = connectionPool.getConnection(user)
+    super.beforeAll()
+  }
 
   override def afterAll(): Unit = {
     con.close()
@@ -67,7 +72,6 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     assume(password != "")
 
     val code = "SELECT :v1,:v2, city FROM example.airports WHERE city = :v1"
-    val con = connectionPool.getConnection(user)
     val statement = new NamedParametersPreparedStatement(con, code)
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("v1", "v2"))
@@ -79,7 +83,6 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     assert(rs.getString(1) == "Lisbon")
     assert(rs.getInt(2) == 1)
     assert(rs.getString(3) == "Lisbon")
-    con.close()
   }
 
   test("skip parameters in comments") { _ =>
