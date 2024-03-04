@@ -26,9 +26,6 @@ object SqlCodeUtils {
   import SqlParseStates._
   private def identifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_'
 
-  // filter to recognize an identifier, possibly with dots, e.g. example.airports
-//  private def fullIdentifierChar(c: Char): Boolean = c.isLetterOrDigit || c == '_' || c == '.' || c == '"'
-
   def compareSingleIdentifiers(v1: SqlIdentifier, v2: SqlIdentifier): Boolean = {
     // both quoted , case sensitive comparison, so we just compare the strings
     if (v1.quoted && v2.quoted) {
