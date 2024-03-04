@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.client.sql
 
 import raw.utils._
@@ -36,6 +48,19 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
 
     rs.next()
     assert(rs.getString("arg") == "Hello!")
+  }
+
+  test("SELECT :v::varchar AS greeting;") { _ =>
+    assume(password != "")
+
+    val code = "SELECT :v::varchar AS greeting;"
+    val statement = new NamedParametersPreparedStatement(con, code)
+    statement.setString("v", "Hello!")
+    val rs = statement.executeQuery()
+
+    rs.next()
+    assert(rs.getString("greeting") == "Hello!")
+
   }
 
   test("several parameters") { _ =>

@@ -20,7 +20,7 @@ case class SqlIdentifier(value: String, quoted: Boolean)
 
 object SqlParseStates extends Enumeration {
   type State = Value
-  val Idle, InQuote, InToken, CheckQuote, Comment, MultilineComment = Value
+  val Idle, InQuote, InToken, CheckQuote, Comment, MultilineComment, Cast = Value
 }
 object SqlCodeUtils {
   import SqlParseStates._
@@ -179,12 +179,21 @@ object SqlCodeUtils {
             currentWord.append("/*")
             currentPos = Pos(line, row - 1)
             currentOffset = offset
-          } else if (char == ':') {
+          } else if (lastChar == ':' && char == ':') {
+            state = Cast
+            if (currentWord.length > 1) {
+              tokens.append(Token(currentWord.substring(0, currentWord.length - 1), currentPos, currentOffset))
+            }
+            currentWord.clear()
+            currentWord.append("::")
+            currentPos = Pos(line, row - 1)
+            currentOffset = offset
+          } else if (char == ':' && currentWord.length > 1) {
             // to separate parameter definitions
             addToken()
+            currentWord.append(':')
             resetCurrentPos()
-            currentWord.append(char)
-          }else if (char.isWhitespace) {
+          } else if (char.isWhitespace) {
             addToken()
             resetCurrentPos()
             state = Idle
@@ -219,6 +228,13 @@ object SqlCodeUtils {
         case MultilineComment =>
           currentWord += char
           if (lastChar == '*' && char == '/') {
+            addToken()
+            state = Idle
+          }
+        case Cast =>
+          if (char.isLetterOrDigit || char == '_') {
+            currentWord += char
+          } else {
             addToken()
             state = Idle
           }

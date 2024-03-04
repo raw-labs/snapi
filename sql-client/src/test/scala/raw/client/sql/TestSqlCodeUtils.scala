@@ -212,14 +212,30 @@ class TestSqlCodeUtils extends AnyFunSuite {
       Token("example.airports", Pos(1, 26), offset = 26),
       Token("WHERE", Pos(1, 43), offset = 43),
       Token("city=", Pos(1, 49), offset = 49),
-      Token(":v1", Pos(1, 54), offset = 54),
-
+      Token(":v1", Pos(1, 54), offset = 54)
     )
     results.zip(expected).foreach {
       case (r, e) => if (r != e) throw new AssertionError(s"Values did not match: expected $e but got $r")
     }
     assert(results == expected)
   }
+
+  test("ignore cast with ::") {
+    val code = "SELECT :v::varchar AS greeting;"
+    val results = SqlCodeUtils.tokens(code)
+    val expected = Seq(
+      Token("SELECT", Pos(1, 1), offset = 1),
+      Token(":v", Pos(1, 8), offset = 8),
+      Token("::varchar", Pos(1, 10), offset = 10),
+      Token("AS", Pos(1, 20), offset = 20),
+      Token("greeting;", Pos(1, 23), offset = 23)
+    )
+    results.zip(expected).foreach {
+      case (r, e) => if (r != e) throw new AssertionError(s"Values did not match: expected $e but got $r")
+    }
+    assert(results == expected)
+  }
+
   test("SqlCodeUtils.getIdentifierUnder") {
     val code = """SELECT * FROM example.airports
       |WHERE airports.
