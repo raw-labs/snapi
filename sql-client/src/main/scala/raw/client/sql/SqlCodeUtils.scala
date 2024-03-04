@@ -188,11 +188,18 @@ object SqlCodeUtils {
             currentWord.append("::")
             currentPos = Pos(line, row - 1)
             currentOffset = offset
-          } else if (char == ':' && currentWord.length > 1) {
-            // to separate parameter definitions
-            addToken()
-            currentWord.append(':')
-            resetCurrentPos()
+          } else if (lastChar == ':' && char.isLetterOrDigit) {
+            // Starting a new token with the parameter
+            // first we add the current token
+            val token = currentWord.substring(0, currentWord.length - 1)
+            if (token.nonEmpty) {
+              tokens.append(Token(token, currentPos, currentOffset))
+            }
+            currentWord.clear()
+            // Now starting a new token with the parameter
+            currentWord.append(":" + char)
+            currentPos = Pos(line, row - 1)
+            currentOffset = offset
           } else if (char.isWhitespace) {
             addToken()
             resetCurrentPos()
