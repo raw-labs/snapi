@@ -14,6 +14,7 @@ package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api._
+import raw.utils.RawSettings
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
 import scala.collection.mutable
@@ -22,7 +23,8 @@ import scala.collection.mutable
  * It parses the SQL code and extract the named parameters, infer their types from how they're used.
  * It also provides methods to set the parameters by name, then execute the query.
  */
-class NamedParametersPreparedStatement(conn: Connection, code: String) extends StrictLogging {
+class NamedParametersPreparedStatement(conn: Connection, code: String)(implicit rawSettings: RawSettings)
+    extends StrictLogging {
 
   /* We have the query code in `code` (with named parameters). Internally we need to replace
    * the named parameters with question marks, and keep track of the mapping between the
@@ -99,16 +101,17 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
     plainCodeBuffer.toString()
   }
 
-  // This is a convenient constant that represent an error range that spans the full code. Useful to report
-  // errors.
-  private val fullErrorRange = {
-    val lines = code.split("\n")
-    val nLines = lines.length
-    val lastLine = lines.last
-    val lastLineLength = lastLine.length
-    ErrorRange(ErrorPosition(1, 1), ErrorPosition(nLines, lastLineLength + 1))
-  }
-
+  private def validateParameterType(tipe: RawType, name: String, typeName: String): Either[String, RawType] =
+    tipe match {
+      case _: RawNumberType => Right(tipe)
+      case _: RawStringType => Right(tipe)
+      case _: RawBoolType => Right(tipe)
+      case _: RawDateType => Right(tipe)
+      case _: RawTimeType => Right(tipe)
+      case _: RawTimestampType => Right(tipe)
+      case _: RawBinaryType => Right(tipe)
+      case _ => Left(s"parameter '$name' has an unsupported type '$typeName'")
+    }
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
   case class QueryInfo(parameters: Map[String, RawType], outputType: RawType)
 
@@ -123,8 +126,17 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
       val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
       val typesStatus = paramLocations.map {
         case (p, locations) =>
-          val typeOptions =
-            locations.map(location => SqlTypesUtils.rawTypeFromJdbc(metadata.getParameterType(location.index)))
+          // For each parameter, we infer the type from the locations where it's used
+          // And we validate the if the type is supported
+          val typeOptions = locations.map(location =>
+            SqlTypesUtils.rawTypeFromJdbc(
+              metadata.getParameterType(location.index),
+              metadata.getParameterTypeName(location.index)
+            ) match {
+              case Right(t) => validateParameterType(t, p, metadata.getParameterTypeName(location.index))
+              case Left(error) => Left(error)
+            }
+          )
           val errors = typeOptions.collect { case Left(error) => error }
           val typeStatus =
             if (errors.isEmpty) {
@@ -164,12 +176,12 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
         val outputType = queryOutputType
         outputType match {
           case Right(t) => Right(QueryInfo(types.toMap, t))
-          case Left(error) => Left(List(ErrorMessage(error, List(fullErrorRange), ErrorCode.SqlErrorCode)))
+          case Left(error) => Left(ErrorHandling.asMessage(code, error))
         }
       }
     } catch {
       case e: SQLException => {
-        Left(List(ErrorMessage(e.getMessage, List(fullErrorRange), ErrorCode.SqlErrorCode)))
+        Left(ErrorHandling.asErrorMessage(code, e))
       }
     }
   }
@@ -180,10 +192,11 @@ class NamedParametersPreparedStatement(conn: Connection, code: String) extends S
       val name = metadata.getColumnName(i)
       val typeInfo = {
         val tipe = metadata.getColumnType(i)
+        val typeName = metadata.getColumnTypeName(i)
         val nullability = metadata.isNullable(i)
         val nullable =
           nullability == ResultSetMetaData.columnNullable || nullability == ResultSetMetaData.columnNullableUnknown
-        SqlTypesUtils.rawTypeFromJdbc(tipe).right.map {
+        SqlTypesUtils.rawTypeFromJdbc(tipe, typeName).right.map {
           case t: RawAnyType => t
           case t: RawType => t.cloneWithFlags(nullable, false)
         }
