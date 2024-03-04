@@ -418,15 +418,6 @@ class ImplicitCasts(protected val parent: Phase[SourceProgram], protected val ph
               case None => r
             }
         }
-      case Proj(r, idn) if analyzer.tipe(r).isInstanceOf[Rql2AnyType] =>
-        // Proj: If the record is of type Any, we don't know its fields, so we can't cast the field.
-        congruence(s, id) <* rule[Any] {
-          case Proj(re, _) => cast(
-              re,
-              Rql2AnyType(),
-              Rql2RecordType(Vector(Rql2AttrType(idn, Rql2AnyType())), Set.empty)
-            ).map(Proj(_, idn)).getOrElse(Proj(re, idn))
-        }
       case _ => fail
       // TODO (msb): LegacyCallLanguage args
     }))

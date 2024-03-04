@@ -147,7 +147,8 @@ class TypeCastAnyEntry extends EntryExtension {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     val TypeArg(target) = mandatoryArgs(0)
-    Right(addProp(target, Rql2IsTryableTypeProperty())) // type as tryable of the target
+//    Right(addProp(target, Rql2IsTryableTypeProperty())) // type as tryable of the target
+    Right(target) // type as tryable of the target
   }
 
 }

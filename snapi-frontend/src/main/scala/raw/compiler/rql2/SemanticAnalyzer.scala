@@ -249,7 +249,6 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
     } else {
       try {
         (actual, expected) match {
-          case (_: Rql2AnyType, whatever) => Some(CompatibilityReport(whatever, actual))
           case (Rql2ListType(actualItemType, actualProps), Rql2ListType(expectedItemType, expectedProps)) =>
             funParamTypeCompatibility(actualItemType, expectedItemType).map { report =>
               CompatibilityReport(
@@ -397,11 +396,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
         a.atts.zip(e.atts).map { case (a, e) => Rql2AttrType(a.idn, recurse(a.tipe, e.tipe)) },
         e.props
       )
-    // If actual type is 'any', we make it compatible with anything
-    case (a: Rql2AnyType, e) =>
-      if (hasTypeConstraint(e)) turnConstraintsOnAnyToAType(e)
-      else addProps(e, Set(Rql2IsNullableTypeProperty(), Rql2IsTryableTypeProperty()))
-    case (_, e: Rql2AnyType) => e // anything can be an anytype
+    // Iterable Type
     case (a: Rql2IterableType, e: Rql2IterableType) if a.props.subsetOf(e.props) =>
       Rql2IterableType(recurse(a.innerType, e.innerType), e.props)
     // List Type
@@ -428,6 +423,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
     case (a: Rql2TypeWithProperties, IsNullable()) => addProp(a, Rql2IsNullableTypeProperty())
     case (a: Rql2TypeWithProperties, HasTypeProperties(props)) if a.props.subsetOf(props) => addProps(actual, props)
     case (a: Rql2TypeWithProperties, DoesNotHaveTypeProperties(props)) if props.intersect(a.props).isEmpty => actual
+    case (a: Rql2AnyType, e) => if (hasTypeConstraint(e)) turnConstraintsOnAnyToAType(e) else e
     case (_, OneOfType(expectedTypes)) =>
 //      assert(expectedTypes.forall(t => !isTypeConstraint(t)), s"Type constraint found in OneOfType: $expectedTypes")
       // We need to merge it (using getCompatibleType) with the actual type to get the target type.
@@ -461,6 +457,7 @@ class TypesMerger extends Rql2TypeUtils with StrictLogging {
 
   private def turnConstraintsOnAnyToAType(constraint: Type): Type = constraint match {
     case AnythingType() => Rql2AnyType()
+    case Rql2IterableType(AnythingType(), props) => Rql2IterableType(Rql2AnyType(), props)
     case MergeableType(t) => addProp(t, Rql2IsTryableTypeProperty())
     case _: DoesNotHaveTypeProperties => Rql2AnyType()
     case ExpectedProjType(f) => Rql2RecordType(

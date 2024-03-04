@@ -16,26 +16,26 @@ import raw.compiler.rql2.tests.CompilerTestContext
 
 trait BenTest extends CompilerTestContext {
 
-  ignore(""" Byte.From(1)""")(it => it should evaluateTo("1b"))
-  ignore(""" Math.Sin(1)""")(it => it should evaluateTo("Math.Sin(1)"))
-
-  ignore("let x: any = 6.8 in Math.Sin(x)")(it => it should evaluateTo("Math.Sin(6.8)"))
-  test("let x: record(number: double, size: int) = {number: 6.8, size: 12} in x.number")(it => it should evaluateTo("6.8"))
-  test("let x: any = {number: 6.8, size: 12} in x.number")(it => it should evaluateTo("6.8"))
-  test("let x: any = {number: 6.8, size: 12} in Math.Sin(x.number)")(it => it should evaluateTo("Math.Sin(6.8)"))
-
-  ignore(
-    """let d = Json.Read("file:/tmp/string.json", type any) in Type.CastAny(type int, Type.CastAny(type record(age: any), d).age) > 90"""
-  )(_ should evaluateTo("false"))
-  ignore("""let d = Json.Read("file:/tmp/string.json", type any) in d.alive""")(_ should evaluateTo("false"))
-  ignore("""let d = Json.Read("file:/tmp/string.json", type any) in d.alive == true""")(_ should evaluateTo("false"))
-  ignore("""let d = Json.Read("file:/tmp/string.json", type any) in 12 + d.age""")(_ should evaluateTo("false"))
-  ignore("""let d = Json.Read("file:/tmp/string.json", type any) in true == d.alive""")(_ should evaluateTo("false"))
-  test("""let d = Json.Read("file:/tmp/string.json", type any) in Math.Sin(d.size)""")(
-    _ should evaluateTo("Math.Sin(6.8)")
+  test(""" Byte.From(1)""")(it => it should evaluateTo("1b"))
+  test(""" Math.Sin(1)""")(it => it should evaluateTo("Math.Sin(1)"))
+  test("""let r = Json.Parse("{\"a\": 12, \"b\": 14}", type any) in 12 < r.a""")(_ should evaluateTo("false"))
+  test("""let r = Json.Parse("{\"a\": 12, \"b\": 14}", type any) in 12 < r.b""")(_ should evaluateTo("true"))
+  test("""let r = Json.Parse("{\"a\": 12, \"b\": 3.14}", type any) in Math.Sin(r.b)""")(
+    _ should evaluateTo("Math.Sin(3.14)")
   )
-  test("""let d = Json.Read("file:/tmp/string.json", type any) in Math.Sin(d.age)""")(_ should evaluateTo("false"))
-  test("""let d = Json.Read("file:/tmp/string.json", type any) in [Math.Sin(d.age), Math.Cos(d.size)]""")(
-    _ should evaluateTo("false")
+  test("""let r = Json.Parse("{\"a\": 12, \"b\": 3.14}", type any) in Math.Sin(r.a)""")(
+    _ should runErrorAs("Type cast error")
   )
+  test(
+    """let r = Json.Parse("{\"a\": 12, \"b\": 3.14}", type any) in Math.Sin(Type.CastAny(type double, Type.CastAny(type record(a: any), r).a))"""
+  )(
+    _ should evaluateTo("Math.Sin(12)")
+  )
+  test("""let r = Json.Parse("[1,2,3.14, {\"a\": 12, \"b\": 3.14}]", type collection(any)) in Collection.Count(r)""")(
+    _ should evaluateTo("4")
+  )
+  test("""let r = Json.Parse("[1,2,3.14, {\"a\": 12, \"b\": 3.14}]", type any) in Collection.Count(r)""")(
+    _ should evaluateTo("4")
+  )
+
 }

@@ -17,6 +17,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionBuildNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
 @NodeInfo(shortName = "List.Build")
@@ -69,6 +70,8 @@ public class TypeCastAnyNode extends ExpressionNode {
       case Rql2DoubleType rql2DoubleType -> {
         if (value instanceof Double) {
           return value;
+        } else if (value instanceof Float) {
+          return ((Float)value).doubleValue();
         }
         throw new RawTruffleRuntimeException("Type cast error");
       }
@@ -83,6 +86,11 @@ public class TypeCastAnyNode extends ExpressionNode {
           return value;
         }
         throw new RawTruffleRuntimeException("Type cast error");
+      }
+      case Rql2IterableType rql2IterableType -> {
+        // how to do this?
+        return value;
+//        throw new RawTruffleRuntimeException("Type cast error");
       }
       case Rql2AnyType rql2AnyType -> {
         return value;
