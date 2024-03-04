@@ -116,7 +116,7 @@ public class InputBufferNodes {
           thisNode,
           buffer.getOffHeapGroupByKey().getLanguage(),
           buffer.getInput(),
-          buffer.getOffHeapGroupByKey().getKeyType());
+          buffer.getOffHeapGroupByKey().getRowType());
     }
 
     @Specialization
