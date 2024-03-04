@@ -132,9 +132,9 @@ object SqlCodeUtils {
     var row = 1
     var lastChar = ' '
 
-    def resetCurrentPos(): Unit = {
-      currentPos = Pos(line, row)
-      currentOffset = offset + 1
+    def resetCurrentPos(delta: Int = 0): Unit = {
+      currentPos = Pos(line, row + delta)
+      currentOffset = offset + 1 + delta
     }
 
     def addToken(): Unit = {
@@ -168,8 +168,7 @@ object SqlCodeUtils {
             }
             currentWord.clear()
             currentWord.append("--")
-            currentPos = Pos(line, row - 1)
-            currentOffset = offset
+            resetCurrentPos(-1)
           } else if (lastChar == '/' && char == '*') {
             state = MultilineComment
             if (currentWord.length > 1) {
@@ -177,8 +176,7 @@ object SqlCodeUtils {
             }
             currentWord.clear()
             currentWord.append("/*")
-            currentPos = Pos(line, row - 1)
-            currentOffset = offset
+            resetCurrentPos(-1)
           } else if (lastChar == ':' && char == ':') {
             state = Cast
             if (currentWord.length > 1) {
@@ -186,8 +184,7 @@ object SqlCodeUtils {
             }
             currentWord.clear()
             currentWord.append("::")
-            currentPos = Pos(line, row - 1)
-            currentOffset = offset
+            resetCurrentPos(-1)
           } else if (lastChar == ':' && char.isLetterOrDigit) {
             // Starting a new token with the parameter
             // first we add the current token
@@ -198,8 +195,7 @@ object SqlCodeUtils {
             currentWord.clear()
             // Now starting a new token with the parameter
             currentWord.append(":" + char)
-            currentPos = Pos(line, row - 1)
-            currentOffset = offset
+            resetCurrentPos(-1)
           } else if (char.isWhitespace) {
             addToken()
             resetCurrentPos()
