@@ -32,13 +32,15 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
   private var con: java.sql.Connection = _
 
   override def beforeAll(): Unit = {
-    val connectionPool = new SqlConnectionPool(settings)
-    con = connectionPool.getConnection(user)
+    if (password != "") {
+      val connectionPool = new SqlConnectionPool(settings)
+      con = connectionPool.getConnection(user)
+    }
     super.beforeAll()
   }
 
   override def afterAll(): Unit = {
-    con.close()
+    if (con != null) con.close()
     super.afterAll()
   }
 
