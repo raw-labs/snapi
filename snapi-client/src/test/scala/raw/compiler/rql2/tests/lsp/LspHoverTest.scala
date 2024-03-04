@@ -200,10 +200,10 @@ trait LspHoverTest extends CompilerTestContext {
     assertResult("string")(tipe)
   }
 
-  knownBug("RD-8323", "hover variable in the end of the code (RD-8323)") { _ =>
+  test("RD-8323 hover variable in the end of the code (RD-8323)") { _ =>
     val code = """let c = 2
       |in c""".stripMargin
-    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 5))
+    val HoverResponse(Some(TypeCompletion(name, tipe))) = hover(code, Pos(2, 4))
     name shouldBe "c"
     tipe shouldBe "int"
   }
