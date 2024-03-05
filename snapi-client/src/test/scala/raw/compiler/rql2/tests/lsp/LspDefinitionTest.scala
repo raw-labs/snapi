@@ -175,4 +175,13 @@ trait LspDefinitionTest extends CompilerTestContext {
     assert(goToDefinitionResponse.position.isEmpty)
   }
 
+  test("RD-10698 crush fix") { _ =>
+    val code = """main(`1 + 2`: int) = let
+      |    a = 1,
+      |    a = 2
+      |in a""".stripMargin
+    val goToDefinitionResponse = goToDefinition(code, Pos(4, 4))
+    assert(goToDefinitionResponse.position.isEmpty)
+  }
+
 }

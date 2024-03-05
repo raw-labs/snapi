@@ -71,4 +71,13 @@ trait LspDotAutoCompleteTest extends CompilerTestContext {
     assert(entries.length == 0)
   }
 
+  test("RD-10698 crush fix") { _ =>
+    val code = """main(`1 + 2`: int) = let
+      |    a = 1,
+      |    a = 2
+      |in a""".stripMargin
+    val AutoCompleteResponse(entries) = dotAutoComplete(code, Pos(4, 5))
+    assert(entries.length == 0)
+  }
+
 }

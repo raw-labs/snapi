@@ -164,4 +164,13 @@ trait LspRenameTest extends CompilerTestContext {
     assert(positions.length == 0)
   }
 
+  test("RD-10698 crush fix") { _ =>
+    val code = """main(`1 + 2`: int) = let
+      |    a = 1,
+      |    a = 2
+      |in a""".stripMargin
+    val RenameResponse(positions) = rename(code, Pos(4, 4))
+    assert(positions.length == 2)
+  }
+
 }

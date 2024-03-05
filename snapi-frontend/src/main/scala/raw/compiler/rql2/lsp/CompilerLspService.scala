@@ -150,31 +150,42 @@ class CompilerLspService(
                         case _ => true
                       }
                   }
-                  .map {
+                  .flatMap {
                     case (idn, e) => e match {
-                        case l: LetBindEntity => LetBindCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(l.b.i))
+                        case l: LetBindEntity => Some(
+                            LetBindCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(l.b.i))
+                            )
                           )
-                        case f: LetFunEntity => LetFunCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                        case f: LetFunEntity => Some(
+                            LetFunCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                            )
                           )
-                        case m: MethodEntity => LetFunCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(m.d.i))
+                        case m: MethodEntity => Some(
+                            LetFunCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(m.d.i))
+                            )
                           )
-                        case f: LetFunRecEntity => LetFunRecCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                        case f: LetFunRecEntity => Some(
+                            LetFunRecCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                            )
                           )
-                        case p: FunParamEntity => FunParamCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(p.f.i))
+                        case p: FunParamEntity => Some(
+                            FunParamCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(p.f.i))
+                            )
                           )
                         case p: PackageEntity =>
                           val docs = p.p.docs
-                          PackageCompletion(SourcePrettyPrinter.ident(idn), docs)
+                          Some(PackageCompletion(SourcePrettyPrinter.ident(idn), docs))
+                        case _ => None
                       }
                   }
               }
@@ -300,6 +311,7 @@ class CompilerLspService(
               else HoverResponse(None)
             case _ => HoverResponse(None)
           }
+        case _ => HoverResponse(None)
         // for debugging
         //        case rql2Node: Rql2Node => rql2Node
       }
@@ -388,6 +400,7 @@ class CompilerLspService(
               }
             case _ => GoToDefinitionResponse(None)
           }
+        case _ => GoToDefinitionResponse(None)
         // for debugging
         //        case rql2Node: Rql2Node => rql2Node
       }
@@ -425,6 +438,7 @@ class CompilerLspService(
             case i: BaseIdnNode => if (analyzer.entity(i) == ent) myPositions.add(positions.getStart(i).get)
           })(rootNode)
           RenameResponse(myPositions.map(p => Pos(p.line, p.column)).toArray)
+        case _ => RenameResponse(Array())
       }
 
     res match {
