@@ -34,11 +34,11 @@ public class RecordNodes {
         Node node,
         RecordObject record,
         int idx,
-        @CachedLibrary("record.values") DynamicObjectLibrary valuesLibrary) {
+        @CachedLibrary("record") DynamicObjectLibrary valuesLibrary) {
       if (idx < 0 || idx >= record.keys.size()) {
         throw new RawTruffleInternalErrorException(InvalidArrayIndexException.create(idx));
       }
-      return valuesLibrary.getOrDefault(record.values, idx, null);
+      return valuesLibrary.getOrDefault(record, idx, null);
     }
   }
 
@@ -74,13 +74,13 @@ public class RecordNodes {
         int idx,
         String key,
         Object value,
-        @CachedLibrary("record.values") DynamicObjectLibrary valuesLibrary) {
+        @CachedLibrary("record") DynamicObjectLibrary valuesLibrary) {
       if (idx >= record.keys.size()) {
         record.keys.setSize(idx + 1);
       }
       record.keys.set(idx, key);
       record.invalidateDistinctKeys();
-      valuesLibrary.put(record.values, idx, value);
+      valuesLibrary.put(record, idx, value);
     }
   }
 
@@ -97,9 +97,9 @@ public class RecordNodes {
         RecordObject record,
         String key,
         Object value,
-        @CachedLibrary("record.values") DynamicObjectLibrary valuesLibrary) {
+        @CachedLibrary("record") DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.put(
-          record.values,
+          record,
           record.keys.size(),
           value); // "key" to use in the dynamic object is the current index.
       addKey(record, key); // the original key is added (possible duplicate)

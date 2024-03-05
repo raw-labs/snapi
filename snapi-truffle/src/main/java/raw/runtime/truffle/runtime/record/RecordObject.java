@@ -29,15 +29,14 @@ import raw.runtime.truffle.RawLanguage;
 import raw.utils.RecordFieldsNaming;
 
 @ExportLibrary(InteropLibrary.class)
-public final class RecordObject implements TruffleObject {
+public final class RecordObject extends DynamicObject implements TruffleObject {
 
   public final Vector<String> keys = new Vector<>();
   private final Vector<String> distinctKeys;
   private boolean validDistinctKeys = true;
-  public final DynamicObject values;
 
   public RecordObject(Shape shape) {
-    this.values = new RecordStorageObject(shape);
+    super(shape);
     this.distinctKeys = new Vector<>();
   }
 
@@ -136,11 +135,11 @@ public final class RecordObject implements TruffleObject {
   }
 
   @ExportMessage
-  Object readMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary)
+  Object readMember(String name, @CachedLibrary("this") DynamicObjectLibrary valuesLibrary)
       throws UnknownIdentifierException {
     // Interop API, we assume the searched key should be found in the distinct keys.
     int idx = getDistinctKeys().indexOf(name);
-    Object result = valuesLibrary.getOrDefault(values, idx, null);
+    Object result = valuesLibrary.getOrDefault(this, idx, null);
     if (result == null) {
       /* Property does not exist. */
       throw UnknownIdentifierException.create(name);
@@ -166,8 +165,8 @@ public final class RecordObject implements TruffleObject {
   }
 
   @ExportMessage
-  void removeMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary) {
-    valuesLibrary.removeKey(values, name);
+  void removeMember(String name, @CachedLibrary("this") DynamicObjectLibrary valuesLibrary) {
+    valuesLibrary.removeKey(this, name);
   }
 
   void invalidateDistinctKeys() {
