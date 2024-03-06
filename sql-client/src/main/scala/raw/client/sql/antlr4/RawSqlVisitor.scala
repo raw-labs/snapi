@@ -49,8 +49,10 @@ class RawSqlVisitor(
     )
   }
 
-  override def visitProg(ctx: PsqlParser.ProgContext): SqlBaseNode =
+  override def visitProg(ctx: PsqlParser.ProgContext): SqlBaseNode = {
+    isFirstStatement = true
     Option(ctx).flatMap(context => Option(context.code()).map(codeCtx => visit(codeCtx))).getOrElse(SqlErrorNode())
+  }
 
   override def visitCode(ctx: PsqlParser.CodeContext): SqlBaseNode = Option(ctx)
     .map { context =>
