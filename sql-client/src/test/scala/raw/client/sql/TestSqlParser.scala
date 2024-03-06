@@ -21,6 +21,7 @@ import raw.client.sql.antlr4.{
   SqlIdentifierNode,
   SqlKeywordNode,
   SqlProgramNode,
+  SqlProjNode,
   SqlStatementNode,
   SqlWithComaSeparatorNode
 }
@@ -382,6 +383,83 @@ class TestSqlParser extends AnyFunSuite {
       |    p.project_name
       |ORDER BY 
       |    total_salary DESC;""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  test("Test missing closing double quote identifier") {
+    val code = """select somethin."asdf from anything""".stripMargin
+    val result = doTest(code)
+    assert(result.errors.size == 1)
+    assert(
+      result.errors.head.message == "Missing closing \""
+    )
+    result.tree match {
+      case SqlProgramNode(statements) => statements.head match {
+          case SqlStatementNode(statementItems) =>
+            assert(statementItems.size == 4)
+            statementItems(1) match {
+              case SqlProjNode(identifiers) => identifiers(1) match {
+                  case identifier: SqlIdentifierNode =>
+                    assert(identifier.name == "asdf")
+                    assert(identifier.isQuoted)
+                }
+            }
+        }
+    }
+  }
+
+  test("Test missing identifier after dot") {
+    val code = """SELECT * FROM example.airports
+      |WHERE ai.
+      |AND   airports.
+      |""".stripMargin
+    val result = doTest(code)
+    assert(result.errors.size == 2)
+    assert(
+      result.errors.head.message == "Missing identifier after '.'"
+    )
+    result.tree match {
+      case SqlProgramNode(statements) => statements.head match {
+          case SqlStatementNode(statementItems) =>
+            assert(statementItems.size == 8)
+            statementItems(5) match {
+              case SqlProjNode(identifiers) => identifiers(0) match {
+                  case identifier: SqlIdentifierNode =>
+                    assert(identifier.name == "ai")
+                    assert(!identifier.isQuoted)
+                }
+            }
+            statementItems(7) match {
+              case SqlProjNode(identifiers) => identifiers(0) match {
+                  case identifier: SqlIdentifierNode =>
+                    assert(identifier.name == "airports")
+                    assert(!identifier.isQuoted)
+                }
+            }
+        }
+    }
+  }
+
+  test("Test escape identifiers") {
+    val code = "SELECT smth from \"\"\"hello\""
+    val result = doTest(code)
+    assert(result.isSuccess)
+    result.tree match {
+      case SqlProgramNode(statements) => statements.head match {
+          case SqlStatementNode(statementItems) =>
+            assert(statementItems.size == 4)
+            statementItems(3) match {
+              case identifier: SqlIdentifierNode =>
+                assert(identifier.name == "\"\"hello")
+                assert(identifier.isQuoted)
+            }
+        }
+    }
+  }
+
+  test("Test unicode parsing properly") {
+    val code = "SELECT smth from U&\"d\\0061t\\+000061\""
     val result = doTest(code)
     assert(result.isSuccess)
   }

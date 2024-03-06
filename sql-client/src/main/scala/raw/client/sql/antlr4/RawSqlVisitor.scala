@@ -604,7 +604,7 @@ class RawSqlVisitor(
     .flatMap(context => Option(context.operator()).map(visit))
     .getOrElse(SqlErrorNode())
 
-  override def visitProj(ctx: PsqlParser.ProjContext): SqlBaseNode = Option(ctx)
+  override def visitProperProj(ctx: PsqlParser.ProperProjContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val identifiers = Option(context.idnt())
         .map(i =>
@@ -623,12 +623,30 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
+  override def visitMissingIdenProj(ctx: PsqlParser.MissingIdenProjContext): SqlBaseNode = Option(ctx)
+    .map { context =>
+      val identifier = Option(context.idnt())
+        .map(visit)
+        .getOrElse(SqlErrorNode())
+      val proj = SqlProjNode(Vector(identifier))
+      positionsWrapper.setPosition(ctx, proj)
+      proj
+    }
+    .getOrElse(SqlErrorNode())
+
   override def visitIdnt(ctx: PsqlParser.IdntContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val isDoubleQuoted = context.DOUBLE_QUOTED_STRING() != null
       val value =
-        if (isDoubleQuoted) context.DOUBLE_QUOTED_STRING().getText.replace("\"", "")
-        else context.getText
+        if (isDoubleQuoted) {
+          val text = context.DOUBLE_QUOTED_STRING().getText
+          val withoutLast =
+            if (!text.endsWith("\"")) {
+              addError("Missing closing \"", context)
+              text
+            } else text.dropRight(1)
+          withoutLast.drop(1)
+        } else context.getText
       val idnt = SqlIdentifierNode(value, isDoubleQuoted)
       positionsWrapper.setPosition(ctx, idnt)
       idnt

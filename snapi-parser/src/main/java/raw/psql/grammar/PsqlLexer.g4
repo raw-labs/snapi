@@ -42,6 +42,8 @@ CONCAT: '||';
 REGEX_CASE_INSENSITIVE_MATCH: '~*';
 REGEX_CASE_INSENSITIVE_NOT_MATCH: '!~*';
 
+UNICODE: 'U&';
+
 
 DOUBLE_COLON: '::';
 
@@ -51,9 +53,9 @@ FLOATING_POINT: DIGIT+ '.' DIGIT* EXPONENT?;
 PARAM: ':' WORD;
 
 // Strings
-DOUBLE_QUOTED_STRING: '"' (ESC | ~["\\])* '"';
-SINGLE_QUOTED_STRING: '\'' (ESC | ~["\\])* '\'';
-TICKS_QUOTED_STRING: '`' (ESC | ~["\\])* '`';
+DOUBLE_QUOTED_STRING: '"' (~[" \u0000] | '""')* '"'?;
+SINGLE_QUOTED_STRING: '\'' (ESC | ~['\\])* '\'';
+TICKS_QUOTED_STRING: '`' (ESC | ~[`\\])* '`';
 
 BIGSERIAL: B I G S E R I A L;
 SMALLSERIAL: S M A L L S E R I A L;
@@ -971,7 +973,7 @@ fragment Z:[zZ];
 fragment DIGIT: [0-9];
 fragment EXPONENT: E [+-]? DIGIT+;
 
-fragment ESC: '\\' (["\\/'bfnrt]) ;
+fragment ESC: '\\' (["\\/'bfnrtoux]) ;
 WS : [ \t\r\n]+ -> skip ;
 
 mode INSIDE_SINGLE_LINE_COMMENT;
