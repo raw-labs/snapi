@@ -274,7 +274,7 @@ trait LspWordAutoCompleteTest extends CompilerTestContext {
     assert(entries.length > 17)
   }
 
-  test("RD-10698 crush fix") { _ =>
+  test("RD-10698 crash fix") { _ =>
     val AutoCompleteResponse(entries) = wordAutoComplete(
       """main(`1 + 2`: int) = let
         |    a = 1,
