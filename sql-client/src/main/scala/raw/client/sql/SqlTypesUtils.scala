@@ -13,22 +13,7 @@
 package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.client.api.{
-  RawAnyType,
-  RawBoolType,
-  RawByteType,
-  RawDateType,
-  RawDecimalType,
-  RawDoubleType,
-  RawFloatType,
-  RawIntType,
-  RawLongType,
-  RawShortType,
-  RawStringType,
-  RawTimeType,
-  RawTimestampType,
-  RawType
-}
+import raw.client.api._
 
 import scala.annotation.tailrec
 
@@ -36,6 +21,11 @@ object SqlTypesUtils extends StrictLogging {
 
   private case class SqlType(name: String, rawType: Option[RawType])
 
+  private val otherTypeMap: Map[String, RawType] = Map(
+    "interval" -> RawIntervalType(false, false),
+    "json" -> RawAnyType(),
+    "jsonb" -> RawAnyType()
+  )
   // a mapping from JDBC types to a RawType. We also store the name of the JDBC type for error reporting.
   private val typeMap: Map[Int, SqlType] = Map(
     java.sql.Types.BIT -> SqlType("BIT", Some(RawBoolType(false, false))),
@@ -99,15 +89,25 @@ object SqlTypesUtils extends StrictLogging {
   }
 
   // returns the RawType corresponding to the given JDBC type, or an error message if the type is not supported
-  def rawTypeFromJdbc(jdbcType: Int): Either[String, RawType] = {
-    typeMap.get(jdbcType) match {
-      case Some(sqlTypeInfo) => sqlTypeInfo.rawType match {
+  def rawTypeFromJdbc(jdbcType: Int, typeName: String): Either[String, RawType] = {
+    jdbcType match {
+      // If the type is OTHER, we need to check the specific type of the column using the type name
+      case java.sql.Types.OTHER => otherTypeMap.get(typeName) match {
           case Some(t) => Right(t)
-          case None => Left(s"Unsupported SQL type: ${sqlTypeInfo.name}")
+          case None => Left(s"Unsupported SQL type: $typeName")
         }
-      case None =>
-        logger.error(s"Unsupported JDBC type: $jdbcType") // this is the internal JDBC integer type
-        Left(s"Unsupported JDBC type")
+      case _ => typeMap.get(jdbcType) match {
+          case Some(sqlTypeInfo) => sqlTypeInfo.rawType match {
+              case Some(t) => Right(t)
+              case None => Left(s"Unsupported SQL type: ${sqlTypeInfo.name}")
+            }
+          case None =>
+            // this is the postgres type and the internal JDBC integer type
+            logger.error(
+              s"Unsupported SQL type: $typeName JDBC type: $jdbcType"
+            )
+            Left(s"Unsupported SQL type $typeName")
+        }
     }
   }
 
