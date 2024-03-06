@@ -23,7 +23,9 @@ import raw.inferrer.api.InferrerServiceProvider;
 import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
+import raw.utils.RawUtils;
 import scala.Some;
+import scala.runtime.BoxedUnit;
 
 public class RawLanguageCache {
 
@@ -110,11 +112,28 @@ public class RawLanguageCache {
         map.values()
             .forEach(
                 v -> {
-                  v.getInferrer().stop();
-                  v.getSourceContext().credentialsService().stop();
+                  RawUtils.withSuppressNonFatalException(
+                      () -> {
+                        v.getInferrer().stop();
+                        return BoxedUnit.UNIT;
+                      });
+                  RawUtils.withSuppressNonFatalException(
+                      () -> {
+                        v.getSourceContext().credentialsService().stop();
+                        return BoxedUnit.UNIT;
+                      });
                 });
         map.clear();
-        credentialsCache.values().forEach(CredentialsService::stop);
+        credentialsCache
+            .values()
+            .forEach(
+                v -> {
+                  RawUtils.withSuppressNonFatalException(
+                      () -> {
+                        v.stop();
+                        return BoxedUnit.UNIT;
+                      });
+                });
         credentialsCache.clear();
       }
     }
