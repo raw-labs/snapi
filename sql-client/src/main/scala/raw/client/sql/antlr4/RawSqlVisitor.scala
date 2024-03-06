@@ -32,6 +32,8 @@ class RawSqlVisitor(
 
   private val assertionMessage = "Should never reach this node."
 
+  private var isFirstStatement = true
+
   private def addError(message: String, ctx: ParserRuleContext): Unit = {
     errors.addError(
       ErrorMessage(
@@ -52,19 +54,30 @@ class RawSqlVisitor(
 
   override def visitCode(ctx: PsqlParser.CodeContext): SqlBaseNode = Option(ctx)
     .map { context =>
-      val statements = Option(context.stmt())
+      val statement = Option(context.stmt())
+        .flatMap(st =>
+          Option(st.get(0))
+            .map(visit)
+        )
+        .getOrElse(SqlErrorNode())
+
+      // set a flag to ignore comment internals
+      isFirstStatement = false
+
+      Option(context.stmt())
         .map(m =>
-          m.asScala.map(md =>
+          m.asScala.tail.map(md =>
             Option(md)
-              .flatMap(mdContext => Option(visit(mdContext)))
-              .getOrElse(SqlErrorNode())
-              .asInstanceOf[SqlBaseNode]
+              .flatMap(mdContext =>
+                Option(visit(mdContext)).map {
+                  case stmt: SqlStatementNode => if (!stmt.statementItems.forall(_.isInstanceOf[SqlCommentNode]))
+                      addError("Only one statement is allowed", md)
+                }
+              )
           )
         )
-        .getOrElse(Vector.empty)
-        .toVector
 
-      val prog = SqlProgramNode(statements)
+      val prog = SqlProgramNode(statement)
       positionsWrapper.setPosition(ctx, prog)
       prog
     }
@@ -72,7 +85,11 @@ class RawSqlVisitor(
 
   override def visitComment(ctx: PsqlParser.CommentContext): SqlBaseNode = Option(ctx)
     .flatMap { context =>
-      Option(context.multiline_comment()).map(visit).orElse(Option(context.singleline_comment()).map(visit))
+      // if in first statement we visit children
+      if (isFirstStatement)
+        Option(context.multiline_comment()).map(visit).orElse(Option(context.singleline_comment()).map(visit))
+      // In second we ignore them
+      else Some(SqlMultiLineCommentNode(Vector.empty))
     }
     .getOrElse(SqlErrorNode())
 

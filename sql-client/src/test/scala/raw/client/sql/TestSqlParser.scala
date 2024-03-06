@@ -41,7 +41,7 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.params.isEmpty)
     assert(result.returnDescription.isEmpty)
     result.tree match {
-      case SqlProgramNode(statements) => statements.head match {
+      case SqlProgramNode(statement) => statement match {
           case SqlStatementNode(statementItems) =>
             assert(statementItems.size == 4)
             assert(statementItems(0).isInstanceOf[SqlKeywordNode])
@@ -204,7 +204,7 @@ class TestSqlParser extends AnyFunSuite {
     val result = doTest(code)
     assert(result.isSuccess)
     result.tree match {
-      case SqlProgramNode(statements) => statements.head match {
+      case SqlProgramNode(statement) => statement match {
           case SqlStatementNode(statementItems) =>
             assert(statementItems.size == 4)
             statementItems(1) match {
@@ -277,7 +277,8 @@ class TestSqlParser extends AnyFunSuite {
       |    -- Set a secure search_path: trusted schema(s), then 'pg_temp'.
       |    SET search_path = admin, pg_temp;""".stripMargin
     val result = doTest(code)
-    assert(result.isSuccess)
+    assert(result.hasErrors)
+    assert(result.errors.forall(m => m.message == "Only one statement is allowed"))
   }
 
   test("Test complex random code 2") {
@@ -395,7 +396,7 @@ class TestSqlParser extends AnyFunSuite {
       result.errors.head.message == "Missing closing \""
     )
     result.tree match {
-      case SqlProgramNode(statements) => statements.head match {
+      case SqlProgramNode(statement) => statement match {
           case SqlStatementNode(statementItems) =>
             assert(statementItems.size == 4)
             statementItems(1) match {
@@ -420,7 +421,7 @@ class TestSqlParser extends AnyFunSuite {
       result.errors.head.message == "Missing identifier after '.'"
     )
     result.tree match {
-      case SqlProgramNode(statements) => statements.head match {
+      case SqlProgramNode(statement) => statement match {
           case SqlStatementNode(statementItems) =>
             assert(statementItems.size == 8)
             statementItems(5) match {
@@ -446,7 +447,7 @@ class TestSqlParser extends AnyFunSuite {
     val result = doTest(code)
     assert(result.isSuccess)
     result.tree match {
-      case SqlProgramNode(statements) => statements.head match {
+      case SqlProgramNode(statement) => statement match {
           case SqlStatementNode(statementItems) =>
             assert(statementItems.size == 4)
             statementItems(3) match {
@@ -462,6 +463,38 @@ class TestSqlParser extends AnyFunSuite {
     val code = "SELECT smth from U&\"d\\0061t\\+000061\""
     val result = doTest(code)
     assert(result.isSuccess)
+  }
+
+  test("Test only one statement is allowed error") {
+    val code = """select * from smth; select * from smth;""".stripMargin
+    val result = doTest(code)
+    assert(result.errors.size == 1)
+    assert(result.errors.head.message == "Only one statement is allowed")
+  }
+
+  test("Test multiple statements with comments") {
+    val code = """select * from smth; -- a comment""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+    result.tree match {
+      case SqlProgramNode(statement) => statement match {
+          case SqlStatementNode(statementItems) => assert(statementItems.size == 4)
+        }
+    }
+  }
+
+  test("Test multiple statements with comments more advanced") {
+    val code = """select * from smth;
+      | -- a comment;
+      | -- @param hello hello""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+    result.tree match {
+      case SqlProgramNode(statement) => statement match {
+          case SqlStatementNode(statementItems) => assert(statementItems.size == 4)
+        }
+    }
+    assert(result.params.isEmpty)
   }
 
 }

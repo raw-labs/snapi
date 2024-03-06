@@ -40,7 +40,6 @@ class RawSqlSyntaxAnalyzer(val positions: Positions) extends Parsers(positions) 
     val params = mutable.Map.empty[String, SqlParam]
     val visitor = new RawSqlVisitor(positions, params, source, visitorParseErrors)
     val result = visitor.visit(tree).asInstanceOf[SqlProgramNode]
-
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
     ParseProgramResult(totalErrors, params, visitor.returnDescription, result, positions)
   }
