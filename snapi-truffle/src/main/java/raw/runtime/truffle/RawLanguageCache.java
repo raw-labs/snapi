@@ -116,12 +116,14 @@ public class RawLanguageCache {
                       () -> {
                         v.getInferrer().stop();
                         return BoxedUnit.UNIT;
-                      });
+                      },
+                      true);
                   RawUtils.withSuppressNonFatalException(
                       () -> {
                         v.getSourceContext().credentialsService().stop();
                         return BoxedUnit.UNIT;
-                      });
+                      },
+                      true);
                 });
         map.clear();
         credentialsCache
@@ -132,7 +134,8 @@ public class RawLanguageCache {
                       () -> {
                         v.stop();
                         return BoxedUnit.UNIT;
-                      });
+                      },
+                      true);
                 });
         credentialsCache.clear();
       }
