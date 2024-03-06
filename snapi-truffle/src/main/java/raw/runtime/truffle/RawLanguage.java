@@ -77,12 +77,16 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   @Override
   protected final RawContext createContext(Env env) {
-    return new RawContext(this, env);
+    RawContext context = new RawContext(this, env);
+    // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
+    languageCache.incrementContext(context);
+    return context;
   }
 
   @Override
   protected void finalizeContext(RawContext context) {
-    context.close();
+    // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
+    languageCache.releaseContext(context);
   }
 
   private static final LanguageReference<RawLanguage> REFERENCE =
@@ -239,10 +243,5 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   public RawSettings getDefaultRawSettings() {
     return defaultRawSettings;
-  }
-
-  // Method used only by the test suite.
-  private void dropCaches() {
-    languageCache.close();
   }
 }

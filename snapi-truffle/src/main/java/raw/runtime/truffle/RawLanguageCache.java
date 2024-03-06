@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle;
 
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import raw.compiler.base.CompilerContext;
 import raw.creds.api.CredentialsService;
@@ -27,13 +29,11 @@ public class RawLanguageCache {
 
   private final ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
+  private final Object activeContextsLock = new Object();
+  private final Set<RawContext> activeContexts = new HashSet<RawContext>();
+
   private final ConcurrentHashMap<RawSettings, CredentialsService> credentialsCache =
       new ConcurrentHashMap<>();
-
-  // This will be initialized on first use and not here statically.
-  // That's because for the test suite we want the ability to define it dynamically depending on RAW
-  // settings.
-  public CredentialsService credentialsService;
 
   private final ConcurrentHashMap<AuthenticatedUser, Value> map = new ConcurrentHashMap<>();
 
@@ -62,6 +62,7 @@ public class RawLanguageCache {
   }
 
   private Value get(AuthenticatedUser user, RawSettings rawSettings) {
+    // Create services on-demand.
     CredentialsService credentialsService =
         credentialsCache.computeIfAbsent(
             rawSettings, k -> CredentialsServiceProvider.apply(classLoader, rawSettings));
@@ -95,18 +96,27 @@ public class RawLanguageCache {
     return get(user, rawSettings).getInferrer();
   }
 
-  public void close() {
-    // Close all inferrer services and credential services.
-    map.values()
-        .forEach(
-            v -> {
-              v.getInferrer().stop();
-              v.getSourceContext().credentialsService().stop();
-            });
-    map.clear();
-    if (credentialsService != null) {
-      credentialsService.stop();
-      credentialsService = null;
+  public void incrementContext(RawContext context) {
+    synchronized (activeContextsLock) {
+      activeContexts.add(context);
+    }
+  }
+
+  public void releaseContext(RawContext context) {
+    synchronized (activeContextsLock) {
+      activeContexts.remove(context);
+      if (activeContexts.isEmpty()) {
+        // Close all inferrer services and credential services.
+        map.values()
+            .forEach(
+                v -> {
+                  v.getInferrer().stop();
+                  v.getSourceContext().credentialsService().stop();
+                });
+        map.clear();
+        credentialsCache.values().forEach(CredentialsService::stop);
+        credentialsCache.clear();
+      }
     }
   }
 }
