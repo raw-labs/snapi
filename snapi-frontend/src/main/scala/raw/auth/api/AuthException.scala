@@ -21,7 +21,13 @@ abstract class AuthException(message: String, cause: Throwable = null)
 class GenericAuthException(message: String, cause: Throwable = null) extends AuthException(message, cause)
 
 // Status 401.
-class UnauthorizedException(message: String, cause: Throwable = null) extends AuthException(message, cause)
+class UnauthorizedException(message: String, cause: Throwable = null) extends AuthException(message, cause) {
+  def this(cause: Throwable) = this("unauthorized", cause)
+  def this() = this("unauthorized")
+}
 
 // Status 403.
-class ForbiddenException(message: String, cause: Throwable = null) extends AuthException(message, cause)
+class ForbiddenException(message: String, cause: Throwable = null) extends AuthException(message, cause) {
+  def this(cause: Throwable) = this("forbidden", cause)
+  def this() = this("forbidden")
+}

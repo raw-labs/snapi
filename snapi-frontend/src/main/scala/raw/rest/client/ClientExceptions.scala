@@ -18,18 +18,20 @@ import raw.rest.common.RestError
 /**
  * Exceptions thrown by the REST Client.
  */
-abstract class APIException(val message: String, cause: Throwable = null) extends RawException(message, cause)
+sealed abstract class APIException(val message: String, cause: Throwable = null) extends RawException(message, cause)
 
 /** Exception thrown when the server cannot be reached. */
 final class ServerNotAvailableException(message: String, cause: Throwable = null)
     extends APIException(s"server not available: $message", cause)
 
 /** Exception thrown when a bad or unexpected response is received. */
-final class BadResponseException(message: String, httpStatusCode: Int = -1)
-    extends APIException(
-      if (httpStatusCode > 0) s"bad response: $message (status code: $httpStatusCode)"
-      else s"bad response: $message"
-    )
+sealed abstract class BadResponseException(message: String) extends APIException(s"bad response: $message")
+final class UnexpectedStatusCodeException(expectedStatusCode: Int, actualStatusCode: Int)
+    extends BadResponseException(s"expected status code $expectedStatusCode but got $actualStatusCode")
+final class InvalidBodyException extends BadResponseException("invalid response body")
+final class UnexpectedErrorException(message: String, statusCode: Int) extends BadResponseException(message) {
+  def this(statusCode: Int) = this("server error", statusCode)
+}
 
 /** Exception thrown when a request took too long to execute. */
 final class RequestTimeoutException extends APIException("request took too long to execute")

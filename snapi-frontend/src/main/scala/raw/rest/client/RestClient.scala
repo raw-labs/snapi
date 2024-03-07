@@ -131,64 +131,106 @@ class RestClient(
   def this(serverHttpAddress: URI, name: String)(implicit settings: RawSettings) = this(serverHttpAddress, None, name)
 
   private def executeRequest(request: HttpUriRequest): CloseableHttpResponse = {
-    logger.trace(s"[$name] Sending request: ${request.getMethod} ${request.getUri}")
-    val start = Stopwatch.createStarted()
-    var response: CloseableHttpResponse = null
-    try {
-      checkAvailableConnections()
-      response = httpClient.execute(request)
-    } catch {
-      case ex @ (_: InterruptedIOException | _: CancellationException) =>
-        logger.warn(s"[$name] Interrupted while waiting for response.", ex)
-        // If the I/O operation is interrupted in-flight because the thread doing it itself is interrupted, we get either
-        // InterruptedIOException or CancellationException (Apache HTTP Client). We convert it to InterruptedException so
-        // the rest of the system handles it as a normal interruption.
-        if (Thread.interrupted()) {
-          throw new InterruptedException()
-        } else {
-          throw new ServerNotAvailableException(s"error contacting $name", ex)
-        }
-      case ex: UnknownHostException => throw new ServerNotAvailableException(s"unknown host while contacting $name", ex)
-      case ex: IOException => throw new ServerNotAvailableException(s"error contacting $name", ex)
-    } finally {
-      logger.trace(
-        s"[$name] Request completed: ${request.getMethod} ${request.getUri}: " +
-          s"${if (response != null) response.getCode else "Failed"}. " +
-          s"Duration: ${start.elapsed(TimeUnit.MILLISECONDS)}ms"
+
+    def doRequest(): CloseableHttpResponse = {
+      logger.trace(s"[$name] Sending request: ${request.getMethod} ${request.getUri}")
+      val start = Stopwatch.createStarted()
+      var response: CloseableHttpResponse = null
+      try {
+        checkAvailableConnections()
+        response = httpClient.execute(request)
+        response
+      } catch {
+        case ex @ (_: InterruptedIOException | _: CancellationException) =>
+          logger.warn(s"[$name] Interrupted while waiting for response.", ex)
+          // If the I/O operation is interrupted in-flight because the thread doing it itself is interrupted, we get either
+          // InterruptedIOException or CancellationException (Apache HTTP Client). We convert it to InterruptedException so
+          // the rest of the system handles it as a normal interruption.
+          if (Thread.interrupted()) {
+            throw new InterruptedException()
+          } else {
+            throw new ServerNotAvailableException(s"error contacting $name", ex)
+          }
+        case ex: UnknownHostException =>
+          throw new ServerNotAvailableException(s"unknown host while contacting $name", ex)
+        case ex: IOException => throw new ServerNotAvailableException(s"error contacting $name", ex)
+      } finally {
+        logger.trace(
+          s"[$name] Request completed: ${request.getMethod} ${request.getUri}: " +
+            s"${if (response != null) response.getCode else "Failed"}. " +
+            s"Duration: ${start.elapsed(TimeUnit.MILLISECONDS)}ms"
+        )
+      }
+    }
+
+    var response = doRequest()
+    // Retry while response is 503...
+    var retriesLeft = serviceNotAvailableRetries
+    while (retriesLeft > 0 && response.getCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+      response.close()
+      logger.debug(
+        s"[$name] Service temporarily unavailable. Retrying in $serviceNotAvailableRetryIntervalMillis milliseconds. Retries left: $retriesLeft."
       )
+      Thread.sleep(serviceNotAvailableRetryIntervalMillis)
+      retriesLeft -= 1
+      response = doRequest()
+    }
+    // ... if we run out of retries, throw a RequestTimeoutException.
+    if (response.getCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
+      throw new RequestTimeoutException()
     }
 
-    throwExceptionIfErrorCondition(response)
+    // Finally we have a response; let's validate and return it or throw an exception.
+    validateResponseOrThrow(response)
   }
 
-  // TODO (ns) duplicate code from handleResponse
-  def handleUnexpected(response: ClassicHttpResponse): Exception = {
+  // This method parses the status code+response. If ok, returns it. Otherwise, it throws a REST client exception,
+  // which inherit from APIException.
+  // (msb): For "historical" reasons, we parse the full body response in most all cases. This was done historically to
+  // ensure protocol consistency even on errors. I'm not sure it's worth doing it anymore, but the code remains for now.
+  def validateResponseOrThrow[T <: ClassicHttpResponse](response: T): T = {
     response.getCode match {
       case statusCode @ HttpStatus.SC_BAD_REQUEST =>
         try {
           readBody(response) match {
             case Some(body) =>
-              val ex = parseAPIException(statusCode, body)
-              throw ex
-            case None => new BadResponseException("invalid body", statusCode)
+              try {
+                val restError = restErrorReader.readValue[GenericRestError](body)
+                throw new ClientAPIException(restError)
+              } catch {
+                case ex: JsonProcessingException =>
+                  logger.error(
+                    s"""Error while parsing error structure from response body:
+                      |Body:
+                      |$body
+                      |Status Code: $statusCode""".stripMargin,
+                    ex
+                  )
+                  throw new InvalidBodyException()
+              }
+            case None => throw new InvalidBodyException()
           }
         } finally {
           response.close()
         }
-      case statusCode @ HttpStatus.SC_UNAUTHORIZED =>
+      case HttpStatus.SC_UNAUTHORIZED =>
         try {
           readBody(response) match {
-            case Some(body) => new UnauthorizedException(body)
-            case None => new BadResponseException("invalid body", statusCode)
+            case Some(_) =>
+              // We parse the body to validate it, but disregard it in the exception message.
+              throw new UnauthorizedException()
+            case None => throw new InvalidBodyException()
           }
         } finally {
           response.close()
         }
-      case statusCode @ HttpStatus.SC_FORBIDDEN =>
+      case HttpStatus.SC_FORBIDDEN =>
         try {
           readBody(response) match {
-            case Some(body) => new ForbiddenException(body)
-            case None => new BadResponseException("invalid body", statusCode)
+            case Some(_) =>
+              // We parse the body to validate it, but disregard it in the exception message.
+              throw new ForbiddenException()
+            case None => throw new InvalidBodyException()
           }
         } finally {
           response.close()
@@ -197,88 +239,20 @@ class RestClient(
         try {
           readBody(response) match {
             case Some(body) =>
-              new BadResponseException(s"${response.getCode} ${response.getReasonPhrase}\n" + body, statusCode)
-            case None => new BadResponseException(s"${response.getCode} ${response.getReasonPhrase}", statusCode)
-          }
-        } finally {
-          response.close()
-        }
-      case statusCode =>
-        try {
-          readBody(response) match {
-            case Some(body) => new BadResponseException(
-                s"Unexpected response: ${response.getCode} ${response.getReasonPhrase}\n" + body.take(1024),
-                statusCode
+              // Log the response body for debugging purposes.
+              logger.error(
+                s"""Server error with status code: $statusCode. Response:
+                  |$body""".stripMargin
               )
-            case None => new BadResponseException(
-                s"Unexpected response: ${response.getCode} ${response.getReasonPhrase}",
-                statusCode
-              )
+            case None => logger.error(s"""Server error with status code: $statusCode""".stripMargin)
           }
+          throw new UnexpectedErrorException(statusCode)
         } finally {
           response.close()
         }
-    }
-  }
-
-  private def throwExceptionIfErrorCondition[T <: ClassicHttpResponse](response: T): T = {
-    response.getCode match {
-      case statusCode @ HttpStatus.SC_BAD_REQUEST =>
-        try {
-          readBody(response) match {
-            case Some(body) =>
-              val ex = parseAPIException(statusCode, body)
-              throw ex
-            case None => throw new BadResponseException("invalid body", statusCode)
-          }
-        } finally {
-          response.close()
-        }
-      case statusCode @ HttpStatus.SC_UNAUTHORIZED =>
-        try {
-          readBody(response) match {
-            case Some(body) => throw new UnauthorizedException(body)
-            case None => throw new BadResponseException("invalid body", statusCode)
-          }
-        } finally {
-          response.close()
-        }
-      case statusCode @ HttpStatus.SC_FORBIDDEN =>
-        try {
-          readBody(response) match {
-            case Some(body) => throw new ForbiddenException(body)
-            case None => throw new BadResponseException("invalid body", statusCode)
-          }
-        } finally {
-          response.close()
-        }
-      case HttpStatus.SC_SERVICE_UNAVAILABLE => response
-      case statusCode if statusCode >= 500 =>
-        try {
-          readBody(response) match {
-            case Some(body) =>
-              throw new BadResponseException(s"${response.getCode} ${response.getReasonPhrase}\n" + body, statusCode)
-            case None => throw new BadResponseException(s"${response.getCode} ${response.getReasonPhrase}", statusCode)
-          }
-        } finally {
-          response.close()
-        }
-      case _ => response
-    }
-  }
-
-  /**
-   * Method for clients to override and parse the body and status code in different manners.
-   * Must throw a (type of) ClientAPIException.
-   */
-  protected def parseAPIException(statusCode: Int, body: String): Exception = {
-    try {
-      val restError = restErrorReader.readValue[GenericRestError](body)
-      new ClientAPIException(restError)
-    } catch {
-      case ex: JsonProcessingException =>
-        logger.debug("Client received bad response.", ex)
-        new BadResponseException(body, statusCode)
+      case _ =>
+        // Other responses are considered valid by the client and to be handled by the caller methods, so we accept them.
+        response
     }
   }
 
@@ -324,11 +298,11 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus but got $statusCode", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
       val maybeBody = readBody(response)
       if (maybeBody.isDefined) {
-        throw new BadResponseException("expected empty body on response", statusCode)
+        throw new InvalidBodyException()
       }
     } finally {
       response.close()
@@ -348,63 +322,12 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus but got $statusCode", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
-      val body =
-        readBody(response).getOrElse(throw new BadResponseException("expected non-empty body on response", statusCode))
+      val body = readBody(response).getOrElse(throw new InvalidBodyException())
       mapper.readValue[T](body)
     } finally {
       response.close()
-    }
-  }
-
-  private def executeInternal[T](
-      request: ClassicHttpRequest,
-      responseHandler: HttpClientResponseHandler[T],
-      @nowarn retrialsLeft: Int = serviceNotAvailableRetries
-  )(
-      implicit classTag: JavaTypeable[T]
-  ): T = {
-    logger.trace(s"[$name] Sending request: ${request.getMethod} ${request.getUri}}")
-    val start = Stopwatch.createStarted()
-    val response =
-      try {
-        checkAvailableConnections()
-        httpClient.execute(request)
-      } catch {
-        case ex @ (_: InterruptedIOException | _: CancellationException) =>
-          logger.warn(s"[$name] Interrupted while waiting for response.", ex)
-          // If the I/O operation is interrupted in-flight because the thread doing it itself is interrupted, we get either
-          // InterruptedIOException or CancellationException (Apache HTTP Client). We convert it to InterruptedException so
-          // the rest of the system handles it as a normal interruption.
-          if (Thread.interrupted()) {
-            throw new InterruptedException()
-          } else {
-            throw new ServerNotAvailableException(s"error contacting $name", ex)
-          }
-        case ex: UnknownHostException =>
-          throw new ServerNotAvailableException(s"unknown host while contacting $name", ex)
-        case ex: IOException => throw new ServerNotAvailableException(s"error contacting $name", ex)
-      } finally {
-        logger.trace(
-          s"[$name] Request completed: ${request.getMethod} ${request.getUri}" +
-            s"Duration: ${start.elapsed(TimeUnit.MILLISECONDS)}ms"
-        )
-      }
-    if (retrialsLeft > 0 && response.getCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
-      response.close()
-      logger.debug(
-        s"[$name] Service temporarily unavailable. Retrying in $serviceNotAvailableRetryIntervalMillis milliseconds."
-      )
-      Thread.sleep(serviceNotAvailableRetryIntervalMillis)
-      executeInternal(request, responseHandler, retrialsLeft - 1)
-    } else {
-      try {
-        throwExceptionIfErrorCondition(response)
-        responseHandler.handleResponse(response)
-      } finally {
-        response.close()
-      }
     }
   }
 
@@ -485,29 +408,17 @@ class RestClient(
   def doRequest(req: HttpUriRequestBase, queryHeaders: Seq[(String, String)] = Seq.empty): CloseableHttpResponse = {
     queryHeaders.foreach { case (k, v) => req.setHeader(k, v) }
     var response = executeRequest(req)
-    var retriesLeft = serviceNotAvailableRetries
-    while (retriesLeft > 0 && response.getCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
-      response.close()
-      logger.debug(
-        s"[$name] Service temporarily unavailable. Retrying in $serviceNotAvailableRetryIntervalMillis milliseconds. Retries left: $retriesLeft."
-      )
-      Thread.sleep(serviceNotAvailableRetryIntervalMillis)
-      retriesLeft -= 1
-      response = executeRequest(req)
-    }
-    if (response.getCode == HttpStatus.SC_SERVICE_UNAVAILABLE) {
-      throw new RequestTimeoutException()
-    }
-
     retryOnAccepted match {
       case Some(urlToRetry) =>
-        // Legacy mode where requests were accepted and this REST Client would automatically retry them transparently.
-        // Kept for backwards compatibility but not necessary anymore.
-        retriesLeft = asyncRequestRetries
+        // Legacy mode where requests were accepted and this REST Client would automatically retry them transparently
+        // on 202. Kept for backwards compatibility but not necessary anymore.
+        var retriesLeft = asyncRequestRetries
         while (retriesLeft > 0 && response.getCode == HttpStatus.SC_ACCEPTED) {
           val requestUuid = readBody(response) match {
             case Some(str) => str
-            case None => throw new BadResponseException("Received a 202 response without a request ID")
+            case None =>
+              logger.error(s"[$name] Received a 202 response without a request ID")
+              throw new InvalidBodyException()
           }
           response.close()
           logger.debug(
@@ -519,7 +430,6 @@ class RestClient(
           response = executeRequest(retryRequest)
         }
       case None =>
-
     }
     if (response.getCode == HttpStatus.SC_ACCEPTED) {
       throw new RequestTimeoutException()
@@ -543,10 +453,9 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
-      val body =
-        readBody(response).getOrElse(throw new BadResponseException("expected non-empty body on response", statusCode))
+      val body = readBody(response).getOrElse(throw new InvalidBodyException())
       mapper.readValue[T](body)
     } finally {
       response.close()
@@ -565,9 +474,9 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
-      readBody(response).getOrElse(throw new BadResponseException("expected non-empty body on response", statusCode))
+      readBody(response).getOrElse(throw new InvalidBodyException())
     } finally {
       response.close()
     }
@@ -585,11 +494,11 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
       val maybeBody = readBody(response)
       if (maybeBody.isDefined) {
-        throw new BadResponseException("expected empty body on response", statusCode)
+        throw new InvalidBodyException()
       }
     } finally {
       response.close()
@@ -614,10 +523,9 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus but got $statusCode", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
-      val body =
-        readBody(response).getOrElse(throw new BadResponseException("expected non-empty body on response", statusCode))
+      val body = readBody(response).getOrElse(throw new InvalidBodyException())
       mapper.readValue[T](body)
     } finally {
       response.close()
@@ -639,7 +547,7 @@ class RestClient(
     val statusCode = response.getCode
     if (statusCode != expectedStatus) {
       response.close()
-      throw new BadResponseException(s"expected response status code $expectedStatus but got $statusCode", statusCode)
+      throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
     }
     response
   }
@@ -702,10 +610,9 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus but got $statusCode", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
-      val body =
-        readBody(response).getOrElse(throw new BadResponseException("expected non-empty body on response", statusCode))
+      val body = readBody(response).getOrElse(throw new InvalidBodyException())
       mapper.readValue[T](body)
     } finally {
       response.close()
@@ -727,11 +634,11 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus but got $statusCode", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
       val maybeBody = readBody(response)
       if (maybeBody.isDefined) {
-        throw new BadResponseException("expected empty body on response", statusCode)
+        throw new InvalidBodyException()
       }
     } finally {
       response.close()
@@ -765,11 +672,11 @@ class RestClient(
     val statusCode = response.getCode
     try {
       if (statusCode != expectedStatus) {
-        throw new BadResponseException(s"expected response status code $expectedStatus", statusCode)
+        throw new UnexpectedStatusCodeException(expectedStatus, statusCode)
       }
       val maybeBody = readBody(response)
       if (maybeBody.isDefined) {
-        throw new BadResponseException("expected empty body on response", statusCode)
+        throw new InvalidBodyException()
       }
     } finally {
       response.close()
