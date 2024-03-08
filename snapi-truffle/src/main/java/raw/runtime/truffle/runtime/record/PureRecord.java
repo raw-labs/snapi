@@ -16,11 +16,9 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 
 import java.util.ArrayList;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 @ExportLibrary(InteropLibrary.class)
-public class NewRecord extends DynamicObject implements TruffleObject {
+public class PureRecord extends DynamicObject implements TruffleObject {
 
   public enum PropertyType {
     CONSTANT,
@@ -31,7 +29,7 @@ public class NewRecord extends DynamicObject implements TruffleObject {
     MULTI_KEY
   }
 
-  public NewRecord(Shape shape) {
+  public PureRecord(Shape shape) {
     super(shape);
   }
 
