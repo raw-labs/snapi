@@ -466,9 +466,16 @@ class TestSqlParser extends AnyFunSuite {
   }
 
   test("Test only one statement is allowed error") {
-    val code = """select * from smth; select * from smth;""".stripMargin
+    val code = """select * from smth;
+      |select * from smth;""".stripMargin
     val result = doTest(code)
     assert(result.errors.size == 1)
+    assert(
+      result.errors.head.positions.head.begin.line == 2 &&
+        result.errors.head.positions.head.begin.column == 1 &&
+        result.errors.head.positions.head.end.line == 2 &&
+        result.errors.head.positions.head.end.column == 19
+    )
     assert(result.errors.head.message == "Only one statement is allowed")
   }
 

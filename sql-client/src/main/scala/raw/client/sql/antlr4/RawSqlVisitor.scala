@@ -13,6 +13,7 @@
 package raw.client.sql.antlr4
 
 import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.misc.Interval
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import raw.client.sql.generated.{PsqlParser, PsqlParserBaseVisitor}
@@ -35,19 +36,36 @@ class RawSqlVisitor(
   private var isFirstStatement = true
 
   private def addError(message: String, ctx: ParserRuleContext): Unit = {
+    val offset = Option(ctx)
+      .flatMap(context => {
+        Option(context.children).flatMap(children => {
+          Option(children.getLast).map(last => last.getText.length)
+        })
+      })
+      .getOrElse(0)
+
     errors.addError(
       ErrorMessage(
         message,
         List(
           ErrorRange(
             ErrorPosition(ctx.getStart.getLine, ctx.getStart.getCharPositionInLine + 1),
-            ErrorPosition(ctx.getStop.getLine, ctx.getStop.getCharPositionInLine + 1)
+            ErrorPosition(ctx.getStop.getLine, ctx.getStop.getCharPositionInLine + offset + 1)
           )
         ),
         SqlParserErrors.ParserErrorCode
       )
     )
   }
+
+  def sourceTextForContext(context: ParserRuleContext): Option[String] = Option(context)
+    .map(context => {
+      val cs = context.getStart.getTokenSource.getInputStream
+      val stopIndex =
+        if (context.getStop != null) context.getStop.getStopIndex
+        else -1
+      cs.getText(new Interval(context.getStart.getStartIndex, stopIndex))
+    })
 
   override def visitProg(ctx: PsqlParser.ProgContext): SqlBaseNode = {
     isFirstStatement = true
