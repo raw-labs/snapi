@@ -68,7 +68,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         case e: SQLTimeoutException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
       }
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -76,7 +76,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     try {
       ???
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -118,7 +118,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         case e: SQLTimeoutException => ExecutionRuntimeFailure(e.getMessage)
       }
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -203,7 +203,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     try {
       FormatCodeResponse(Some(source))
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -226,7 +226,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
       AutoCompleteResponse(collectedValues.toArray)
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -248,7 +248,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       logger.debug(s"wordAutoComplete returned ${collectedValues.size} matches")
       AutoCompleteResponse(collectedValues.toArray)
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -264,7 +264,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
         .getOrElse(HoverResponse(None))
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -276,7 +276,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     try {
       RenameResponse(Array.empty)
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -288,7 +288,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     try {
       GoToDefinitionResponse(None)
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -317,7 +317,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
         }
       r
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
@@ -325,7 +325,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     try {
       ValidateResponse(List.empty)
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, List.empty)
+      case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 

@@ -14,6 +14,7 @@ package raw.compiler.base
 
 import raw.runtime.RuntimeContext
 import raw.utils.RawSettings
+import raw.client.api.CompilerService
 
 /**
  * Contains state that is shared between compilation phases of a single program.
@@ -27,16 +28,7 @@ trait ProgramContext {
   def settings: RawSettings = runtimeContext.settings
 
   def dumpDebugInfo: List[(String, String)] = {
-    List(
-      "Trace ID" -> runtimeContext.environment.maybeTraceId.getOrElse("<undefined>"),
-      "Arguments" -> runtimeContext.maybeArguments
-        .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
-        .getOrElse("<undefined>"),
-      "User" -> runtimeContext.environment.user.toString,
-      "Scopes" -> runtimeContext.environment.scopes.mkString(","),
-      "Options" -> runtimeContext.environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
-      //"Settings" -> runtimeContext.settings.toString
-    )
+    CompilerService.getDebugInfo(runtimeContext.environment)
   }
 
 }
