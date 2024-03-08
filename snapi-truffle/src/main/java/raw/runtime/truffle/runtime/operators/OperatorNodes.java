@@ -54,6 +54,32 @@ public class OperatorNodes {
     }
   }
 
+  @NodeInfo(shortName = "Operator.CompareKeys")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class CompareKeys extends Node {
+
+    public abstract int execute(Node node, Object[] left, Object[] right, int[] orderings);
+
+    @Specialization
+    static int doKeys(
+        Node node,
+        Object[] left,
+        Object[] right,
+        int[] orderings,
+        @Bind("$node") Node thisNode,
+        @Cached CompareNode compare) {
+
+      for (int i = 0; i < left.length; i++) {
+        int result = compare.execute(thisNode, left[i], right[i]);
+        if (result != 0) {
+          return result * orderings[i];
+        }
+      }
+      return 0;
+    }
+  }
+
   @NodeInfo(shortName = "Operator.Compare")
   @GenerateUncached
   @GenerateInline

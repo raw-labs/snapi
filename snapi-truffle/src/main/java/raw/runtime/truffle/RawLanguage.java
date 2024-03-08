@@ -23,6 +23,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.RootNode;
 import com.oracle.truffle.api.object.Shape;
+import com.typesafe.config.ConfigFactory;
 import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
@@ -69,16 +70,23 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
 
   private static final RawLanguageCache languageCache = new RawLanguageCache();
 
+  private static final RawSettings defaultRawSettings =
+      new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
+
   private final Shape initialRecordShape = Shape.newBuilder().build();
 
   @Override
   protected final RawContext createContext(Env env) {
-    return new RawContext(this, env);
+    RawContext context = new RawContext(this, env);
+    // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
+    languageCache.incrementContext(context);
+    return context;
   }
 
   @Override
   protected void finalizeContext(RawContext context) {
-    context.close();
+    // The language cache keeps track of active contexts, so that it knows when to shutdown itself.
+    languageCache.releaseContext(context);
   }
 
   private static final LanguageReference<RawLanguage> REFERENCE =
@@ -104,11 +112,11 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   protected CallTarget parse(ParsingRequest request) throws Exception {
     RawContext context = RawContext.get(null);
 
-    ProgramEnvironment programEnvironment = context.getProgramEnvironment();
     RuntimeContext runtimeContext =
-        new RuntimeContext(context.getSourceContext(), getRawSettings(), programEnvironment);
+        new RuntimeContext(context.getSourceContext(), context.getProgramEnvironment());
     ProgramContext programContext =
-        new Rql2ProgramContext(runtimeContext, getCompilerContext(context.getUser()));
+        new Rql2ProgramContext(
+            runtimeContext, getCompilerContext(context.getUser(), context.getSettings()));
 
     String source = request.getSource().getCharacters().toString();
 
@@ -221,23 +229,19 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     return context.getFunctionRegistry().asPolyglot();
   }
 
-  public SourceContext getSourceContext(AuthenticatedUser user) {
-    return languageCache.getSourceContext(user);
+  public SourceContext getSourceContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return languageCache.getSourceContext(user, rawSettings);
   }
 
-  public CompilerContext getCompilerContext(AuthenticatedUser user) {
-    return languageCache.getCompilerContext(user);
+  public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return languageCache.getCompilerContext(user, rawSettings);
   }
 
-  public InferrerService getInferrer(AuthenticatedUser user) {
-    return languageCache.getInferrer(user);
+  public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
+    return languageCache.getInferrer(user, rawSettings);
   }
 
-  public RawSettings getRawSettings() {
-    return languageCache.rawSettings;
-  }
-
-  public static void dropCaches() {
-    languageCache.reset();
+  public RawSettings getDefaultRawSettings() {
+    return defaultRawSettings;
   }
 }

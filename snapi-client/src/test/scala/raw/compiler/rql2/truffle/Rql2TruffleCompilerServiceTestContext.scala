@@ -12,6 +12,7 @@
 
 package raw.compiler.rql2.truffle
 
+import org.graalvm.polyglot.Engine
 import raw.client.rql2.truffle.Rql2TruffleCompilerService
 import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
 import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
@@ -21,11 +22,23 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 
   var rql2TruffleCompilerService: Rql2TruffleCompilerService = _
 
+  var engine: Engine = _
+
   override def beforeAll(): Unit = {
     super.beforeAll()
+
+    // Create an isolated Truffle Engine
+    val options = new java.util.HashMap[String, String]()
+    options.put("rql.settings", settings.renderAsString)
+    engine = Engine
+      .newBuilder()
+      .allowExperimentalOptions(true)
+      .options(options)
+      .build()
+
     property("raw.compiler.impl", "rql2-truffle")
 
-    rql2TruffleCompilerService = new Rql2TruffleCompilerService
+    rql2TruffleCompilerService = new Rql2TruffleCompilerService((engine, false), None)
     setCompilerService(rql2TruffleCompilerService)
   }
 
@@ -33,6 +46,10 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
     if (rql2TruffleCompilerService != null) {
       RawUtils.withSuppressNonFatalException(rql2TruffleCompilerService.stop())
       rql2TruffleCompilerService = null
+    }
+    if (engine != null) {
+      RawUtils.withSuppressNonFatalException(engine.close())
+      engine = null
     }
     super.afterAll()
   }
