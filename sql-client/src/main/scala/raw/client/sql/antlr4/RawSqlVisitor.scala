@@ -39,7 +39,7 @@ class RawSqlVisitor(
     val offset = Option(ctx)
       .flatMap(context => {
         Option(context.children).flatMap(children => {
-          Option(children.getLast).map(last => last.getText.length)
+          Option(children.get(children.size() - 1)).map(last => last.getText.length)
         })
       })
       .getOrElse(0)
