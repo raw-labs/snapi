@@ -194,15 +194,7 @@ class RestClient(
                 val restError = restErrorReader.readValue[GenericRestError](body)
                 throw new ClientAPIException(restError)
               } catch {
-                case ex: JsonProcessingException =>
-                  logger.error(
-                    s"""Error while parsing error structure from response body:
-                      |Body:
-                      |$body
-                      |Status Code: $statusCode""".stripMargin,
-                    ex
-                  )
-                  throw new InvalidBodyException()
+                case ex: JsonProcessingException => throw new InvalidBodyException(ex)
               }
             case None => throw new InvalidBodyException()
           }
@@ -332,28 +324,28 @@ class RestClient(
     }
   }
 
-  private def newGet(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpGet = {
+  def newGet(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpGet = {
     val uri = buildUri(path, queryParams)
     val httpGet = new HttpGet(uri)
     configureRequest(httpGet, withAuth)
     httpGet
   }
 
-  private def newPost(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPost = {
+   def newPost(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPost = {
     val uri = buildUri(path, queryParams)
     val httpPost = new HttpPost(uri)
     configureRequest(httpPost, withAuth)
     httpPost
   }
 
-  private def newPut(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPut = {
+   def newPut(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPut = {
     val uri = buildUri(path, queryParams)
     val httpPut = new HttpPut(uri)
     configureRequest(httpPut, withAuth)
     httpPut
   }
 
-  private def newDelete(
+   def newDelete(
       path: String,
       queryParams: Map[String, Any] = Map.empty,
       withAuth: Boolean = true

@@ -25,10 +25,11 @@ final class ServerNotAvailableException(message: String, cause: Throwable = null
     extends APIException(s"server not available: $message", cause)
 
 /** Exception thrown when a bad or unexpected response is received. */
-sealed abstract class BadResponseException(message: String) extends APIException(s"bad response: $message")
+sealed abstract class BadResponseException(message: String, cause: Throwable = null)
+    extends APIException(s"bad response: $message", cause)
 final class UnexpectedStatusCodeException(expectedStatusCode: Int, actualStatusCode: Int)
     extends BadResponseException(s"expected status code $expectedStatusCode but got $actualStatusCode")
-final class InvalidBodyException extends BadResponseException("invalid response body")
+final class InvalidBodyException(cause: Throwable = null) extends BadResponseException("invalid response body", cause)
 
 /**
  * Exception thrown when the server crash (e.g. 500).
