@@ -22,7 +22,7 @@ import scala.collection.JavaConverters._
 import scala.collection.mutable
 
 class RawSqlVisitor(
-    positions: Positions,
+    val positions: Positions,
     params: mutable.Map[String, SqlParam],
     private val source: Source,
     private val errors: RawSqlVisitorParseErrors,
@@ -77,7 +77,11 @@ class RawSqlVisitor(
       val statement = Option(context.stmt())
         .flatMap(st =>
           Option(st.get(0))
-            .map(visit)
+            .map(s => {
+              val res = visit(s)
+              positionsWrapper.setPosition(ctx, res)
+              res
+            })
         )
         .getOrElse(SqlErrorNode())
 
