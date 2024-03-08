@@ -331,21 +331,21 @@ class RestClient(
     httpGet
   }
 
-   def newPost(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPost = {
+  def newPost(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPost = {
     val uri = buildUri(path, queryParams)
     val httpPost = new HttpPost(uri)
     configureRequest(httpPost, withAuth)
     httpPost
   }
 
-   def newPut(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPut = {
+  def newPut(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPut = {
     val uri = buildUri(path, queryParams)
     val httpPut = new HttpPut(uri)
     configureRequest(httpPut, withAuth)
     httpPut
   }
 
-   def newDelete(
+  def newDelete(
       path: String,
       queryParams: Map[String, Any] = Map.empty,
       withAuth: Boolean = true
