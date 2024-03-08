@@ -23,7 +23,7 @@ import org.apache.hc.client5.http.impl.classic.{CloseableHttpResponse, HttpClien
 import org.apache.hc.client5.http.impl.io._
 import org.apache.hc.core5.http._
 import org.apache.hc.core5.http.io.entity.StringEntity
-import org.apache.hc.core5.http.io.{HttpClientResponseHandler, SocketConfig}
+import org.apache.hc.core5.http.io.SocketConfig
 import org.apache.hc.core5.net.URIBuilder
 import org.apache.hc.core5.util.Timeout
 import raw.auth.api.{ForbiddenException, GenericAuthException, TokenProvider, UnauthorizedException}
@@ -35,7 +35,6 @@ import java.net.{URI, UnknownHostException}
 import java.nio.charset.Charset
 import java.time.Duration
 import java.util.concurrent.TimeUnit
-import scala.annotation.nowarn
 import scala.concurrent.CancellationException
 
 object RestClient {
@@ -48,9 +47,6 @@ object RestClient {
 
 /**
  * REST client used for RAW services.
- *
- * TODO (msb): This still needs some work in terms of exception handling, particularly stacktrace infos are very deep
- * and not particularly useful.
  */
 class RestClient(
     serverHttpAddress: URI,
@@ -236,17 +232,22 @@ class RestClient(
           response.close()
         }
       case statusCode if statusCode >= 500 =>
+        // (msb) For 500 errors, we send back UnexpectedErrorException.
+        // This message has a public description that is static, e.g. "internal error".
+        // This public description does not include any details (e.g. the message in the body describing the server-side
+        // crash), because UnexpectedErrorException is still a RawException, and our definition is that RawException messages are
+        // always publicly visible.
+        // Therefore, not to lose the body info (which may be useful for debugging purposes), we wrap it inside a
+        // fake exception because we want to carry it somewhere for debugging purposes (so that it prints in the logs),
+        // and the only reliable way for exceptions to carry extra info besides the message is in a cause/inner exception.
+        // The alternative would be to declare a field called 'body' in UnexpectedErrorException, but for that to print
+        // we would need to override toString, and the moment we do that and someone composes two errors with
+        // string interpolators, we risk leaking that body info out to the user...
         try {
           readBody(response) match {
-            case Some(body) =>
-              // Log the response body for debugging purposes.
-              logger.error(
-                s"""Server error with status code: $statusCode. Response:
-                  |$body""".stripMargin
-              )
-            case None => logger.error(s"""Server error with status code: $statusCode""".stripMargin)
+            case Some(body) => throw new UnexpectedErrorException(new Exception(body))
+            case None => throw new UnexpectedErrorException()
           }
-          throw new UnexpectedErrorException(statusCode)
         } finally {
           response.close()
         }
@@ -256,7 +257,7 @@ class RestClient(
     }
   }
 
-  def readBody(response: ClassicHttpResponse): Option[String] = {
+  private def readBody(response: ClassicHttpResponse): Option[String] = {
     if (response.getEntity == null) {
       None
     } else {
@@ -331,28 +332,32 @@ class RestClient(
     }
   }
 
-  def newGet(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpGet = {
+  private def newGet(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpGet = {
     val uri = buildUri(path, queryParams)
     val httpGet = new HttpGet(uri)
     configureRequest(httpGet, withAuth)
     httpGet
   }
 
-  def newPost(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPost = {
+  private def newPost(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPost = {
     val uri = buildUri(path, queryParams)
     val httpPost = new HttpPost(uri)
     configureRequest(httpPost, withAuth)
     httpPost
   }
 
-  def newPut(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPut = {
+  private def newPut(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpPut = {
     val uri = buildUri(path, queryParams)
     val httpPut = new HttpPut(uri)
     configureRequest(httpPut, withAuth)
     httpPut
   }
 
-  def newDelete(path: String, queryParams: Map[String, Any] = Map.empty, withAuth: Boolean = true): HttpDelete = {
+  private def newDelete(
+      path: String,
+      queryParams: Map[String, Any] = Map.empty,
+      withAuth: Boolean = true
+  ): HttpDelete = {
     val uri = buildUri(path, queryParams)
     val httpDelete = new HttpDelete(uri)
     configureRequest(httpDelete, withAuth)
@@ -370,10 +375,11 @@ class RestClient(
           case d: Duration => uriBuilder.addParameter(k, d.toString) // java.time.Duration converts to ISO-8601 Duration
           case b: Boolean => uriBuilder.addParameter(k, b.toString)
           case Some(s: String) => uriBuilder.addParameter(k, s)
-          // CTM: another option is to not add the parameter
-          case None => uriBuilder.addParameter(k, null)
+          case None =>
+            // (ctm) Another option here would be to not add the parameter.
+            uriBuilder.addParameter(k, null)
           case l: List[_] =>
-            // TODO (msb): This only works for List[String]. BTW, erasure absolutely sucks...
+            // TODO (msb): This only works for List[String]. (BTW, erasure absolutely sucks...)
             uriBuilder.addParameter(k, l.map(_.toString).mkString(","))
         }
     }
@@ -382,8 +388,6 @@ class RestClient(
 
   private def configureRequest(req: HttpUriRequestBase, withAuth: Boolean): Unit = {
     req.setHeader(RestClient.X_RAW_CLIENT, RestClient.X_RAW_CLIENT_VALUE)
-    // FIXME: Move this to be a developer mode settings
-    //    req.setHeader(HttpHeaders.ACCEPT_ENCODING, "identity") // No gzip
     if (withAuth) {
       maybeTokenProvider
         .map { tokenProvider =>
