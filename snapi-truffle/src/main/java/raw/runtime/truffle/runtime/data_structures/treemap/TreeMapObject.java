@@ -19,7 +19,6 @@ import com.oracle.truffle.api.interop.TruffleObject;
 public class TreeMapObject implements TruffleObject {
 
   private TreeMapNode root;
-
   private int size = 0;
   private int modCount = 0;
 

@@ -19,7 +19,7 @@ import java.util.ConcurrentModificationException;
 import java.util.NoSuchElementException;
 
 public class TreeMapIterator {
-  TreeMapObject tree;
+  private final TreeMapObject tree;
   TreeMapNode next;
   TreeMapNode lastReturned;
   int expectedModCount;
@@ -53,7 +53,7 @@ public class TreeMapIterator {
     return e;
   }
 
-  final TreeMapNode prevEntry() {
+  final TreeMapNode prevNode() {
     TreeMapNode e = next;
     if (e == null) throw new NoSuchElementException();
     if (tree.getModCount() != expectedModCount) throw new ConcurrentModificationException();

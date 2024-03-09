@@ -36,7 +36,7 @@ public class TreeMapStatic {
     return (p == null) ? null : p.right;
   }
 
-  static <K, V> TreeMapNode predecessor(TreeMapNode t) {
+  static TreeMapNode predecessor(TreeMapNode t) {
     if (t == null) return null;
     else if (t.left != null) {
       TreeMapNode p = t.left;
