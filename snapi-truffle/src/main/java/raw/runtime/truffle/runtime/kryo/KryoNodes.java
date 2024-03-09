@@ -58,7 +58,7 @@ public class KryoNodes {
         Input input,
         Rql2TypeWithProperties t,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       boolean isSuccess = input.readBoolean();
       if (isSuccess) {
         Rql2TypeWithProperties successType =
@@ -78,7 +78,7 @@ public class KryoNodes {
         Input input,
         Rql2TypeWithProperties t,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       boolean isDefined = input.readBoolean();
       if (isDefined) {
         Rql2TypeWithProperties innerType =
@@ -292,7 +292,7 @@ public class KryoNodes {
         Rql2TypeWithProperties type,
         Object maybeTryable,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo) {
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
       boolean isSuccess = Tryable.isSuccess(maybeTryable);
       output.writeBoolean(isSuccess);
       if (isSuccess) {
@@ -314,7 +314,7 @@ public class KryoNodes {
         Rql2TypeWithProperties type,
         Object maybeOption,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo) {
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
       boolean isDefined = Nullable.isNotNull(maybeOption);
       output.writeBoolean(isDefined);
       if (isDefined) {

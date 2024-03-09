@@ -42,10 +42,23 @@ object Rql2TruffleCompilerService {
   val language: Set[String] = Set("rql2", "rql2-truffle", "snapi")
 }
 
-class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
+class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader])(
     implicit protected val settings: RawSettings
 ) extends Rql2CompilerService
     with Rql2TypeUtils {
+
+  private val (engine, initedEngine) = engineDefinition
+
+  // The default constructor allows an Engine to be specified, plus a flag to indicate whether it was created here
+  // or externally. That's necessary for the test framework.
+  // This is actually the "default constructor" which obtains a new engine or reuses an existing one.
+  // Note that the engine will be released when the service is stopped only IF this auxiliary constructor created it.
+  // Otherwise, we expect the external party - e.g. the test framework - to close it.
+  // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
+  // framework, so that every test suite instance has a fresh engine.
+  def this(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings) = {
+    this(CompilerService.getEngine, maybeClassLoader)
+  }
 
   override def language: Set[String] = Rql2TruffleCompilerService.language
 
@@ -71,7 +84,7 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
 
   private def getProgramContext(user: AuthenticatedUser, environment: ProgramEnvironment): ProgramContext = {
     val compilerContext = getCompilerContext(user)
-    val runtimeContext = new RuntimeContext(compilerContext.sourceContext, settings, environment)
+    val runtimeContext = new RuntimeContext(compilerContext.sourceContext, environment)
     new Rql2ProgramContext(runtimeContext, compilerContext)
   }
 
@@ -658,9 +671,11 @@ class Rql2TruffleCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   }
 
   override def doStop(): Unit = {
-    super.doStop()
     compilerContextCaches.values.foreach(compilerContext => compilerContext.inferrer.stop())
     credentials.stop()
+    if (initedEngine) {
+      CompilerService.releaseEngine
+    }
   }
 
   private def rawValueToPolyglotValue(rawValue: RawValue, ctx: Context): Value = {

@@ -10,12 +10,21 @@
  * licenses/APL.txt.
  */
 
-package raw.compiler.rql2.truffle
+package raw.compiler.rql2.tests.regressions
 
-import raw.compiler.rql2.api.Rql2OutputTestContext
 import raw.compiler.rql2.tests.CompilerTestContext
 
-class TruffleCompilerTestContext
-    extends CompilerTestContext
-    with Rql2OutputTestContext
-    with Rql2TruffleCompilerServiceTestContext
+trait RD10723Test extends CompilerTestContext {
+
+  private val qqq = "\"\"\""
+  test(s"""main() =
+    |  let financial = Csv.InferAndParse(${qqq}year;market_cap_in_billion
+    |$qqq
+    |  ) in financial
+    |
+    |main()
+    |""".stripMargin)(
+    _ should run
+  )
+
+}

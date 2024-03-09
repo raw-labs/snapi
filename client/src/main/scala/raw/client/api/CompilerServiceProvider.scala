@@ -44,7 +44,9 @@ object CompilerServiceProvider {
     }
   }
 
-  def apply(language: String, classLoader: ClassLoader)(implicit settings: RawSettings): CompilerService = {
+  def apply(language: String, classLoader: ClassLoader)(
+      implicit settings: RawSettings
+  ): CompilerService = {
     instanceLock.synchronized {
       instanceMap.collectFirst { case ((l, Some(cl)), i) if cl == classLoader && l.contains(language) => i } match {
         case Some(instance) => instance
@@ -60,7 +62,12 @@ object CompilerServiceProvider {
   private[raw] def set(language: Set[String], instance: CompilerService): Unit = {
     instanceLock.synchronized {
       if (instance == null) {
-        instanceMap.remove((language, None))
+        // Stop and remove entries that match the `language`, regardless the class loader.
+        instanceMap.filterKeys(_._1 == language).foreach {
+          case (key, compiler) =>
+            compiler.stop()
+            instanceMap.remove(key)
+        }
       } else {
         instanceMap.put((language, None), instance)
       }

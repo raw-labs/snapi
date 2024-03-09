@@ -174,7 +174,7 @@ public class GeneratorNodes {
         @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
         @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
         @Cached @Cached.Shared("read") InputBufferNodes.InputBufferReadNode readNode,
-        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
+        @Cached OperatorNodes.CompareKeys keysCompare) {
       if (generator.getCurrentKryoBuffer() == null) {
         // we need to read the next keys and prepare the new buffer to read from.
         Object[] keys = null;
@@ -183,7 +183,13 @@ public class GeneratorNodes {
           OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
           try {
             Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
-            if (keys == null || keyCompare.execute(thisNode, bufferKeys, keys) < 0) {
+            if (keys == null
+                || keysCompare.execute(
+                        thisNode,
+                        bufferKeys,
+                        keys,
+                        generator.getOffHeapGroupByKeys().getKeyOrderings())
+                    < 0) {
               keys = bufferKeys;
             }
           } catch (KryoException e) {
@@ -200,7 +206,9 @@ public class GeneratorNodes {
         // memory.
         for (OrderByInputBuffer inputBuffer : generator.getInputBuffers()) {
           Object[] bufferKeys = inputBuffer.getKeys();
-          if (keyCompare.execute(thisNode, keys, bufferKeys) == 0) {
+          if (keysCompare.execute(
+                  thisNode, keys, bufferKeys, generator.getOffHeapGroupByKeys().getKeyOrderings())
+              == 0) {
             generator.setCurrentKryoBuffer(inputBuffer);
             break;
           }
@@ -350,7 +358,7 @@ public class GeneratorNodes {
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
         @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
-        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
+        @Cached OperatorNodes.CompareKeys keysCompare) {
       // we need to read the next keys and prepare the new buffer to read from.
       Object[] keys = null;
       // read missing keys and compute the smallest
@@ -358,7 +366,13 @@ public class GeneratorNodes {
         OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
           Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
-          if (keys == null || keyCompare.execute(thisNode, bufferKeys, keys) < 0) {
+          if (keys == null
+              || keysCompare.execute(
+                      thisNode,
+                      bufferKeys,
+                      keys,
+                      generator.getOffHeapGroupByKeys().getKeyOrderings())
+                  < 0) {
             keys = bufferKeys;
           }
         } catch (KryoException e) {
