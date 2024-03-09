@@ -188,9 +188,10 @@ public class OffHeapNodes {
       while (iterator.hasNext()) {
         TreeMapNode treeNode = iterator.nextNode();
         // write keys, then n, then values.
-        for (int i = 0; i < offHeapGroupByKeys.getMemMap().getSize(); i++) {
+        for (int i = 0; i < offHeapGroupByKeys.getKeyTypes().length; i++) {
+          Object[] keys = (Object[]) treeNode.getKey();
           writer.execute(
-              thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], treeNode.getKey());
+              thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], keys[i]);
         }
         @SuppressWarnings("unchecked")
         ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
