@@ -9,5 +9,4 @@ public class MapObject extends DynamicObject implements TruffleObject {
   public MapObject(Shape shape) {
     super(shape);
   }
-
 }

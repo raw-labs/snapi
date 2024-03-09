@@ -74,16 +74,16 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
       new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
 
   private final Shape initialRecordShape = Shape.newBuilder().build();
-//  public final Shape treeMapShape = Shape.newBuilder().build();
+  //  public final Shape treeMapShape = Shape.newBuilder().build();
 
   // FIXME (msb): Why is this here?
   public RecordObject createRecord() {
     return new RecordObject(initialRecordShape);
   }
 
-//  public TreeMapObject createMapObject() {
-//    return new TreeMapObject(treeMapShape);
-//  }
+  //  public TreeMapObject createMapObject() {
+  //    return new TreeMapObject(treeMapShape);
+  //  }
 
   @Override
   protected final RawContext createContext(Env env) {

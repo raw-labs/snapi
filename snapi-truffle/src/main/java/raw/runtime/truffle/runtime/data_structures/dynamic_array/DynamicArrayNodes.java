@@ -1,17 +1,17 @@
-//package raw.runtime.truffle.runtime.data_structures.dynamic_array;
+// package raw.runtime.truffle.runtime.data_structures.dynamic_array;
 //
-//import com.oracle.truffle.api.dsl.*;
-//import com.oracle.truffle.api.library.CachedLibrary;
-//import com.oracle.truffle.api.nodes.Node;
-//import com.oracle.truffle.api.nodes.NodeInfo;
-//import com.oracle.truffle.api.nodes.UnexpectedResultException;
-//import com.oracle.truffle.api.object.DynamicObjectLibrary;
-//import raw.runtime.truffle.runtime.data_structures.PropertyType;
-//import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+// import com.oracle.truffle.api.dsl.*;
+// import com.oracle.truffle.api.library.CachedLibrary;
+// import com.oracle.truffle.api.nodes.Node;
+// import com.oracle.truffle.api.nodes.NodeInfo;
+// import com.oracle.truffle.api.nodes.UnexpectedResultException;
+// import com.oracle.truffle.api.object.DynamicObjectLibrary;
+// import raw.runtime.truffle.runtime.data_structures.PropertyType;
+// import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 //
-//import static raw.runtime.truffle.runtime.data_structures.PropertyType.*;
+// import static raw.runtime.truffle.runtime.data_structures.PropertyType.*;
 //
-//public class DynamicArrayNodes {
+// public class DynamicArrayNodes {
 //
 //  @NodeInfo(shortName = "DynamicArray.Add")
 //  @GenerateUncached
@@ -98,7 +98,8 @@
 //    @Specialization(
 //        limit = "3",
 //        guards =
-//            "valuesLibrary.getPropertyFlagsOrDefault(array, String.valueOf(index), 5) == INT_TYPE")
+//            "valuesLibrary.getPropertyFlagsOrDefault(array, String.valueOf(index), 5) ==
+// INT_TYPE")
 //    static int getInt(
 //        Node node,
 //        DynamicArrayObject array,
@@ -150,4 +151,4 @@
 //      return valuesLibrary.getOrDefault(array, String.valueOf(index), null);
 //    }
 //  }
-//}
+// }
