@@ -50,7 +50,7 @@ trait BenchmarkTests extends CompilerTestContext {
   //  )(_ should evaluateTo("[]"))
 
   test("Range Join File with db test") { _ =>
-    assume(true, "This test is disabled by default")
+    assume(false, "This test is disabled by default")
     val prog = """let
       |    lineitemsType = type collection(record(l_orderkey: int, l_payedammount: double)),
       |    customerType = type record(customer: collection(record(c_custkey: string))),
