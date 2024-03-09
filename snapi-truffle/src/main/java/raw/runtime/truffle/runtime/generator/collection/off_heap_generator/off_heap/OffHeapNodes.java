@@ -21,6 +21,10 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
+
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapIterator;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapNode;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapNodes;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.DistinctMemoryGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.DistinctSpilledFilesGenerator;
@@ -49,11 +53,18 @@ public class OffHeapNodes {
         Object key,
         Object value,
         @Bind("$node") Node thisNode,
+        @Cached TreeMapNodes.TreeMapGetNode mapGetNode,
+        @Cached TreeMapNodes.TreeMapPutNode mapPutNode,
         @Cached @Cached.Shared("flushNode") OffHeapFlushNode flushNode) {
-      ArrayList<Object> list = offHeapGroupByKey.getMemMap().get(key);
+      TreeMapNode treeNode =
+          (TreeMapNode) mapGetNode.execute(thisNode, offHeapGroupByKey.getMemMap(), key);
+      ArrayList<Object> list = null;
+      if (treeNode != null) {
+        list = (ArrayList<Object>) treeNode.getValue();
+      }
       if (list == null) {
         list = new ArrayList<>();
-        offHeapGroupByKey.getMemMap().put(key, list);
+        mapPutNode.execute(thisNode, offHeapGroupByKey.getMemMap(), key, list);
         // add the size of the key to the memory footprint. (Row size added below in main path.)
         offHeapGroupByKey.setSize(offHeapGroupByKey.getSize() + offHeapGroupByKey.getKeySize());
       }
@@ -126,10 +137,13 @@ public class OffHeapNodes {
           new UnsafeOutput(
               newDiskBufferNode.execute(thisNode, offHeapGroupByKey),
               offHeapGroupByKey.getKryoOutputBufferSize());
-      for (Object key : offHeapGroupByKey.getMemMap().keySet()) {
-        ArrayList<Object> values = offHeapGroupByKey.getMemMap().get(key);
+      TreeMapIterator iterator = offHeapGroupByKey.getMemMap().iterator();
+      while (iterator.hasNext()) {
+        TreeMapNode treeNode = iterator.nextNode();
+        @SuppressWarnings("unchecked")
+        ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
         // write key, then n, then values.
-        writer.execute(thisNode, kryoOutput, offHeapGroupByKey.getKeyType(), key);
+        writer.execute(thisNode, kryoOutput, offHeapGroupByKey.getKeyType(), treeNode.getKey());
         kryoOutput.writeInt(values.size());
         for (Object value : values) {
           writer.execute(thisNode, kryoOutput, offHeapGroupByKey.getRowType(), value);
@@ -137,6 +151,7 @@ public class OffHeapNodes {
       }
       kryoOutput.close();
       // reset both the memory map and memory footprint.
+
       offHeapGroupByKey.getMemMap().clear();
       offHeapGroupByKey.setSize(0);
     }

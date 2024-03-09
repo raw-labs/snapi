@@ -40,7 +40,6 @@ import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.inferrer.api.InferrerService;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
-import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
@@ -71,6 +70,16 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   private static final RawLanguageCache languageCache = new RawLanguageCache();
 
   private final Shape initialRecordShape = Shape.newBuilder().build();
+//  public final Shape treeMapShape = Shape.newBuilder().build();
+
+  // FIXME (msb): Why is this here?
+  public RecordObject createRecord() {
+    return new RecordObject(initialRecordShape);
+  }
+
+//  public TreeMapObject createMapObject() {
+//    return new TreeMapObject(treeMapShape);
+//  }
 
   @Override
   protected final RawContext createContext(Env env) {
@@ -90,15 +99,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   }
 
   private final InteropLibrary bindings = InteropLibrary.getFactory().createDispatched(1);
-
-  // FIXME (msb): Why is this here?
-  public RecordObject createRecord() {
-    return new RecordObject(initialRecordShape);
-  }
-
-  public PureRecord createNewRecord() {
-    return new PureRecord(initialRecordShape);
-  }
 
   @Override
   protected OptionDescriptors getOptionDescriptors() {

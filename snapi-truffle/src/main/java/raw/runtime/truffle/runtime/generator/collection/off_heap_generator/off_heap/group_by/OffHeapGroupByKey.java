@@ -17,18 +17,19 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
-import java.util.TreeMap;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
-import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
 
 public class OffHeapGroupByKey {
-  private final TreeMap<Object, ArrayList<Object>>
+  //  private final TreeMap<Object, ArrayList<Object>>
+  //      memMap; // in-memory map that's used as long as the data fits in memory.
+  private final TreeMapObject
       memMap; // in-memory map that's used as long as the data fits in memory.
   private final ArrayList<File> spilledBuffers =
       new ArrayList<>(); // list of files that contain the spilled data.
@@ -56,8 +57,7 @@ public class OffHeapGroupByKey {
       SourceContext context,
       RecordShaper reshape) {
     this.language = language;
-    this.memMap =
-        new TreeMap<>(OperatorNodesFactory.CompareUninlinedNodeGen.getUncached()::execute);
+    this.memMap = new TreeMapObject();
     this.keyType = kType;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);
@@ -76,7 +76,7 @@ public class OffHeapGroupByKey {
     this.size = size;
   }
 
-  public TreeMap<Object, ArrayList<Object>> getMemMap() {
+  public TreeMapObject getMemMap() {
     return memMap;
   }
 

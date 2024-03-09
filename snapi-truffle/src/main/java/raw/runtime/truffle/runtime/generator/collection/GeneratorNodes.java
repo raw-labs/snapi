@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
@@ -82,10 +83,14 @@ public class GeneratorNodes {
         GroupByMemoryGenerator generator,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("reshape") RecordShaperNodes.MakeRowNode reshape) {
-      Object key = generator.getKeys().next();
-      ArrayList<Object> values = generator.getOffHeapGroupByKey().getMemMap().get(key);
+      TreeMapNode treeNode = generator.getTreeNodesIterator().nextNode();
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
       return reshape.execute(
-          thisNode, generator.getOffHeapGroupByKey().getReshape(), key, values.toArray());
+          thisNode,
+          generator.getOffHeapGroupByKey().getReshape(),
+          treeNode.getKey(),
+          values.toArray());
     }
 
     @Specialization
@@ -303,7 +308,7 @@ public class GeneratorNodes {
 
     @Specialization
     static boolean hasNext(Node node, GroupByMemoryGenerator generator) {
-      return generator.getKeys().hasNext();
+      return generator.getTreeNodesIterator().hasNext();
     }
 
     @Specialization
