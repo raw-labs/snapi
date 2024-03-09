@@ -82,11 +82,29 @@ public class OffHeapNodes {
         Object[] keys,
         Object value,
         @Bind("$node") Node thisNode,
+        @Cached TreeMapNodes.TreeMapGetArrayKesyNode mapGetArrayKeysNode,
+        @Cached TreeMapNodes.TreeMapPutArrayKeysNode mapPutArrayKeysNode,
         @Cached @Cached.Shared("flushNode") OffHeapFlushNode flushNode) {
-      ArrayList<Object> list = offHeapGroupByKeys.getMemMap().get(keys);
+
+      TreeMapNode treeNode =
+          (TreeMapNode)
+              mapGetArrayKeysNode.execute(
+                  thisNode,
+                  offHeapGroupByKeys.getMemMap(),
+                  keys,
+                  offHeapGroupByKeys.getKeyOrderings());
+      ArrayList<Object> list = null;
+      if (treeNode != null) {
+        list = (ArrayList<Object>) treeNode.getValue();
+      }
       if (list == null) {
         list = new ArrayList<>();
-        offHeapGroupByKeys.getMemMap().put(keys, list);
+        mapPutArrayKeysNode.execute(
+            thisNode,
+            offHeapGroupByKeys.getMemMap(),
+            keys,
+            list,
+            offHeapGroupByKeys.getKeyOrderings());
         // add the size of the key to the memory footprint. (Row size added below in main path.)
         offHeapGroupByKeys.setSize(offHeapGroupByKeys.getSize() + offHeapGroupByKeys.getKeysSize());
       }
@@ -166,12 +184,16 @@ public class OffHeapNodes {
           new UnsafeOutput(
               nextFileNode.execute(thisNode, offHeapGroupByKeys),
               offHeapGroupByKeys.getKryoOutputBufferSize());
-      for (Object[] keys : offHeapGroupByKeys.getMemMap().keySet()) {
+      TreeMapIterator iterator = offHeapGroupByKeys.getMemMap().iterator();
+      while (iterator.hasNext()) {
+        TreeMapNode treeNode = iterator.nextNode();
         // write keys, then n, then values.
-        for (int i = 0; i < keys.length; i++) {
-          writer.execute(thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], keys[i]);
+        for (int i = 0; i < offHeapGroupByKeys.getMemMap().getSize(); i++) {
+          writer.execute(
+              thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], treeNode.getKey());
         }
-        ArrayList<Object> values = offHeapGroupByKeys.getMemMap().get(keys);
+        @SuppressWarnings("unchecked")
+        ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
         kryoOutput.writeInt(values.size());
         for (Object value : values) {
           writer.execute(thisNode, kryoOutput, offHeapGroupByKeys.getRowType(), value);

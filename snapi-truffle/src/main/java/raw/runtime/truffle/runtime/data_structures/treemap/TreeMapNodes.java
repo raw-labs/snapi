@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.runtime.truffle.runtime.data_structures.treemap;
 
 import com.oracle.truffle.api.dsl.*;
@@ -45,10 +57,49 @@ public class TreeMapNodes {
     }
   }
 
-  @NodeInfo(shortName = "TreeMap.Get")
+  @NodeInfo(shortName = "TreeMap.PutArrayKeys")
   @GenerateUncached
   @GenerateInline
   @ImportStatic(PropertyType.class)
+  public abstract static class TreeMapPutArrayKeysNode extends Node {
+
+    public abstract void execute(
+        Node node, TreeMapObject mapObject, Object key, Object value, int[] orderings);
+
+    @Specialization
+    static void exec(
+        Node node,
+        TreeMapObject treeMapObject,
+        Object key,
+        Object value,
+        int[] orderings,
+        @Bind("$node") Node thisNode,
+        @Cached OperatorNodes.CompareKeys compareNode) {
+      TreeMapNode t = treeMapObject.getRoot();
+      if (t == null) {
+        treeMapObject.addEntryToEmptyMap(key, value);
+        return;
+      }
+      int cmp;
+      TreeMapNode parent;
+      // split comparator and comparable paths
+      do {
+        parent = t;
+        cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) t.key, orderings);
+        if (cmp < 0) t = t.left;
+        else if (cmp > 0) t = t.right;
+        else {
+          t.value = value;
+          return;
+        }
+      } while (t != null);
+      treeMapObject.addEntry(key, value, parent, cmp < 0);
+    }
+  }
+
+  @NodeInfo(shortName = "TreeMap.Get")
+  @GenerateUncached
+  @GenerateInline
   public abstract static class TreeMapGetNode extends Node {
 
     public abstract Object execute(Node node, TreeMapObject mapObject, Object key);
@@ -63,6 +114,32 @@ public class TreeMapNodes {
       TreeMapNode p = treeMapObject.getRoot();
       while (p != null) {
         int cmp = compareNode.execute(thisNode, key, p.key);
+        if (cmp < 0) p = p.left;
+        else if (cmp > 0) p = p.right;
+        else return p;
+      }
+      return null;
+    }
+  }
+
+  @NodeInfo(shortName = "TreeMap.Get")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class TreeMapGetArrayKesyNode extends Node {
+
+    public abstract Object execute(Node node, TreeMapObject mapObject, Object key, int[] orderings);
+
+    @Specialization
+    static Object exec(
+        Node node,
+        TreeMapObject treeMapObject,
+        Object key,
+        int[] orderings,
+        @Bind("$node") Node thisNode,
+        @Cached OperatorNodes.CompareKeys compareNode) {
+      TreeMapNode p = treeMapObject.getRoot();
+      while (p != null) {
+        int cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) p.key, orderings);
         if (cmp < 0) p = p.left;
         else if (cmp > 0) p = p.right;
         else return p;

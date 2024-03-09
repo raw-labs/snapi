@@ -153,10 +153,10 @@ public class GeneratorNodes {
       Object n;
       if (generator.getValues() == null) {
         // no iterator over the values, create one from the next key.
-        Object[] keys = generator.getKeysIterator().next();
-        generator.setValues(
-            Arrays.stream(generator.getOffHeapGroupByKeys().getMemMap().get(keys).toArray())
-                .iterator());
+        TreeMapNode treeNode = generator.getNodeIterator().nextNode();
+        @SuppressWarnings("unchecked")
+        ArrayList<Object> value = (ArrayList<Object>) treeNode.getValue();
+        generator.setValues(Arrays.stream(value.toArray()).iterator());
       }
       n = generator.getValues().next();
       if (!generator.getValues().hasNext()) {
@@ -348,7 +348,7 @@ public class GeneratorNodes {
 
     @Specialization
     static boolean hasNext(Node node, OrderByMemoryGenerator generator) {
-      return generator.getKeysIterator().hasNext() || generator.getValues() != null;
+      return generator.getNodeIterator().hasNext() || generator.getValues() != null;
     }
 
     @Specialization
