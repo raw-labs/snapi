@@ -69,8 +69,8 @@ public class TruffleGroupListEntry extends GroupListEntry implements TruffleEntr
     return new ListGroupByNode(
         truffleArgs.get(0).exprNode(),
         truffleArgs.get(1).exprNode(),
-        keyType,
         (Rql2TypeWithProperties) groupType.innerType(),
+        keyType,
         generatorSlot,
         keyFuncSlot,
         mapSlot,
