@@ -18,7 +18,6 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
@@ -38,7 +37,6 @@ public class OffHeapGroupByKey {
       size; // estimated size of currently memory held objects (when reaching blockSize, spill
   // to
   // disk).
-
   private final SourceContext context;
   private final Rql2TypeWithProperties keyType, rowType; // grouping key and row types.
   private final int kryoOutputBufferSize,
@@ -47,16 +45,12 @@ public class OffHeapGroupByKey {
 
   private final RecordShaper reshape;
 
-  private final RawLanguage language;
-
   @TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKey(
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
-      RawLanguage language,
       SourceContext context,
       RecordShaper reshape) {
-    this.language = language;
     this.memMap = new TreeMapObject();
     this.keyType = kType;
     this.rowType = rowType;
@@ -122,10 +116,6 @@ public class OffHeapGroupByKey {
 
   public RecordShaper getReshape() {
     return reshape;
-  }
-
-  public RawLanguage getLanguage() {
-    return language;
   }
 
   public FileOutputStream newDiskBuffer() throws RawTruffleRuntimeException {

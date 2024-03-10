@@ -12,10 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateInline;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
@@ -23,6 +20,7 @@ import com.oracle.truffle.api.interop.UnsupportedTypeException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.record.RecordObject;
@@ -41,8 +39,9 @@ public class RecordShaperNodes {
         RecordShaper shaper,
         Object key,
         Object[] values,
+        @Bind("$node") Node thisNode,
         @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
-      RecordObject record = shaper.getLanguage().createRecord();
+      RecordObject record = RawLanguage.get(thisNode).createRecord();
       try {
         records.writeMember(record, "key", key);
         records.writeMember(record, "group", new ObjectList(values).toIterable());
@@ -60,8 +59,9 @@ public class RecordShaperNodes {
         RecordShaper shaper,
         Object key,
         Object[] values,
+        @Bind("$node") Node thisNode,
         @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
-      RecordObject record = shaper.getLanguage().createRecord();
+      RecordObject record = RawLanguage.get(thisNode).createRecord();
       try {
         records.writeMember(record, "key", key);
         records.writeMember(record, "group", new ObjectList(values));

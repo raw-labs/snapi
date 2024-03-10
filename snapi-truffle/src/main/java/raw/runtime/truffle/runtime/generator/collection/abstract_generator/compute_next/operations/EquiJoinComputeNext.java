@@ -14,17 +14,12 @@ package raw.runtime.truffle.runtime.generator.collection.abstract_generator.comp
 
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
-import raw.sources.api.SourceContext;
 
 public class EquiJoinComputeNext {
 
   private final Object leftIterable, rightIterable;
   private final Object leftKeyF, rightKeyF, mkJoinedRecord;
   private final Rql2TypeWithProperties leftRowType, rightRowType, keyType;
-  private final RawLanguage language;
-  private final SourceContext context;
-
   private Object leftMapGenerator = null,
       rightMapGenerator = null; // generators from group-by key maps
   private Object[] leftEntry = null, rightEntry = null;
@@ -47,8 +42,6 @@ public class EquiJoinComputeNext {
       Rql2TypeWithProperties rightRowType,
       Rql2TypeWithProperties keyType,
       Object mkJoinedRecord,
-      RawLanguage language,
-      SourceContext context,
       MaterializedFrame frame,
       int computeNextSlot,
       int shouldContinueSlot,
@@ -63,8 +56,6 @@ public class EquiJoinComputeNext {
     this.rightRowType = rightRowType;
     this.keyType = keyType;
     this.mkJoinedRecord = mkJoinedRecord;
-    this.language = language;
-    this.context = context;
     this.frame = frame;
     this.computeNextSlot = computeNextSlot;
     this.shouldContinueSlot = shouldContinueSlot;
@@ -103,14 +94,6 @@ public class EquiJoinComputeNext {
 
   public Rql2TypeWithProperties getKeyType() {
     return keyType;
-  }
-
-  public RawLanguage getLanguage() {
-    return language;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public Object getLeftMapGenerator() {

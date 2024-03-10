@@ -242,11 +242,7 @@ public class GeneratorNodes {
           Input buffer = generator.getKryoBuffers().get(idx);
           try {
             bufferKey =
-                reader.execute(
-                    thisNode,
-                    generator.getOffHeapDistinct().getLanguage(),
-                    buffer,
-                    generator.getOffHeapDistinct().getItemType());
+                reader.execute(thisNode, buffer, generator.getOffHeapDistinct().getItemType());
           } catch (KryoException e) {
             // we reached the end of that buffer
             // remove both the buffer and its key from the lists
@@ -406,11 +402,7 @@ public class GeneratorNodes {
           Input buffer = generator.getKryoBuffers().get(idx);
           try {
             bufferKey =
-                reader.execute(
-                    thisNode,
-                    generator.getOffHeapDistinct().getLanguage(),
-                    buffer,
-                    generator.getOffHeapDistinct().getItemType());
+                reader.execute(thisNode, buffer, generator.getOffHeapDistinct().getItemType());
           } catch (KryoException e) {
             // we reached the end of that buffer
             // remove both the buffer and its key from the lists

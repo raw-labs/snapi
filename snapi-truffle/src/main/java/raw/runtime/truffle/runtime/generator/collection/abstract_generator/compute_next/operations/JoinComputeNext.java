@@ -18,7 +18,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.MaterializedFrame;
 import java.io.File;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.utils.IOUtils;
 import raw.sources.api.SourceContext;
 
@@ -37,7 +36,6 @@ public class JoinComputeNext {
   private int spilledRight = 0;
   private int readRight = 0;
   private final Boolean reshapeBeforePredicate;
-  private final RawLanguage language;
   private final MaterializedFrame frame;
   private final int computeNextSlot;
   private final int shouldContinueSlot;
@@ -53,7 +51,6 @@ public class JoinComputeNext {
       Boolean reshapeBeforePredicate,
       Rql2TypeWithProperties rightRowType,
       SourceContext context,
-      RawLanguage language,
       MaterializedFrame frame,
       int computeNextSlot,
       int shouldContinueSlot,
@@ -64,7 +61,6 @@ public class JoinComputeNext {
     this.rightIterable = rightIterable;
     this.remap = remap;
     this.predicate = predicate;
-    this.language = language;
     this.rightRowType = rightRowType;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
     this.frame = frame;
@@ -161,10 +157,6 @@ public class JoinComputeNext {
 
   public Boolean getReshapeBeforePredicate() {
     return reshapeBeforePredicate;
-  }
-
-  public RawLanguage getLanguage() {
-    return language;
   }
 
   public MaterializedFrame getFrame() {
