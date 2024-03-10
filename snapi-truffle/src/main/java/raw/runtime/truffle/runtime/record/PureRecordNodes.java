@@ -40,9 +40,6 @@ public class PureRecordNodes {
         String key,
         int item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
-        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
-        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putInt(pureRecord, key, item);
@@ -57,9 +54,6 @@ public class PureRecordNodes {
         String key,
         long item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
-        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
-        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putLong(pureRecord, key, item);
@@ -74,9 +68,6 @@ public class PureRecordNodes {
         String key,
         double item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
-        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
-        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putDouble(pureRecord, key, item);
@@ -91,9 +82,6 @@ public class PureRecordNodes {
         String key,
         Object item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
-        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
-        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putWithFlags(pureRecord, key, item, OBJECT_TYPE);
@@ -107,9 +95,9 @@ public class PureRecordNodes {
         String key,
         Object item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
-        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
-        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
+        @Cached PureRecordNodes.GetValueNode getValueNode,
+        @Cached PureRecordNodes.GetKeysNode getKeysNode,
+        @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       Object[] keys = getKeysNode.execute(thisNode, pureRecord);
