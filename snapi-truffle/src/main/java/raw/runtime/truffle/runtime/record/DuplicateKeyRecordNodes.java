@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.runtime.truffle.runtime.record;
 
 import static raw.runtime.truffle.PropertyType.*;
@@ -18,10 +30,10 @@ public class DuplicateKeyRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class AddPropNode extends Node {
 
-    public abstract Object execute(Node node, DuplicateKeyRecord record, String key, Object value);
+    public abstract DuplicateKeyRecord execute(Node node, Object record, String key, Object value);
 
     @Specialization(limit = "3")
-    static Object exec(
+    static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
         String key,
@@ -29,12 +41,13 @@ public class DuplicateKeyRecordNodes {
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
       valuesLibrary.putInt(duplicateKeyRecord, keysSize, item);
+      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, INT_TYPE);
       duplicateKeyRecord.addKey(key);
       return duplicateKeyRecord;
     }
 
     @Specialization(limit = "3")
-    static Object exec(
+    static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
         String key,
@@ -42,12 +55,13 @@ public class DuplicateKeyRecordNodes {
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
       valuesLibrary.putLong(duplicateKeyRecord, keysSize, item);
+      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, LONG_TYPE);
       duplicateKeyRecord.addKey(key);
       return duplicateKeyRecord;
     }
 
     @Specialization(limit = "3")
-    static Object exec(
+    static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
         String key,
@@ -55,19 +69,20 @@ public class DuplicateKeyRecordNodes {
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
       valuesLibrary.putDouble(duplicateKeyRecord, keysSize, item);
+      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, DOUBLE_TYPE);
       duplicateKeyRecord.addKey(key);
       return duplicateKeyRecord;
     }
 
     @Specialization(limit = "3")
-    static Object exec(
+    static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
         String key,
         Object item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
-      valuesLibrary.put(duplicateKeyRecord, keysSize, item);
+      valuesLibrary.putWithFlags(duplicateKeyRecord, keysSize, item, OBJECT_TYPE);
       duplicateKeyRecord.addKey(key);
       return duplicateKeyRecord;
     }
@@ -102,7 +117,7 @@ public class DuplicateKeyRecordNodes {
         String key,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keyIndex = duplicateKeyRecord.getKeyIndex(key);
-      valuesLibrary.removeKey(duplicateKeyRecord, String.valueOf(keyIndex));
+      valuesLibrary.removeKey(duplicateKeyRecord, keyIndex);
       duplicateKeyRecord.removeKey(keyIndex);
       return duplicateKeyRecord;
     }
@@ -118,7 +133,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization
     static Object[] exec(Node node, DuplicateKeyRecord record) {
-      return record.getKeys();
+      return record.getDistinctKeys();
     }
   }
 
@@ -140,7 +155,7 @@ public class DuplicateKeyRecordNodes {
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       try {
         int idx = duplicateKeyRecord.getKeyIndex(key);
-        return valuesLibrary.getIntOrDefault(duplicateKeyRecord, String.valueOf(idx), -1);
+        return valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
         throw new RawTruffleInternalErrorException("Unexpected result", e);
       }
@@ -156,7 +171,7 @@ public class DuplicateKeyRecordNodes {
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       try {
         int idx = duplicateKeyRecord.getKeyIndex(key);
-        return valuesLibrary.getLongOrDefault(duplicateKeyRecord, String.valueOf(idx), -1);
+        return valuesLibrary.getLongOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
         throw new RawTruffleInternalErrorException("Unexpected result", e);
       }
@@ -172,7 +187,7 @@ public class DuplicateKeyRecordNodes {
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       try {
         int idx = duplicateKeyRecord.getKeyIndex(key);
-        return valuesLibrary.getDoubleOrDefault(duplicateKeyRecord, String.valueOf(idx), -1);
+        return valuesLibrary.getDoubleOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
         throw new RawTruffleInternalErrorException("Unexpected result", e);
       }
@@ -185,7 +200,7 @@ public class DuplicateKeyRecordNodes {
         String key,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int idx = duplicateKeyRecord.getKeyIndex(key);
-      return valuesLibrary.getOrDefault(duplicateKeyRecord, String.valueOf(idx), null);
+      return valuesLibrary.getOrDefault(duplicateKeyRecord, idx, null);
     }
   }
 
@@ -207,7 +222,7 @@ public class DuplicateKeyRecordNodes {
       if (index < 0 || index >= keys.length) {
         throw new RawTruffleInternalErrorException("Index out of bounds in record");
       }
-      return valuesLibrary.getOrDefault(record, String.valueOf(index), null);
+      return valuesLibrary.getOrDefault(record, index, null);
     }
   }
 }

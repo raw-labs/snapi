@@ -131,15 +131,11 @@ public class KryoNodes {
         @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
       Rql2RecordType recordType = (Rql2RecordType) t;
       Object record = RawLanguage.get(thisNode).createPureRecord();
-      recordType
-          .atts()
-          .forall(
-              att -> {
-                Rql2TypeWithProperties attType = (Rql2TypeWithProperties) att.tipe();
-                Object value = kryo.execute(thisNode, input, attType);
-                addPropNode.execute(thisNode, record, att.idn(), value);
-                return true;
-              });
+      for (int i = 0; i < recordType.atts().size(); i++) {
+        Rql2TypeWithProperties attType = (Rql2TypeWithProperties) recordType.atts().apply(i).tipe();
+        Object value = kryo.execute(thisNode, input, attType);
+        record = addPropNode.execute(thisNode, record, recordType.atts().apply(i).idn(), value);
+      }
       return record;
     }
 

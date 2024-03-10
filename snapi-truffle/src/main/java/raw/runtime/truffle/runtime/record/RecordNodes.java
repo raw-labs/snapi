@@ -219,11 +219,13 @@ public class RecordNodes {
       Object[] keys = getKeysNode.execute(thisNode, record);
       DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
       for (Object key : keys) {
-        addPropNode.execute(
-            thisNode,
-            newRecord,
-            (String) key,
-            getValueNode.execute(thisNode, record, (String) key));
+        newRecord =
+            addPropNode.execute(
+                thisNode,
+                newRecord,
+                (String) key,
+                getValueNode.execute(thisNode, record, (String) key));
+        newRecord.addKey((String) key);
       }
       return newRecord;
     }

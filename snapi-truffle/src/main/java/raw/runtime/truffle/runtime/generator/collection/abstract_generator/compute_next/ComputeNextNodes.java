@@ -368,10 +368,12 @@ public class ComputeNextNodes {
       if (hasNextNode1.execute(thisNode, computeNext.getParent1())
           && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
         Object record = computeNext.getLanguage().createPureRecord();
-        addPropNode.execute(
-            thisNode, record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()));
-        addPropNode.execute(
-            thisNode, record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()));
+        record =
+            addPropNode.execute(
+                thisNode, record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()));
+        record =
+            addPropNode.execute(
+                thisNode, record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()));
         return record;
       }
       throw new BreakException();

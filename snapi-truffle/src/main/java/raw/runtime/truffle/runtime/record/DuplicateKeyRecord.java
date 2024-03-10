@@ -71,6 +71,9 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
   }
 
   public int getKeyIndex(String key) {
+    if (!distinctValid) {
+      updateDistinctKeys();
+    }
     return cachedDistinctKeys.indexOf(key);
   }
 
