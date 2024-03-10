@@ -35,7 +35,7 @@ import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 import raw.runtime.truffle.tryable_nullable.Tryable;
 import scala.collection.immutable.Vector;
@@ -129,29 +129,23 @@ public class KryoNodes {
 
     @Specialization(guards = {"isRecordKind(t)"})
     @CompilerDirectives.TruffleBoundary
-    static RecordObject doRecord(
+    static Object doRecord(
         Node node,
         RawLanguage language,
         Input input,
         Rql2TypeWithProperties t,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo,
-        @CachedLibrary(limit = "2") InteropLibrary records) {
+        @Cached RecordNodes.AddPropNode addPropNode,
+        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
       Rql2RecordType recordType = (Rql2RecordType) t;
-      RecordObject record = language.createRecord();
+      Object record = language.createPureRecord();
       recordType
           .atts()
           .forall(
               att -> {
                 Rql2TypeWithProperties attType = (Rql2TypeWithProperties) att.tipe();
                 Object value = kryo.execute(thisNode, language, input, attType);
-                try {
-                  records.writeMember(record, att.idn(), value);
-                } catch (UnsupportedMessageException
-                    | UnknownIdentifierException
-                    | UnsupportedTypeException e) {
-                  throw new RawTruffleInternalErrorException(e);
-                }
+                addPropNode.execute(thisNode, record, att.idn(), value);
                 return true;
               });
       return record;
@@ -378,9 +372,7 @@ public class KryoNodes {
       }
     }
 
-    @Specialization(
-        guards = {"isRecordKind(type)"},
-        limit = "1")
+    @Specialization(guards = {"isRecordKind(type)"})
     static void doRecord(
         Node node,
         Output output,
@@ -388,21 +380,13 @@ public class KryoNodes {
         Object o,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo,
-        @CachedLibrary("o") InteropLibrary recordLibrary,
-        @CachedLibrary(limit = "2") InteropLibrary arrayLibrary) {
-      try {
-        Object keys = recordLibrary.getMembers(o);
-        long length = arrayLibrary.getArraySize(keys);
-        Vector<Rql2AttrType> atts = type.atts();
-        for (int i = 0; i < length; i++) {
-          String member = (String) arrayLibrary.readArrayElement(keys, i);
-          Object field = recordLibrary.readMember(o, member);
-          kryo.execute(thisNode, output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
-        }
-      } catch (UnsupportedMessageException
-          | InvalidArrayIndexException
-          | UnknownIdentifierException e) {
-        throw new RawTruffleInternalErrorException(e);
+        @Cached RecordNodes.GetKeysNode getKeysNode,
+        @Cached RecordNodes.GetValueNode getValueNode) {
+      Object[] keys = getKeysNode.execute(thisNode, o);
+      Vector<Rql2AttrType> atts = type.atts();
+      for (int i = 0; i < keys.length; i++) {
+        Object field = getValueNode.execute(thisNode, o, (String) keys[i]);
+        kryo.execute(thisNode, output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
       }
     }
 

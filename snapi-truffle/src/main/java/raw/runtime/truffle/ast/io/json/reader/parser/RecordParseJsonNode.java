@@ -36,7 +36,6 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseJson")
 @ImportStatic(RawTruffleBoundaries.class)
@@ -61,7 +60,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
 
   @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+  private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.getUncached();
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
@@ -105,7 +104,7 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
     nextTokenNode.execute(this, parser);
 
-    RecordObject record = RawLanguage.get(this).createRecord();
+    Object record = RawLanguage.get(this).createPureRecord();
 
     // todo: (az) need to find a solution for the array of direct calls,
     // the json object can be out of order, the child nodes cannot be inlined
@@ -115,7 +114,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       nextTokenNode.execute(this, parser); // skip the field name
       if (index != null) {
         setBitSet(currentBitSet, index);
-        writeIndexNode.execute(this, record, index, fieldName, callChild(index, parser));
+        record = addPropNode.execute(this, record, fieldName, callChild(index, parser));
       } else {
         // skip the field value
         skipNode.execute(this, parser);
@@ -135,7 +134,7 @@ public class RecordParseJsonNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            writeIndexNode.execute(this, record, i, fields[i].toString(), nullValue);
+            record = addPropNode.execute(this, record, fields[i].toString(), nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
           }

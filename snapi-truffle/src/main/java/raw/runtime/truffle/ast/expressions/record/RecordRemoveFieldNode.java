@@ -12,45 +12,23 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 
 @NodeInfo(shortName = "Record.RemoveField")
 @NodeChild("record")
 @NodeChild("dropKey")
 public abstract class RecordRemoveFieldNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Specialization
   protected Object doRemoveField(
-      RecordObject record,
+      Object record,
       String dropKey,
-      @CachedLibrary("record") InteropLibrary records,
-      @CachedLibrary(limit = "2") InteropLibrary libraries) {
-    RecordObject newRecord = RawLanguage.get(this).createRecord();
-    try {
-      Object keys = records.getMembers(record);
-      long length = libraries.getArraySize(keys);
-      String member;
-      for (int i = 0; i < length; i++) {
-        member = (String) libraries.readArrayElement(keys, i);
-        if (member.equals(dropKey)) {
-          continue;
-        }
-        libraries.writeMember(newRecord, member, records.readMember(record, member));
-      }
-      return newRecord;
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException
-        | InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
-    }
+      @Cached(inline = true) RecordNodes.RemovePropNode removePropNode) {
+    return removePropNode.execute(this, record, dropKey);
   }
 }

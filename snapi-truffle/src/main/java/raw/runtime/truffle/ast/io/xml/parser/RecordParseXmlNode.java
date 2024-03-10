@@ -27,13 +27,12 @@ import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
 
   @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+  private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.getUncached();
 
   @Children private DirectCallNode[] childDirectCalls;
 
@@ -94,7 +93,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     bitSet.or(refBitSet);
 
     // the record to be returned
-    RecordObject record = RawLanguage.get(this).createRecord();
+    Object record = RawLanguage.get(this).createPureRecord();
 
     Vector<String> attributes = parser.attributes();
     int nAttributes = attributes.size();
@@ -121,10 +120,10 @@ public class RecordParseXmlNode extends ExpressionNode {
       // we're inside the object, so the current token is a field name, or text content if the
       // record has #text.
       if (parser.onStartTag()) {
-        parseTagContent(parser, parser.getCurrentName(), record);
+        record = parseTagContent(parser, parser.getCurrentName(), record);
       } else {
         // on #text
-        parseTagContent(parser, "#text", record);
+        record = parseTagContent(parser, "#text", record);
       }
     }
     parser.expectEndTag(recordTag);
@@ -139,9 +138,9 @@ public class RecordParseXmlNode extends ExpressionNode {
       Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        writeIndexNode.execute(this, record, index, fieldName, list.toIterable());
+        record = addPropNode.execute(this, record, fieldName, list.toIterable());
       } else {
-        writeIndexNode.execute(this, record, index, fieldName, list);
+        record = addPropNode.execute(this, record, fieldName, list);
       }
     }
     // process nullable fields (null when not found)
@@ -156,7 +155,7 @@ public class RecordParseXmlNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            writeIndexNode.execute(this, record, i, fieldName, nullValue);
+            record = addPropNode.execute(this, record, fieldName, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
           }
@@ -166,32 +165,35 @@ public class RecordParseXmlNode extends ExpressionNode {
     return record;
   }
 
-  private void parseTagContent(RawTruffleXmlParser parser, String fieldName, RecordObject record) {
+  private Object parseTagContent(RawTruffleXmlParser parser, String fieldName, Object record) {
     Integer index = fieldsIndex.get(fieldName);
     if (index != null) {
-      applyParser(parser, index, fieldName, record);
+      return applyParser(parser, index, fieldName, record);
     } else {
       // skip the whole tag subtree
       parser.skipTag();
+      return record;
     }
   }
 
-  private void applyParser(
-      RawTruffleXmlParser parser, int index, String fieldName, RecordObject record) {
+  private Object applyParser(
+      RawTruffleXmlParser parser, int index, String fieldName, Object record) {
     Object value = childDirectCalls[index].call(parser);
-    storeFieldValue(fieldName, index, value, record);
+    return storeFieldValue(fieldName, index, value, record);
   }
 
-  private void storeFieldValue(String fieldName, int index, Object value, RecordObject record) {
+  private Object storeFieldValue(String fieldName, int index, Object value, Object record) {
     ArrayList<Object> collectionField = collectionValues.get(fieldName);
     if (collectionField != null) {
       // if the field is a collection or a list, add the item to the list instead writing it
       // in the
       // record.
       collectionField.add(value);
+      return record;
     } else {
-      writeIndexNode.execute(this, record, index, fieldName, value);
+      Object res = addPropNode.execute(this, record, fieldName, value);
       bitSet.set(index);
+      return res;
     }
   }
 }

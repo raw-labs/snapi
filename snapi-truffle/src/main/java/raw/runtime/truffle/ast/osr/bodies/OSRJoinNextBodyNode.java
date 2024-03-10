@@ -20,6 +20,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
@@ -72,6 +73,7 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
+    RawLanguage language = RawLanguage.get(this);
     Object row = null;
     JoinComputeNext computeNext = (JoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
     if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
@@ -91,10 +93,7 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
         if (computeNext.getReadRight() < computeNext.getSpilledRight()) {
           computeNext.setRightRow(
               kryoReadNode.execute(
-                  this,
-                  computeNext.getLanguage(),
-                  computeNext.getKryoRight(),
-                  computeNext.getRightRowType()));
+                  this, language, computeNext.getKryoRight(), computeNext.getRightRowType()));
           boolean pass;
           if (computeNext.getReshapeBeforePredicate()) {
             row =

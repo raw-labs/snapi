@@ -21,7 +21,6 @@ import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
@@ -39,7 +38,6 @@ import raw.runtime.truffle.ast.osr.conditions.OSRCollectionFilterConditionNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRFromBodyConditionNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionAuxNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvReaderRawTruffleException;
@@ -54,7 +52,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable.sources.EmptyCollection;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
@@ -365,21 +363,17 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode2,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode1,
         @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode2,
-        @CachedLibrary(limit = "5") InteropLibrary records) {
-      try {
-        if (hasNextNode1.execute(thisNode, computeNext.getParent1())
-            && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
-          RecordObject record = computeNext.getLanguage().createRecord();
-          records.writeMember(record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()));
-          records.writeMember(record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()));
-          return record;
-        }
-        throw new BreakException();
-      } catch (UnsupportedMessageException
-          | UnknownIdentifierException
-          | UnsupportedTypeException e) {
-        throw new RawTruffleInternalErrorException(e);
+        @Cached RecordNodes.AddPropNode addPropNode) {
+      if (hasNextNode1.execute(thisNode, computeNext.getParent1())
+          && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
+        Object record = computeNext.getLanguage().createPureRecord();
+        addPropNode.execute(
+            thisNode, record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()));
+        addPropNode.execute(
+            thisNode, record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()));
+        return record;
       }
+      throw new BreakException();
     }
 
     public static LoopNode getEquiJoinNextLoopNode(EquiJoinComputeNext computeNext) {

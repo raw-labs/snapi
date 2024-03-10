@@ -15,12 +15,9 @@ package raw.runtime.truffle.ast.expressions.record;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.AddField")
 @NodeChild("inRecordNode")
@@ -33,18 +30,7 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
       Object rec,
       String newKey,
       Object newValue,
-      @Cached(inline = true) RecordNodes.WriteIndexNode writeIndexNode,
-      @Cached(inline = true) RecordNodes.ReadIndexNode readIndexNode) {
-    RecordObject record = (RecordObject) rec;
-    RecordObject newRecord = RawLanguage.get(this).createRecord();
-    String[] keys = record.keys();
-    int length = keys.length;
-    String member;
-    for (int i = 0; i < length; i++) {
-      member = keys[i];
-      writeIndexNode.execute(this, newRecord, i, member, readIndexNode.execute(this, record, i));
-    }
-    writeIndexNode.execute(this, newRecord, length, newKey, newValue);
-    return newRecord;
+      @Cached(inline = true) RecordNodes.AddConcatedFieldNode addFieldNode) {
+    return addFieldNode.execute(this, rec, newKey, newValue);
   }
 }

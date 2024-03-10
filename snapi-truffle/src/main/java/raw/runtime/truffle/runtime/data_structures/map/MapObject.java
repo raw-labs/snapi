@@ -16,6 +16,8 @@ import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
 
+// Uncomment if need to revive map
+
 public class MapObject extends DynamicObject implements TruffleObject {
 
   public MapObject(Shape shape) {

@@ -10,8 +10,9 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.data_structures;
+package raw.runtime.truffle;
 
+// Static properties for dynamic object storage types
 public class PropertyType {
   public static final byte INT_TYPE = 0;
   public static final byte LONG_TYPE = 1;

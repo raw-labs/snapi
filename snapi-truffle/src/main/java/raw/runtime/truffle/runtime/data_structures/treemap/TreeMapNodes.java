@@ -15,14 +15,14 @@ package raw.runtime.truffle.runtime.data_structures.treemap;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.runtime.data_structures.PropertyType;
+import raw.runtime.truffle.PropertyType;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
 public class TreeMapNodes {
   @NodeInfo(shortName = "TreeMap.Put")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(PropertyType.class)
+  @ImportStatic(raw.runtime.truffle.PropertyType.class)
   public abstract static class TreeMapPutNode extends Node {
 
     public abstract void execute(Node node, TreeMapObject mapObject, Object key, Object value);

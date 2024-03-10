@@ -22,13 +22,11 @@ import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseCsv")
 public class RecordParseCsvNode extends ExpressionNode {
 
-  @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
 
   @Children private DirectCallNode[] childDirectCalls;
 
@@ -48,12 +46,12 @@ public class RecordParseCsvNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
     assert (parser.startingNewLine(this));
-    RecordObject record = RawLanguage.get(this).createRecord();
+    Object record = RawLanguage.get(this).createPureRecord();
     for (int i = 0; i < columns.length; i++) {
       String fieldName = columns[i].idn();
       parser.getNextField();
       Object value = childDirectCalls[i].call(parser);
-      writeIndexNode.execute(this, record, i, fieldName, value);
+      record = addPropNode.execute(this, record, fieldName, value);
     }
     parser.finishLine(this);
     return record;

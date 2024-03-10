@@ -20,11 +20,6 @@ import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.TruffleLogger;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
@@ -39,14 +34,13 @@ import java.util.Base64;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.list.RawArrayList;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 
 public final class JsonParserNodes {
@@ -635,7 +629,7 @@ public final class JsonParserNodes {
     }
 
     @Specialization(guards = {"isObject(parser)"})
-    protected static RecordObject doParse(
+    protected static Object doParse(
         Node node,
         JsonParser parser,
         @Bind("$node") Node thisNode,
@@ -644,7 +638,7 @@ public final class JsonParserNodes {
         @Cached @Cached.Shared("currentToken")
             JsonParserNodes.CurrentTokenJsonParserNode currentToken,
         @Cached JsonParserNodes.CurrentFieldJsonParserNode currentField,
-        @CachedLibrary(limit = "3") InteropLibrary records) {
+        @Cached RecordNodes.AddPropNode addPropNode) {
       if (currentToken.execute(thisNode, parser) != JsonToken.START_OBJECT) {
         throw new JsonUnexpectedTokenException(
             JsonToken.START_OBJECT.asString(),
@@ -654,19 +648,14 @@ public final class JsonParserNodes {
 
       nextToken.execute(thisNode, parser);
 
-      RecordObject record = RawLanguage.get(thisNode).createRecord();
-      try {
-        while (currentToken.execute(thisNode, parser) != JsonToken.END_OBJECT) {
-          String fieldName = currentField.execute(thisNode, parser);
-          nextToken.execute(thisNode, parser); // skip the field name
-          records.writeMember(record, fieldName, parse.execute(thisNode, parser));
-        }
-        nextToken.execute(thisNode, parser); // skip the END_OBJECT token
-      } catch (UnsupportedMessageException
-          | UnknownIdentifierException
-          | UnsupportedTypeException e) {
-        throw new RawTruffleInternalErrorException(e, thisNode);
+      Object record = RawLanguage.get(thisNode).createPureRecord();
+      while (currentToken.execute(thisNode, parser) != JsonToken.END_OBJECT) {
+        String fieldName = currentField.execute(thisNode, parser);
+        nextToken.execute(thisNode, parser); // skip the field name
+        record = addPropNode.execute(thisNode, record, fieldName, parse.execute(thisNode, parser));
       }
+      nextToken.execute(thisNode, parser); // skip the END_OBJECT token
+
       return record;
     }
 

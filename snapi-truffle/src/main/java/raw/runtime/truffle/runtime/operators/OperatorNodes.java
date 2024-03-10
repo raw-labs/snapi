@@ -30,7 +30,9 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.ConcatRecord;
+import raw.runtime.truffle.runtime.record.PureRecord;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 import raw.runtime.truffle.tryable_nullable.Tryable;
 
@@ -190,46 +192,70 @@ public class OperatorNodes {
       return compareNode.execute(thisNode, left, right);
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static int doRecord(
         Node node,
-        RecordObject left,
-        RecordObject right,
+        PureRecord left,
+        PureRecord right,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
-        @CachedLibrary("left") InteropLibrary lefts,
-        @CachedLibrary(limit = "3") InteropLibrary arrays,
-        @CachedLibrary("right") InteropLibrary rights) {
-      try {
-        Object leftKeys = lefts.getMembers(left);
-        long leftSize = arrays.getArraySize(leftKeys);
-        Object rightKeys = rights.getMembers(right);
-        long rightSize = arrays.getArraySize(rightKeys);
-        if (leftSize > rightSize) {
-          return 1;
-        } else if (leftSize < rightSize) {
-          return -1;
-        }
-        for (int i = 0; i < leftSize; i++) {
-          String leftKey = (String) arrays.readArrayElement(leftKeys, i);
-          String rightKey = (String) arrays.readArrayElement(rightKeys, i);
-          int result = compare.execute(thisNode, leftKey, rightKey);
-          if (result != 0) {
-            return result;
-          }
-          Object leftValue = lefts.readMember(left, leftKey);
-          Object rightValue = rights.readMember(right, rightKey);
-          result = compare.execute(thisNode, leftValue, rightValue);
-          if (result != 0) {
-            return result;
-          }
-        }
-        return 0;
-      } catch (InvalidArrayIndexException
-          | UnsupportedMessageException
-          | UnknownIdentifierException e) {
-        throw new RawTruffleInternalErrorException(e);
+        @Cached @Cached.Shared("getKey") RecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("getValue") RecordNodes.GetValueNode getValueNode) {
+      Object[] leftKeys = getKeysNode.execute(thisNode, left);
+      Object[] rightKeys = getKeysNode.execute(thisNode, right);
+      if (leftKeys.length > rightKeys.length) {
+        return 1;
+      } else if (leftKeys.length < rightKeys.length) {
+        return -1;
       }
+      for (int i = 0; i < leftKeys.length; i++) {
+        String leftKey = (String) leftKeys[i];
+        String rightKey = (String) rightKeys[i];
+        int result = compare.execute(thisNode, leftKey, rightKey);
+        if (result != 0) {
+          return result;
+        }
+        Object leftValue = getValueNode.execute(thisNode, left, leftKey);
+        Object rightValue = getValueNode.execute(thisNode, right, rightKey);
+        result = compare.execute(thisNode, leftValue, rightValue);
+        if (result != 0) {
+          return result;
+        }
+      }
+      return 0;
+    }
+
+    @Specialization
+    static int doRecord(
+        Node node,
+        ConcatRecord left,
+        ConcatRecord right,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
+        @Cached @Cached.Shared("getKey") RecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("getValue") RecordNodes.GetValueNode getValueNode) {
+      Object[] leftKeys = getKeysNode.execute(thisNode, left);
+      Object[] rightKeys = getKeysNode.execute(thisNode, right);
+      if (leftKeys.length > rightKeys.length) {
+        return 1;
+      } else if (leftKeys.length < rightKeys.length) {
+        return -1;
+      }
+      for (int i = 0; i < leftKeys.length; i++) {
+        String leftKey = (String) leftKeys[i];
+        String rightKey = (String) rightKeys[i];
+        int result = compare.execute(thisNode, leftKey, rightKey);
+        if (result != 0) {
+          return result;
+        }
+        Object leftValue = getValueNode.execute(thisNode, left, leftKey);
+        Object rightValue = getValueNode.execute(thisNode, right, rightKey);
+        result = compare.execute(thisNode, leftValue, rightValue);
+        if (result != 0) {
+          return result;
+        }
+      }
+      return 0;
     }
 
     @Specialization(guards = {"isFailure(left) || isFailure(right)"})

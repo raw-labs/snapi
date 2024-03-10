@@ -85,7 +85,6 @@ public class JoinCollection implements TruffleObject {
             reshapeBeforePredicate,
             rightType,
             context,
-            language,
             frame,
             computeNextSlot,
             shouldContinueSlot,

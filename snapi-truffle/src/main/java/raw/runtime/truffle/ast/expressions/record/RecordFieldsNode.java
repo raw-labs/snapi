@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.interop.InteropLibrary;
@@ -22,26 +23,19 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.StringList;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+
+import java.util.Arrays;
 
 @NodeInfo(shortName = "Record.Fields")
 @NodeChild("record")
 public abstract class RecordFieldsNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
+  @Specialization
   protected StringList doFields(
-      Object record,
-      @CachedLibrary("record") InteropLibrary records,
-      @CachedLibrary(limit = "1") InteropLibrary libraries) {
-    try {
-      Object keys = records.getMembers(record);
-      long length = libraries.getArraySize(keys);
-      String[] members = new String[(int) length];
-      for (int i = 0; i < length; i++) {
-        members[i] = (String) libraries.readArrayElement(keys, i);
-      }
-      return new StringList(members);
-    } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
-    }
+      Object record, @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode) {
+    Object[] keys = getKeysNode.execute(this, record);
+    String[] result = Arrays.stream(keys).map(Object::toString).toArray(String[]::new);
+    return new StringList(result);
   }
 }

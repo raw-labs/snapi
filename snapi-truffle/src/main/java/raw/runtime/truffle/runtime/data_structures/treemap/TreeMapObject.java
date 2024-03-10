@@ -36,16 +36,8 @@ public class TreeMapObject implements TruffleObject {
     return modCount;
   }
 
-  public void setRoot(TreeMapNode root) {
-    this.root = root;
-  }
-
   public void setSize(int size) {
     this.size = size;
-  }
-
-  public void setModCount(int modCount) {
-    this.modCount = modCount;
   }
 
   public void addEntryToEmptyMap(Object key, Object value) {

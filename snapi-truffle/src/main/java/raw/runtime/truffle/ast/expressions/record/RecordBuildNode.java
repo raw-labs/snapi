@@ -20,13 +20,11 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Build")
 public class RecordBuildNode extends ExpressionNode {
 
-  @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
 
   @Children private final ExpressionNode[] elementNodes;
 
@@ -39,13 +37,13 @@ public class RecordBuildNode extends ExpressionNode {
 
   @ExplodeLoop
   @Override
-  public RecordObject executeGeneric(VirtualFrame frame) {
-    RecordObject record = RawLanguage.get(this).createRecord();
+  public Object executeGeneric(VirtualFrame frame) {
+    Object record = RawLanguage.get(this).createPureRecord();
     for (int i = 0, j = 0; i < elementNodes.length; i += 2, j++) {
       // i jump by 2 because we have k1, v1, k2, v2, ..., kn, vn.
       Object key = elementNodes[i].executeGeneric(frame);
       Object value = elementNodes[i + 1].executeGeneric(frame);
-      writeIndexNode.execute(this, record, j, (String) key, value);
+      record = addPropNode.execute(this, record, (String) key, value);
     }
     return record;
   }

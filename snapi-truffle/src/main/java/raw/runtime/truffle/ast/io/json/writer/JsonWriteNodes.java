@@ -19,11 +19,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.databind.node.JsonNodeType;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
@@ -32,12 +27,13 @@ import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Base64;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.ConcatRecord;
+import raw.runtime.truffle.runtime.record.PureRecord;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 
 public final class JsonWriteNodes {
 
@@ -464,33 +460,53 @@ public final class JsonWriteNodes {
     @Specialization
     protected static void doWriteRecord(
         Node node,
-        RecordObject record,
+        PureRecord record,
         JsonGenerator gen,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("writeAny") WriteAnyJsonParserNode writeAny,
-        @Cached WriteFieldNameJsonWriterNode writeField,
-        @Cached WriteStartObjectJsonWriterNode startObject,
-        @Cached WriteEndObjectJsonWriterNode endObject,
-        @CachedLibrary(limit = "3") InteropLibrary interops) {
-      try {
-        Object keys = interops.getMembers(record);
-        int size = (int) interops.getArraySize(keys);
+        @Cached @Cached.Shared("write") WriteFieldNameJsonWriterNode writeField,
+        @Cached @Cached.Shared("start") WriteStartObjectJsonWriterNode startObject,
+        @Cached @Cached.Shared("end") WriteEndObjectJsonWriterNode endObject,
+        @Cached @Cached.Shared("getValue") RecordNodes.GetValueNode getValue,
+        @Cached @Cached.Shared("getKeys") RecordNodes.GetKeysNode getKeys) {
+      Object[] keys = getKeys.execute(thisNode, record);
 
-        startObject.execute(thisNode, gen);
-        String fieldName;
-        Object member;
-        for (int i = 0; i < size; i++) {
-          fieldName = (String) interops.readArrayElement(keys, i);
-          writeField.execute(thisNode, fieldName, gen);
-          member = interops.readMember(record, fieldName);
-          writeAny.execute(thisNode, member, gen);
-        }
-        endObject.execute(thisNode, gen);
-      } catch (UnsupportedMessageException
-          | InvalidArrayIndexException
-          | UnknownIdentifierException e) {
-        throw new RawTruffleInternalErrorException(e);
+      startObject.execute(thisNode, gen);
+      String fieldName;
+      Object member;
+      for (Object key : keys) {
+        fieldName = (String) key;
+        writeField.execute(thisNode, fieldName, gen);
+        member = getValue.execute(thisNode, record, fieldName);
+        writeAny.execute(thisNode, member, gen);
       }
+      endObject.execute(thisNode, gen);
+    }
+
+    @Specialization
+    protected static void doWriteRecord(
+        Node node,
+        ConcatRecord record,
+        JsonGenerator gen,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("writeAny") WriteAnyJsonParserNode writeAny,
+        @Cached @Cached.Shared("write") WriteFieldNameJsonWriterNode writeField,
+        @Cached @Cached.Shared("start") WriteStartObjectJsonWriterNode startObject,
+        @Cached @Cached.Shared("end") WriteEndObjectJsonWriterNode endObject,
+        @Cached @Cached.Shared("getValue") RecordNodes.GetValueNode getValue,
+        @Cached @Cached.Shared("getKeys") RecordNodes.GetKeysNode getKeys) {
+      Object[] keys = getKeys.execute(thisNode, record);
+
+      startObject.execute(thisNode, gen);
+      String fieldName;
+      Object member;
+      for (Object key : keys) {
+        fieldName = (String) key;
+        writeField.execute(thisNode, fieldName, gen);
+        member = getValue.execute(thisNode, record, fieldName);
+        writeAny.execute(thisNode, member, gen);
+      }
+      endObject.execute(thisNode, gen);
     }
 
     @Specialization

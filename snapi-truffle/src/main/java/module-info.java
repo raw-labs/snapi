@@ -313,7 +313,6 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.exceptions.binary;
   exports raw.runtime.truffle.runtime.exceptions.rdbms;
   exports raw.runtime.truffle.runtime.data_structures.map;
-  exports raw.runtime.truffle.runtime.data_structures.dynamic_array;
   exports raw.runtime.truffle.runtime.data_structures.treemap;
   exports raw.runtime.truffle.runtime.primitives;
   exports raw.runtime.truffle.runtime.list;

@@ -1,34 +1,31 @@
-/*
- * Copyright 2023 RAW Labs S.A.
- *
- * Use of this software is governed by the Business Source License
- * included in the file licenses/BSL.txt.
- *
- * As of the Change Date specified in that file, in accordance with
- * the Business Source License, use of this software will be governed
- * by the Apache License, Version 2.0, included in the file
- * licenses/APL.txt.
- */
-
-// package raw.runtime.truffle.runtime.data_structures.map;
+///*
+// * Copyright 2023 RAW Labs S.A.
+// *
+// * Use of this software is governed by the Business Source License
+// * included in the file licenses/BSL.txt.
+// *
+// * As of the Change Date specified in that file, in accordance with
+// * the Business Source License, use of this software will be governed
+// * by the Apache License, Version 2.0, included in the file
+// * licenses/APL.txt.
+// */
 //
-// import com.oracle.truffle.api.dsl.*;
-// import com.oracle.truffle.api.library.CachedLibrary;
-// import com.oracle.truffle.api.nodes.Node;
-// import com.oracle.truffle.api.nodes.NodeInfo;
-// import com.oracle.truffle.api.nodes.UnexpectedResultException;
-// import com.oracle.truffle.api.object.DynamicObjectLibrary;
-// import raw.runtime.truffle.RawLanguage;
-// import raw.runtime.truffle.runtime.data_structures.PropertyType;
-// import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-// import raw.runtime.truffle.runtime.operators.OperatorNodes;
+//package raw.runtime.truffle.runtime.data_structures.map;
 //
-// import java.util.Arrays;
+//import com.oracle.truffle.api.dsl.*;
+//import com.oracle.truffle.api.library.CachedLibrary;
+//import com.oracle.truffle.api.nodes.Node;
+//import com.oracle.truffle.api.nodes.NodeInfo;
+//import com.oracle.truffle.api.nodes.UnexpectedResultException;
+//import com.oracle.truffle.api.object.DynamicObjectLibrary;
+//import raw.runtime.truffle.PropertyType;
+//import raw.runtime.truffle.RawLanguage;
+//import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+//import raw.runtime.truffle.runtime.operators.OperatorNodes;
 //
-// import static raw.runtime.truffle.runtime.data_structures.PropertyType.*;
-// import static raw.runtime.truffle.runtime.data_structures.PropertyType.OBJECT_TYPE;
+//import static raw.runtime.truffle.PropertyType.*;
 //
-// public class MapNodes {
+//public class MapNodes {
 //  @NodeInfo(shortName = "Map.Add")
 //  @GenerateUncached
 //  @GenerateInline
@@ -218,4 +215,4 @@
 //      return valuesLibrary.getOrDefault(mapObject, key, null);
 //    }
 //  }
-// }
+//}
