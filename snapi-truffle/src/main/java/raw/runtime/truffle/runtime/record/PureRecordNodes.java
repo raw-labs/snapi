@@ -33,7 +33,7 @@ public class PureRecordNodes {
 
     public abstract Object execute(Node node, PureRecord record, String key, Object value);
 
-    @Specialization(limit = "3")
+    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
     static Object exec(
         Node node,
         PureRecord pureRecord,
@@ -45,27 +45,12 @@ public class PureRecordNodes {
         @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
-      if (existNode.execute(thisNode, pureRecord, key)) {
-        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
-        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
-        for (Object ikey : keys) {
-          newRecord =
-              addPropNode.execute(
-                  thisNode,
-                  newRecord,
-                  (String) ikey,
-                  getValueNode.execute(thisNode, pureRecord, ikey));
-        }
-        addPropNode.execute(thisNode, newRecord, key, item);
-        return newRecord;
-      }
-
       valuesLibrary.putInt(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, INT_TYPE);
       return pureRecord;
     }
 
-    @Specialization(limit = "3")
+    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
     static Object exec(
         Node node,
         PureRecord pureRecord,
@@ -77,27 +62,12 @@ public class PureRecordNodes {
         @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
-      if (existNode.execute(thisNode, pureRecord, key)) {
-        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
-        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
-        for (Object ikey : keys) {
-          newRecord =
-              addPropNode.execute(
-                  thisNode,
-                  newRecord,
-                  (String) ikey,
-                  getValueNode.execute(thisNode, pureRecord, ikey));
-        }
-        addPropNode.execute(thisNode, newRecord, key, item);
-        return newRecord;
-      }
-
       valuesLibrary.putLong(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, LONG_TYPE);
       return pureRecord;
     }
 
-    @Specialization(limit = "3")
+    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
     static Object exec(
         Node node,
         PureRecord pureRecord,
@@ -109,28 +79,12 @@ public class PureRecordNodes {
         @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
-
-      if (existNode.execute(thisNode, pureRecord, key)) {
-        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
-        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
-        for (Object ikey : keys) {
-          newRecord =
-              addPropNode.execute(
-                  thisNode,
-                  newRecord,
-                  (String) ikey,
-                  getValueNode.execute(thisNode, pureRecord, ikey));
-        }
-        addPropNode.execute(thisNode, newRecord, key, item);
-        return newRecord;
-      }
-
       valuesLibrary.putDouble(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, DOUBLE_TYPE);
       return pureRecord;
     }
 
-    @Specialization(limit = "3")
+    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
     static Object exec(
         Node node,
         PureRecord pureRecord,
@@ -142,22 +96,34 @@ public class PureRecordNodes {
         @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
-      if (existNode.execute(thisNode, pureRecord, key)) {
-        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
-        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
-        for (Object ikey : keys) {
-          newRecord =
-              addPropNode.execute(
-                  thisNode,
-                  newRecord,
-                  (String) ikey,
-                  getValueNode.execute(thisNode, pureRecord, ikey));
-        }
-        addPropNode.execute(thisNode, newRecord, key, item);
-        return newRecord;
-      }
       valuesLibrary.putWithFlags(pureRecord, key, item, OBJECT_TYPE);
       return pureRecord;
+    }
+
+    @Specialization(limit = "3", guards = "existNode.execute(thisNode, pureRecord, key)")
+    static Object execTransition(
+        Node node,
+        PureRecord pureRecord,
+        String key,
+        Object item,
+        @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
+        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
+        @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      Object[] keys = getKeysNode.execute(thisNode, pureRecord);
+      DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
+      for (Object ikey : keys) {
+        newRecord =
+            addPropNode.execute(
+                thisNode,
+                newRecord,
+                (String) ikey,
+                getValueNode.execute(thisNode, pureRecord, ikey));
+      }
+      addPropNode.execute(thisNode, newRecord, key, item);
+      return newRecord;
     }
   }
 

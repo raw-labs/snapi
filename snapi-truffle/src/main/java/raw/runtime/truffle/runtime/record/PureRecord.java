@@ -22,7 +22,6 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
-import java.util.Arrays;
 import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
@@ -57,7 +56,7 @@ public class PureRecord extends DynamicObject implements TruffleObject {
       @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode,
       @Bind("$node") Node thisNode) {
     Object[] keys = getKeysNode.execute(thisNode, this);
-    return Arrays.copyOf(keys, keys.length, String[].class);
+    return new KeysObject(keys);
   }
 
   @ExportMessage(name = "isMemberReadable")
