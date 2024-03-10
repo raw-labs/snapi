@@ -21,7 +21,6 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.sources.api.SourceContext;
@@ -30,7 +29,6 @@ import raw.sources.api.SourceContext;
 public class GroupByCollection implements TruffleObject {
   final Object iterable;
   final Object keyFun;
-  final RawLanguage language;
   final Rql2TypeWithProperties keyType;
   final Rql2TypeWithProperties rowType;
   private final SourceContext context;
@@ -44,7 +42,6 @@ public class GroupByCollection implements TruffleObject {
       Object keyFun,
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
-      RawLanguage language,
       SourceContext context,
       MaterializedFrame frame,
       int generatorSlot,
@@ -52,7 +49,6 @@ public class GroupByCollection implements TruffleObject {
       int mapSlot) {
     this.iterable = iterable;
     this.keyFun = keyFun;
-    this.language = language;
     this.keyType = kType;
     this.rowType = rowType;
     this.context = context;
@@ -80,10 +76,6 @@ public class GroupByCollection implements TruffleObject {
 
   public SourceContext getContext() {
     return context;
-  }
-
-  public RawLanguage getLang() {
-    return language;
   }
 
   public MaterializedFrame getFrame() {

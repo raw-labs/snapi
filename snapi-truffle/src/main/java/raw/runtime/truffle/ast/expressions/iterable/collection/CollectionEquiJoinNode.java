@@ -16,8 +16,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.EquiJoinCollection;
 
@@ -79,8 +77,6 @@ public class CollectionEquiJoinNode extends ExpressionNode {
         rightValueType,
         keyType,
         remapF,
-        RawLanguage.get(this),
-        RawContext.get(this).getSourceContext(),
         frame.materialize(),
         computeNextSlot,
         shouldContinueSlot,

@@ -24,11 +24,12 @@ import scala.collection.mutable
  */
 class RuntimeContext(
     val sourceContext: SourceContext,
-    val settings: RawSettings,
     val environment: ProgramEnvironment
 ) {
 
   private val zoneID = ZoneId.of("UTC")
+
+  final val settings: RawSettings = sourceContext.settings
 
   final val currentTimestamp: LocalDateTime = LocalDateTime.now(zoneID)
 
@@ -42,12 +43,10 @@ class RuntimeContext(
 
   final def cloneWith(
       newSourceContext: SourceContext = sourceContext,
-      newSettings: RawSettings = settings,
       newEnvironment: ProgramEnvironment = environment
   ): RuntimeContext = {
     new RuntimeContext(
       newSourceContext,
-      newSettings,
       newEnvironment
     )
   }

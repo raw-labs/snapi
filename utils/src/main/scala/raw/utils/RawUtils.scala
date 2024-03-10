@@ -100,22 +100,26 @@ object RawUtils extends StrictLogging {
     System.getProperty("os.name").toLowerCase().contains("mac os x")
   }
 
-  def withSuppressNonFatalException(f: => Unit): Unit = {
+  def withSuppressNonFatalException(f: => Unit, silent: Boolean = false): Unit = {
     if (Thread.interrupted()) {
       throw new InterruptedException()
     }
     try {
       f
     } catch {
-      case NonFatal(t) => logger.warn("Suppressing uncaught exception: ", t)
+      case NonFatal(t) => if (!silent) {
+          logger.warn("Suppressing uncaught exception: ", t)
+        }
     }
   }
 
-  def withSuppressNonFatalExceptionUninterruptible(f: => Unit): Unit = {
+  def withSuppressNonFatalExceptionUninterruptible(f: => Unit, silent: Boolean = false): Unit = {
     try {
       f
     } catch {
-      case NonFatal(t) => logger.warn("Suppressing uncaught exception: ", t)
+      case NonFatal(t) => if (!silent) {
+          logger.warn("Suppressing uncaught exception: ", t)
+        }
     }
   }
 

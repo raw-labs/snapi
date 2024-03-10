@@ -21,7 +21,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 
@@ -50,7 +49,6 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
         keyFun,
         getKeyType(),
         getRowType(),
-        RawLanguage.get(this),
         RawContext.get(this).getSourceContext(),
         frame.materialize(),
         generatorSlot,

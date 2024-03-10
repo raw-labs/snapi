@@ -20,9 +20,6 @@ import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodes;
-import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
 import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRListEquiJoinInitBodyNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRListFromBodyNode;
@@ -66,14 +63,6 @@ public class ListGroupByNode extends ExpressionNode {
   @Child
   OffHeapNodes.OffHeapGeneratorNode generatorNode =
       OffHeapNodesFactory.OffHeapGeneratorNodeGen.create();
-
-  @Child
-  private ArrayOperationNodes.ArrayBuildNode arrayBuildNode =
-      ArrayOperationNodesFactory.ArrayBuildNodeGen.create();
-
-  @Child
-  private ArrayOperationNodes.ArrayBuildListNode arrayBuildListNode =
-      ArrayOperationNodesFactory.ArrayBuildListNodeGen.create();
 
   private final Rql2TypeWithProperties rowType;
   private final Rql2TypeWithProperties keyType;
@@ -125,12 +114,7 @@ public class ListGroupByNode extends ExpressionNode {
     Object iterable = toIterableNode.execute(this, input);
     SourceContext context = RawContext.get(this).getSourceContext();
     OffHeapGroupByKey map =
-        new OffHeapGroupByKey(
-            this.keyType,
-            this.rowType,
-            RawLanguage.get(this),
-            context,
-            new RecordShaper(RawLanguage.get(this), true));
+        new OffHeapGroupByKey(this.keyType, this.rowType, context, new RecordShaper(true));
     Object generator = getGeneratorNode.execute(this, iterable);
     try {
       generatorInitNode.execute(this, generator);

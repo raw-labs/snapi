@@ -91,10 +91,7 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
         if (computeNext.getReadRight() < computeNext.getSpilledRight()) {
           computeNext.setRightRow(
               kryoReadNode.execute(
-                  this,
-                  computeNext.getLanguage(),
-                  computeNext.getKryoRight(),
-                  computeNext.getRightRowType()));
+                  this, computeNext.getKryoRight(), computeNext.getRightRowType()));
           boolean pass;
           if (computeNext.getReshapeBeforePredicate()) {
             row =

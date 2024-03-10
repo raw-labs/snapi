@@ -15,21 +15,16 @@ package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.TreeMap;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
 
 public class OffHeapGroupByKeys {
-
-  private final RawLanguage language;
-
   private final int[] keyOrderings;
-  private final TreeMap<Object[], ArrayList<Object>>
-      memMap; // in-memory map from arrays of keys to array of rows.
+  private final TreeMapObject memMap; // in-memory map from arrays of keys to array of rows.
   private final ArrayList<File> spilledBuffers =
       new ArrayList<>(); // list of files that contain the spilled data.
   private final long maxSize; // maximum size of a spilled file.
@@ -76,9 +71,8 @@ public class OffHeapGroupByKeys {
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
       int[] keyOrderings,
-      RawLanguage language,
       SourceContext context) {
-    this.memMap = new TreeMap<>(this::compareKeys);
+    this.memMap = new TreeMapObject();
     this.keyTypes = kTypes;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);
@@ -90,15 +84,10 @@ public class OffHeapGroupByKeys {
     this.kryoInputBufferSize =
         (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     this.context = context;
-    this.language = language;
     this.keyOrderings = keyOrderings;
   }
 
-  public RawLanguage getLanguage() {
-    return language;
-  }
-
-  public TreeMap<Object[], ArrayList<Object>> getMemMap() {
+  public TreeMapObject getMemMap() {
     return memMap;
   }
 
@@ -144,5 +133,9 @@ public class OffHeapGroupByKeys {
 
   public void setSize(int size) {
     this.size = size;
+  }
+
+  public int[] getKeyOrderings() {
+    return keyOrderings;
   }
 }

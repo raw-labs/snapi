@@ -17,7 +17,6 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.TreeSet;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
@@ -40,16 +39,13 @@ public class OffHeapDistinct {
 
   private final SourceContext context;
 
-  private final RawLanguage language;
-
   @TruffleBoundary // Needed because of SourceContext
-  public OffHeapDistinct(Rql2TypeWithProperties vType, RawLanguage rl, SourceContext context) {
+  public OffHeapDistinct(Rql2TypeWithProperties vType, SourceContext context) {
     this.index = new TreeSet<>(OperatorNodesFactory.CompareUninlinedNodeGen.getUncached()::execute);
     this.itemType = vType;
     this.itemSize = KryoFootPrint.of(vType);
     this.binarySize = 0;
     this.blockSize = context.settings().getMemorySize("raw.runtime.external.disk-block-max-size");
-    this.language = rl;
     this.kryoOutputBufferSize =
         (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
     this.kryoInputBufferSize =
@@ -95,9 +91,5 @@ public class OffHeapDistinct {
 
   public SourceContext getContext() {
     return context;
-  }
-
-  public RawLanguage getLanguage() {
-    return language;
   }
 }

@@ -22,6 +22,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
@@ -82,10 +83,14 @@ public class GeneratorNodes {
         GroupByMemoryGenerator generator,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("reshape") RecordShaperNodes.MakeRowNode reshape) {
-      Object key = generator.getKeys().next();
-      ArrayList<Object> values = generator.getOffHeapGroupByKey().getMemMap().get(key);
+      TreeMapNode treeNode = generator.getTreeNodesIterator().nextNode();
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
       return reshape.execute(
-          thisNode, generator.getOffHeapGroupByKey().getReshape(), key, values.toArray());
+          thisNode,
+          generator.getOffHeapGroupByKey().getReshape(),
+          treeNode.getKey(),
+          values.toArray());
     }
 
     @Specialization
@@ -148,10 +153,10 @@ public class GeneratorNodes {
       Object n;
       if (generator.getValues() == null) {
         // no iterator over the values, create one from the next key.
-        Object[] keys = generator.getKeysIterator().next();
-        generator.setValues(
-            Arrays.stream(generator.getOffHeapGroupByKeys().getMemMap().get(keys).toArray())
-                .iterator());
+        TreeMapNode treeNode = generator.getNodeIterator().nextNode();
+        @SuppressWarnings("unchecked")
+        ArrayList<Object> value = (ArrayList<Object>) treeNode.getValue();
+        generator.setValues(Arrays.stream(value.toArray()).iterator());
       }
       n = generator.getValues().next();
       if (!generator.getValues().hasNext()) {
@@ -169,7 +174,7 @@ public class GeneratorNodes {
         @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
         @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
         @Cached @Cached.Shared("read") InputBufferNodes.InputBufferReadNode readNode,
-        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
+        @Cached OperatorNodes.CompareKeys keysCompare) {
       if (generator.getCurrentKryoBuffer() == null) {
         // we need to read the next keys and prepare the new buffer to read from.
         Object[] keys = null;
@@ -178,7 +183,13 @@ public class GeneratorNodes {
           OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
           try {
             Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
-            if (keys == null || keyCompare.execute(thisNode, bufferKeys, keys) < 0) {
+            if (keys == null
+                || keysCompare.execute(
+                        thisNode,
+                        bufferKeys,
+                        keys,
+                        generator.getOffHeapGroupByKeys().getKeyOrderings())
+                    < 0) {
               keys = bufferKeys;
             }
           } catch (KryoException e) {
@@ -195,7 +206,9 @@ public class GeneratorNodes {
         // memory.
         for (OrderByInputBuffer inputBuffer : generator.getInputBuffers()) {
           Object[] bufferKeys = inputBuffer.getKeys();
-          if (keyCompare.execute(thisNode, keys, bufferKeys) == 0) {
+          if (keysCompare.execute(
+                  thisNode, keys, bufferKeys, generator.getOffHeapGroupByKeys().getKeyOrderings())
+              == 0) {
             generator.setCurrentKryoBuffer(inputBuffer);
             break;
           }
@@ -229,11 +242,7 @@ public class GeneratorNodes {
           Input buffer = generator.getKryoBuffers().get(idx);
           try {
             bufferKey =
-                reader.execute(
-                    thisNode,
-                    generator.getOffHeapDistinct().getLanguage(),
-                    buffer,
-                    generator.getOffHeapDistinct().getItemType());
+                reader.execute(thisNode, buffer, generator.getOffHeapDistinct().getItemType());
           } catch (KryoException e) {
             // we reached the end of that buffer
             // remove both the buffer and its key from the lists
@@ -303,7 +312,7 @@ public class GeneratorNodes {
 
     @Specialization
     static boolean hasNext(Node node, GroupByMemoryGenerator generator) {
-      return generator.getKeys().hasNext();
+      return generator.getTreeNodesIterator().hasNext();
     }
 
     @Specialization
@@ -335,7 +344,7 @@ public class GeneratorNodes {
 
     @Specialization
     static boolean hasNext(Node node, OrderByMemoryGenerator generator) {
-      return generator.getKeysIterator().hasNext() || generator.getValues() != null;
+      return generator.getNodeIterator().hasNext() || generator.getValues() != null;
     }
 
     @Specialization
@@ -345,7 +354,7 @@ public class GeneratorNodes {
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
         @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
-        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
+        @Cached OperatorNodes.CompareKeys keysCompare) {
       // we need to read the next keys and prepare the new buffer to read from.
       Object[] keys = null;
       // read missing keys and compute the smallest
@@ -353,7 +362,13 @@ public class GeneratorNodes {
         OrderByInputBuffer inputBuffer = generator.getInputBuffers().get(idx);
         try {
           Object[] bufferKeys = (Object[]) headKeyNode.execute(thisNode, inputBuffer);
-          if (keys == null || keyCompare.execute(thisNode, bufferKeys, keys) < 0) {
+          if (keys == null
+              || keysCompare.execute(
+                      thisNode,
+                      bufferKeys,
+                      keys,
+                      generator.getOffHeapGroupByKeys().getKeyOrderings())
+                  < 0) {
             keys = bufferKeys;
           }
         } catch (KryoException e) {
@@ -387,11 +402,7 @@ public class GeneratorNodes {
           Input buffer = generator.getKryoBuffers().get(idx);
           try {
             bufferKey =
-                reader.execute(
-                    thisNode,
-                    generator.getOffHeapDistinct().getLanguage(),
-                    buffer,
-                    generator.getOffHeapDistinct().getItemType());
+                reader.execute(thisNode, buffer, generator.getOffHeapDistinct().getItemType());
           } catch (KryoException e) {
             // we reached the end of that buffer
             // remove both the buffer and its key from the lists

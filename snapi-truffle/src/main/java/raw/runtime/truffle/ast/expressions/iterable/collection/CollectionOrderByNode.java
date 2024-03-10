@@ -19,7 +19,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
@@ -80,7 +79,6 @@ public class CollectionOrderByNode extends ExpressionNode {
         orders,
         keyTypes,
         valueType,
-        RawLanguage.get(this),
         RawContext.get(this).getSourceContext(),
         frame.materialize(),
         generatorSlot,

@@ -17,6 +17,7 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait BenchmarkTests extends CompilerTestContext {
 
   property("raw.training-wheels", "false")
+  property("raw.runtime.external.disk-block-max-size", "500MB")
 
   //testing if the code is running
   //  test(

@@ -21,7 +21,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 
@@ -64,7 +63,6 @@ public abstract class CollectionJoinNode extends ExpressionNode {
         getRightType(),
         getReshapeBeforePredicate(),
         RawContext.get(this).getSourceContext(),
-        RawLanguage.get(this),
         frame.materialize(),
         computeNextSlot,
         shouldContinueSlot,

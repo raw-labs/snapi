@@ -21,7 +21,6 @@ import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.JoinComputeNext;
@@ -35,7 +34,6 @@ public class JoinCollection implements TruffleObject {
   final Object predicate, remap;
   final Rql2TypeWithProperties rightType;
   final SourceContext context;
-  final RawLanguage language;
   private final Boolean reshapeBeforePredicate;
   private final MaterializedFrame frame;
   private final int computeNextSlot;
@@ -52,7 +50,6 @@ public class JoinCollection implements TruffleObject {
       Rql2TypeWithProperties rightType,
       Boolean reshapeBeforePredicate,
       SourceContext context,
-      RawLanguage language,
       MaterializedFrame frame,
       int computeNextSlot,
       int shouldContinueSlot,
@@ -65,7 +62,6 @@ public class JoinCollection implements TruffleObject {
     this.predicate = predicate;
     this.rightType = rightType;
     this.context = context;
-    this.language = language;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
     this.frame = frame;
     this.computeNextSlot = computeNextSlot;
@@ -85,7 +81,6 @@ public class JoinCollection implements TruffleObject {
             reshapeBeforePredicate,
             rightType,
             context,
-            language,
             frame,
             computeNextSlot,
             shouldContinueSlot,
