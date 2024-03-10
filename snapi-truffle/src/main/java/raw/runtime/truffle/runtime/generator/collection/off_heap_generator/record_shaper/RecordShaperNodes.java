@@ -50,7 +50,7 @@ public class RecordShaperNodes {
         Object[] values,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("addProp") RecordNodes.AddPropNode addPropNode) {
-      Object record =  RawLanguage.get(thisNode).createPureRecord();
+      Object record = RawLanguage.get(thisNode).createPureRecord();
       record = addPropNode.execute(node, record, "key", key);
       record = addPropNode.execute(node, record, "group", new ObjectList(values));
       return record;

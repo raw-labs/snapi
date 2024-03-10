@@ -22,9 +22,8 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
-import raw.runtime.truffle.RawLanguage;
-
 import java.util.Arrays;
+import raw.runtime.truffle.RawLanguage;
 
 @ExportLibrary(InteropLibrary.class)
 public class PureRecord extends DynamicObject implements TruffleObject {

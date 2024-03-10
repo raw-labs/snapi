@@ -1,5 +1,7 @@
 package raw.runtime.truffle.runtime.record;
 
+import static raw.runtime.truffle.PropertyType.*;
+
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
@@ -7,11 +9,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import raw.runtime.truffle.PropertyType;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-
-import static raw.runtime.truffle.PropertyType.*;
-import static raw.runtime.truffle.PropertyType.OBJECT_TYPE;
 
 public class DuplicateKeyRecordNodes {
   @NodeInfo(shortName = "DuplicateKeyRecord.AddPropNode")

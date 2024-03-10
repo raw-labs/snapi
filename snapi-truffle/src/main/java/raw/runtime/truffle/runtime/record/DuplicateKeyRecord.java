@@ -23,11 +23,10 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
 import com.oracle.truffle.api.object.Shape;
-import raw.runtime.truffle.RawLanguage;
-import raw.utils.RecordFieldsNaming;
-
 import java.util.Arrays;
 import java.util.Vector;
+import raw.runtime.truffle.RawLanguage;
+import raw.utils.RecordFieldsNaming;
 
 @ExportLibrary(InteropLibrary.class)
 public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
