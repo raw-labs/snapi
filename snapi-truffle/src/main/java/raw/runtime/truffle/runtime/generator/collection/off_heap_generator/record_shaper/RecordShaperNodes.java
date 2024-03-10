@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.reco
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 
@@ -34,7 +35,7 @@ public class RecordShaperNodes {
         Object[] values,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("addProp") RecordNodes.AddPropNode addPropNode) {
-      Object record = shaper.getLanguage().createPureRecord();
+      Object record = RawLanguage.get(thisNode).createPureRecord();
       record = addPropNode.execute(thisNode, record, "key", key);
       record = addPropNode.execute(thisNode, record, "group", new ObjectList(values).toIterable());
 
@@ -47,11 +48,11 @@ public class RecordShaperNodes {
         RecordShaper shaper,
         Object key,
         Object[] values,
+        @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("addProp") RecordNodes.AddPropNode addPropNode) {
-      Object record = shaper.getLanguage().createPureRecord();
+      Object record =  RawLanguage.get(thisNode).createPureRecord();
       record = addPropNode.execute(node, record, "key", key);
       record = addPropNode.execute(node, record, "group", new ObjectList(values));
-
       return record;
     }
 

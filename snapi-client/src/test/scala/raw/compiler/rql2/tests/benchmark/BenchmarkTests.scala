@@ -47,7 +47,7 @@ trait BenchmarkTests extends CompilerTestContext {
       |    finalResult = Collection.Filter(result, (r) -> r.total_payed > 6000000)
       |in
       |    Collection.Count(finalResult)""".stripMargin
-  )(_ should evaluateTo("[]"))
+  )(_ should evaluateTo("9L"))
 
   test("Range Join File with db test") { _ =>
     assume(true, "This test is disabled by default")

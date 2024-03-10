@@ -61,10 +61,7 @@ public class InputBufferNodes {
       if (buffer.getKey() == null) {
         buffer.setKey(
             kryoRead.execute(
-                thisNode,
-                buffer.getOffHeapGroupByKey().getLanguage(),
-                buffer.getInput(),
-                buffer.getOffHeapGroupByKey().getKeyType()));
+                thisNode, buffer.getInput(), buffer.getOffHeapGroupByKey().getKeyType()));
         buffer.setItemsLeftFromInput();
       }
       return buffer.getKey();
@@ -81,12 +78,7 @@ public class InputBufferNodes {
         Rql2TypeWithProperties[] keyTypes = buffer.getOffHeapGroupByKey().getKeyTypes();
         Object[] keys = new Object[keyTypes.length];
         for (int i = 0; i < keyTypes.length; i++) {
-          keys[i] =
-              kryoRead.execute(
-                  thisNode,
-                  buffer.getOffHeapGroupByKey().getLanguage(),
-                  buffer.getInput(),
-                  keyTypes[i]);
+          keys[i] = kryoRead.execute(thisNode, buffer.getInput(), keyTypes[i]);
         }
         buffer.setKeys(keys);
         buffer.setItemsLeftFromInput();
@@ -113,10 +105,7 @@ public class InputBufferNodes {
         buffer.setKey(null);
       }
       return kryoRead.execute(
-          thisNode,
-          buffer.getOffHeapGroupByKey().getLanguage(),
-          buffer.getInput(),
-          buffer.getOffHeapGroupByKey().getRowType());
+          thisNode, buffer.getInput(), buffer.getOffHeapGroupByKey().getRowType());
     }
 
     @Specialization
@@ -130,10 +119,7 @@ public class InputBufferNodes {
         buffer.setKeys(null);
       }
       return kryoRead.execute(
-          thisNode,
-          buffer.getOffHeapGroupByKey().getLanguage(),
-          buffer.getInput(),
-          buffer.getOffHeapGroupByKey().getRowType());
+          thisNode, buffer.getInput(), buffer.getOffHeapGroupByKey().getRowType());
     }
   }
 }

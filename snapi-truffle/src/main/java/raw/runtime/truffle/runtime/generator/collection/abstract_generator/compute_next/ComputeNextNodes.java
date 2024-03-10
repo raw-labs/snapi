@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
@@ -711,8 +712,7 @@ public class ComputeNextNodes {
           new OffHeapGroupByKey(
               computeNext.getKeyType(),
               computeNext.getLeftRowType(),
-              computeNext.getLanguage(),
-              computeNext.getContext(),
+              RawContext.get(thisNode).getSourceContext(),
               null);
       Object leftGenerator = getGenerator.execute(thisNode, computeNext.getLeftIterable());
       try {
@@ -732,8 +732,7 @@ public class ComputeNextNodes {
           new OffHeapGroupByKey(
               computeNext.getKeyType(),
               computeNext.getRightRowType(),
-              computeNext.getLanguage(),
-              computeNext.getContext(),
+              RawContext.get(thisNode).getSourceContext(),
               null);
       Object rightGenerator = getGenerator.execute(thisNode, computeNext.getRightIterable());
       try {

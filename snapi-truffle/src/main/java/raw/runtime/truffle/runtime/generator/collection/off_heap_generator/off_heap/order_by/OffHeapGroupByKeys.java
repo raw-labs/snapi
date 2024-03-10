@@ -16,7 +16,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
@@ -24,9 +23,6 @@ import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
 
 public class OffHeapGroupByKeys {
-
-  private final RawLanguage language;
-
   private final int[] keyOrderings;
   private final TreeMapObject memMap; // in-memory map from arrays of keys to array of rows.
   private final ArrayList<File> spilledBuffers =
@@ -75,7 +71,6 @@ public class OffHeapGroupByKeys {
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
       int[] keyOrderings,
-      RawLanguage language,
       SourceContext context) {
     this.memMap = new TreeMapObject();
     this.keyTypes = kTypes;
@@ -89,12 +84,7 @@ public class OffHeapGroupByKeys {
     this.kryoInputBufferSize =
         (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     this.context = context;
-    this.language = language;
     this.keyOrderings = keyOrderings;
-  }
-
-  public RawLanguage getLanguage() {
-    return language;
   }
 
   public TreeMapObject getMemMap() {
