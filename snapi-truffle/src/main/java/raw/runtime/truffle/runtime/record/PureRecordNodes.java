@@ -28,11 +28,21 @@ public class PureRecordNodes {
         String key,
         int item,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
+        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @Cached @Cached.Shared("addField") RecordNodes.AddConcatedFieldNode addFieldNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       if (existNode.execute(thisNode, pureRecord, key)) {
-        return addFieldNode.execute(thisNode, pureRecord, key, item);
+        DuplicateKeyRecord duplicateKeyRecord =
+            RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
+        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        for (Object ikey : keys) {
+          addPropNode.execute(
+              thisNode, newRecord, (String) ikey, getValueNode.execute(thisNode, pureRecord, key));
+        }
+        return duplicateKeyRecord;
       }
 
       valuesLibrary.putInt(pureRecord, key, item);
@@ -47,11 +57,21 @@ public class PureRecordNodes {
         String key,
         long item,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
+        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @Cached @Cached.Shared("addField") RecordNodes.AddConcatedFieldNode addFieldNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       if (existNode.execute(thisNode, pureRecord, key)) {
-        return addFieldNode.execute(thisNode, pureRecord, key, item);
+        DuplicateKeyRecord duplicateKeyRecord =
+            RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
+        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        for (Object ikey : keys) {
+          addPropNode.execute(
+              thisNode, newRecord, (String) ikey, getValueNode.execute(thisNode, pureRecord, key));
+        }
+        return duplicateKeyRecord;
       }
 
       valuesLibrary.putLong(pureRecord, key, item);
@@ -66,12 +86,22 @@ public class PureRecordNodes {
         String key,
         double item,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
+        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @Cached @Cached.Shared("addField") RecordNodes.AddConcatedFieldNode addFieldNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
 
       if (existNode.execute(thisNode, pureRecord, key)) {
-        return addFieldNode.execute(thisNode, pureRecord, key, item);
+        DuplicateKeyRecord duplicateKeyRecord =
+            RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
+        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        for (Object ikey : keys) {
+          addPropNode.execute(
+              thisNode, newRecord, (String) ikey, getValueNode.execute(thisNode, pureRecord, key));
+        }
+        return duplicateKeyRecord;
       }
 
       valuesLibrary.putDouble(pureRecord, key, item);
@@ -86,11 +116,21 @@ public class PureRecordNodes {
         String key,
         Object item,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("getValue") PureRecordNodes.GetValueNode getValueNode,
+        @Cached @Cached.Shared("getKeys") PureRecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("addProp") DuplicateKeyRecordNodes.AddPropNode addPropNode,
         @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @Cached @Cached.Shared("addField") RecordNodes.AddConcatedFieldNode addFieldNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       if (existNode.execute(thisNode, pureRecord, key)) {
-        return addFieldNode.execute(thisNode, pureRecord, key, item);
+        DuplicateKeyRecord duplicateKeyRecord =
+            RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        Object[] keys = getKeysNode.execute(thisNode, pureRecord);
+        DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
+        for (Object ikey : keys) {
+          addPropNode.execute(
+              thisNode, newRecord, (String) ikey, getValueNode.execute(thisNode, pureRecord, key));
+        }
+        return duplicateKeyRecord;
       }
       valuesLibrary.putWithFlags(pureRecord, key, item, OBJECT_TYPE);
       return pureRecord;

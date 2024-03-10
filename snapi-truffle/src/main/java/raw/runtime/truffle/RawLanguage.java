@@ -41,6 +41,7 @@ import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.inferrer.api.InferrerService;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
@@ -73,13 +74,16 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   private static final RawSettings defaultRawSettings =
       new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
 
-  private final Shape initialRecordShape = Shape.newBuilder().build();
-  private final Shape pureRecord = Shape.newBuilder().build();
-  private final Shape concatenatedRecord = Shape.newBuilder().build();
+  private final Shape pureRecordShape = Shape.newBuilder().build();
+  private final Shape duplicateKeyRecordShape = Shape.newBuilder().build();
 
   // FIXME (msb): Why is this here?
   public PureRecord createPureRecord() {
-    return new PureRecord(pureRecord);
+    return new PureRecord(pureRecordShape);
+  }
+
+  public DuplicateKeyRecord createDuplicateKeyRecord() {
+    return new DuplicateKeyRecord(duplicateKeyRecordShape);
   }
 
   @Override

@@ -14,7 +14,7 @@ package raw.runtime.truffle;
 
 import com.oracle.truffle.api.dsl.TypeSystem;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.ConcatRecord;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 
 @TypeSystem({
@@ -34,6 +34,6 @@ import raw.runtime.truffle.runtime.record.PureRecord;
   TimestampObject.class,
   LocationObject.class,
   PureRecord.class,
-  ConcatRecord.class
+  DuplicateKeyRecord.class
 })
 public abstract class RawTypes {}

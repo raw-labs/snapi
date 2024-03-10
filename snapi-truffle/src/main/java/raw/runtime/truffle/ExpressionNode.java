@@ -20,7 +20,7 @@ import com.oracle.truffle.api.instrumentation.StandardTags;
 import com.oracle.truffle.api.instrumentation.Tag;
 import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.ConcatRecord;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 
 @TypeSystemReference(RawTypes.class)
@@ -102,9 +102,9 @@ public abstract class ExpressionNode extends StatementNode {
     return RawTypesGen.expectPureRecord(executeGeneric(virtualFrame));
   }
 
-  public ConcatRecord executeConcatRecord(VirtualFrame virtualFrame)
+  public DuplicateKeyRecord executeConcatRecord(VirtualFrame virtualFrame)
       throws UnexpectedResultException {
-    return RawTypesGen.expectConcatRecord(executeGeneric(virtualFrame));
+    return RawTypesGen.expectDuplicateKeyRecord(executeGeneric(virtualFrame));
   }
 
   @Override

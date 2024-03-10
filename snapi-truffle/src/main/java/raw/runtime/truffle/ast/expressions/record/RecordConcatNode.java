@@ -18,7 +18,8 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.Vector;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.record.ConcatRecord;
+import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 
 @NodeInfo(shortName = "Record.Concat")
@@ -28,21 +29,29 @@ public abstract class RecordConcatNode extends ExpressionNode {
 
   @Specialization
   protected Object doConcat(
-      Object rec1, Object rec2, @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode) {
+      Object rec1,
+      Object rec2,
+      @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode,
+      @Cached(inline = true) RecordNodes.GetValueNode getValueNode,
+      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
 
-    Vector<String> keys1 = new Vector<>();
-    Vector<String> keys2 = new Vector<>();
+    Object result = RawLanguage.get(this).createPureRecord();
+
     Object[] objKeys1 = getKeysNode.execute(this, rec1);
     Object[] objKeys2 = getKeysNode.execute(this, rec2);
 
     for (Object obj : objKeys1) {
-      keys1.add(obj.toString());
+      result =
+          addPropNode.execute(
+              this, result, (String) obj, getValueNode.execute(this, rec1, (String) obj));
     }
 
     for (Object obj : objKeys2) {
-      keys2.add(obj.toString());
+      result =
+          addPropNode.execute(
+              this, result, (String) obj, getValueNode.execute(this, rec2, (String) obj));
     }
 
-    return new ConcatRecord(rec1, rec2, keys1, keys2);
+    return result;
   }
 }

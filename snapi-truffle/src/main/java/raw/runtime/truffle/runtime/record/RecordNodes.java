@@ -12,16 +12,13 @@
 
 package raw.runtime.truffle.runtime.record;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import raw.runtime.truffle.PropertyType;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
 import java.util.Vector;
 
@@ -51,11 +48,11 @@ public class RecordNodes {
     @Specialization
     static Object exec(
         Node node,
-        ConcatRecord record,
+        DuplicateKeyRecord record,
         String key,
         Object value,
         @Bind("$node") Node thisNode,
-        @Cached ConcatRecordNodes.AddPropNode addPropNode) {
+        @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode) {
       return addPropNode.execute(thisNode, record, key, value);
     }
   }
@@ -78,7 +75,7 @@ public class RecordNodes {
     }
 
     @Specialization
-    static boolean exec(Node node, ConcatRecord record, String key) {
+    static boolean exec(Node node, DuplicateKeyRecord record, String key) {
       return record.keyExist(key);
     }
   }
@@ -103,10 +100,10 @@ public class RecordNodes {
     @Specialization
     static Object exec(
         Node node,
-        ConcatRecord record,
+        DuplicateKeyRecord record,
         String key,
         @Bind("$node") Node thisNode,
-        @Cached ConcatRecordNodes.GetValueNode getValueNode) {
+        @Cached DuplicateKeyRecordNodes.GetValueNode getValueNode) {
       return getValueNode.execute(thisNode, record, key);
     }
   }
@@ -131,10 +128,10 @@ public class RecordNodes {
     @Specialization
     static Object exec(
         Node node,
-        ConcatRecord record,
+        DuplicateKeyRecord record,
         int index,
         @Bind("$node") Node thisNode,
-        @Cached ConcatRecordNodes.GetValueByIndexNode getValueByIndexNode) {
+        @Cached DuplicateKeyRecordNodes.GetValueByIndexNode getValueByIndexNode) {
       return getValueByIndexNode.execute(thisNode, record, index);
     }
   }
@@ -158,9 +155,9 @@ public class RecordNodes {
     @Specialization
     static Object[] exec(
         Node node,
-        ConcatRecord record,
+        DuplicateKeyRecord record,
         @Bind("$node") Node thisNode,
-        @Cached ConcatRecordNodes.GetKeysNode getKeysNode) {
+        @Cached DuplicateKeyRecordNodes.GetKeysNode getKeysNode) {
       return getKeysNode.execute(thisNode, record);
     }
   }
@@ -185,123 +182,56 @@ public class RecordNodes {
     @Specialization
     static Object exec(
         Node node,
-        ConcatRecord record,
+        DuplicateKeyRecord record,
         String key,
         @Bind("$node") Node thisNode,
-        @Cached ConcatRecordNodes.RemovePropNode getKeysNode) {
+        @Cached DuplicateKeyRecordNodes.RemovePropNode getKeysNode) {
       return getKeysNode.execute(thisNode, record, key);
     }
   }
 
-  @NodeInfo(shortName = "Record.AddField")
+  @NodeInfo(shortName = "Record.Clone")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(PropertyType.class)
-  public abstract static class AddConcatedFieldNode extends Node {
+  public abstract static class CloneNode extends Node {
 
-    public abstract Object execute(Node node, Object record, String key, Object value);
+    public abstract Object execute(Node node, Object record);
 
     @Specialization
     static Object exec(
         Node node,
-        Object record,
-        String key,
-        int item,
+        PureRecord record,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getKeysNode") RecordNodes.GetKeysNode getKeysNode,
-        @CachedLibrary(limit = "3") @Cached.Shared("values") DynamicObjectLibrary valuesLibrary) {
-      RawLanguage lang = RawLanguage.get(thisNode);
-      PureRecord newPureRecord = lang.createPureRecord();
-      valuesLibrary.putInt(newPureRecord, key, item);
-      valuesLibrary.setPropertyFlags(newPureRecord, key, INT_TYPE);
-
+        @Cached PureRecordNodes.GetKeysNode getKeysNode,
+        @Cached PureRecordNodes.AddPropNode addPropNode,
+        @Cached PureRecordNodes.GetValueNode getValueNode) {
       Object[] keys = getKeysNode.execute(thisNode, record);
-      Vector<String> stringKeys = new Vector<>();
-      for (Object k : keys) {
-        stringKeys.add((String) k);
+      PureRecord newRecord = RawLanguage.get(thisNode).createPureRecord();
+      for (Object key : keys) {
+        addPropNode.execute(
+            thisNode, newRecord, (String) key, getValueNode.execute(thisNode, record, key));
       }
-
-      Vector<String> newKeys = new Vector<>();
-      newKeys.add(key);
-
-      return new ConcatRecord(record, newPureRecord, stringKeys, newKeys);
+      return newRecord;
     }
 
     @Specialization
     static Object exec(
         Node node,
-        Object record,
-        String key,
-        long item,
+        DuplicateKeyRecord record,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getKeysNode") RecordNodes.GetKeysNode getKeysNode,
-        @CachedLibrary(limit = "3") @Cached.Shared("values") DynamicObjectLibrary valuesLibrary) {
-      RawLanguage lang = RawLanguage.get(thisNode);
-      PureRecord newPureRecord = lang.createPureRecord();
-      valuesLibrary.putLong(newPureRecord, key, item);
-      valuesLibrary.setPropertyFlags(newPureRecord, key, LONG_TYPE);
-
+        @Cached DuplicateKeyRecordNodes.GetKeysNode getKeysNode,
+        @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode,
+        @Cached DuplicateKeyRecordNodes.GetValueNode getValueNode) {
       Object[] keys = getKeysNode.execute(thisNode, record);
-      Vector<String> stringKeys = new Vector<>();
-      for (Object k : keys) {
-        stringKeys.add((String) k);
+      DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
+      for (Object key : keys) {
+        addPropNode.execute(
+            thisNode,
+            newRecord,
+            (String) key,
+            getValueNode.execute(thisNode, record, (String) key));
       }
-
-      Vector<String> newKeys = new Vector<>();
-      newKeys.add(key);
-
-      return new ConcatRecord(record, newPureRecord, stringKeys, newKeys);
-    }
-
-    @Specialization
-    static Object exec(
-        Node node,
-        Object record,
-        String key,
-        double item,
-        @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getKeysNode") RecordNodes.GetKeysNode getKeysNode,
-        @CachedLibrary(limit = "3") @Cached.Shared("values") DynamicObjectLibrary valuesLibrary) {
-      RawLanguage lang = RawLanguage.get(thisNode);
-      PureRecord newPureRecord = lang.createPureRecord();
-      valuesLibrary.putDouble(newPureRecord, key, item);
-      valuesLibrary.setPropertyFlags(newPureRecord, key, DOUBLE_TYPE);
-
-      Object[] keys = getKeysNode.execute(thisNode, record);
-      Vector<String> stringKeys = new Vector<>();
-      for (Object k : keys) {
-        stringKeys.add((String) k);
-      }
-
-      Vector<String> newKeys = new Vector<>();
-      newKeys.add(key);
-
-      return new ConcatRecord(record, newPureRecord, stringKeys, newKeys);
-    }
-
-    @Specialization
-    static Object exec(
-        Node node,
-        Object record,
-        String key,
-        Object item,
-        @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("getKeysNode") RecordNodes.GetKeysNode getKeysNode,
-        @CachedLibrary(limit = "3") @Cached.Shared("values") DynamicObjectLibrary valuesLibrary) {
-      RawLanguage lang = RawLanguage.get(thisNode);
-      PureRecord newPureRecord = lang.createPureRecord();
-      valuesLibrary.putWithFlags(newPureRecord, key, item, OBJECT_TYPE);
-
-      Object[] keys = getKeysNode.execute(thisNode, record);
-      Vector<String> stringKeys = new Vector<>();
-      for (Object k : keys) {
-        stringKeys.add((String) k);
-      }
-
-      Vector<String> newKeys = new Vector<>();
-      newKeys.add(key);
-
-      return new ConcatRecord(record, newPureRecord, stringKeys, newKeys);
+      return newRecord;
     }
   }
 }

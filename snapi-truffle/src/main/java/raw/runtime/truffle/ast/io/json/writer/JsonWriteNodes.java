@@ -31,7 +31,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonWriterRawTruffleException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.ConcatRecord;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 
@@ -486,7 +486,7 @@ public final class JsonWriteNodes {
     @Specialization
     protected static void doWriteRecord(
         Node node,
-        ConcatRecord record,
+        DuplicateKeyRecord record,
         JsonGenerator gen,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("writeAny") WriteAnyJsonParserNode writeAny,

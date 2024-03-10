@@ -16,14 +16,13 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
 import com.oracle.truffle.api.interop.TruffleObject;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
+import com.oracle.truffle.api.object.DynamicObject;
+import com.oracle.truffle.api.object.Shape;
 import raw.runtime.truffle.RawLanguage;
 import raw.utils.RecordFieldsNaming;
 
@@ -31,117 +30,53 @@ import java.util.Arrays;
 import java.util.Vector;
 
 @ExportLibrary(InteropLibrary.class)
-public class ConcatRecord implements TruffleObject {
-  private final Vector<ConcatRecordEntry> keys = new Vector<>();
-  private String[] cachedDistinctKeys;
-  private final Vector<String> cachedKeys = new Vector<>();
+public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
+  private final Vector<String> keys = new Vector<>();
+  private final Vector<String> cachedDistinctKeys = new Vector<>();
   private boolean distinctValid = false;
-  private boolean keysValid = false;
-  private final Object[] records = new Object[3];
 
-  public ConcatRecord(Object record1, Object record2, Vector<String> keys1, Vector<String> keys2) {
-    records[0] = record1;
-    records[1] = record2;
-    records[2] = null;
-    initKeys(keys1, keys2);
+  public DuplicateKeyRecord(Shape shape) {
+    super(shape);
     updateDistinctKeys();
   }
 
-  private void initKeys(Vector<String> keys1, Vector<String> keys2) {
-    for (String k : keys1) {
-      keys.add(new ConcatRecordEntry(0, k));
-      cachedKeys.add(k);
-    }
-    for (String k : keys2) {
-      keys.add(new ConcatRecordEntry(1, k));
-      cachedKeys.add(k);
-    }
-    keysValid = true;
-  }
-
-  private void updateKeys() {
-    if (!keysValid) {
-      cachedKeys.clear();
-      for (ConcatRecordEntry e : keys) {
-        if (!e.isDeleted()) {
-          cachedKeys.add(e.getKey());
-        }
-      }
-      keysValid = true;
-    }
-  }
-
   private void updateDistinctKeys() {
-    if (!keysValid) {
-      updateKeys();
-    }
-    cachedDistinctKeys = RecordFieldsNaming.makeDistinct(cachedKeys).toArray(new String[0]);
+    cachedDistinctKeys.clear();
+    cachedDistinctKeys.addAll(RecordFieldsNaming.makeDistinct(keys));
     distinctValid = true;
-  }
-
-  public Object[] getRecords() {
-    return records;
   }
 
   public String[] getDistinctKeys() {
     if (!distinctValid) {
       updateDistinctKeys();
     }
-    return cachedDistinctKeys;
-  }
-
-  public String[] getKeys() {
-    if (!keysValid) {
-      updateKeys();
-    }
-    return cachedKeys.toArray(new String[0]);
+    return cachedDistinctKeys.toArray(new String[0]);
   }
 
   public boolean keyExist(String key) {
-    if (!keysValid) {
-      updateKeys();
-    }
-    return cachedKeys.contains(key);
+    return keys.contains(key);
   }
 
-  public boolean hasOwnProperties() {
-    return records[2] != null;
+  public int getKeySize() {
+    return keys.size();
   }
 
-  public void setOwnProperties(Object ownPropertiesRecord, String key) {
-    records[2] = ownPropertiesRecord;
-    keys.add(new ConcatRecordEntry(2, key));
-    keysValid = false;
+  public void addKey(String key) {
+    keys.add(key);
     distinctValid = false;
   }
 
-  public Object getOwnProperties() {
-    return records[2];
+  public void removeKey(int index) {
+    keys.remove(index);
+    distinctValid = false;
   }
 
-  public ConcatRecordEntry getEntry(String key) {
-    for (ConcatRecordEntry e : keys) {
-      if (e.getKey().equals(key)) {
-        return e;
-      }
-    }
-    return null;
+  public int getKeyIndex(String key) {
+    return cachedDistinctKeys.indexOf(key);
   }
 
-  public ConcatRecordEntry getEntryByIndex(int index) {
-    return keys.get(index);
-  }
-
-  public ConcatRecord removeKey(String key) {
-    for (ConcatRecordEntry e : keys) {
-      if (e.getKey().equals(key)) {
-        e.setDeleted(true);
-        keysValid = false;
-        distinctValid = false;
-        return this;
-      }
-    }
-    return this;
+  public Object[] getKeys() {
+    return keys.toArray();
   }
 
   @ExportMessage

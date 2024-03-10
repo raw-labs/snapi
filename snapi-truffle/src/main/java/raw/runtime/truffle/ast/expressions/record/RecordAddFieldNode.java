@@ -30,7 +30,9 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
       Object rec,
       String newKey,
       Object newValue,
-      @Cached(inline = true) RecordNodes.AddConcatedFieldNode addFieldNode) {
-    return addFieldNode.execute(this, rec, newKey, newValue);
+      @Cached(inline = true) RecordNodes.CloneNode cloneNode,
+      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
+    Object clone = cloneNode.execute(this, rec);
+    return addPropNode.execute(this, clone, newKey, newValue);
   }
 }

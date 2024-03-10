@@ -14,23 +14,17 @@ package raw.runtime.truffle.runtime.operators;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.ConcatRecord;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.Nullable;
@@ -228,8 +222,8 @@ public class OperatorNodes {
     @Specialization
     static int doRecord(
         Node node,
-        ConcatRecord left,
-        ConcatRecord right,
+        DuplicateKeyRecord left,
+        DuplicateKeyRecord right,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
         @Cached @Cached.Shared("getKey") RecordNodes.GetKeysNode getKeysNode,
