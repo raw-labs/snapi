@@ -28,13 +28,13 @@ public class StaticRecordShapeBuilder {
 
   private static Class<?> rawToJavaType(Rql2TypeWithProperties type) {
     return switch (type) {
-      case Rql2BoolType ignored -> boolean.class;
-      case Rql2ByteType ignored -> byte.class;
-      case Rql2ShortType ignored -> short.class;
-      case Rql2IntType ignored -> int.class;
-      case Rql2LongType ignored -> long.class;
-      case Rql2FloatType ignored -> float.class;
-      case Rql2DoubleType ignored -> double.class;
+      case Rql2BoolType ignored when ignored.props().isEmpty() -> boolean.class;
+      case Rql2ByteType ignored when ignored.props().isEmpty() -> byte.class;
+      case Rql2ShortType ignored when ignored.props().isEmpty() -> short.class;
+      case Rql2IntType ignored when ignored.props().isEmpty() -> int.class;
+      case Rql2LongType ignored when ignored.props().isEmpty() -> long.class;
+      case Rql2FloatType ignored when ignored.props().isEmpty() -> float.class;
+      case Rql2DoubleType ignored when ignored.props().isEmpty() -> double.class;
       default -> Object.class;
     };
   }

@@ -36,26 +36,26 @@ public class StaticRecordObjectField extends StaticProperty {
 
   public void set(StaticObjectRecord staticObject, Object value) {
     switch (type) {
-      case Rql2BoolType ignored -> this.setBoolean(staticObject, (boolean) value);
-      case Rql2ByteType ignored -> this.setByte(staticObject, (byte) value);
-      case Rql2ShortType ignored -> this.setShort(staticObject, (short) value);
-      case Rql2IntType ignored -> this.setInt(staticObject, (int) value);
-      case Rql2LongType ignored -> this.setLong(staticObject, (long) value);
-      case Rql2FloatType ignored -> this.setFloat(staticObject, (float) value);
-      case Rql2DoubleType ignored -> this.setDouble(staticObject, (double) value);
+      case Rql2BoolType ignored when ignored.props().isEmpty() -> this.setBoolean(staticObject, (boolean) value);
+      case Rql2ByteType ignored when ignored.props().isEmpty() -> this.setByte(staticObject, (byte) value);
+      case Rql2ShortType ignored when ignored.props().isEmpty() -> this.setShort(staticObject, (short) value);
+      case Rql2IntType ignored when ignored.props().isEmpty() -> this.setInt(staticObject, (int) value);
+      case Rql2LongType ignored when ignored.props().isEmpty() -> this.setLong(staticObject, (long) value);
+      case Rql2FloatType ignored when ignored.props().isEmpty() -> this.setFloat(staticObject, (float) value);
+      case Rql2DoubleType ignored when ignored.props().isEmpty() -> this.setDouble(staticObject, (double) value);
       default -> this.setObject(staticObject, value);
     }
   }
 
   public Object get(StaticObjectRecord staticObject) {
     return switch (type) {
-      case Rql2BoolType ignored -> this.getBoolean(staticObject);
-      case Rql2ByteType ignored -> this.getByte(staticObject);
-      case Rql2ShortType ignored -> this.getShort(staticObject);
-      case Rql2IntType ignored -> this.getInt(staticObject);
-      case Rql2LongType ignored -> this.getLong(staticObject);
-      case Rql2FloatType ignored -> this.getFloat(staticObject);
-      case Rql2DoubleType ignored -> this.getDouble(staticObject);
+      case Rql2BoolType ignored when ignored.props().isEmpty() -> this.getBoolean(staticObject);
+      case Rql2ByteType ignored when ignored.props().isEmpty() -> this.getByte(staticObject);
+      case Rql2ShortType ignored when ignored.props().isEmpty() -> this.getShort(staticObject);
+      case Rql2IntType ignored when ignored.props().isEmpty() -> this.getInt(staticObject);
+      case Rql2LongType ignored when ignored.props().isEmpty() -> this.getLong(staticObject);
+      case Rql2FloatType ignored when ignored.props().isEmpty() -> this.getFloat(staticObject);
+      case Rql2DoubleType ignored when ignored.props().isEmpty() -> this.getDouble(staticObject);
       default -> this.getObject(staticObject);
     };
   }
