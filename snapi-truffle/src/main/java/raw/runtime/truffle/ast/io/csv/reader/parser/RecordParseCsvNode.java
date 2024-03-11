@@ -18,26 +18,25 @@ import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordNodesFactory;
+import raw.runtime.truffle.runtime.record.*;
 
 @NodeInfo(shortName = "RecordParseCsv")
 public class RecordParseCsvNode extends ExpressionNode {
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
-
   @Children private DirectCallNode[] childDirectCalls;
 
-  private final Rql2AttrType[] columns;
+  private final RecordShapeWithFields shapeWithFields;
 
-  public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
-    this.columns = columns;
+  public RecordParseCsvNode(
+      ProgramExpressionNode[] columnParsers,
+      Rql2AttrType[] columns,
+      RecordShapeWithFields shapeWithFields) {
     this.childDirectCalls = new DirectCallNode[columnParsers.length];
     for (int i = 0; i < columnParsers.length; i++) {
       this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
     }
+    this.shapeWithFields = shapeWithFields;
   }
 
   @Override
@@ -45,13 +44,11 @@ public class RecordParseCsvNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
+    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
     assert (parser.startingNewLine(this));
-    Object record = RawLanguage.get(this).createPureRecord();
-    for (int i = 0; i < columns.length; i++) {
-      String fieldName = columns[i].idn();
+    for (int i = 0; i < shapeWithFields.fields().length; i++) {
       parser.getNextField();
-      Object value = childDirectCalls[i].call(parser);
-      record = addPropNode.execute(this, record, fieldName, value);
+      shapeWithFields.getFieldByIndex(i).set(record, childDirectCalls[i].call(parser));
     }
     parser.finishLine(this);
     return record;

@@ -12,25 +12,40 @@
 
 package raw.compiler.snapi.truffle.builtin.record_extension;
 
+import java.util.Arrays;
 import java.util.List;
+import java.util.Vector;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.RecordAddFieldEntry;
+import raw.compiler.rql2.source.Rql2AttrType;
 import raw.compiler.rql2.source.Rql2RecordType;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.literals.StringNode;
+import raw.runtime.truffle.StaticRecordShapeBuilder;
 import raw.runtime.truffle.ast.expressions.record.RecordAddFieldNodeGen;
+import raw.utils.RecordFieldsNaming;
+import scala.collection.JavaConverters;
 
 public class TruffleRecordAddFieldEntry extends RecordAddFieldEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     Rql2RecordType recordType = (Rql2RecordType) type;
-    String f = recordType.atts().last().idn();
-    StringNode fieldName = new StringNode(f);
-    ExpressionNode value = args.get(1).exprNode();
-    return RecordAddFieldNodeGen.create(args.get(0).exprNode(), fieldName, value);
+
+    Rql2AttrType[] atts =
+        JavaConverters.asJavaCollection(recordType.atts()).stream()
+            .map(a -> (Rql2AttrType) a)
+            .toArray(Rql2AttrType[]::new);
+    Vector<String> keys =
+        new Vector<>(
+            Arrays.asList(Arrays.stream(atts).map(Rql2AttrType::idn).toArray(String[]::new)));
+    Vector<String> distinctKeys = RecordFieldsNaming.makeDistinct(keys);
+
+    return RecordAddFieldNodeGen.create(
+        args.get(0).exprNode(),
+        args.get(1).exprNode(),
+        StaticRecordShapeBuilder.build(rawLanguage, atts, keys, distinctKeys));
   }
 }

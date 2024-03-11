@@ -17,6 +17,7 @@ import com.oracle.truffle.api.frame.FrameSlotKind;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.StaticRecordShapeBuilder;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.parser.*;
 import raw.runtime.truffle.ast.io.json.reader.parser.BinaryParseJsonNodeGen;
@@ -34,9 +35,12 @@ import raw.runtime.truffle.ast.io.json.reader.parser.StringParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.TimeParseJsonNodeGen;
 import raw.runtime.truffle.ast.io.json.reader.parser.TimestampParseJsonNodeGen;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.utils.RecordFieldsNaming;
 import scala.collection.JavaConverters;
 
+import java.util.Arrays;
 import java.util.LinkedHashMap;
+import java.util.Vector;
 
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
 
@@ -112,11 +116,14 @@ public class JsonParser {
                     .map(att -> recurse((Rql2TypeWithProperties) att.tipe(),lang))
                     .toArray(ProgramExpressionNode[]::new);
             JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).forEach(a -> hashMap.put(a.idn(),hashMap.size()));
+
+            Rql2AttrType[] atts = JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new);
+            Vector<String> keys = new Vector<>(Arrays.asList(Arrays.stream(atts).map(Rql2AttrType::idn).toArray(String[]::new)));
+            Vector<String> distinctKeys = RecordFieldsNaming.makeDistinct(keys);
             yield new RecordParseJsonNode(
                     children,
                     hashMap,
-                    JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new)
-            );
+                    StaticRecordShapeBuilder.build(lang, atts, keys, distinctKeys));
           }
           case Rql2ByteType ignored -> ByteParseJsonNodeGen.create();
           case Rql2ShortType ignored -> ShortParseJsonNodeGen.create();

@@ -17,34 +17,30 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordNodesFactory;
+import raw.runtime.truffle.runtime.record.*;
 
 @NodeInfo(shortName = "Record.Build")
 public class RecordBuildNode extends ExpressionNode {
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
+  @Children private final ExpressionNode[] values;
 
-  @Children private final ExpressionNode[] elementNodes;
+  private final RecordShapeWithFields shapeWithFields;
 
-  public RecordBuildNode(ExpressionNode[] elementsNodes) {
-    CompilerAsserts.compilationConstant(elementsNodes.length);
-    // elementsNodes is a an array of k1, v1, k2, v2, ..., kn, vn.
-    assert elementsNodes.length % 2 == 0;
-    this.elementNodes = elementsNodes;
+  public RecordBuildNode(ExpressionNode[] values, RecordShapeWithFields shapeWithFields) {
+    CompilerAsserts.compilationConstant(values.length);
+    this.values = values;
+    this.shapeWithFields = shapeWithFields;
   }
 
   @ExplodeLoop
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object record = RawLanguage.get(this).createPureRecord();
-    for (int i = 0, j = 0; i < elementNodes.length; i += 2, j++) {
-      // i jump by 2 because we have k1, v1, k2, v2, ..., kn, vn.
-      Object key = elementNodes[i].executeGeneric(frame);
-      Object value = elementNodes[i + 1].executeGeneric(frame);
-      record = addPropNode.execute(this, record, (String) key, value);
+    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
+
+    for (int i = 0; i < values.length; i++) {
+      shapeWithFields.getFieldByIndex(i).set(record, values[i].executeGeneric(frame));
     }
+
     return record;
   }
 }

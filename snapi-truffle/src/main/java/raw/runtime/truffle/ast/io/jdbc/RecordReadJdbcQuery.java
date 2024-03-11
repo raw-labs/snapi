@@ -15,40 +15,33 @@ package raw.runtime.truffle.ast.io.jdbc;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
-import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordNodesFactory;
+import raw.runtime.truffle.runtime.record.*;
 
 @NodeInfo(shortName = "Jdbc.RecordRead")
 public class RecordReadJdbcQuery extends ExpressionNode {
-
   @Children private DirectCallNode[] childDirectCalls;
+  private final RecordShapeWithFields shapeWithFields;
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
-
-  private final Rql2AttrType[] columns;
-
-  public RecordReadJdbcQuery(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
-    this.columns = columns;
+  public RecordReadJdbcQuery(
+      ProgramExpressionNode[] columnParsers, RecordShapeWithFields shapeWithFields) {
     this.childDirectCalls = new DirectCallNode[columnParsers.length];
     for (int i = 0; i < columnParsers.length; i++) {
       this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
     }
+    this.shapeWithFields = shapeWithFields;
   }
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    Object record = RawLanguage.get(this).createPureRecord();
-    for (int i = 0; i < columns.length; i++) {
-      String fieldName = columns[i].idn();
+    StaticObjectRecord result = shapeWithFields.shape().getFactory().create(shapeWithFields);
+    for (int i = 0; i < shapeWithFields.fields().length; i++) {
       Object value = childDirectCalls[i].call(rs);
-      record = addPropNode.execute(this, record, fieldName, value);
+      shapeWithFields.getFieldByIndex(i).set(result, value);
     }
-    return record;
+    return result;
   }
 }

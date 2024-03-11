@@ -12,11 +12,10 @@
 
 package raw.runtime.truffle.runtime.record;
 
-import static raw.runtime.truffle.PropertyType.*;
-
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.Arrays;
 import raw.runtime.truffle.RawLanguage;
 
 public class RecordNodes {
@@ -49,6 +48,17 @@ public class RecordNodes {
         @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode) {
       return addPropNode.execute(thisNode, record, key, value);
     }
+
+    @Specialization
+    static Object exec(
+        Node node,
+        StaticObjectRecord record,
+        String key,
+        Object value,
+        @Bind("$node") Node thisNode,
+        @Cached StaticRecordNodes.AddPropNode addPropNode) {
+      return addPropNode.execute(thisNode, record, key, value);
+    }
   }
 
   @NodeInfo(shortName = "Record.Exists")
@@ -71,6 +81,11 @@ public class RecordNodes {
     @Specialization
     static boolean exec(Node node, DuplicateKeyRecord record, String key) {
       return record.keyExist(key);
+    }
+
+    @Specialization
+    static boolean exec(Node node, StaticObjectRecord record, String key) {
+      return record.__shapeRef__.hasFieldByKey(key);
     }
   }
 
@@ -100,6 +115,11 @@ public class RecordNodes {
         @Cached DuplicateKeyRecordNodes.GetValueNode getValueNode) {
       return getValueNode.execute(thisNode, record, key);
     }
+
+    @Specialization
+    static Object exec(Node node, StaticObjectRecord record, String key) {
+      return record.__shapeRef__.getFieldByKey(key).get(record);
+    }
   }
 
   @NodeInfo(shortName = "Record.GetValueByIndex")
@@ -128,6 +148,11 @@ public class RecordNodes {
         @Cached DuplicateKeyRecordNodes.GetValueByIndexNode getValueByIndexNode) {
       return getValueByIndexNode.execute(thisNode, record, index);
     }
+
+    @Specialization
+    static Object exec(Node node, StaticObjectRecord record, int index) {
+      return record.__shapeRef__.getFieldByIndex(index).get(record);
+    }
   }
 
   @NodeInfo(shortName = "Record.GetKeys")
@@ -153,6 +178,13 @@ public class RecordNodes {
         @Bind("$node") Node thisNode,
         @Cached DuplicateKeyRecordNodes.GetKeysNode getKeysNode) {
       return getKeysNode.execute(thisNode, record);
+    }
+
+    @Specialization
+    static Object[] exec(Node node, StaticObjectRecord record) {
+      return Arrays.stream(record.__shapeRef__.fields())
+          .map(StaticRecordObjectField::getDistinctKey)
+          .toArray();
     }
   }
 
@@ -181,6 +213,16 @@ public class RecordNodes {
         @Bind("$node") Node thisNode,
         @Cached DuplicateKeyRecordNodes.RemovePropNode getKeysNode) {
       return getKeysNode.execute(thisNode, record, key);
+    }
+
+    @Specialization
+    static Object exec(
+        Node node,
+        StaticObjectRecord record,
+        String key,
+        @Bind("$node") Node thisNode,
+        @Cached StaticRecordNodes.RemovePropNode removePropNode) {
+      return removePropNode.execute(thisNode, record, key);
     }
   }
 
@@ -228,6 +270,16 @@ public class RecordNodes {
         newRecord.addKey((String) key);
       }
       return newRecord;
+    }
+
+    @Specialization
+    static Object exec(Node node, StaticObjectRecord record) {
+      StaticObjectRecord newObject =
+          record.__shapeRef__.shape().getFactory().create(record.__shapeRef__);
+      for (StaticRecordObjectField field : record.__shapeRef__.fields()) {
+        field.set(newObject, field.get(record));
+      }
+      return newObject;
     }
   }
 }

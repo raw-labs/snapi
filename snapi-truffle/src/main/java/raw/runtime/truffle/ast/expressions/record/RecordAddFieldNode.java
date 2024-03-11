@@ -12,27 +12,35 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordShapeWithFields;
+import raw.runtime.truffle.runtime.record.StaticObjectRecord;
 
 @NodeInfo(shortName = "Record.AddField")
 @NodeChild("inRecordNode")
-@NodeChild("keyNode")
 @NodeChild("valueNode")
+@NodeField(name = "shapeWithFields", type = RecordShapeWithFields.class)
 public abstract class RecordAddFieldNode extends ExpressionNode {
+
+  @Idempotent
+  protected abstract RecordShapeWithFields getShapeWithFields();
 
   @Specialization
   protected Object doAddField(
       Object rec,
-      String newKey,
       Object newValue,
-      @Cached(inline = true) RecordNodes.CloneNode cloneNode,
-      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
-    Object clone = cloneNode.execute(this, rec);
-    return addPropNode.execute(this, clone, newKey, newValue);
+      @Cached(inline = true) RecordNodes.GetValueByIndexNode getValueByIndexNode) {
+    StaticObjectRecord newRecord =
+        getShapeWithFields().shape().getFactory().create(getShapeWithFields());
+    for (int i = 0; i < getShapeWithFields().fields().length - 1; i++) {
+      getShapeWithFields().fields()[i].set(newRecord, getValueByIndexNode.execute(this, rec, i));
+    }
+    getShapeWithFields()
+        .fields()[getShapeWithFields().fields().length - 1]
+        .set(newRecord, newValue);
+    return newRecord;
   }
 }

@@ -24,9 +24,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
-import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodesFactory;
@@ -34,8 +32,7 @@ import raw.runtime.truffle.boundary.RawTruffleBoundaries;
 import raw.runtime.truffle.runtime.exceptions.json.JsonRecordFieldNotFoundException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.primitives.NullObject;
-import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordNodesFactory;
+import raw.runtime.truffle.runtime.record.*;
 
 @NodeInfo(shortName = "RecordParseJson")
 @ImportStatic(RawTruffleBoundaries.class)
@@ -59,19 +56,15 @@ public class RecordParseJsonNode extends ExpressionNode {
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
       JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
 
-  @Child
-  private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.getUncached();
-
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
   private final int fieldsSize;
-  private final Rql2TypeWithProperties[] fieldTypes;
+  private final RecordShapeWithFields shapeWithFields;
 
   public RecordParseJsonNode(
       ProgramExpressionNode[] childProgramExpressionNode,
       LinkedHashMap<String, Integer> fieldNamesMap,
-      Rql2TypeWithProperties[] fieldTypes) {
-    this.fieldTypes = fieldTypes;
+      RecordShapeWithFields shapeWithFields) {
     this.fieldNamesMap = fieldNamesMap;
     this.fieldsSize = childProgramExpressionNode.length;
     this.childDirectCalls = new DirectCallNode[this.fieldsSize];
@@ -79,6 +72,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       this.childDirectCalls[i] =
           DirectCallNode.create(childProgramExpressionNode[i].getCallTarget());
     }
+    this.shapeWithFields = shapeWithFields;
   }
 
   @CompilerDirectives.TruffleBoundary
@@ -104,7 +98,7 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
     nextTokenNode.execute(this, parser);
 
-    Object record = RawLanguage.get(this).createPureRecord();
+    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
 
     // todo: (az) need to find a solution for the array of direct calls,
     // the json object can be out of order, the child nodes cannot be inlined
@@ -114,7 +108,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       nextTokenNode.execute(this, parser); // skip the field name
       if (index != null) {
         setBitSet(currentBitSet, index);
-        record = addPropNode.execute(this, record, fieldName, callChild(index, parser));
+        shapeWithFields.getFieldByIndex(index).set(record, callChild(index, parser));
       } else {
         // skip the field value
         skipNode.execute(this, parser);
@@ -129,12 +123,16 @@ public class RecordParseJsonNode extends ExpressionNode {
       Object[] fields = fieldNamesMap.keySet().toArray();
       for (int i = 0; i < this.fieldsSize; i++) {
         if (!bitSetGet(currentBitSet, i)) {
-          if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
+          if (shapeWithFields
+              .fields()[i]
+              .getType()
+              .props()
+              .contains(Rql2IsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            record = addPropNode.execute(this, record, fields[i].toString(), nullValue);
+            shapeWithFields.getFieldByIndex(i).set(record, nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
           }

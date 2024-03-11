@@ -12,23 +12,37 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordShapeWithFields;
+import raw.runtime.truffle.runtime.record.StaticObjectRecord;
 
 @NodeInfo(shortName = "Record.RemoveField")
 @NodeChild("record")
-@NodeChild("dropKey")
+@NodeField(name = "shapeWithFields", type = RecordShapeWithFields.class)
 public abstract class RecordRemoveFieldNode extends ExpressionNode {
+
+  @Idempotent
+  protected abstract RecordShapeWithFields getShapeWithFields();
 
   @Specialization
   protected Object doRemoveField(
-      Object record,
-      String dropKey,
-      @Cached(inline = true) RecordNodes.RemovePropNode removePropNode) {
-    return removePropNode.execute(this, record, dropKey);
+      Object record, @Cached(inline = true) RecordNodes.GetValueNode getValueNode) {
+
+    StaticObjectRecord newRecord =
+        getShapeWithFields().shape().getFactory().create(getShapeWithFields());
+
+    for (int i = 0; i < getShapeWithFields().fields().length; i++) {
+      getShapeWithFields()
+          .fields()[i]
+          .set(
+              newRecord,
+              getValueNode.execute(
+                  this, record, (String) getShapeWithFields().fields()[i].getDistinctKey()));
+    }
+
+    return newRecord;
   }
 }

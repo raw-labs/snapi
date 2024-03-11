@@ -20,26 +20,20 @@ import java.util.*;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.NullObject;
-import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordNodesFactory;
+import raw.runtime.truffle.runtime.record.*;
 
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
-
-  @Child
-  private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.getUncached();
 
   @Children private DirectCallNode[] childDirectCalls;
 
   // Field name and its index in the childDirectCalls array
   private final int fieldsSize;
   private final String[] fields;
-  private final Rql2TypeWithProperties[] fieldTypes;
   private final Map<String, ArrayList<Object>> collectionValues = new HashMap<>();
   private final Map<String, Integer> fieldsIndex = new HashMap<>();
   private final Map<String, Integer> attributesIndex = new HashMap<>();
@@ -47,11 +41,13 @@ public class RecordParseXmlNode extends ExpressionNode {
   private final BitSet refBitSet;
   private final BitSet bitSet;
 
+  private final RecordShapeWithFields shapeWithFields;
+
   public RecordParseXmlNode(
       ProgramExpressionNode[] childProgramExpressionNode,
       String[] fieldNames,
-      Rql2TypeWithProperties[] fieldTypes) {
-    this.fieldTypes = fieldTypes;
+      RecordShapeWithFields shapeWithFields) {
+    this.shapeWithFields = shapeWithFields;
     this.fields = fieldNames;
     this.fieldsSize = childProgramExpressionNode.length;
     this.childDirectCalls = new DirectCallNode[this.fieldsSize];
@@ -67,7 +63,7 @@ public class RecordParseXmlNode extends ExpressionNode {
         attributesIndex.put(fieldName, index);
       }
       // take note of fields that should be parsed as collections
-      Type fieldType = fieldTypes[index];
+      Type fieldType = shapeWithFields.getFieldByIndex(index).getType();
       if (fieldType instanceof Rql2IterableType || fieldType instanceof Rql2ListType) {
         collectionsIndex.put(fieldName, index);
         refBitSet.set(index);
@@ -93,7 +89,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     bitSet.or(refBitSet);
 
     // the record to be returned
-    Object record = RawLanguage.get(this).createPureRecord();
+    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
 
     Vector<String> attributes = parser.attributes();
     int nAttributes = attributes.size();
@@ -120,10 +116,10 @@ public class RecordParseXmlNode extends ExpressionNode {
       // we're inside the object, so the current token is a field name, or text content if the
       // record has #text.
       if (parser.onStartTag()) {
-        record = parseTagContent(parser, parser.getCurrentName(), record);
+        parseTagContent(parser, parser.getCurrentName(), record);
       } else {
         // on #text
-        record = parseTagContent(parser, "#text", record);
+        parseTagContent(parser, "#text", record);
       }
     }
     parser.expectEndTag(recordTag);
@@ -135,12 +131,12 @@ public class RecordParseXmlNode extends ExpressionNode {
       ArrayList<Object> items = collectionValues.get(fieldName);
       ObjectList list = new ObjectList(items.toArray());
       int index = collectionsIndex.get(fieldName);
-      Type fieldType = fieldTypes[index];
+      Type fieldType = shapeWithFields.getFieldByIndex(index).getType();
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        record = addPropNode.execute(this, record, fieldName, list.toIterable());
+        shapeWithFields.getFieldByKey(fieldName).set(record, list.toIterable());
       } else {
-        record = addPropNode.execute(this, record, fieldName, list);
+        shapeWithFields.getFieldByKey(fieldName).set(record, list);
       }
     }
     // process nullable fields (null when not found)
@@ -150,12 +146,16 @@ public class RecordParseXmlNode extends ExpressionNode {
       for (int i = 0; i < fieldsSize; i++) {
         String fieldName = fields[i];
         if (!bitSet.get(i)) {
-          if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
+          if (shapeWithFields
+              .getFieldByIndex(i)
+              .getType()
+              .props()
+              .contains(Rql2IsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            record = addPropNode.execute(this, record, fieldName, nullValue);
+            shapeWithFields.getFieldByKey(fieldName).set(record, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
           }
@@ -165,35 +165,34 @@ public class RecordParseXmlNode extends ExpressionNode {
     return record;
   }
 
-  private Object parseTagContent(RawTruffleXmlParser parser, String fieldName, Object record) {
+  private void parseTagContent(
+      RawTruffleXmlParser parser, String fieldName, StaticObjectRecord record) {
     Integer index = fieldsIndex.get(fieldName);
     if (index != null) {
-      return applyParser(parser, index, fieldName, record);
+      applyParser(parser, index, fieldName, record);
     } else {
       // skip the whole tag subtree
       parser.skipTag();
-      return record;
     }
   }
 
-  private Object applyParser(
-      RawTruffleXmlParser parser, int index, String fieldName, Object record) {
+  private void applyParser(
+      RawTruffleXmlParser parser, int index, String fieldName, StaticObjectRecord record) {
     Object value = childDirectCalls[index].call(parser);
-    return storeFieldValue(fieldName, index, value, record);
+    storeFieldValue(fieldName, index, value, record);
   }
 
-  private Object storeFieldValue(String fieldName, int index, Object value, Object record) {
+  private void storeFieldValue(
+      String fieldName, int index, Object value, StaticObjectRecord record) {
     ArrayList<Object> collectionField = collectionValues.get(fieldName);
     if (collectionField != null) {
       // if the field is a collection or a list, add the item to the list instead writing it
       // in the
       // record.
       collectionField.add(value);
-      return record;
     } else {
-      Object res = addPropNode.execute(this, record, fieldName, value);
+      shapeWithFields.getFieldByKey(fieldName).set(record, value);
       bitSet.set(index);
-      return res;
     }
   }
 }

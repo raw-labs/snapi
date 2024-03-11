@@ -19,12 +19,17 @@ import raw.compiler.base.source.Type;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.StaticRecordShapeBuilder;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.csv.writer.internal.*;
 import raw.runtime.truffle.ast.io.jdbc.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
+import raw.utils.RecordFieldsNaming;
 import scala.collection.JavaConverters;
+
+import java.util.Arrays;
+import java.util.Vector;
 
 public class Jdbc {
   static public JdbcQueryNode query(
@@ -44,10 +49,14 @@ public class Jdbc {
         JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a)
             .map(att -> columnReader(att.idn(), att.tipe(), lang))
             .toArray(ProgramExpressionNode[]::new);
+
+    Rql2AttrType[] atts = JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new);
+    Vector<String> keys = new Vector<>(Arrays.asList(Arrays.stream(atts).map(Rql2AttrType::idn).toArray(String[]::new)));
+    Vector<String> distinctKeys = RecordFieldsNaming.makeDistinct(keys);
     RecordReadJdbcQuery recordParser =
         new RecordReadJdbcQuery(
             columnParsers,
-            JavaConverters.asJavaCollection(recordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new));
+                StaticRecordShapeBuilder.build(lang, atts, keys, distinctKeys));
     return new JdbcQueryNode(
         location,
         query,

@@ -12,44 +12,48 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordShapeWithFields;
+import raw.runtime.truffle.runtime.record.StaticObjectRecord;
 
 @NodeInfo(shortName = "Record.Concat")
 @NodeChild("record1")
 @NodeChild("record2")
+@NodeField(name = "shapeWithFields", type = RecordShapeWithFields.class)
 public abstract class RecordConcatNode extends ExpressionNode {
+
+  @Idempotent
+  protected abstract RecordShapeWithFields getShapeWithFields();
 
   @Specialization
   protected Object doConcat(
       Object rec1,
       Object rec2,
       @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode,
-      @Cached(inline = true) RecordNodes.GetValueNode getValueNode,
-      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
-
-    Object result = RawLanguage.get(this).createPureRecord();
+      @Cached(inline = true) RecordNodes.GetValueNode getValueNode) {
 
     Object[] objKeys1 = getKeysNode.execute(this, rec1);
     Object[] objKeys2 = getKeysNode.execute(this, rec2);
 
-    for (Object obj : objKeys1) {
-      result =
-          addPropNode.execute(
-              this, result, (String) obj, getValueNode.execute(this, rec1, (String) obj));
+    StaticObjectRecord record =
+        getShapeWithFields().shape().getFactory().create(getShapeWithFields());
+
+    for (int i = 0; i < objKeys1.length; i++) {
+      getShapeWithFields()
+          .getFieldByIndex(i)
+          .set(record, getValueNode.execute(this, rec1, (String) objKeys1[i]));
     }
 
-    for (Object obj : objKeys2) {
-      result =
-          addPropNode.execute(
-              this, result, (String) obj, getValueNode.execute(this, rec2, (String) obj));
+    // with offset of the first
+    for (int i = 0; i < objKeys2.length; i++) {
+      getShapeWithFields()
+          .getFieldByIndex(objKeys1.length + i)
+          .set(record, getValueNode.execute(this, rec2, (String) objKeys2[i]));
     }
 
-    return result;
+    return record;
   }
 }

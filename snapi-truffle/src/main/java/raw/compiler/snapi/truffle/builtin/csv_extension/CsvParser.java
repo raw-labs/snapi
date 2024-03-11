@@ -18,6 +18,7 @@ import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.StaticRecordShapeBuilder;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.expressions.iterable.list.ListBuildNode;
 import raw.runtime.truffle.ast.expressions.literals.IntNode;
@@ -25,13 +26,16 @@ import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.ast.expressions.option.OptionSomeNodeGen;
 import raw.runtime.truffle.ast.io.csv.reader.parser.*;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.utils.RecordFieldsNaming;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashSet;
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.nullable;
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.tryable;
 
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
+import java.util.Vector;
 
 public class CsvParser {
 
@@ -99,9 +103,14 @@ public class CsvParser {
             .map(parser -> new ProgramExpressionNode(lang, new FrameDescriptor(), parser))
             .toArray(ProgramExpressionNode[]::new);
 
+    Rql2AttrType[] atts = JavaConverters.asJavaCollection(rql2RecordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new);
+    Vector<String> keys = new Vector<>(Arrays.asList(Arrays.stream(atts).map(Rql2AttrType::idn).toArray(String[]::new)));
+    Vector<String> distinctKeys = RecordFieldsNaming.makeDistinct(keys);
+
     return new RecordParseCsvNode(
         columnParsers,
-        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new));
+        JavaConverters.seqAsJavaList(rql2RecordType.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new),
+        StaticRecordShapeBuilder.build(lang, atts, keys, distinctKeys));
   }
 
   public ExpressionNode stringParser(
