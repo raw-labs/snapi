@@ -161,15 +161,14 @@ public class XmlRecurse {
                       Arrays.asList(
                           Arrays.stream(atts).map(Rql2AttrType::idn).toArray(String[]::new)));
               Vector<String> distinctKeys = RecordFieldsNaming.makeDistinct(keys);
-              Rql2TypeWithProperties[] fieldTypes =
-                  JavaConverters.asJavaCollection(recordType.atts()).stream()
-                      .map(a -> (Rql2AttrType) a)
+              Rql2TypeWithProperties[] tipes =
+                  JavaConverters.seqAsJavaList(recordType.atts()).stream()
                       .map(a -> (Rql2TypeWithProperties) a.tipe())
                       .toArray(Rql2TypeWithProperties[]::new);
               yield new RecordParseXmlNode(
                   children.toArray(ProgramExpressionNode[]::new),
                   idns,
-                  fieldTypes,
+                  tipes,
                   StaticRecordShapeBuilder.build(lang, atts, keys, distinctKeys));
             }
             default -> {

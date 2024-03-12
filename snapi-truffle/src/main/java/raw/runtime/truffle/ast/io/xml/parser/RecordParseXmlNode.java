@@ -126,7 +126,6 @@ public class RecordParseXmlNode extends ExpressionNode {
     }
     parser.expectEndTag(recordTag);
     parser.nextToken(); // skip the END_OBJECT token
-
     // processing lists and collections
     for (String fieldName : collectionValues.keySet()) {
       // build an object list (for all cases)
@@ -136,9 +135,9 @@ public class RecordParseXmlNode extends ExpressionNode {
       Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        shapeWithFields.getFieldByKey(fieldName).setObject(record, list.toIterable());
+        shapeWithFields.fields[index].setObject(record, list.toIterable());
       } else {
-        shapeWithFields.getFieldByKey(fieldName).setObject(record, list);
+        shapeWithFields.fields[index].setObject(record, list);
       }
     }
     // process nullable fields (null when not found)
@@ -153,7 +152,7 @@ public class RecordParseXmlNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            shapeWithFields.getFieldByKey(fieldName).setObject(record, nullValue);
+            shapeWithFields.fields[i].setObject(record, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
           }
@@ -189,7 +188,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       // record.
       collectionField.add(value);
     } else {
-      shapeWithFields.getFieldByKey(fieldName).setObject(record, value);
+      shapeWithFields.fields[index].setObject(record, value);
       bitSet.set(index);
     }
   }

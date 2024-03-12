@@ -259,9 +259,11 @@ public class OperatorNodes {
         StaticObjectRecord left,
         StaticObjectRecord right,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("compare") CompareNode compare) {
-      Object[] leftKeys = left.__shapeRef__.getKeys();
-      Object[] rightKeys = right.__shapeRef__.getKeys();
+        @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
+        @Cached @Cached.Shared("getKey") RecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("getValue") RecordNodes.GetValueNode getValueNode) {
+      Object[] leftKeys = getKeysNode.execute(thisNode, left);
+      Object[] rightKeys = getKeysNode.execute(thisNode, right);
       if (leftKeys.length > rightKeys.length) {
         return 1;
       } else if (leftKeys.length < rightKeys.length) {
@@ -274,8 +276,8 @@ public class OperatorNodes {
         if (result != 0) {
           return result;
         }
-        Object leftValue = left.__shapeRef__.getFieldByIndex(i).getObject(left);
-        Object rightValue = left.__shapeRef__.getFieldByIndex(i).getObject(rightKey);
+        Object leftValue = getValueNode.execute(thisNode, left, leftKey);
+        Object rightValue = getValueNode.execute(thisNode, right, rightKey);
         result = compare.execute(thisNode, leftValue, rightValue);
         if (result != 0) {
           return result;
