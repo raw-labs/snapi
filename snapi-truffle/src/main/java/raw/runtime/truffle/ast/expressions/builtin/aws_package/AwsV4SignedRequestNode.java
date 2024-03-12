@@ -183,7 +183,7 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
 
       Object[] allHeaders = new Object[allHeadersSize];
 
-      for (int i = 0; i < allHeaders.length; i++) {
+      for (int i = 0; i < headersSize; i++) {
         allHeaders[i] = getNode.execute(this, headers, i);
       }
 
