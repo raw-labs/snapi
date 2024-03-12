@@ -118,7 +118,7 @@ public class RecordNodes {
 
     @Specialization
     static Object exec(Node node, StaticObjectRecord record, String key) {
-      return record.__shapeRef__.getFieldByKey(key).getObject(record);
+      return record.__shapeRef__.getFieldByDistinctKey(key).getObject(record);
     }
   }
 

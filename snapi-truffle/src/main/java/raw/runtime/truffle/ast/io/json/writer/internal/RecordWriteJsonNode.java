@@ -42,7 +42,9 @@ public class RecordWriteJsonNode extends StatementNode {
 
   @Child private RecordNodes.GetKeysNode getKeysNode = RecordNodesFactory.GetKeysNodeGen.create();
 
-  @Child RecordNodes.GetValueNode getValueNode = RecordNodesFactory.GetValueNodeGen.create();
+  @Child
+  RecordNodes.GetValueByIndexNode getValueByIndexNode =
+      RecordNodesFactory.GetValueByIndexNodeGen.create();
 
   public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
     this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
@@ -64,7 +66,7 @@ public class RecordWriteJsonNode extends StatementNode {
 
       writeStartObjectNode.execute(this, gen);
       for (int i = 0; i < childDirectCalls.length; i++) {
-        item = getValueNode.execute(this, record, (String) keys[i]);
+        item = getValueByIndexNode.execute(this, record, i);
         writeFieldNameNode.execute(this, (String) keys[i], gen);
         childDirectCalls[i].call(item, gen);
       }
