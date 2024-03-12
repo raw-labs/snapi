@@ -15,7 +15,7 @@ package raw.runtime.truffle.runtime.record;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import java.util.Arrays;
+import com.oracle.truffle.api.staticobject.DefaultStaticProperty;
 import raw.runtime.truffle.RawLanguage;
 
 public class RecordNodes {
@@ -118,7 +118,7 @@ public class RecordNodes {
 
     @Specialization
     static Object exec(Node node, StaticObjectRecord record, String key) {
-      return record.__shapeRef__.getFieldByKey(key).get(record);
+      return record.__shapeRef__.getFieldByKey(key).getObject(record);
     }
   }
 
@@ -151,7 +151,7 @@ public class RecordNodes {
 
     @Specialization
     static Object exec(Node node, StaticObjectRecord record, int index) {
-      return record.__shapeRef__.getFieldByIndex(index).get(record);
+      return record.__shapeRef__.getFieldByIndex(index).getObject(record);
     }
   }
 
@@ -182,9 +182,7 @@ public class RecordNodes {
 
     @Specialization
     static Object[] exec(Node node, StaticObjectRecord record) {
-      return Arrays.stream(record.__shapeRef__.fields())
-          .map(StaticRecordObjectField::getDistinctKey)
-          .toArray();
+      return record.__shapeRef__.getDistinctKeys();
     }
   }
 
@@ -275,9 +273,9 @@ public class RecordNodes {
     @Specialization
     static Object exec(Node node, StaticObjectRecord record) {
       StaticObjectRecord newObject =
-          record.__shapeRef__.shape().getFactory().create(record.__shapeRef__);
-      for (StaticRecordObjectField field : record.__shapeRef__.fields()) {
-        field.set(newObject, field.get(record));
+          record.__shapeRef__.getShape().getFactory().create(record.__shapeRef__);
+      for (DefaultStaticProperty field : record.__shapeRef__.getFields()) {
+        field.setObject(newObject, field.getObject(record));
       }
       return newObject;
     }

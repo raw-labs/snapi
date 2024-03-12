@@ -40,13 +40,15 @@ public class RecordParseXmlNode extends ExpressionNode {
   private final Map<String, Integer> collectionsIndex = new HashMap<>();
   private final BitSet refBitSet;
   private final BitSet bitSet;
-
+  private final Rql2TypeWithProperties[] fieldTypes;
   private final RecordShapeWithFields shapeWithFields;
 
   public RecordParseXmlNode(
       ProgramExpressionNode[] childProgramExpressionNode,
       String[] fieldNames,
+      Rql2TypeWithProperties[] fieldTypes,
       RecordShapeWithFields shapeWithFields) {
+    this.fieldTypes = fieldTypes;
     this.shapeWithFields = shapeWithFields;
     this.fields = fieldNames;
     this.fieldsSize = childProgramExpressionNode.length;
@@ -63,7 +65,7 @@ public class RecordParseXmlNode extends ExpressionNode {
         attributesIndex.put(fieldName, index);
       }
       // take note of fields that should be parsed as collections
-      Type fieldType = shapeWithFields.getFieldByIndex(index).getType();
+      Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType || fieldType instanceof Rql2ListType) {
         collectionsIndex.put(fieldName, index);
         refBitSet.set(index);
@@ -89,7 +91,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     bitSet.or(refBitSet);
 
     // the record to be returned
-    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
+    StaticObjectRecord record = shapeWithFields.getShape().getFactory().create(shapeWithFields);
 
     Vector<String> attributes = parser.attributes();
     int nAttributes = attributes.size();
@@ -131,12 +133,12 @@ public class RecordParseXmlNode extends ExpressionNode {
       ArrayList<Object> items = collectionValues.get(fieldName);
       ObjectList list = new ObjectList(items.toArray());
       int index = collectionsIndex.get(fieldName);
-      Type fieldType = shapeWithFields.getFieldByIndex(index).getType();
+      Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        shapeWithFields.getFieldByKey(fieldName).set(record, list.toIterable());
+        shapeWithFields.getFieldByKey(fieldName).setObject(record, list.toIterable());
       } else {
-        shapeWithFields.getFieldByKey(fieldName).set(record, list);
+        shapeWithFields.getFieldByKey(fieldName).setObject(record, list);
       }
     }
     // process nullable fields (null when not found)
@@ -146,16 +148,12 @@ public class RecordParseXmlNode extends ExpressionNode {
       for (int i = 0; i < fieldsSize; i++) {
         String fieldName = fields[i];
         if (!bitSet.get(i)) {
-          if (shapeWithFields
-              .getFieldByIndex(i)
-              .getType()
-              .props()
-              .contains(Rql2IsNullableTypeProperty.apply())) {
+          if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            shapeWithFields.getFieldByKey(fieldName).set(record, nullValue);
+            shapeWithFields.getFieldByKey(fieldName).setObject(record, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
           }
@@ -191,7 +189,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       // record.
       collectionField.add(value);
     } else {
-      shapeWithFields.getFieldByKey(fieldName).set(record, value);
+      shapeWithFields.getFieldByKey(fieldName).setObject(record, value);
       bitSet.set(index);
     }
   }

@@ -27,6 +27,7 @@ import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.StaticObjectRecord;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 import raw.runtime.truffle.tryable_nullable.Tryable;
 
@@ -244,6 +245,37 @@ public class OperatorNodes {
         }
         Object leftValue = getValueNode.execute(thisNode, left, leftKey);
         Object rightValue = getValueNode.execute(thisNode, right, rightKey);
+        result = compare.execute(thisNode, leftValue, rightValue);
+        if (result != 0) {
+          return result;
+        }
+      }
+      return 0;
+    }
+
+    @Specialization
+    static int doRecord(
+        Node node,
+        StaticObjectRecord left,
+        StaticObjectRecord right,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("compare") CompareNode compare) {
+      Object[] leftKeys = left.__shapeRef__.getKeys();
+      Object[] rightKeys = right.__shapeRef__.getKeys();
+      if (leftKeys.length > rightKeys.length) {
+        return 1;
+      } else if (leftKeys.length < rightKeys.length) {
+        return -1;
+      }
+      for (int i = 0; i < leftKeys.length; i++) {
+        String leftKey = (String) leftKeys[i];
+        String rightKey = (String) rightKeys[i];
+        int result = compare.execute(thisNode, leftKey, rightKey);
+        if (result != 0) {
+          return result;
+        }
+        Object leftValue = left.__shapeRef__.getFieldByIndex(i).getObject(left);
+        Object rightValue = left.__shapeRef__.getFieldByIndex(i).getObject(rightKey);
         result = compare.execute(thisNode, leftValue, rightValue);
         if (result != 0) {
           return result;

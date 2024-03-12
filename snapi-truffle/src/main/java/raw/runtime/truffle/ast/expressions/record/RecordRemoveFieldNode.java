@@ -32,15 +32,14 @@ public abstract class RecordRemoveFieldNode extends ExpressionNode {
       Object record, @Cached(inline = true) RecordNodes.GetValueNode getValueNode) {
 
     StaticObjectRecord newRecord =
-        getShapeWithFields().shape().getFactory().create(getShapeWithFields());
+        getShapeWithFields().getShape().getFactory().create(getShapeWithFields());
 
-    for (int i = 0; i < getShapeWithFields().fields().length; i++) {
+    for (int i = 0; i < getShapeWithFields().fields.length; i++) {
       getShapeWithFields()
-          .fields()[i]
-          .set(
+          .getFields()[i]
+          .setObject(
               newRecord,
-              getValueNode.execute(
-                  this, record, (String) getShapeWithFields().fields()[i].getDistinctKey()));
+              getValueNode.execute(this, record, getShapeWithFields().getDistinctKeys()[i]));
     }
 
     return newRecord;

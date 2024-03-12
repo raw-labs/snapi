@@ -23,10 +23,11 @@ public class StaticRecordNodes {
         @Bind("$node") Node thisNode,
         @Cached(inline = false) RecordNodes.AddPropNode addPropNode) {
       Object newRecord = RawLanguage.get(thisNode).createPureRecord();
-
-      for (StaticRecordObjectField field : record.__shapeRef__.fields()) {
+      String[] keys = record.__shapeRef__.getKeys();
+      for (int i = 0; i < keys.length; i++) {
         newRecord =
-            addPropNode.execute(thisNode, newRecord, (String) field.getKey(), field.get(record));
+            addPropNode.execute(
+                thisNode, newRecord, keys[i], record.__shapeRef__.getFields()[i].getObject(record));
       }
 
       return addPropNode.execute(thisNode, newRecord, key, value);
@@ -48,12 +49,18 @@ public class StaticRecordNodes {
         @Bind("$node") Node thisNode,
         @Cached(inline = false) RecordNodes.AddPropNode addPropNode) {
       Object newRecord = RawLanguage.get(thisNode).createPureRecord();
-      for (StaticRecordObjectField field : record.__shapeRef__.fields()) {
-        if (!field.getDistinctKey().equals(key)) {
+      String[] keys = record.__shapeRef__.getKeys();
+      for (int i = 0; i < keys.length; i++) {
+        if (!record.__shapeRef__.getDistinctKeys()[i].equals(key)) {
           newRecord =
-              addPropNode.execute(thisNode, newRecord, (String) field.getKey(), field.get(record));
+              addPropNode.execute(
+                  thisNode,
+                  newRecord,
+                  keys[i],
+                  record.__shapeRef__.getFields()[i].getObject(record));
         }
       }
+
       return newRecord;
     }
   }

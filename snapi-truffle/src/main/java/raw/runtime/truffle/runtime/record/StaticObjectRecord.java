@@ -15,7 +15,7 @@ import raw.runtime.truffle.RawLanguage;
 public class StaticObjectRecord implements TruffleObject {
 
   // The field can be accessed from the outside, that is why this wierd name
-  final RecordShapeWithFields __shapeRef__;
+  public final RecordShapeWithFields __shapeRef__;
 
   public StaticObjectRecord(RecordShapeWithFields shapeRef) {
     this.__shapeRef__ = shapeRef;

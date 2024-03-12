@@ -24,6 +24,7 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
 import raw.compiler.rql2.source.Rql2IsNullableTypeProperty;
+import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
@@ -61,10 +62,14 @@ public class RecordParseJsonNode extends ExpressionNode {
   private final int fieldsSize;
   private final RecordShapeWithFields shapeWithFields;
 
+  private final Rql2TypeWithProperties[] fieldTypes;
+
   public RecordParseJsonNode(
       ProgramExpressionNode[] childProgramExpressionNode,
       LinkedHashMap<String, Integer> fieldNamesMap,
+      Rql2TypeWithProperties[] fieldTypes,
       RecordShapeWithFields shapeWithFields) {
+    this.fieldTypes = fieldTypes;
     this.fieldNamesMap = fieldNamesMap;
     this.fieldsSize = childProgramExpressionNode.length;
     this.childDirectCalls = new DirectCallNode[this.fieldsSize];
@@ -98,7 +103,7 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
     nextTokenNode.execute(this, parser);
 
-    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
+    StaticObjectRecord record = shapeWithFields.getShape().getFactory().create(shapeWithFields);
 
     // todo: (az) need to find a solution for the array of direct calls,
     // the json object can be out of order, the child nodes cannot be inlined
@@ -108,7 +113,7 @@ public class RecordParseJsonNode extends ExpressionNode {
       nextTokenNode.execute(this, parser); // skip the field name
       if (index != null) {
         setBitSet(currentBitSet, index);
-        shapeWithFields.getFieldByIndex(index).set(record, callChild(index, parser));
+        shapeWithFields.getFieldByIndex(index).setObject(record, callChild(index, parser));
       } else {
         // skip the field value
         skipNode.execute(this, parser);
@@ -123,16 +128,12 @@ public class RecordParseJsonNode extends ExpressionNode {
       Object[] fields = fieldNamesMap.keySet().toArray();
       for (int i = 0; i < this.fieldsSize; i++) {
         if (!bitSetGet(currentBitSet, i)) {
-          if (shapeWithFields
-              .fields()[i]
-              .getType()
-              .props()
-              .contains(Rql2IsNullableTypeProperty.apply())) {
+          if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            shapeWithFields.getFieldByIndex(i).set(record, nullValue);
+            shapeWithFields.getFieldByIndex(i).setObject(record, nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
           }

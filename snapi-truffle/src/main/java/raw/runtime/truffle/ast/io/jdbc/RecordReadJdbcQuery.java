@@ -14,6 +14,7 @@ package raw.runtime.truffle.ast.io.jdbc;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
@@ -24,6 +25,8 @@ public class RecordReadJdbcQuery extends ExpressionNode {
   @Children private DirectCallNode[] childDirectCalls;
   private final RecordShapeWithFields shapeWithFields;
 
+  private final int length;
+
   public RecordReadJdbcQuery(
       ProgramExpressionNode[] columnParsers, RecordShapeWithFields shapeWithFields) {
     this.childDirectCalls = new DirectCallNode[columnParsers.length];
@@ -31,16 +34,18 @@ public class RecordReadJdbcQuery extends ExpressionNode {
       this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
     }
     this.shapeWithFields = shapeWithFields;
+    this.length = columnParsers.length;
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    StaticObjectRecord result = shapeWithFields.shape().getFactory().create(shapeWithFields);
-    for (int i = 0; i < shapeWithFields.fields().length; i++) {
+    StaticObjectRecord result = shapeWithFields.getShape().getFactory().create(shapeWithFields);
+    for (int i = 0; i < length; i++) {
       Object value = childDirectCalls[i].call(rs);
-      shapeWithFields.getFieldByIndex(i).set(result, value);
+      shapeWithFields.fields[i].setObject(result, value);
     }
     return result;
   }

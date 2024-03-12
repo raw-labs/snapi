@@ -34,13 +34,15 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
       Object newValue,
       @Cached(inline = true) RecordNodes.GetValueByIndexNode getValueByIndexNode) {
     StaticObjectRecord newRecord =
-        getShapeWithFields().shape().getFactory().create(getShapeWithFields());
-    for (int i = 0; i < getShapeWithFields().fields().length - 1; i++) {
-      getShapeWithFields().fields()[i].set(newRecord, getValueByIndexNode.execute(this, rec, i));
+        getShapeWithFields().getShape().getFactory().create(getShapeWithFields());
+    for (int i = 0; i < getShapeWithFields().getFields().length - 1; i++) {
+      getShapeWithFields()
+          .getFields()[i]
+          .setObject(newRecord, getValueByIndexNode.execute(this, rec, i));
     }
     getShapeWithFields()
-        .fields()[getShapeWithFields().fields().length - 1]
-        .set(newRecord, newValue);
+        .getFields()[getShapeWithFields().getFields().length - 1]
+        .setObject(newRecord, newValue);
     return newRecord;
   }
 }

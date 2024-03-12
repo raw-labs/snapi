@@ -118,11 +118,13 @@ public class JsonParser {
             JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).forEach(a -> hashMap.put(a.idn(),hashMap.size()));
 
             Rql2AttrType[] atts = JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).toArray(Rql2AttrType[]::new);
+            Rql2TypeWithProperties[] fieldTypes = JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new);
             Vector<String> keys = new Vector<>(Arrays.asList(Arrays.stream(atts).map(Rql2AttrType::idn).toArray(String[]::new)));
             Vector<String> distinctKeys = RecordFieldsNaming.makeDistinct(keys);
             yield new RecordParseJsonNode(
                     children,
                     hashMap,
+                    fieldTypes,
                     StaticRecordShapeBuilder.build(lang, atts, keys, distinctKeys));
           }
           case Rql2ByteType ignored -> ByteParseJsonNodeGen.create();

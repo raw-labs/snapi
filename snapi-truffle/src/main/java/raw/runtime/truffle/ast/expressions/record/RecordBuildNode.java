@@ -35,10 +35,10 @@ public class RecordBuildNode extends ExpressionNode {
   @ExplodeLoop
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
+    StaticObjectRecord record = shapeWithFields.getShape().getFactory().create(shapeWithFields);
 
     for (int i = 0; i < values.length; i++) {
-      shapeWithFields.getFieldByIndex(i).set(record, values[i].executeGeneric(frame));
+      shapeWithFields.getFieldByIndex(i).setObject(record, values[i].executeGeneric(frame));
     }
 
     return record;

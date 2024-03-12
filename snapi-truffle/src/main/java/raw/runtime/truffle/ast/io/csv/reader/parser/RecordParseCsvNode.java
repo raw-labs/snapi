@@ -28,6 +28,8 @@ public class RecordParseCsvNode extends ExpressionNode {
 
   private final RecordShapeWithFields shapeWithFields;
 
+  private final int length;
+
   public RecordParseCsvNode(
       ProgramExpressionNode[] columnParsers,
       Rql2AttrType[] columns,
@@ -37,6 +39,7 @@ public class RecordParseCsvNode extends ExpressionNode {
       this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
     }
     this.shapeWithFields = shapeWithFields;
+    this.length = columnParsers.length;
   }
 
   @Override
@@ -44,11 +47,11 @@ public class RecordParseCsvNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
-    StaticObjectRecord record = shapeWithFields.shape().getFactory().create(shapeWithFields);
+    StaticObjectRecord record = shapeWithFields.getShape().getFactory().create(shapeWithFields);
     assert (parser.startingNewLine(this));
-    for (int i = 0; i < shapeWithFields.fields().length; i++) {
+    for (int i = 0; i < this.length; i++) {
       parser.getNextField();
-      shapeWithFields.getFieldByIndex(i).set(record, childDirectCalls[i].call(parser));
+      shapeWithFields.getFieldByIndex(i).setObject(record, childDirectCalls[i].call(parser));
     }
     parser.finishLine(this);
     return record;
