@@ -437,6 +437,45 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     )
   }
 
+  test("SELECT :data::json FROM example.airports WHERE city = 'Porto'") { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(
+      user,
+      Some(Array(("city", RawString("Braganca")))),
+      Set.empty,
+      Map("output-format" -> "csv")
+    )
+    val v = compilerService.validate(t.q, environment)
+    assert(v.messages.isEmpty)
+    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
+    assert(description.maybeType.isEmpty)
+    val List(main) = description.decls("main")
+    assert(
+      main.outType == airportType
+    )
+    val Some(Vector(param)) = main.params
+    assert(!param.required)
+    assert(param.idn == "city")
+    assert(param.tipe == RawStringType(true, false))
+    assert(param.defaultValue.contains(RawNull()))
+    val baos = new ByteArrayOutputStream()
+    assert(
+      compilerService.execute(
+        t.q,
+        environment,
+        None,
+        baos
+      ) == ExecutionSuccess
+    )
+    assert(
+      baos.toString() ==
+        """airport_id,name,city,country,iata_faa,icao,latitude,longitude,altitude,timezone,dst,tz
+          |1618,Braganca,Braganca,Portugal,BGC,LPBG,41.857800,-6.707125,2241.000,0,E,Europe/Lisbon
+          |""".stripMargin
+    )
+  }
+
   test("SELECT * FROM example.airports WHERE city = :city -- with null") { t =>
     assume(password != "")
 

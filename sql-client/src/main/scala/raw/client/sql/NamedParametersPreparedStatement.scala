@@ -28,7 +28,7 @@ import scala.collection.mutable
 case class PostgresType(jdbcType: Int, typeName: String)
 
 class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, parsedTree: ParseProgramResult)(
-    implicit rawSettings: RawSettings
+  implicit rawSettings: RawSettings
 ) extends StrictLogging {
 
   /* We have the query code in `code` (with named parameters). Internally we need to replace
@@ -117,7 +117,7 @@ class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, par
         _ => false,
         {
           case _: RawNumberType | _: RawStringType | _: RawBoolType | _: RawDateType | _: RawTimeType |
-              _: RawTimestampType | _: RawBinaryType => true
+               _: RawTimestampType | _: RawBinaryType => true
           case _ => false
         }
       )
@@ -174,62 +174,61 @@ class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, par
             } else {
               parsedTree.params(p).tipe match {
                 case Some(tipe) => SqlTypesUtils.pgMap.get(tipe) match {
-                    case Some(jdbc) => Right(
-                        PostgresType(
-                          jdbc,
-                          tipe
-                        )
-                      )
-                    case None => Left(
-                        ErrorMessage(
-                          "unsupported type " + tipe,
-                          parsedTree.params(p).nodes.flatMap(errorRange).toList,
-                          ErrorCode.SqlErrorCode
-                        )
-                      )
-                  }
+                  case Some(jdbc) => Right(
+                    PostgresType(
+                      jdbc,
+                      tipe
+                    )
+                  )
+                  case None => Left(
+                    ErrorMessage(
+                      "unsupported type " + tipe,
+                      parsedTree.params(p).nodes.flatMap(errorRange).toList,
+                      ErrorCode.SqlErrorCode
+                    )
+                  )
+                }
                 case None =>
                   // For each parameter, we infer the type from the locations where it's used
-                  val options: Seq[PostgresType] = locations.map { location =>
-                    PostgresType(
+                  val options: Seq[Either[ErrorMessage, PostgresType]] = locations.map { location =>
+                    val t = PostgresType(
                       metadata.getParameterType(location.index),
                       metadata.getParameterTypeName(location.index)
                     )
+                    // Validate the if the type is supported by checking if all options have a supported type
+                    if (validateParameterType(t)) Right(t) else Left(
+                      ErrorMessage(
+                        s"parameter '$p' has an unsupported type '${t.typeName}",
+                        parsedTree.params(p).nodes.flatMap(errorRange).toList,
+                        ErrorCode.SqlErrorCode
+                      ))
                   }
                   assert(options.nonEmpty)
-                  // And we validate the if the type is supported by checking if all options have a supported type
-                  SqlTypesUtils
-                    .mergeRawTypes(options)
-                    .left
-                    .map(message =>
-                      ErrorMessage(
-                        message,
-                        locations
-                          .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
-                          .toList,
-                        ErrorCode.SqlErrorCode
-                      )
-                    )
+                  options.collectFirst { case Left(error) => error } match {
+                    case Some(error) => Left(error)
+                    case None =>
+                      val typeOptions = options.collect { case Right(t) => t }
+                      SqlTypesUtils
+                        .mergeRawTypes(typeOptions)
+                        .left
+                        .map(message =>
+                          ErrorMessage(
+                            message,
+                            locations
+                              .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
+                              .toList,
+                            ErrorCode.SqlErrorCode
+                          )
+                        )
+                  }
               }
             }
           p -> tStatus
       }.toMap
-      val afterInputParamTypeValidation: Map[String, Either[ErrorMessage, PostgresType]] = typesStatus.map {
-        case (p: String, Right(t)) if !validateParameterType(t) =>
-          p -> Left(
-            ErrorMessage(
-              s"parameter '$p' has an unsupported type '${t.typeName}",
-              parsedTree.params(p).nodes.flatMap(errorRange).toList,
-              ErrorCode.SqlErrorCode
-            )
-          )
-        case (p: String, left) => p -> left
-      }
-
-      val errors = afterInputParamTypeValidation.values.collect { case Left(error) => error }.toList
+      val errors = typesStatus.values.collect { case Left(error) => error }.toList
       if (errors.nonEmpty) Left(errors)
       else {
-        Right(afterInputParamTypeValidation.mapValues(_.right.get))
+        Right(typesStatus.mapValues(_.right.get))
       }
     } catch {
       case e: SQLException => {
