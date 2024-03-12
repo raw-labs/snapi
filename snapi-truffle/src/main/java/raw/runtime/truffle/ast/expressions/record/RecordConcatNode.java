@@ -16,6 +16,7 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordShapeWithFields;
 import raw.runtime.truffle.runtime.record.StaticObjectRecord;
 
@@ -29,25 +30,29 @@ public abstract class RecordConcatNode extends ExpressionNode {
   protected abstract RecordShapeWithFields getShapeWithFields();
 
   @Specialization
-  @ExplodeLoop
-  protected Object doConcat(StaticObjectRecord rec1, StaticObjectRecord rec2) {
+  protected Object doConcat(
+      Object rec1,
+      Object rec2,
+      @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode,
+      @Cached(inline = true) RecordNodes.GetValueNode getValueNode) {
+
+    Object[] objKeys1 = getKeysNode.execute(this, rec1);
+    Object[] objKeys2 = getKeysNode.execute(this, rec2);
+
     StaticObjectRecord record =
         getShapeWithFields().getShape().getFactory().create(getShapeWithFields());
 
-    int len1 = rec1.__shapeRef__.fields.length;
-    int len2 = rec2.__shapeRef__.fields.length;
-
-    for (int i = 0; i < len1; i++) {
+    for (int i = 0; i < objKeys1.length; i++) {
       getShapeWithFields()
           .getFieldByIndex(i)
-          .setObject(record, rec1.__shapeRef__.getFieldByIndex(i).getObject(rec1));
+          .setObject(record, getValueNode.execute(this, rec1, (String) objKeys1[i]));
     }
 
     // with offset of the first
-    for (int i = 0; i < len2; i++) {
+    for (int i = 0; i < objKeys2.length; i++) {
       getShapeWithFields()
-          .getFieldByIndex(len1 + i)
-          .setObject(record, rec2.__shapeRef__.getFieldByIndex(i).getObject(rec2));
+          .getFieldByIndex(objKeys1.length + i)
+          .setObject(record, getValueNode.execute(this, rec2, (String) objKeys2[i]));
     }
 
     return record;
