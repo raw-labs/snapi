@@ -15,50 +15,49 @@ package raw.runtime.truffle.runtime.data_structures.treemap;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
 import raw.runtime.truffle.PropertyType;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 
-import java.util.ArrayList;
-
 public class TreeMapNodes {
-//  @NodeInfo(shortName = "TreeMap.Put")
-//  @GenerateUncached
-//  @GenerateInline
-//  @ImportStatic(raw.runtime.truffle.PropertyType.class)
-//  public abstract static class TreeMapPutNode extends Node {
-//
-//    public abstract void execute(Node node, TreeMapObject mapObject, Object key, Object value);
-//
-//    @Specialization
-//    static void exec(
-//        Node node,
-//        TreeMapObject treeMapObject,
-//        Object key,
-//        Object value,
-//        @Bind("$node") Node thisNode,
-//        @Cached OperatorNodes.CompareNode compareNode) {
-//      int cmp = 0;
-//      TreeMapNode parent = null;
-//      TreeMapNode t = treeMapObject.getRoot();
-//      while (t != null) { // if `t` is null, we don't enter the loop, `parent` remains null.
-//        parent = t;
-//        cmp = compareNode.execute(thisNode, key, t.key);
-//        if (cmp < 0) t = t.left;
-//        else if (cmp > 0) t = t.right;
-//        else {
-//          t.value = value;
-//          return;
-//        }
-//      }
-//      if (parent != null) {
-//        // we entered the loop and exited because `t` is null
-//        treeMapObject.addEntry(key, value, parent, cmp < 0);
-//      } else {
-//        // we didn't enter the loop, we insert in the root
-//        treeMapObject.addEntryToEmptyMap(key, value);
-//      }
-//    }
-//  }
+  //  @NodeInfo(shortName = "TreeMap.Put")
+  //  @GenerateUncached
+  //  @GenerateInline
+  //  @ImportStatic(raw.runtime.truffle.PropertyType.class)
+  //  public abstract static class TreeMapPutNode extends Node {
+  //
+  //    public abstract void execute(Node node, TreeMapObject mapObject, Object key, Object value);
+  //
+  //    @Specialization
+  //    static void exec(
+  //        Node node,
+  //        TreeMapObject treeMapObject,
+  //        Object key,
+  //        Object value,
+  //        @Bind("$node") Node thisNode,
+  //        @Cached OperatorNodes.CompareNode compareNode) {
+  //      int cmp = 0;
+  //      TreeMapNode parent = null;
+  //      TreeMapNode t = treeMapObject.getRoot();
+  //      while (t != null) { // if `t` is null, we don't enter the loop, `parent` remains null.
+  //        parent = t;
+  //        cmp = compareNode.execute(thisNode, key, t.key);
+  //        if (cmp < 0) t = t.left;
+  //        else if (cmp > 0) t = t.right;
+  //        else {
+  //          t.value = value;
+  //          return;
+  //        }
+  //      }
+  //      if (parent != null) {
+  //        // we entered the loop and exited because `t` is null
+  //        treeMapObject.addEntry(key, value, parent, cmp < 0);
+  //      } else {
+  //        // we didn't enter the loop, we insert in the root
+  //        treeMapObject.addEntryToEmptyMap(key, value);
+  //      }
+  //    }
+  //  }
 
   @NodeInfo(shortName = "TreeMap.GetOrCreate")
   @GenerateUncached
@@ -99,46 +98,46 @@ public class TreeMapNodes {
     }
   }
 
-//  @NodeInfo(shortName = "TreeMap.PutArrayKeys")
-//  @GenerateUncached
-//  @GenerateInline
-//  @ImportStatic(PropertyType.class)
-//  public abstract static class TreeMapPutArrayKeysNode extends Node {
-//
-//    public abstract void execute(
-//        Node node, TreeMapObject mapObject, Object key, Object value, int[] orderings);
-//
-//    @Specialization
-//    static void exec(
-//        Node node,
-//        TreeMapObject treeMapObject,
-//        Object key,
-//        Object value,
-//        int[] orderings,
-//        @Bind("$node") Node thisNode,
-//        @Cached OperatorNodes.CompareKeys compareNode) {
-//      int cmp = 0;
-//      TreeMapNode parent = null;
-//      TreeMapNode t = treeMapObject.getRoot();
-//      while (t != null) { // if `t` is null, we don't enter the loop, `parent` remains null.
-//        parent = t;
-//        cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) t.key, orderings);
-//        if (cmp < 0) t = t.left;
-//        else if (cmp > 0) t = t.right;
-//        else {
-//          t.value = value;
-//          return;
-//        }
-//      }
-//      if (parent != null) {
-//        // we entered the loop and exited because `t` is null
-//        treeMapObject.addEntry(key, value, parent, cmp < 0);
-//      } else {
-//        // we didn't enter the loop, we insert in the root
-//        treeMapObject.addEntryToEmptyMap(key, value);
-//      }
-//    }
-//  }
+  //  @NodeInfo(shortName = "TreeMap.PutArrayKeys")
+  //  @GenerateUncached
+  //  @GenerateInline
+  //  @ImportStatic(PropertyType.class)
+  //  public abstract static class TreeMapPutArrayKeysNode extends Node {
+  //
+  //    public abstract void execute(
+  //        Node node, TreeMapObject mapObject, Object key, Object value, int[] orderings);
+  //
+  //    @Specialization
+  //    static void exec(
+  //        Node node,
+  //        TreeMapObject treeMapObject,
+  //        Object key,
+  //        Object value,
+  //        int[] orderings,
+  //        @Bind("$node") Node thisNode,
+  //        @Cached OperatorNodes.CompareKeys compareNode) {
+  //      int cmp = 0;
+  //      TreeMapNode parent = null;
+  //      TreeMapNode t = treeMapObject.getRoot();
+  //      while (t != null) { // if `t` is null, we don't enter the loop, `parent` remains null.
+  //        parent = t;
+  //        cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) t.key, orderings);
+  //        if (cmp < 0) t = t.left;
+  //        else if (cmp > 0) t = t.right;
+  //        else {
+  //          t.value = value;
+  //          return;
+  //        }
+  //      }
+  //      if (parent != null) {
+  //        // we entered the loop and exited because `t` is null
+  //        treeMapObject.addEntry(key, value, parent, cmp < 0);
+  //      } else {
+  //        // we didn't enter the loop, we insert in the root
+  //        treeMapObject.addEntryToEmptyMap(key, value);
+  //      }
+  //    }
+  //  }
 
   @NodeInfo(shortName = "TreeMap.GetOrCreateArrayKeys")
   @GenerateUncached
@@ -180,95 +179,96 @@ public class TreeMapNodes {
     }
   }
 
-//  @NodeInfo(shortName = "TreeMap.PutArrayKeys")
-//  @GenerateUncached
-//  @GenerateInline
-//  @ImportStatic(PropertyType.class)
-//  public abstract static class TreeMapPutArrayKeysIfNotExistNode extends Node {
-//
-//    public abstract void execute(
-//        Node node, TreeMapObject mapObject, Object key, Object value, int[] orderings);
-//
-//    @Specialization
-//    static void exec(
-//        Node node,
-//        TreeMapObject treeMapObject,
-//        Object key,
-//        Object value,
-//        int[] orderings,
-//        @Bind("$node") Node thisNode,
-//        @Cached OperatorNodes.CompareKeys compareNode) {
-//      int cmp = 0;
-//      TreeMapNode parent = null;
-//      TreeMapNode t = treeMapObject.getRoot();
-//      while (t != null) { // if `t` is null, we don't enter the loop, `parent` remains null.
-//        parent = t;
-//        cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) t.key, orderings);
-//        if (cmp < 0) t = t.left;
-//        else if (cmp > 0) t = t.right;
-//        else {
-//          t.value = value;
-//          return;
-//        }
-//      }
-//      if (parent != null) {
-//        // we entered the loop and exited because `t` is null
-//        treeMapObject.addEntry(key, value, parent, cmp < 0);
-//      } else {
-//        // we didn't enter the loop, we insert in the root
-//        treeMapObject.addEntryToEmptyMap(key, value);
-//      }
-//    }
-//  }
+  //  @NodeInfo(shortName = "TreeMap.PutArrayKeys")
+  //  @GenerateUncached
+  //  @GenerateInline
+  //  @ImportStatic(PropertyType.class)
+  //  public abstract static class TreeMapPutArrayKeysIfNotExistNode extends Node {
+  //
+  //    public abstract void execute(
+  //        Node node, TreeMapObject mapObject, Object key, Object value, int[] orderings);
+  //
+  //    @Specialization
+  //    static void exec(
+  //        Node node,
+  //        TreeMapObject treeMapObject,
+  //        Object key,
+  //        Object value,
+  //        int[] orderings,
+  //        @Bind("$node") Node thisNode,
+  //        @Cached OperatorNodes.CompareKeys compareNode) {
+  //      int cmp = 0;
+  //      TreeMapNode parent = null;
+  //      TreeMapNode t = treeMapObject.getRoot();
+  //      while (t != null) { // if `t` is null, we don't enter the loop, `parent` remains null.
+  //        parent = t;
+  //        cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) t.key, orderings);
+  //        if (cmp < 0) t = t.left;
+  //        else if (cmp > 0) t = t.right;
+  //        else {
+  //          t.value = value;
+  //          return;
+  //        }
+  //      }
+  //      if (parent != null) {
+  //        // we entered the loop and exited because `t` is null
+  //        treeMapObject.addEntry(key, value, parent, cmp < 0);
+  //      } else {
+  //        // we didn't enter the loop, we insert in the root
+  //        treeMapObject.addEntryToEmptyMap(key, value);
+  //      }
+  //    }
+  //  }
 
-//  @NodeInfo(shortName = "TreeMap.Get")
-//  @GenerateUncached
-//  @GenerateInline
-//  public abstract static class TreeMapGetNode extends Node {
-//
-//    public abstract Object execute(Node node, TreeMapObject mapObject, Object key);
-//
-//    @Specialization
-//    static Object exec(
-//        Node node,
-//        TreeMapObject treeMapObject,
-//        Object key,
-//        @Bind("$node") Node thisNode,
-//        @Cached OperatorNodes.CompareNode compareNode) {
-//      TreeMapNode p = treeMapObject.getRoot();
-//      while (p != null) {
-//        int cmp = compareNode.execute(thisNode, key, p.key);
-//        if (cmp < 0) p = p.left;
-//        else if (cmp > 0) p = p.right;
-//        else return p;
-//      }
-//      return null;
-//    }
-//  }
+  //  @NodeInfo(shortName = "TreeMap.Get")
+  //  @GenerateUncached
+  //  @GenerateInline
+  //  public abstract static class TreeMapGetNode extends Node {
+  //
+  //    public abstract Object execute(Node node, TreeMapObject mapObject, Object key);
+  //
+  //    @Specialization
+  //    static Object exec(
+  //        Node node,
+  //        TreeMapObject treeMapObject,
+  //        Object key,
+  //        @Bind("$node") Node thisNode,
+  //        @Cached OperatorNodes.CompareNode compareNode) {
+  //      TreeMapNode p = treeMapObject.getRoot();
+  //      while (p != null) {
+  //        int cmp = compareNode.execute(thisNode, key, p.key);
+  //        if (cmp < 0) p = p.left;
+  //        else if (cmp > 0) p = p.right;
+  //        else return p;
+  //      }
+  //      return null;
+  //    }
+  //  }
 
-//  @NodeInfo(shortName = "TreeMap.Get")
-//  @GenerateUncached
-//  @GenerateInline
-//  public abstract static class TreeMapGetArrayKesyNode extends Node {
-//
-//    public abstract Object execute(Node node, TreeMapObject mapObject, Object key, int[] orderings);
-//
-//    @Specialization
-//    static Object exec(
-//        Node node,
-//        TreeMapObject treeMapObject,
-//        Object key,
-//        int[] orderings,
-//        @Bind("$node") Node thisNode,
-//        @Cached OperatorNodes.CompareKeys compareNode) {
-//      TreeMapNode p = treeMapObject.getRoot();
-//      while (p != null) {
-//        int cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) p.key, orderings);
-//        if (cmp < 0) p = p.left;
-//        else if (cmp > 0) p = p.right;
-//        else return p;
-//      }
-//      return null;
-//    }
-//  }
+  //  @NodeInfo(shortName = "TreeMap.Get")
+  //  @GenerateUncached
+  //  @GenerateInline
+  //  public abstract static class TreeMapGetArrayKesyNode extends Node {
+  //
+  //    public abstract Object execute(Node node, TreeMapObject mapObject, Object key, int[]
+  // orderings);
+  //
+  //    @Specialization
+  //    static Object exec(
+  //        Node node,
+  //        TreeMapObject treeMapObject,
+  //        Object key,
+  //        int[] orderings,
+  //        @Bind("$node") Node thisNode,
+  //        @Cached OperatorNodes.CompareKeys compareNode) {
+  //      TreeMapNode p = treeMapObject.getRoot();
+  //      while (p != null) {
+  //        int cmp = compareNode.execute(thisNode, (Object[]) key, (Object[]) p.key, orderings);
+  //        if (cmp < 0) p = p.left;
+  //        else if (cmp > 0) p = p.right;
+  //        else return p;
+  //      }
+  //      return null;
+  //    }
+  //  }
 }
