@@ -85,24 +85,30 @@ object SqlTypesUtils extends StrictLogging {
     java.sql.Types.TIMESTAMP_WITH_TIMEZONE -> SqlType("TIMESTAMP_WITH_TIMEZONE", None)
   )
 
-  // returns the name of the RawType. Used to report errors. Maybe RawType should have a name field?
-  private def rawTypeName(rawType: RawType): String = {
-    rawType match {
-      case RawBoolType(_, _) => "boolean"
-      case RawByteType(_, _) => "byte"
-      case RawShortType(_, _) => "short"
-      case RawIntType(_, _) => "int"
-      case RawLongType(_, _) => "long"
-      case RawFloatType(_, _) => "float"
-      case RawDoubleType(_, _) => "double"
-      case RawDecimalType(_, _) => "decimal"
-      case RawStringType(_, _) => "string"
-      case RawDateType(_, _) => "date"
-      case RawTimeType(_, _) => "time"
-      case RawTimestampType(_, _) => "timestamp"
-      case RawIntervalType(_, _) => "interval"
-      case _ => throw new IllegalArgumentException(s"Unsupported type: $rawType")
+  // renames the postgres type to what a user would need to write to match
+  // the actual type. Or return an error.
+  def validateParamType(t: PostgresType): Either[String, PostgresType] = {
+    val pgTypeName = t.jdbcType match {
+      case java.sql.Types.BIT | java.sql.Types.BOOLEAN => Right("boolean")
+      case java.sql.Types.SMALLINT => Right("smallint")
+      case java.sql.Types.INTEGER => Right("integer")
+      case java.sql.Types.BIGINT => Right("bigint")
+      case java.sql.Types.FLOAT => Right("real")
+      case java.sql.Types.REAL => Right("real")
+      case java.sql.Types.DOUBLE => Right("double precision")
+      case java.sql.Types.NUMERIC | java.sql.Types.DECIMAL => Right("decimal")
+      case java.sql.Types.DATE => Right("date")
+      case java.sql.Types.TIME => Right("time")
+      case java.sql.Types.TIMESTAMP => Right("timestamp")
+      case java.sql.Types.CHAR | java.sql.Types.VARCHAR |
+           java.sql.Types.LONGVARCHAR | java.sql.Types.NCHAR |
+           java.sql.Types.NVARCHAR | java.sql.Types.LONGNVARCHAR => Right("varchar")
+      case java.sql.Types.OTHER => t.typeName match {
+        case "interval" | "json" | "jsonb" => Right(t.typeName)
+        case unsupported => Left(s"unsupported parameter type: $unsupported")
+      }
     }
+    pgTypeName.right.map(name => PostgresType(t.jdbcType, name))
   }
 
   def rawTypeFromJdbc(tipe: PostgresType): Either[String, RawType] = rawTypeFromJdbc(tipe.jdbcType, tipe.typeName)
@@ -112,21 +118,21 @@ object SqlTypesUtils extends StrictLogging {
     jdbcType match {
       // If the type is OTHER, we need to check the specific type of the column using the type name
       case java.sql.Types.OTHER => otherTypeMap.get(typeName) match {
-          case Some(t) => Right(t)
-          case None => Left(s"Unsupported SQL type: $typeName")
-        }
+        case Some(t) => Right(t)
+        case None => Left(s"Unsupported SQL type: $typeName")
+      }
       case _ => typeMap.get(jdbcType) match {
-          case Some(sqlTypeInfo) => sqlTypeInfo.rawType match {
-              case Some(t) => Right(t)
-              case None => Left(s"Unsupported SQL type: ${sqlTypeInfo.name}")
-            }
-          case None =>
-            // this is the postgres type and the internal JDBC integer type
-            logger.error(
-              s"Unsupported SQL type: $typeName JDBC type: $jdbcType"
-            )
-            Left(s"Unsupported SQL type $typeName")
+        case Some(sqlTypeInfo) => sqlTypeInfo.rawType match {
+          case Some(t) => Right(t)
+          case None => Left(s"Unsupported SQL type: ${sqlTypeInfo.name}")
         }
+        case None =>
+          // this is the postgres type and the internal JDBC integer type
+          logger.error(
+            s"Unsupported SQL type: $typeName JDBC type: $jdbcType"
+          )
+          Left(s"Unsupported SQL type $typeName")
+      }
     }
   }
 
@@ -134,23 +140,24 @@ object SqlTypesUtils extends StrictLogging {
   // a double and an int, it will be inferred as a double.
   def mergeRawTypes(options: Seq[PostgresType]): Either[String, PostgresType] = {
     val prioritizedNumberTypes = Vector(
-      RawDecimalType(false, false),
-      RawDoubleType(false, false),
-      RawFloatType(false, false),
-      RawLongType(false, false),
-      RawIntType(false, false),
-      RawShortType(false, false),
-      RawByteType(false, false)
+      java.sql.Types.DECIMAL,
+      java.sql.Types.NUMERIC,
+      java.sql.Types.DOUBLE,
+      java.sql.Types.FLOAT,
+      java.sql.Types.BIGINT,
+      java.sql.Types.INTEGER,
+      java.sql.Types.SMALLINT,
+      java.sql.Types.TINYINT
     )
 
     @tailrec
-    def recurse(tipes: Seq[RawType], current: RawType): Either[String, RawType] = {
+    def recurse(tipes: Seq[PostgresType], current: PostgresType): Either[String, PostgresType] = {
       if (tipes.isEmpty) {
         Right(current)
       } else {
         val head = tipes.head
-        if (prioritizedNumberTypes.contains(current) && prioritizedNumberTypes.contains(head)) {
-          if (prioritizedNumberTypes.indexOf(current) < prioritizedNumberTypes.indexOf(head)) {
+        if (prioritizedNumberTypes.contains(current.jdbcType) && prioritizedNumberTypes.contains(head.jdbcType)) {
+          if (prioritizedNumberTypes.indexOf(current.jdbcType) < prioritizedNumberTypes.indexOf(head.jdbcType)) {
             recurse(tipes.tail, current)
           } else {
             recurse(tipes.tail, head)
@@ -158,29 +165,12 @@ object SqlTypesUtils extends StrictLogging {
         } else if (current == head) {
           recurse(tipes.tail, current)
         } else Left(
-          s"a parameter cannot be both ${SqlTypesUtils.rawTypeName(current)} and ${SqlTypesUtils.rawTypeName(head)}"
+          s"a parameter cannot be both ${current.typeName} and ${head.typeName}"
         )
       }
     }
 
-    val rawOptions = options.map(SqlTypesUtils.rawTypeFromJdbc).collect { case Right(t) => t }
-    recurse(rawOptions.tail, rawOptions.head).right.map(jdbcTypeFromRawType)
-  }
-
-  private def jdbcTypeFromRawType(rawType: RawType): PostgresType = rawType match {
-    case RawBoolType(_, _) => PostgresType(java.sql.Types.BOOLEAN, "boolean")
-    case RawByteType(_, _) => PostgresType(java.sql.Types.SMALLINT, "smallint")
-    case RawShortType(_, _) => PostgresType(java.sql.Types.SMALLINT, "smallint")
-    case RawIntType(_, _) => PostgresType(java.sql.Types.INTEGER, "integer")
-    case RawLongType(_, _) => PostgresType(java.sql.Types.BIGINT, "bigint")
-    case RawFloatType(_, _) => PostgresType(java.sql.Types.FLOAT, "real")
-    case RawDoubleType(_, _) => PostgresType(java.sql.Types.DOUBLE, "double precision")
-    case RawDecimalType(_, _) => PostgresType(java.sql.Types.DECIMAL, "decimal")
-    case RawStringType(_, _) => PostgresType(java.sql.Types.VARCHAR, "varchar")
-    case RawDateType(_, _) => PostgresType(java.sql.Types.DATE, "date")
-    case RawTimeType(_, _) => PostgresType(java.sql.Types.TIME, "time")
-    case RawTimestampType(_, _) => PostgresType(java.sql.Types.TIMESTAMP, "timestamp")
-    case _ => ???
+    recurse(options.tail, options.head)
   }
 
 }

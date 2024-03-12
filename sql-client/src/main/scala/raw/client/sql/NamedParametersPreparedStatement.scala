@@ -110,20 +110,7 @@ class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, par
     buffer.toString()
   }
 
-  private def validateParameterType(tipe: PostgresType): Boolean = {
-    SqlTypesUtils
-      .rawTypeFromJdbc(tipe)
-      .fold(
-        _ => false,
-        {
-          case _: RawNumberType | _: RawStringType | _: RawBoolType | _: RawDateType | _: RawTimeType |
-               _: RawTimestampType | _: RawBinaryType => true
-          case _ => false
-        }
-      )
-  }
   // A data structure for the full query info: parameters that are mapped to their inferred types, and output type (the query type)
-
   case class QueryInfo(parameters: Map[String, PostgresType], outputType: RawType)
 
   private val stmt = conn.prepareStatement(plainCode)
@@ -191,17 +178,14 @@ class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, par
                 case None =>
                   // For each parameter, we infer the type from the locations where it's used
                   val options: Seq[Either[ErrorMessage, PostgresType]] = locations.map { location =>
-                    val t = PostgresType(
+                    val t = SqlTypesUtils.validateParamType(PostgresType(
                       metadata.getParameterType(location.index),
                       metadata.getParameterTypeName(location.index)
-                    )
-                    // Validate the if the type is supported by checking if all options have a supported type
-                    if (validateParameterType(t)) Right(t) else Left(
-                      ErrorMessage(
-                        s"parameter '$p' has an unsupported type '${t.typeName}",
-                        parsedTree.params(p).nodes.flatMap(errorRange).toList,
-                        ErrorCode.SqlErrorCode
-                      ))
+                    ))
+                    t.left.map(ErrorMessage(_,
+                      parsedTree.params(p).nodes.flatMap(errorRange).toList,
+                      ErrorCode.SqlErrorCode
+                    ))
                   }
                   assert(options.nonEmpty)
                   options.collectFirst { case Left(error) => error } match {

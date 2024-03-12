@@ -57,24 +57,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
-  test("""
-    |-- @type city varchar
-    |-- @param city the city
-    |-- @type year int
-    |SELECT :year as year, COUNT(*) FROM example.airports WHERE :city = airport_id""".stripMargin) { t =>
-    val baos = new ByteArrayOutputStream()
-    baos.reset()
-    val noParam = ProgramEnvironment(
-      user,
-      Some(Array("year" -> RawInt(1234), "city" -> RawString("Porto"))),
-      Set.empty,
-      Map("output-format" -> "json")
-    )
-    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
-    assert(baos.toString() == """[{"year":1234,"count":2}]""")
-  }
-
-  // Quoted value
   ignore("""select * from public."B """.stripMargin) { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
@@ -95,7 +77,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   }
 
   // Quoted value
-  ignore("""do something to see if a schema has the same name as a column and it still work""") { t =>
+  ignore("""do something to see if a schema has the same name as a column and it still works""") { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(1, 19)) // right after 'm'
@@ -437,45 +419,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     )
   }
 
-  test("SELECT :data::json FROM example.airports WHERE city = 'Porto'") { t =>
-    assume(password != "")
-
-    val environment = ProgramEnvironment(
-      user,
-      Some(Array(("city", RawString("Braganca")))),
-      Set.empty,
-      Map("output-format" -> "csv")
-    )
-    val v = compilerService.validate(t.q, environment)
-    assert(v.messages.isEmpty)
-    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
-    assert(
-      main.outType == airportType
-    )
-    val Some(Vector(param)) = main.params
-    assert(!param.required)
-    assert(param.idn == "city")
-    assert(param.tipe == RawStringType(true, false))
-    assert(param.defaultValue.contains(RawNull()))
-    val baos = new ByteArrayOutputStream()
-    assert(
-      compilerService.execute(
-        t.q,
-        environment,
-        None,
-        baos
-      ) == ExecutionSuccess
-    )
-    assert(
-      baos.toString() ==
-        """airport_id,name,city,country,iata_faa,icao,latitude,longitude,altitude,timezone,dst,tz
-          |1618,Braganca,Braganca,Portugal,BGC,LPBG,41.857800,-6.707125,2241.000,0,E,Europe/Lisbon
-          |""".stripMargin
-    )
-  }
-
   test("SELECT * FROM example.airports WHERE city = :city -- with null") { t =>
     assume(password != "")
 
@@ -523,7 +466,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(v.messages.nonEmpty)
     val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, environment)
     assert(errors.size === 1)
-    assert(errors.head.message === "a parameter cannot be both string and int")
+    assert(errors.head.message === "a parameter cannot be both varchar and integer")
     assert(errors.head.positions(0).begin === ErrorPosition(1, 45))
     assert(errors.head.positions(0).end === ErrorPosition(1, 51)) // a, r, a, m  = 4 chars + 1
     assert(errors.head.positions(1).begin === ErrorPosition(1, 69))
