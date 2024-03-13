@@ -172,7 +172,7 @@
                                 ${env.JAVA_HOME}/bin/native-image</executable>
                             <commandlineArgs>
                                 -p %classpath
-                                --module-path %classpath
+                                - -module-path %classpath
                                 -H:+UnlockExperimentalVMOptions
                                 -H:+ReportExceptionStackTraces
                                 -m ${launcherClass}

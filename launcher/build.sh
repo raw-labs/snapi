@@ -11,7 +11,7 @@ sdk use java 21.0.1-graalce
 client_version=$(cat $SCRIPT_HOME/../client/version)
 snapi_truffle_version=$(cat $SCRIPT_HOME/../snapi-truffle/version)
 snapi_client_version=$(cat $SCRIPT_HOME/../snapi-client/version)
-python_client_version=$(cat $SCRIPT_HOME/../python-client/version)
+#python_client_version=$(cat $SCRIPT_HOME/../python-client/version)
 
 # we correlate raw cli version with snapi client version
 rawcli_version=$snapi_client_version
