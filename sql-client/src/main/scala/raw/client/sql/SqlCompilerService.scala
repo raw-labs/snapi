@@ -25,22 +25,9 @@ import java.sql.{ResultSet, SQLException, SQLTimeoutException}
 import scala.util.control.NonFatal
 
 class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
-    extends CompilerService {
+  extends CompilerService {
 
   override def language: Set[String] = Set("sql")
-
-  private def parseAnd[T](
-      prog: String,
-      whatToDo: ParseProgramResult => T,
-      whatToDoInCaseOfError: List[ErrorMessage] => T
-  ): T = {
-    val positions = new Positions
-    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
-    val tree = syntaxAnalyzer.parse(prog)
-    val errors = tree.errors.collect { case e: ErrorMessage => e }
-    if (errors.nonEmpty) whatToDoInCaseOfError(errors)
-    else whatToDo(tree)
-  }
 
   private def parse(prog: String): Either[List[ErrorMessage], ParseProgramResult] = {
     val positions = new Positions
@@ -52,14 +39,13 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def getProgramDescription(
-      source: String,
-      environment: ProgramEnvironment
-  ): GetProgramDescriptionResponse = {
+                                      source: String,
+                                      environment: ProgramEnvironment
+                                    ): GetProgramDescriptionResponse = {
     try {
-      parseAnd(
-        source,
-        { parsedTree: ParseProgramResult =>
-          logger.debug(s"Getting program description: $source")
+      logger.debug(s"Getting program description: $source")
+      parse(source) match {
+        case Right(parsedTree) =>
           try {
             val conn = connectionPool.getConnection(environment.user)
             try {
@@ -100,9 +86,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
             case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
             case e: SQLTimeoutException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
           }
-        },
-        errors => GetProgramDescriptionFailure(errors)
-      )
+        case Left(errors) => GetProgramDescriptionFailure(errors)
+      }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -117,16 +102,16 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def execute(
-      source: String,
-      environment: ProgramEnvironment,
-      maybeDecl: Option[String],
-      outputStream: OutputStream
-  ): ExecutionResponse = {
+                        source: String,
+                        environment: ProgramEnvironment,
+                        maybeDecl: Option[String],
+                        outputStream: OutputStream
+                      ): ExecutionResponse = {
     try {
       logger.debug(s"Executing: $source")
-      parse(source).fold(
-        errors => ExecutionValidationFailure(errors),
-        parsedTree =>
+      parse(source) match {
+        case Left(errors) => ExecutionValidationFailure(errors)
+        case Right(parsedTree) =>
           try {
             val conn = connectionPool.getConnection(environment.user)
             try {
@@ -156,18 +141,18 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
             case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
             case e: SQLTimeoutException => ExecutionRuntimeFailure(e.getMessage)
           }
-      )
+      }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
 
   private def render(
-      environment: ProgramEnvironment,
-      tipe: RawType,
-      v: ResultSet,
-      outputStream: OutputStream
-  ): ExecutionResponse = {
+                      environment: ProgramEnvironment,
+                      tipe: RawType,
+                      v: ResultSet,
+                      outputStream: OutputStream
+                    ): ExecutionResponse = {
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
@@ -235,11 +220,11 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def formatCode(
-      source: String,
-      environment: ProgramEnvironment,
-      maybeIndent: Option[Int],
-      maybeWidth: Option[Int]
-  ): FormatCodeResponse = {
+                           source: String,
+                           environment: ProgramEnvironment,
+                           maybeIndent: Option[Int],
+                           maybeWidth: Option[Int]
+                         ): FormatCodeResponse = {
     try {
       FormatCodeResponse(Some(source))
     } catch {
@@ -274,11 +259,11 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def wordAutoComplete(
-      source: String,
-      environment: ProgramEnvironment,
-      prefix: String,
-      position: Pos
-  ): AutoCompleteResponse = {
+                                 source: String,
+                                 environment: ProgramEnvironment,
+                                 prefix: String,
+                                 position: Pos
+                               ): AutoCompleteResponse = {
     try {
       logger.debug(s"wordAutoComplete at position: $position")
       val analyzer = new SqlCodeUtils(source)
@@ -299,22 +284,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
   }
-
-  //  private def compareIdentifiers(v1: Seq[SqlIdentifier], v2: Seq[SqlIdentifier]): Boolean = {
-  //    def compareSingleIdentifiers(v1: SqlIdentifier, v2: SqlIdentifier): Boolean = {
-  //      // both quoted , case sensitive comparison, so we just compare the strings
-  //      if (v1.quoted && v2.quoted) {
-  //        v1.value == v2.value
-  //      } else {
-  //        // At least one is not quoted so we perform a case insensitive match
-  //        v1.value.toLowerCase == v2.value.toLowerCase
-  //      }
-  //    }
-  //
-  //    if (v1.length != v2.length) return false
-  //
-  //    v1.zip(v2).forall { case (x1, x2) => compareSingleIdentifiers(x1, x2) }
-  //  }
 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     try {
@@ -369,10 +338,10 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def goToDefinition(
-      source: String,
-      environment: ProgramEnvironment,
-      position: Pos
-  ): GoToDefinitionResponse = {
+                               source: String,
+                               environment: ProgramEnvironment,
+                               position: Pos
+                             ): GoToDefinitionResponse = {
     try {
       GoToDefinitionResponse(None)
     } catch {

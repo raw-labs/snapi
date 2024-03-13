@@ -28,7 +28,7 @@ import scala.collection.mutable
 case class PostgresType(jdbcType: Int, typeName: String)
 
 class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, parsedTree: ParseProgramResult)(
-  implicit rawSettings: RawSettings
+    implicit rawSettings: RawSettings
 ) extends StrictLogging {
 
   /* We have the query code in `code` (with named parameters). Internally we need to replace
@@ -161,31 +161,32 @@ class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, par
             } else {
               parsedTree.params(p).tipe match {
                 case Some(tipe) => SqlTypesUtils.pgMap.get(tipe) match {
-                  case Some(jdbc) => Right(
-                    PostgresType(
-                      jdbc,
-                      tipe
-                    )
-                  )
-                  case None => Left(
-                    ErrorMessage(
-                      "unsupported type " + tipe,
-                      parsedTree.params(p).nodes.flatMap(errorRange).toList,
-                      ErrorCode.SqlErrorCode
-                    )
-                  )
-                }
+                    case Some(jdbc) => Right(
+                        PostgresType(
+                          jdbc,
+                          tipe
+                        )
+                      )
+                    case None => Left(
+                        ErrorMessage(
+                          "unsupported type " + tipe,
+                          parsedTree.params(p).nodes.flatMap(errorRange).toList,
+                          ErrorCode.SqlErrorCode
+                        )
+                      )
+                  }
                 case None =>
                   // For each parameter, we infer the type from the locations where it's used
                   val options: Seq[Either[ErrorMessage, PostgresType]] = locations.map { location =>
-                    val t = SqlTypesUtils.validateParamType(PostgresType(
-                      metadata.getParameterType(location.index),
-                      metadata.getParameterTypeName(location.index)
-                    ))
-                    t.left.map(ErrorMessage(_,
-                      parsedTree.params(p).nodes.flatMap(errorRange).toList,
-                      ErrorCode.SqlErrorCode
-                    ))
+                    val t = SqlTypesUtils.validateParamType(
+                      PostgresType(
+                        metadata.getParameterType(location.index),
+                        metadata.getParameterTypeName(location.index)
+                      )
+                    )
+                    t.left.map(
+                      ErrorMessage(_, parsedTree.params(p).nodes.flatMap(errorRange).toList, ErrorCode.SqlErrorCode)
+                    )
                   }
                   assert(options.nonEmpty)
                   options.collectFirst { case Left(error) => error } match {
@@ -199,7 +200,9 @@ class NamedParametersPreparedStatement(conn: Connection, sourceCode: String, par
                           ErrorMessage(
                             message,
                             locations
-                              .map(location => ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end)))
+                              .map(location =>
+                                ErrorRange(offsetToPosition(location.start), offsetToPosition(location.end))
+                              )
                               .toList,
                             ErrorCode.SqlErrorCode
                           )
