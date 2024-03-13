@@ -43,19 +43,19 @@ public class RecordParseJsonNode extends ExpressionNode {
 
   @Child
   private JsonParserNodes.SkipNextJsonParserNode skipNode =
-      JsonParserNodesFactory.SkipNextJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
 
   @Child
   private JsonParserNodes.CurrentFieldJsonParserNode currentFieldNode =
-      JsonParserNodesFactory.CurrentFieldJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.CurrentFieldJsonParserNodeGen.create();
 
   @Child
   private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode =
-      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.create();
 
   @Child
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
@@ -125,21 +125,31 @@ public class RecordParseJsonNode extends ExpressionNode {
     if (bitSetCardinality(currentBitSet) != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
       // fail.
-      Object[] fields = fieldNamesMap.keySet().toArray();
+      String[] fields = getKeySet();
       for (int i = 0; i < this.fieldsSize; i++) {
         if (!bitSetGet(currentBitSet, i)) {
-          if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
+          if (propsContainNullable(i)) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
             shapeWithFields.getFieldByIndex(i).setObject(record, nullValue);
           } else {
-            throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
+            throw new JsonRecordFieldNotFoundException(fields[i], this);
           }
         }
       }
     }
     return record;
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private String[] getKeySet() {
+    return fieldNamesMap.keySet().toArray(new String[0]);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private boolean propsContainNullable(int index) {
+    return fieldTypes[index].props().contains(Rql2IsNullableTypeProperty.apply());
   }
 }

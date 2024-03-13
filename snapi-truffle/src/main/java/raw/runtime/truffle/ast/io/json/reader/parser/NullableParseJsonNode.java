@@ -30,11 +30,11 @@ public class NullableParseJsonNode extends ExpressionNode {
 
   @Child
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
   @Child
   private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode =
-      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.create();
 
   public NullableParseJsonNode(ProgramExpressionNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());

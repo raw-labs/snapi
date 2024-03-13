@@ -49,6 +49,7 @@ public final class RawContext {
   private ProgramEnvironment programEnvironment;
   private final RawFunctionRegistry functionRegistry;
 
+  @CompilerDirectives.TruffleBoundary
   public RawContext(RawLanguage language, Env env) {
     this.language = language;
     this.env = env;
@@ -141,6 +142,7 @@ public final class RawContext {
     return rawSettings;
   }
 
+  @CompilerDirectives.TruffleBoundary
   public Secret getSecret(String key) {
     if (user == null) {
       throw new RawTruffleRuntimeException("User not set");

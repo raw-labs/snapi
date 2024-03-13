@@ -13,6 +13,7 @@
 package raw.runtime.truffle;
 
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
@@ -193,6 +194,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
               (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) ImplicitCasts.class));
 
+  @CompilerDirectives.TruffleBoundary
   SourceProgram transpile(SourceProgram root, ProgramContext programContext) {
     if (phases.isEmpty()) {
       // No phases in compiler
@@ -206,6 +208,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   private Phase<SourceProgram> buildPipeline(
       Phase<SourceProgram> init, ProgramContext programContext) {
     Phase<SourceProgram> cur = init;
