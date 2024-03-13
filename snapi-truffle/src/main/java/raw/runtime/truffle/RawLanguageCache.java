@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
@@ -63,6 +64,7 @@ public class RawLanguageCache {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   private Value get(AuthenticatedUser user, RawSettings rawSettings) {
     // Create services on-demand.
     CredentialsService credentialsService =
@@ -98,12 +100,14 @@ public class RawLanguageCache {
     return get(user, rawSettings).getInferrer();
   }
 
+  @CompilerDirectives.TruffleBoundary
   public void incrementContext(RawContext context) {
     synchronized (activeContextsLock) {
       activeContexts.add(context);
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   public void releaseContext(RawContext context) {
     synchronized (activeContextsLock) {
       activeContexts.remove(context);

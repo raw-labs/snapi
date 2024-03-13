@@ -17,10 +17,13 @@ import raw.compiler.rql2.source.*;
 
 public class TypeGuards {
 
+  public static final Rql2IsTryableTypeProperty tryable = Rql2IsTryableTypeProperty.apply();
+  public static final Rql2IsNullableTypeProperty nullable = Rql2IsNullableTypeProperty.apply();
+
   @Idempotent
   public static boolean isTryable(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties.props().contains(Rql2IsTryableTypeProperty.apply());
+      return rql2TypeWithProperties.props().contains(tryable);
     }
     return false;
   }
@@ -28,7 +31,7 @@ public class TypeGuards {
   @Idempotent
   public static boolean isNullable(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
-      return rql2TypeWithProperties.props().contains(new Rql2IsNullableTypeProperty());
+      return rql2TypeWithProperties.props().contains(nullable);
     }
     return false;
   }

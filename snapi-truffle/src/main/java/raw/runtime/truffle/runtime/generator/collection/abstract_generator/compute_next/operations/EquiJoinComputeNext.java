@@ -33,6 +33,8 @@ public class EquiJoinComputeNext {
   private final int keyFunctionSlot;
   private final int mapSlot;
 
+  public int timesInitialized = 0;
+
   public EquiJoinComputeNext(
       Object leftIterable,
       Object leftKeyF,

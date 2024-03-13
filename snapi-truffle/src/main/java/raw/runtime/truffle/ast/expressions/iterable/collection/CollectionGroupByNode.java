@@ -12,10 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import com.oracle.truffle.api.dsl.Idempotent;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -37,13 +34,26 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
   @Idempotent
   protected abstract Rql2TypeWithProperties getRowType();
 
+  protected int getGeneratorSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getGeneratorSlot(frame);
+  }
+
+  protected int getFunctionSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getFunctionSlot(frame);
+  }
+
+  protected int getMapSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getMapSlot(frame);
+  }
+
   @Specialization
-  protected Object doGroup(VirtualFrame frame, Object iterable, Object keyFun) {
-    int generatorSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
-    int keyFunctionSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
-    int mapSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
+  protected Object doGroup(
+      VirtualFrame frame,
+      Object iterable,
+      Object keyFun,
+      @Cached(value = "getGeneratorSlot(frame)", neverDefault = false) int generatorSlot,
+      @Cached(value = "getFunctionSlot(frame)", neverDefault = true) int keyFunctionSlot,
+      @Cached(value = "getMapSlot(frame)", neverDefault = true) int mapSlot) {
     return new GroupByCollection(
         iterable,
         keyFun,

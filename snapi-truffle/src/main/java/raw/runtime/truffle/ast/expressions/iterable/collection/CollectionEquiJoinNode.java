@@ -12,11 +12,13 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import static raw.runtime.truffle.ast.osr.AuxiliarySlots.*;
+
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.EquiJoinCollection;
 
 @NodeInfo(shortName = "Collection.EquiJoin")
@@ -30,6 +32,12 @@ public class CollectionEquiJoinNode extends ExpressionNode {
   private final Rql2TypeWithProperties leftValueType;
   private final Rql2TypeWithProperties rightValueType;
   private final Rql2TypeWithProperties keyType;
+
+  @CompilerDirectives.CompilationFinal private int computeNextSlot = -1;
+  @CompilerDirectives.CompilationFinal private int shouldContinueSlot = -1;
+  @CompilerDirectives.CompilationFinal private int generatorSlot = -1;
+  @CompilerDirectives.CompilationFinal private int keyFunctionSlot = -1;
+  @CompilerDirectives.CompilationFinal private int mapSlot = -1;
 
   public CollectionEquiJoinNode(
       ExpressionNode left,
@@ -59,15 +67,15 @@ public class CollectionEquiJoinNode extends ExpressionNode {
     Object rightIterable = right.executeGeneric(frame);
     Object rightKeyF = rightKeyFun.executeGeneric(frame);
     Object remapF = remapFun.executeGeneric(frame);
-    int computeNextSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
-    int shouldContinueSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.SHOULD_CONTINUE_SLOT);
-    int generatorSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
-    int keyFunctionSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
-    int mapSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
+
+    if (computeNextSlot == -1) {
+      computeNextSlot = getComputeNextSlot(frame);
+      shouldContinueSlot = getShouldContinueSlot(frame);
+      generatorSlot = getGeneratorSlot(frame);
+      keyFunctionSlot = getFunctionSlot(frame);
+      mapSlot = getMapSlot(frame);
+    }
+
     return new EquiJoinCollection(
         leftIterable,
         leftKeyF,

@@ -52,21 +52,17 @@ public class OffHeapNodes {
         Object key,
         Object value,
         @Bind("$node") Node thisNode,
-        @Cached TreeMapNodes.TreeMapGetNode mapGetNode,
-        @Cached TreeMapNodes.TreeMapPutNode mapPutNode,
+        @Cached TreeMapNodes.TreeMapGetOrCreate putIfNotExistNode,
         @Cached @Cached.Shared("flushNode") OffHeapFlushNode flushNode) {
-      TreeMapNode treeNode =
-          (TreeMapNode) mapGetNode.execute(thisNode, offHeapGroupByKey.getMemMap(), key);
-      ArrayList<Object> list = null;
-      if (treeNode != null) {
-        list = (ArrayList<Object>) treeNode.getValue();
-      }
-      if (list == null) {
-        list = new ArrayList<>();
-        mapPutNode.execute(thisNode, offHeapGroupByKey.getMemMap(), key, list);
-        // add the size of the key to the memory footprint. (Row size added below in main path.)
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> list =
+          (ArrayList<Object>)
+              putIfNotExistNode.execute(thisNode, offHeapGroupByKey.getMemMap(), key);
+      // add the size of the key to the memory footprint. (Row size added below in main path.)
+      if (list.isEmpty()) {
         offHeapGroupByKey.setSize(offHeapGroupByKey.getSize() + offHeapGroupByKey.getKeySize());
       }
+
       list.add(value);
       // add the size of the row to the memory footprint.
       offHeapGroupByKey.setSize(offHeapGroupByKey.getSize() + offHeapGroupByKey.getRowSize());
@@ -82,32 +78,21 @@ public class OffHeapNodes {
         Object[] keys,
         Object value,
         @Bind("$node") Node thisNode,
-        @Cached TreeMapNodes.TreeMapGetArrayKesyNode mapGetArrayKeysNode,
-        @Cached TreeMapNodes.TreeMapPutArrayKeysNode mapPutArrayKeysNode,
+        @Cached TreeMapNodes.TreeMapGetOrCreateArrayKeysNode getOrCreateArrayKeysNode,
         @Cached @Cached.Shared("flushNode") OffHeapFlushNode flushNode) {
-
-      TreeMapNode treeNode =
-          (TreeMapNode)
-              mapGetArrayKeysNode.execute(
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> list =
+          (ArrayList<Object>)
+              getOrCreateArrayKeysNode.execute(
                   thisNode,
                   offHeapGroupByKeys.getMemMap(),
                   keys,
                   offHeapGroupByKeys.getKeyOrderings());
-      ArrayList<Object> list = null;
-      if (treeNode != null) {
-        list = (ArrayList<Object>) treeNode.getValue();
-      }
-      if (list == null) {
-        list = new ArrayList<>();
-        mapPutArrayKeysNode.execute(
-            thisNode,
-            offHeapGroupByKeys.getMemMap(),
-            keys,
-            list,
-            offHeapGroupByKeys.getKeyOrderings());
-        // add the size of the key to the memory footprint. (Row size added below in main path.)
+
+      if (list.isEmpty()) {
         offHeapGroupByKeys.setSize(offHeapGroupByKeys.getSize() + offHeapGroupByKeys.getKeysSize());
       }
+
       list.add(value);
       // add the size of the row to the memory footprint.
       offHeapGroupByKeys.setSize(offHeapGroupByKeys.getSize() + offHeapGroupByKeys.getRowSize());

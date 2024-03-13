@@ -31,8 +31,7 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
 
-  @Child
-  private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.getUncached();
+  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
 
   @Children private DirectCallNode[] childDirectCalls;
 

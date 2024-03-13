@@ -12,10 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import com.oracle.truffle.api.dsl.Idempotent;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -39,22 +36,38 @@ public abstract class CollectionJoinNode extends ExpressionNode {
   @Idempotent
   protected abstract Boolean getReshapeBeforePredicate();
 
+  protected int getComputeNextSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getComputeNextSlot(frame);
+  }
+
+  protected int getShouldContinueSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getShouldContinueSlot(frame);
+  }
+
+  protected int getResultSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getResultSlot(frame);
+  }
+
+  protected int getGeneratorSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getGeneratorSlot(frame);
+  }
+
+  protected int getOutputBufferSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getOutputBufferSlot(frame);
+  }
+
   @Specialization
   protected Object doJoin(
       VirtualFrame frame,
       Object leftIterable,
       Object rightIterable,
       Object remap,
-      Object predicate) {
-    int computeNextSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
-    int shouldContinueSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.SHOULD_CONTINUE_SLOT);
-    int resultSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
-    int generatorSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
-    int outputBufferSlot =
-        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.OUTPUT_BUFFER_SLOT);
+      Object predicate,
+      @Cached(value = "getComputeNextSlot(frame)", neverDefault = false) int computeNextSlot,
+      @Cached(value = "getShouldContinueSlot(frame)", neverDefault = true) int shouldContinueSlot,
+      @Cached(value = "getResultSlot(frame)", neverDefault = true) int resultSlot,
+      @Cached(value = "getGeneratorSlot(frame)", neverDefault = true) int generatorSlot,
+      @Cached(value = "getOutputBufferSlot(frame)", neverDefault = true) int outputBufferSlot) {
     return new JoinCollection(
         leftIterable,
         rightIterable,
