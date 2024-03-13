@@ -1,17 +1,9 @@
 package raw.client.sql
 
-import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{oncetd, query}
+import org.bitbucket.inkytonik.kiama.util.Position
 import raw.client.api.Pos
-import raw.client.sql.antlr4.{
-  ParseProgramResult,
-  RawSqlSyntaxAnalyzer,
-  SqlBaseNode,
-  SqlIdentifierNode,
-  SqlParamUseNode,
-  SqlProjNode,
-  SqlStatementItemNode
-}
+import raw.client.sql.antlr4._
 
 case class SqlIdentifier(value: String, quoted: Boolean)
 

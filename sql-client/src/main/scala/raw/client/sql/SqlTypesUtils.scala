@@ -101,37 +101,39 @@ object SqlTypesUtils extends StrictLogging {
       case java.sql.Types.TIME => Right("time")
       case java.sql.Types.TIMESTAMP => Right("timestamp")
       case java.sql.Types.CHAR | java.sql.Types.VARCHAR | java.sql.Types.LONGVARCHAR | java.sql.Types.NCHAR |
-          java.sql.Types.NVARCHAR | java.sql.Types.LONGNVARCHAR => Right("varchar")
+           java.sql.Types.NVARCHAR | java.sql.Types.LONGNVARCHAR => Right("varchar")
       case java.sql.Types.OTHER => t.typeName match {
-          case "interval" | "json" | "jsonb" => Right(t.typeName)
-          case unsupported => Left(s"unsupported parameter type: $unsupported")
-        }
+        case "interval" | "json" | "jsonb" => Right(t.typeName)
+        case unsupported => Left(s"unsupported parameter type: $unsupported")
+      }
     }
-    pgTypeName.right.map(name => PostgresType(t.jdbcType, name))
+    pgTypeName.right.map(name => PostgresType(t.jdbcType, t.nullable, name))
   }
 
-  def rawTypeFromJdbc(tipe: PostgresType): Either[String, RawType] = rawTypeFromJdbc(tipe.jdbcType, tipe.typeName)
-
-  // returns the RawType corresponding to the given JDBC type, or an error message if the type is not supported
-  def rawTypeFromJdbc(jdbcType: Int, typeName: String): Either[String, RawType] = {
-    jdbcType match {
+  def rawTypeFromPgType(tipe: PostgresType): Either[String, RawType] = {
+    val jdbcType = tipe.jdbcType
+    val typeName = tipe.typeName
+    val rawType = jdbcType match {
       // If the type is OTHER, we need to check the specific type of the column using the type name
       case java.sql.Types.OTHER => otherTypeMap.get(typeName) match {
-          case Some(t) => Right(t)
-          case None => Left(s"Unsupported SQL type: $typeName")
-        }
+        case Some(t) => Right(t)
+        case None => Left(s"Unsupported SQL type: $typeName")
+      }
       case _ => typeMap.get(jdbcType) match {
-          case Some(sqlTypeInfo) => sqlTypeInfo.rawType match {
-              case Some(t) => Right(t)
-              case None => Left(s"Unsupported SQL type: ${sqlTypeInfo.name}")
-            }
-          case None =>
-            // this is the postgres type and the internal JDBC integer type
-            logger.error(
-              s"Unsupported SQL type: $typeName JDBC type: $jdbcType"
-            )
-            Left(s"Unsupported SQL type $typeName")
+        case Some(sqlTypeInfo) => sqlTypeInfo.rawType match {
+          case Some(t) => Right(t)
+          case None => Left(s"Unsupported SQL type: ${sqlTypeInfo.name}")
         }
+        case None =>
+          // this is the postgres type and the internal JDBC integer type
+          logger.error(
+            s"Unsupported SQL type: $typeName JDBC type: $jdbcType"
+          )
+          Left(s"Unsupported SQL type $typeName")
+      }
+    }
+    rawType.right.map { case any: RawAnyType => any
+    case t => t.cloneWithFlags(nullable = tipe.nullable, triable = false)
     }
   }
 
