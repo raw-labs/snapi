@@ -15,15 +15,8 @@ import raw.client.sql.antlr4.{
 
 case class SqlIdentifier(value: String, quoted: Boolean)
 
-class SqlCodeUtils(code: String) {
+class SqlCodeUtils(parsedTree: ParseProgramResult) {
 
-  private def parse(prog: String): ParseProgramResult = {
-    val positions = new Positions
-    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
-    syntaxAnalyzer.parse(prog)
-  }
-
-  private val parsedTree = parse(code)
   private val source = parsedTree.positions.getStart(parsedTree.tree).get.source
 
   def identifierUnder(position: Pos): Option[SqlStatementItemNode] = {

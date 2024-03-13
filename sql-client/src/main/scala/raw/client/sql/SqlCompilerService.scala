@@ -29,7 +29,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
 
   override def language: Set[String] = Set("sql")
 
-  private def parse(prog: String): Either[List[ErrorMessage], ParseProgramResult] = {
+  private def safeParse(prog: String): Either[List[ErrorMessage], ParseProgramResult] = {
     val positions = new Positions
     val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
     val tree = syntaxAnalyzer.parse(prog)
@@ -38,13 +38,20 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     else Right(tree)
   }
 
+  private def parse(prog: String): ParseProgramResult = {
+    val positions = new Positions
+    val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)
+    syntaxAnalyzer.parse(prog)
+  }
+
   override def getProgramDescription(
                                       source: String,
                                       environment: ProgramEnvironment
                                     ): GetProgramDescriptionResponse = {
     try {
       logger.debug(s"Getting program description: $source")
-      parse(source) match {
+      safeParse(source) match {
+        case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
           try {
             val conn = connectionPool.getConnection(environment.user)
@@ -86,7 +93,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
             case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
             case e: SQLTimeoutException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
           }
-        case Left(errors) => GetProgramDescriptionFailure(errors)
       }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
@@ -109,7 +115,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                       ): ExecutionResponse = {
     try {
       logger.debug(s"Executing: $source")
-      parse(source) match {
+      safeParse(source) match {
         case Left(errors) => ExecutionValidationFailure(errors)
         case Right(parsedTree) =>
           try {
@@ -235,7 +241,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def dotAutoComplete(source: String, environment: ProgramEnvironment, position: Pos): AutoCompleteResponse = {
     try {
       logger.debug(s"dotAutoComplete at position: $position")
-      val analyzer = new SqlCodeUtils(source)
+      val analyzer = new SqlCodeUtils(parse(source))
       // The editor removes the dot in the completion event
       // So we call the identifier with +1 column
       analyzer.identifierUnder(Pos(position.line, position.column + 1)) match {
@@ -250,7 +256,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           }
           logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
           AutoCompleteResponse(collectedValues.toArray)
-        case Some(use: SqlParamUseNode) => ???
+        case Some(_: SqlParamUseNode) => AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
         case _ => AutoCompleteResponse(Array.empty)
       }
     } catch {
@@ -266,20 +272,20 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                                ): AutoCompleteResponse = {
     try {
       logger.debug(s"wordAutoComplete at position: $position")
-      val analyzer = new SqlCodeUtils(source)
-      //    val idns = analyzer.getIdentifierUpTo(position)
+      val tree = parse(source)
+      val analyzer = new SqlCodeUtils(tree)
       val item = analyzer.identifierUnder(position)
       logger.debug(s"idn $item")
-      item match {
+      val matches: Seq[Completion] = item match {
         case Some(idn: SqlIdnNode) =>
           val metadataBrowser = metadataBrowsers.get(environment.user)
           val matches = metadataBrowser.getWordCompletionMatches(idn)
-          val collectedValues = matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
-          logger.debug(s"wordAutoComplete returned ${collectedValues.size} matches")
-          AutoCompleteResponse(collectedValues.toArray)
-        case Some(use: SqlParamUseNode) => ???
-        case _ => AutoCompleteResponse(Array.empty)
+          matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
+        case Some(use: SqlParamUseNode) =>
+          tree.params.collect { case (p, paramDescription) if p.startsWith(use.name) => FunParamCompletion(p, paramDescription.tipe.getOrElse("")) }.toSeq
+        case _ => Array.empty
       }
+      AutoCompleteResponse(matches.toArray)
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
     }
@@ -288,7 +294,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def hover(source: String, environment: ProgramEnvironment, position: Pos): HoverResponse = {
     try {
       logger.debug(s"Hovering at position: $position")
-      val analyzer = new SqlCodeUtils(source)
+      val tree = parse(source)
+      val analyzer = new SqlCodeUtils(tree)
       analyzer
         .identifierUnder(position)
         .map {
@@ -315,8 +322,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                 conn.close()
               }
             } catch {
-              case e: SQLException => HoverResponse(None)
-              case e: SQLTimeoutException => HoverResponse(None)
+              case _: SQLException | _: SQLTimeoutException => HoverResponse(None)
             }
         }
         .getOrElse(HoverResponse(None))
@@ -352,30 +358,30 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def validate(source: String, environment: ProgramEnvironment): ValidateResponse = {
     try {
       logger.debug(s"Validating: $source")
-      parse(source) match {
+      safeParse(source) match {
+        case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
-          val r =
+          try {
+            val conn = connectionPool.getConnection(environment.user)
             try {
-              val conn = connectionPool.getConnection(environment.user)
+              val stmt = new NamedParametersPreparedStatement(conn, source, parsedTree)
               try {
-                val stmt = new NamedParametersPreparedStatement(conn, source, parsedTree)
-                val result = stmt.queryMetadata match {
+                stmt.queryMetadata match {
                   case Right(_) => ValidateResponse(List.empty)
                   case Left(errors) => ValidateResponse(errors)
                 }
-                stmt.close()
-                result
-              } catch {
-                case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
               } finally {
-                conn.close()
+                stmt.close()
               }
             } catch {
               case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
-              case e: SQLTimeoutException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
+            } finally {
+              conn.close()
             }
-          r
-        case Left(errors) => ValidateResponse(errors)
+          } catch {
+            case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
+            case e: SQLTimeoutException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
+          }
       }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
