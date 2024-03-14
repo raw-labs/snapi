@@ -57,6 +57,14 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
+  test("""SELECT COUNT(*) FROM example.airports where :city::json is null and :city::xml is null""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val validation = compilerService.validate(t.q, environment)
+    assert(validation != null)
+
+  }
   test("""-- @type v double precisionw
          |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
     assume(password != "")
@@ -66,7 +74,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(hover != null)
 
   }
-
   ignore("""select * from public."B """.stripMargin) { t => }
 
   // Quoted value
