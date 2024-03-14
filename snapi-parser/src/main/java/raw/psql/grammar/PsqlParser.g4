@@ -56,7 +56,7 @@ multiline_value_comment: multiline_param_comment            #multilineParamComme
 multiline_param_comment: ML_PARAM_KW (ML_WORD)+
                        ;
 
-multiline_type_comment: ML_TYPE_KW ML_WORD (ML_WORD)+
+multiline_type_comment: ML_TYPE_KW (ML_WORD)+
                       ;
 
 multiline_default_comment: ML_DEFAULT_KW ML_WORD ML_WORD

@@ -23,6 +23,7 @@ class RawSqlErrorListener() extends BaseErrorListener {
     val extraneousPattern = "extraneous input '(.+)' expecting \\{(.*?)}".r
     val extraneousPattern2 = "extraneous input '(.+)' expecting '(.*?)'".r
     val noViableAlternativePattern = "no viable alternative at input '(.+)'".r
+    val mismatchedInputPattern = "mismatched input '(.+)' expecting \\{(.*?)}".r
     msg match {
       case extraneousPattern(input, expected) =>
         val result = expected.split(", ")
@@ -32,6 +33,7 @@ class RawSqlErrorListener() extends BaseErrorListener {
         val res = expected
         s"the input '$input' is not valid here; expected elements is: '$res'.'"
       case noViableAlternativePattern(_) => s"the input does not form a valid statement or expression."
+      case mismatchedInputPattern(input, _) => s"the input '$input' is not valid here."
       case _ => msg
     }
   }
