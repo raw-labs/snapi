@@ -1,0 +1,124 @@
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <groupId>com.raw-labs</groupId>
+    <artifactId>raw-snapi-parser</artifactId>
+
+    <version>0.28.39+3-09b519ca</version>
+    <packaging>jar</packaging>
+
+    <name>${project.groupId}:${project.artifactId}</name>
+
+    <description>snapi parser</description>
+    <url>https://www.raw-labs.com/</url>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <java.version>21</java.version>
+        <antlr.version>4.13.1</antlr.version>
+    </properties>
+
+    <licenses>
+        <license>
+            <name>Business Source License 1.1</name>
+            <url>https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <id>raw-labs</id>
+            <name>RAW Labs</name>
+            <email>engineering@raw-labs.com</email>
+            <url>https://github.com/raw-labs</url>
+        </developer>
+    </developers>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.antlr</groupId>
+            <artifactId>antlr4-runtime</artifactId>
+            <version>${antlr.version}</version>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <finalName>${project.artifactId}-${project.version}</finalName>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.12.1</version>
+                <executions>
+                    <execution>
+                        <id>skip-javadoc</id>
+                        <phase>none</phase>
+                    </execution>
+                </executions>
+                <configuration>
+                    <source>${java.version}</source>
+                    <target>${java.version}</target>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${antlr.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-rql2-grammar</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/java/raw/snapi/grammar</sourceDirectory>
+                            <outputDirectory>src/main/java/raw/compiler/rql2/generated</outputDirectory>
+                            <arguments>
+                                <argument>-package</argument>
+                                <argument>raw.compiler.rql2.generated</argument>
+                                <argument>-visitor</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.antlr</groupId>
+                <artifactId>antlr4-maven-plugin</artifactId>
+                <version>${antlr.version}</version>
+                <executions>
+                    <execution>
+                        <id>generate-sql-grammar</id>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>antlr4</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>src/main/java/raw/psql/grammar</sourceDirectory>
+                            <outputDirectory>src/main/java/raw/client/sql/generated</outputDirectory>
+                            <arguments>
+                                <argument>-package</argument>
+                                <argument>raw.client.sql.generated</argument>
+                                <argument>-visitor</argument>
+                            </arguments>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.sonatype.plugins</groupId>
+                <artifactId>nexus-staging-maven-plugin</artifactId>
+                <version>1.6.7</version>
+                <extensions>true</extensions>
+                <configuration>
+                    <serverId>ossrh</serverId>
+                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
+</project>
