@@ -29,11 +29,11 @@ import java.io.ByteArrayOutputStream
 class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
 
   private var compilerService: CompilerService = _
-  private val database = sys.env.getOrElse("FDW_DATABASE", "unittest")
+  private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
-  private val username = sys.env.getOrElse("FDW_USERNAME", "postgres")
-  private val password = sys.env.getOrElse("FDW_PASSWORD", "1234")
+  private val username = sys.env.getOrElse("FDW_USERNAME", "newbie")
+  private val password = sys.env.getOrElse("FDW_PASSWORD", "")
 
   property("raw.creds.jdbc.fdw.host", hostname)
   property("raw.creds.jdbc.fdw.port", port)
@@ -57,11 +57,10 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
-  test(
-    """SELECT COUNT(*) FROM example.airports
-      |WHERE :city::json IS NULL
-      |   OR :city::integer != 3
-      |   OR :city::xml IS NULL""".stripMargin) { t =>
+  test("""SELECT COUNT(*) FROM example.airports
+    |WHERE :city::json IS NULL
+    |   OR :city::integer != 3
+    |   OR :city::xml IS NULL""".stripMargin) { t =>
     assume(password != "")
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
@@ -69,11 +68,11 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(v.messages.size == 2)
     assert(v.messages(0).positions(0).begin.line == 2) // first error is about json (one position, the :city::json)
     assert(v.messages(1).positions(0).begin.line == 4) // second error is about xml (one position, the :city::xml)
-    // :city::integer is valid
+  // :city::integer is valid
   }
 
   test("""-- @type v double precisionw
-         |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
+    |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
     assume(password != "")
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))

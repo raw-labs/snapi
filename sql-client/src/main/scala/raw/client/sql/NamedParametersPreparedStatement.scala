@@ -202,13 +202,15 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
                     .mergePgTypes(typeOptions)
                     .left
                     .map(message =>
-                      List(ErrorMessage(
-                        message,
-                        locations
-                          .map(location => ErrorRange(errorPosition(location.start), errorPosition(location.end)))
-                          .toList,
-                        ErrorCode.SqlErrorCode
-                      ))
+                      List(
+                        ErrorMessage(
+                          message,
+                          locations
+                            .map(location => ErrorRange(errorPosition(location.start), errorPosition(location.end)))
+                            .toList,
+                          ErrorCode.SqlErrorCode
+                        )
+                      )
                     )
                 }
             }
