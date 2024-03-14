@@ -57,14 +57,17 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
-  ignore("""select * from public."B """.stripMargin) { t =>
+  test("""-- @type v double precisionw
+         |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
     assume(password != "")
+
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "B", Pos(1, 24))
-    assert(
-      completion.completions.toSet === Set(LetBindCompletion("BLABLABLA", "table"))
-    )
+    val hover = compilerService.hover(t.q, environment, Pos(2, 48))
+    assert(hover != null)
+
   }
+
+  ignore("""select * from public."B """.stripMargin) { t => }
 
   // Quoted value
   test("""select * from exam""".stripMargin) { t =>

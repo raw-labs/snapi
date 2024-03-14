@@ -25,7 +25,7 @@ import java.sql.{ResultSet, SQLException, SQLTimeoutException}
 import scala.util.control.NonFatal
 
 class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
-  extends CompilerService {
+    extends CompilerService {
 
   override def language: Set[String] = Set("sql")
 
@@ -53,9 +53,9 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def getProgramDescription(
-                                      source: String,
-                                      environment: ProgramEnvironment
-                                    ): GetProgramDescriptionResponse = {
+      source: String,
+      environment: ProgramEnvironment
+  ): GetProgramDescriptionResponse = {
     try {
       logger.debug(s"Getting program description: $source")
       safeParse(source) match {
@@ -69,23 +69,25 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                 case Right(info) =>
                   val parameters = info.parameters
                   val tableType = pgRowTypeToIterableType(info.outputType)
-                  val parameterTypes = parameters.map { case (name, tipe) =>
-                    SqlTypesUtils.rawTypeFromPgType(tipe).map { rawType =>
-                      // as long as default values aren't taken into account, we ignore tipe.nullable and mark
-                      // all parameters as nullable
-                      val nullableType = rawType match {
-                        case RawAnyType() => rawType;
-                        case other => other.cloneNullable
-                      }
-                      ParamDescription(name, nullableType, Some(RawNull()), false)
+                  val parameterTypes = parameters
+                    .map {
+                      case (name, tipe) => SqlTypesUtils.rawTypeFromPgType(tipe).map { rawType =>
+                          // we ignore tipe.nullable and mark all parameters as nullable
+                          val nullableType = rawType match {
+                            case RawAnyType() => rawType;
+                            case other => other.cloneNullable
+                          }
+                          // their default value is `null`.
+                          ParamDescription(name, nullableType, Some(RawNull()), false)
+                        }
                     }
-                  }.foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
-                    case (Left(errors), Left(error)) => Left(errors :+ error)
-                    case (_, Left(error)) => Left(Seq(error))
-                    case (Right(params), Right(param)) => Right(params :+ param)
-                    case (errors@Left(_), _) => errors
-                    case (_, Right(param)) => Right(Seq(param))
-                  }
+                    .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
+                      case (Left(errors), Left(error)) => Left(errors :+ error)
+                      case (_, Left(error)) => Left(Seq(error))
+                      case (Right(params), Right(param)) => Right(params :+ param)
+                      case (errors @ Left(_), _) => errors
+                      case (_, Right(param)) => Right(Seq(param))
+                    }
                   (tableType, parameterTypes) match {
                     case (Right(iterableType), Right(ps)) =>
                       // Regardless if there are parameters, we declare a main function with the output type.
@@ -97,7 +99,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                       )
                       GetProgramDescriptionSuccess(ok)
                     case _ =>
-                      val errorMessages = tableType.left.getOrElse(Seq.empty) ++ parameterTypes.left.getOrElse(Seq.empty)
+                      val errorMessages =
+                        tableType.left.getOrElse(Seq.empty) ++ parameterTypes.left.getOrElse(Seq.empty)
                       GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
                   }
                 case Left(errors) => GetProgramDescriptionFailure(errors)
@@ -128,11 +131,11 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def execute(
-                        source: String,
-                        environment: ProgramEnvironment,
-                        maybeDecl: Option[String],
-                        outputStream: OutputStream
-                      ): ExecutionResponse = {
+      source: String,
+      environment: ProgramEnvironment,
+      maybeDecl: Option[String],
+      outputStream: OutputStream
+  ): ExecutionResponse = {
     try {
       logger.debug(s"Executing: $source")
       safeParse(source) match {
@@ -151,8 +154,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                           environment.maybeArguments.foreach(array => setParams(pstmt, array))
                           val r = pstmt.executeQuery()
                           render(environment, tipe, r, outputStream)
-                        case Left(errors) =>
-                          ExecutionRuntimeFailure(errors.mkString(", "))
+                        case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
                       }
                     } catch {
                       case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
@@ -178,11 +180,11 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   private def render(
-                      environment: ProgramEnvironment,
-                      tipe: RawType,
-                      v: ResultSet,
-                      outputStream: OutputStream
-                    ): ExecutionResponse = {
+      environment: ProgramEnvironment,
+      tipe: RawType,
+      v: ResultSet,
+      outputStream: OutputStream
+  ): ExecutionResponse = {
     environment.options
       .get("output-format")
       .map(_.toLowerCase) match {
@@ -250,11 +252,11 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def formatCode(
-                           source: String,
-                           environment: ProgramEnvironment,
-                           maybeIndent: Option[Int],
-                           maybeWidth: Option[Int]
-                         ): FormatCodeResponse = {
+      source: String,
+      environment: ProgramEnvironment,
+      maybeIndent: Option[Int],
+      maybeWidth: Option[Int]
+  ): FormatCodeResponse = {
     try {
       FormatCodeResponse(Some(source))
     } catch {
@@ -280,7 +282,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           }
           logger.debug(s"dotAutoComplete returned ${collectedValues.size} matches")
           AutoCompleteResponse(collectedValues.toArray)
-        case Some(_: SqlParamUseNode) => AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
+        case Some(_: SqlParamUseNode) =>
+          AutoCompleteResponse(Array.empty) // dot completion makes no sense on parameters
         case _ => AutoCompleteResponse(Array.empty)
       }
     } catch {
@@ -289,11 +292,11 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def wordAutoComplete(
-                                 source: String,
-                                 environment: ProgramEnvironment,
-                                 prefix: String,
-                                 position: Pos
-                               ): AutoCompleteResponse = {
+      source: String,
+      environment: ProgramEnvironment,
+      prefix: String,
+      position: Pos
+  ): AutoCompleteResponse = {
     try {
       logger.debug(s"wordAutoComplete at position: $position")
       val tree = parse(source)
@@ -305,8 +308,10 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
           val metadataBrowser = metadataBrowsers.get(environment.user)
           val matches = metadataBrowser.getWordCompletionMatches(idn)
           matches.collect { case (idns, value) => LetBindCompletion(idns.last.value, value) }
-        case Some(use: SqlParamUseNode) =>
-          tree.params.collect { case (p, paramDescription) if p.startsWith(use.name) => FunParamCompletion(p, paramDescription.tipe.getOrElse("")) }.toSeq
+        case Some(use: SqlParamUseNode) => tree.params.collect {
+            case (p, paramDescription) if p.startsWith(use.name) =>
+              FunParamCompletion(p, paramDescription.tipe.getOrElse(""))
+          }.toSeq
         case _ => Array.empty[Completion]
       }
       AutoCompleteResponse(matches.toArray)
@@ -368,10 +373,10 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def goToDefinition(
-                               source: String,
-                               environment: ProgramEnvironment,
-                               position: Pos
-                             ): GoToDefinitionResponse = {
+      source: String,
+      environment: ProgramEnvironment,
+      position: Pos
+  ): GoToDefinitionResponse = {
     try {
       GoToDefinitionResponse(None)
     } catch {
@@ -436,13 +441,15 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   override def doStop(): Unit = {}
 
   private def pgRowTypeToIterableType(rowType: PostgresRowType): Either[Seq[String], RawIterableType] = {
-    val rowAttrTypes = rowType.columns.map(c => SqlTypesUtils.rawTypeFromPgType(c.tipe).map(RawAttrType(c.name, _))).foldLeft(Right(Seq.empty): Either[Seq[String], Seq[RawAttrType]]) {
-      case (Left(errors), Left(error)) => Left(errors :+ error)
-      case (_, Left(error)) => Left(Seq(error))
-      case (Right(tipes), Right(tipe)) => Right(tipes :+ tipe)
-      case (errors@Left(_), _) => errors
-      case (_, Right(attrType)) => Right(Seq(attrType))
-    }
+    val rowAttrTypes = rowType.columns
+      .map(c => SqlTypesUtils.rawTypeFromPgType(c.tipe).map(RawAttrType(c.name, _)))
+      .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[RawAttrType]]) {
+        case (Left(errors), Left(error)) => Left(errors :+ error)
+        case (_, Left(error)) => Left(Seq(error))
+        case (Right(tipes), Right(tipe)) => Right(tipes :+ tipe)
+        case (errors @ Left(_), _) => errors
+        case (_, Right(attrType)) => Right(Seq(attrType))
+      }
     rowAttrTypes.right.map(attrs => RawIterableType(RawRecordType(attrs.toVector, false, false), false, false))
   }
 

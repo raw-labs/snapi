@@ -47,6 +47,22 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     super.afterAll()
   }
 
+  test("bug") { _ =>
+    assume(password != "")
+
+    val code = """-- @type aeroport_id smallint
+      |SELECT :city::json FROM example.airports WHERE  airport_id = :aeroport_id""".stripMargin
+
+    val statement = new NamedParametersPreparedStatement(con, parse(code))
+    val metadata = statement.queryMetadata
+    assert(metadata.isLeft)
+    statement.setString("v1", "Hello!")
+    val rs = statement.executeQuery()
+
+    rs.next()
+    assert(rs.getString("arg") == "Hello!")
+  }
+
   test("single parameter") { _ =>
     assume(password != "")
 
@@ -133,7 +149,7 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     rs.next()
     assert(rs.getString("arg") == """[1, 2, "3", {"a": "Hello"}]""")
   }
-  
+
   private def parse(sourceCode: String) = {
     val positions = new Positions
     val syntaxAnalyzer = new RawSqlSyntaxAnalyzer(positions)

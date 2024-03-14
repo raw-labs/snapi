@@ -15,7 +15,13 @@ package raw.client.sql
 import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.util.Position
 import raw.client.api._
-import raw.client.sql.antlr4.{ParseProgramResult, SqlBaseNode, SqlProgramNode, SqlStatementNode}
+import raw.client.sql.antlr4.{
+  ParseProgramResult,
+  SqlBaseNode,
+  SqlParamTypeCommentNode,
+  SqlProgramNode,
+  SqlStatementNode
+}
 import raw.utils.RawSettings
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
@@ -34,20 +40,20 @@ case class PostgresColumn(name: String, tipe: PostgresType)
 
 case class PostgresRowType(columns: Seq[PostgresColumn])
 
+// Named parameters are mapped to a list of positions in the original `code` where they appear
+private case class ParamLocation(jdbcIndex: Int, start: Position, end: Position)
+
 /* The parameter `parsedTree` implies parsing errors have been potential caught and reported
    upfront, but we can't assume that tree is error-free. Indeed, for
  */
 class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgramResult)(
-  implicit rawSettings: RawSettings
+    implicit rawSettings: RawSettings
 ) extends StrictLogging {
 
+  // the whole code
   private val sourceCode: String = parsedTree.positions.getStart(parsedTree.tree).get.source.content
 
-  /* We have the query code in `code` (with named parameters). Internally we need to replace
-   * the named parameters with question marks, and keep track of the mapping between the
-   * parameter names and the question marks.
-   */
-
+  // extract the subset of the source code which corresponds to the first statement.
   private val code = {
     val SqlProgramNode(stmt: SqlStatementNode) = parsedTree.tree
     val strippedCode = for (end <- parsedTree.positions.getFinish(stmt); offset <- end.optOffset)
@@ -60,16 +66,14 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     }
   }
 
-  // Each named parameter is mapped to a list of offsets in the original `code` where it appears (starting at the colon)
-  private case class ParamLocation(jdbcIndex: Int, start: Position, end: Position)
-
-  // parameters as they appear in the source code, by order of appearance.
+  // parameters as they appear in the source code, by order of appearance. Maintaining the order
+  // in the source code is important since JDBC parameters are set by their index.
   private val orderedParameterUses = {
     val allOccurrences = for (p <- parsedTree.params.valuesIterator; o <- p.occurrences) yield o
     allOccurrences.toVector.sortBy(use => parsedTree.positions.getStart(use).map(_.optOffset))
   }
 
-  // map from parameters to their locations
+  // map from parameters to their (multiple) use locations.
   private val paramLocations = {
     parsedTree.params.mapValues(p =>
       for (
@@ -80,9 +84,13 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     )
   }
 
+  /* We have the single query code in `code` (with named parameters). Internally we need to replace
+   * the named parameters with question marks, and keep track of the mapping between the
+   * parameter names and the question marks.
+   */
+
   // Table of offsets meant to remap a postgres error offset to the user's code
   private val offsets = mutable.ArrayBuffer.empty[(Int, Int)]
-
   private val plainCode = {
     var cumulatingOffset = 0
     val buffer = StringBuilder.newBuilder
@@ -94,13 +102,12 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
         buffer.append(code.substring(index, offset))
         // do we have declared type for that parameter
         val token = parsedTree.params.get(use.name).flatMap(_.tipe) match {
-          // if so, force the type
-          case Some(t) => s"(?::$t)"
+          // if so, force the type by wrapping the question mark in a cast (validate it first)
+          case Some(userType) => vvvParamType(userType).right.map(pgType => s"(?::${pgType.typeName})").getOrElse("?")
           // else not
           case _ => "?"
         }
         cumulatingOffset += (use.name.length + 1) /* :country */ - (token.length + 1) /* ? => $1 */
-        // todo $110
         buffer.append(token)
       }
       for (start <- parsedTree.positions.getFinish(use); offset <- start.optOffset) {
@@ -113,20 +120,21 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     buffer.toString()
   }
 
+  logger.debug(plainCode)
+  paramLocations.foreach(p => logger.debug(p.toString))
+
   // A data structure for the full query info: parameters that are mapped to their inferred types,
   // and query output type (the query type)
   case class QueryInfo(parameters: Map[String, PostgresType], outputType: PostgresRowType)
 
-  private val stmt = conn.prepareStatement(plainCode)
-  logger.debug(plainCode)
-  paramLocations.foreach(p => logger.debug(p.toString))
+  private val stmt = conn.prepareStatement(plainCode) // throws SQLException in case of problem
+  private val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
 
-  //  assert(paramLocations2.keySet == paramLocations.keySet)
-  //  for ((key, locations) <- paramLocations2 ; loc <- locations) assert(paramLocations(key).contains(loc), loc.toString)
-
+  // compute the ErrorRange of a specific node (to underline it)
   private def errorRange(node: SqlBaseNode): Option[ErrorRange] = {
     for (
-      start <- parsedTree.positions.getStart(node); startPos = ErrorPosition(start.line, start.column);
+      start <- parsedTree.positions.getStart(node);
+      startPos = ErrorPosition(start.line, start.column);
       end <- parsedTree.positions.getFinish(node);
       endPos = ErrorPosition(end.line, end.column)
     ) yield ErrorRange(startPos, endPos)
@@ -136,80 +144,71 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     info.parameters(p)
   }
 
-  private val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
-
   // This is returning QueryInfo, which contains the inferred types of parameters + output type.
   // In case of SQL error, or unsupported JDBC type or..., it returns a list of error messages.
   def queryMetadata: Either[List[ErrorMessage], QueryInfo] = {
     // infer the type
-    validateParameterTypes().right.map(typeMap =>
-      QueryInfo(typeMap, queryOutputType)
-    )
+    validateParameterTypes().right.map(typeMap => QueryInfo(typeMap, queryOutputType))
   }
+
+  private def vvvParamType(tipe: String): Either[String, PostgresType] = SqlTypesUtils
+    .jdbcFromParameterType(tipe)
+    .right
+    .map(PostgresType(_, true, tipe))
+    .right
+    .flatMap(SqlTypesUtils.validateParamType)
 
   private def validateParameterTypes(): Either[List[ErrorMessage], Map[String, PostgresType]] =
     try {
       // parameter types are either declared with @type or inferred from their usage in the code
       val typesStatus: Map[String, Either[ErrorMessage, PostgresType]] = paramLocations.map {
         case (p, locations) =>
+          val isNullable = true
+          val paramInfo = parsedTree.params(p)
+          // in case of error
+          val errorLocations = (paramInfo.nodes.filter(
+            _.isInstanceOf[SqlParamTypeCommentNode]
+          ) ++ paramInfo.occurrences).flatMap(errorRange).toList
           val tStatus =
             if (locations.isEmpty && parsedTree.params(p).tipe.isEmpty) {
               // the parameter is declared (@param) but has no explicit type, and is never used
-              Left(
-                ErrorMessage(
-                  "cannot guess parameter type",
-                  parsedTree.params(p).nodes.flatMap(errorRange).toList,
-                  ErrorCode.SqlErrorCode
-                )
-              )
+              Left(ErrorMessage("cannot guess parameter type", errorLocations, ErrorCode.SqlErrorCode))
             } else {
-              val nullable = parsedTree.params(p).default.isDefined
               parsedTree.params(p).tipe match {
-                case Some(tipe) => SqlTypesUtils.pgMap.get(tipe) match {
-                  case Some(jdbc) => Right(
-                    PostgresType(
-                      jdbc,
-                      nullable,
-                      tipe
-                    )
-                  )
-                  case None => Left(
-                    ErrorMessage(
-                      "unsupported type " + tipe,
-                      parsedTree.params(p).nodes.flatMap(errorRange).toList,
-                      ErrorCode.SqlErrorCode
-                    )
-                  )
-                }
+                case Some(tipe) =>
+                  // type is specified by the user, we make sure it's supported
+                  SqlTypesUtils
+                    .jdbcFromParameterType(tipe)
+                    .right
+                    .map(PostgresType(_, isNullable, tipe))
+                    .left
+                    .map(ErrorMessage(_, errorLocations, ErrorCode.SqlErrorCode))
                 case None =>
-                  // For each parameter, we infer the type from the locations where it's used
-                  val options: Seq[Either[ErrorMessage, PostgresType]] = locations.map { location =>
-                    val t = SqlTypesUtils.validateParamType(
-                      PostgresType(
-                        metadata.getParameterType(location.jdbcIndex),
-                        nullable,
-                        metadata.getParameterTypeName(location.jdbcIndex)
-                      )
-                    )
-                    t.left.map(
-                      ErrorMessage(_, parsedTree.params(p).nodes.flatMap(errorRange).toList, ErrorCode.SqlErrorCode)
-                    )
+                  // type isn't specified but one can infer from the usage.
+                  // all locations the parameter is used are considered
+                  val allOptions: Seq[Either[ErrorMessage, PostgresType]] = locations.map { location =>
+                    val idx = location.jdbcIndex
+                    val jdbc = metadata.getParameterType(idx)
+                    val pgTypeName = metadata.getParameterTypeName(idx)
+                    SqlTypesUtils
+                      .validateParamType(PostgresType(jdbc, isNullable, pgTypeName))
+                      .left
+                      .map(ErrorMessage(_, errorLocations, ErrorCode.SqlErrorCode))
                   }
-                  assert(options.nonEmpty)
-                  options.collectFirst { case Left(error) => error } match {
+                  assert(allOptions.nonEmpty)
+                  // for that parameter, only report the first type that isn't supported
+                  allOptions.collectFirst { case Left(error) => error } match {
                     case Some(error) => Left(error)
                     case None =>
-                      val typeOptions = options.collect { case Right(t) => t }
+                      val typeOptions = allOptions.collect { case Right(t) => t }
                       SqlTypesUtils
-                        .mergeRawTypes(typeOptions)
+                        .mergePgTypes(typeOptions)
                         .left
                         .map(message =>
                           ErrorMessage(
                             message,
                             locations
-                              .map(location =>
-                                ErrorRange(errorPosition(location.start), errorPosition(location.end))
-                              )
+                              .map(location => ErrorRange(errorPosition(location.start), errorPosition(location.end)))
                               .toList,
                             ErrorCode.SqlErrorCode
                           )
@@ -230,11 +229,6 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
       }
     }
 
-  /*        SqlTypesUtils.rawTypeFromJdbc(tipe, typeName).right.map {
-    case t: RawAnyType => t
-    case t: RawType => t.cloneWithFlags(nullable, false)
-  }*/
-
   private def queryOutputType: PostgresRowType = {
     val metadata = stmt.getMetaData
     val columns = (1 to metadata.getColumnCount).map { i =>
@@ -242,8 +236,10 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
       val tipe = metadata.getColumnType(i)
       val typeName = metadata.getColumnTypeName(i)
       val nullability = metadata.isNullable(i)
-      val nullable =
+      val nullable = {
+        // report nullable if it's advertised as such, or unknown
         nullability == ResultSetMetaData.columnNullable || nullability == ResultSetMetaData.columnNullableUnknown
+      }
       PostgresColumn(name, PostgresType(tipe, nullable, typeName))
     }
     PostgresRowType(columns)
