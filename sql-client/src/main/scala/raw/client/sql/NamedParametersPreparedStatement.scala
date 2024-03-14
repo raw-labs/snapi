@@ -34,7 +34,7 @@ case class PostgresColumn(name: String, tipe: PostgresType)
 case class PostgresRowType(columns: Seq[PostgresColumn])
 
 // Named parameters are mapped to a list of positions in the original `code` where they appear
-private case class ParamLocation(jdbcIndex: Int, start: Position, end: Position)
+private case class ParamLocation(node: SqlBaseNode, jdbcIndex: Int, start: Position, end: Position)
 
 /* The parameter `parsedTree` implies parsing errors have been potential caught and reported
    upfront, but we can't assume that tree is error-free. Indeed, for
@@ -71,7 +71,7 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
         occ <- p.occurrences;
         start <- parsedTree.positions.getStart(occ);
         end <- parsedTree.positions.getFinish(occ)
-      ) yield ParamLocation(jdbcIndex = orderedParameterUses.indexWhere(_ eq occ) + 1, start, end)
+      ) yield ParamLocation(node = occ, jdbcIndex = orderedParameterUses.indexWhere(_ eq occ) + 1, start, end)
     )
   }
 
@@ -186,10 +186,11 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
                   val idx = location.jdbcIndex
                   val jdbc = metadata.getParameterType(idx)
                   val pgTypeName = metadata.getParameterTypeName(idx)
+                  val useLocation = errorRange(location.node).map(List(_)).getOrElse(errorLocations)
                   SqlTypesUtils
                     .validateParamType(PostgresType(jdbc, isNullable, pgTypeName))
                     .left
-                    .map(ErrorMessage(_, errorLocations, ErrorCode.SqlErrorCode))
+                    .map(msg => ErrorMessage(msg, useLocation, ErrorCode.SqlErrorCode))
                 }
                 assert(allOptions.nonEmpty)
                 val errors = allOptions.collect { case Left(error) => error }
