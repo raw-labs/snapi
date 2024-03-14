@@ -57,21 +57,29 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
-  test("""SELECT COUNT(*) FROM example.airports where :city::json is null and :city::xml is null""".stripMargin) { t =>
+  test(
+    """SELECT COUNT(*) FROM example.airports
+      |WHERE :city::json IS NULL
+      |   OR :city::integer != 3
+      |   OR :city::xml IS NULL""".stripMargin) { t =>
     assume(password != "")
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    val validation = compilerService.validate(t.q, environment)
-    assert(validation != null)
-
+    val v = compilerService.validate(t.q, environment)
+    assert(v.messages.size == 2)
+    assert(v.messages(0).positions(0).begin.line == 2) // first error is about json (one position, the :city::json)
+    assert(v.messages(1).positions(0).begin.line == 4) // second error is about xml (one position, the :city::xml)
+    // :city::integer is valid
   }
+
   test("""-- @type v double precisionw
          |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
     assume(password != "")
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val hover = compilerService.hover(t.q, environment, Pos(2, 48))
-    assert(hover != null)
+    // the typo in type declaration doesn't block hover info about a correct one
+    assert(hover.completion.contains(TypeCompletion("city", "varchar")))
 
   }
   ignore("""select * from public."B """.stripMargin) { t => }
