@@ -67,18 +67,17 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
               val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
               val description = stmt.queryMetadata match {
                 case Right(info) =>
-                  val parameters = info.parameters
-                  val tableType = pgRowTypeToIterableType(info.outputType)
-                  val parameterTypes = parameters
+                  val queryParamInfo = info.parameters
+                  val outputType = pgRowTypeToIterableType(info.outputType)
+                  val parameterInfo = queryParamInfo
                     .map {
-                      case (name, tipe) => SqlTypesUtils.rawTypeFromPgType(tipe).map { rawType =>
+                      case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
                           // we ignore tipe.nullable and mark all parameters as nullable
                           val nullableType = rawType match {
                             case RawAnyType() => rawType;
                             case other => other.cloneNullable
                           }
-                          // their default value is `null`.
-                          ParamDescription(name, nullableType, Some(RawNull()), false)
+                          ParamDescription(name, nullableType, paramInfo.default, required = paramInfo.default.isEmpty)
                         }
                     }
                     .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
@@ -88,7 +87,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                       case (errors @ Left(_), _) => errors
                       case (_, Right(param)) => Right(Seq(param))
                     }
-                  (tableType, parameterTypes) match {
+                  (outputType, parameterInfo) match {
                     case (Right(iterableType), Right(ps)) =>
                       // Regardless if there are parameters, we declare a main function with the output type.
                       // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
@@ -100,7 +99,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                       GetProgramDescriptionSuccess(ok)
                     case _ =>
                       val errorMessages =
-                        tableType.left.getOrElse(Seq.empty) ++ parameterTypes.left.getOrElse(Seq.empty)
+                        outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
                       GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
                   }
                 case Left(errors) => GetProgramDescriptionFailure(errors)
@@ -151,9 +150,14 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                     try {
                       pgRowTypeToIterableType(info.outputType) match {
                         case Right(tipe) =>
-                          environment.maybeArguments.foreach(array => setParams(pstmt, array))
-                          val r = pstmt.executeQuery()
-                          render(environment, tipe, r, outputStream)
+                          environment.maybeArguments.foreach(array =>
+                            array.foreach { case (p, v) => pstmt.setParam(p, v) }
+                          )
+                          val arguments = environment.maybeArguments.getOrElse(Array.empty)
+                          pstmt.executeWith(arguments) match {
+                            case Right(r) => render(environment, tipe, r, outputStream)
+                            case Left(error) => ExecutionRuntimeFailure(error)
+                          }
                         case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
                       }
                     } catch {
@@ -222,33 +226,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       case _ => ExecutionRuntimeFailure("unknown output format")
     }
 
-  }
-
-  private def setParams(statement: NamedParametersPreparedStatement, tuples: Array[(String, RawValue)]): Unit = {
-    tuples.foreach { tuple =>
-      try {
-        tuple match {
-          case (p, RawNull()) => statement.setNull(p)
-          case (p, RawByte(v)) => statement.setByte(p, v)
-          case (p, RawShort(v)) => statement.setShort(p, v)
-          case (p, RawInt(v)) => statement.setInt(p, v)
-          case (p, RawLong(v)) => statement.setLong(p, v)
-          case (p, RawFloat(v)) => statement.setFloat(p, v)
-          case (p, RawDouble(v)) => statement.setDouble(p, v)
-          case (p, RawBool(v)) => statement.setBoolean(p, v)
-          case (p, RawString(v)) => statement.setString(p, v)
-          case (p, RawDecimal(v)) => statement.setBigDecimal(p, v)
-          case (p, RawDate(v)) => statement.setDate(p, java.sql.Date.valueOf(v))
-          case (p, RawTime(v)) => statement.setTime(p, java.sql.Time.valueOf(v))
-          case (p, RawTimestamp(v)) => statement.setTimestamp(p, java.sql.Timestamp.valueOf(v))
-          case (p, RawInterval(years, months, weeks, days, hours, minutes, seconds, millis)) => ???
-          case (p, RawBinary(v)) => statement.setBytes(p, v)
-          case _ => ???
-        }
-      } catch {
-        case e: NoSuchElementException => logger.warn("Unknown parameter: " + e.getMessage)
-      }
-    }
   }
 
   override def formatCode(
@@ -340,8 +317,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
               try {
                 val pstmt = new NamedParametersPreparedStatement(conn, tree)
                 try {
-                  pstmt.parameterType(use.name) match {
-                    case Right(tipe) => HoverResponse(Some(TypeCompletion(use.name, tipe.typeName)))
+                  pstmt.parameterInfo(use.name) match {
+                    case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
                     case Left(_) => HoverResponse(None)
                   }
                 } finally {
