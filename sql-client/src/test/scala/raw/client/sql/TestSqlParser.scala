@@ -90,6 +90,27 @@ class TestSqlParser extends AnyFunSuite {
     }
   }
 
+  test("Test with spaces in default value and type") {
+    val code = """
+      | -- @param age age of the person
+      | -- @type age double precision
+      | -- @default age 10 * 3.14
+      | -- @return Returns lines when of the corresponding person's age.
+      |SELECT * FROM people WHERE "age" = :age""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+    assert(result.params.size == 1)
+    assert(result.returnDescription.contains("Returns lines when of the corresponding person's age."))
+    result.params.get("age") match {
+      case Some(param) =>
+        assert(param.name == "age")
+        assert(param.tipe.get == "double precision")
+        assert(param.default.contains("10 * 3.14"))
+        assert(param.description.get == "age of the person")
+      case None => fail("Expected parameter not found")
+    }
+  }
+
   test("Test with all parameters values multiline line comments") {
     val code = """/* @param name Name of the client.
       | @type name VARCHAR
@@ -561,4 +582,33 @@ class TestSqlParser extends AnyFunSuite {
     assert(result.isSuccess)
   }
 
+  ignore("double quoted identifier with a newline, in the end of the code") {
+    val code = """SELECT * FROM x
+      |WHERE example."c si
+      |
+      |
+      |bon"
+      |""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  ignore("-- double quoted identifier with a newline, in the end of the code") {
+    val code = """SELECT * FROM x
+      |WHERE example."c
+      |si
+      |bon
+      |""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
+
+  ignore("single quoted string with a newline, in the end of the code") {
+    val code = """SELECT 'c
+      | si
+      | bon' FROM x
+      |""".stripMargin
+    val result = doTest(code)
+    assert(result.isSuccess)
+  }
 }

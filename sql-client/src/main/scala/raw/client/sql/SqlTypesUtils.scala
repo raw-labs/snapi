@@ -87,23 +87,24 @@ object SqlTypesUtils extends StrictLogging {
   // renames the postgres type to what a user would need to write to match
   // the actual type. Or return an error.
   def validateParamType(t: PostgresType): Either[String, PostgresType] = {
-    val pgTypeName = t.jdbcType match {
-      case java.sql.Types.BIT | java.sql.Types.BOOLEAN => Right("boolean")
-      case java.sql.Types.SMALLINT => Right("smallint")
-      case java.sql.Types.INTEGER => Right("integer")
-      case java.sql.Types.BIGINT => Right("bigint")
-      case java.sql.Types.FLOAT => Right("real")
-      case java.sql.Types.REAL => Right("real")
-      case java.sql.Types.DOUBLE => Right("double precision")
-      case java.sql.Types.NUMERIC | java.sql.Types.DECIMAL => Right("decimal")
-      case java.sql.Types.DATE => Right("date")
-      case java.sql.Types.TIME => Right("time")
-      case java.sql.Types.TIMESTAMP => Right("timestamp")
+    t.jdbcType match {
+      case java.sql.Types.BIT | java.sql.Types.BOOLEAN =>
+        Right(PostgresType(java.sql.Types.BOOLEAN, t.nullable, "boolean"))
+      case java.sql.Types.SMALLINT => Right(PostgresType(java.sql.Types.SMALLINT, t.nullable, "smallint"))
+      case java.sql.Types.INTEGER => Right(PostgresType(java.sql.Types.INTEGER, t.nullable, "integer"))
+      case java.sql.Types.BIGINT => Right(PostgresType(java.sql.Types.BIGINT, t.nullable, "bigint"))
+      case java.sql.Types.FLOAT | java.sql.Types.REAL => Right(PostgresType(java.sql.Types.FLOAT, t.nullable, "real"))
+      case java.sql.Types.DOUBLE => Right(PostgresType(java.sql.Types.DOUBLE, t.nullable, "double precision"))
+      case java.sql.Types.NUMERIC | java.sql.Types.DECIMAL =>
+        Right(PostgresType(java.sql.Types.DECIMAL, t.nullable, "decimal"))
+      case java.sql.Types.DATE => Right(PostgresType(java.sql.Types.DATE, t.nullable, "date"))
+      case java.sql.Types.TIME => Right(PostgresType(java.sql.Types.TIME, t.nullable, "time"))
+      case java.sql.Types.TIMESTAMP => Right(PostgresType(java.sql.Types.TIMESTAMP, t.nullable, "timestamp"))
       case java.sql.Types.CHAR | java.sql.Types.VARCHAR | java.sql.Types.LONGVARCHAR | java.sql.Types.NCHAR |
-          java.sql.Types.NVARCHAR | java.sql.Types.LONGNVARCHAR => Right("varchar")
+          java.sql.Types.NVARCHAR | java.sql.Types.LONGNVARCHAR =>
+        Right(PostgresType(java.sql.Types.VARCHAR, t.nullable, "varchar"))
       case _ => Left(s"unsupported parameter type ${t.typeName}")
     }
-    pgTypeName.right.map(name => PostgresType(t.jdbcType, t.nullable, name))
   }
 
   def rawTypeFromPgType(tipe: PostgresType): Either[String, RawType] = {
