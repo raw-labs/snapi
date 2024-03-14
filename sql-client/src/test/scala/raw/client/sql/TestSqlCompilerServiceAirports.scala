@@ -722,6 +722,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   )
 
   test("""SELECT COUNT(*) FROM example.airports;""") { t =>
+    assume(password != "")
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = ProgramEnvironment(
@@ -739,6 +740,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |-- nothing here
       |""".stripMargin
   ) { t =>
+    assume(password != "")
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = ProgramEnvironment(
@@ -758,6 +760,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       |-- @param name Name of the client.
       |""".stripMargin
   ) { t =>
+    assume(password != "")
     val baos = new ByteArrayOutputStream()
     baos.reset()
     val noParam = ProgramEnvironment(
