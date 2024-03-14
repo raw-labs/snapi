@@ -25,7 +25,7 @@ singleline_value_comment: singleline_param_comment          #singleParamComment
 singleline_param_comment:  SL_PARAM_KW (SL_WORD)+ (SL_LINE_COMMENT_END LINE_COMMENT_START SL_SPACES singleline_normal_comment_value)*
                     ;
 
-singleline_type_comment: SL_TYPE_KW SL_WORD SL_WORD
+singleline_type_comment: SL_TYPE_KW (SL_WORD)+
                    ;
 
 singleline_default_comment: SL_DEFAULT_KW SL_WORD SL_WORD
@@ -56,7 +56,7 @@ multiline_value_comment: multiline_param_comment            #multilineParamComme
 multiline_param_comment: ML_PARAM_KW (ML_WORD)+
                        ;
 
-multiline_type_comment: ML_TYPE_KW ML_WORD ML_WORD
+multiline_type_comment: ML_TYPE_KW (ML_WORD)+
                       ;
 
 multiline_default_comment: ML_DEFAULT_KW ML_WORD ML_WORD

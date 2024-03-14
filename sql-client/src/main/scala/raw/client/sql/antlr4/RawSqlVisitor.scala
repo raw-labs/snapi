@@ -199,12 +199,12 @@ class RawSqlVisitor(
       if (context.SL_WORD(0) == null) {
         addError("Missing name for syntax @type <name> <type>", context)
         SqlErrorNode()
-      } else if (context.SL_WORD(1) == null) {
+      } else if (context.SL_WORD.size() <= 1) {
         addError("Missing type name for syntax @type <name> <type>", context)
         SqlErrorNode()
       } else {
         val name = context.SL_WORD(0).getText.trim
-        val tipe = context.SL_WORD(1).getText.trim
+        val tipe = context.SL_WORD.asScala.tail.map(_.getText.trim).mkString(" ")
         val paramTypeComment = SqlParamTypeCommentNode(name, tipe)
         positionsWrapper.setPosition(ctx, paramTypeComment)
 
@@ -395,12 +395,12 @@ class RawSqlVisitor(
       if (context.ML_WORD(0) == null) {
         addError("Missing name for syntax @type <name> <type>", context)
         SqlErrorNode()
-      } else if (context.ML_WORD(1) == null) {
+      } else if (context.ML_WORD.size() <= 1) {
         addError("Missing type name for syntax @type <name> <type>", context)
         SqlErrorNode()
       } else {
-        val name = context.ML_WORD(0).getText
-        val tipe = context.ML_WORD(1).getText
+        val name = context.ML_WORD(0).getText.trim
+        val tipe = context.ML_WORD.asScala.tail.map(_.getText.trim).mkString(" ")
         val paramTypeComment = SqlParamTypeCommentNode(name, tipe)
         positionsWrapper.setPosition(ctx, paramTypeComment)
 
