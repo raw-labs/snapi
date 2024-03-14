@@ -14,6 +14,7 @@ package raw.client.sql.metadata
 
 import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.typesafe.scalalogging.StrictLogging
+import raw.client.sql.antlr4.{SqlIdentifierNode, SqlIdnNode, SqlProjNode}
 import raw.client.sql.{SqlConnectionPool, SqlIdentifier}
 import raw.utils.{AuthenticatedUser, RawSettings}
 
@@ -54,7 +55,16 @@ class UserMetadataCache(user: AuthenticatedUser, connectionPool: SqlConnectionPo
       .build(loader)
   }
 
-  def getWordCompletionMatches(seq: Seq[SqlIdentifier]): Seq[(Seq[SqlIdentifier], String /* type */ )] = {
+  def getWordCompletionMatches(idnNode: SqlIdnNode): Seq[(Seq[SqlIdentifier], String /* type */ )] = {
+    val seq = idnNode match {
+      case n: SqlIdentifierNode => Seq(SqlIdentifier(n.name, n.isQuoted))
+      case n: SqlProjNode =>
+        if (n.identifiers.forall(_.isInstanceOf[SqlIdentifierNode])) {
+          // keep the one that's under the cursor
+          n.identifiers.collect { case i: SqlIdentifierNode => SqlIdentifier(i.name, i.isQuoted) }
+        } else Seq.empty
+    }
+
     // on word completion we get a tokenized sequence of identifiers like [raw, airp] and should find potential
     // matches. In order to use the completion cache more often, instead of sending these tokens in a WHERE clause,
     // we replace the last item (here 'airp') and keep only one letter before issuing the search. This is a trick
@@ -65,19 +75,26 @@ class UserMetadataCache(user: AuthenticatedUser, connectionPool: SqlConnectionPo
     // [air] => [a]
     //
     // when the user keeps typing example.ai, air, airp => we reuse that cached entry.
-    val SqlIdentifier(lastIdn, lastIdnQuoted) = seq.last
-    val simpler = seq.take(seq.size - 1) :+ SqlIdentifier(lastIdn.take(1), lastIdnQuoted)
-    val coarseSearch = wordCompletionCache.get(simpler) // we get too many matches here
-    def filterMatches(identifierInfo: IdentifierInfo) = {
-      val lastToken = identifierInfo.name.last.value
-      if (lastIdnQuoted) lastToken.startsWith(lastIdn)
-      else lastToken.startsWith(lastIdn.toLowerCase)
-    }
-    val r = coarseSearch
-      .collect {
-        case i if filterMatches(i) => (i.name, i.tipe)
+
+    seq.lastOption
+      .map {
+        case SqlIdentifier(lastIdn, lastIdnQuoted) =>
+          val simpler = seq.take(seq.size - 1) :+ SqlIdentifier(lastIdn.take(1), lastIdnQuoted)
+          val coarseSearch = wordCompletionCache.get(simpler) // we get too many matches here
+
+          def filterMatches(identifierInfo: IdentifierInfo) = {
+            val lastToken = identifierInfo.name.last.value
+            if (lastIdnQuoted) lastToken.startsWith(lastIdn)
+            else lastToken.startsWith(lastIdn.toLowerCase)
+          }
+
+          val r = coarseSearch
+            .collect {
+              case i if filterMatches(i) => (i.name, i.tipe)
+            }
+          r
       }
-    r
+      .getOrElse(Seq.empty)
   }
 
   private val dotCompletionCache = {
@@ -103,7 +120,15 @@ class UserMetadataCache(user: AuthenticatedUser, connectionPool: SqlConnectionPo
       .build(loader)
   }
 
-  def getDotCompletionMatches(seq: Seq[SqlIdentifier]): Seq[(Seq[SqlIdentifier], String)] = {
+  def getDotCompletionMatches(idnNode: SqlIdnNode): Seq[(Seq[SqlIdentifier], String)] = {
+    val seq = idnNode match {
+      case n: SqlIdentifierNode => Seq(SqlIdentifier(n.name, n.isQuoted))
+      case n: SqlProjNode =>
+        if (n.identifiers.forall(_.isInstanceOf[SqlIdentifierNode])) {
+          // keep the one that's under the cursor
+          n.identifiers.collect { case i: SqlIdentifierNode => SqlIdentifier(i.name, i.isQuoted) }
+        } else Seq.empty
+    }
     dotCompletionCache.get(seq).map(i => (i.name, i.tipe))
   }
 

@@ -10,9 +10,8 @@
  * licenses/APL.txt.
  */
 
-module raw.snapi.parser {
-  exports raw.compiler.rql2.generated;
-  exports raw.client.sql.generated;
+package raw.client.sql.antlr4
 
-  requires org.antlr.antlr4.runtime;
+object SqlParserErrors {
+  val ParserErrorCode = "parserError"
 }
