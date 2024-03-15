@@ -152,7 +152,7 @@ trait BenchmarkTests extends CompilerTestContext {
   }
 
   test("Range Join File with db test tpch10") { _ =>
-    assume(true, "This test is disabled by default")
+    assume(false, "This test is disabled by default")
 
     val prog = """let
       |    lineitemsType = type collection(record(l_orderkey: int, l_payedammount: double)),

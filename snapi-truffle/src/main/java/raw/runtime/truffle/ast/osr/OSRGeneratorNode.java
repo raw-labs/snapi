@@ -41,4 +41,9 @@ public class OSRGeneratorNode extends Node implements RepeatingNode {
       throw new RawTruffleInternalErrorException(e);
     }
   }
+
+  @Override
+  public String toString() {
+    return bodyNode.toString();
+  }
 }

@@ -176,8 +176,7 @@ public class IterableNodes {
           getGeneratorNode1.execute(thisNode, collection.getParentIterable1());
       Object parentGenerator2 =
           getGeneratorNode2.execute(thisNode, collection.getParentIterable2());
-      return new AbstractGenerator(
-          new ZipComputeNext(parentGenerator1, parentGenerator2));
+      return new AbstractGenerator(new ZipComputeNext(parentGenerator1, parentGenerator2));
     }
 
     public static LoopNode getDistinctGenLoopNode(DistinctCollection collection) {

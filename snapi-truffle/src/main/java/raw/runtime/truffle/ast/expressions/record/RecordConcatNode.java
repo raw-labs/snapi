@@ -12,41 +12,26 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.dsl.Bind;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
+import java.util.List;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 
 @NodeInfo(shortName = "Record.Concat")
 @NodeChild("record1")
 @NodeChild("record2")
+@ImportStatic(RecordStaticInitializers.class)
 public abstract class RecordConcatNode extends ExpressionNode {
 
-  public static RawLanguage getCachedLanguage(Node node) {
-    return RawLanguage.get(node);
-  }
-
-  public static RecordNodes.AddPropNode[] getAddPropNode(int size) {
-    RecordNodes.AddPropNode[] result = new RecordNodes.AddPropNode[size];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = RecordNodesFactory.AddPropNodeGen.create();
-    }
-    return result;
-  }
-
-  public static RecordNodes.GetValueNode[] getValueNode(int size) {
-    RecordNodes.GetValueNode[] result = new RecordNodes.GetValueNode[size];
-    for (int i = 0; i < result.length; i++) {
-      result[i] = RecordNodesFactory.GetValueNodeGen.create();
-    }
-    return result;
+  public static boolean hasDuplicateKeysBetween(Object[] keys1, Object[] keys2) {
+    List<Object> list = new ArrayList<>(List.of(keys1));
+    list.addAll(List.of(keys2));
+    return list.size() != list.stream().distinct().count();
   }
 
   @Specialization
@@ -69,20 +54,28 @@ public abstract class RecordConcatNode extends ExpressionNode {
       @Cached(value = "getAddPropNode(objKeys1.length)", neverDefault = true)
           RecordNodes.AddPropNode[] addPropNode1,
       @Cached(value = "getAddPropNode(objKeys2.length)", neverDefault = true)
-          RecordNodes.AddPropNode[] addPropNode2) {
+          RecordNodes.AddPropNode[] addPropNode2,
+      @Cached(value = "hasDuplicateKeysBetween(objKeys1, objKeys2)", neverDefault = false)
+          boolean hasDuplicateKeys) {
 
     Object result = lang.createPureRecord();
 
     for (int i = 0; i < objKeys1.length; i++) {
-      result =
-          addPropNode1[i].execute(
-              thisNode, result, objKeys1[i], getValueNode1[i].execute(thisNode, rec1, objKeys1[i]));
+      addPropNode1[i].execute(
+          thisNode,
+          result,
+          objKeys1[i],
+          getValueNode1[i].execute(thisNode, rec1, objKeys1[i]),
+          hasDuplicateKeys);
     }
 
     for (int i = 0; i < objKeys2.length; i++) {
-      result =
-          addPropNode2[i].execute(
-              thisNode, result, objKeys2[i], getValueNode2[i].execute(thisNode, rec2, objKeys2[i]));
+      addPropNode2[i].execute(
+          thisNode,
+          result,
+          objKeys2[i],
+          getValueNode2[i].execute(thisNode, rec2, objKeys2[i]),
+          hasDuplicateKeys);
     }
 
     return result;

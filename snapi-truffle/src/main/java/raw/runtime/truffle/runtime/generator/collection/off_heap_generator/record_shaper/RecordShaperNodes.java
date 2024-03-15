@@ -42,8 +42,8 @@ public class RecordShaperNodes {
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
       Object record = language.createPureRecord();
-      record = addPropNode1.execute(thisNode, record, "key", key);
-      record = addPropNode2.execute(thisNode, record, "group", new ObjectList(values).toIterable());
+      addPropNode1.execute(thisNode, record, "key", key, false);
+      addPropNode2.execute(thisNode, record, "group", new ObjectList(values).toIterable(), false);
 
       return record;
     }
@@ -59,8 +59,8 @@ public class RecordShaperNodes {
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
         @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
       Object record = language.createPureRecord();
-      record = addPropNode1.execute(node, record, "key", key);
-      record = addPropNode2.execute(node, record, "group", new ObjectList(values));
+      addPropNode1.execute(node, record, "key", key, false);
+      addPropNode2.execute(node, record, "group", new ObjectList(values), false);
       return record;
     }
 

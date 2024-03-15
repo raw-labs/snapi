@@ -54,58 +54,58 @@ public abstract class LocationLlNode extends ExpressionNode {
       for (int i = 0; i < size; i++) {
         Object topRecord = RawLanguage.get(this).createPureRecord();
         Object metadata = RawLanguage.get(this).createPureRecord();
-        topRecord = addPropNode.execute(this, topRecord, "url", values.apply(i)._1.rawUri());
+        addPropNode.execute(this, topRecord, "url", values.apply(i)._1.rawUri(), false);
         if (values.apply(i)._2 instanceof DirectoryMetadata) {
           DirectoryMetadata directoryMetadata = (DirectoryMetadata) values.apply(i)._2;
           if (directoryMetadata.modifiedInstant().isDefined()) {
-            metadata =
-                addPropNode.execute(
-                    this,
-                    metadata,
-                    "modified",
-                    new TimestampObject(
-                        LocalDateTime.ofInstant(
-                            directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC)));
+
+            addPropNode.execute(
+                this,
+                metadata,
+                "modified",
+                new TimestampObject(
+                    LocalDateTime.ofInstant(
+                        directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC)),
+                false);
           } else {
-            metadata = addPropNode.execute(this, metadata, "modified", NullObject.INSTANCE);
+            addPropNode.execute(this, metadata, "modified", NullObject.INSTANCE, false);
           }
-          metadata = addPropNode.execute(this, metadata, "size", NullObject.INSTANCE);
-          metadata = addPropNode.execute(this, metadata, "blocks", new ObjectList(new Object[0]));
+          addPropNode.execute(this, metadata, "size", NullObject.INSTANCE, false);
+          addPropNode.execute(this, metadata, "blocks", new ObjectList(new Object[0]), false);
         } else {
           FileMetadata fileMetadata = (FileMetadata) values.apply(i)._2;
           if (fileMetadata.modifiedInstant().isDefined()) {
-            metadata =
-                addPropNode.execute(
-                    this,
-                    metadata,
-                    "modified",
-                    new TimestampObject(
-                        LocalDateTime.ofInstant(
-                            fileMetadata.modifiedInstant().get(), ZoneOffset.UTC)));
+            addPropNode.execute(
+                this,
+                metadata,
+                "modified",
+                new TimestampObject(
+                    LocalDateTime.ofInstant(fileMetadata.modifiedInstant().get(), ZoneOffset.UTC)),
+                false);
           } else {
-            metadata = addPropNode.execute(this, metadata, "modified", NullObject.INSTANCE);
+            addPropNode.execute(this, metadata, "modified", NullObject.INSTANCE, false);
           }
           if (fileMetadata.size().isDefined()) {
-            metadata = addPropNode.execute(this, metadata, "size", fileMetadata.size().get());
+            addPropNode.execute(this, metadata, "size", fileMetadata.size().get(), false);
           } else {
-            metadata = addPropNode.execute(this, metadata, "size", NullObject.INSTANCE);
+            addPropNode.execute(this, metadata, "size", NullObject.INSTANCE, false);
           }
           int blocksSize = fileMetadata.blocks().length;
           Object[] blocks = new Object[blocksSize];
           for (int j = 0; j < blocksSize; j++) {
             Object block = RawLanguage.get(this).createPureRecord();
-            block =
-                addPropNode.execute(
-                    this, block, "hosts", new StringList(fileMetadata.blocks()[j].hosts()));
-            block = addPropNode.execute(this, block, "offset", fileMetadata.blocks()[j].offset());
-            block = addPropNode.execute(this, block, "length", fileMetadata.blocks()[j].length());
+
+            addPropNode.execute(
+                this, block, "hosts", new StringList(fileMetadata.blocks()[j].hosts()), false);
+            addPropNode.execute(this, block, "offset", fileMetadata.blocks()[j].offset(), false);
+            addPropNode.execute(this, block, "length", fileMetadata.blocks()[j].length(), false);
             blocks[j] = block;
           }
 
           ObjectList blockList = new ObjectList(blocks);
-          metadata = addPropNode.execute(this, metadata, "blocks", blockList);
+          addPropNode.execute(this, metadata, "blocks", blockList, false);
         }
-        topRecord = addPropNode.execute(this, topRecord, "metadata", metadata);
+        addPropNode.execute(this, topRecord, "metadata", metadata, false);
         result[i] = topRecord;
       }
 

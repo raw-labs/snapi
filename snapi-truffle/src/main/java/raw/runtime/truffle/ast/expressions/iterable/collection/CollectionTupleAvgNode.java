@@ -45,13 +45,13 @@ public class CollectionTupleAvgNode extends ExpressionNode {
     Object[] results = (Object[]) aggregate.executeGeneric(virtualFrame);
     Object record = RawLanguage.get(this).createPureRecord();
     if ((long) results[1] == (long) zeroNode.execute(this, Aggregations.COUNT)) {
-      record = addPropNode.execute(this, record, "sum", zeroNode.execute(this, Aggregations.SUM));
+      addPropNode.execute(this, record, "sum", zeroNode.execute(this, Aggregations.SUM), false);
     } else {
-      record =
-          addPropNode.execute(
-              this, record, "sum", new DecimalObject(new BigDecimal(results[0].toString())));
+
+      addPropNode.execute(
+          this, record, "sum", new DecimalObject(new BigDecimal(results[0].toString())), false);
     }
-    record = addPropNode.execute(this, record, "count", results[1]);
+    addPropNode.execute(this, record, "count", results[1], false);
     return record;
   }
 }

@@ -12,8 +12,6 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
-import raw.runtime.truffle.RawLanguage;
-
 public class ZipComputeNext {
   private final Object parent1;
 

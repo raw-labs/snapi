@@ -16,6 +16,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.Arrays;
+import java.util.List;
 import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -32,6 +34,7 @@ public class RecordParseCsvNode extends ExpressionNode {
 
   private final Rql2AttrType[] columns;
 
+  private final boolean hasDuplicateKeys;
   private final RawLanguage language = RawLanguage.get(this);
 
   public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
@@ -44,6 +47,10 @@ public class RecordParseCsvNode extends ExpressionNode {
     for (int i = 0; i < columns.length; i++) {
       addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
     }
+
+    List<String> keys = Arrays.stream(columns).map(Rql2AttrType::idn).toList();
+
+    hasDuplicateKeys = keys.size() != keys.stream().distinct().count();
   }
 
   @Override
@@ -57,7 +64,7 @@ public class RecordParseCsvNode extends ExpressionNode {
       String fieldName = columns[i].idn();
       parser.getNextField();
       Object value = childDirectCalls[i].call(parser);
-      record = addPropNode[i].execute(this, record, fieldName, value);
+      addPropNode[i].execute(this, record, fieldName, value, hasDuplicateKeys);
     }
     parser.finishLine(this);
     return record;

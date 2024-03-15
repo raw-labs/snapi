@@ -16,6 +16,8 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.Arrays;
+import java.util.List;
 import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
@@ -34,6 +36,8 @@ public class RecordReadJdbcQuery extends ExpressionNode {
 
   private final RawLanguage language = RawLanguage.get(this);
 
+  private final boolean hasDuplicateKeys;
+
   public RecordReadJdbcQuery(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
     this.columns = columns;
     this.childDirectCalls = new DirectCallNode[columnParsers.length];
@@ -44,6 +48,8 @@ public class RecordReadJdbcQuery extends ExpressionNode {
     for (int i = 0; i < columns.length; i++) {
       addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
     }
+    List<String> listOfKeys = Arrays.stream(columns).map(Rql2AttrType::idn).toList();
+    hasDuplicateKeys = listOfKeys.size() != listOfKeys.stream().distinct().count();
   }
 
   @Override
@@ -55,7 +61,7 @@ public class RecordReadJdbcQuery extends ExpressionNode {
     for (int i = 0; i < columns.length; i++) {
       String fieldName = columns[i].idn();
       Object value = childDirectCalls[i].call(rs);
-      record = addPropNode[i].execute(this, record, fieldName, value);
+      addPropNode[i].execute(this, record, fieldName, value, hasDuplicateKeys);
     }
     return record;
   }

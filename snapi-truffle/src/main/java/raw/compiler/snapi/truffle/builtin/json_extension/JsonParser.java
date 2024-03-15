@@ -37,6 +37,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import scala.collection.JavaConverters;
 
 import java.util.LinkedHashMap;
+import java.util.List;
 
 import static raw.compiler.snapi.truffle.builtin.CompilerScalaConsts.*;
 
@@ -112,10 +113,13 @@ public class JsonParser {
                     .map(att -> recurse((Rql2TypeWithProperties) att.tipe(),lang))
                     .toArray(ProgramExpressionNode[]::new);
             JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).forEach(a -> hashMap.put(a.idn(),hashMap.size()));
+            List<String> keys = JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(Rql2AttrType::idn).toList();
+            boolean hasDuplicateKeys = keys.size() != keys.stream().distinct().count();
             yield new RecordParseJsonNode(
                     children,
                     hashMap,
-                    JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new)
+                    JavaConverters.asJavaCollection(r.atts()).stream().map(a -> (Rql2AttrType) a).map(a -> (Rql2TypeWithProperties) a.tipe()).toArray(Rql2TypeWithProperties[]::new),
+                    hasDuplicateKeys
             );
           }
           case Rql2ByteType ignored -> ByteParseJsonNodeGen.create();

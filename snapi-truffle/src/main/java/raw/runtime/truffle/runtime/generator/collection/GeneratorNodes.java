@@ -15,6 +15,7 @@ package raw.runtime.truffle.runtime.generator.collection;
 import com.esotericsoftware.kryo.KryoException;
 import com.esotericsoftware.kryo.io.Input;
 import com.esotericsoftware.kryo.unsafe.UnsafeInput;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -82,7 +83,7 @@ public class GeneratorNodes {
         Node node,
         GroupByMemoryGenerator generator,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("reshape") RecordShaperNodes.MakeRowNode reshape) {
+        @Cached @Cached.Exclusive RecordShaperNodes.MakeRowNode reshape) {
       TreeMapNode treeNode = generator.getTreeNodesIterator().nextNode();
       @SuppressWarnings("unchecked")
       ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
@@ -93,16 +94,20 @@ public class GeneratorNodes {
           values.toArray());
     }
 
+    @CompilerDirectives.TruffleBoundary
+    static void closeInput(Input input) {
+      input.close();
+    }
+
     @Specialization
     static Object next(
         Node node,
         GroupBySpilledFilesGenerator generator,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
+        @Cached @Cached.Exclusive InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
         @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare,
-        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
-        @Cached @Cached.Shared("read") InputBufferNodes.InputBufferReadNode readNode,
-        @Cached @Cached.Shared("reshape") RecordShaperNodes.MakeRowNode reshape) {
+        @Cached @Cached.Exclusive InputBufferNodes.InputBufferReadNode readNode,
+        @Cached @Cached.Exclusive RecordShaperNodes.MakeRowNode reshape) {
       Object key = null;
       // read missing keys and compute the smallest
       for (int idx = 0; idx < generator.getInputBuffers().size(); idx++) {
@@ -115,7 +120,7 @@ public class GeneratorNodes {
         } catch (KryoException e) {
           // we reached the end of that buffer
           final GroupByInputBuffer removed = generator.getInputBuffers().remove(idx);
-          closeNode.execute(thisNode, removed);
+          closeInput(removed.getInput());
           idx--;
         }
       }
@@ -171,9 +176,8 @@ public class GeneratorNodes {
         Node node,
         OrderBySpilledFilesGenerator generator,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
-        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
-        @Cached @Cached.Shared("read") InputBufferNodes.InputBufferReadNode readNode,
+        @Cached @Cached.Exclusive InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
+        @Cached @Cached.Exclusive InputBufferNodes.InputBufferReadNode readNode,
         @Cached OperatorNodes.CompareKeys keysCompare) {
       if (generator.getCurrentKryoBuffer() == null) {
         // we need to read the next keys and prepare the new buffer to read from.
@@ -195,7 +199,7 @@ public class GeneratorNodes {
           } catch (KryoException e) {
             // we reached the end of that buffer
             OrderByInputBuffer removed = generator.getInputBuffers().remove(idx);
-            closeNode.execute(thisNode, removed);
+            closeInput(removed.getInput());
             idx--;
           }
         }
@@ -315,14 +319,18 @@ public class GeneratorNodes {
       return generator.getTreeNodesIterator().hasNext();
     }
 
+    @CompilerDirectives.TruffleBoundary
+    static void closeInput(Input input) {
+      input.close();
+    }
+
     @Specialization
     static boolean hasNext(
         Node node,
         GroupBySpilledFilesGenerator generator,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
-        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare,
-        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode) {
+        @Cached @Cached.Exclusive InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
+        @Cached @Cached.Shared("keyCompare") OperatorNodes.CompareNode keyCompare) {
       Object key = null;
       // read missing keys and compute the smallest
       for (int idx = 0; idx < generator.getInputBuffers().size(); idx++) {
@@ -335,7 +343,7 @@ public class GeneratorNodes {
         } catch (KryoException e) {
           // we reached the end of that buffer
           final GroupByInputBuffer removed = generator.getInputBuffers().remove(idx);
-          closeNode.execute(thisNode, removed);
+          closeInput(removed.getInput());
           idx--;
         }
       }
@@ -352,8 +360,7 @@ public class GeneratorNodes {
         Node node,
         OrderBySpilledFilesGenerator generator,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("headKey") InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
-        @Cached @Cached.Shared("inputClose") InputBufferNodes.InputBufferCloseNode closeNode,
+        @Cached @Cached.Exclusive InputBufferNodes.InputBufferHeadKeyNode headKeyNode,
         @Cached OperatorNodes.CompareKeys keysCompare) {
       // we need to read the next keys and prepare the new buffer to read from.
       Object[] keys = null;
@@ -374,7 +381,7 @@ public class GeneratorNodes {
         } catch (KryoException e) {
           // we reached the end of that buffer
           OrderByInputBuffer removed = generator.getInputBuffers().remove(idx);
-          closeNode.execute(thisNode, removed);
+          closeInput(removed.getInput());
           idx--;
         }
       }

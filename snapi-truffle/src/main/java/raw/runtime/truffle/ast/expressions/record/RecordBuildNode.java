@@ -16,6 +16,7 @@ import com.oracle.truffle.api.CompilerAsserts;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.List;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
@@ -28,14 +29,19 @@ public class RecordBuildNode extends ExpressionNode {
 
   @Children private final ExpressionNode[] elementNodes;
 
+  private final String[] keys;
+
+  private final boolean hasDuplicateKeys;
+
   private final RawLanguage language = RawLanguage.get(this);
 
-  public RecordBuildNode(ExpressionNode[] elementsNodes) {
+  public RecordBuildNode(ExpressionNode[] elementsNodes, String[] keys) {
     CompilerAsserts.compilationConstant(elementsNodes.length);
-    // elementsNodes is a an array of k1, v1, k2, v2, ..., kn, vn.
-    assert elementsNodes.length % 2 == 0;
     this.elementNodes = elementsNodes;
-    this.addPropNode = new RecordNodes.AddPropNode[elementsNodes.length / 2];
+    List<String> listOfKeys = List.of(keys);
+    hasDuplicateKeys = listOfKeys.size() != listOfKeys.stream().distinct().count();
+    this.keys = keys;
+    this.addPropNode = new RecordNodes.AddPropNode[elementsNodes.length];
     for (int i = 0; i < addPropNode.length; i++) {
       this.addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
     }
@@ -45,11 +51,9 @@ public class RecordBuildNode extends ExpressionNode {
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     Object record = language.createPureRecord();
-    for (int i = 0, j = 0; i < elementNodes.length; i += 2, j++) {
-      // i jump by 2 because we have k1, v1, k2, v2, ..., kn, vn.
-      Object key = elementNodes[i].executeGeneric(frame);
-      Object value = elementNodes[i + 1].executeGeneric(frame);
-      record = addPropNode[j].execute(this, record, key, value);
+    for (int i = 0; i < elementNodes.length; i++) {
+      Object value = elementNodes[i].executeGeneric(frame);
+      addPropNode[i].execute(this, record, keys[i], value, hasDuplicateKeys);
     }
     return record;
   }

@@ -53,7 +53,7 @@ public class PureRecord extends DynamicObject implements TruffleObject {
   @ExportMessage
   Object getMembers(
       @SuppressWarnings("unused") boolean includeInternal,
-      @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode,
+      @Cached(inline = true) PureRecordNodes.GetKeysNode getKeysNode,
       @Bind("$node") Node thisNode) {
     Object[] keys = getKeysNode.execute(thisNode, this);
     return new KeysObject(keys);
@@ -63,7 +63,7 @@ public class PureRecord extends DynamicObject implements TruffleObject {
   @ExportMessage(name = "isMemberModifiable")
   boolean existsMember(
       String member,
-      @Cached(inline = true) @Cached.Shared("exists") RecordNodes.ExistsNode existsNode,
+      @Cached(inline = true) @Cached.Shared("exists") PureRecordNodes.ExistNode existsNode,
       @Bind("$node") Node thisNode) {
     return existsNode.execute(thisNode, this, member);
   }
@@ -81,7 +81,7 @@ public class PureRecord extends DynamicObject implements TruffleObject {
   @ExportMessage
   Object readMember(
       String name,
-      @Cached(inline = true) RecordNodes.GetValueNode getValueNode,
+      @Cached(inline = true) PureRecordNodes.GetValueNode getValueNode,
       @Bind("$node") Node thisNode) {
     // Interop API, we assume the searched key should be found in the distinct keys.
     return getValueNode.execute(thisNode, this, name);
@@ -100,7 +100,7 @@ public class PureRecord extends DynamicObject implements TruffleObject {
       String name,
       Object value,
       @Bind("$node") Node thisNode,
-      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
+      @Cached(inline = true) PureRecordNodes.AddPropNode addPropNode) {
     // this returns a value but we don't use it (we are immutable)
     addPropNode.execute(thisNode, this, name, value);
   }
@@ -109,7 +109,7 @@ public class PureRecord extends DynamicObject implements TruffleObject {
   void removeMember(
       String name,
       @Bind("$node") Node thisNode,
-      @Cached(inline = true) RecordNodes.RemovePropNode removePropNode) {
+      @Cached(inline = true) PureRecordNodes.RemovePropNode removePropNode) {
     removePropNode.execute(thisNode, this, name);
   }
 }

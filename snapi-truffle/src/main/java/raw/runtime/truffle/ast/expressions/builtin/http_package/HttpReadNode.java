@@ -82,10 +82,10 @@ public abstract class HttpReadNode extends ExpressionNode {
         }
       }
 
-      record = addPropNode.execute(this, record, "status", result.status());
+      addPropNode.execute(this, record, "status", result.status(), false);
 
       try (InputStream is = result.is()) {
-        record = addPropNode.execute(this, record, "data", new BinaryObject(is.readAllBytes()));
+        addPropNode.execute(this, record, "data", new BinaryObject(is.readAllBytes()), false);
       }
 
       IndexedSeq<Tuple2<String, String>> headerTuples = result.headers().toIndexedSeq();
@@ -93,12 +93,12 @@ public abstract class HttpReadNode extends ExpressionNode {
 
       for (int i = 0; i < result.headers().size(); i++) {
         headers[i] = RawLanguage.get(this).createPureRecord();
-        headers[i] = addPropNode.execute(this, headers[i], "_1", headerTuples.apply(i)._1());
-        headers[i] = addPropNode.execute(this, headers[i], "_2", headerTuples.apply(i)._2());
+        addPropNode.execute(this, headers[i], "_1", headerTuples.apply(i)._1(), false);
+        addPropNode.execute(this, headers[i], "_2", headerTuples.apply(i)._2(), false);
       }
 
       ObjectList headersResult = new ObjectList(headers);
-      record = addPropNode.execute(this, record, "headers", headersResult);
+      addPropNode.execute(this, record, "headers", headersResult, false);
 
       return record;
     } catch (LocationException | IOException e) {

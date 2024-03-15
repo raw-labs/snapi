@@ -34,7 +34,7 @@ public class NullableWriteJsonNode extends StatementNode {
 
   @Child
   private TryableNullableNodes.IsNullNode isNullNode =
-          TryableNullableNodesFactory.IsNullNodeGen.create();
+      TryableNullableNodesFactory.IsNullNodeGen.create();
 
   public NullableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());

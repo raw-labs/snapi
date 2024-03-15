@@ -182,8 +182,8 @@ public class ComputeNextNodes {
         UnionComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode) {
       Object currentGenerator;
@@ -287,8 +287,8 @@ public class ComputeNextNodes {
         Node node,
         TakeComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode) {
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode) {
       if (computeNext.getCurrentCount() < computeNext.getTakeCount()
           && hasNextNode.execute(thisNode, computeNext.getParent())) {
         computeNext.incrementCurrentCount();
@@ -302,7 +302,7 @@ public class ComputeNextNodes {
         Node node,
         TransformComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached @Cached.Shared("executeOne")
             FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
@@ -321,7 +321,7 @@ public class ComputeNextNodes {
         UnnestComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
@@ -368,21 +368,20 @@ public class ComputeNextNodes {
         ZipComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode1,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode2,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode1,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode2,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode1,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode2,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode1,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode2,
         @Cached RecordNodes.AddPropNode addPropNode1,
         @Cached RecordNodes.AddPropNode addPropNode2) {
       if (hasNextNode1.execute(thisNode, computeNext.getParent1())
           && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
         Object record = language.createPureRecord();
-        record =
-            addPropNode1.execute(
-                thisNode, record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()));
-        record =
-            addPropNode2.execute(
-                thisNode, record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()));
+        addPropNode1.execute(
+            thisNode, record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()), false);
+
+        addPropNode2.execute(
+            thisNode, record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()), false);
         return record;
       }
       throw new BreakException();

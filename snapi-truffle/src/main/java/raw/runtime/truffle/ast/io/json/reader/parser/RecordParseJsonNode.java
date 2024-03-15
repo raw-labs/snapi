@@ -69,10 +69,13 @@ public class RecordParseJsonNode extends ExpressionNode {
 
   private final RawLanguage language = RawLanguage.get(this);
 
+  private final boolean hasDuplicateKeys;
+
   public RecordParseJsonNode(
       ProgramExpressionNode[] childProgramExpressionNode,
       LinkedHashMap<String, Integer> fieldNamesMap,
-      Rql2TypeWithProperties[] fieldTypes) {
+      Rql2TypeWithProperties[] fieldTypes,
+      boolean hasDuplicateKeys) {
     this.fieldTypes = fieldTypes;
     this.fieldNamesMap = fieldNamesMap;
     this.fieldsSize = childProgramExpressionNode.length;
@@ -85,6 +88,7 @@ public class RecordParseJsonNode extends ExpressionNode {
     for (int i = 0; i < this.fieldsSize; i++) {
       this.addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
     }
+    this.hasDuplicateKeys = hasDuplicateKeys;
   }
 
   @CompilerDirectives.TruffleBoundary
@@ -100,9 +104,8 @@ public class RecordParseJsonNode extends ExpressionNode {
       nextTokenNode.execute(this, parser); // skip the field name
       if (index != null) {
         setBitSet(currentBitSet, index);
-        record =
-            addPropNode[index].execute(
-                this, record, fieldName, childDirectCalls[index].call(parser));
+        addPropNode[index].execute(
+            this, record, fieldName, childDirectCalls[index].call(parser), hasDuplicateKeys);
       } else {
         // skip the field value
         skipNode.execute(this, parser);
@@ -143,7 +146,7 @@ public class RecordParseJsonNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            record = addPropNode[i].execute(this, record, fields[i], nullValue);
+            addPropNode[i].execute(this, record, fields[i], nullValue, hasDuplicateKeys);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i], this);
           }

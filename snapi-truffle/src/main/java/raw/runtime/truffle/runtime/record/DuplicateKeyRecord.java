@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.record;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
@@ -64,6 +65,7 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
     return keys.size();
   }
 
+  @CompilerDirectives.TruffleBoundary
   public void addKey(Object key) {
     keys.add(key);
     distinctValid = false;
@@ -130,7 +132,7 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
   @ExportMessage
   Object readMember(
       String name,
-      @Cached(inline = true) RecordNodes.GetValueNode getValueNode,
+      @Cached(inline = true) DuplicateKeyRecordNodes.GetValueNode getValueNode,
       @Bind("$node") Node thisNode) {
     // Interop API, we assume the searched key should be found in the distinct keys.
     return getValueNode.execute(thisNode, this, name);
@@ -149,7 +151,7 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
       String name,
       Object value,
       @Bind("$node") Node thisNode,
-      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
+      @Cached(inline = true) DuplicateKeyRecordNodes.AddPropNode addPropNode) {
     // this returns a value but we don't use it (we are immutable)
     addPropNode.execute(thisNode, this, name, value);
   }

@@ -167,27 +167,27 @@ public abstract class LocationDescribeNode extends ExpressionNode {
 
       Object record = RawLanguage.get(this).createPureRecord();
 
-      record = addPropNode.execute(this, record, "format", format);
-      record = addPropNode.execute(this, record, "comment", comment);
-      record = addPropNode.execute(this, record, "type", formattedType);
+      addPropNode.execute(this, record, "format", format, false);
+      addPropNode.execute(this, record, "comment", comment, false);
+      addPropNode.execute(this, record, "type", formattedType, false);
 
       Object[] propRecords = new Object[properties.size()];
       // properties
       List<String> keyList = new ArrayList<>(properties.keySet());
       for (int i = 0; i < keyList.size(); i++) {
         Object rec = RawLanguage.get(this).createPureRecord();
-        rec = addPropNode.execute(this, rec, "name", keyList.get(i));
+        addPropNode.execute(this, rec, "name", keyList.get(i), false);
         if (properties.containsKey(keyList.get(i))) {
-          rec = addPropNode.execute(this, rec, "value", properties.get(keyList.get(i)));
+          addPropNode.execute(this, rec, "value", properties.get(keyList.get(i)), false);
         } else {
-          rec = addPropNode.execute(this, rec, "value", NullObject.INSTANCE);
+          addPropNode.execute(this, rec, "value", NullObject.INSTANCE, false);
         }
         propRecords[i] = rec;
       }
       ObjectList propList = new ObjectList(propRecords);
 
-      record = addPropNode.execute(this, record, "properties", propList);
-      record = addPropNode.execute(this, record, "is_collection", isCollection);
+      addPropNode.execute(this, record, "properties", propList, false);
+      addPropNode.execute(this, record, "is_collection", isCollection, false);
 
       // columns
       if (flatten instanceof Rql2RecordType) {
@@ -201,14 +201,15 @@ public abstract class LocationDescribeNode extends ExpressionNode {
           typeStr = SourcePrettyPrinter$.MODULE$.format(fieldType);
           isNullable = fieldType.props().contains(Rql2IsNullableTypeProperty.apply());
           Object column = RawLanguage.get(this).createPureRecord();
-          column =
-              addPropNode.execute(this, column, "col_name", rql2RecordType.atts().apply(i).idn());
-          column = addPropNode.execute(this, column, "col_type", typeStr);
-          column = addPropNode.execute(this, column, "nullable", isNullable);
+
+          addPropNode.execute(
+              this, column, "col_name", rql2RecordType.atts().apply(i).idn(), false);
+          addPropNode.execute(this, column, "col_type", typeStr, false);
+          addPropNode.execute(this, column, "nullable", isNullable, false);
           columnRecords[i] = column;
         }
         ObjectList columnList = new ObjectList(columnRecords);
-        record = addPropNode.execute(this, record, "columns", columnList);
+        addPropNode.execute(this, record, "columns", columnList, false);
       } else {
         String typeStr;
         boolean isNullable = false;
@@ -222,13 +223,13 @@ public abstract class LocationDescribeNode extends ExpressionNode {
           typeStr = SourcePrettyPrinter$.MODULE$.format(flatten);
         }
         Object column = RawLanguage.get(this).createPureRecord();
-        column = addPropNode.execute(this, column, "col_name", NullObject.INSTANCE);
-        column = addPropNode.execute(this, column, "col_type", typeStr);
-        column = addPropNode.execute(this, column, "nullable", isNullable);
+        addPropNode.execute(this, column, "col_name", NullObject.INSTANCE, false);
+        addPropNode.execute(this, column, "col_type", typeStr, false);
+        addPropNode.execute(this, column, "nullable", isNullable, false);
         ObjectList columnList = new ObjectList(new Object[] {column});
-        record = addPropNode.execute(this, record, "columns", columnList);
+        addPropNode.execute(this, record, "columns", columnList, false);
       }
-      record = addPropNode.execute(this, record, "sampled", sampled);
+      addPropNode.execute(this, record, "sampled", sampled, false);
       return record;
     } catch (RawException ex) {
       return new ErrorObject(ex.getMessage());

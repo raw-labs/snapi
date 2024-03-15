@@ -17,7 +17,6 @@ import static raw.runtime.truffle.PropertyType.*;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.RawLanguage;
 
 // (az) Whenever using any of these nodes, create one per property
 public class RecordNodes {
@@ -27,28 +26,31 @@ public class RecordNodes {
   @GenerateInline
   public abstract static class AddPropNode extends Node {
 
-    public abstract Object execute(Node node, Object record, Object key, Object value);
+    public abstract void execute(
+        Node node, Object record, Object key, Object value, boolean hasDuplicateKeys);
 
-    @Specialization
-    static Object exec(
+    @Specialization(guards = "!hasDuplicateKeys")
+    static void exec(
         Node node,
         PureRecord record,
         Object key,
         Object value,
+        boolean hasDuplicateKeys,
         @Bind("$node") Node thisNode,
         @Cached PureRecordNodes.AddPropNode addPropNode) {
-      return addPropNode.execute(thisNode, record, key, value);
+      addPropNode.execute(thisNode, record, key, value);
     }
 
-    @Specialization
-    static Object exec(
+    @Specialization(guards = "hasDuplicateKeys")
+    static void exec(
         Node node,
         DuplicateKeyRecord record,
         Object key,
         Object value,
+        boolean hasDuplicateKeys,
         @Bind("$node") Node thisNode,
         @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode) {
-      return addPropNode.execute(thisNode, record, key, value);
+      addPropNode.execute(thisNode, record, key, value);
     }
   }
 
@@ -170,8 +172,8 @@ public class RecordNodes {
         PureRecord record,
         String key,
         @Bind("$node") Node thisNode,
-        @Cached PureRecordNodes.RemovePropNode getKeysNode) {
-      return getKeysNode.execute(thisNode, record, key);
+        @Cached PureRecordNodes.RemovePropNode removePropNode) {
+      return removePropNode.execute(thisNode, record, key);
     }
 
     @Specialization
@@ -180,55 +182,8 @@ public class RecordNodes {
         DuplicateKeyRecord record,
         String key,
         @Bind("$node") Node thisNode,
-        @Cached DuplicateKeyRecordNodes.RemovePropNode getKeysNode) {
-      return getKeysNode.execute(thisNode, record, key);
-    }
-  }
-
-  @NodeInfo(shortName = "Record.Clone")
-  @GenerateUncached
-  @GenerateInline
-  public abstract static class CloneNode extends Node {
-
-    public abstract Object execute(Node node, Object record);
-
-    @Specialization
-    static Object exec(
-        Node node,
-        PureRecord record,
-        @Bind("$node") Node thisNode,
-        @Cached PureRecordNodes.GetKeysNode getKeysNode,
-        @Cached PureRecordNodes.AddPropNode addPropNode,
-        @Cached PureRecordNodes.GetValueNode getValueNode) {
-      Object[] keys = getKeysNode.execute(thisNode, record);
-      PureRecord newRecord = RawLanguage.get(thisNode).createPureRecord();
-      for (Object key : keys) {
-        addPropNode.execute(
-            thisNode, newRecord, (String) key, getValueNode.execute(thisNode, record, key));
-      }
-      return newRecord;
-    }
-
-    @Specialization
-    static Object exec(
-        Node node,
-        DuplicateKeyRecord record,
-        @Bind("$node") Node thisNode,
-        @Cached DuplicateKeyRecordNodes.GetKeysNode getKeysNode,
-        @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode,
-        @Cached DuplicateKeyRecordNodes.GetValueNode getValueNode) {
-      Object[] keys = getKeysNode.execute(thisNode, record);
-      DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
-      for (Object key : keys) {
-        newRecord =
-            addPropNode.execute(
-                thisNode,
-                newRecord,
-                (String) key,
-                getValueNode.execute(thisNode, record, (String) key));
-        newRecord.addKey((String) key);
-      }
-      return newRecord;
+        @Cached DuplicateKeyRecordNodes.RemovePropNode removePropNode) {
+      return removePropNode.execute(thisNode, record, key);
     }
   }
 }

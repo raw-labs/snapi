@@ -652,7 +652,7 @@ public final class JsonParserNodes {
       while (currentToken.execute(thisNode, parser) != JsonToken.END_OBJECT) {
         String fieldName = currentField.execute(thisNode, parser);
         nextToken.execute(thisNode, parser); // skip the field name
-        record = addPropNode.execute(thisNode, record, fieldName, parse.execute(thisNode, parser));
+        addPropNode.execute(thisNode, record, fieldName, parse.execute(thisNode, parser), true);
       }
       nextToken.execute(thisNode, parser); // skip the END_OBJECT token
 

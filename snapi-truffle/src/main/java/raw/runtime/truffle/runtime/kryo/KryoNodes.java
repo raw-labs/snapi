@@ -25,6 +25,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.RawLanguage;
@@ -129,6 +130,23 @@ public class KryoNodes {
       return addProps;
     }
 
+    public static KryoReadNode[] createKryoRead(int size) {
+      KryoReadNode[] kryoRead = new KryoReadNode[size];
+      for (int i = 0; i < size; i++) {
+        kryoRead[i] = KryoNodesFactory.KryoReadNodeGen.create();
+      }
+      return kryoRead;
+    }
+
+    public static boolean hasDuplicateKeys(Rql2RecordType t) {
+      Vector<Rql2AttrType> atts = t.atts();
+      List<Object> list = new ArrayList<>();
+      for (int i = 0; i < atts.size(); i++) {
+        list.add(atts.apply(i).idn());
+      }
+      return list.size() != list.stream().distinct().count();
+    }
+
     public static RawLanguage getRawLanguage(Node node) {
       return RawLanguage.get(node);
     }
@@ -140,17 +158,29 @@ public class KryoNodes {
         Input input,
         Rql2RecordType t,
         @Bind("$node") Node thisNode,
+        @Cached(value = "hasDuplicateKeys(t)", allowUncached = true) boolean hasDuplicateKeys,
         @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
         @Cached(value = "createAddProps(t.atts().size())", allowUncached = true)
             RecordNodes.AddPropNode[] addPropNode,
-        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
+        @Cached(value = "addPropNode.length", allowUncached = true) int size,
+        @Cached(value = "createKryoRead(size)", allowUncached = true) KryoReadNode[] kryo) {
       Object record = language.createPureRecord();
-      for (int i = 0; i < t.atts().size(); i++) {
-        Rql2TypeWithProperties attType = (Rql2TypeWithProperties) t.atts().apply(i).tipe();
-        Object value = kryo.execute(thisNode, input, attType);
-        record = addPropNode[i].execute(thisNode, record, t.atts().apply(i).idn(), value);
+      for (int i = 0; i < size; i++) {
+        Rql2TypeWithProperties attType = getTipe(t, i);
+        Object value = kryo[i].execute(thisNode, input, attType);
+        addPropNode[i].execute(thisNode, record, getIdn(t, i), value, hasDuplicateKeys);
       }
       return record;
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public static Rql2TypeWithProperties getTipe(Rql2RecordType t, int index) {
+      return (Rql2TypeWithProperties) t.atts().apply(index).tipe();
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public static String getIdn(Rql2RecordType t, int index) {
+      return t.atts().apply(index).idn();
     }
 
     @Specialization(guards = {"isIntervalKind(t)"})
@@ -382,8 +412,16 @@ public class KryoNodes {
       return getValueNodes;
     }
 
+    public static KryoWriteNode[] createKryoWrite(int size) {
+      KryoWriteNode[] kryoWrite = new KryoWriteNode[size];
+      for (int i = 0; i < size; i++) {
+        kryoWrite[i] = KryoNodesFactory.KryoWriteNodeGen.create();
+      }
+      return kryoWrite;
+    }
+
     @Specialization(guards = {"isRecordKind(type)"})
-    @CompilerDirectives.TruffleBoundary
+    @ExplodeLoop
     static void doRecord(
         Node node,
         Output output,
@@ -393,14 +431,19 @@ public class KryoNodes {
         @Cached RecordNodes.GetKeysNode getKeysNode,
         @Cached(value = "getKeysNode.execute(thisNode, o)", dimensions = 1, allowUncached = true)
             Object[] keys,
-        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo,
-        @Cached(value = "createGetValue(keys.length)", allowUncached = true)
+        @Cached("keys.length") int size,
+        @Cached(value = "createKryoWrite(size)", allowUncached = true) KryoWriteNode[] kryo,
+        @Cached(value = "createGetValue(size)", allowUncached = true)
             RecordNodes.GetValueNode[] getValueNode) {
-      Vector<Rql2AttrType> atts = type.atts();
-      for (int i = 0; i < keys.length; i++) {
+      for (int i = 0; i < size; i++) {
         Object field = getValueNode[i].execute(thisNode, o, keys[i]);
-        kryo.execute(thisNode, output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
+        kryo[i].execute(thisNode, output, getTipe(type, i), field);
       }
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public static Rql2TypeWithProperties getTipe(Rql2RecordType t, int index) {
+      return (Rql2TypeWithProperties) t.atts().apply(index).tipe();
     }
 
     @Specialization(guards = {"isDateKind(type)"})

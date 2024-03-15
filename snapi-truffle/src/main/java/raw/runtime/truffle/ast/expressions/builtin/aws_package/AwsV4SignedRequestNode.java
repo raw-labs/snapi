@@ -188,21 +188,17 @@ public abstract class AwsV4SignedRequestNode extends ExpressionNode {
     }
 
     allHeaders[headersSize] = RawLanguage.get(this).createPureRecord();
-    allHeaders[headersSize] = addPropNode.execute(this, allHeaders[headersSize], "_1", "host");
-    allHeaders[headersSize] = addPropNode.execute(this, allHeaders[headersSize], "_2", host);
+    addPropNode.execute(this, allHeaders[headersSize], "_1", "host", false);
+    addPropNode.execute(this, allHeaders[headersSize], "_2", host, false);
 
     allHeaders[headersSize + 1] = RawLanguage.get(this).createPureRecord();
-    allHeaders[headersSize + 1] =
-        addPropNode.execute(this, allHeaders[headersSize + 1], "_1", "x-amz-date");
-    allHeaders[headersSize + 1] =
-        addPropNode.execute(this, allHeaders[headersSize + 1], "_2", amzdate);
+    addPropNode.execute(this, allHeaders[headersSize + 1], "_1", "x-amz-date", false);
+    addPropNode.execute(this, allHeaders[headersSize + 1], "_2", amzdate, false);
 
     if (!sessionToken.isEmpty()) {
       allHeaders[headersSize + 2] = RawLanguage.get(this).createPureRecord();
-      allHeaders[headersSize + 2] =
-          addPropNode.execute(this, allHeaders[headersSize + 2], "_1", "x-amz-security-token");
-      allHeaders[headersSize + 2] =
-          addPropNode.execute(this, allHeaders[headersSize + 2], "_2", sessionToken);
+      addPropNode.execute(this, allHeaders[headersSize + 2], "_1", "x-amz-security-token", false);
+      addPropNode.execute(this, allHeaders[headersSize + 2], "_2", sessionToken, false);
     }
 
     Object sortedHeaders = sortNode.execute(this, new ObjectList(allHeaders));

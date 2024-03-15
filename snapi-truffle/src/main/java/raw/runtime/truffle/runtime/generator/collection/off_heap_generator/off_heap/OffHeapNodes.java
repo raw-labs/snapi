@@ -145,7 +145,8 @@ public class OffHeapNodes {
         OffHeapGroupByKey offHeapGroupByKey,
         @Cached OffHeapNewDiskBufferNode newDiskBufferNode,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer) {
+        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer1,
+        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer2) {
       Output kryoOutput =
           new UnsafeOutput(
               newDiskBufferNode.execute(thisNode, offHeapGroupByKey),
@@ -156,10 +157,10 @@ public class OffHeapNodes {
         @SuppressWarnings("unchecked")
         ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
         // write key, then n, then values.
-        writer.execute(thisNode, kryoOutput, offHeapGroupByKey.getKeyType(), treeNode.getKey());
+        writer1.execute(thisNode, kryoOutput, offHeapGroupByKey.getKeyType(), treeNode.getKey());
         kryoWriteInt(kryoOutput, values.size());
         for (Object value : values) {
-          writer.execute(thisNode, kryoOutput, offHeapGroupByKey.getRowType(), value);
+          writer2.execute(thisNode, kryoOutput, offHeapGroupByKey.getRowType(), value);
         }
       }
       kryoOutputClose(kryoOutput);
@@ -175,7 +176,8 @@ public class OffHeapNodes {
         OffHeapGroupByKeys offHeapGroupByKeys,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Exclusive OffHeapNextFileNode nextFileNode,
-        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer) {
+        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer1,
+        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer2) {
       Output kryoOutput =
           new UnsafeOutput(
               nextFileNode.execute(thisNode, offHeapGroupByKeys),
@@ -186,13 +188,13 @@ public class OffHeapNodes {
         // write keys, then n, then values.
         for (int i = 0; i < offHeapGroupByKeys.getKeyTypes().length; i++) {
           Object[] keys = (Object[]) treeNode.getKey();
-          writer.execute(thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], keys[i]);
+          writer1.execute(thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], keys[i]);
         }
         @SuppressWarnings("unchecked")
         ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
         kryoWriteInt(kryoOutput, values.size());
         for (Object value : values) {
-          writer.execute(thisNode, kryoOutput, offHeapGroupByKeys.getRowType(), value);
+          writer2.execute(thisNode, kryoOutput, offHeapGroupByKeys.getRowType(), value);
         }
       }
       kryoOutputClose(kryoOutput);

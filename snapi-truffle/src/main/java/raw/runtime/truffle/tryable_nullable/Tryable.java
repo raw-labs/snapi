@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.tryable_nullable;
 
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 public class Tryable {
@@ -23,5 +22,4 @@ public class Tryable {
   public static boolean isSuccess(Object value) {
     return !(value instanceof ErrorObject);
   }
-
 }

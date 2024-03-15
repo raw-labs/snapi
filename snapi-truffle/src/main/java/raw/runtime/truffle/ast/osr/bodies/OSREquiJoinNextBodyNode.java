@@ -24,11 +24,19 @@ import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 public class OSREquiJoinNextBodyNode extends ExpressionNode {
 
   @Child
-  private GeneratorNodes.GeneratorHasNextNode hasNextNode =
+  private GeneratorNodes.GeneratorHasNextNode hasNextNode1 =
       GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
 
   @Child
-  private GeneratorNodes.GeneratorNextNode nextNode =
+  private GeneratorNodes.GeneratorHasNextNode hasNextNode2 =
+      GeneratorNodesFactory.GeneratorHasNextNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorNextNode nextNode1 =
+      GeneratorNodesFactory.GeneratorNextNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorNextNode nextNode2 =
       GeneratorNodesFactory.GeneratorNextNodeGen.create();
 
   @Child OperatorNodes.CompareNode compareKey = OperatorNodesFactory.CompareNodeGen.create();
@@ -46,9 +54,9 @@ public class OSREquiJoinNextBodyNode extends ExpressionNode {
     EquiJoinComputeNext computeNext = (EquiJoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
     if (computeNext.getLeftKey() == null || computeNext.getRightKey() == null) {
       if (computeNext.getLeftKey() == null) {
-        if (hasNextNode.execute(this, computeNext.getLeftMapGenerator())) {
+        if (hasNextNode1.execute(this, computeNext.getLeftMapGenerator())) {
           computeNext.setLeftEntry(
-              (Object[]) nextNode.execute(this, computeNext.getLeftMapGenerator()));
+              (Object[]) nextNode1.execute(this, computeNext.getLeftMapGenerator()));
           computeNext.setLeftKey(computeNext.getLeftEntry()[0]);
         } else {
           throw new BreakException();
@@ -56,9 +64,9 @@ public class OSREquiJoinNextBodyNode extends ExpressionNode {
       }
 
       if (computeNext.getRightKey() == null) {
-        if (hasNextNode.execute(this, computeNext.getRightMapGenerator())) {
+        if (hasNextNode2.execute(this, computeNext.getRightMapGenerator())) {
           computeNext.setRightEntry(
-              (Object[]) nextNode.execute(this, computeNext.getRightMapGenerator()));
+              (Object[]) nextNode2.execute(this, computeNext.getRightMapGenerator()));
           computeNext.setRightKey(computeNext.getRightEntry()[0]);
         } else {
           throw new BreakException();
