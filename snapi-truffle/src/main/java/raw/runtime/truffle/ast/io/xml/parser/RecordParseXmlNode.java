@@ -31,9 +31,9 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
-  @Children private DirectCallNode[] childDirectCalls;
+  @Children private final DirectCallNode[] childDirectCalls;
 
   // Field name and its index in the childDirectCalls array
   private final int fieldsSize;
@@ -46,6 +46,8 @@ public class RecordParseXmlNode extends ExpressionNode {
   private final BitSet refBitSet;
   private final BitSet bitSet;
 
+  private final RawLanguage language = RawLanguage.get(this);
+
   public RecordParseXmlNode(
       ProgramExpressionNode[] childProgramExpressionNode,
       String[] fieldNames,
@@ -54,6 +56,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     this.fields = fieldNames;
     this.fieldsSize = childProgramExpressionNode.length;
     this.childDirectCalls = new DirectCallNode[this.fieldsSize];
+    this.addPropNode = new RecordNodes.AddPropNode[this.fieldsSize];
     refBitSet = new BitSet(this.fieldsSize);
     for (int index = 0; index < this.fieldsSize; index++) {
       String fieldName = fieldNames[index];
@@ -71,6 +74,7 @@ public class RecordParseXmlNode extends ExpressionNode {
         collectionsIndex.put(fieldName, index);
         refBitSet.set(index);
       }
+      this.addPropNode[index] = RecordNodesFactory.AddPropNodeGen.create();
     }
     bitSet = new BitSet();
   }
@@ -92,7 +96,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     bitSet.or(refBitSet);
 
     // the record to be returned
-    Object record = RawLanguage.get(this).createPureRecord();
+    Object record = language.createPureRecord();
 
     Vector<String> attributes = parser.attributes();
     int nAttributes = attributes.size();
@@ -128,20 +132,22 @@ public class RecordParseXmlNode extends ExpressionNode {
     parser.expectEndTag(recordTag);
     parser.nextToken(); // skip the END_OBJECT token
 
+    String[] keys = getKeySet();
     // processing lists and collections
-    for (String fieldName : collectionValues.keySet()) {
+    for (int i = 0; i < keys.length; i++) {
       // build an object list (for all cases)
-      ArrayList<Object> items = collectionValues.get(fieldName);
+      ArrayList<Object> items = collectionValues.get(keys[i]);
       ObjectList list = new ObjectList(items.toArray());
-      int index = collectionsIndex.get(fieldName);
+      int index = collectionsIndex.get(keys[i]);
       Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        record = addPropNode.execute(this, record, fieldName, list.toIterable());
+        record = addPropNode[i].execute(this, record, keys[i], list.toIterable());
       } else {
-        record = addPropNode.execute(this, record, fieldName, list);
+        record = addPropNode[i].execute(this, record, keys[i], list);
       }
     }
+
     // process nullable fields (null when not found)
     if (bitSet.cardinality() != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
@@ -154,7 +160,7 @@ public class RecordParseXmlNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            record = addPropNode.execute(this, record, fieldName, nullValue);
+            record = addPropNode[i].execute(this, record, fieldName, nullValue);
           } else {
             throw new XmlParserRawTruffleException("field not found: " + fieldName, parser, this);
           }
@@ -162,6 +168,11 @@ public class RecordParseXmlNode extends ExpressionNode {
       }
     }
     return record;
+  }
+
+  @TruffleBoundary
+  private String[] getKeySet() {
+    return fieldsIndex.keySet().toArray(new String[0]);
   }
 
   private Object parseTagContent(RawTruffleXmlParser parser, String fieldName, Object record) {
@@ -190,7 +201,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       collectionField.add(value);
       return record;
     } else {
-      Object res = addPropNode.execute(this, record, fieldName, value);
+      Object res = addPropNode[index].execute(this, record, fieldName, value);
       bitSet.set(index);
       return res;
     }

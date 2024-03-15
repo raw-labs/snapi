@@ -29,7 +29,7 @@ import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 import raw.sources.api.LocationException;
 import raw.sources.api.SourceContext;
 import raw.sources.bytestream.http.HttpByteStreamLocation;
@@ -48,6 +48,7 @@ public abstract class HttpReadNode extends ExpressionNode {
   protected Object doRead(
       LocationObject locationObject,
       Object statusListOption,
+      @Cached(inline = true) TryableNullableNodes.IsNullNode isNullNode,
       @Cached(inline = true) ListNodes.SizeNode sizeNode,
       @Cached(inline = true) ListNodes.GetNode getNode,
       @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
@@ -59,7 +60,7 @@ public abstract class HttpReadNode extends ExpressionNode {
       HttpResult result = location.getHttpResult();
       Object record = RawLanguage.get(this).createPureRecord();
 
-      if (Nullable.isNotNull(statusListOption)) {
+      if (!isNullNode.execute(this, statusListOption)) {
         int[] statuses = new int[(int) sizeNode.execute(this, statusListOption)];
         for (int i = 0; i < statuses.length; i++) {
           statuses[i] = (int) getNode.execute(this, statusListOption, i);

@@ -26,17 +26,23 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 @NodeInfo(shortName = "RecordParseCsv")
 public class RecordParseCsvNode extends ExpressionNode {
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
-  @Children private DirectCallNode[] childDirectCalls;
+  @Children private final DirectCallNode[] childDirectCalls;
 
   private final Rql2AttrType[] columns;
+
+  private final RawLanguage language = RawLanguage.get(this);
 
   public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
     this.columns = columns;
     this.childDirectCalls = new DirectCallNode[columnParsers.length];
     for (int i = 0; i < columnParsers.length; i++) {
       this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
+    }
+    addPropNode = new RecordNodes.AddPropNode[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
     }
   }
 
@@ -46,12 +52,12 @@ public class RecordParseCsvNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
     assert (parser.startingNewLine(this));
-    Object record = RawLanguage.get(this).createPureRecord();
+    Object record = language.createPureRecord();
     for (int i = 0; i < columns.length; i++) {
       String fieldName = columns[i].idn();
       parser.getNextField();
       Object value = childDirectCalls[i].call(parser);
-      record = addPropNode.execute(this, record, fieldName, value);
+      record = addPropNode[i].execute(this, record, fieldName, value);
     }
     parser.finishLine(this);
     return record;

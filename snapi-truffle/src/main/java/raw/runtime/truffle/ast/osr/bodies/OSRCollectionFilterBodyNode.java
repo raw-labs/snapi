@@ -19,7 +19,8 @@ import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 public class OSRCollectionFilterBodyNode extends ExpressionNode {
 
@@ -30,6 +31,10 @@ public class OSRCollectionFilterBodyNode extends ExpressionNode {
   @Child
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
+
+  @Child
+  TryableNullableNodes.HandlePredicateNode handlePredicateNode =
+      TryableNullableNodesFactory.HandlePredicateNodeGen.create();
 
   private final int generatorSlot;
 
@@ -51,7 +56,8 @@ public class OSRCollectionFilterBodyNode extends ExpressionNode {
     Object v = nextNode.execute(this, generator);
 
     boolean isPredicateTrue =
-        TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, predicate, v), false);
+        handlePredicateNode.execute(
+            this, functionExecuteOneNode.execute(this, predicate, v), false);
     if (isPredicateTrue) {
       frame.setAuxiliarySlot(resultSlot, v);
     }

@@ -24,26 +24,32 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 @NodeInfo(shortName = "Record.Build")
 public class RecordBuildNode extends ExpressionNode {
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
   @Children private final ExpressionNode[] elementNodes;
+
+  private final RawLanguage language = RawLanguage.get(this);
 
   public RecordBuildNode(ExpressionNode[] elementsNodes) {
     CompilerAsserts.compilationConstant(elementsNodes.length);
     // elementsNodes is a an array of k1, v1, k2, v2, ..., kn, vn.
     assert elementsNodes.length % 2 == 0;
     this.elementNodes = elementsNodes;
+    this.addPropNode = new RecordNodes.AddPropNode[elementsNodes.length / 2];
+    for (int i = 0; i < addPropNode.length; i++) {
+      this.addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
+    }
   }
 
   @ExplodeLoop
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object record = RawLanguage.get(this).createPureRecord();
+    Object record = language.createPureRecord();
     for (int i = 0, j = 0; i < elementNodes.length; i += 2, j++) {
       // i jump by 2 because we have k1, v1, k2, v2, ..., kn, vn.
       Object key = elementNodes[i].executeGeneric(frame);
       Object value = elementNodes[i + 1].executeGeneric(frame);
-      record = addPropNode.execute(this, record, (String) key, value);
+      record = addPropNode[j].execute(this, record, key, value);
     }
     return record;
   }

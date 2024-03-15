@@ -17,7 +17,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.primitives.NullObject;
-import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 
 public class AggregatorNodes {
   @NodeInfo(shortName = "Aggregator.Zero")
@@ -74,9 +74,10 @@ public class AggregatorNodes {
         Object current,
         Object next,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("isNull") TryableNullableNodes.IsNullNode isNullNode,
         @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
-      if (Nullable.isNotNull(current)) {
-        if (Nullable.isNotNull(next)) {
+      if (!isNullNode.execute(thisNode, current)) {
+        if (!isNullNode.execute(thisNode, next)) {
           // if both are defined, pick the largest
           if (compare.execute(thisNode, current, next) > 0) {
             return current;
@@ -100,9 +101,10 @@ public class AggregatorNodes {
         Object current,
         Object next,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("isNull") TryableNullableNodes.IsNullNode isNullNode,
         @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
-      if (Nullable.isNotNull(current)) {
-        if (Nullable.isNotNull(next)) {
+      if (!isNullNode.execute(thisNode, current)) {
+        if (!isNullNode.execute(thisNode, next)) {
           // if both are defined, pick the smallest
           if (compare.execute(thisNode, current, next) < 0) {
             return current;

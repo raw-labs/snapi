@@ -30,6 +30,7 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
@@ -54,7 +55,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable.sources.EmptyCollection;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
@@ -325,7 +326,8 @@ public class ComputeNextNodes {
         @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("executeOne")
-            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode,
+        @Cached TryableNullableNodes.GetOrElseNode getOrElseNode) {
       Object next = null;
 
       while (next == null) {
@@ -341,7 +343,8 @@ public class ComputeNextNodes {
                   nextNode.execute(thisNode, computeNext.getParent()));
           // the function result could be tryable/nullable. If error/null,
           // we replace it by an empty collection.
-          Object iterable = TryableNullable.getOrElse(functionResult, EmptyCollection.INSTANCE);
+          Object iterable =
+              getOrElseNode.execute(thisNode, functionResult, EmptyCollection.INSTANCE);
           computeNext.setCurrentGenerator(getGeneratorNode.execute(thisNode, iterable));
           initNode.execute(thisNode, computeNext.getCurrentGenerator());
         }
@@ -355,24 +358,30 @@ public class ComputeNextNodes {
       return next;
     }
 
+    public static RawLanguage getRawLanguage(Node node) {
+      return RawLanguage.get(node);
+    }
+
     @Specialization
     static Object next(
         Node node,
         ZipComputeNext computeNext,
         @Bind("$node") Node thisNode,
+        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
         @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode1,
         @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode2,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode1,
         @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode2,
-        @Cached RecordNodes.AddPropNode addPropNode) {
+        @Cached RecordNodes.AddPropNode addPropNode1,
+        @Cached RecordNodes.AddPropNode addPropNode2) {
       if (hasNextNode1.execute(thisNode, computeNext.getParent1())
           && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
-        Object record = computeNext.getLanguage().createPureRecord();
+        Object record = language.createPureRecord();
         record =
-            addPropNode.execute(
+            addPropNode1.execute(
                 thisNode, record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()));
         record =
-            addPropNode.execute(
+            addPropNode2.execute(
                 thisNode, record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()));
         return record;
       }

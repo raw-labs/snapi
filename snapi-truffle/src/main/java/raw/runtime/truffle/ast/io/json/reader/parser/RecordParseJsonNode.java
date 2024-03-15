@@ -20,6 +20,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
@@ -41,7 +42,7 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 @ImportStatic(RawTruffleBoundaries.class)
 public class RecordParseJsonNode extends ExpressionNode {
 
-  @Children private DirectCallNode[] childDirectCalls;
+  @Children private final DirectCallNode[] childDirectCalls;
 
   @Child
   private JsonParserNodes.SkipNextJsonParserNode skipNode =
@@ -59,12 +60,14 @@ public class RecordParseJsonNode extends ExpressionNode {
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
       JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
   private final int fieldsSize;
   private final Rql2TypeWithProperties[] fieldTypes;
+
+  private final RawLanguage language = RawLanguage.get(this);
 
   public RecordParseJsonNode(
       ProgramExpressionNode[] childProgramExpressionNode,
@@ -78,6 +81,10 @@ public class RecordParseJsonNode extends ExpressionNode {
       this.childDirectCalls[i] =
           DirectCallNode.create(childProgramExpressionNode[i].getCallTarget());
     }
+    this.addPropNode = new RecordNodes.AddPropNode[this.fieldsSize];
+    for (int i = 0; i < this.fieldsSize; i++) {
+      this.addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
+    }
   }
 
   @CompilerDirectives.TruffleBoundary
@@ -86,10 +93,24 @@ public class RecordParseJsonNode extends ExpressionNode {
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Object callChild(int index, JsonParser parser) {
-    return childDirectCalls[index].call(parser);
+  private void executeWhileLoop(JsonParser parser, BitSet currentBitSet, Object record) {
+    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT) {
+      String fieldName = currentFieldNode.execute(this, parser);
+      Integer index = this.getFieldNameIndex(fieldName);
+      nextTokenNode.execute(this, parser); // skip the field name
+      if (index != null) {
+        setBitSet(currentBitSet, index);
+        record =
+            addPropNode[index].execute(
+                this, record, fieldName, childDirectCalls[index].call(parser));
+      } else {
+        // skip the field value
+        skipNode.execute(this, parser);
+      }
+    }
   }
 
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
@@ -103,22 +124,11 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
     nextTokenNode.execute(this, parser);
 
-    Object record = RawLanguage.get(this).createPureRecord();
+    Object record = language.createPureRecord();
 
     // todo: (az) need to find a solution for the array of direct calls,
     // the json object can be out of order, the child nodes cannot be inlined
-    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT) {
-      String fieldName = currentFieldNode.execute(this, parser);
-      Integer index = this.getFieldNameIndex(fieldName);
-      nextTokenNode.execute(this, parser); // skip the field name
-      if (index != null) {
-        setBitSet(currentBitSet, index);
-        record = addPropNode.execute(this, record, fieldName, callChild(index, parser));
-      } else {
-        // skip the field value
-        skipNode.execute(this, parser);
-      }
-    }
+    executeWhileLoop(parser, currentBitSet, record);
 
     nextTokenNode.execute(this, parser); // skip the END_OBJECT token
 
@@ -133,7 +143,7 @@ public class RecordParseJsonNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            record = addPropNode.execute(this, record, fields[i], nullValue);
+            record = addPropNode[i].execute(this, record, fields[i], nullValue);
           } else {
             throw new JsonRecordFieldNotFoundException(fields[i], this);
           }

@@ -18,7 +18,8 @@ import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 public class OSRExistsBodyNode extends ExpressionNode {
 
@@ -29,6 +30,10 @@ public class OSRExistsBodyNode extends ExpressionNode {
   @Child
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
+
+  @Child
+  TryableNullableNodes.HandlePredicateNode handlePredicateNode =
+      TryableNullableNodesFactory.HandlePredicateNodeGen.create();
 
   private final int generatorSlot;
   private final int functionSlot;
@@ -45,7 +50,8 @@ public class OSRExistsBodyNode extends ExpressionNode {
     Object generator = frame.getObject(generatorSlot);
     Object function = frame.getObject(functionSlot);
     boolean result =
-        TryableNullable.handlePredicate(
+        handlePredicateNode.execute(
+            this,
             functionExecuteOneNode.execute(this, function, nextNode.execute(this, generator)),
             false);
     frame.setBoolean(predicateResultSlot, result);

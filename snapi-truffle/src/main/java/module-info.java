@@ -341,6 +341,7 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.iterable.sources;
   exports raw.runtime.truffle.runtime.kryo;
   exports raw.runtime.truffle.utils;
+  exports raw.runtime.truffle.tryable_nullable;
   exports raw.runtime.truffle.ast;
   exports raw.runtime.truffle.ast.io.kryo;
   exports raw.runtime.truffle.ast.io.xml.parser;

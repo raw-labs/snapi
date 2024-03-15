@@ -30,8 +30,8 @@ import raw.utils.RecordFieldsNaming;
 
 @ExportLibrary(InteropLibrary.class)
 public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
-  private final Vector<String> keys = new Vector<>();
-  private final Vector<String> cachedDistinctKeys = new Vector<>();
+  private final Vector<Object> keys = new Vector<>();
+  private final Vector<Object> cachedDistinctKeys = new Vector<>();
   private boolean distinctValid = false;
 
   public DuplicateKeyRecord(Shape shape) {
@@ -41,18 +41,22 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
 
   private void updateDistinctKeys() {
     cachedDistinctKeys.clear();
-    cachedDistinctKeys.addAll(RecordFieldsNaming.makeDistinct(keys));
+    Vector<String> ks = new Vector<>();
+    for (Object key : keys) {
+      ks.add((String) key);
+    }
+    cachedDistinctKeys.addAll(RecordFieldsNaming.makeDistinct(ks));
     distinctValid = true;
   }
 
-  public String[] getDistinctKeys() {
+  public Object[] getDistinctKeys() {
     if (!distinctValid) {
       updateDistinctKeys();
     }
-    return cachedDistinctKeys.toArray(new String[0]);
+    return cachedDistinctKeys.toArray();
   }
 
-  public boolean keyExist(String key) {
+  public boolean keyExist(Object key) {
     return keys.contains(key);
   }
 
@@ -60,7 +64,7 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
     return keys.size();
   }
 
-  public void addKey(String key) {
+  public void addKey(Object key) {
     keys.add(key);
     distinctValid = false;
   }
@@ -70,7 +74,7 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
     distinctValid = false;
   }
 
-  public int getKeyIndex(String key) {
+  public int getKeyIndex(Object key) {
     if (!distinctValid) {
       updateDistinctKeys();
     }

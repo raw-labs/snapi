@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.ast;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.Idempotent;
 import raw.compiler.rql2.source.*;
 
@@ -21,6 +22,7 @@ public class TypeGuards {
   public static final Rql2IsNullableTypeProperty nullable = Rql2IsNullableTypeProperty.apply();
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isTryable(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties.props().contains(tryable);
@@ -29,6 +31,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isNullable(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties.props().contains(nullable);
@@ -37,6 +40,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isBooleanKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2BoolType
@@ -46,6 +50,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isByteKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2ByteType
@@ -55,6 +60,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isShortKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2ShortType
@@ -64,6 +70,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isIntKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2IntType
@@ -73,6 +80,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isLongKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2LongType
@@ -82,6 +90,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isFloatKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2FloatType
@@ -91,6 +100,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isDoubleKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2DoubleType
@@ -100,6 +110,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isDecimalKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2DecimalType
@@ -109,6 +120,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isStringKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2StringType
@@ -118,6 +130,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isIntervalKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2IntervalType
@@ -127,6 +140,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isDateKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2DateType
@@ -136,6 +150,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isTimeKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2TimeType
@@ -145,6 +160,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isTimestampKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2TimestampType
@@ -154,6 +170,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isRecordKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2RecordType
@@ -163,6 +180,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isListKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2ListType
@@ -172,6 +190,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isIterableKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2IterableType
@@ -181,6 +200,7 @@ public class TypeGuards {
   }
 
   @Idempotent
+  @CompilerDirectives.TruffleBoundary
   public static boolean isBinaryKind(Rql2Type rql2Type) {
     if (rql2Type instanceof Rql2TypeWithProperties rql2TypeWithProperties) {
       return rql2TypeWithProperties instanceof Rql2BinaryType

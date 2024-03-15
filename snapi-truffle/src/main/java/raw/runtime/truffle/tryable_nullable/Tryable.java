@@ -16,7 +16,7 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 public class Tryable {
-  public static boolean isFailure(Object value) {
+  public static boolean isError(Object value) {
     return value instanceof ErrorObject;
   }
 
@@ -24,8 +24,4 @@ public class Tryable {
     return !(value instanceof ErrorObject);
   }
 
-  public static String getFailure(Object value) {
-    if (!isFailure(value)) throw new RawTruffleRuntimeException("not a failure");
-    return ((ErrorObject) value).getMessage();
-  }
 }

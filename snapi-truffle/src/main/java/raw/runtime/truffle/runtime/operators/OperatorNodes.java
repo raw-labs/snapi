@@ -29,6 +29,7 @@ import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 import raw.runtime.truffle.tryable_nullable.Tryable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 
 public class OperatorNodes {
 
@@ -252,12 +253,19 @@ public class OperatorNodes {
       return 0;
     }
 
-    @Specialization(guards = {"isFailure(left) || isFailure(right)"})
-    static int doTryable(Node node, Object left, Object right) {
-      boolean leftIsFailure = Tryable.isFailure(left);
-      boolean rightIsFailure = Tryable.isFailure(right);
+    @Specialization(guards = {"isError(left) || isError(right)"})
+    static int doTryable(
+        Node node,
+        Object left,
+        Object right,
+        @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.GetErrorNode getErrorNode) {
+      boolean leftIsFailure = Tryable.isError(left);
+      boolean rightIsFailure = Tryable.isError(right);
       if (leftIsFailure && rightIsFailure) {
-        return Tryable.getFailure(left).compareTo(Tryable.getFailure(right));
+        return getErrorNode
+            .execute(thisNode, left)
+            .compareTo(getErrorNode.execute(thisNode, right));
       }
       if (leftIsFailure) {
         return -1;
@@ -385,12 +393,17 @@ public class OperatorNodes {
       }
     }
 
-    @Specialization(guards = {"isFailure(left) || isFailure(right)"})
-    static Object doTryable(Node node, Object left, Object right) {
-      if (Tryable.isFailure(left)) {
-        throw new RawTruffleRuntimeException(Tryable.getFailure(left));
+    @Specialization(guards = {"isError(left) || isError(right)"})
+    static Object doTryable(
+        Node node,
+        Object left,
+        Object right,
+        @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.GetErrorNode getErrorNode) {
+      if (Tryable.isError(left)) {
+        throw new RawTruffleRuntimeException(getErrorNode.execute(thisNode, left));
       } else {
-        throw new RawTruffleRuntimeException(Tryable.getFailure(right));
+        throw new RawTruffleRuntimeException(getErrorNode.execute(thisNode, right));
       }
     }
   }

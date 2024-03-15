@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer;
 
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -28,6 +29,7 @@ public class InputBufferNodes {
     public abstract void execute(Node node, Object generator);
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static void close(
         Node node,
         GroupByInputBuffer buffer,
@@ -36,6 +38,7 @@ public class InputBufferNodes {
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static void close(
         Node node,
         OrderByInputBuffer buffer,

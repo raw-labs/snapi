@@ -19,6 +19,7 @@ import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.RawLanguage;
 
+// (az) Whenever using any of these nodes, create one per property
 public class RecordNodes {
 
   @NodeInfo(shortName = "Record.AddProp")
@@ -26,13 +27,13 @@ public class RecordNodes {
   @GenerateInline
   public abstract static class AddPropNode extends Node {
 
-    public abstract Object execute(Node node, Object record, String key, Object value);
+    public abstract Object execute(Node node, Object record, Object key, Object value);
 
     @Specialization
     static Object exec(
         Node node,
         PureRecord record,
-        String key,
+        Object key,
         Object value,
         @Bind("$node") Node thisNode,
         @Cached PureRecordNodes.AddPropNode addPropNode) {
@@ -43,7 +44,7 @@ public class RecordNodes {
     static Object exec(
         Node node,
         DuplicateKeyRecord record,
-        String key,
+        Object key,
         Object value,
         @Bind("$node") Node thisNode,
         @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode) {
@@ -79,13 +80,13 @@ public class RecordNodes {
   @GenerateInline
   public abstract static class GetValueNode extends Node {
 
-    public abstract Object execute(Node node, Object record, String key);
+    public abstract Object execute(Node node, Object record, Object key);
 
     @Specialization
     static Object exec(
         Node node,
         PureRecord record,
-        String key,
+        Object key,
         @Bind("$node") Node thisNode,
         @Cached PureRecordNodes.GetValueNode getValueNode) {
       return getValueNode.execute(thisNode, record, key);
@@ -95,7 +96,7 @@ public class RecordNodes {
     static Object exec(
         Node node,
         DuplicateKeyRecord record,
-        String key,
+        Object key,
         @Bind("$node") Node thisNode,
         @Cached DuplicateKeyRecordNodes.GetValueNode getValueNode) {
       return getValueNode.execute(thisNode, record, key);

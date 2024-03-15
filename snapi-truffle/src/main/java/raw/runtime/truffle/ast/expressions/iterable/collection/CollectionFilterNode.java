@@ -42,7 +42,6 @@ public class CollectionFilterNode extends ExpressionNode {
     Object predicate = predicateNode.executeGeneric(frame);
 
     if (collectionSlot == -1) {
-      CompilerDirectives.transferToInterpreterAndInvalidate();
       collectionSlot = getCollectionSlot(frame);
       functionSlot = getFunctionSlot(frame);
       resultSlot = getResultSlot(frame);

@@ -27,6 +27,10 @@ public class RecordShaperNodes {
 
     public abstract Object execute(Node node, Object shaper, Object key, Object[] values);
 
+    public static RawLanguage getRawLanguage(Node node) {
+      return RawLanguage.get(node);
+    }
+
     @Specialization(guards = {"shaper != null", "!shaper.forList()"})
     static Object makeRowCollection(
         Node node,
@@ -34,10 +38,12 @@ public class RecordShaperNodes {
         Object key,
         Object[] values,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("addProp") RecordNodes.AddPropNode addPropNode) {
-      Object record = RawLanguage.get(thisNode).createPureRecord();
-      record = addPropNode.execute(thisNode, record, "key", key);
-      record = addPropNode.execute(thisNode, record, "group", new ObjectList(values).toIterable());
+        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
+      Object record = language.createPureRecord();
+      record = addPropNode1.execute(thisNode, record, "key", key);
+      record = addPropNode2.execute(thisNode, record, "group", new ObjectList(values).toIterable());
 
       return record;
     }
@@ -49,10 +55,12 @@ public class RecordShaperNodes {
         Object key,
         Object[] values,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("addProp") RecordNodes.AddPropNode addPropNode) {
-      Object record = RawLanguage.get(thisNode).createPureRecord();
-      record = addPropNode.execute(node, record, "key", key);
-      record = addPropNode.execute(node, record, "group", new ObjectList(values));
+        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
+      Object record = language.createPureRecord();
+      record = addPropNode1.execute(node, record, "key", key);
+      record = addPropNode2.execute(node, record, "group", new ObjectList(values));
       return record;
     }
 

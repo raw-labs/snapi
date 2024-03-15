@@ -29,7 +29,8 @@ import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.JoinComputeNext;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
 import raw.runtime.truffle.runtime.kryo.KryoNodesFactory;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 public class OSRJoinNextBodyNode extends ExpressionNode {
 
@@ -50,6 +51,10 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
       FunctionExecuteNodesFactory.FunctionExecuteTwoNodeGen.create();
 
   @Child KryoNodes.KryoReadNode kryoReadNode = KryoNodesFactory.KryoReadNodeGen.create();
+
+  @Child
+  TryableNullableNodes.HandlePredicateNode handlePredicateNode =
+      TryableNullableNodesFactory.HandlePredicateNodeGen.create();
 
   private final int computeNextSlot;
   private final int shouldContinueSlot;
@@ -101,12 +106,15 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
                     computeNext.getLeftRow(),
                     computeNext.getRightRow());
             pass =
-                TryableNullable.handlePredicate(
-                    functionExecuteOneNode.execute(this, computeNext.getPredicate(), row), false);
+                handlePredicateNode.execute(
+                    this,
+                    functionExecuteOneNode.execute(this, computeNext.getPredicate(), row),
+                    false);
             if (!pass) row = null;
           } else {
             pass =
-                TryableNullable.handlePredicate(
+                handlePredicateNode.execute(
+                    this,
                     functionExecuteTwoNode.execute(
                         this,
                         computeNext.getPredicate(),

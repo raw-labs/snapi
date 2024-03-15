@@ -19,7 +19,8 @@ import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 public class OSRListFilterBodyNode extends ExpressionNode {
 
@@ -30,6 +31,10 @@ public class OSRListFilterBodyNode extends ExpressionNode {
   @Child
   FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode =
       FunctionExecuteNodesFactory.FunctionExecuteOneNodeGen.create();
+
+  @Child
+  TryableNullableNodes.HandlePredicateNode handlePredicateNode =
+      TryableNullableNodesFactory.HandlePredicateNodeGen.create();
 
   private final int generatorSlot;
   private final int functionSlot;
@@ -48,7 +53,7 @@ public class OSRListFilterBodyNode extends ExpressionNode {
     Boolean predicate = null;
     Object function = frame.getObject(functionSlot);
     predicate =
-        TryableNullable.handlePredicate(functionExecuteOneNode.execute(this, function, v), false);
+        handlePredicateNode.execute(this, functionExecuteOneNode.execute(this, function, v), false);
     if (predicate) {
       @SuppressWarnings("unchecked")
       ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(llistSlot);

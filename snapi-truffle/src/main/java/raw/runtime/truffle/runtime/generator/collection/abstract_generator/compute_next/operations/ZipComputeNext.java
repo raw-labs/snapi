@@ -19,12 +19,9 @@ public class ZipComputeNext {
 
   private final Object parent2;
 
-  private final RawLanguage language;
-
-  public ZipComputeNext(Object parent1, Object parent2, RawLanguage language) {
+  public ZipComputeNext(Object parent1, Object parent2) {
     this.parent1 = parent1;
     this.parent2 = parent2;
-    this.language = language;
   }
 
   public Object getParent1() {
@@ -33,9 +30,5 @@ public class ZipComputeNext {
 
   public Object getParent2() {
     return parent2;
-  }
-
-  public RawLanguage getLanguage() {
-    return language;
   }
 }

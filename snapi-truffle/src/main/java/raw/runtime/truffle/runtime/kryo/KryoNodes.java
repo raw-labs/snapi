@@ -17,6 +17,7 @@ import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.interop.*;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
@@ -34,8 +35,8 @@ import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.*;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.tryable_nullable.Nullable;
-import raw.runtime.truffle.tryable_nullable.Tryable;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 import scala.collection.immutable.Vector;
 
 public class KryoNodes {
@@ -91,7 +92,7 @@ public class KryoNodes {
         Input input,
         Rql2TypeWithProperties t,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       Rql2ListType listType = (Rql2ListType) t;
       Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) listType.innerType();
       int size = input.readInt();
@@ -109,7 +110,7 @@ public class KryoNodes {
         Input input,
         Rql2TypeWithProperties t,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
       Rql2IterableType iterableType = (Rql2IterableType) t;
       Rql2TypeWithProperties innerType = (Rql2TypeWithProperties) iterableType.innerType();
       int size = input.readInt();
@@ -120,21 +121,34 @@ public class KryoNodes {
       return new ObjectList(values).toIterable();
     }
 
+    public static RecordNodes.AddPropNode[] createAddProps(int size) {
+      RecordNodes.AddPropNode[] addProps = new RecordNodes.AddPropNode[size];
+      for (int i = 0; i < size; i++) {
+        addProps[i] = RecordNodesFactory.AddPropNodeGen.create();
+      }
+      return addProps;
+    }
+
+    public static RawLanguage getRawLanguage(Node node) {
+      return RawLanguage.get(node);
+    }
+
     @Specialization(guards = {"isRecordKind(t)"})
-    @CompilerDirectives.TruffleBoundary
+    @ExplodeLoop
     static Object doRecord(
         Node node,
         Input input,
-        Rql2TypeWithProperties t,
+        Rql2RecordType t,
         @Bind("$node") Node thisNode,
-        @Cached RecordNodes.AddPropNode addPropNode,
-        @Cached(inline = false) @Cached.Shared("kryoRead") KryoReadNode kryo) {
-      Rql2RecordType recordType = (Rql2RecordType) t;
-      Object record = RawLanguage.get(thisNode).createPureRecord();
-      for (int i = 0; i < recordType.atts().size(); i++) {
-        Rql2TypeWithProperties attType = (Rql2TypeWithProperties) recordType.atts().apply(i).tipe();
+        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached(value = "createAddProps(t.atts().size())", allowUncached = true)
+            RecordNodes.AddPropNode[] addPropNode,
+        @Cached(inline = false) @Cached.Exclusive KryoReadNode kryo) {
+      Object record = language.createPureRecord();
+      for (int i = 0; i < t.atts().size(); i++) {
+        Rql2TypeWithProperties attType = (Rql2TypeWithProperties) t.atts().apply(i).tipe();
         Object value = kryo.execute(thisNode, input, attType);
-        record = addPropNode.execute(thisNode, record, recordType.atts().apply(i).idn(), value);
+        record = addPropNode[i].execute(thisNode, record, t.atts().apply(i).idn(), value);
       }
       return record;
     }
@@ -262,14 +276,16 @@ public class KryoNodes {
         Node node, Output output, Rql2TypeWithProperties type, Object maybeTryable);
 
     @Specialization(guards = "isTryable(type)")
+    @CompilerDirectives.TruffleBoundary
     static void doTryable(
         Node node,
         Output output,
         Rql2TypeWithProperties type,
         Object maybeTryable,
         @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.IsErrorNode isErrorNode,
         @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
-      boolean isSuccess = Tryable.isSuccess(maybeTryable);
+      boolean isSuccess = !isErrorNode.execute(thisNode, maybeTryable);
       output.writeBoolean(isSuccess);
       if (isSuccess) {
         kryo.execute(
@@ -284,14 +300,16 @@ public class KryoNodes {
     }
 
     @Specialization(guards = "isNullable(type)")
+    @CompilerDirectives.TruffleBoundary
     static void doNullable(
         Node node,
         Output output,
         Rql2TypeWithProperties type,
         Object maybeOption,
         @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.IsNullNode isNullNode,
         @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
-      boolean isDefined = Nullable.isNotNull(maybeOption);
+      boolean isDefined = !isNullNode.execute(thisNode, maybeOption);
       output.writeBoolean(isDefined);
       if (isDefined) {
         kryo.execute(
@@ -303,6 +321,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = "isListKind(type)")
+    @CompilerDirectives.TruffleBoundary
     static void doList(
         Node node,
         Output output,
@@ -311,7 +330,7 @@ public class KryoNodes {
         @Bind("$node") Node thisNode,
         @Cached ListNodes.SizeNode sizeNode,
         @Cached ListNodes.GetNode getNode,
-        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo) {
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo) {
       int size = (int) sizeNode.execute(thisNode, o);
       output.writeInt(size);
       Rql2TypeWithProperties elementType =
@@ -323,6 +342,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = "isIterableKind(type)")
+    @CompilerDirectives.TruffleBoundary
     static void doIterable(
         Node node,
         Output output,
@@ -333,7 +353,7 @@ public class KryoNodes {
         @Cached GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
         @Cached GeneratorNodes.GeneratorNextNode generatorNextNode,
         @Cached GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo,
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo,
         @Cached(inline = false) IterableNodes.GetGeneratorNode getGeneratorNode) {
       Rql2TypeWithProperties elementType =
           (Rql2TypeWithProperties) ((Rql2IterableType) type).innerType();
@@ -354,25 +374,37 @@ public class KryoNodes {
       }
     }
 
+    public static RecordNodes.GetValueNode[] createGetValue(int size) {
+      RecordNodes.GetValueNode[] getValueNodes = new RecordNodes.GetValueNode[size];
+      for (int i = 0; i < size; i++) {
+        getValueNodes[i] = RecordNodesFactory.GetValueNodeGen.create();
+      }
+      return getValueNodes;
+    }
+
     @Specialization(guards = {"isRecordKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doRecord(
         Node node,
         Output output,
         Rql2RecordType type,
         Object o,
         @Bind("$node") Node thisNode,
-        @Cached(inline = false) @Cached.Shared("kryo") KryoWriteNode kryo,
         @Cached RecordNodes.GetKeysNode getKeysNode,
-        @Cached RecordNodes.GetValueNode getValueNode) {
-      Object[] keys = getKeysNode.execute(thisNode, o);
+        @Cached(value = "getKeysNode.execute(thisNode, o)", dimensions = 1, allowUncached = true)
+            Object[] keys,
+        @Cached(inline = false) @Cached.Exclusive KryoWriteNode kryo,
+        @Cached(value = "createGetValue(keys.length)", allowUncached = true)
+            RecordNodes.GetValueNode[] getValueNode) {
       Vector<Rql2AttrType> atts = type.atts();
       for (int i = 0; i < keys.length; i++) {
-        Object field = getValueNode.execute(thisNode, o, (String) keys[i]);
+        Object field = getValueNode[i].execute(thisNode, o, keys[i]);
         kryo.execute(thisNode, output, (Rql2TypeWithProperties) atts.apply(i).tipe(), field);
       }
     }
 
     @Specialization(guards = {"isDateKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doDate(Node node, Output output, Rql2TypeWithProperties type, DateObject o) {
       LocalDate date = o.getDate();
       output.writeInt(date.getYear());
@@ -381,6 +413,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isTimeKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doTime(Node node, Output output, Rql2TypeWithProperties type, TimeObject o) {
       LocalTime time = o.getTime();
       output.writeInt(time.getHour());
@@ -390,6 +423,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isTimestampKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doTimestamp(
         Node node, Output output, Rql2TypeWithProperties type, TimestampObject o) {
       LocalDateTime timestamp = o.getTimestamp();
@@ -403,6 +437,7 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isIntervalKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doInterval(
         Node node, Output output, Rql2TypeWithProperties type, IntervalObject o) {
       output.writeInt(o.getYears());
@@ -416,46 +451,55 @@ public class KryoNodes {
     }
 
     @Specialization(guards = {"isByteKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doByte(Node node, Output output, Rql2TypeWithProperties type, byte o) {
       output.writeByte(o);
     }
 
     @Specialization(guards = {"isShortKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doShort(Node node, Output output, Rql2TypeWithProperties type, short o) {
       output.writeShort(o);
     }
 
     @Specialization(guards = {"isIntKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doInt(Node node, Output output, Rql2TypeWithProperties type, int o) {
       output.writeInt(o);
     }
 
     @Specialization(guards = {"isLongKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doLong(Node node, Output output, Rql2TypeWithProperties type, long o) {
       output.writeLong(o);
     }
 
     @Specialization(guards = {"isFloatKind(type)"})
+    @CompilerDirectives.TruffleBoundary
     static void doFloat(Node node, Output output, Rql2TypeWithProperties type, float o) {
       output.writeFloat(o);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static void doDouble(Node node, Output output, Rql2TypeWithProperties type, double o) {
       output.writeDouble(o);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static void doDecimal(Node node, Output output, Rql2TypeWithProperties type, DecimalObject o) {
       output.writeString(o.getBigDecimal().toString());
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static void doString(Node node, Output output, Rql2TypeWithProperties type, String o) {
       output.writeString(o);
     }
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static void doBool(Node node, Output output, Rql2TypeWithProperties type, boolean o) {
       output.writeBoolean(o);
     }

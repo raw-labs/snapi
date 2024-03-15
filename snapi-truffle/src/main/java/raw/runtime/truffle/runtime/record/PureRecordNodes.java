@@ -24,6 +24,7 @@ import raw.runtime.truffle.PropertyType;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
+// (az) Whenever using any of these nodes, create one per property
 public class PureRecordNodes {
   @NodeInfo(shortName = "PureRecord.AddPropNode")
   @GenerateUncached
@@ -31,84 +32,80 @@ public class PureRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class AddPropNode extends Node {
 
-    public abstract Object execute(Node node, PureRecord record, String key, Object value);
+    public abstract Object execute(Node node, PureRecord record, Object key, Object value);
 
-    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
+    @Specialization(guards = "!existNode.execute(thisNode, pureRecord, key)", limit = "3")
     static Object exec(
         Node node,
         PureRecord pureRecord,
-        String key,
+        Object key,
         int item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
+        @Cached @Cached.Exclusive PureRecordNodes.ExistNode existNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putInt(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, INT_TYPE);
       return pureRecord;
     }
 
-    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
+    @Specialization(guards = "!existNode.execute(thisNode, pureRecord, key)", limit = "3")
     static Object exec(
         Node node,
         PureRecord pureRecord,
-        String key,
+        Object key,
         long item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+        @Cached @Cached.Exclusive PureRecordNodes.ExistNode existNode,
+        @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putLong(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, LONG_TYPE);
       return pureRecord;
     }
 
-    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
+    @Specialization(guards = "!existNode.execute(thisNode, pureRecord, key)", limit = "3")
     static Object exec(
         Node node,
         PureRecord pureRecord,
-        String key,
+        Object key,
         double item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+        @Cached @Cached.Exclusive PureRecordNodes.ExistNode existNode,
+        @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putDouble(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, DOUBLE_TYPE);
       return pureRecord;
     }
 
-    @Specialization(limit = "3", guards = "!existNode.execute(thisNode, pureRecord, key)")
+    @Specialization(guards = "!existNode.execute(thisNode, pureRecord, key)", limit = "3")
     static Object exec(
         Node node,
         PureRecord pureRecord,
-        String key,
+        Object key,
         Object item,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+        @Cached @Cached.Exclusive PureRecordNodes.ExistNode existNode,
+        @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putWithFlags(pureRecord, key, item, OBJECT_TYPE);
       return pureRecord;
     }
 
-    @Specialization(limit = "3", guards = "existNode.execute(thisNode, pureRecord, key)")
+    @Specialization(guards = "existNode.execute(thisNode, pureRecord, key)", limit = "3")
     static Object execTransition(
         Node node,
         PureRecord pureRecord,
-        String key,
+        Object key,
         Object item,
         @Bind("$node") Node thisNode,
         @Cached PureRecordNodes.GetValueNode getValueNode,
         @Cached PureRecordNodes.GetKeysNode getKeysNode,
         @Cached DuplicateKeyRecordNodes.AddPropNode addPropNode,
-        @Cached @Cached.Shared("existsNode") PureRecordNodes.ExistNode existNode,
-        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+        @Cached @Cached.Exclusive PureRecordNodes.ExistNode existNode) {
       Object[] keys = getKeysNode.execute(thisNode, pureRecord);
       DuplicateKeyRecord newRecord = RawLanguage.get(thisNode).createDuplicateKeyRecord();
       for (Object ikey : keys) {
         newRecord =
             addPropNode.execute(
-                thisNode,
-                newRecord,
-                (String) ikey,
-                getValueNode.execute(thisNode, pureRecord, ikey));
+                thisNode, newRecord, ikey, getValueNode.execute(thisNode, pureRecord, ikey));
       }
       addPropNode.execute(thisNode, newRecord, key, item);
       return newRecord;
@@ -121,13 +118,13 @@ public class PureRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class RemovePropNode extends Node {
 
-    public abstract Object execute(Node node, PureRecord pureRecord, String key);
+    public abstract Object execute(Node node, PureRecord pureRecord, Object key);
 
     @Specialization
     static Object exec(
         Node node,
         PureRecord pureRecord,
-        String key,
+        Object key,
         @Bind("$node") Node thisNode,
         @Cached AddPropNode addPropNode,
         @Cached GetKeysNode getKeysNode,
@@ -156,13 +153,13 @@ public class PureRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class ExistNode extends Node {
 
-    public abstract boolean execute(Node node, PureRecord pureRecord, String key);
+    public abstract boolean execute(Node node, PureRecord pureRecord, Object key);
 
     @Specialization(limit = "3")
     static boolean exec(
         Node node,
         PureRecord pureRecord,
-        String key,
+        Object key,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       return valuesLibrary.containsKey(pureRecord, key);
     }

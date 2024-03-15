@@ -23,6 +23,7 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import raw.runtime.truffle.PropertyType;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 
+// (az) Whenever using any of these nodes, create one per property
 public class DuplicateKeyRecordNodes {
   @NodeInfo(shortName = "DuplicateKeyRecord.AddPropNode")
   @GenerateUncached
@@ -30,13 +31,13 @@ public class DuplicateKeyRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class AddPropNode extends Node {
 
-    public abstract DuplicateKeyRecord execute(Node node, Object record, String key, Object value);
+    public abstract DuplicateKeyRecord execute(Node node, Object record, Object key, Object value);
 
     @Specialization(limit = "3")
     static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         int item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
@@ -50,7 +51,7 @@ public class DuplicateKeyRecordNodes {
     static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         long item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
@@ -64,7 +65,7 @@ public class DuplicateKeyRecordNodes {
     static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         double item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
@@ -78,7 +79,7 @@ public class DuplicateKeyRecordNodes {
     static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         Object item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
@@ -94,10 +95,10 @@ public class DuplicateKeyRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class ExistNode extends Node {
 
-    public abstract boolean execute(Node node, DuplicateKeyRecord duplicateKeyRecord, String key);
+    public abstract boolean execute(Node node, DuplicateKeyRecord duplicateKeyRecord, Object key);
 
     @Specialization
-    static boolean exec(Node node, DuplicateKeyRecord duplicateKeyRecord, String key) {
+    static boolean exec(Node node, DuplicateKeyRecord duplicateKeyRecord, Object key) {
       return duplicateKeyRecord.keyExist(key);
     }
   }
@@ -108,13 +109,13 @@ public class DuplicateKeyRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class RemovePropNode extends Node {
 
-    public abstract Object execute(Node node, DuplicateKeyRecord duplicateKeyRecord, String key);
+    public abstract Object execute(Node node, DuplicateKeyRecord duplicateKeyRecord, Object key);
 
     @Specialization(limit = "3")
     static DuplicateKeyRecord exec(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keyIndex = duplicateKeyRecord.getKeyIndex(key);
       valuesLibrary.removeKey(duplicateKeyRecord, keyIndex);
@@ -143,7 +144,7 @@ public class DuplicateKeyRecordNodes {
   @ImportStatic(PropertyType.class)
   public abstract static class GetValueNode extends Node {
 
-    public abstract Object execute(Node node, DuplicateKeyRecord record, String key);
+    public abstract Object execute(Node node, DuplicateKeyRecord record, Object key);
 
     @Specialization(
         limit = "3",
@@ -151,7 +152,7 @@ public class DuplicateKeyRecordNodes {
     static int getInt(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       try {
         int idx = duplicateKeyRecord.getKeyIndex(key);
@@ -167,7 +168,7 @@ public class DuplicateKeyRecordNodes {
     static long getLong(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       try {
         int idx = duplicateKeyRecord.getKeyIndex(key);
@@ -183,7 +184,7 @@ public class DuplicateKeyRecordNodes {
     static double getDouble(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       try {
         int idx = duplicateKeyRecord.getKeyIndex(key);
@@ -197,7 +198,7 @@ public class DuplicateKeyRecordNodes {
     static Object getObject(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
-        String key,
+        Object key,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int idx = duplicateKeyRecord.getKeyIndex(key);
       return valuesLibrary.getOrDefault(duplicateKeyRecord, idx, null);

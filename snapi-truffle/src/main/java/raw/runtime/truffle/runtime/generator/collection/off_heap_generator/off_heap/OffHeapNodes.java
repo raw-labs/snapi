@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_
 
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -53,7 +54,7 @@ public class OffHeapNodes {
         Object value,
         @Bind("$node") Node thisNode,
         @Cached TreeMapNodes.TreeMapGetOrCreate putIfNotExistNode,
-        @Cached @Cached.Shared("flushNode") OffHeapFlushNode flushNode) {
+        @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       @SuppressWarnings("unchecked")
       ArrayList<Object> list =
           (ArrayList<Object>)
@@ -79,7 +80,7 @@ public class OffHeapNodes {
         Object value,
         @Bind("$node") Node thisNode,
         @Cached TreeMapNodes.TreeMapGetOrCreateArrayKeysNode getOrCreateArrayKeysNode,
-        @Cached @Cached.Shared("flushNode") OffHeapFlushNode flushNode) {
+        @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       @SuppressWarnings("unchecked")
       ArrayList<Object> list =
           (ArrayList<Object>)
@@ -108,7 +109,7 @@ public class OffHeapNodes {
         Object item,
         Object value,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("flushNode") OffHeapFlushNode flushNode) {
+        @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       // append the value to the list of values for the key.
       boolean added = offHeapDistinct.getIndex().add(item);
       if (added) {
@@ -128,13 +129,23 @@ public class OffHeapNodes {
 
     public abstract void execute(Node node, Object offHeap);
 
+    @CompilerDirectives.TruffleBoundary
+    public static void kryoOutputClose(Output kryoOutput) {
+      kryoOutput.close();
+    }
+
+    @CompilerDirectives.TruffleBoundary
+    public static void kryoWriteInt(Output kryoOutput, int size) {
+      kryoOutput.writeInt(size);
+    }
+
     @Specialization
     static void flush(
         Node node,
         OffHeapGroupByKey offHeapGroupByKey,
         @Cached OffHeapNewDiskBufferNode newDiskBufferNode,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("kryoWriter") KryoNodes.KryoWriteNode writer) {
+        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer) {
       Output kryoOutput =
           new UnsafeOutput(
               newDiskBufferNode.execute(thisNode, offHeapGroupByKey),
@@ -146,12 +157,12 @@ public class OffHeapNodes {
         ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
         // write key, then n, then values.
         writer.execute(thisNode, kryoOutput, offHeapGroupByKey.getKeyType(), treeNode.getKey());
-        kryoOutput.writeInt(values.size());
+        kryoWriteInt(kryoOutput, values.size());
         for (Object value : values) {
           writer.execute(thisNode, kryoOutput, offHeapGroupByKey.getRowType(), value);
         }
       }
-      kryoOutput.close();
+      kryoOutputClose(kryoOutput);
       // reset both the memory map and memory footprint.
 
       offHeapGroupByKey.getMemMap().clear();
@@ -163,8 +174,8 @@ public class OffHeapNodes {
         Node node,
         OffHeapGroupByKeys offHeapGroupByKeys,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("nextFile") OffHeapNextFileNode nextFileNode,
-        @Cached @Cached.Shared("kryoWriter") KryoNodes.KryoWriteNode writer) {
+        @Cached @Cached.Exclusive OffHeapNextFileNode nextFileNode,
+        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer) {
       Output kryoOutput =
           new UnsafeOutput(
               nextFileNode.execute(thisNode, offHeapGroupByKeys),
@@ -179,12 +190,12 @@ public class OffHeapNodes {
         }
         @SuppressWarnings("unchecked")
         ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
-        kryoOutput.writeInt(values.size());
+        kryoWriteInt(kryoOutput, values.size());
         for (Object value : values) {
           writer.execute(thisNode, kryoOutput, offHeapGroupByKeys.getRowType(), value);
         }
       }
-      kryoOutput.close();
+      kryoOutputClose(kryoOutput);
       // reset the memory map and footprint
       offHeapGroupByKeys.getMemMap().clear();
       offHeapGroupByKeys.setSize(0);
@@ -195,8 +206,8 @@ public class OffHeapNodes {
         Node node,
         OffHeapDistinct offHeapDistinct,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("nextFile") OffHeapNextFileNode nextFileNode,
-        @Cached @Cached.Shared("kryoWriter") KryoNodes.KryoWriteNode writer) {
+        @Cached @Cached.Exclusive OffHeapNextFileNode nextFileNode,
+        @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer) {
       Output kryoOutput =
           new UnsafeOutput(
               nextFileNode.execute(thisNode, offHeapDistinct),
@@ -204,7 +215,7 @@ public class OffHeapNodes {
       for (Object item : offHeapDistinct.getIndex()) {
         writer.execute(thisNode, kryoOutput, offHeapDistinct.getItemType(), item);
       }
-      kryoOutput.close();
+      kryoOutputClose(kryoOutput);
       // reset the memory map and footprint
       offHeapDistinct.getIndex().clear();
       offHeapDistinct.setBinarySize(0);
@@ -228,7 +239,7 @@ public class OffHeapNodes {
         Node node,
         OffHeapGroupByKey offHeapGroupByKey,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("flush") OffHeapFlushNode flushNode) {
+        @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       flushNode.execute(thisNode, offHeapGroupByKey);
       return new GroupBySpilledFilesGenerator(offHeapGroupByKey);
     }
@@ -243,7 +254,7 @@ public class OffHeapNodes {
         Node node,
         OffHeapGroupByKeys offHeapGroupByKeys,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("flush") OffHeapFlushNode flushNode) {
+        @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       flushNode.execute(thisNode, offHeapGroupByKeys);
       return new OrderBySpilledFilesGenerator(offHeapGroupByKeys);
     }
@@ -258,7 +269,7 @@ public class OffHeapNodes {
         Node node,
         OffHeapDistinct offHeapDistinct,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("flush") OffHeapFlushNode flushNode) {
+        @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       flushNode.execute(thisNode, offHeapDistinct);
       return new DistinctSpilledFilesGenerator(offHeapDistinct);
     }
@@ -272,6 +283,7 @@ public class OffHeapNodes {
     public abstract FileOutputStream execute(Node node, Object offHeapGroupByKey);
 
     @Specialization
+    @CompilerDirectives.TruffleBoundary
     static FileOutputStream newDiskBuffer(
         Node node, OffHeapGroupByKey offHeapGroupByKey, @Bind("$node") Node thisNode) {
       File file;

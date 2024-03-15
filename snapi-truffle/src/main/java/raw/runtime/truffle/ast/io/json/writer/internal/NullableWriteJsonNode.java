@@ -20,7 +20,8 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
-import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 @NodeInfo(shortName = "NullableWriteJson")
 public class NullableWriteJsonNode extends StatementNode {
@@ -31,6 +32,10 @@ public class NullableWriteJsonNode extends StatementNode {
   JsonWriteNodes.WriteNullJsonWriterNode writeNullNode =
       JsonWriteNodesFactory.WriteNullJsonWriterNodeGen.create();
 
+  @Child
+  private TryableNullableNodes.IsNullNode isNullNode =
+          TryableNullableNodesFactory.IsNullNodeGen.create();
+
   public NullableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
   }
@@ -40,7 +45,7 @@ public class NullableWriteJsonNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object option = args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
-    if (Nullable.isNotNull(option)) {
+    if (!isNullNode.execute(this, option)) {
       childDirectCall.call(option, gen);
     } else {
       writeNullNode.execute(this, gen);

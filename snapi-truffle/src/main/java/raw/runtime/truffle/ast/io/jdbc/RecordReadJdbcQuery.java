@@ -26,17 +26,23 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 @NodeInfo(shortName = "Jdbc.RecordRead")
 public class RecordReadJdbcQuery extends ExpressionNode {
 
-  @Children private DirectCallNode[] childDirectCalls;
+  @Children private final DirectCallNode[] childDirectCalls;
 
-  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
   private final Rql2AttrType[] columns;
+
+  private final RawLanguage language = RawLanguage.get(this);
 
   public RecordReadJdbcQuery(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
     this.columns = columns;
     this.childDirectCalls = new DirectCallNode[columnParsers.length];
     for (int i = 0; i < columnParsers.length; i++) {
       this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
+    }
+    addPropNode = new RecordNodes.AddPropNode[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
     }
   }
 
@@ -45,11 +51,11 @@ public class RecordReadJdbcQuery extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    Object record = RawLanguage.get(this).createPureRecord();
+    Object record = language.createPureRecord();
     for (int i = 0; i < columns.length; i++) {
       String fieldName = columns[i].idn();
       Object value = childDirectCalls[i].call(rs);
-      record = addPropNode.execute(this, record, fieldName, value);
+      record = addPropNode[i].execute(this, record, fieldName, value);
     }
     return record;
   }
