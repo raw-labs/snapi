@@ -93,8 +93,8 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                       // Regardless if there are parameters, we declare a main function with the output type.
                       // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
                       val ok = ProgramDescription(
-                        Map("main" -> List(DeclDescription(Some(ps.toVector), iterableType, None))),
-                        None,
+                        Map.empty,
+                        Some(DeclDescription(Some(ps.toVector), iterableType, None)),
                         None
                       )
                       GetProgramDescriptionSuccess(ok)
