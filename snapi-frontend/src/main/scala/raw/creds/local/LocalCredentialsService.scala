@@ -147,4 +147,7 @@ class LocalCredentialsService extends CredentialsService {
 
   override def doStop(): Unit = {}
 
+  override def getUserDb(user: AuthenticatedUser): String = {
+    null
+  }
 }

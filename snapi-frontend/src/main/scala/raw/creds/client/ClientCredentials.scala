@@ -364,4 +364,16 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
     restClient.close()
   }
 
+  def getUserDb(user: AuthenticatedUser): String = {
+    try {
+      restClient.doJsonPost[String](
+        "2/fdw/provision",
+        ProvisionFdwDbCredentials(user),
+        withAuth = false
+      )
+    } catch {
+      case ex: ClientAPIException => null
+    }
+  }
+
 }

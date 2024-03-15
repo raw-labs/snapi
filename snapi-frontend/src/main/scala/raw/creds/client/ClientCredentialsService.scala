@@ -12,12 +12,13 @@
 
 package raw.creds.client
 
-import raw.utils.AuthenticatedUser
-import raw.utils.RawSettings
+import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
 import raw.rest.client.APIException
+import raw.utils.{AuthenticatedUser, RawSettings}
 
 import java.net.URI
+import java.util.concurrent.TimeUnit
 
 class ClientCredentialsService(implicit settings: RawSettings) extends CredentialsService {
 
@@ -281,4 +282,25 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
   override def doStop(): Unit = {
     client.close()
   }
+
+  // Define the CacheLoader
+  private val dbCacheLoader = new CacheLoader[AuthenticatedUser, String]() {
+    override def load(user: AuthenticatedUser): String = {
+      // Directly call the provisioning method on the client
+      client.getUserDb(user)
+    }
+  }
+
+  // Initialize the LoadingCache
+  private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
+    .newBuilder()
+    .maximumSize(1000) // Set a maximum size to the cache
+    .expireAfterAccess(1, TimeUnit.HOURS) // Expire entries after 1 hour of inactivity
+    .build(dbCacheLoader)
+
+  override def getUserDb(user: AuthenticatedUser): String = {
+    // Retrieve the database name from the cache, provisioning it if necessary
+    dbCache.get(user)
+  }
+
 }
