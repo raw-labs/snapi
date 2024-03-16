@@ -30,11 +30,11 @@ public abstract class CollectionDistinctNode extends ExpressionNode {
   protected abstract Rql2TypeWithProperties getValueType();
 
   protected int getComputeNextSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getComputeNextSlot(frame);
+    return AuxiliarySlots.getComputeNextSlot(frame.getFrameDescriptor());
   }
 
   protected int getShouldContinueSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getShouldContinueSlot(frame);
+    return AuxiliarySlots.getShouldContinueSlot(frame.getFrameDescriptor());
   }
 
   @Specialization

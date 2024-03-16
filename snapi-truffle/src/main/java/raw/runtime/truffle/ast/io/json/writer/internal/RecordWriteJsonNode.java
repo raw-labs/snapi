@@ -30,15 +30,15 @@ public class RecordWriteJsonNode extends StatementNode {
 
   @Child
   private JsonWriteNodes.WriteStartObjectJsonWriterNode writeStartObjectNode =
-      JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.getUncached();
+      JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.create();
 
   @Child
   private JsonWriteNodes.WriteEndObjectJsonWriterNode writeEndObjectNode =
-      JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.getUncached();
+      JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.create();
 
   @Child
   private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode =
-      JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.getUncached();
+      JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.create();
 
   @Child private RecordNodes.GetKeysNode getKeysNode = RecordNodesFactory.GetKeysNodeGen.create();
 

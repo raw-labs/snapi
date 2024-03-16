@@ -34,8 +34,7 @@ public class RecordWriteCsvNode extends StatementNode {
 
   @Children private DirectCallNode[] valueWriter;
 
-  @Child
-  private RecordNodes.GetValueNode getValue = RecordNodesFactory.GetValueNodeGen.getUncached();
+  @Child private RecordNodes.GetValueNode getValue = RecordNodesFactory.GetValueNodeGen.create();
 
   @Child private InteropLibrary keysArrays = InteropLibrary.getFactory().createDispatched(1);
 

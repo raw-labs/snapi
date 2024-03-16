@@ -42,7 +42,7 @@ public class OffHeapGroupByKeys {
   private final SourceContext context;
 
   private final OperatorNodes.CompareUninlinedNode compare =
-      OperatorNodesFactory.CompareUninlinedNodeGen.getUncached();
+      OperatorNodesFactory.CompareUninlinedNodeGen.create();
 
   private static int keysFootPrint(Rql2TypeWithProperties[] keyType) {
     int size = 0;

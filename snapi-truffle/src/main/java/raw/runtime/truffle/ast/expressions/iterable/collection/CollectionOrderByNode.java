@@ -71,9 +71,9 @@ public class CollectionOrderByNode extends ExpressionNode {
     }
 
     if (generatorSlot == -1) {
-      generatorSlot = getGeneratorSlot(frame);
-      collectionSlot = getCollectionSlot(frame);
-      offHeapGroupByKeysSlot = getOffHeapGroupByKeysSlot(frame);
+      generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
+      collectionSlot = getCollectionSlot(frame.getFrameDescriptor());
+      offHeapGroupByKeysSlot = getOffHeapGroupByKeysSlot(frame.getFrameDescriptor());
     }
 
     return new OrderByCollection(

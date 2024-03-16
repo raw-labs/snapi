@@ -60,6 +60,14 @@ public class CollectionEquiJoinNode extends ExpressionNode {
     this.rightValueType = rightValueType;
   }
 
+  private void setSlots(VirtualFrame frame) {
+    computeNextSlot = getComputeNextSlot(frame.getFrameDescriptor());
+    shouldContinueSlot = getShouldContinueSlot(frame.getFrameDescriptor());
+    generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
+    keyFunctionSlot = getFunctionSlot(frame.getFrameDescriptor());
+    mapSlot = getMapSlot(frame.getFrameDescriptor());
+  }
+
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     Object leftIterable = left.executeGeneric(frame);
@@ -69,11 +77,7 @@ public class CollectionEquiJoinNode extends ExpressionNode {
     Object remapF = remapFun.executeGeneric(frame);
 
     if (computeNextSlot == -1) {
-      computeNextSlot = getComputeNextSlot(frame);
-      shouldContinueSlot = getShouldContinueSlot(frame);
-      generatorSlot = getGeneratorSlot(frame);
-      keyFunctionSlot = getFunctionSlot(frame);
-      mapSlot = getMapSlot(frame);
+      setSlots(frame);
     }
 
     return new EquiJoinCollection(

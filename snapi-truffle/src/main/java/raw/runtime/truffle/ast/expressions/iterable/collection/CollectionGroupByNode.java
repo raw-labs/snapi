@@ -35,15 +35,15 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
   protected abstract Rql2TypeWithProperties getRowType();
 
   protected int getGeneratorSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getGeneratorSlot(frame);
+    return AuxiliarySlots.getGeneratorSlot(frame.getFrameDescriptor());
   }
 
   protected int getFunctionSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getFunctionSlot(frame);
+    return AuxiliarySlots.getFunctionSlot(frame.getFrameDescriptor());
   }
 
   protected int getMapSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getMapSlot(frame);
+    return AuxiliarySlots.getMapSlot(frame.getFrameDescriptor());
   }
 
   @Specialization

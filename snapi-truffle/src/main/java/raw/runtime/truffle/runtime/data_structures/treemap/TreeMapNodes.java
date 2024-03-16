@@ -60,6 +60,44 @@ public class TreeMapNodes {
     }
   }
 
+  @NodeInfo(shortName = "TreeMap.GetOrCreateDistinct")
+  @GenerateUncached
+  @GenerateInline
+  @ImportStatic(raw.runtime.truffle.PropertyType.class)
+  public abstract static class TreeMapGetOrCreateDistinct extends Node {
+
+    public abstract boolean execute(Node node, TreeMapObject mapObject, Object key);
+
+    @Specialization
+    static boolean exec(
+        Node node,
+        TreeMapObject treeMapObject,
+        Object key,
+        @Bind("$node") Node thisNode,
+        @Cached OperatorNodes.CompareNode compareNode) {
+      int cmp = 0;
+      TreeMapNode parent = null;
+      TreeMapNode t = treeMapObject.getRoot();
+      while (t != null) { // if `t` is null, we don't enter the loop, `parent` remains null.
+        parent = t;
+        cmp = compareNode.execute(thisNode, key, t.key);
+        if (cmp < 0) t = t.left;
+        else if (cmp > 0) t = t.right;
+        else {
+          return false;
+        }
+      }
+      if (parent != null) {
+        // we entered the loop and exited because `t` is null
+        treeMapObject.addEntry(key, null, parent, cmp < 0);
+      } else {
+        // we didn't enter the loop, we insert in the root
+        treeMapObject.addEntryToEmptyMap(key, null);
+      }
+      return true;
+    }
+  }
+
   @NodeInfo(shortName = "TreeMap.GetOrCreateArrayKeys")
   @GenerateUncached
   @GenerateInline

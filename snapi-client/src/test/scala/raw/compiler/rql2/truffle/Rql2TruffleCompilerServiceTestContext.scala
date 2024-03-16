@@ -43,7 +43,7 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 //    options.put("engine.TraceCompilationPolymorphism", "true")
 //    options.put("engine.TraceSplittingSummary", "true")
 //    //    options.put("engine.TraceCompilationDetails", "true")
-////        options.put("engine.CompileImmediately", "true")
+//    options.put("engine.CompileImmediately", "true")
 //    options.put("engine.BackgroundCompilation", "false")
 //    options.put("engine.SpecializationStatistics", "false")
 

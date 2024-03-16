@@ -177,7 +177,7 @@ public class RecordParseXmlNode extends ExpressionNode {
 
   @TruffleBoundary
   private String[] getKeySet() {
-    return fieldsIndex.keySet().toArray(new String[0]);
+    return collectionValues.keySet().toArray(new String[0]);
   }
 
   private void parseTagContent(RawTruffleXmlParser parser, String fieldName, Object record) {

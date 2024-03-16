@@ -42,9 +42,9 @@ public class CollectionFilterNode extends ExpressionNode {
     Object predicate = predicateNode.executeGeneric(frame);
 
     if (collectionSlot == -1) {
-      collectionSlot = getCollectionSlot(frame);
-      functionSlot = getFunctionSlot(frame);
-      resultSlot = getResultSlot(frame);
+      collectionSlot = getCollectionSlot(frame.getFrameDescriptor());
+      functionSlot = getFunctionSlot(frame.getFrameDescriptor());
+      resultSlot = getResultSlot(frame.getFrameDescriptor());
     }
 
     return new FilterCollection(

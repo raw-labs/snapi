@@ -12,7 +12,8 @@
 
 package raw.runtime.truffle.ast.osr;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.frame.FrameDescriptor;
 
 public final class AuxiliarySlots {
   private static final String GENERATOR_SLOT = "generatorSlot";
@@ -22,47 +23,50 @@ public final class AuxiliarySlots {
   private static final String SHOULD_CONTINUE_SLOT = "shouldContinueSlot";
   private static final String COMPUTE_NEXT_SLOT = "computeNextSlot";
   private static final String OUTPUT_BUFFER_SLOT = "outputBufferSlot";
-  private static final String OFF_HEAP_DISTINCT_SLOT = "offHeapDistinctSlot";
   private static final String OFF_HEAP_GROUP_BY_KEYS_SLOT = "offHeapGroupByKeysSlot";
   private static final String COLLECTION_SLOT = "collectionSlot";
 
-  public static int getGeneratorSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(GENERATOR_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getGeneratorSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(GENERATOR_SLOT);
   }
 
-  public static int getResultSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(RESULT_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getResultSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(RESULT_SLOT);
   }
 
-  public static int getFunctionSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(FUNCTION_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getFunctionSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(FUNCTION_SLOT);
   }
 
-  public static int getMapSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(MAP_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getMapSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(MAP_SLOT);
   }
 
-  public static int getShouldContinueSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(SHOULD_CONTINUE_SLOT);
+  public static int getShouldContinueSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(SHOULD_CONTINUE_SLOT);
   }
 
-  public static int getComputeNextSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(COMPUTE_NEXT_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getComputeNextSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(COMPUTE_NEXT_SLOT);
   }
 
-  public static int getOutputBufferSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(OUTPUT_BUFFER_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getOutputBufferSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(OUTPUT_BUFFER_SLOT);
   }
 
-  public static int getOffHeapDistinctSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(OFF_HEAP_DISTINCT_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getOffHeapGroupByKeysSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(OFF_HEAP_GROUP_BY_KEYS_SLOT);
   }
 
-  public static int getOffHeapGroupByKeysSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(OFF_HEAP_GROUP_BY_KEYS_SLOT);
-  }
-
-  public static int getCollectionSlot(VirtualFrame frame) {
-    return frame.getFrameDescriptor().findOrAddAuxiliarySlot(COLLECTION_SLOT);
+  @CompilerDirectives.TruffleBoundary
+  public static int getCollectionSlot(FrameDescriptor frameDescriptor) {
+    return frameDescriptor.findOrAddAuxiliarySlot(COLLECTION_SLOT);
   }
 }

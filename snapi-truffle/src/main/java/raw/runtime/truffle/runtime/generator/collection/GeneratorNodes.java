@@ -227,7 +227,7 @@ public class GeneratorNodes {
 
     @Specialization
     static Object next(Node node, DistinctMemoryGenerator generator) {
-      return generator.getItems().next();
+      return generator.getItems().nextKey();
     }
 
     @Specialization

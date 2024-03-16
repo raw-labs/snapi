@@ -44,13 +44,13 @@ public class TreeMapIterator {
     return e;
   }
 
-  public final TreeMapNode nextKey() {
+  public final Object nextKey() {
     TreeMapNode e = next;
     if (e == null) throw new NoSuchElementException();
     if (tree.getModCount() != expectedModCount) throw new ConcurrentModificationException();
     next = successor(e);
     lastReturned = e;
-    return e;
+    return e.key;
   }
 
   final TreeMapNode prevNode() {

@@ -24,8 +24,7 @@ import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 
 @NodeInfo(shortName = "Collection.TupleAvg")
 public class CollectionTupleAvgNode extends ExpressionNode {
-  @Child
-  private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.getUncached();
+  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
 
   @Child AggregateMultipleNode aggregate;
   @Child AggregatorNodes.Zero zeroNode = AggregatorNodesFactory.ZeroNodeGen.create();

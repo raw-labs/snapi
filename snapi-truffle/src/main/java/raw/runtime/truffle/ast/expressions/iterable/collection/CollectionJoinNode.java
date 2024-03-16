@@ -37,23 +37,23 @@ public abstract class CollectionJoinNode extends ExpressionNode {
   protected abstract Boolean getReshapeBeforePredicate();
 
   protected int getComputeNextSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getComputeNextSlot(frame);
+    return AuxiliarySlots.getComputeNextSlot(frame.getFrameDescriptor());
   }
 
   protected int getShouldContinueSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getShouldContinueSlot(frame);
+    return AuxiliarySlots.getShouldContinueSlot(frame.getFrameDescriptor());
   }
 
   protected int getResultSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getResultSlot(frame);
+    return AuxiliarySlots.getResultSlot(frame.getFrameDescriptor());
   }
 
   protected int getGeneratorSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getGeneratorSlot(frame);
+    return AuxiliarySlots.getGeneratorSlot(frame.getFrameDescriptor());
   }
 
   protected int getOutputBufferSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getOutputBufferSlot(frame);
+    return AuxiliarySlots.getOutputBufferSlot(frame.getFrameDescriptor());
   }
 
   @Specialization

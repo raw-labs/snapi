@@ -15,14 +15,13 @@ package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import java.util.ArrayList;
-import java.util.TreeSet;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
 
 public class OffHeapDistinct {
-  private final TreeSet<Object>
+  private final TreeMapObject
       index; // in-memory map that's used as long as the data fits in memory.
   private final ArrayList<File> spilledBuffers =
       new ArrayList<>(); // list of files that contain the spilled data.
@@ -41,7 +40,7 @@ public class OffHeapDistinct {
 
   @TruffleBoundary // Needed because of SourceContext
   public OffHeapDistinct(Rql2TypeWithProperties vType, SourceContext context) {
-    this.index = new TreeSet<>(OperatorNodesFactory.CompareUninlinedNodeGen.getUncached()::execute);
+    this.index = new TreeMapObject();
     this.itemType = vType;
     this.itemSize = KryoFootPrint.of(vType);
     this.binarySize = 0;
@@ -57,7 +56,7 @@ public class OffHeapDistinct {
     this.binarySize = binarySize;
   }
 
-  public TreeSet<Object> getIndex() {
+  public TreeMapObject getIndex() {
     return index;
   }
 

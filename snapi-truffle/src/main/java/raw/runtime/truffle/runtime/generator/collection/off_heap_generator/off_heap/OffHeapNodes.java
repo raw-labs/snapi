@@ -109,9 +109,10 @@ public class OffHeapNodes {
         Object item,
         Object value,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Exclusive TreeMapNodes.TreeMapGetOrCreateDistinct addDistinct,
         @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       // append the value to the list of values for the key.
-      boolean added = offHeapDistinct.getIndex().add(item);
+      boolean added = addDistinct.execute(thisNode, offHeapDistinct.getIndex(), item);
       if (added) {
         offHeapDistinct.setBinarySize(
             offHeapDistinct.getBinarySize() + offHeapDistinct.getItemSize());
@@ -139,17 +140,28 @@ public class OffHeapNodes {
       kryoOutput.writeInt(size);
     }
 
+    @CompilerDirectives.TruffleBoundary
+    static FileOutputStream getNewDiskBuffer(OffHeapGroupByKey offHeapGroupByKey, Node node) {
+      File file;
+      file = IOUtils.getScratchFile("groupby.", ".kryo", offHeapGroupByKey.getContext()).toFile();
+      offHeapGroupByKey.getSpilledBuffers().add(file);
+      try {
+        return new FileOutputStream(file);
+      } catch (FileNotFoundException e) {
+        throw new RawTruffleRuntimeException(e, node);
+      }
+    }
+
     @Specialization
     static void flush(
         Node node,
         OffHeapGroupByKey offHeapGroupByKey,
-        @Cached OffHeapNewDiskBufferNode newDiskBufferNode,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer1,
         @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer2) {
       Output kryoOutput =
           new UnsafeOutput(
-              newDiskBufferNode.execute(thisNode, offHeapGroupByKey),
+              getNewDiskBuffer(offHeapGroupByKey, thisNode),
               offHeapGroupByKey.getKryoOutputBufferSize());
       TreeMapIterator iterator = offHeapGroupByKey.getMemMap().iterator();
       while (iterator.hasNext()) {
@@ -214,8 +226,11 @@ public class OffHeapNodes {
           new UnsafeOutput(
               nextFileNode.execute(thisNode, offHeapDistinct),
               offHeapDistinct.getKryoInputBufferSize());
-      for (Object item : offHeapDistinct.getIndex()) {
-        writer.execute(thisNode, kryoOutput, offHeapDistinct.getItemType(), item);
+      TreeMapIterator iterator = offHeapDistinct.getIndex().iterator();
+
+      while (iterator.hasNext()) {
+        Object key = iterator.nextKey();
+        writer.execute(thisNode, kryoOutput, offHeapDistinct.getItemType(), key);
       }
       kryoOutputClose(kryoOutput);
       // reset the memory map and footprint
@@ -274,28 +289,6 @@ public class OffHeapNodes {
         @Cached @Cached.Exclusive OffHeapFlushNode flushNode) {
       flushNode.execute(thisNode, offHeapDistinct);
       return new DistinctSpilledFilesGenerator(offHeapDistinct);
-    }
-  }
-
-  @NodeInfo(shortName = "OffHeap.NewDiskBuffer")
-  @GenerateUncached
-  @GenerateInline
-  public abstract static class OffHeapNewDiskBufferNode extends Node {
-
-    public abstract FileOutputStream execute(Node node, Object offHeapGroupByKey);
-
-    @Specialization
-    @CompilerDirectives.TruffleBoundary
-    static FileOutputStream newDiskBuffer(
-        Node node, OffHeapGroupByKey offHeapGroupByKey, @Bind("$node") Node thisNode) {
-      File file;
-      file = IOUtils.getScratchFile("groupby.", ".kryo", offHeapGroupByKey.getContext()).toFile();
-      offHeapGroupByKey.getSpilledBuffers().add(file);
-      try {
-        return new FileOutputStream(file);
-      } catch (FileNotFoundException e) {
-        throw new RawTruffleRuntimeException(e, thisNode);
-      }
     }
   }
 
