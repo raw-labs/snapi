@@ -59,7 +59,12 @@ public class RecordParseCsvNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
     assert (parser.startingNewLine(this));
-    Object record = language.createPureRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
     for (int i = 0; i < columns.length; i++) {
       String fieldName = columns[i].idn();
       parser.getNextField();

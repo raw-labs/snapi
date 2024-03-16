@@ -57,7 +57,12 @@ public class RecordReadJdbcQuery extends ExpressionNode {
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    Object record = language.createPureRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
     for (int i = 0; i < columns.length; i++) {
       String fieldName = columns[i].idn();
       Object value = childDirectCalls[i].call(rs);

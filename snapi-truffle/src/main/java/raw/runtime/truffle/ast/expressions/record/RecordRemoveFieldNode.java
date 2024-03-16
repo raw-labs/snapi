@@ -48,7 +48,12 @@ public abstract class RecordRemoveFieldNode extends ExpressionNode {
           RecordNodes.GetValueNode[] getValueNode,
       @Cached(value = "getAddPropNode(objKeys.length)", neverDefault = true)
           RecordNodes.AddPropNode[] addPropNode) {
-    Object result = lang.createPureRecord();
+    Object result;
+    if (hasDuplicateKeys) {
+      result = lang.createDuplicateKeyRecord();
+    } else {
+      result = lang.createPureRecord();
+    }
 
     for (int i = 0; i < objKeys.length; i++) {
       if (!objKeys[i].equals(dropKey)) {

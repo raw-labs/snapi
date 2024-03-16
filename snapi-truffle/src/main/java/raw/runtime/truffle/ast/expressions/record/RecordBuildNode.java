@@ -50,7 +50,12 @@ public class RecordBuildNode extends ExpressionNode {
   @ExplodeLoop
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object record = language.createPureRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
     for (int i = 0; i < elementNodes.length; i++) {
       Object value = elementNodes[i].executeGeneric(frame);
       addPropNode[i].execute(this, record, keys[i], value, hasDuplicateKeys);

@@ -34,6 +34,7 @@ import java.util.Base64;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
+import raw.runtime.truffle.ast.expressions.record.RecordStaticInitializers;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.json.JsonReaderRawTruffleException;
@@ -510,7 +511,7 @@ public final class JsonParserNodes {
   }
 
   @NodeInfo(shortName = "JsonParser.ParseAny")
-  @ImportStatic(JsonNodeType.class)
+  @ImportStatic({JsonNodeType.class, RecordStaticInitializers.class})
   @GenerateInline
   public abstract static class ParseAnyJsonParserNode extends Node {
 
@@ -633,6 +634,7 @@ public final class JsonParserNodes {
         Node node,
         JsonParser parser,
         @Bind("$node") Node thisNode,
+        @Cached("getCachedLanguage(thisNode)") RawLanguage lang,
         @Cached(inline = false) @Cached.Shared("parseAny") ParseAnyJsonParserNode parse,
         @Cached @Cached.Shared("nextToken") JsonParserNodes.NextTokenJsonParserNode nextToken,
         @Cached @Cached.Shared("currentToken")
@@ -648,7 +650,7 @@ public final class JsonParserNodes {
 
       nextToken.execute(thisNode, parser);
 
-      Object record = RawLanguage.get(thisNode).createPureRecord();
+      Object record = RawLanguage.get(thisNode).createDuplicateKeyRecord();
       while (currentToken.execute(thisNode, parser) != JsonToken.END_OBJECT) {
         String fieldName = currentField.execute(thisNode, parser);
         nextToken.execute(thisNode, parser); // skip the field name

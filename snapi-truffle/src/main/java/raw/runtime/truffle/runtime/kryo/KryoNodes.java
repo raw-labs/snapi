@@ -164,7 +164,12 @@ public class KryoNodes {
             RecordNodes.AddPropNode[] addPropNode,
         @Cached(value = "addPropNode.length", allowUncached = true) int size,
         @Cached(value = "createKryoRead(size)", allowUncached = true) KryoReadNode[] kryo) {
-      Object record = language.createPureRecord();
+      Object record;
+      if (hasDuplicateKeys) {
+        record = language.createDuplicateKeyRecord();
+      } else {
+        record = language.createPureRecord();
+      }
       for (int i = 0; i < size; i++) {
         Rql2TypeWithProperties attType = getTipe(t, i);
         Object value = kryo[i].execute(thisNode, input, attType);

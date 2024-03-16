@@ -127,7 +127,12 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
     nextTokenNode.execute(this, parser);
 
-    Object record = language.createPureRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
 
     // todo: (az) need to find a solution for the array of direct calls,
     // the json object can be out of order, the child nodes cannot be inlined

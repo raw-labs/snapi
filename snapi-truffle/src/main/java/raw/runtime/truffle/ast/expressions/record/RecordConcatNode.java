@@ -58,7 +58,12 @@ public abstract class RecordConcatNode extends ExpressionNode {
       @Cached(value = "hasDuplicateKeysBetween(objKeys1, objKeys2)", neverDefault = false)
           boolean hasDuplicateKeys) {
 
-    Object result = lang.createPureRecord();
+    Object result;
+    if (hasDuplicateKeys) {
+      result = lang.createDuplicateKeyRecord();
+    } else {
+      result = lang.createPureRecord();
+    }
 
     for (int i = 0; i < objKeys1.length; i++) {
       addPropNode1[i].execute(

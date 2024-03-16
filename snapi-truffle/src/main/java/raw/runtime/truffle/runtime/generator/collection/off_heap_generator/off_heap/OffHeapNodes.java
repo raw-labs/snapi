@@ -67,6 +67,7 @@ public class OffHeapNodes {
       list.add(value);
       // add the size of the row to the memory footprint.
       offHeapGroupByKey.setSize(offHeapGroupByKey.getSize() + offHeapGroupByKey.getRowSize());
+
       if (offHeapGroupByKey.getSize() >= offHeapGroupByKey.getMaxSize()) {
         flushNode.execute(thisNode, offHeapGroupByKey);
       }

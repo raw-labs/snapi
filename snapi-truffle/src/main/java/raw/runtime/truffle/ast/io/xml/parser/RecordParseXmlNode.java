@@ -101,7 +101,12 @@ public class RecordParseXmlNode extends ExpressionNode {
     bitSet.or(refBitSet);
 
     // the record to be returned
-    Object record = language.createPureRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
 
     Vector<String> attributes = parser.attributes();
     int nAttributes = attributes.size();

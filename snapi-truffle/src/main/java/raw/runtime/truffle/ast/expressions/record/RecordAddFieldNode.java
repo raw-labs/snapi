@@ -51,7 +51,12 @@ public abstract class RecordAddFieldNode extends ExpressionNode {
       @Cached(value = "getAddPropNodePlusOne(objKeys.length)", neverDefault = true)
           RecordNodes.AddPropNode[] addPropNode) {
 
-    Object result = lang.createPureRecord();
+    Object result;
+    if (hasDuplicateKeys) {
+      result = lang.createDuplicateKeyRecord();
+    } else {
+      result = lang.createPureRecord();
+    }
 
     for (int i = 0; i < objKeys.length; i++) {
       addPropNode[i].execute(
