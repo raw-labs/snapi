@@ -207,32 +207,30 @@ public class OffHeapNodes {
         @Bind("$node") Node thisNode,
         @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer1,
         @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer2) {
-      if (offHeapGroupByKey.getSize() != 0) {
-        // flush
-        Output kryoOutput =
-            new UnsafeOutput(
-                getGroupByKeyNewDiskBuffer(offHeapGroupByKey, thisNode),
-                offHeapGroupByKey.getKryoOutputBufferSize());
-        TreeMapIterator iterator = offHeapGroupByKey.getMemMap().iterator();
+      // flush
+      Output kryoOutput =
+          new UnsafeOutput(
+              getGroupByKeyNewDiskBuffer(offHeapGroupByKey, thisNode),
+              offHeapGroupByKey.getKryoOutputBufferSize());
+      TreeMapIterator iterator = offHeapGroupByKey.getMemMap().iterator();
 
-        while (iterator.hasNext()) {
-          TreeMapNode treeNode = iterator.nextNode();
-          @SuppressWarnings("unchecked")
-          ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
-          // write key, then n, then values.
-          writer1.execute(thisNode, kryoOutput, offHeapGroupByKey.getKeyType(), treeNode.getKey());
-          kryoWriteInt(kryoOutput, values.size());
-          for (Object value : values) {
-            writer2.execute(thisNode, kryoOutput, offHeapGroupByKey.getRowType(), value);
-          }
+      while (iterator.hasNext()) {
+        TreeMapNode treeNode = iterator.nextNode();
+        @SuppressWarnings("unchecked")
+        ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
+        // write key, then n, then values.
+        writer1.execute(thisNode, kryoOutput, offHeapGroupByKey.getKeyType(), treeNode.getKey());
+        kryoWriteInt(kryoOutput, values.size());
+        for (Object value : values) {
+          writer2.execute(thisNode, kryoOutput, offHeapGroupByKey.getRowType(), value);
         }
-
-        kryoOutputClose(kryoOutput);
-        // reset both the memory map and memory footprint.
-
-        offHeapGroupByKey.getMemMap().clear();
-        offHeapGroupByKey.setSize(0);
       }
+
+      kryoOutputClose(kryoOutput);
+      // reset both the memory map and memory footprint.
+
+      offHeapGroupByKey.getMemMap().clear();
+      offHeapGroupByKey.setSize(0);
 
       return new GroupBySpilledFilesGenerator(offHeapGroupByKey);
     }
@@ -249,35 +247,32 @@ public class OffHeapNodes {
         @Bind("$node") Node thisNode,
         @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer1,
         @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer2) {
+      // flush
+      Output kryoOutput =
+          new UnsafeOutput(
+              groupByKeysNextFile(offHeapGroupByKeys, thisNode),
+              offHeapGroupByKeys.getKryoOutputBufferSize());
+      TreeMapIterator iterator = offHeapGroupByKeys.getMemMap().iterator();
 
-      if (offHeapGroupByKeys.getSize() != 0) {
-        // flush
-        Output kryoOutput =
-            new UnsafeOutput(
-                groupByKeysNextFile(offHeapGroupByKeys, thisNode),
-                offHeapGroupByKeys.getKryoOutputBufferSize());
-        TreeMapIterator iterator = offHeapGroupByKeys.getMemMap().iterator();
-
-        while (iterator.hasNext()) {
-          TreeMapNode treeNode = iterator.nextNode();
-          // write keys, then n, then values.
-          for (int i = 0; i < offHeapGroupByKeys.getKeyTypes().length; i++) {
-            Object[] k = (Object[]) treeNode.getKey();
-            writer1.execute(thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], k[i]);
-          }
-          @SuppressWarnings("unchecked")
-          ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
-          kryoWriteInt(kryoOutput, values.size());
-          for (Object v : values) {
-            writer2.execute(thisNode, kryoOutput, offHeapGroupByKeys.getRowType(), v);
-          }
+      while (iterator.hasNext()) {
+        TreeMapNode treeNode = iterator.nextNode();
+        // write keys, then n, then values.
+        for (int i = 0; i < offHeapGroupByKeys.getKeyTypes().length; i++) {
+          Object[] k = (Object[]) treeNode.getKey();
+          writer1.execute(thisNode, kryoOutput, offHeapGroupByKeys.getKeyTypes()[i], k[i]);
         }
-
-        kryoOutputClose(kryoOutput);
-        // reset the memory map and footprint
-        offHeapGroupByKeys.getMemMap().clear();
-        offHeapGroupByKeys.setSize(0);
+        @SuppressWarnings("unchecked")
+        ArrayList<Object> values = (ArrayList<Object>) treeNode.getValue();
+        kryoWriteInt(kryoOutput, values.size());
+        for (Object v : values) {
+          writer2.execute(thisNode, kryoOutput, offHeapGroupByKeys.getRowType(), v);
+        }
       }
+
+      kryoOutputClose(kryoOutput);
+      // reset the memory map and footprint
+      offHeapGroupByKeys.getMemMap().clear();
+      offHeapGroupByKeys.setSize(0);
 
       return new OrderBySpilledFilesGenerator(offHeapGroupByKeys);
     }
@@ -294,23 +289,21 @@ public class OffHeapNodes {
         @Bind("$node") Node thisNode,
         @Cached @Cached.Exclusive KryoNodes.KryoWriteNode writer) {
 
-      if (offHeapDistinct.getBinarySize() != 0) {
-        // flush
-        Output kryoOutput =
-            new UnsafeOutput(
-                distinctNextFile(offHeapDistinct, node), offHeapDistinct.getKryoInputBufferSize());
-        TreeMapIterator iterator = offHeapDistinct.getIndex().iterator();
+      // flush
+      Output kryoOutput =
+          new UnsafeOutput(
+              distinctNextFile(offHeapDistinct, node), offHeapDistinct.getKryoInputBufferSize());
+      TreeMapIterator iterator = offHeapDistinct.getIndex().iterator();
 
-        while (iterator.hasNext()) {
-          Object key = iterator.nextKey();
-          writer.execute(thisNode, kryoOutput, offHeapDistinct.getItemType(), key);
-        }
-
-        kryoOutputClose(kryoOutput);
-        // reset the memory map and footprint
-        offHeapDistinct.getIndex().clear();
-        offHeapDistinct.setBinarySize(0);
+      while (iterator.hasNext()) {
+        Object key = iterator.nextKey();
+        writer.execute(thisNode, kryoOutput, offHeapDistinct.getItemType(), key);
       }
+
+      kryoOutputClose(kryoOutput);
+      // reset the memory map and footprint
+      offHeapDistinct.getIndex().clear();
+      offHeapDistinct.setBinarySize(0);
 
       return new DistinctSpilledFilesGenerator(offHeapDistinct);
     }
