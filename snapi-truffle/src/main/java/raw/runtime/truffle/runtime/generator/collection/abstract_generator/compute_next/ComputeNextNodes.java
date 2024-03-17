@@ -723,11 +723,7 @@ public class ComputeNextNodes {
               computeNext.getKeyType(),
               computeNext.getLeftRowType(),
               RawContext.get(thisNode).getSourceContext(),
-              null,
-              computeNext.getFrame(),
-              computeNext.getKryoOutputSlot(),
-              computeNext.getIteratorSlot(),
-              computeNext.getOffHeapFlushSlot());
+              null);
 
       Object leftGenerator = getGenerator.execute(thisNode, computeNext.getLeftIterable());
       try {
@@ -748,11 +744,7 @@ public class ComputeNextNodes {
               computeNext.getKeyType(),
               computeNext.getRightRowType(),
               RawContext.get(thisNode).getSourceContext(),
-              null,
-              computeNext.getFrame(),
-              computeNext.getKryoOutputSlot(),
-              computeNext.getIteratorSlot(),
-              computeNext.getOffHeapFlushSlot());
+              null);
       Object rightGenerator = getGenerator.execute(thisNode, computeNext.getRightIterable());
       try {
         initRightNode.execute(thisNode, rightGenerator);

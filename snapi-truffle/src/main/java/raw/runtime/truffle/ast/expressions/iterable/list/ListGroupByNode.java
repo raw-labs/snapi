@@ -73,11 +73,6 @@ public class ListGroupByNode extends ExpressionNode {
   private final int keyFunctionSlot;
   private final int mapSlot;
   private final int listSlot;
-  private int kryoOutputSlot = -1;
-
-  private int iteratorSlot = -1;
-
-  private int offHeapFlushSlot = -1;
 
   public ListGroupByNode(
       ExpressionNode inputNode,
@@ -116,27 +111,12 @@ public class ListGroupByNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-
-    if (kryoOutputSlot == -1) {
-      kryoOutputSlot = getKryoOutputSlot(frame.getFrameDescriptor());
-      iteratorSlot = getIteratorSlot(frame.getFrameDescriptor());
-      offHeapFlushSlot = getOffHeapFlushSlot(frame.getFrameDescriptor());
-    }
-
     Object input = inputNode.executeGeneric(frame);
     Object keyFun = keyFunNode.executeGeneric(frame);
     Object iterable = toIterableNode.execute(this, input);
     SourceContext context = RawContext.get(this).getSourceContext();
     OffHeapGroupByKey map =
-        new OffHeapGroupByKey(
-            this.keyType,
-            this.rowType,
-            context,
-            new RecordShaper(true),
-            frame.materialize(),
-            kryoOutputSlot,
-            iteratorSlot,
-            offHeapFlushSlot);
+        new OffHeapGroupByKey(this.keyType, this.rowType, context, new RecordShaper(true));
     Object generator = getGeneratorNode.execute(this, iterable);
 
     try {

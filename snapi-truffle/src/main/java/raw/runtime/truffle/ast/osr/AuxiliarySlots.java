@@ -25,9 +25,6 @@ public final class AuxiliarySlots {
   private static final String OUTPUT_BUFFER_SLOT = "outputBufferSlot";
   private static final String OFF_HEAP_GROUP_BY_KEYS_SLOT = "offHeapGroupByKeysSlot";
   private static final String COLLECTION_SLOT = "collectionSlot";
-  private static final String KRYO_OUTPUT_SLOT = "kryoOutputSlot";
-  private static final String ITERATOR_SLOT = "iteratorSlot";
-  private static final String OFF_HEAP_FLUSH_SLOT = "offHeapFlushSlot";
 
   @CompilerDirectives.TruffleBoundary
   public static int getGeneratorSlot(FrameDescriptor frameDescriptor) {
@@ -71,20 +68,5 @@ public final class AuxiliarySlots {
   @CompilerDirectives.TruffleBoundary
   public static int getCollectionSlot(FrameDescriptor frameDescriptor) {
     return frameDescriptor.findOrAddAuxiliarySlot(COLLECTION_SLOT);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  public static int getKryoOutputSlot(FrameDescriptor frameDescriptor) {
-    return frameDescriptor.findOrAddAuxiliarySlot(KRYO_OUTPUT_SLOT);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  public static int getIteratorSlot(FrameDescriptor frameDescriptor) {
-    return frameDescriptor.findOrAddAuxiliarySlot(ITERATOR_SLOT);
-  }
-
-  @CompilerDirectives.TruffleBoundary
-  public static int getOffHeapFlushSlot(FrameDescriptor frameDescriptor) {
-    return frameDescriptor.findOrAddAuxiliarySlot(OFF_HEAP_FLUSH_SLOT);
   }
 }

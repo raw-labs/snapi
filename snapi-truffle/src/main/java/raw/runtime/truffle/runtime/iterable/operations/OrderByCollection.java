@@ -38,12 +38,6 @@ public class OrderByCollection implements TruffleObject {
   private final int collectionSlot;
   private final int offHeapGroupByKeysSlot;
 
-  private final int kryoOutputSlot;
-
-  private final int iteratorSlot;
-
-  private final int offHeapFlushSlot;
-
   public OrderByCollection(
       Object iterable,
       Object[] keyFunctions,
@@ -54,10 +48,7 @@ public class OrderByCollection implements TruffleObject {
       MaterializedFrame frame,
       int generatorSlot,
       int collectionSlot,
-      int offHeapGroupByKeysSlot,
-      int kryoOutputSlot,
-      int iteratorSlot,
-      int offHeapFlushSlot) {
+      int offHeapGroupByKeysSlot) {
     this.parentIterable = iterable;
     this.keyFunctions = keyFunctions;
     this.keyOrderings = keyOrderings;
@@ -68,9 +59,6 @@ public class OrderByCollection implements TruffleObject {
     this.generatorSlot = generatorSlot;
     this.collectionSlot = collectionSlot;
     this.offHeapGroupByKeysSlot = offHeapGroupByKeysSlot;
-    this.kryoOutputSlot = kryoOutputSlot;
-    this.iteratorSlot = iteratorSlot;
-    this.offHeapFlushSlot = offHeapFlushSlot;
   }
 
   public Object getParentIterable() {
@@ -111,18 +99,6 @@ public class OrderByCollection implements TruffleObject {
 
   public int getOffHeapGroupByKeysSlot() {
     return offHeapGroupByKeysSlot;
-  }
-
-  public int getKryoOutputSlot() {
-    return kryoOutputSlot;
-  }
-
-  public int getIteratorSlot() {
-    return iteratorSlot;
-  }
-
-  public int getOffHeapFlushSlot() {
-    return offHeapFlushSlot;
   }
 
   // InteropLibrary: Iterable

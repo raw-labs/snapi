@@ -48,24 +48,13 @@ public class OffHeapGroupByKeys {
     return size;
   }
 
-  private final MaterializedFrame frame;
-
-  private final int kryoOutputSlot;
-
-  private final int iteratorSlot;
-
-  private final int offHeapGroupByKeysSlot;
-
   @TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKeys(
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
       int[] keyOrderings,
       SourceContext context,
-      MaterializedFrame frame,
-      int kryoOutputSlot,
-      int iteratorSlot,
-      int offHeapGroupByKeysSlot) {
+      MaterializedFrame frame) {
     this.memMap = new TreeMapObject();
     this.keyTypes = kTypes;
     this.rowType = rowType;
@@ -79,11 +68,6 @@ public class OffHeapGroupByKeys {
         (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     this.context = context;
     this.keyOrderings = keyOrderings;
-
-    this.frame = frame;
-    this.kryoOutputSlot = kryoOutputSlot;
-    this.iteratorSlot = iteratorSlot;
-    this.offHeapGroupByKeysSlot = offHeapGroupByKeysSlot;
   }
 
   public TreeMapObject getMemMap() {
@@ -136,21 +120,5 @@ public class OffHeapGroupByKeys {
 
   public int[] getKeyOrderings() {
     return keyOrderings;
-  }
-
-  public MaterializedFrame getFrame() {
-    return frame;
-  }
-
-  public int getKryoOutputSlot() {
-    return kryoOutputSlot;
-  }
-
-  public int getIteratorSlot() {
-    return iteratorSlot;
-  }
-
-  public int getOffHeapGroupByKeysSlot() {
-    return offHeapGroupByKeysSlot;
   }
 }

@@ -13,7 +13,6 @@
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.frame.MaterializedFrame;
 import java.io.File;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -42,24 +41,12 @@ public class OffHeapGroupByKey {
 
   private final RecordShaper reshape;
 
-  private final MaterializedFrame frame;
-
-  private final int kryoOutputSlot;
-
-  private final int iteratorSlot;
-
-  private final int offHeapGroupByKeySlot;
-
   @TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKey(
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
       SourceContext context,
-      RecordShaper reshape,
-      MaterializedFrame frame,
-      int kryoOutputSlot,
-      int iteratorSlot,
-      int offHeapGroupByKeySlot) {
+      RecordShaper reshape) {
     this.memMap = new TreeMapObject();
     this.keyType = kType;
     this.rowType = rowType;
@@ -73,10 +60,6 @@ public class OffHeapGroupByKey {
         (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     this.context = context;
     this.reshape = reshape;
-    this.frame = frame;
-    this.kryoOutputSlot = kryoOutputSlot;
-    this.iteratorSlot = iteratorSlot;
-    this.offHeapGroupByKeySlot = offHeapGroupByKeySlot;
   }
 
   public void setSize(int size) {
@@ -129,21 +112,5 @@ public class OffHeapGroupByKey {
 
   public RecordShaper getReshape() {
     return reshape;
-  }
-
-  public MaterializedFrame getFrame() {
-    return frame;
-  }
-
-  public int getKryoOutputSlot() {
-    return kryoOutputSlot;
-  }
-
-  public int getIteratorSlot() {
-    return iteratorSlot;
-  }
-
-  public int getOffHeapGroupByKeySlot() {
-    return offHeapGroupByKeySlot;
   }
 }

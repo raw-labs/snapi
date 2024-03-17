@@ -38,9 +38,6 @@ public class CollectionEquiJoinNode extends ExpressionNode {
   @CompilerDirectives.CompilationFinal private int generatorSlot = -1;
   @CompilerDirectives.CompilationFinal private int keyFunctionSlot = -1;
   @CompilerDirectives.CompilationFinal private int mapSlot = -1;
-  @CompilerDirectives.CompilationFinal private int kryoOutputSlot = -1;
-  @CompilerDirectives.CompilationFinal private int iteratorSlot = -1;
-  @CompilerDirectives.CompilationFinal private int offHeapFlushSlot = -1;
 
   public CollectionEquiJoinNode(
       ExpressionNode left,
@@ -69,9 +66,6 @@ public class CollectionEquiJoinNode extends ExpressionNode {
     generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
     keyFunctionSlot = getFunctionSlot(frame.getFrameDescriptor());
     mapSlot = getMapSlot(frame.getFrameDescriptor());
-    kryoOutputSlot = getKryoOutputSlot(frame.getFrameDescriptor());
-    iteratorSlot = getIteratorSlot(frame.getFrameDescriptor());
-    offHeapFlushSlot = getOffHeapFlushSlot(frame.getFrameDescriptor());
   }
 
   @Override
@@ -100,9 +94,6 @@ public class CollectionEquiJoinNode extends ExpressionNode {
         shouldContinueSlot,
         generatorSlot,
         keyFunctionSlot,
-        mapSlot,
-        kryoOutputSlot,
-        iteratorSlot,
-        offHeapFlushSlot);
+        mapSlot);
   }
 }

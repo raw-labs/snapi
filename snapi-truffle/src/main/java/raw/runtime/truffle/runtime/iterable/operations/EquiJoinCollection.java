@@ -38,11 +38,6 @@ public class EquiJoinCollection implements TruffleObject {
   private final int generatorSlot;
   private final int keyFunctionSlot;
   private final int mapSlot;
-  private final int kryoOutputSlot;
-
-  private final int iteratorSlot;
-
-  private final int offHeapGroupByKeySlot;
 
   public EquiJoinCollection(
       Object leftIterable,
@@ -58,10 +53,7 @@ public class EquiJoinCollection implements TruffleObject {
       int shouldContinueSlot,
       int generatorSlot,
       int keyFunctionSlot,
-      int mapSlot,
-      int kryoOutputSlot,
-      int iteratorSlot,
-      int offHeapGroupByKeySlot) {
+      int mapSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;
@@ -76,9 +68,6 @@ public class EquiJoinCollection implements TruffleObject {
     this.generatorSlot = generatorSlot;
     this.keyFunctionSlot = keyFunctionSlot;
     this.mapSlot = mapSlot;
-    this.kryoOutputSlot = kryoOutputSlot;
-    this.iteratorSlot = iteratorSlot;
-    this.offHeapGroupByKeySlot = offHeapGroupByKeySlot;
   }
 
   public Object getGenerator() {
@@ -97,10 +86,7 @@ public class EquiJoinCollection implements TruffleObject {
             shouldContinueSlot,
             generatorSlot,
             keyFunctionSlot,
-            mapSlot,
-            kryoOutputSlot,
-            iteratorSlot,
-            offHeapGroupByKeySlot));
+            mapSlot));
   }
 
   @ExportMessage

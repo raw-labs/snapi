@@ -202,12 +202,7 @@ public class IterableNodes {
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
       OffHeapDistinct index =
           new OffHeapDistinct(
-              collection.getRowType(),
-              collection.getContext(),
-              collection.getFrame(),
-              collection.getKryoOutputSlot(),
-              collection.getIteratorSlot(),
-              collection.getOffHeapFlushSlot());
+              collection.getRowType(), collection.getContext(), collection.getFrame());
       Object generator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, generator);
@@ -261,11 +256,7 @@ public class IterableNodes {
               collection.getKeyType(),
               collection.getRowType(),
               collection.getContext(),
-              new RecordShaper(false),
-              frame,
-              collection.getKryoOutputSlot(),
-              collection.getIteratorSlot(),
-              collection.getOffHeapFlushSlot());
+              new RecordShaper(false));
       Object inputGenerator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, inputGenerator);
@@ -318,10 +309,7 @@ public class IterableNodes {
               collection.getRowType(),
               collection.getKeyOrderings(),
               collection.getContext(),
-              collection.getFrame(),
-              collection.getKryoOutputSlot(),
-              collection.getIteratorSlot(),
-              collection.getOffHeapFlushSlot());
+              collection.getFrame());
       try {
         initNode.execute(thisNode, generator);
 

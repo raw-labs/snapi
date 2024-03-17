@@ -41,20 +41,9 @@ public class OffHeapDistinct {
 
   private final MaterializedFrame frame;
 
-  private final int kryoOutputSlot;
-
-  private final int iteratorSlot;
-
-  private final int offHeapDistinctSlot;
-
   @TruffleBoundary // Needed because of SourceContext
   public OffHeapDistinct(
-      Rql2TypeWithProperties vType,
-      SourceContext context,
-      MaterializedFrame frame,
-      int kryoOutputSlot,
-      int iteratorSlot,
-      int offHeapDistinctSlot) {
+      Rql2TypeWithProperties vType, SourceContext context, MaterializedFrame frame) {
     this.index = new TreeMapObject();
     this.itemType = vType;
     this.itemSize = KryoFootPrint.of(vType);
@@ -66,9 +55,6 @@ public class OffHeapDistinct {
         (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     this.context = context;
     this.frame = frame;
-    this.kryoOutputSlot = kryoOutputSlot;
-    this.iteratorSlot = iteratorSlot;
-    this.offHeapDistinctSlot = offHeapDistinctSlot;
   }
 
   public void setBinarySize(int binarySize) {
@@ -113,17 +99,5 @@ public class OffHeapDistinct {
 
   public MaterializedFrame getFrame() {
     return frame;
-  }
-
-  public int getKryoOutputSlot() {
-    return kryoOutputSlot;
-  }
-
-  public int getIteratorSlot() {
-    return iteratorSlot;
-  }
-
-  public int getOffHeapDistinctSlot() {
-    return offHeapDistinctSlot;
   }
 }

@@ -80,9 +80,6 @@ public class CollectionOrderByNode extends ExpressionNode {
       generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
       collectionSlot = getCollectionSlot(frame.getFrameDescriptor());
       offHeapGroupByKeysSlot = getOffHeapGroupByKeysSlot(frame.getFrameDescriptor());
-      kryoOutputSlot = getKryoOutputSlot(frame.getFrameDescriptor());
-      iteratorSlot = getIteratorSlot(frame.getFrameDescriptor());
-      offHeapFlushSlot = getOffHeapFlushSlot(frame.getFrameDescriptor());
     }
 
     return new OrderByCollection(
@@ -95,9 +92,6 @@ public class CollectionOrderByNode extends ExpressionNode {
         frame.materialize(),
         generatorSlot,
         collectionSlot,
-        offHeapGroupByKeysSlot,
-        kryoOutputSlot,
-        iteratorSlot,
-        offHeapFlushSlot);
+        offHeapGroupByKeysSlot);
   }
 }

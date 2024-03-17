@@ -37,12 +37,6 @@ public class GroupByCollection implements TruffleObject {
   private final int keyFunctionSlot;
   private final int mapSlot;
 
-  private final int kryoOutputSlot;
-
-  private final int iteratorSlot;
-
-  private final int offHeapFlushSlot;
-
   public GroupByCollection(
       Object iterable,
       Object keyFun,
@@ -52,10 +46,7 @@ public class GroupByCollection implements TruffleObject {
       MaterializedFrame frame,
       int generatorSlot,
       int keyFunctionSlot,
-      int mapSlot,
-      int kryoOutputSlot,
-      int iteratorSlot,
-      int offHeapFlushSlot) {
+      int mapSlot) {
     this.iterable = iterable;
     this.keyFun = keyFun;
     this.keyType = kType;
@@ -65,9 +56,6 @@ public class GroupByCollection implements TruffleObject {
     this.generatorSlot = generatorSlot;
     this.keyFunctionSlot = keyFunctionSlot;
     this.mapSlot = mapSlot;
-    this.kryoOutputSlot = kryoOutputSlot;
-    this.iteratorSlot = iteratorSlot;
-    this.offHeapFlushSlot = offHeapFlushSlot;
   }
 
   public Object getIterable() {
@@ -104,18 +92,6 @@ public class GroupByCollection implements TruffleObject {
 
   public int getMapSlot() {
     return mapSlot;
-  }
-
-  public int getKryoOutputSlot() {
-    return kryoOutputSlot;
-  }
-
-  public int getIteratorSlot() {
-    return iteratorSlot;
-  }
-
-  public int getOffHeapFlushSlot() {
-    return offHeapFlushSlot;
   }
 
   // InteropLibrary: Iterable

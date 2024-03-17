@@ -1,18 +1,23 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator;
 
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
-import com.oracle.truffle.api.Truffle;
-import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
-import raw.runtime.truffle.ast.osr.bodies.OSROffHeapDistinctBodyNode;
-import raw.runtime.truffle.ast.osr.bodies.OSROffHeapGroupByKeyBodyNode;
-import raw.runtime.truffle.ast.osr.bodies.OSROffHeapGroupByKeysBodyNode;
-import raw.runtime.truffle.ast.osr.conditions.OSRTreeMapHasNextConditionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
@@ -67,38 +72,5 @@ public class StaticOffHeap {
   @CompilerDirectives.TruffleBoundary
   public static void kryoOutputClose(Output kryoOutput) {
     kryoOutput.close();
-  }
-
-  public static LoopNode getOffHeapGroupByKeyLoopNode(OffHeapGroupByKey offHeapGroupByKey) {
-    return Truffle.getRuntime()
-        .createLoopNode(
-            new OSRGeneratorNode(
-                new OSRTreeMapHasNextConditionNode(offHeapGroupByKey.getIteratorSlot()),
-                new OSROffHeapGroupByKeyBodyNode(
-                    offHeapGroupByKey.getKryoOutputSlot(),
-                    offHeapGroupByKey.getIteratorSlot(),
-                    offHeapGroupByKey.getOffHeapGroupByKeySlot())));
-  }
-
-  public static LoopNode getOffHeapGroupByKeysLoopNode(OffHeapGroupByKeys offHeapGroupByKeys) {
-    return Truffle.getRuntime()
-        .createLoopNode(
-            new OSRGeneratorNode(
-                new OSRTreeMapHasNextConditionNode(offHeapGroupByKeys.getIteratorSlot()),
-                new OSROffHeapGroupByKeysBodyNode(
-                    offHeapGroupByKeys.getKryoOutputSlot(),
-                    offHeapGroupByKeys.getIteratorSlot(),
-                    offHeapGroupByKeys.getOffHeapGroupByKeysSlot())));
-  }
-
-  public static LoopNode getOffHeapDistinctLoopNode(OffHeapDistinct offHeapDistinct) {
-    return Truffle.getRuntime()
-        .createLoopNode(
-            new OSRGeneratorNode(
-                new OSRTreeMapHasNextConditionNode(offHeapDistinct.getIteratorSlot()),
-                new OSROffHeapDistinctBodyNode(
-                    offHeapDistinct.getKryoOutputSlot(),
-                    offHeapDistinct.getIteratorSlot(),
-                    offHeapDistinct.getOffHeapDistinctSlot())));
   }
 }
