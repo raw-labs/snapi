@@ -200,7 +200,14 @@ public class IterableNodes {
         @Cached GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
-      OffHeapDistinct index = new OffHeapDistinct(collection.getRowType(), collection.getContext());
+      OffHeapDistinct index =
+          new OffHeapDistinct(
+              collection.getRowType(),
+              collection.getContext(),
+              collection.getFrame(),
+              collection.getKryoOutputSlot(),
+              collection.getIteratorSlot(),
+              collection.getOffHeapFlushSlot());
       Object generator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, generator);
@@ -248,13 +255,17 @@ public class IterableNodes {
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
-      Frame frame = collection.getFrame();
+      MaterializedFrame frame = collection.getFrame();
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
               collection.getKeyType(),
               collection.getRowType(),
               collection.getContext(),
-              new RecordShaper(false));
+              new RecordShaper(false),
+              frame,
+              collection.getKryoOutputSlot(),
+              collection.getIteratorSlot(),
+              collection.getOffHeapFlushSlot());
       Object inputGenerator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, inputGenerator);
@@ -306,7 +317,11 @@ public class IterableNodes {
               collection.getKeyTypes(),
               collection.getRowType(),
               collection.getKeyOrderings(),
-              collection.getContext());
+              collection.getContext(),
+              collection.getFrame(),
+              collection.getKryoOutputSlot(),
+              collection.getIteratorSlot(),
+              collection.getOffHeapFlushSlot());
       try {
         initNode.execute(thisNode, generator);
 

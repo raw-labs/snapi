@@ -46,6 +46,18 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
     return AuxiliarySlots.getMapSlot(frame.getFrameDescriptor());
   }
 
+  protected int getOffHeapFlushSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getOffHeapFlushSlot(frame.getFrameDescriptor());
+  }
+
+  protected int getKryoOutputSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getKryoOutputSlot(frame.getFrameDescriptor());
+  }
+
+  protected int getIteratorSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getIteratorSlot(frame.getFrameDescriptor());
+  }
+
   @Specialization
   protected Object doGroup(
       VirtualFrame frame,
@@ -53,7 +65,10 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
       Object keyFun,
       @Cached(value = "getGeneratorSlot(frame)", neverDefault = false) int generatorSlot,
       @Cached(value = "getFunctionSlot(frame)", neverDefault = true) int keyFunctionSlot,
-      @Cached(value = "getMapSlot(frame)", neverDefault = true) int mapSlot) {
+      @Cached(value = "getMapSlot(frame)", neverDefault = true) int mapSlot,
+      @Cached(value = "getOffHeapFlushSlot(frame)", neverDefault = true) int offHeapFlushSlot,
+      @Cached(value = "getKryoOutputSlot(frame)", neverDefault = true) int kryoOutputSlot,
+      @Cached(value = "getIteratorSlot(frame)", neverDefault = true) int iteratorSlot) {
     return new GroupByCollection(
         iterable,
         keyFun,
@@ -63,6 +78,9 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
         frame.materialize(),
         generatorSlot,
         keyFunctionSlot,
-        mapSlot);
+        mapSlot,
+        kryoOutputSlot,
+        iteratorSlot,
+        offHeapFlushSlot);
   }
 }

@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import static raw.runtime.truffle.ast.osr.AuxiliarySlots.*;
+
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
@@ -71,6 +73,11 @@ public class ListGroupByNode extends ExpressionNode {
   private final int keyFunctionSlot;
   private final int mapSlot;
   private final int listSlot;
+  private int kryoOutputSlot = -1;
+
+  private int iteratorSlot = -1;
+
+  private int offHeapFlushSlot = -1;
 
   public ListGroupByNode(
       ExpressionNode inputNode,
@@ -109,13 +116,29 @@ public class ListGroupByNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
+
+    if (kryoOutputSlot == -1) {
+      kryoOutputSlot = getKryoOutputSlot(frame.getFrameDescriptor());
+      iteratorSlot = getIteratorSlot(frame.getFrameDescriptor());
+      offHeapFlushSlot = getOffHeapFlushSlot(frame.getFrameDescriptor());
+    }
+
     Object input = inputNode.executeGeneric(frame);
     Object keyFun = keyFunNode.executeGeneric(frame);
     Object iterable = toIterableNode.execute(this, input);
     SourceContext context = RawContext.get(this).getSourceContext();
     OffHeapGroupByKey map =
-        new OffHeapGroupByKey(this.keyType, this.rowType, context, new RecordShaper(true));
+        new OffHeapGroupByKey(
+            this.keyType,
+            this.rowType,
+            context,
+            new RecordShaper(true),
+            frame.materialize(),
+            kryoOutputSlot,
+            iteratorSlot,
+            offHeapFlushSlot);
     Object generator = getGeneratorNode.execute(this, iterable);
+
     try {
       generatorInitNode.execute(this, generator);
       frame.setObject(generatorSlot, generator);

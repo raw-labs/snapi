@@ -51,4 +51,9 @@ public class OSRSingleAggregationBodyNode extends ExpressionNode {
   public void executeVoid(VirtualFrame virtualFrame) {
     executeGeneric(virtualFrame);
   }
+
+  @Override
+  public String toString() {
+    return "OSRSingleAggregationBodyNode-Type" + aggregationType;
+  }
 }

@@ -13,6 +13,7 @@
 package raw.runtime.truffle.ast.osr.bodies;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.ast.expressions.aggregation.AggregatorNodes;
 import raw.runtime.truffle.ast.expressions.aggregation.AggregatorNodesFactory;
@@ -26,23 +27,25 @@ public class OSRMultiAggregationBodyNode extends ExpressionNode {
       GeneratorNodesFactory.GeneratorNextNodeGen.create();
 
   @Child AggregatorNodes.Merge mergeNode = AggregatorNodesFactory.MergeNodeGen.create();
-
   private final byte[] aggregationTypes;
   private final int resultSlot;
   private final int generatorSlot;
+  private final int aggregationLength;
 
   public OSRMultiAggregationBodyNode(byte[] aggregationTypes, int generatorSlot, int resultSlot) {
     this.resultSlot = resultSlot;
     this.generatorSlot = generatorSlot;
     this.aggregationTypes = aggregationTypes;
+    this.aggregationLength = aggregationTypes.length;
   }
 
   @Override
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object generator = frame.getObject(generatorSlot);
     Object next = nextNode.execute(this, generator);
     Object[] currentResults = (Object[]) frame.getObject(resultSlot);
-    for (int i = 0; i < aggregationTypes.length; i++) {
+    for (int i = 0; i < aggregationLength; i++) {
       currentResults[i] = mergeNode.execute(this, aggregationTypes[i], currentResults[i], next);
     }
     frame.setObject(resultSlot, currentResults);

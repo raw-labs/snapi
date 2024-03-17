@@ -32,8 +32,11 @@ public class EquiJoinComputeNext {
   private final int generatorSlot;
   private final int keyFunctionSlot;
   private final int mapSlot;
+  private final int kryoOutputSlot;
 
-  public int timesInitialized = 0;
+  private final int iteratorSlot;
+
+  private final int offHeapFlushSlot;
 
   public EquiJoinComputeNext(
       Object leftIterable,
@@ -49,7 +52,10 @@ public class EquiJoinComputeNext {
       int shouldContinueSlot,
       int generatorSlot,
       int keyFunctionSlot,
-      int mapSlot) {
+      int mapSlot,
+      int kryoOutputSlot,
+      int iteratorSlot,
+      int offHeapFlushSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;
@@ -64,6 +70,9 @@ public class EquiJoinComputeNext {
     this.generatorSlot = generatorSlot;
     this.keyFunctionSlot = keyFunctionSlot;
     this.mapSlot = mapSlot;
+    this.kryoOutputSlot = kryoOutputSlot;
+    this.iteratorSlot = iteratorSlot;
+    this.offHeapFlushSlot = offHeapFlushSlot;
   }
 
   public Object getLeftIterable() {
@@ -200,5 +209,17 @@ public class EquiJoinComputeNext {
 
   public int getMapSlot() {
     return mapSlot;
+  }
+
+  public int getKryoOutputSlot() {
+    return kryoOutputSlot;
+  }
+
+  public int getIteratorSlot() {
+    return iteratorSlot;
+  }
+
+  public int getOffHeapFlushSlot() {
+    return offHeapFlushSlot;
   }
 }

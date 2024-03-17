@@ -37,19 +37,36 @@ public abstract class CollectionDistinctNode extends ExpressionNode {
     return AuxiliarySlots.getShouldContinueSlot(frame.getFrameDescriptor());
   }
 
+  protected int getOffHeapFlushSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getOffHeapFlushSlot(frame.getFrameDescriptor());
+  }
+
+  protected int getKryoOutputSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getKryoOutputSlot(frame.getFrameDescriptor());
+  }
+
+  protected int getIteratorSlot(VirtualFrame frame) {
+    return AuxiliarySlots.getIteratorSlot(frame.getFrameDescriptor());
+  }
+
   @Specialization
   protected Object doDistinct(
       VirtualFrame frame,
       Object iterable,
       @Cached(value = "getComputeNextSlot(frame)", neverDefault = false) int generatorSlot,
-      @Cached(value = "getShouldContinueSlot(frame)", neverDefault = true)
-          int offHeapDistinctSlot) {
+      @Cached(value = "getShouldContinueSlot(frame)", neverDefault = true) int offHeapDistinctSlot,
+      @Cached(value = "getOffHeapFlushSlot(frame)", neverDefault = true) int offHeapFlushSlot,
+      @Cached(value = "getKryoOutputSlot(frame)", neverDefault = true) int kryoOutputSlot,
+      @Cached(value = "getIteratorSlot(frame)", neverDefault = true) int iteratorSlot) {
     return new DistinctCollection(
         iterable,
         getValueType(),
         RawContext.get(this).getSourceContext(),
         frame.materialize(),
         generatorSlot,
-        offHeapDistinctSlot);
+        offHeapDistinctSlot,
+        kryoOutputSlot,
+        iteratorSlot,
+        offHeapFlushSlot);
   }
 }

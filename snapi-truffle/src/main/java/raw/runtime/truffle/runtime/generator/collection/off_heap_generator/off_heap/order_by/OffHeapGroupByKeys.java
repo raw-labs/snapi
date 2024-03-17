@@ -13,12 +13,11 @@
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import java.io.File;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
-import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.operators.OperatorNodesFactory;
 import raw.runtime.truffle.utils.KryoFootPrint;
 import raw.sources.api.SourceContext;
 
@@ -41,9 +40,6 @@ public class OffHeapGroupByKeys {
 
   private final SourceContext context;
 
-  private final OperatorNodes.CompareUninlinedNode compare =
-      OperatorNodesFactory.CompareUninlinedNodeGen.create();
-
   private static int keysFootPrint(Rql2TypeWithProperties[] keyType) {
     int size = 0;
     for (Rql2TypeWithProperties t : keyType) {
@@ -52,26 +48,24 @@ public class OffHeapGroupByKeys {
     return size;
   }
 
-  private int compareKeys(Object[] keys1, Object[] keys2) {
-    // Keys are compared in order, until a difference is found.
-    // If all keys are equal, then the rows are equal.
-    // If keys are different, the comparison result is multiplied by the 'order' of the key to
-    // reflect the "ASC/DESC".
-    for (int i = 0; i < keys1.length; i++) {
-      int cmp = compare.execute(keys1[i], keys2[i]);
-      if (cmp != 0) {
-        return keyOrderings[i] * cmp;
-      }
-    }
-    return 0;
-  }
+  private final MaterializedFrame frame;
+
+  private final int kryoOutputSlot;
+
+  private final int iteratorSlot;
+
+  private final int offHeapGroupByKeysSlot;
 
   @TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKeys(
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
       int[] keyOrderings,
-      SourceContext context) {
+      SourceContext context,
+      MaterializedFrame frame,
+      int kryoOutputSlot,
+      int iteratorSlot,
+      int offHeapGroupByKeysSlot) {
     this.memMap = new TreeMapObject();
     this.keyTypes = kTypes;
     this.rowType = rowType;
@@ -85,6 +79,11 @@ public class OffHeapGroupByKeys {
         (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     this.context = context;
     this.keyOrderings = keyOrderings;
+
+    this.frame = frame;
+    this.kryoOutputSlot = kryoOutputSlot;
+    this.iteratorSlot = iteratorSlot;
+    this.offHeapGroupByKeysSlot = offHeapGroupByKeysSlot;
   }
 
   public TreeMapObject getMemMap() {
@@ -137,5 +136,21 @@ public class OffHeapGroupByKeys {
 
   public int[] getKeyOrderings() {
     return keyOrderings;
+  }
+
+  public MaterializedFrame getFrame() {
+    return frame;
+  }
+
+  public int getKryoOutputSlot() {
+    return kryoOutputSlot;
+  }
+
+  public int getIteratorSlot() {
+    return iteratorSlot;
+  }
+
+  public int getOffHeapGroupByKeysSlot() {
+    return offHeapGroupByKeysSlot;
   }
 }

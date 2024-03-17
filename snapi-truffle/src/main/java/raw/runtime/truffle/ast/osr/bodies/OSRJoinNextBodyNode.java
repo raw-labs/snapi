@@ -135,7 +135,7 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
         } else {
           // end of right, reset currentLeft to make sure we try another round
           computeNext.setLeftRow(null);
-          computeNext.getKryoRight().close();
+          closeInput(computeNext.getKryoRight());
           computeNext.setRightRow(null);
           computeNext.setKryoRight(null);
         }
@@ -146,6 +146,11 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
       frame.setAuxiliarySlot(resultSlot, row);
     }
     return null;
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private void closeInput(Input input) {
+    input.close();
   }
 
   @Override

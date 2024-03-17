@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.osr.bodies;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
@@ -51,7 +50,6 @@ public class OSROrderByGetGeneratorNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
     Object generator = frame.getAuxiliarySlot(generatorSlot);
 
     OrderByCollection collection = (OrderByCollection) frame.getAuxiliarySlot(collectionSlot);

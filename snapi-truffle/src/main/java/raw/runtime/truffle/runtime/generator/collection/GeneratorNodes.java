@@ -251,7 +251,7 @@ public class GeneratorNodes {
             // we reached the end of that buffer
             // remove both the buffer and its key from the lists
             final Input removed = generator.getKryoBuffers().remove(idx);
-            removed.close();
+            closeInput(removed);
             generator.getHeadKeys().remove(idx);
             idx--;
             continue;
@@ -414,7 +414,7 @@ public class GeneratorNodes {
             // we reached the end of that buffer
             // remove both the buffer and its key from the lists
             final Input removed = generator.getKryoBuffers().remove(idx);
-            removed.close();
+            closeInput(removed);
             generator.getHeadKeys().remove(idx);
             idx--;
             continue;
@@ -550,6 +550,11 @@ public class GeneratorNodes {
 
     public abstract void execute(Node node, Object generator);
 
+    @CompilerDirectives.TruffleBoundary
+    static void closeInput(Input input) {
+      input.close();
+    }
+
     @Specialization
     static void close(
         Node node,
@@ -564,7 +569,7 @@ public class GeneratorNodes {
 
     @Specialization
     static void close(Node node, GroupBySpilledFilesGenerator generator) {
-      generator.getInputBuffers().forEach(buffer -> buffer.getInput().close());
+      generator.getInputBuffers().forEach(buffer -> closeInput(buffer.getInput()));
     }
 
     @Specialization
@@ -572,7 +577,7 @@ public class GeneratorNodes {
 
     @Specialization
     static void close(Node node, OrderBySpilledFilesGenerator generator) {
-      generator.getInputBuffers().forEach(buffer -> buffer.getInput().close());
+      generator.getInputBuffers().forEach(buffer -> closeInput(buffer.getInput()));
     }
 
     @Specialization
@@ -580,7 +585,7 @@ public class GeneratorNodes {
 
     @Specialization
     static void close(Node node, DistinctSpilledFilesGenerator generator) {
-      generator.getKryoBuffers().forEach(Input::close);
+      generator.getKryoBuffers().forEach(GeneratorCloseNode::closeInput);
     }
 
     @Specialization

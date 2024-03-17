@@ -37,6 +37,12 @@ public class CollectionOrderByNode extends ExpressionNode {
   @CompilerDirectives.CompilationFinal private int collectionSlot = -1;
   @CompilerDirectives.CompilationFinal private int offHeapGroupByKeysSlot = -1;
 
+  @CompilerDirectives.CompilationFinal private int kryoOutputSlot = -1;
+
+  @CompilerDirectives.CompilationFinal private int iteratorSlot = -1;
+
+  @CompilerDirectives.CompilationFinal private int offHeapFlushSlot = -1;
+
   public CollectionOrderByNode(
       ExpressionNode input,
       ExpressionNode[] keyFuns,
@@ -74,6 +80,9 @@ public class CollectionOrderByNode extends ExpressionNode {
       generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
       collectionSlot = getCollectionSlot(frame.getFrameDescriptor());
       offHeapGroupByKeysSlot = getOffHeapGroupByKeysSlot(frame.getFrameDescriptor());
+      kryoOutputSlot = getKryoOutputSlot(frame.getFrameDescriptor());
+      iteratorSlot = getIteratorSlot(frame.getFrameDescriptor());
+      offHeapFlushSlot = getOffHeapFlushSlot(frame.getFrameDescriptor());
     }
 
     return new OrderByCollection(
@@ -86,6 +95,9 @@ public class CollectionOrderByNode extends ExpressionNode {
         frame.materialize(),
         generatorSlot,
         collectionSlot,
-        offHeapGroupByKeysSlot);
+        offHeapGroupByKeysSlot,
+        kryoOutputSlot,
+        iteratorSlot,
+        offHeapFlushSlot);
   }
 }
