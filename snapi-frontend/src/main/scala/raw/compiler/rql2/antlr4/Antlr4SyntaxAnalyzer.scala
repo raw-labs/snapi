@@ -40,8 +40,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     lexer.removeErrorListeners()
     lexer.addErrorListener(rawErrorListener)
 
-    val stream = new CommonTokenStream(lexer)
-    val parser = new SnapiParser(stream)
+    val parser = new SnapiParser(new CommonTokenStream(lexer))
 
     parser.removeErrorListeners()
     parser.addErrorListener(rawErrorListener)
@@ -52,8 +51,6 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
-
-
     ParseProgramResult(totalErrors, result)
   }
 
