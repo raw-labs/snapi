@@ -17,14 +17,13 @@ import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import raw.compiler.base.source.{BaseNode, BaseProgram}
 import raw.compiler.common.source.SourceProgram
-import raw.compiler.rql2.NodeComments
 import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
-import raw.compiler.rql2.source.{FunParam, Rql2Program}
 
 import java.util
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
+case class NodeComments(before: Seq[String], sameLine: Seq[String], after: Seq[String])
 class CommentsAntlrSyntaxAnalyzer(
     positions: Positions,
     isFrontend: Boolean,
@@ -68,11 +67,11 @@ class CommentsAntlrSyntaxAnalyzer(
   // Function to assign comments to nodes after parsing the code
   def assignComments(program: BaseProgram, comments: mutable.HashMap[Position, String]): Unit = {
     val collectNodes = org.bitbucket.inkytonik.kiama.rewriting.Rewriter.collect {
-      case f @ FunParam(i, mt, me) =>
-        val end: Option[Position] = Vector(me, mt, Some(i))
-          .collect { case Some(n) => positions.getFinish(n) }
-          .maxBy(p => p.map(_.optOffset))
-        (f, positions.getStart(f), end)
+//      case f @ FunParam(i, mt, me) =>
+//        val end: Option[Position] = Vector(me, mt, Some(i))
+//          .collect { case Some(n) => positions.getFinish(n) }
+//          .maxBy(p => p.map(_.optOffset))
+//        (f, positions.getStart(f), end)
       case n: BaseNode => (n, positions.getStart(n), positions.getFinish(n))
     }
 

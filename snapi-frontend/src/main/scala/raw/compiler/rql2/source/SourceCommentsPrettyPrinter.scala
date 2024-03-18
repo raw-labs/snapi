@@ -16,9 +16,8 @@ import org.bitbucket.inkytonik.kiama.output.{LeftAssoc, NonAssoc, PrettyExpressi
 import org.bitbucket.inkytonik.kiama.util.Trampolines.Done
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import raw.compiler.base.source.BaseNode
+import raw.compiler.rql2.antlr4.{CommentsAntlrSyntaxAnalyzer, NodeComments}
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
-import raw.compiler.rql2.{CommentsSyntaxAnalyzer, NodeComments}
-import raw.compiler.rql2.antlr4.CommentsAntlrSyntaxAnalyzer
 
 import java.util
 import scala.collection.JavaConverters._
