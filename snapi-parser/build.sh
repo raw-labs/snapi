@@ -7,6 +7,7 @@ yes n | sdk install java 21-graalce || true
 sdk use java 21-graalce
 
 cd "$SCRIPT_HOME"
-NEW_VERSION=$(git describe --tags | sed 's/^v//;s/-\([0-9]*\)-g/+\1-/')
-mvn versions:set -DnewVersion=$NEW_VERSION
+# On CI we will only manage versioning when publishing
+# For local builds and testing we want to dynamically set the version to avoid re-using an artifact from local cache
+[ "$CI" == "true" ] && { export MAVEN_CLI_OPTS="-B"; } || ./set-version.sh
 mvn clean install

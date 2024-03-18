@@ -6,7 +6,7 @@
     <groupId>com.raw-labs</groupId>
     <artifactId>raw-snapi-parser</artifactId>
 
-    <version>0.28.39+3-09b519ca</version>
+    <version>1.0.0-SNAPSHOT</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
