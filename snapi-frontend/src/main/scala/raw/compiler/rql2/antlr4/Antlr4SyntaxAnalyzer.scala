@@ -40,7 +40,8 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     lexer.removeErrorListeners()
     lexer.addErrorListener(rawErrorListener)
 
-    val parser = new SnapiParser(new CommonTokenStream(lexer))
+    val stream = new CommonTokenStream(lexer)
+    val parser = new SnapiParser(stream)
 
     parser.removeErrorListeners()
     parser.addErrorListener(rawErrorListener)

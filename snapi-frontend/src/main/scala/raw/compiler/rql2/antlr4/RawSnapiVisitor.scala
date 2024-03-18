@@ -13,7 +13,7 @@
 package raw.compiler.rql2.antlr4
 
 import jakarta.xml.bind.DatatypeConverter
-import org.antlr.v4.runtime.ParserRuleContext
+import org.antlr.v4.runtime.{CommonTokenStream, ParserRuleContext}
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source}
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
 import raw.compiler.base.source.Type
@@ -24,6 +24,7 @@ import raw.compiler.rql2.source.{LetDecl, _}
 import raw.utils.RawUtils
 
 import scala.collection.JavaConverters._
+import scala.collection.mutable
 import scala.util.Try
 
 class RawSnapiVisitor(
@@ -56,6 +57,13 @@ class RawSnapiVisitor(
         result
       }
       .getOrElse("")
+  }
+
+  val comments = mutable.HashMap[String, String]()
+  def getComments(ctx: ParserRuleContext): Unit = {
+    val tokenSource = ctx.getStart.getTokenSource.asInstanceOf[CommonTokenStream]
+    tokenSource.getHiddenTokensToLeft(ctx.getStart.getTokenIndex).asScala.foreach(x => println(x.getText))
+
   }
 
   override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = Option(ctx)
