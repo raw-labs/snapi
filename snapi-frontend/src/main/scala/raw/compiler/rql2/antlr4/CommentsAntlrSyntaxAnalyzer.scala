@@ -1,3 +1,15 @@
+/*
+ * Copyright 2023 RAW Labs S.A.
+ *
+ * Use of this software is governed by the Business Source License
+ * included in the file licenses/BSL.txt.
+ *
+ * As of the Change Date specified in that file, in accordance with
+ * the Business Source License, use of this software will be governed
+ * by the Apache License, Version 2.0, included in the file
+ * licenses/APL.txt.
+ */
+
 package raw.compiler.rql2.antlr4
 
 import org.antlr.v4.runtime.tree.ParseTree
@@ -13,8 +25,11 @@ import java.util
 import scala.collection.JavaConverters._
 import scala.collection.mutable
 
-class CommentsAntlrSyntaxAnalyzer(positions: Positions, isFrontend: Boolean, nodeComments: util.IdentityHashMap[BaseNode, NodeComments])
-    extends Antlr4SyntaxAnalyzer(positions, isFrontend) {
+class CommentsAntlrSyntaxAnalyzer(
+    positions: Positions,
+    isFrontend: Boolean,
+    nodeComments: util.IdentityHashMap[BaseNode, NodeComments]
+) extends Antlr4SyntaxAnalyzer(positions, isFrontend) {
 
   override def parse(s: String): ParseProgramResult[SourceProgram] = {
     val source = StringSource(s)
@@ -39,7 +54,7 @@ class CommentsAntlrSyntaxAnalyzer(positions: Positions, isFrontend: Boolean, nod
 
     val r = ParseProgramResult(totalErrors, result)
 
-    val comments : mutable.HashMap[Position, String] = new mutable.HashMap[Position, String]()
+    val comments: mutable.HashMap[Position, String] = new mutable.HashMap[Position, String]()
 
     stream.get(0, stream.size() - 1).asScala.filter(_.getChannel == 1).foreach { x =>
       val pos = Position(x.getLine, x.getCharPositionInLine + x.getText.length + 1, source)
@@ -50,13 +65,13 @@ class CommentsAntlrSyntaxAnalyzer(positions: Positions, isFrontend: Boolean, nod
     r
   }
 
-
   // Function to assign comments to nodes after parsing the code
   def assignComments(program: BaseProgram, comments: mutable.HashMap[Position, String]): Unit = {
     val collectNodes = org.bitbucket.inkytonik.kiama.rewriting.Rewriter.collect {
       case f @ FunParam(i, mt, me) =>
-        val end: Option[Position] =
-          Vector(me, mt, Some(i)).map(n => positions.getFinish(n)).maxBy(p => p.map(_.optOffset))
+        val end: Option[Position] = Vector(me, mt, Some(i))
+          .collect { case Some(n) => positions.getFinish(n) }
+          .maxBy(p => p.map(_.optOffset))
         (f, positions.getStart(f), end)
       case n: BaseNode => (n, positions.getStart(n), positions.getFinish(n))
     }
@@ -114,6 +129,5 @@ class CommentsAntlrSyntaxAnalyzer(positions: Positions, isFrontend: Boolean, nod
       nodeComments.put(lastNode, newValue.copy(after = lasLines))
     }
   }
-
 
 }

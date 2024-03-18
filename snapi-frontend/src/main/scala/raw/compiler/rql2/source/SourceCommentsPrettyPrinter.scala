@@ -17,7 +17,7 @@ import org.bitbucket.inkytonik.kiama.util.Trampolines.Done
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import raw.compiler.base.source.BaseNode
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
-import raw.compiler.rql2.NodeComments
+import raw.compiler.rql2.{CommentsSyntaxAnalyzer, NodeComments}
 import raw.compiler.rql2.antlr4.CommentsAntlrSyntaxAnalyzer
 
 import java.util
@@ -80,18 +80,18 @@ class SourceCommentsPrettyPrinter(maybeIndent: Option[Int] = None, maybeWidth: O
   })
 
   def prettyCode(code: String): Either[(String, Position), String] = {
-
+    nodeComments.clear()
+    usedComments.clear()
     val parser = new CommentsAntlrSyntaxAnalyzer(new Positions(), true, nodeComments)
-
     val result = parser.parse(code)
-
     if (result.errors.nonEmpty) {
       val msg = result.errors.head.message
       val begin = result.errors.head.positions.head.begin
-      val pos =  Position(begin.line, begin.column, StringSource(code))
+      val pos = Position(begin.line, begin.column, StringSource(code))
       Left((msg, pos))
     } else {
       val r = format(result.tree)
+
       // checking if all comments were used
       val diff = nodeComments.keySet().asScala.diff(usedComments.toSet)
       if (diff.nonEmpty) {
