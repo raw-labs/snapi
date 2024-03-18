@@ -52,6 +52,8 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
     val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
+
+
     ParseProgramResult(totalErrors, result)
   }
 

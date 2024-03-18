@@ -59,13 +59,6 @@ class RawSnapiVisitor(
       .getOrElse("")
   }
 
-  val comments = mutable.HashMap[String, String]()
-  def getComments(ctx: ParserRuleContext): Unit = {
-    val tokenSource = ctx.getStart.getTokenSource.asInstanceOf[CommonTokenStream]
-    tokenSource.getHiddenTokensToLeft(ctx.getStart.getTokenIndex).asScala.foreach(x => println(x.getText))
-
-  }
-
   override def visitProg(ctx: SnapiParser.ProgContext): SourceNode = Option(ctx)
     .flatMap(context => Option(context.stat))
     .flatMap(statContext => Option(visit(statContext)))
