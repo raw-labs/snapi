@@ -43,7 +43,7 @@ class CommentsAntlrSyntaxAnalyzer(positions: Positions, isFrontend: Boolean, nod
 
     stream.get(0, stream.size() - 1).asScala.filter(_.getChannel == 1).foreach { x =>
       val pos = Position(x.getLine, x.getCharPositionInLine + x.getText.length + 1, source)
-      comments.put(pos, x.getText.stripPrefix("//"))
+      comments.put(pos, x.getText.stripPrefix("//").stripSuffix("\n"))
     }
 
     assignComments(result, comments)
