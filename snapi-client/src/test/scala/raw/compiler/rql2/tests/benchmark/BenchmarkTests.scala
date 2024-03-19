@@ -19,34 +19,34 @@ trait BenchmarkTests extends CompilerTestContext {
   property("raw.training-wheels", "false")
 
   //  testing if the code is running
-//    test(
-//      """let
-//        |    lineitemsType = type collection(record(l_orderkey: int, l_payedammount: double)),
-//        |    customerType = type record(customer: collection(record(c_custkey: string))),
-//        |    ordersType = type collection(record(o_orderkey: int, o_custkey: int)),
-//        |    lineitems = PostgreSQL.Query(
-//        |        "postgres",
-//        |        "select l_orderkey, (l_extendedprice * (1 - l_discount)) as l_payedammount from tpch1.lineitem",
-//        |        lineitemsType,
-//        |        host = "localhost:44444",
-//        |        username = "postgres",
-//        |        password = "1234"
-//        |    ),
-//        |    customers = Json.Read("file:///Users/alexzerntev/workspace/TPCH/1GB/customer.json", customerType), // an object with an array inside
-//        |    orders = Csv.Read("file:///Users/alexzerntev/workspace/TPCH/1GB/orders.csv", ordersType, delimiter = "\t"),
-//        |    customersOrders = Collection.EquiJoin(customers.customer, orders, (c) -> Int.From(c.c_custkey), (o) -> o.o_custkey),
-//        |    customerOrdersItems = Collection.EquiJoin(
-//        |        customersOrders,
-//        |        lineitems,
-//        |        (co) -> Int.From(co.o_orderkey),
-//        |        (oi) -> oi.l_orderkey
-//        |    ),
-//        |    grouped = Collection.GroupBy(customerOrdersItems, (c) -> c.c_custkey),
-//        |    result = Collection.Transform(grouped, (g) -> {id: g, total_payed: Collection.Sum(g.group.l_payedammount)}),
-//        |    finalResult = Collection.Filter(result, (r) -> r.total_payed > 6000000)
-//        |in
-//        |    Collection.Count(finalResult)""".stripMargin
-//    )(_ should evaluateTo("9L"))
+//  test(
+  //    """let
+  //      |    lineitemsType = type collection(record(l_orderkey: int, l_payedammount: double)),
+  //      |    customerType = type record(customer: collection(record(c_custkey: string))),
+  //      |    ordersType = type collection(record(o_orderkey: int, o_custkey: int)),
+  //      |    lineitems = PostgreSQL.Query(
+  //      |        "postgres",
+  //      |        "select l_orderkey, (l_extendedprice * (1 - l_discount)) as l_payedammount from tpch1.lineitem",
+  //      |        lineitemsType,
+  //      |        host = "localhost:44444",
+  //      |        username = "postgres",
+  //      |        password = "1234"
+  //      |    ),
+  //      |    customers = Json.Read("file:///home/ld/workspace/TPCH/1GB/customer.json", customerType), // an object with an array inside
+  //      |    orders = Csv.Read("file:///home/ld/workspace/TPCH/1GB/orders.csv", ordersType, delimiter = "\t"),
+  //      |    customersOrders = Collection.EquiJoin(customers.customer, orders, (c) -> Int.From(c.c_custkey), (o) -> o.o_custkey),
+  //      |    customerOrdersItems = Collection.EquiJoin(
+  //      |        customersOrders,
+  //      |        lineitems,
+  //      |        (co) -> Int.From(co.o_orderkey),
+  //      |        (oi) -> oi.l_orderkey
+  //      |    ),
+  //      |    grouped = Collection.GroupBy(customerOrdersItems, (c) -> c.c_custkey),
+  //      |    result = Collection.Transform(grouped, (g) -> {id: g, total_payed: Collection.Sum(g.group.l_payedammount)}),
+  //      |    finalResult = Collection.Filter(result, (r) -> r.total_payed > 6000000)
+  //      |in
+  //      |    Collection.Count(finalResult)""".stripMargin
+  //  )(_ should evaluateTo("9L"))
 
   test("Debugging") { _ =>
     assume(false, "This test is disabled by default")
@@ -105,8 +105,8 @@ trait BenchmarkTests extends CompilerTestContext {
       |        username = "postgres",
       |        password = "1234"
       |    ),
-      |    customers = Json.Read("file:///Users/alexzerntev/workspace/TPCH/1GB/customer.json", customerType), // an object with an array inside
-      |    orders = Csv.Read("file:///Users/alexzerntev/workspace/TPCH/1GB/orders.csv", ordersType, delimiter = "\t"),
+      |    customers = Json.Read("file:///home/ld/workspace/TPCH/1GB/customer.json", customerType), // an object with an array inside
+      |    orders = Csv.Read("file:///home/ld/workspace/TPCH/1GB/orders.csv", ordersType, delimiter = "\t"),
       |    customersOrders = Collection.EquiJoin(customers.customer, orders, (c) -> Int.From(c.c_custkey), (o) -> o.o_custkey),
       |    customerOrdersItems = Collection.EquiJoin(
       |        customersOrders,
@@ -165,8 +165,8 @@ trait BenchmarkTests extends CompilerTestContext {
       |        username = "postgres",
       |        password = "1234"
       |    ),
-      |    customers = Json.Read("file:///Users/alexzerntev/workspace/TPCH/10GB/customer.json", customerType), // an object with an array inside
-      |    orders = Csv.Read("file:///Users/alexzerntev/workspace/TPCH/10GB/orders.csv", ordersType, delimiter = "|"),
+      |    customers = Json.Read("file:///home/ld/workspace/TPCH/10GB/customer.json", customerType), // an object with an array inside
+      |    orders = Csv.Read("file:///home/ld/workspace/TPCH/10GB/orders.csv", ordersType, delimiter = "|"),
       |    customersOrders = Collection.EquiJoin(customers.customer, orders, (c) -> Int.From(c.c_custkey), (o) -> o.o_custkey),
       |    customerOrdersItems = Collection.EquiJoin(
       |        customersOrders,
@@ -200,6 +200,92 @@ trait BenchmarkTests extends CompilerTestContext {
     }
 
     val mean = (values.sum) / 1
+
+    var standardDeviation = 0.0
+    for (num <- values) {
+      standardDeviation += Math.pow(num - mean, 2)
+    }
+
+    logger.info("++++++++++ Average execution time: " + mean)
+    logger.info("++++++++++ Standard deviation is: " + Math.sqrt(standardDeviation / numberOfRuns))
+  }
+
+  test("Query over a tpch10 csv file") { _ =>
+    assume(false, "This test is disabled by default")
+
+    val prog = """let
+      |    lineitemsType = type collection(
+      |        record(l_orderkey: int, l_partkey: int, l_suppkey: int, l_linenumber: int, l_quantity: double)
+      |    ),
+      |    lineitems = Csv.Read("file:///home/ld/workspace/TPCH/10GB/customer.tbl", lineitemsType, delimiter = "|"),
+      |    filtered = Collection.Filter(lineitems, (o) -> o.l_quantity > 40),
+      |    transformed = Collection.Transform(filtered, (o) -> o.l_quantity / 2)
+      |in
+      |    Collection.Sum(transformed)""".stripMargin
+
+    val startedIn = System.currentTimeMillis()
+    fastExecute(prog)
+    val elapsedIn = System.currentTimeMillis()
+    logger.info("++++++++++ First run: " + (elapsedIn - startedIn))
+
+    val numberOfRuns = 10
+
+    val values = Array.fill(numberOfRuns)(0L)
+
+    val lastIdx = numberOfRuns - 1
+
+    for (i <- 0 to lastIdx) {
+      val startedIn = System.currentTimeMillis()
+      fastExecute(prog)
+      val elapsedIn = System.currentTimeMillis()
+      values(i) = elapsedIn - startedIn
+      logger.info("++++++++++ Next run: " + values(i))
+    }
+
+    val mean = (values.sum) / numberOfRuns
+
+    var standardDeviation = 0.0
+    for (num <- values) {
+      standardDeviation += Math.pow(num - mean, 2)
+    }
+
+    logger.info("++++++++++ Average execution time: " + mean)
+    logger.info("++++++++++ Standard deviation is: " + Math.sqrt(standardDeviation / numberOfRuns))
+  }
+
+  test("Query over a tpch10 csv file") { _ =>
+    assume(false, "This test is disabled by default")
+
+    val prog = """let
+      |    lineitemsType = type collection(
+      |        record(l_orderkey: int, l_partkey: int, l_suppkey: int, l_linenumber: int, l_quantity: double)
+      |    ),
+      |    lineitems = Csv.Read("file:///home/ld/workspace/TPCH/10GB/customer.tbl", lineitemsType, delimiter = "|"),
+      |    filtered = Collection.Filter(lineitems, (o) -> o.l_quantity > 40),
+      |    transformed = Collection.Transform(filtered, (o) -> o.l_quantity / 2)
+      |in
+      |    Collection.Sum(transformed)""".stripMargin
+
+    val startedIn = System.currentTimeMillis()
+    fastExecute(prog)
+    val elapsedIn = System.currentTimeMillis()
+    logger.info("++++++++++ First run: " + (elapsedIn - startedIn))
+
+    val numberOfRuns = 10
+
+    val values = Array.fill(numberOfRuns)(0L)
+
+    val lastIdx = numberOfRuns - 1
+
+    for (i <- 0 to lastIdx) {
+      val startedIn = System.currentTimeMillis()
+      fastExecute(prog)
+      val elapsedIn = System.currentTimeMillis()
+      values(i) = elapsedIn - startedIn
+      logger.info("++++++++++ Next run: " + values(i))
+    }
+
+    val mean = (values.sum) / numberOfRuns
 
     var standardDeviation = 0.0
     for (num <- values) {
