@@ -1,12 +1,11 @@
 import sbt._
-import scala.xml.XML
 
 object Dependencies {
 
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val rawSnapiParserVersion = (XML.loadFile(new File("../snapi-parser/pom.xml")) \ "properties" \ "revision").text.trim
+  val rawSnapiParserVersion = IO.read(new File("../snapi-parser/version")).trim
   val rawSnapiParser = "com.raw-labs" % "raw-snapi-parser" % rawSnapiParserVersion
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim

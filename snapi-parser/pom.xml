@@ -6,7 +6,7 @@
     <groupId>com.raw-labs</groupId>
     <artifactId>raw-snapi-parser</artifactId>
 
-    <version>${revision}</version>
+    <version>${revision}${changelist}</version>
     <packaging>jar</packaging>
 
     <name>${project.groupId}:${project.artifactId}</name>
@@ -15,7 +15,8 @@
     <url>https://www.raw-labs.com/</url>
 
     <properties>
-        <revision>1.0.0-SNAPSHOT</revision>
+        <revision>1.0.0</revision>
+        <changelist>-SNAPSHOT</changelist>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <java.version>21</java.version>
         <antlr.version>4.13.1</antlr.version>
@@ -45,81 +46,138 @@
         </dependency>
     </dependencies>
 
-    <build>
-        <finalName>${project.artifactId}-${project.version}</finalName>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.12.1</version>
-                <executions>
-                    <execution>
-                        <id>skip-javadoc</id>
-                        <phase>none</phase>
-                    </execution>
-                </executions>
-                <configuration>
-                    <source>${java.version}</source>
-                    <target>${java.version}</target>
-                </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${antlr.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-rql2-grammar</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
+    <profiles>
+        <profile>
+            <id>dev</id>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <build>
+                <finalName>${project.artifactId}-${project.version}</finalName>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-compiler-plugin</artifactId>
+                        <version>3.12.1</version>
+                        <executions>
+                            <execution>
+                                <id>skip-javadoc</id>
+                                <phase>none</phase>
+                            </execution>
+                        </executions>
                         <configuration>
-                            <sourceDirectory>src/main/java/raw/snapi/grammar</sourceDirectory>
-                            <outputDirectory>src/main/java/raw/compiler/rql2/generated</outputDirectory>
-                            <arguments>
-                                <argument>-package</argument>
-                                <argument>raw.compiler.rql2.generated</argument>
-                                <argument>-visitor</argument>
-                            </arguments>
+                            <source>${java.version}</source>
+                            <target>${java.version}</target>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.antlr</groupId>
-                <artifactId>antlr4-maven-plugin</artifactId>
-                <version>${antlr.version}</version>
-                <executions>
-                    <execution>
-                        <id>generate-sql-grammar</id>
-                        <phase>generate-sources</phase>
-                        <goals>
-                            <goal>antlr4</goal>
-                        </goals>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.antlr</groupId>
+                        <artifactId>antlr4-maven-plugin</artifactId>
+                        <version>${antlr.version}</version>
+                        <executions>
+                            <execution>
+                                <id>generate-rql2-grammar</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>antlr4</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceDirectory>src/main/java/raw/snapi/grammar</sourceDirectory>
+                                    <outputDirectory>src/main/java/raw/compiler/rql2/generated</outputDirectory>
+                                    <arguments>
+                                        <argument>-package</argument>
+                                        <argument>raw.compiler.rql2.generated</argument>
+                                        <argument>-visitor</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                            <execution>
+                                <id>generate-sql-grammar</id>
+                                <phase>generate-sources</phase>
+                                <goals>
+                                    <goal>antlr4</goal>
+                                </goals>
+                                <configuration>
+                                    <sourceDirectory>src/main/java/raw/psql/grammar</sourceDirectory>
+                                    <outputDirectory>src/main/java/raw/client/sql/generated</outputDirectory>
+                                    <arguments>
+                                        <argument>-package</argument>
+                                        <argument>raw.client.sql.generated</argument>
+                                        <argument>-visitor</argument>
+                                    </arguments>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+        <profile>
+            <id>deploy</id>
+            <distributionManagement>
+            <snapshotRepository>
+                <id>ossrh</id>
+                <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+            </snapshotRepository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>2.2.1</version>
+                        <executions>
+                            <execution>
+                            <id>attach-sources</id>
+                            <goals>
+                                <goal>jar-no-fork</goal>
+                            </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.6.3</version>
+                        <executions>
+                            <execution>
+                            <id>attach-javadocs</id>
+                            <goals>
+                                <goal>jar</goal>
+                            </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                            <id>sign-artifacts</id>
+                            <phase>verify</phase>
+                            <goals>
+                                <goal>sign</goal>
+                            </goals>
+                            <configuration>
+                                <keyname>${gpg.keyname}</keyname>
+                            </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.7</version>
+                        <extensions>true</extensions>
                         <configuration>
-                            <sourceDirectory>src/main/java/raw/psql/grammar</sourceDirectory>
-                            <outputDirectory>src/main/java/raw/client/sql/generated</outputDirectory>
-                            <arguments>
-                                <argument>-package</argument>
-                                <argument>raw.client.sql.generated</argument>
-                                <argument>-visitor</argument>
-                            </arguments>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
-                    </execution>
-                </executions>
-            </plugin>
-            <plugin>
-                <groupId>org.sonatype.plugins</groupId>
-                <artifactId>nexus-staging-maven-plugin</artifactId>
-                <version>1.6.7</version>
-                <extensions>true</extensions>
-                <configuration>
-                    <serverId>ossrh</serverId>
-                    <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                    <autoReleaseAfterClose>true</autoReleaseAfterClose>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 </project>
