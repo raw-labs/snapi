@@ -14,7 +14,6 @@ package raw.compiler.rql2.antlr4
 
 import org.antlr.v4.runtime.tree.ParseTree
 import org.antlr.v4.runtime.{CharStreams, CommonTokenStream, TokenStream}
-import org.bitbucket.inkytonik.kiama.parsing
 import org.bitbucket.inkytonik.kiama.parsing.Parsers
 import org.bitbucket.inkytonik.kiama.util.{Positions, Source, StringSource}
 import raw.client.api.Message
@@ -36,15 +35,14 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
   def parse(s: String): ParseProgramResult[SourceProgram] = {
     val rawErrorListener = new RawErrorListener()
     val stream = getTokenStream(s, rawErrorListener)
-    val (errors, result) = parse[SourceProgram](stream, StringSource(s), rawErrorListener)
-    ParseProgramResult(errors, result)
+    parse(stream, StringSource(s), rawErrorListener)
   }
 
-  protected def parse[T](
+  protected def parse(
       stream: TokenStream,
       source: Source,
       errorListener: RawErrorListener
-  ): (List[Message], T) = {
+  ): ParseProgramResult[SourceProgram] = {
     val parser = new SnapiParser(stream)
 
     parser.removeErrorListeners()
@@ -53,23 +51,40 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     val tree: ParseTree = parser.prog
     val visitorParseErrors = RawVisitorParseErrors()
     val visitor = new RawSnapiVisitor(positions, source, isFrontend, visitorParseErrors)
-    val result = visitor.visit(tree).asInstanceOf[T]
+    val result = visitor.visit(tree).asInstanceOf[Rql2Program]
 
     val totalErrors = errorListener.getErrors ++ visitorParseErrors.getErrors
-    (totalErrors, result)
+    ParseProgramResult(totalErrors, result)
   }
 
   protected def getTokenStream(s: String, errorListener: RawErrorListener): CommonTokenStream = {
     val lexer = new SnapiLexer(CharStreams.fromString(s))
     lexer.removeErrorListeners()
     lexer.addErrorListener(errorListener)
+
     new CommonTokenStream(lexer)
   }
 
   def parseType(s: String): ParseTypeResult = {
+    val source = StringSource(s)
     val rawErrorListener = new RawErrorListener()
-    val stream = getTokenStream(s, rawErrorListener)
-    val (totalErrors, result) = parse[Type](stream, StringSource(s), rawErrorListener)
+
+    val lexer = new SnapiLexer(CharStreams.fromString(s))
+    lexer.removeErrorListeners()
+    lexer.addErrorListener(rawErrorListener)
+
+    val parser = new SnapiParser(getTokenStream(s, rawErrorListener))
+
+    parser.removeErrorListeners()
+    parser.addErrorListener(rawErrorListener)
+
+    val tree: ParseTree = parser.tipe
+    val visitorParseErrors = RawVisitorParseErrors()
+    val visitor: RawSnapiVisitor = new RawSnapiVisitor(positions, source, isFrontend, visitorParseErrors)
+    val result: Type = visitor.visit(tree).asInstanceOf[Type]
+
+    val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
+
     ParseTypeResult(totalErrors, result)
   }
 

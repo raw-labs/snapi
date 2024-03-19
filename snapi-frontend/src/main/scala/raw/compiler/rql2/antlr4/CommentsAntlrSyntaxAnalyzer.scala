@@ -31,7 +31,7 @@ class CommentsAntlrSyntaxAnalyzer(
     val rawErrorListener = new RawErrorListener()
     val source = StringSource(s)
     val stream = getTokenStream(s, rawErrorListener)
-    val (errors, result) = parse[SourceProgram](stream, source, rawErrorListener)
+    val r = parse(stream, source, rawErrorListener)
 
     val comments: mutable.HashMap[Position, String] = new mutable.HashMap[Position, String]()
 
@@ -40,8 +40,8 @@ class CommentsAntlrSyntaxAnalyzer(
       comments.put(pos, x.getText.stripPrefix("//").stripSuffix("\n"))
     }
 
-    assignComments(result, comments)
-    ParseProgramResult(errors, result)
+    assignComments(r.tree, comments)
+    r
   }
 
   // Function to assign comments to nodes after parsing the code
