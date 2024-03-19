@@ -28,7 +28,11 @@ import raw.utils._
 
 import java.io.ByteArrayOutputStream
 
-class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestContext with TrainingWheelsContext with CredentialsTestContext {
+class TestSqlCompilerServiceAirports
+    extends RawTestSuite
+    with SettingsTestContext
+    with TrainingWheelsContext
+    with CredentialsTestContext {
 
   private var compilerService: CompilerService = _
   private var localCredentialsService: LocalCredentialsService = _
