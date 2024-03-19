@@ -67,11 +67,6 @@ class CommentsAntlrSyntaxAnalyzer(
   // Function to assign comments to nodes after parsing the code
   def assignComments(program: BaseProgram, comments: mutable.HashMap[Position, String]): Unit = {
     val collectNodes = org.bitbucket.inkytonik.kiama.rewriting.Rewriter.collect {
-//      case f @ FunParam(i, mt, me) =>
-//        val end: Option[Position] = Vector(me, mt, Some(i))
-//          .collect { case Some(n) => positions.getFinish(n) }
-//          .maxBy(p => p.map(_.optOffset))
-//        (f, positions.getStart(f), end)
       case n: BaseNode => (n, positions.getStart(n), positions.getFinish(n))
     }
 
