@@ -44,7 +44,6 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
       errorListener: RawErrorListener
   ): ParseProgramResult[SourceProgram] = {
     val parser = new SnapiParser(stream)
-
     parser.removeErrorListeners()
     parser.addErrorListener(errorListener)
 
@@ -69,12 +68,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     val source = StringSource(s)
     val rawErrorListener = new RawErrorListener()
 
-    val lexer = new SnapiLexer(CharStreams.fromString(s))
-    lexer.removeErrorListeners()
-    lexer.addErrorListener(rawErrorListener)
-
     val parser = new SnapiParser(getTokenStream(s, rawErrorListener))
-
     parser.removeErrorListeners()
     parser.addErrorListener(rawErrorListener)
 
