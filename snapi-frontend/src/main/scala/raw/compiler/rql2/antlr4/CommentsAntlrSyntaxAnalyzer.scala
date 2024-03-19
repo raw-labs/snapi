@@ -31,7 +31,7 @@ class CommentsAntlrSyntaxAnalyzer(
     val rawErrorListener = new RawErrorListener()
     val source = StringSource(s)
     val stream = getTokenStream(s, rawErrorListener)
-    val (errors, result) = parse[SourceProgram](stream, StringSource(s), rawErrorListener)
+    val (errors, result) = parse[SourceProgram](stream, source, rawErrorListener)
 
     val comments: mutable.HashMap[Position, String] = new mutable.HashMap[Position, String]()
 
