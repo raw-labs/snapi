@@ -12,12 +12,9 @@
 
 package raw.compiler.rql2.antlr4
 
-import org.antlr.v4.runtime.tree.ParseTree
-import org.antlr.v4.runtime.{CharStreams, CommonTokenStream}
 import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import raw.compiler.base.source.{BaseNode, BaseProgram}
 import raw.compiler.common.source.SourceProgram
-import raw.compiler.rql2.generated.{SnapiLexer, SnapiParser}
 
 import java.util
 import scala.collection.JavaConverters._
@@ -31,27 +28,10 @@ class CommentsAntlrSyntaxAnalyzer(
 ) extends Antlr4SyntaxAnalyzer(positions, isFrontend) {
 
   override def parse(s: String): ParseProgramResult[SourceProgram] = {
-    val source = StringSource(s)
     val rawErrorListener = new RawErrorListener()
-
-    val lexer = new SnapiLexer(CharStreams.fromString(s))
-    lexer.removeErrorListeners()
-    lexer.addErrorListener(rawErrorListener)
-
-    val stream = new CommonTokenStream(lexer)
-    val parser = new SnapiParser(stream)
-
-    parser.removeErrorListeners()
-    parser.addErrorListener(rawErrorListener)
-
-    val tree: ParseTree = parser.prog
-    val visitorParseErrors = RawVisitorParseErrors()
-    val visitor = new RawSnapiVisitor(positions, source, isFrontend, visitorParseErrors)
-    val result = visitor.visit(tree).asInstanceOf[SourceProgram]
-
-    val totalErrors = rawErrorListener.getErrors ++ visitorParseErrors.getErrors
-
-    val r = ParseProgramResult(totalErrors, result)
+    val source = StringSource(s)
+    val stream = getTokenStream(s, rawErrorListener)
+    val (errors, result) = parse[SourceProgram](stream, StringSource(s), rawErrorListener)
 
     val comments: mutable.HashMap[Position, String] = new mutable.HashMap[Position, String]()
 
@@ -61,11 +41,11 @@ class CommentsAntlrSyntaxAnalyzer(
     }
 
     assignComments(result, comments)
-    r
+    ParseProgramResult(errors, result)
   }
 
   // Function to assign comments to nodes after parsing the code
-  def assignComments(program: BaseProgram, comments: mutable.HashMap[Position, String]): Unit = {
+  private def assignComments(program: BaseProgram, comments: mutable.HashMap[Position, String]): Unit = {
     val collectNodes = org.bitbucket.inkytonik.kiama.rewriting.Rewriter.collect {
       case n: BaseNode => (n, positions.getStart(n), positions.getFinish(n))
     }
