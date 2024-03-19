@@ -44,7 +44,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
       stream: TokenStream,
       source: Source,
       errorListener: RawErrorListener
-  ): ( List[Message], T) = {
+  ): (List[Message], T) = {
     val parser = new SnapiParser(stream)
 
     parser.removeErrorListeners()
@@ -56,7 +56,7 @@ class Antlr4SyntaxAnalyzer(val positions: Positions, isFrontend: Boolean) extend
     val result = visitor.visit(tree).asInstanceOf[T]
 
     val totalErrors = errorListener.getErrors ++ visitorParseErrors.getErrors
-    ( totalErrors, result)
+    (totalErrors, result)
   }
 
   protected def getTokenStream(s: String, errorListener: RawErrorListener): CommonTokenStream = {
