@@ -32,7 +32,7 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
-    val db = client.getUserDb(user)//user.uid.toString().replace("-", "_")
+    val db = client.getUserDb(user) //user.uid.toString().replace("-", "_")
     logger.info(s"Got database $db for user $user")
     getConnection(user, db)
   }
