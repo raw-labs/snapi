@@ -23,6 +23,7 @@ import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import raw.runtime.truffle.PropertyType;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 // (az) Whenever using any of these nodes, create one per property
 public class PureRecordNodes {
@@ -250,7 +251,7 @@ public class PureRecordNodes {
         PureRecord pureRecord,
         Object key,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
-      return valuesLibrary.getOrDefault(pureRecord, key, null);
+      return valuesLibrary.getOrDefault(pureRecord, key, NullObject.INSTANCE);
     }
   }
 }

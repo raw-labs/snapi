@@ -12,90 +12,24 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.type_package;
 
-import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.CompilerDirectives;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.compiler.base.source.Type;
 import raw.compiler.rql2.source.*;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionBuildNode;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 
-@NodeInfo(shortName = "List.Build")
-public class TypeCastAnyNode extends ExpressionNode {
+@NodeInfo(shortName = "TypeCastAny")
+@NodeChild("value")
+@NodeField(name = "tipe", type = Rql2TypeWithProperties.class)
+public abstract class TypeCastAnyNode extends ExpressionNode {
 
-  private final Type type;
-  @Child private ExpressionNode typeExp;
+  @Idempotent
+  protected abstract Rql2TypeWithProperties getTipe();
 
-  public TypeCastAnyNode(Type type, ExpressionNode child) {
-    this.type = type;
-    this.typeExp = child;
-  }
-
-  public Object executeGeneric(VirtualFrame frame) {
-    Object value = typeExp.executeGeneric(frame);
-    Rql2TypeWithProperties rql2Type = (Rql2TypeWithProperties) type;
-    switch (rql2Type) {
-      case Rql2ByteType rql2ByteType -> {
-        if (value instanceof Byte) {
-          return value;
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2ShortType rql2ShortType -> {
-        if (value instanceof Short) {
-          return value;
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2IntType rql2IntType -> {
-        if (value instanceof Integer) {
-          return value;
-        } else if (value instanceof Short) {
-          return ((Short) value).intValue();
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2LongType rql2LongType -> {
-        if (value instanceof Long) {
-          return value;
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2FloatType rql2FloatType -> {
-        if (value instanceof Float) {
-          return value;
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2DoubleType rql2DoubleType -> {
-        if (value instanceof Double) {
-          return value;
-        } else if (value instanceof Float) {
-          return ((Float)value).doubleValue();
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2BoolType rql2BooleanType -> {
-        if (value instanceof Boolean) {
-          return value;
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2StringType rql2StringType -> {
-        if (value instanceof String) {
-          return value;
-        }
-        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2IterableType rql2IterableType -> {
-        // how to do this?
-        return value;
-//        throw new RawTruffleRuntimeException("Type cast error");
-      }
-      case Rql2AnyType rql2AnyType -> {
-        return value;
-      }
-      default -> throw new RawTruffleRuntimeException("Type cast error");
-    }
+  @Specialization
+  @CompilerDirectives.TruffleBoundary
+  protected Object exec(
+      Object value, @Cached(inline = true) TypeCastNodes.TypeCastAnyRecursiveNode castNode) {
+    return castNode.execute(this, value, getTipe());
   }
 }

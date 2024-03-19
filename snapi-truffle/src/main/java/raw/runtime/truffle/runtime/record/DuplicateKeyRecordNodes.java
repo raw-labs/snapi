@@ -22,6 +22,7 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import raw.runtime.truffle.PropertyType;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 
 // (az) Whenever using any of these nodes, create one per property
 public class DuplicateKeyRecordNodes {
@@ -223,7 +224,7 @@ public class DuplicateKeyRecordNodes {
       if (index < 0 || index >= keys.length) {
         throw new RawTruffleInternalErrorException("Index out of bounds in record");
       }
-      return valuesLibrary.getOrDefault(record, index, null);
+      return valuesLibrary.getOrDefault(record, index, NullObject.INSTANCE);
     }
   }
 }

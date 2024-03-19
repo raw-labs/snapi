@@ -15,14 +15,15 @@ package raw.compiler.snapi.truffle.builtin.type_extension;
 import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.TypeCastAnyEntry;
+import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.builtin.type_package.TypeCastAnyNode;
+import raw.runtime.truffle.ast.expressions.builtin.type_package.TypeCastAnyNodeGen;
 
 public class TruffleTypeCastAnyEntry extends TypeCastAnyEntry implements TruffleEntryExtension {
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return new TypeCastAnyNode(type, args.get(1).exprNode());
+    return TypeCastAnyNodeGen.create(args.get(1).exprNode(), (Rql2TypeWithProperties) type);
   }
 }

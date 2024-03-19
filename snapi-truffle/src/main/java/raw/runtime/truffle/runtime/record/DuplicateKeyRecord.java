@@ -40,6 +40,7 @@ public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
     updateDistinctKeys();
   }
 
+  @CompilerDirectives.TruffleBoundary
   private void updateDistinctKeys() {
     cachedDistinctKeys.clear();
     Vector<String> ks = new Vector<>();
