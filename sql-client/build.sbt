@@ -1,11 +1,7 @@
-import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
-
-import sbt.Keys._
-import sbt._
-
-import java.time.Year
-
-import Dependencies._
+import Dependencies.*
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.*
+import sbt.*
+import sbt.Keys.*
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -100,7 +96,7 @@ Compile / javacOptions ++= Seq(
 Test / fork := true
 
 Test / javaOptions ++= {
-  import scala.collection.JavaConverters._
+  import scala.collection.JavaConverters.*
   val props = System.getProperties
   props
     .stringPropertyNames()
@@ -148,6 +144,7 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 // Dependencies
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
+  rawSnapiFrontend % "compile->compile;test->test",
   postgresqlDeps,
   hikariCP)
 

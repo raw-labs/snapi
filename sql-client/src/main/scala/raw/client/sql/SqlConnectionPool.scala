@@ -11,14 +11,16 @@
  */
 
 package raw.client.sql
+import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
+import raw.creds.api.CredentialsServiceProvider
 import raw.utils.{AuthenticatedUser, RawSettings}
 
 import java.sql.SQLException
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
-class SqlConnectionPool(settings: RawSettings) {
+class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
 
   // one pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
@@ -26,10 +28,17 @@ class SqlConnectionPool(settings: RawSettings) {
   private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
   private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
   private val password = settings.getString("raw.creds.jdbc.fdw.password")
+  private val client = CredentialsServiceProvider.apply()(settings) //new ClientCredentials(serverAddress)(settings)
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
-    val db = user.uid.toString().replace("-", "_")
+    val db = client.getUserDb(user)//user.uid.toString().replace("-", "_")
+    logger.info(s"Got database $db for user $user")
+    getConnection(user, db)
+  }
+
+  @throws[SQLException]
+  def getConnection(user: AuthenticatedUser, db: String): java.sql.Connection = {
     val userPool = pools.get(db) match {
       case Some(pool) => pool
       case None =>

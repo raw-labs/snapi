@@ -287,6 +287,7 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
   private val dbCacheLoader = new CacheLoader[AuthenticatedUser, String]() {
     override def load(user: AuthenticatedUser): String = {
       // Directly call the provisioning method on the client
+      logger.debug(s"Retrieving user database for $user from origin server")
       client.getUserDb(user)
     }
   }
@@ -300,6 +301,7 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
 
   override def getUserDb(user: AuthenticatedUser): String = {
     // Retrieve the database name from the cache, provisioning it if necessary
+    logger.debug(s"Retrieving user database for $user")
     dbCache.get(user)
   }
 
