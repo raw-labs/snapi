@@ -220,7 +220,10 @@ class DateAddIntervalEntry
           ParamDoc("interval", TypeDoc(List("interval")), "interval to add.")
         ),
         ret = Some(
-          ReturnDoc("The timestamp resulting from adding the interval to the date.", retType = Some(TypeDoc(List("timestamp"))))
+          ReturnDoc(
+            "The timestamp resulting from adding the interval to the date.",
+            retType = Some(TypeDoc(List("timestamp")))
+          )
         )
       )
     )
