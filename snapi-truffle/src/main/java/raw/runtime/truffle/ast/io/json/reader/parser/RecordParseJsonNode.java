@@ -20,6 +20,7 @@ import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.BitSet;
 import java.util.LinkedHashMap;
@@ -36,42 +37,45 @@ import raw.runtime.truffle.runtime.exceptions.json.JsonUnexpectedTokenException;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseJson")
 @ImportStatic(RawTruffleBoundaries.class)
 public class RecordParseJsonNode extends ExpressionNode {
 
-  @Children private DirectCallNode[] childDirectCalls;
+  @Children private final DirectCallNode[] childDirectCalls;
 
   @Child
   private JsonParserNodes.SkipNextJsonParserNode skipNode =
-      JsonParserNodesFactory.SkipNextJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.SkipNextJsonParserNodeGen.create();
 
   @Child
   private JsonParserNodes.CurrentFieldJsonParserNode currentFieldNode =
-      JsonParserNodesFactory.CurrentFieldJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.CurrentFieldJsonParserNodeGen.create();
 
   @Child
   private JsonParserNodes.CurrentTokenJsonParserNode currentTokenNode =
-      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.CurrentTokenJsonParserNodeGen.create();
 
   @Child
   private JsonParserNodes.NextTokenJsonParserNode nextTokenNode =
-      JsonParserNodesFactory.NextTokenJsonParserNodeGen.getUncached();
+      JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
 
-  @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
   // Field name and its index in the childDirectCalls array
   private final LinkedHashMap<String, Integer> fieldNamesMap;
   private final int fieldsSize;
   private final Rql2TypeWithProperties[] fieldTypes;
 
+  private final RawLanguage language = RawLanguage.get(this);
+
+  private final boolean hasDuplicateKeys;
+
   public RecordParseJsonNode(
       ProgramExpressionNode[] childProgramExpressionNode,
       LinkedHashMap<String, Integer> fieldNamesMap,
-      Rql2TypeWithProperties[] fieldTypes) {
+      Rql2TypeWithProperties[] fieldTypes,
+      boolean hasDuplicateKeys) {
     this.fieldTypes = fieldTypes;
     this.fieldNamesMap = fieldNamesMap;
     this.fieldsSize = childProgramExpressionNode.length;
@@ -80,6 +84,11 @@ public class RecordParseJsonNode extends ExpressionNode {
       this.childDirectCalls[i] =
           DirectCallNode.create(childProgramExpressionNode[i].getCallTarget());
     }
+    this.addPropNode = new RecordNodes.AddPropNode[this.fieldsSize];
+    for (int i = 0; i < this.fieldsSize; i++) {
+      this.addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
+    }
+    this.hasDuplicateKeys = hasDuplicateKeys;
   }
 
   @CompilerDirectives.TruffleBoundary
@@ -88,10 +97,23 @@ public class RecordParseJsonNode extends ExpressionNode {
   }
 
   @CompilerDirectives.TruffleBoundary
-  private Object callChild(int index, JsonParser parser) {
-    return childDirectCalls[index].call(parser);
+  private void executeWhileLoop(JsonParser parser, BitSet currentBitSet, Object record) {
+    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT) {
+      String fieldName = currentFieldNode.execute(this, parser);
+      Integer index = this.getFieldNameIndex(fieldName);
+      nextTokenNode.execute(this, parser); // skip the field name
+      if (index != null) {
+        setBitSet(currentBitSet, index);
+        addPropNode[index].execute(
+            this, record, fieldName, childDirectCalls[index].call(parser), hasDuplicateKeys);
+      } else {
+        // skip the field value
+        skipNode.execute(this, parser);
+      }
+    }
   }
 
+  @ExplodeLoop
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JsonParser parser = (JsonParser) args[0];
@@ -105,43 +127,47 @@ public class RecordParseJsonNode extends ExpressionNode {
     }
     nextTokenNode.execute(this, parser);
 
-    RecordObject record = RawLanguage.get(this).createRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
 
     // todo: (az) need to find a solution for the array of direct calls,
     // the json object can be out of order, the child nodes cannot be inlined
-    while (currentTokenNode.execute(this, parser) != JsonToken.END_OBJECT) {
-      String fieldName = currentFieldNode.execute(this, parser);
-      Integer index = this.getFieldNameIndex(fieldName);
-      nextTokenNode.execute(this, parser); // skip the field name
-      if (index != null) {
-        setBitSet(currentBitSet, index);
-        writeIndexNode.execute(this, record, index, fieldName, callChild(index, parser));
-      } else {
-        // skip the field value
-        skipNode.execute(this, parser);
-      }
-    }
+    executeWhileLoop(parser, currentBitSet, record);
 
     nextTokenNode.execute(this, parser); // skip the END_OBJECT token
 
     if (bitSetCardinality(currentBitSet) != this.fieldsSize) {
       // not all fields were found in the JSON. Fill the missing nullable ones with nulls or
       // fail.
-      Object[] fields = fieldNamesMap.keySet().toArray();
+      String[] fields = getKeySet();
       for (int i = 0; i < this.fieldsSize; i++) {
         if (!bitSetGet(currentBitSet, i)) {
-          if (fieldTypes[i].props().contains(Rql2IsNullableTypeProperty.apply())) {
+          if (propsContainNullable(i)) {
             // It's OK, the field is nullable. If it's tryable, make a success null,
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            writeIndexNode.execute(this, record, i, fields[i].toString(), nullValue);
+            addPropNode[i].execute(this, record, fields[i], nullValue, hasDuplicateKeys);
           } else {
-            throw new JsonRecordFieldNotFoundException(fields[i].toString(), this);
+            throw new JsonRecordFieldNotFoundException(fields[i], this);
           }
         }
       }
     }
     return record;
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private String[] getKeySet() {
+    return fieldNamesMap.keySet().toArray(new String[0]);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  private boolean propsContainNullable(int index) {
+    return fieldTypes[index].props().contains(Rql2IsNullableTypeProperty.apply());
   }
 }

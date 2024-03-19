@@ -19,12 +19,12 @@ import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionFilterNodeGen;
+import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionFilterNode;
 
 public class TruffleFilterCollectionEntry extends FilterCollectionEntry
     implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return CollectionFilterNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
+    return new CollectionFilterNode(args.get(0).exprNode(), args.get(1).exprNode());
   }
 }

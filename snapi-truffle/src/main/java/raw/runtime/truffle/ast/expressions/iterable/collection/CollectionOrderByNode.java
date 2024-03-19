@@ -12,6 +12,9 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
+import static raw.runtime.truffle.ast.osr.AuxiliarySlots.*;
+
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -19,7 +22,6 @@ import com.oracle.truffle.api.nodes.UnexpectedResultException;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.iterable.operations.OrderByCollection;
 
@@ -30,6 +32,16 @@ public class CollectionOrderByNode extends ExpressionNode {
   @Children private final ExpressionNode[] orderings;
   private final Rql2TypeWithProperties[] keyTypes;
   private final Rql2TypeWithProperties valueType;
+
+  @CompilerDirectives.CompilationFinal private int generatorSlot = -1;
+  @CompilerDirectives.CompilationFinal private int collectionSlot = -1;
+  @CompilerDirectives.CompilationFinal private int offHeapGroupByKeysSlot = -1;
+
+  @CompilerDirectives.CompilationFinal private int kryoOutputSlot = -1;
+
+  @CompilerDirectives.CompilationFinal private int iteratorSlot = -1;
+
+  @CompilerDirectives.CompilationFinal private int offHeapFlushSlot = -1;
 
   public CollectionOrderByNode(
       ExpressionNode input,
@@ -63,13 +75,23 @@ public class CollectionOrderByNode extends ExpressionNode {
     for (int i = 0; i < this.keyFuns.length; i++) {
       keyFunctions[i] = this.keyFuns[i].executeGeneric(frame);
     }
+
+    if (generatorSlot == -1) {
+      generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
+      collectionSlot = getCollectionSlot(frame.getFrameDescriptor());
+      offHeapGroupByKeysSlot = getOffHeapGroupByKeysSlot(frame.getFrameDescriptor());
+    }
+
     return new OrderByCollection(
         iterable,
         keyFunctions,
         orders,
         keyTypes,
         valueType,
-        RawLanguage.get(this),
-        RawContext.get(this).getSourceContext());
+        RawContext.get(this).getSourceContext(),
+        frame.materialize(),
+        generatorSlot,
+        collectionSlot,
+        offHeapGroupByKeysSlot);
   }
 }

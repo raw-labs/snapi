@@ -17,6 +17,7 @@ import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.FlatMap")
@@ -25,13 +26,13 @@ import raw.runtime.truffle.tryable_nullable.Nullable;
 @ImportStatic(Nullable.class)
 public abstract class OptionGetOrElseNode extends ExpressionNode {
 
-  @Specialization(guards = "isNotNull(option)")
-  protected Object optionGet(Object option, Object orElse) {
-    return option;
+  @Specialization(guards = "isNull(option)")
+  protected Object optionOrElse(NullObject option, Object orElse) {
+    return orElse;
   }
 
-  @Specialization(guards = "isNull(option)")
-  protected Object optionOrElse(Object option, Object orElse) {
-    return orElse;
+  @Specialization(guards = "!isNull(option)")
+  protected Object optionGet(Object option, Object orElse) {
+    return option;
   }
 }

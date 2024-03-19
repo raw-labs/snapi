@@ -13,27 +13,22 @@
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.list.StringList;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.*;
 import raw.utils.RawException;
@@ -46,7 +41,7 @@ public abstract class LocationLlNode extends ExpressionNode {
   @Specialization
   @TruffleBoundary
   protected Object doLl(
-      LocationObject locationObject, @CachedLibrary(limit = "5") InteropLibrary records) {
+      LocationObject locationObject, @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
     try {
       SourceContext context = RawContext.get(this).getSourceContext();
       FileSystemLocation fs =
@@ -54,66 +49,69 @@ public abstract class LocationLlNode extends ExpressionNode {
       IndexedSeq<Tuple2<FileSystemLocation, FileSystemMetadata>> values =
           fs.lsWithMetadata().toIndexedSeq();
       int size = values.size();
-      RecordObject[] result = new RecordObject[size];
+      Object[] result = new Object[size];
 
       for (int i = 0; i < size; i++) {
-        RecordObject topRecord = RawLanguage.get(this).createRecord();
-        RecordObject metadata = RawLanguage.get(this).createRecord();
-        records.writeMember(topRecord, "url", values.apply(i)._1.rawUri());
+        Object topRecord = RawLanguage.get(this).createPureRecord();
+        Object metadata = RawLanguage.get(this).createPureRecord();
+        addPropNode.execute(this, topRecord, "url", values.apply(i)._1.rawUri(), false);
         if (values.apply(i)._2 instanceof DirectoryMetadata) {
           DirectoryMetadata directoryMetadata = (DirectoryMetadata) values.apply(i)._2;
           if (directoryMetadata.modifiedInstant().isDefined()) {
-            records.writeMember(
+
+            addPropNode.execute(
+                this,
                 metadata,
                 "modified",
                 new TimestampObject(
                     LocalDateTime.ofInstant(
-                        directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC)));
+                        directoryMetadata.modifiedInstant().get(), ZoneOffset.UTC)),
+                false);
           } else {
-            records.writeMember(metadata, "modified", NullObject.INSTANCE);
+            addPropNode.execute(this, metadata, "modified", NullObject.INSTANCE, false);
           }
-          records.writeMember(metadata, "size", NullObject.INSTANCE);
-          records.writeMember(metadata, "blocks", new ObjectList(new Object[0]));
+          addPropNode.execute(this, metadata, "size", NullObject.INSTANCE, false);
+          addPropNode.execute(this, metadata, "blocks", new ObjectList(new Object[0]), false);
         } else {
           FileMetadata fileMetadata = (FileMetadata) values.apply(i)._2;
           if (fileMetadata.modifiedInstant().isDefined()) {
-            records.writeMember(
+            addPropNode.execute(
+                this,
                 metadata,
                 "modified",
                 new TimestampObject(
-                    LocalDateTime.ofInstant(fileMetadata.modifiedInstant().get(), ZoneOffset.UTC)));
+                    LocalDateTime.ofInstant(fileMetadata.modifiedInstant().get(), ZoneOffset.UTC)),
+                false);
           } else {
-            records.writeMember(metadata, "modified", NullObject.INSTANCE);
+            addPropNode.execute(this, metadata, "modified", NullObject.INSTANCE, false);
           }
           if (fileMetadata.size().isDefined()) {
-            records.writeMember(metadata, "size", fileMetadata.size().get());
+            addPropNode.execute(this, metadata, "size", fileMetadata.size().get(), false);
           } else {
-            records.writeMember(metadata, "size", NullObject.INSTANCE);
+            addPropNode.execute(this, metadata, "size", NullObject.INSTANCE, false);
           }
           int blocksSize = fileMetadata.blocks().length;
-          RecordObject[] blocks = new RecordObject[blocksSize];
+          Object[] blocks = new Object[blocksSize];
           for (int j = 0; j < blocksSize; j++) {
-            RecordObject block = RawLanguage.get(this).createRecord();
-            records.writeMember(block, "hosts", new StringList(fileMetadata.blocks()[j].hosts()));
-            records.writeMember(block, "offset", fileMetadata.blocks()[j].offset());
-            records.writeMember(block, "length", fileMetadata.blocks()[j].length());
+            Object block = RawLanguage.get(this).createPureRecord();
+
+            addPropNode.execute(
+                this, block, "hosts", new StringList(fileMetadata.blocks()[j].hosts()), false);
+            addPropNode.execute(this, block, "offset", fileMetadata.blocks()[j].offset(), false);
+            addPropNode.execute(this, block, "length", fileMetadata.blocks()[j].length(), false);
             blocks[j] = block;
           }
 
           ObjectList blockList = new ObjectList(blocks);
-          records.writeMember(metadata, "blocks", blockList);
+          addPropNode.execute(this, metadata, "blocks", blockList, false);
         }
-        records.writeMember(topRecord, "metadata", metadata);
+        addPropNode.execute(this, topRecord, "metadata", metadata, false);
         result[i] = topRecord;
       }
 
       return new ObjectList(result);
     } catch (RawException e) {
       return new ErrorObject(e.getMessage());
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException e) {
-      throw new RawTruffleInternalErrorException(e);
     }
   }
 }

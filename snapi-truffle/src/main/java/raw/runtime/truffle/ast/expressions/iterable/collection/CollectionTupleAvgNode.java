@@ -12,55 +12,45 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.math.BigDecimal;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.aggregation.AggregationNodes;
-import raw.runtime.truffle.runtime.aggregation.MultiAggregation;
-import raw.runtime.truffle.runtime.aggregation.aggregator.AggregatorNodes;
-import raw.runtime.truffle.runtime.aggregation.aggregator.Aggregators;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.ast.expressions.aggregation.*;
 import raw.runtime.truffle.runtime.primitives.DecimalObject;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 
 @NodeInfo(shortName = "Collection.TupleAvg")
-@NodeChild("iterable")
-public abstract class CollectionTupleAvgNode extends ExpressionNode {
+public class CollectionTupleAvgNode extends ExpressionNode {
+  @Child private RecordNodes.AddPropNode addPropNode = RecordNodesFactory.AddPropNodeGen.create();
 
-  private final Object aggregation =
-      new MultiAggregation(new byte[] {Aggregators.SUM, Aggregators.COUNT});
+  @Child AggregateMultipleNode aggregate;
+  @Child AggregatorNodes.Zero zeroNode = AggregatorNodesFactory.ZeroNodeGen.create();
 
-  @Specialization
-  protected Object doCollection(
-      Object iterable,
-      @Cached(inline = true) AggregationNodes.Aggregate aggregate,
-      @Cached(inline = true) AggregatorNodes.Zero zero,
-      @CachedLibrary(limit = "1") InteropLibrary records) {
-    try {
+  public CollectionTupleAvgNode(ExpressionNode iterableNode, int generatorSlot, int resultSlot) {
+    aggregate =
+        new AggregateMultipleNode(
+            iterableNode,
+            new byte[] {Aggregations.SUM, Aggregations.COUNT},
+            generatorSlot,
+            resultSlot);
+  }
 
-      Object[] results = (Object[]) aggregate.execute(this, aggregation, iterable);
-      RecordObject record = RawLanguage.get(this).createRecord();
-      if ((long) results[1] == (long) zero.execute(this, Aggregators.COUNT)) {
-        records.writeMember(record, "sum", zero.execute(this, Aggregators.SUM));
-      } else {
-        records.writeMember(
-            record, "sum", new DecimalObject(new BigDecimal(results[0].toString())));
-      }
-      records.writeMember(record, "count", results[1]);
-      return record;
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException ex) {
-      throw new RawTruffleInternalErrorException(ex);
+  @Override
+  public Object executeGeneric(VirtualFrame virtualFrame) {
+
+    Object[] results = (Object[]) aggregate.executeGeneric(virtualFrame);
+    Object record = RawLanguage.get(this).createPureRecord();
+    if ((long) results[1] == (long) zeroNode.execute(this, Aggregations.COUNT)) {
+      addPropNode.execute(this, record, "sum", zeroNode.execute(this, Aggregations.SUM), false);
+    } else {
+
+      addPropNode.execute(
+          this, record, "sum", new DecimalObject(new BigDecimal(results[0].toString())), false);
     }
+    addPropNode.execute(this, record, "count", results[1], false);
+    return record;
   }
 }

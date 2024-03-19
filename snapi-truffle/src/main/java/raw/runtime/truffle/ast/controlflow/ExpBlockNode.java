@@ -44,4 +44,9 @@ public final class ExpBlockNode extends ExpressionNode
   public void executeVoid(VirtualFrame frame, StatementNode node, int index, int argument) {
     node.executeVoid(frame);
   }
+
+  @Override
+  public String toString() {
+    return expNode.toString();
+  }
 }

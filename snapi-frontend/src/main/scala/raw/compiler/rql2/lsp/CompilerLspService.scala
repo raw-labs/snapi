@@ -150,31 +150,42 @@ class CompilerLspService(
                         case _ => true
                       }
                   }
-                  .map {
+                  .flatMap {
                     case (idn, e) => e match {
-                        case l: LetBindEntity => LetBindCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(l.b.i))
+                        case l: LetBindEntity => Some(
+                            LetBindCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(l.b.i))
+                            )
                           )
-                        case f: LetFunEntity => LetFunCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                        case f: LetFunEntity => Some(
+                            LetFunCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                            )
                           )
-                        case m: MethodEntity => LetFunCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(m.d.i))
+                        case m: MethodEntity => Some(
+                            LetFunCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(m.d.i))
+                            )
                           )
-                        case f: LetFunRecEntity => LetFunRecCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                        case f: LetFunRecEntity => Some(
+                            LetFunRecCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(f.f.i))
+                            )
                           )
-                        case p: FunParamEntity => FunParamCompletion(
-                            SourcePrettyPrinter.ident(idn),
-                            SourcePrettyPrinter.format(analyzer.idnType(p.f.i))
+                        case p: FunParamEntity => Some(
+                            FunParamCompletion(
+                              SourcePrettyPrinter.ident(idn),
+                              SourcePrettyPrinter.format(analyzer.idnType(p.f.i))
+                            )
                           )
                         case p: PackageEntity =>
                           val docs = p.p.docs
-                          PackageCompletion(SourcePrettyPrinter.ident(idn), docs)
+                          Some(PackageCompletion(SourcePrettyPrinter.ident(idn), docs))
+                        case _ => None
                       }
                   }
               }
