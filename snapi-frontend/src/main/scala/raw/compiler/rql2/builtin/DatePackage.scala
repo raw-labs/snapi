@@ -250,7 +250,7 @@ class DateSubtractIntervalEntry
         ret = Some(
           ReturnDoc(
             "The timestamp resulting from subtracting the interval to the date.",
-            retType = Some(TypeDoc(List("date")))
+            retType = Some(TypeDoc(List("timestamp")))
           )
         )
       )
