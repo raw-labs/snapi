@@ -256,67 +256,67 @@ trait BenchmarkTests extends CompilerTestContext {
   test("Range Count test") { _ =>
     assume(false, "This test is disabled by default")
 
-    //    for (i <- 0 to 20) {
-    //      fastExecute(
-    //        """let
-    //          |    range = 1000L
-    //          |in
-    //          |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
-    //      )
-    //    }
-    //
-    //    val values = Array.fill(7)(0L)
-    //
-    //    for (i <- 0 to 6) {
-    //      logger.info("++++++++++ 10^" + (i + 3))
-    //      val startedIn = System.currentTimeMillis()
-    //      fastExecute(
-    //        s"""let
-    //          |    range = ${Math.pow(10, i + 3).toLong}L
-    //          |in
-    //          |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
-    //      )
-    //      val elapsedIn = System.currentTimeMillis()
-    //      values(i) = elapsedIn - startedIn
-    //    }
-    //    logger.info("++++++++++ Values: " + values.mkString(", "))
+        for (i <- 0 to 20) {
+          fastExecute(
+            """let
+              |    range = 1000L
+              |in
+              |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
+          )
+        }
+
+        val values = Array.fill(7)(0L)
+
+        for (i <- 0 to 6) {
+          logger.info("++++++++++ 10^" + (i + 3))
+          val startedIn = System.currentTimeMillis()
+          fastExecute(
+            s"""let
+              |    range = ${Math.pow(10, i + 3).toLong}L
+              |in
+              |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
+          )
+          val elapsedIn = System.currentTimeMillis()
+          values(i) = elapsedIn - startedIn
+        }
+        logger.info("++++++++++ Values: " + values.mkString(", "))
 
     //    Execution with STD
 
-    val prog = """let
-      |    range = 100000000L
-      |in
-      |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
+//    val prog = """let
+//      |    range = 100000000L
+//      |in
+//      |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
 
-    val startedIn = System.currentTimeMillis()
-    fastExecute(prog)
-    val elapsedIn = System.currentTimeMillis()
-    logger.info("++++++++++ First run: " + (elapsedIn - startedIn))
-
-    val numberOfRuns = 20
-    fastExecute("""let a = "hello" in a """) // some random query
-    fastExecute("""let a = 2 + 2 in a """) // some random query
-    fastExecute("""let a = 2/2 in a """) // some random query
-
-    val values = Array.fill(numberOfRuns + 1)(0L)
-
-    val started = System.currentTimeMillis()
-    for (i <- 0 to numberOfRuns) {
-      val startedIn = System.currentTimeMillis()
-      fastExecute(prog)
-      val elapsedIn = System.currentTimeMillis()
-      values(i) = elapsedIn - startedIn
-    }
-    val elapsed = System.currentTimeMillis()
-
-    val mean = (elapsed - started) / numberOfRuns
-
-    var standardDeviation = 0.0
-    for (num <- values) {
-      standardDeviation += Math.pow(num - mean, 2)
-    }
-
-    logger.info("++++++++++ Average execution time: " + mean)
-    logger.info("++++++++++ Standard deviation is: " + Math.sqrt(standardDeviation / numberOfRuns))
+//    val startedIn = System.currentTimeMillis()
+//    fastExecute(prog)
+//    val elapsedIn = System.currentTimeMillis()
+//    logger.info("++++++++++ First run: " + (elapsedIn - startedIn))
+//
+//    val numberOfRuns = 20
+//    fastExecute("""let a = "hello" in a """) // some random query
+//    fastExecute("""let a = 2 + 2 in a """) // some random query
+//    fastExecute("""let a = 2/2 in a """) // some random query
+//
+//    val values = Array.fill(numberOfRuns + 1)(0L)
+//
+//    val started = System.currentTimeMillis()
+//    for (i <- 0 to numberOfRuns) {
+//      val startedIn = System.currentTimeMillis()
+//      fastExecute(prog)
+//      val elapsedIn = System.currentTimeMillis()
+//      values(i) = elapsedIn - startedIn
+//    }
+//    val elapsed = System.currentTimeMillis()
+//
+//    val mean = (elapsed - started) / numberOfRuns
+//
+//    var standardDeviation = 0.0
+//    for (num <- values) {
+//      standardDeviation += Math.pow(num - mean, 2)
+//    }
+//
+//    logger.info("++++++++++ Average execution time: " + mean)
+//    logger.info("++++++++++ Standard deviation is: " + Math.sqrt(standardDeviation / numberOfRuns))
   }
 }

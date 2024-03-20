@@ -15,39 +15,39 @@ package raw.compiler.rql2.tests.builtin
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait RecordPackageTest extends CompilerTestContext {
-//
-//  test("""Record.Build(a = 1, b = "Hello")""".stripMargin)(_ should (typeAs("record(a: int, b: string)") and run))
-//
-//  test("""Record.Build(a = 1, a = 3, b = "Hello")""".stripMargin)(it =>
-//    it should typeAs("record(a: int, a: int, b: string)")
-//  )
-//
-//  test("""(Record.Build(a = 1, b = "Hello")).a""".stripMargin) { it =>
-//    it should typeAs("int")
-//    it should evaluateTo("1")
-//  }
-//
-//  test("""(Record.Build(a = 1, b = "Hello")).b""".stripMargin) { it =>
-//    it should typeAs("string")
-//    it should evaluateTo(""" "Hello" """)
-//  }
-//
-//  test("""(Record.Build(a = 1, b = "Hello")).c""".stripMargin)(it =>
-//    it should typeErrorAs("expected package, record, collection or list with field c but got record(a: int,b: string)")
-//  )
-//
-//  test("""
-//    |let r = Record.Build(a = 1, b = "Hello")
-//    |in
-//    |    Record.AddField(r, a = "World")""".stripMargin)(it => it should typeErrorAs("field already exists in record"))
 
-//  test("""
-//    |let r = Record.Build(a = 1, b = "Hello")
-//    |in
-//    |    Record.AddField(r, c = "World")""".stripMargin) { it =>
-//    it should typeAs("record(a: int, b: string, c: string)")
-//    it should evaluateTo("""Record.Build(a=1, b="Hello", c="World")""")
-//  }
+  test("""Record.Build(a = 1, b = "Hello")""".stripMargin)(_ should (typeAs("record(a: int, b: string)") and run))
+
+  test("""Record.Build(a = 1, a = 3, b = "Hello")""".stripMargin)(it =>
+    it should typeAs("record(a: int, a: int, b: string)")
+  )
+
+  test("""(Record.Build(a = 1, b = "Hello")).a""".stripMargin) { it =>
+    it should typeAs("int")
+    it should evaluateTo("1")
+  }
+
+  test("""(Record.Build(a = 1, b = "Hello")).b""".stripMargin) { it =>
+    it should typeAs("string")
+    it should evaluateTo(""" "Hello" """)
+  }
+
+  test("""(Record.Build(a = 1, b = "Hello")).c""".stripMargin)(it =>
+    it should typeErrorAs("expected package, record, collection or list with field c but got record(a: int,b: string)")
+  )
+
+  test("""
+    |let r = Record.Build(a = 1, b = "Hello")
+    |in
+    |    Record.AddField(r, a = "World")""".stripMargin)(it => it should typeErrorAs("field already exists in record"))
+
+  test("""
+    |let r = Record.Build(a = 1, b = "Hello")
+    |in
+    |    Record.AddField(r, c = "World")""".stripMargin) { it =>
+    it should typeAs("record(a: int, b: string, c: string)")
+    it should evaluateTo("""Record.Build(a=1, b="Hello", c="World")""")
+  }
 
   test("""
     |let r = Record.Build(a = 1, b = "Hello")

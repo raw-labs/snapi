@@ -45,7 +45,8 @@ trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestConte
 //    //    options.put("engine.TraceCompilationDetails", "true")
 ////    options.put("engine.CompileImmediately", "true")
 //    options.put("engine.BackgroundCompilation", "false")
-//    options.put("engine.SpecializationStatistics", "false")
+    //    options.put("engine.SpecializationStatistics", "false")
+//    options.put("engine.OSR", "false")
 
 //    //    optimizations
 //    options.put("compiler.InlineAcrossTruffleBoundary", "true")
