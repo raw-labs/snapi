@@ -20,8 +20,11 @@ trait BenchmarkTests extends CompilerTestContext {
 
   //  testing if the code is running
 //  test(
-//    """let r = Json.Read("file:///home/ld/workspace/TPCH/generated/mixed_values_objects.json", type any)
-//      |in Collection.Sum(Collection.Transform(r, (r) -> Math.Sin(r.value)))""".stripMargin
+//    """let
+//      |    order = Json.Read("file:///home/ld/workspace/TPCH/10GB/orders.json", type record(orders: collection(record(o_orderkey: int)))),
+//      |    transformed = Collection.Transform(order.orders, (o) -> Math.Power(Int.From(o.o_orderkey), 2))
+//      |in
+//      |    Collection.Count(order.orders)""".stripMargin
 //  )(_ should evaluateTo("9L"))
 
   test("Debugging") { _ =>
@@ -229,8 +232,47 @@ trait BenchmarkTests extends CompilerTestContext {
     logger.info("++++++++++ Standard deviation is: " + Math.sqrt(standardDeviation / numberOfRuns))
   }
 
+  test("Query over a tpch10 csv any type vs defined type") { _ =>
+    assume(false, "This test is disabled by default")
+
+    val prog = """let
+      |    order = Json.InferAndRead("file:///home/ld/workspace/TPCH/10GB/orders.json"),
+      |    transformed = Collection.Transform(order.orders, (o) -> Math.Power(Int.From(o.o_orderkey), 2))
+      |in
+      |    Collection.Count(order.orders)""".stripMargin
+
+    val startedIn = System.currentTimeMillis()
+    fastExecute(prog)
+    val elapsedIn = System.currentTimeMillis()
+    logger.info("++++++++++ First run: " + (elapsedIn - startedIn))
+
+    val numberOfRuns = 10
+
+    val values = Array.fill(numberOfRuns)(0L)
+
+    val lastIdx = numberOfRuns - 1
+
+    for (i <- 0 to lastIdx) {
+      val startedIn = System.currentTimeMillis()
+      fastExecute(prog)
+      val elapsedIn = System.currentTimeMillis()
+      values(i) = elapsedIn - startedIn
+      logger.info("++++++++++ Next run: " + values(i))
+    }
+
+    val mean = (values.sum) / numberOfRuns
+
+    var standardDeviation = 0.0
+    for (num <- values) {
+      standardDeviation += Math.pow(num - mean, 2)
+    }
+
+    logger.info("++++++++++ Average execution time: " + mean)
+    logger.info("++++++++++ Standard deviation is: " + Math.sqrt(standardDeviation / numberOfRuns))
+  }
+
   test("Query over a mixed type json file") { _ =>
-    assume(true, "This test is disabled by default")
+    assume(false, "This test is disabled by default")
 
 //    val prog = """let r = Json.Read("file:///home/ld/workspace/TPCH/generated/mixed_values_objects.json", type any)
 //      |in Collection.Sum(Collection.Transform(r, (r) -> Math.Sin(r.value)))""".stripMargin
