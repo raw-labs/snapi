@@ -12,8 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import static raw.runtime.truffle.ast.osr.AuxiliarySlots.*;
-
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;

@@ -26,7 +26,7 @@ public class OSRFromBodyConditionNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    return frame.getAuxiliarySlot(shouldContinueSlot);
+    return frame.getBoolean(shouldContinueSlot);
   }
 
   @Override

@@ -12,7 +12,6 @@
 
 package raw.runtime.truffle.ast.osr.bodies;
 
-import com.oracle.truffle.api.frame.FrameDescriptor;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
@@ -50,16 +49,15 @@ public class OSRCollectionFilterBodyNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    FrameDescriptor frameDescriptor = frame.getFrameDescriptor();
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
-    Object predicate = frame.getAuxiliarySlot(functionSlot);
+    Object generator = frame.getObject(generatorSlot);
+    Object predicate = frame.getObject(functionSlot);
     Object v = nextNode.execute(this, generator);
 
     boolean isPredicateTrue =
         handlePredicateNode.execute(
             this, functionExecuteOneNode.execute(this, predicate, v), false);
     if (isPredicateTrue) {
-      frame.setAuxiliarySlot(resultSlot, v);
+      frame.setObject(resultSlot, v);
     }
     return null;
   }

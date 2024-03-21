@@ -35,8 +35,8 @@ public class OSRCollectionFilterConditionNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
-    Object result = frame.getAuxiliarySlot(resultSlot);
+    Object generator = frame.getObject(generatorSlot);
+    Object result = frame.getObject(resultSlot);
     return result == null && hasNextNode.execute(this, generator);
   }
 

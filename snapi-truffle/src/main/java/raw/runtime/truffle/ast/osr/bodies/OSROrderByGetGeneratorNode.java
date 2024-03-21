@@ -50,12 +50,11 @@ public class OSROrderByGetGeneratorNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
+    Object generator = frame.getObject(generatorSlot);
 
-    OrderByCollection collection = (OrderByCollection) frame.getAuxiliarySlot(collectionSlot);
+    OrderByCollection collection = (OrderByCollection) frame.getObject(collectionSlot);
 
-    OffHeapGroupByKeys groupByKeys =
-        (OffHeapGroupByKeys) frame.getAuxiliarySlot(offHeapGroupByKeysSlot);
+    OffHeapGroupByKeys groupByKeys = (OffHeapGroupByKeys) frame.getObject(offHeapGroupByKeysSlot);
 
     int funLen = collection.getKeyFunctions().length;
 

@@ -41,8 +41,8 @@ public class OSRDistinctGetGeneratorNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
-    OffHeapDistinct index = (OffHeapDistinct) frame.getAuxiliarySlot(offHeapDistinctSlot);
+    Object generator = frame.getObject(generatorSlot);
+    OffHeapDistinct index = (OffHeapDistinct) frame.getObject(offHeapDistinctSlot);
 
     Object next = nextNode.execute(this, generator);
     putNode.execute(this, index, next, null);

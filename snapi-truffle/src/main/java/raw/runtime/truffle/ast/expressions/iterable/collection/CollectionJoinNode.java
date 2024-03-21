@@ -18,7 +18,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 
 @NodeInfo(shortName = "Collection.Join")
@@ -28,6 +27,11 @@ import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 @NodeChild("predicate")
 @NodeField(name = "rightType", type = Rql2TypeWithProperties.class)
 @NodeField(name = "reshapeBeforePredicate", type = Boolean.class)
+@NodeField(name = "computeNextSlot", type = int.class)
+@NodeField(name = "shouldContinueSlot", type = int.class)
+@NodeField(name = "resultSlot", type = int.class)
+@NodeField(name = "generatorSlot", type = int.class)
+@NodeField(name = "outputBufferSlot", type = int.class)
 public abstract class CollectionJoinNode extends ExpressionNode {
 
   @Idempotent
@@ -36,25 +40,20 @@ public abstract class CollectionJoinNode extends ExpressionNode {
   @Idempotent
   protected abstract Boolean getReshapeBeforePredicate();
 
-  protected int getComputeNextSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getComputeNextSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getComputeNextSlot();
 
-  protected int getShouldContinueSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getShouldContinueSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getShouldContinueSlot();
 
-  protected int getResultSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getResultSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getResultSlot();
 
-  protected int getGeneratorSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getGeneratorSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getGeneratorSlot();
 
-  protected int getOutputBufferSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getOutputBufferSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getOutputBufferSlot();
 
   @Specialization
   protected Object doJoin(
@@ -62,12 +61,7 @@ public abstract class CollectionJoinNode extends ExpressionNode {
       Object leftIterable,
       Object rightIterable,
       Object remap,
-      Object predicate,
-      @Cached(value = "getComputeNextSlot(frame)", neverDefault = false) int computeNextSlot,
-      @Cached(value = "getShouldContinueSlot(frame)", neverDefault = true) int shouldContinueSlot,
-      @Cached(value = "getResultSlot(frame)", neverDefault = true) int resultSlot,
-      @Cached(value = "getGeneratorSlot(frame)", neverDefault = true) int generatorSlot,
-      @Cached(value = "getOutputBufferSlot(frame)", neverDefault = true) int outputBufferSlot) {
+      Object predicate) {
     return new JoinCollection(
         leftIterable,
         rightIterable,
@@ -77,10 +71,10 @@ public abstract class CollectionJoinNode extends ExpressionNode {
         getReshapeBeforePredicate(),
         RawContext.get(this).getSourceContext(),
         frame.materialize(),
-        computeNextSlot,
-        shouldContinueSlot,
-        resultSlot,
-        generatorSlot,
-        outputBufferSlot);
+        getComputeNextSlot(),
+        getShouldContinueSlot(),
+        getResultSlot(),
+        getGeneratorSlot(),
+        getOutputBufferSlot());
   }
 }

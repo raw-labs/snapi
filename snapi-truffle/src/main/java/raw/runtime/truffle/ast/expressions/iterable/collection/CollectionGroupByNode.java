@@ -18,7 +18,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 
 @NodeInfo(shortName = "Collection.GroupBy")
@@ -26,6 +25,9 @@ import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 @NodeChild("keyFun")
 @NodeField(name = "keyType", type = Rql2TypeWithProperties.class)
 @NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
+@NodeField(name = "generatorSlot", type = int.class)
+@NodeField(name = "functionSlot", type = int.class)
+@NodeField(name = "mapSlot", type = int.class)
 public abstract class CollectionGroupByNode extends ExpressionNode {
 
   @Idempotent
@@ -34,26 +36,17 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
   @Idempotent
   protected abstract Rql2TypeWithProperties getRowType();
 
-  protected int getGeneratorSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getGeneratorSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getGeneratorSlot();
 
-  protected int getFunctionSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getFunctionSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getFunctionSlot();
 
-  protected int getMapSlot(VirtualFrame frame) {
-    return AuxiliarySlots.getMapSlot(frame.getFrameDescriptor());
-  }
+  @Idempotent
+  protected abstract int getMapSlot();
 
   @Specialization
-  protected Object doGroup(
-      VirtualFrame frame,
-      Object iterable,
-      Object keyFun,
-      @Cached(value = "getGeneratorSlot(frame)", neverDefault = false) int generatorSlot,
-      @Cached(value = "getFunctionSlot(frame)", neverDefault = true) int keyFunctionSlot,
-      @Cached(value = "getMapSlot(frame)", neverDefault = true) int mapSlot) {
+  protected Object doGroup(VirtualFrame frame, Object iterable, Object keyFun) {
     return new GroupByCollection(
         iterable,
         keyFun,
@@ -61,8 +54,8 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
         getRowType(),
         RawContext.get(this).getSourceContext(),
         frame.materialize(),
-        generatorSlot,
-        keyFunctionSlot,
-        mapSlot);
+        getGeneratorSlot(),
+        getFunctionSlot(),
+        getMapSlot());
   }
 }

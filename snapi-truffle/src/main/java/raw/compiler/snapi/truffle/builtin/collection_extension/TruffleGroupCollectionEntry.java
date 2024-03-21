@@ -12,15 +12,18 @@
 
 package raw.compiler.snapi.truffle.builtin.collection_extension;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.Arrays;
 import java.util.List;
 import raw.compiler.base.source.Type;
+import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.GroupCollectionEntry;
 import raw.compiler.rql2.source.*;
 import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionGroupByNodeGen;
 import scala.collection.JavaConverters;
 import scala.collection.immutable.HashSet;
@@ -28,7 +31,15 @@ import scala.collection.immutable.HashSet;
 public class TruffleGroupCollectionEntry extends GroupCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
+
+    int generatorSlot =
+        builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+    int functionSlot =
+        builder.addSlot(FrameSlotKind.Object, "function", "a slot to store the function of osr");
+    int mapSlot = builder.addSlot(FrameSlotKind.Object, "map", "a slot to store the map of osr");
 
     Rql2IterableType iterable = (Rql2IterableType) type;
     Rql2RecordType record = (Rql2RecordType) iterable.innerType();
@@ -56,6 +67,12 @@ public class TruffleGroupCollectionEntry extends GroupCollectionEntry
     Rql2TypeWithProperties valueType = (Rql2TypeWithProperties) iterableValueType.innerType();
 
     return CollectionGroupByNodeGen.create(
-        args.get(0).exprNode(), args.get(1).exprNode(), keyType, valueType);
+        truffleArgs.get(0).exprNode(),
+        truffleArgs.get(1).exprNode(),
+        keyType,
+        valueType,
+        generatorSlot,
+        functionSlot,
+        mapSlot);
   }
 }

@@ -12,9 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import static raw.runtime.truffle.ast.osr.AuxiliarySlots.*;
-
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
@@ -33,11 +30,11 @@ public class CollectionEquiJoinNode extends ExpressionNode {
   private final Rql2TypeWithProperties rightValueType;
   private final Rql2TypeWithProperties keyType;
 
-  @CompilerDirectives.CompilationFinal private int computeNextSlot = -1;
-  @CompilerDirectives.CompilationFinal private int shouldContinueSlot = -1;
-  @CompilerDirectives.CompilationFinal private int generatorSlot = -1;
-  @CompilerDirectives.CompilationFinal private int keyFunctionSlot = -1;
-  @CompilerDirectives.CompilationFinal private int mapSlot = -1;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
 
   public CollectionEquiJoinNode(
       ExpressionNode left,
@@ -47,7 +44,12 @@ public class CollectionEquiJoinNode extends ExpressionNode {
       Rql2TypeWithProperties keyType,
       Rql2TypeWithProperties leftValueType,
       Rql2TypeWithProperties rightValueType,
-      ExpressionNode remapFun) {
+      ExpressionNode remapFun,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.remapFun = remapFun;
     this.keyType = keyType;
     // left
@@ -58,14 +60,12 @@ public class CollectionEquiJoinNode extends ExpressionNode {
     this.right = right;
     this.rightKeyFun = rightKeyFun;
     this.rightValueType = rightValueType;
-  }
 
-  private void setSlots(VirtualFrame frame) {
-    computeNextSlot = getComputeNextSlot(frame.getFrameDescriptor());
-    shouldContinueSlot = getShouldContinueSlot(frame.getFrameDescriptor());
-    generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
-    keyFunctionSlot = getFunctionSlot(frame.getFrameDescriptor());
-    mapSlot = getMapSlot(frame.getFrameDescriptor());
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+    this.mapSlot = mapSlot;
   }
 
   @Override
@@ -75,10 +75,6 @@ public class CollectionEquiJoinNode extends ExpressionNode {
     Object rightIterable = right.executeGeneric(frame);
     Object rightKeyF = rightKeyFun.executeGeneric(frame);
     Object remapF = remapFun.executeGeneric(frame);
-
-    if (computeNextSlot == -1) {
-      setSlots(frame);
-    }
 
     return new EquiJoinCollection(
         leftIterable,

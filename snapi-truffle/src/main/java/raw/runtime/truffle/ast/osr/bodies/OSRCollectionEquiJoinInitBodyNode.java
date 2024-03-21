@@ -47,9 +47,9 @@ public class OSRCollectionEquiJoinInitBodyNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
-    Object keyFunc = frame.getAuxiliarySlot(keyFunctionSlot);
-    Object map = frame.getAuxiliarySlot(mapSlot);
+    Object generator = frame.getObject(generatorSlot);
+    Object keyFunc = frame.getObject(keyFunctionSlot);
+    Object map = frame.getObject(mapSlot);
     Object item = nextNode.execute(this, generator);
     Object key = functionExecuteOneNode.execute(this, keyFunc, item);
     putNode.execute(this, map, key, item);

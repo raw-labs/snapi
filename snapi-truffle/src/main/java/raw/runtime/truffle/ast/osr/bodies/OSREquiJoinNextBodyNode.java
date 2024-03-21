@@ -51,7 +51,7 @@ public class OSREquiJoinNextBodyNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    EquiJoinComputeNext computeNext = (EquiJoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
+    EquiJoinComputeNext computeNext = (EquiJoinComputeNext) frame.getObject(computeNextSlot);
     if (computeNext.getLeftKey() == null || computeNext.getRightKey() == null) {
       if (computeNext.getLeftKey() == null) {
         if (hasNextNode1.execute(this, computeNext.getLeftMapGenerator())) {
@@ -89,13 +89,13 @@ public class OSREquiJoinNextBodyNode extends ExpressionNode {
         computeNext.setRightRows((Object[]) computeNext.getRightEntry()[1]);
         computeNext.setLeftIndex(0);
         computeNext.setRightIndex(0);
-        frame.setAuxiliarySlot(shouldContinueSlot, false);
+        frame.setBoolean(shouldContinueSlot, false);
         return null;
       }
-      frame.setAuxiliarySlot(shouldContinueSlot, true);
+      frame.setBoolean(shouldContinueSlot, true);
       return null;
     }
-    frame.setAuxiliarySlot(shouldContinueSlot, false);
+    frame.setBoolean(shouldContinueSlot, false);
     return null;
   }
 

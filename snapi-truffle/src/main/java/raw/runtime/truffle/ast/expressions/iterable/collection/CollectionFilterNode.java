@@ -12,9 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import static raw.runtime.truffle.ast.osr.AuxiliarySlots.*;
-
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
@@ -27,25 +24,27 @@ public class CollectionFilterNode extends ExpressionNode {
 
   @Child private ExpressionNode predicateNode;
 
-  @CompilerDirectives.CompilationFinal private int collectionSlot = -1;
-  @CompilerDirectives.CompilationFinal private int functionSlot = -1;
-  @CompilerDirectives.CompilationFinal private int resultSlot = -1;
+  private final int collectionSlot;
+  private final int functionSlot;
+  private final int resultSlot;
 
-  public CollectionFilterNode(ExpressionNode iterableNode, ExpressionNode predicateNode) {
+  public CollectionFilterNode(
+      ExpressionNode iterableNode,
+      ExpressionNode predicateNode,
+      int collectionSlot,
+      int functionSlot,
+      int resultSlot) {
     this.iterableNode = iterableNode;
     this.predicateNode = predicateNode;
+    this.collectionSlot = collectionSlot;
+    this.functionSlot = functionSlot;
+    this.resultSlot = resultSlot;
   }
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     Object iterable = iterableNode.executeGeneric(frame);
     Object predicate = predicateNode.executeGeneric(frame);
-
-    if (collectionSlot == -1) {
-      collectionSlot = getCollectionSlot(frame.getFrameDescriptor());
-      functionSlot = getFunctionSlot(frame.getFrameDescriptor());
-      resultSlot = getResultSlot(frame.getFrameDescriptor());
-    }
 
     return new FilterCollection(
         iterable, predicate, frame.materialize(), collectionSlot, functionSlot, resultSlot);

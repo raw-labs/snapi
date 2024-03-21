@@ -78,7 +78,7 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
   @Override
   public Object executeGeneric(VirtualFrame frame) {
     Object row = null;
-    JoinComputeNext computeNext = (JoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
+    JoinComputeNext computeNext = (JoinComputeNext) frame.getObject(computeNextSlot);
     if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
       if (computeNext.getLeftRow() == null) {
         if (hasNextNode.execute(this, computeNext.getLeftGen())) {
@@ -142,8 +142,8 @@ public class OSRJoinNextBodyNode extends ExpressionNode {
       }
     }
     if (row != null) {
-      frame.setAuxiliarySlot(shouldContinueSlot, false);
-      frame.setAuxiliarySlot(resultSlot, row);
+      frame.setBoolean(shouldContinueSlot, false);
+      frame.setObject(resultSlot, row);
     }
     return null;
   }

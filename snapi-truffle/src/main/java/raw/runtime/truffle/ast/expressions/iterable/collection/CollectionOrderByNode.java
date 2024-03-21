@@ -12,9 +12,6 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import static raw.runtime.truffle.ast.osr.AuxiliarySlots.*;
-
-import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
@@ -32,28 +29,27 @@ public class CollectionOrderByNode extends ExpressionNode {
   @Children private final ExpressionNode[] orderings;
   private final Rql2TypeWithProperties[] keyTypes;
   private final Rql2TypeWithProperties valueType;
-
-  @CompilerDirectives.CompilationFinal private int generatorSlot = -1;
-  @CompilerDirectives.CompilationFinal private int collectionSlot = -1;
-  @CompilerDirectives.CompilationFinal private int offHeapGroupByKeysSlot = -1;
-
-  @CompilerDirectives.CompilationFinal private int kryoOutputSlot = -1;
-
-  @CompilerDirectives.CompilationFinal private int iteratorSlot = -1;
-
-  @CompilerDirectives.CompilationFinal private int offHeapFlushSlot = -1;
+  private final int generatorSlot;
+  private final int collectionSlot;
+  private final int offHeapGroupByKeysSlot;
 
   public CollectionOrderByNode(
       ExpressionNode input,
       ExpressionNode[] keyFuns,
       ExpressionNode[] orderings,
       Rql2TypeWithProperties[] keyTypes,
-      Rql2TypeWithProperties valueType) {
+      Rql2TypeWithProperties valueType,
+      int generatorSlot,
+      int collectionSlot,
+      int offHeapGroupByKeysSlot) {
     this.input = input;
     this.keyFuns = keyFuns;
     this.orderings = orderings;
     this.keyTypes = keyTypes;
     this.valueType = valueType;
+    this.generatorSlot = generatorSlot;
+    this.collectionSlot = collectionSlot;
+    this.offHeapGroupByKeysSlot = offHeapGroupByKeysSlot;
   }
 
   @Override
@@ -74,12 +70,6 @@ public class CollectionOrderByNode extends ExpressionNode {
     Object[] keyFunctions = new Object[this.keyFuns.length];
     for (int i = 0; i < this.keyFuns.length; i++) {
       keyFunctions[i] = this.keyFuns[i].executeGeneric(frame);
-    }
-
-    if (generatorSlot == -1) {
-      generatorSlot = getGeneratorSlot(frame.getFrameDescriptor());
-      collectionSlot = getCollectionSlot(frame.getFrameDescriptor());
-      offHeapGroupByKeysSlot = getOffHeapGroupByKeysSlot(frame.getFrameDescriptor());
     }
 
     return new OrderByCollection(

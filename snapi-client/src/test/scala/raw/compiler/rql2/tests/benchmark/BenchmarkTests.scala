@@ -256,32 +256,32 @@ trait BenchmarkTests extends CompilerTestContext {
   test("Range Count test") { _ =>
     assume(false, "This test is disabled by default")
 
-        for (i <- 0 to 20) {
-          fastExecute(
-            """let
-              |    range = 1000L
-              |in
-              |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
-          )
-        }
+    for (i <- 0 to 20) {
+      fastExecute(
+        """let
+          |    range = 1000L
+          |in
+          |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
+      )
+    }
 
-        val values = Array.fill(7)(0L)
+    val values = Array.fill(7)(0L)
 
-        for (i <- 0 to 6) {
-          logger.info("++++++++++ 10^" + (i + 3))
-          val startedIn = System.currentTimeMillis()
-          fastExecute(
-            s"""let
-              |    range = ${Math.pow(10, i + 3).toLong}L
-              |in
-              |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
-          )
-          val elapsedIn = System.currentTimeMillis()
-          values(i) = elapsedIn - startedIn
-        }
-        logger.info("++++++++++ Values: " + values.mkString(", "))
+    for (i <- 0 to 6) {
+      logger.info("++++++++++ 10^" + (i + 3))
+      val startedIn = System.currentTimeMillis()
+      fastExecute(
+        s"""let
+          |    range = ${Math.pow(10, i + 3).toLong}L
+          |in
+          |    Collection.Count(Collection.Transform(Collection.Filter(Long.Range(0, range), (x) -> x % 2 == 0), (y) -> y + 1))""".stripMargin
+      )
+      val elapsedIn = System.currentTimeMillis()
+      values(i) = elapsedIn - startedIn
+    }
+    logger.info("++++++++++ Values: " + values.mkString(", "))
 
-    //    Execution with STD
+  //    Execution with STD
 
 //    val prog = """let
 //      |    range = 100000000L

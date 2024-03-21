@@ -42,9 +42,9 @@ public class OSRCollectionJoinInitBodyNode extends ExpressionNode {
 
   @Override
   public Object executeGeneric(VirtualFrame frame) {
-    Object generator = frame.getAuxiliarySlot(generatorSlot);
-    JoinComputeNext computeNext = (JoinComputeNext) frame.getAuxiliarySlot(computeNextSlot);
-    Output buffer = (Output) frame.getAuxiliarySlot(outputBufferSlot);
+    Object generator = frame.getObject(generatorSlot);
+    JoinComputeNext computeNext = (JoinComputeNext) frame.getObject(computeNextSlot);
+    Output buffer = (Output) frame.getObject(outputBufferSlot);
     Object row = nextNode.execute(this, generator);
     kryoWrite.execute(this, buffer, computeNext.getRightRowType(), row);
     computeNext.setSpilledRight(computeNext.getSpilledRight() + 1);
