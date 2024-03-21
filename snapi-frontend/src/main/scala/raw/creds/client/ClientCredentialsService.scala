@@ -14,15 +14,24 @@ package raw.creds.client
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
+import raw.creds.client.ClientCredentialsService.{CACHE_FDW_EXPIRY_IN_HOURS, CACHE_FDW_SIZE, DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS, DEFAULT_CACHE_FDW_SIZE, SERVER_ADDRESS}
 import raw.rest.client.APIException
 import raw.utils.{AuthenticatedUser, RawSettings}
 
 import java.net.URI
 import java.util.concurrent.TimeUnit
 
+object ClientCredentialsService {
+  private val SERVER_ADDRESS = "raw.creds.client.server-address"
+  private val CACHE_FDW_SIZE = "raw.creds.client.fdw-db-cache.size"
+  private val DEFAULT_CACHE_FDW_SIZE = 1000
+  private val CACHE_FDW_EXPIRY_IN_HOURS = "raw.creds.client.fdw-db-cache.expiry-in-hours"
+  private val DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS = 1
+}
+
 class ClientCredentialsService(implicit settings: RawSettings) extends CredentialsService {
 
-  private val serverAddress = new URI(settings.getString("raw.creds.client.server-address"))
+  private val serverAddress = new URI(settings.getString(SERVER_ADDRESS))
 
   private val client = new ClientCredentials(serverAddress)
 
@@ -292,11 +301,11 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
     }
   }
 
-  // Initialize the LoadingCache
+  // Initialize FDW DB LoadingCache
   private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
     .newBuilder()
-    .maximumSize(1000) // Set a maximum size to the cache
-    .expireAfterAccess(1, TimeUnit.HOURS) // Expire entries after 1 hour of inactivity
+    .maximumSize(settings.getIntOpt(CACHE_FDW_SIZE).getOrElse(DEFAULT_CACHE_FDW_SIZE))
+    .expireAfterAccess(settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS), TimeUnit.HOURS)
     .build(dbCacheLoader)
 
   override def getUserDb(user: AuthenticatedUser): String = {

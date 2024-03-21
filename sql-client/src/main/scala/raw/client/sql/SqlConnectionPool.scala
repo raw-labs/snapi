@@ -21,6 +21,8 @@ import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
 class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
+  // Make settings implicit within the local scope
+  implicit val implicitSettings: RawSettings = settings
 
   // one pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
@@ -28,7 +30,7 @@ class SqlConnectionPool(settings: RawSettings) extends StrictLogging {
   private val dbPort = settings.getInt("raw.creds.jdbc.fdw.port")
   private val readOnlyUser = settings.getString("raw.creds.jdbc.fdw.user")
   private val password = settings.getString("raw.creds.jdbc.fdw.password")
-  private val client = CredentialsServiceProvider.apply()(settings) //new ClientCredentials(serverAddress)(settings)
+  private val client = CredentialsServiceProvider()
 
   @throws[SQLException]
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
