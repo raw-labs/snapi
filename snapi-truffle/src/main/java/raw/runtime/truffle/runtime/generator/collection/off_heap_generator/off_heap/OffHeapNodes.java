@@ -39,7 +39,6 @@ public class OffHeapNodes {
   @NodeInfo(shortName = "OffHeap.Put")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(StaticOffHeap.class)
   public abstract static class OffHeapGroupByPutNode extends Node {
 
     public abstract void execute(Node node, Object offHeapGroupBy, Object key, Object value);
@@ -190,7 +189,6 @@ public class OffHeapNodes {
   @NodeInfo(shortName = "OffHeap.Generator")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(StaticOffHeap.class)
   public abstract static class OffHeapGeneratorNode extends Node {
 
     public abstract Object execute(Node node, Object offHeap);

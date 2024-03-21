@@ -30,6 +30,11 @@ final class CompilerServiceException(
 
   def this(t: Throwable, debugInfo: List[(String, String)]) = this(t.getMessage, debugInfo, t)
 
+  def this(t: Throwable, environment: ProgramEnvironment) =
+    this(t.getMessage, CompilerService.getDebugInfo(environment))
+
+  def this(t: Throwable) = this(t.getMessage, cause = t)
+
 }
 
 object CompilerService {
@@ -68,6 +73,19 @@ object CompilerService {
     enginesLock.synchronized {
       enginesCache.remove(settings).foreach(engine => engine.close(true))
     }
+  }
+
+  def getDebugInfo(environment: ProgramEnvironment): List[(String, String)] = {
+    List(
+      "Trace ID" -> environment.maybeTraceId.getOrElse("<undefined>"),
+      "Arguments" -> environment.maybeArguments
+        .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
+        .getOrElse("<undefined>"),
+      "User" -> environment.user.toString,
+      "Scopes" -> environment.scopes.mkString(","),
+      "Options" -> environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
+      //"Settings" -> runtimeContext.settings.toString
+    )
   }
 
 }
