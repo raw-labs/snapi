@@ -304,8 +304,8 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
   // Initialize FDW DB LoadingCache
   private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
     .newBuilder()
-    .maximumSize(settings.getIntOpt(CACHE_FDW_SIZE).getOrElse(DEFAULT_CACHE_FDW_SIZE))
-    .expireAfterAccess(settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS), TimeUnit.HOURS)
+    .maximumSize(settings.getIntOpt(CACHE_FDW_SIZE).getOrElse(DEFAULT_CACHE_FDW_SIZE).toLong)
+    .expireAfterAccess(settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS).toLong, TimeUnit.HOURS)
     .build(dbCacheLoader)
 
   override def getUserDb(user: AuthenticatedUser): String = {
