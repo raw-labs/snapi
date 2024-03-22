@@ -14,7 +14,13 @@ package raw.creds.client
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
-import raw.creds.client.ClientCredentialsService.{CACHE_FDW_EXPIRY_IN_HOURS, CACHE_FDW_SIZE, DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS, DEFAULT_CACHE_FDW_SIZE, SERVER_ADDRESS}
+import raw.creds.client.ClientCredentialsService.{
+  CACHE_FDW_EXPIRY_IN_HOURS,
+  CACHE_FDW_SIZE,
+  DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS,
+  DEFAULT_CACHE_FDW_SIZE,
+  SERVER_ADDRESS
+}
 import raw.rest.client.APIException
 import raw.utils.{AuthenticatedUser, RawSettings}
 
@@ -305,7 +311,10 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
   private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
     .newBuilder()
     .maximumSize(settings.getIntOpt(CACHE_FDW_SIZE).getOrElse(DEFAULT_CACHE_FDW_SIZE).toLong)
-    .expireAfterAccess(settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS).toLong, TimeUnit.HOURS)
+    .expireAfterAccess(
+      settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS).toLong,
+      TimeUnit.HOURS
+    )
     .build(dbCacheLoader)
 
   override def getUserDb(user: AuthenticatedUser): String = {
