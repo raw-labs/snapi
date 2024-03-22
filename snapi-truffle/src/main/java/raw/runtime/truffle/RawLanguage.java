@@ -78,7 +78,9 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   private final Shape pureRecordShape = Shape.newBuilder().build();
   private final Shape duplicateKeyRecordShape = Shape.newBuilder().build();
 
-  // FIXME (msb): Why is this here?
+  // The bellow methods are used to create new instances of the record classes.
+  // This instances must have common ancestor, so we create them with the same shape.
+  // This is a common pattern in Truffle, due to the way the object model works.
   public PureRecord createPureRecord() {
     return new PureRecord(pureRecordShape);
   }

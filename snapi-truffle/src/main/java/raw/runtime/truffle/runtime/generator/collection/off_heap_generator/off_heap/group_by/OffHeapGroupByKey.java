@@ -12,18 +12,14 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import java.io.File;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.utils.KryoFootPrint;
-import raw.sources.api.SourceContext;
 
 public class OffHeapGroupByKey {
-  //  private final TreeMap<Object, ArrayList<Object>>
-  //      memMap; // in-memory map that's used as long as the data fits in memory.
   private final TreeMapObject
       memMap; // in-memory map that's used as long as the data fits in memory.
   private final ArrayList<File> spilledBuffers =
@@ -33,7 +29,6 @@ public class OffHeapGroupByKey {
       size; // estimated size of currently memory held objects (when reaching blockSize, spill
   // to
   // disk).
-  private final SourceContext context;
   private final Rql2TypeWithProperties keyType, rowType; // grouping key and row types.
   private final int kryoOutputBufferSize,
       kryoInputBufferSize; // size of the kryo buffers used to write and read the data.
@@ -41,24 +36,22 @@ public class OffHeapGroupByKey {
 
   private final RecordShaper reshape;
 
-  @TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKey(
       Rql2TypeWithProperties kType,
       Rql2TypeWithProperties rowType,
-      SourceContext context,
-      RecordShaper reshape) {
+      RecordShaper reshape,
+      long maxSize,
+      int kryoOutputBufferSize,
+      int kryoInputBufferSize) {
     this.memMap = new TreeMapObject();
     this.keyType = kType;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);
     this.keySize = KryoFootPrint.of(kType);
     this.size = 0;
-    this.maxSize = context.settings().getMemorySize("raw.runtime.external.disk-block-max-size");
-    this.kryoOutputBufferSize =
-        (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
-    this.kryoInputBufferSize =
-        (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
-    this.context = context;
+    this.maxSize = maxSize;
+    this.kryoOutputBufferSize = kryoOutputBufferSize;
+    this.kryoInputBufferSize = kryoInputBufferSize;
     this.reshape = reshape;
   }
 
@@ -80,10 +73,6 @@ public class OffHeapGroupByKey {
 
   public int getSize() {
     return size;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public Rql2TypeWithProperties getKeyType() {

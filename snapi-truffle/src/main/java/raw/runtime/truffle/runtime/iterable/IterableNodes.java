@@ -25,6 +25,7 @@ import raw.runtime.truffle.ast.osr.bodies.OSRDistinctGetGeneratorNode;
 import raw.runtime.truffle.ast.osr.bodies.OSROrderByGetGeneratorNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.StaticCollectionMethods;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
@@ -40,6 +41,7 @@ public class IterableNodes {
   @NodeInfo(shortName = "Iterable.GetGenerator")
   @GenerateUncached
   @GenerateInline
+  @ImportStatic(StaticCollectionMethods.class)
   public abstract static class GetGeneratorNode extends Node {
 
     public abstract Object execute(Node node, Object generator);
@@ -203,12 +205,16 @@ public class IterableNodes {
             IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
+        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @Cached(value = "getContextValues(thisNode)", dimensions = 1, allowUncached = true)
+            long[] contextValues) {
       OffHeapDistinct index =
           new OffHeapDistinct(
               cachedCollection.getRowType(),
-              cachedCollection.getContext(),
-              cachedCollection.getFrame());
+              cachedCollection.getFrame(),
+              contextValues[0],
+              (int) contextValues[1],
+              (int) contextValues[2]);
       Object generator = getGeneratorNode.execute(thisNode, cachedCollection.getIterable());
       try {
         initNode.execute(thisNode, generator);
@@ -255,14 +261,18 @@ public class IterableNodes {
             IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
+        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @Cached(value = "getContextValues(thisNode)", dimensions = 1, allowUncached = true)
+            long[] contextValues) {
       MaterializedFrame frame = cachedCollection.getFrame();
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
               cachedCollection.getKeyType(),
               cachedCollection.getRowType(),
-              cachedCollection.getContext(),
-              new RecordShaper(false));
+              new RecordShaper(false),
+              contextValues[0],
+              (int) contextValues[1],
+              (int) contextValues[2]);
       Object inputGenerator = getGeneratorNode.execute(thisNode, cachedCollection.getIterable());
       try {
         initNode.execute(thisNode, inputGenerator);
@@ -304,15 +314,18 @@ public class IterableNodes {
             IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode) {
+        @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
+        @Cached(value = "getContextValues(thisNode)", dimensions = 1, allowUncached = true)
+            long[] contextValues) {
       Object generator = getGeneratorNode.execute(thisNode, cachedCollection.getParentIterable());
       OffHeapGroupByKeys groupByKeys =
           new OffHeapGroupByKeys(
               cachedCollection.getKeyTypes(),
               cachedCollection.getRowType(),
               cachedCollection.getKeyOrderings(),
-              cachedCollection.getContext(),
-              cachedCollection.getFrame());
+              contextValues[0],
+              (int) contextValues[1],
+              (int) contextValues[2]);
       try {
         initNode.execute(thisNode, generator);
 

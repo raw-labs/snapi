@@ -396,5 +396,4 @@ module raw.snapi.truffle {
   exports raw.runtime.truffle.runtime.exceptions.validation;
   exports raw.compiler.snapi.truffle.compiler;
   exports raw.compiler.rql2output.truffle.builtin;
-  exports raw.runtime.truffle.runtime.generator.collection.off_heap_generator;
 }

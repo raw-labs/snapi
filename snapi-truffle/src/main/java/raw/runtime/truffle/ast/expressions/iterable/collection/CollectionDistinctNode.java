@@ -17,7 +17,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.iterable.operations.DistinctCollection;
 
 @NodeInfo(shortName = "Collection.Distinct")
@@ -41,7 +40,6 @@ public abstract class CollectionDistinctNode extends ExpressionNode {
     return new DistinctCollection(
         iterable,
         getValueType(),
-        RawContext.get(this).getSourceContext(),
         frame.materialize(),
         getGeneratorSlot(),
         getOffHeapDistinctSlot());

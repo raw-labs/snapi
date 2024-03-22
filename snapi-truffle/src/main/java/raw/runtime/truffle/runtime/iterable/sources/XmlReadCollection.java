@@ -25,34 +25,28 @@ import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.XmlReadComputeNext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.api.SourceContext;
 
 @ExportLibrary(InteropLibrary.class)
 public class XmlReadCollection implements TruffleObject {
   private final LocationObject locationObject;
   private final RootCallTarget parseNextRootCallTarget;
   private RawTruffleXmlParserSettings settings;
-  private final SourceContext context;
-
   private final String encoding;
 
   public XmlReadCollection(
       LocationObject locationObject,
       String encoding,
-      SourceContext context,
       RootCallTarget parseNextRootCallTarget,
       RawTruffleXmlParserSettings settings) {
     this.locationObject = locationObject;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
     this.settings = settings;
-    this.context = context;
     this.encoding = encoding;
   }
 
   public AbstractGenerator getGenerator() {
     return new AbstractGenerator(
-        new XmlReadComputeNext(
-            locationObject, encoding, context, parseNextRootCallTarget, settings));
+        new XmlReadComputeNext(locationObject, encoding, parseNextRootCallTarget, settings));
   }
 
   // InteropLibrary: Iterable

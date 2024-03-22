@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap;
 
-import static raw.runtime.truffle.runtime.generator.collection.off_heap_generator.StaticOffHeap.*;
+import static raw.runtime.truffle.runtime.generator.collection.StaticCollectionMethods.*;
 
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;
@@ -23,7 +23,6 @@ import java.util.ArrayList;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapIterator;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapNode;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapNodes;
-import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.StaticOffHeap;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.DistinctMemoryGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.DistinctSpilledFilesGenerator;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;

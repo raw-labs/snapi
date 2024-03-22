@@ -21,11 +21,8 @@ import raw.sources.api.SourceContext;
 public class JsonReadComputeNext {
   private final LocationObject locationObject;
   private final RootCallTarget parseNextCallTarget;
-  private final SourceContext context;
   private final String encoding;
-
   private TruffleCharInputStream stream;
-
   private JsonParser parser;
 
   public JsonReadComputeNext(
@@ -34,7 +31,6 @@ public class JsonReadComputeNext {
       SourceContext context,
       RootCallTarget parseNextRootCallTarget) {
     this.encoding = encoding;
-    this.context = context;
     this.locationObject = locationObject;
     this.parseNextCallTarget = parseNextRootCallTarget;
   }
@@ -61,10 +57,6 @@ public class JsonReadComputeNext {
 
   public LocationObject getLocationObject() {
     return locationObject;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public String getEncoding() {

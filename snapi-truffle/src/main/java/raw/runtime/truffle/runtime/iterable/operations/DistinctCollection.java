@@ -23,13 +23,11 @@ import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.sources.api.SourceContext;
 
 @ExportLibrary(InteropLibrary.class)
 public class DistinctCollection implements TruffleObject {
   final Object iterable;
   final Rql2TypeWithProperties rowType;
-  private final SourceContext context;
   private final MaterializedFrame frame;
   private final int generatorSlot;
   private final int offHeapDistinctSlot;
@@ -37,13 +35,11 @@ public class DistinctCollection implements TruffleObject {
   public DistinctCollection(
       Object iterable,
       Rql2TypeWithProperties vType,
-      SourceContext context,
       MaterializedFrame frame,
       int generatorSlot,
       int offHeapDistinctSlot) {
     this.iterable = iterable;
     this.rowType = vType;
-    this.context = context;
     this.frame = frame;
     this.generatorSlot = generatorSlot;
     this.offHeapDistinctSlot = offHeapDistinctSlot;
@@ -55,10 +51,6 @@ public class DistinctCollection implements TruffleObject {
 
   public Rql2TypeWithProperties getRowType() {
     return rowType;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public MaterializedFrame getFrame() {

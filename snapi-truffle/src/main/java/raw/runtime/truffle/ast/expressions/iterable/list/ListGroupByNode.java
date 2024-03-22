@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
+import static raw.runtime.truffle.runtime.generator.collection.StaticCollectionMethods.getContextValues;
+
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.LoopNode;
@@ -19,7 +21,6 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRListEquiJoinInitBodyNode;
 import raw.runtime.truffle.ast.osr.bodies.OSRListFromBodyNode;
@@ -35,7 +36,6 @@ import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ListNodesFactory;
 import raw.runtime.truffle.runtime.list.RawArrayList;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "List.GroupBy")
 public class ListGroupByNode extends ExpressionNode {
@@ -71,6 +71,9 @@ public class ListGroupByNode extends ExpressionNode {
   private final int keyFunctionSlot;
   private final int mapSlot;
   private final int listSlot;
+  private final long maxSize;
+  private final int kryoOutputBufferSize;
+  private final int kryoInputBufferSize;
 
   public ListGroupByNode(
       ExpressionNode inputNode,
@@ -105,6 +108,11 @@ public class ListGroupByNode extends ExpressionNode {
                 new OSRGeneratorNode(
                     new OSRHasNextConditionNode(this.generatorSlot),
                     new OSRListFromBodyNode(this.generatorSlot, this.listSlot)));
+
+    long[] contextValues = getContextValues(this);
+    this.maxSize = contextValues[0];
+    this.kryoOutputBufferSize = (int) contextValues[1];
+    this.kryoInputBufferSize = (int) contextValues[2];
   }
 
   @Override
@@ -112,9 +120,14 @@ public class ListGroupByNode extends ExpressionNode {
     Object input = inputNode.executeGeneric(frame);
     Object keyFun = keyFunNode.executeGeneric(frame);
     Object iterable = toIterableNode.execute(this, input);
-    SourceContext context = RawContext.get(this).getSourceContext();
     OffHeapGroupByKey map =
-        new OffHeapGroupByKey(this.keyType, this.rowType, context, new RecordShaper(true));
+        new OffHeapGroupByKey(
+            this.keyType,
+            this.rowType,
+            new RecordShaper(true),
+            this.maxSize,
+            this.kryoOutputBufferSize,
+            this.kryoInputBufferSize);
     Object generator = getGeneratorNode.execute(this, iterable);
 
     try {

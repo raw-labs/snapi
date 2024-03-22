@@ -20,7 +20,6 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.Frame;
-import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
@@ -29,7 +28,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
@@ -48,6 +46,7 @@ import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.StaticCollectionMethods;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.*;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
@@ -59,6 +58,7 @@ import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 public class ComputeNextNodes {
 
@@ -491,6 +491,7 @@ public class ComputeNextNodes {
   @NodeInfo(shortName = "Generator.Init")
   @GenerateUncached
   @GenerateInline
+  @ImportStatic(StaticCollectionMethods.class)
   public abstract static class InitNode extends Node {
 
     public abstract void execute(Node node, Object computeNext);
@@ -504,10 +505,12 @@ public class ComputeNextNodes {
         CsvReadComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("initCsv") CsvParserNodes.InitCsvParserNode initParser,
-        @Cached @Cached.Shared("closeCsv") CsvParserNodes.CloseCsvParserNode closeParser) {
+        @Cached @Cached.Shared("closeCsv") CsvParserNodes.CloseCsvParserNode closeParser,
+        @Cached(value = "getContext(thisNode)", allowUncached = true, neverDefault = true)
+            SourceContext sourceContext) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocation(), computeNext.getContext());
+            new TruffleInputStream(computeNext.getLocation(), sourceContext);
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
@@ -557,10 +560,12 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached JsonParserNodes.InitJsonParserNode initParser,
         @Cached JsonParserNodes.CloseJsonParserNode closeParser,
-        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken) {
+        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken,
+        @Cached(value = "getContext(thisNode)", allowUncached = true, neverDefault = true)
+            SourceContext sourceContext) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocationObject(), computeNext.getContext());
+            new TruffleInputStream(computeNext.getLocationObject(), sourceContext);
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(initParser.execute(thisNode, computeNext.getStream()));
@@ -610,10 +615,15 @@ public class ComputeNextNodes {
     }
 
     @Specialization
-    static void init(Node node, XmlReadComputeNext computeNext) {
+    static void init(
+        Node node,
+        XmlReadComputeNext computeNext,
+        @Bind("$node") Node thisNode,
+        @Cached(value = "getContext(thisNode)", allowUncached = true, neverDefault = true)
+            SourceContext sourceContext) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocationObject(), computeNext.getContext());
+            new TruffleInputStream(computeNext.getLocationObject(), sourceContext);
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
@@ -716,15 +726,19 @@ public class ComputeNextNodes {
         @SuppressWarnings("truffle-sharing") @Cached
             GeneratorNodes.GeneratorCloseNode closeRightNode,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorLeft,
-        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight) {
+        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight,
+        @Cached(value = "getContextValues(thisNode)", dimensions = 1, allowUncached = true)
+            long[] contextValues) {
       Frame frame = cachedComputeNext.getFrame();
       // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
       OffHeapGroupByKey leftMap =
           new OffHeapGroupByKey(
               cachedComputeNext.getKeyType(),
               cachedComputeNext.getLeftRowType(),
-              RawContext.get(thisNode).getSourceContext(),
-              null);
+              null,
+              contextValues[0],
+              (int) contextValues[1],
+              (int) contextValues[2]);
 
       Object leftGenerator = getGenerator.execute(thisNode, cachedComputeNext.getLeftIterable());
       try {
@@ -744,8 +758,10 @@ public class ComputeNextNodes {
           new OffHeapGroupByKey(
               cachedComputeNext.getKeyType(),
               cachedComputeNext.getRightRowType(),
-              RawContext.get(thisNode).getSourceContext(),
-              null);
+              null,
+              contextValues[0],
+              (int) contextValues[1],
+              (int) contextValues[2]);
       Object rightGenerator = getGenerator.execute(thisNode, cachedComputeNext.getRightIterable());
       try {
         initRightNode.execute(thisNode, rightGenerator);

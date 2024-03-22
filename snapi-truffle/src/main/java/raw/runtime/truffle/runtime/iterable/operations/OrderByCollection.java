@@ -23,7 +23,6 @@ import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.sources.api.SourceContext;
 
 @ExportLibrary(InteropLibrary.class)
 public class OrderByCollection implements TruffleObject {
@@ -32,7 +31,6 @@ public class OrderByCollection implements TruffleObject {
   final int[] keyOrderings;
   final Rql2TypeWithProperties[] keyTypes;
   final Rql2TypeWithProperties rowType;
-  private final SourceContext context;
   private final MaterializedFrame frame;
   private final int generatorSlot;
   private final int collectionSlot;
@@ -44,7 +42,6 @@ public class OrderByCollection implements TruffleObject {
       int[] keyOrderings,
       Rql2TypeWithProperties[] keyTypes,
       Rql2TypeWithProperties rowType,
-      SourceContext context,
       MaterializedFrame frame,
       int generatorSlot,
       int collectionSlot,
@@ -54,7 +51,6 @@ public class OrderByCollection implements TruffleObject {
     this.keyOrderings = keyOrderings;
     this.keyTypes = keyTypes;
     this.rowType = rowType;
-    this.context = context;
     this.frame = frame;
     this.generatorSlot = generatorSlot;
     this.collectionSlot = collectionSlot;
@@ -79,10 +75,6 @@ public class OrderByCollection implements TruffleObject {
 
   public Rql2TypeWithProperties getRowType() {
     return rowType;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public MaterializedFrame getFrame() {

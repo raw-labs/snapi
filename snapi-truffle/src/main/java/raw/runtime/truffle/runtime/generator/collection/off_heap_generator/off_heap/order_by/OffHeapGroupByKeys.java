@@ -12,14 +12,11 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.frame.MaterializedFrame;
 import java.io.File;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapObject;
 import raw.runtime.truffle.utils.KryoFootPrint;
-import raw.sources.api.SourceContext;
 
 public class OffHeapGroupByKeys {
   private final int[] keyOrderings;
@@ -38,8 +35,6 @@ public class OffHeapGroupByKeys {
   private final int kryoOutputBufferSize,
       kryoInputBufferSize; // size of the kryo buffers used to write and read the data.
 
-  private final SourceContext context;
-
   private static int keysFootPrint(Rql2TypeWithProperties[] keyType) {
     int size = 0;
     for (Rql2TypeWithProperties t : keyType) {
@@ -48,25 +43,24 @@ public class OffHeapGroupByKeys {
     return size;
   }
 
-  @TruffleBoundary // Needed because of SourceContext
   public OffHeapGroupByKeys(
       Rql2TypeWithProperties[] kTypes,
       Rql2TypeWithProperties rowType,
       int[] keyOrderings,
-      SourceContext context,
-      MaterializedFrame frame) {
+      long maxSize,
+      int kryoOutputBufferSize,
+      int kryoInputBufferSize) {
     this.memMap = new TreeMapObject();
     this.keyTypes = kTypes;
     this.rowType = rowType;
     this.rowSize = KryoFootPrint.of(rowType);
     this.keysSize = keysFootPrint(kTypes);
     this.size = 0;
-    this.maxSize = context.settings().getMemorySize("raw.runtime.external.disk-block-max-size");
-    this.kryoOutputBufferSize =
-        (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
-    this.kryoInputBufferSize =
-        (int) context.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
-    this.context = context;
+
+    this.maxSize = maxSize;
+    this.kryoOutputBufferSize = kryoOutputBufferSize;
+    this.kryoInputBufferSize = kryoInputBufferSize;
+
     this.keyOrderings = keyOrderings;
   }
 
@@ -108,10 +102,6 @@ public class OffHeapGroupByKeys {
 
   public int getKryoInputBufferSize() {
     return kryoInputBufferSize;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public void setSize(int size) {

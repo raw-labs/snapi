@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.generator.collection.off_heap_generator;
+package raw.runtime.truffle.runtime.generator.collection;
 
 import com.esotericsoftware.kryo.io.Output;
 import com.oracle.truffle.api.CompilerDirectives;
@@ -18,13 +18,15 @@ import com.oracle.truffle.api.nodes.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OffHeapGroupByKeys;
 import raw.runtime.truffle.utils.IOUtils;
+import raw.sources.api.SourceContext;
 
-public class StaticOffHeap {
+public class StaticCollectionMethods {
 
   @CompilerDirectives.TruffleBoundary
   public static void kryoWriteInt(Output kryoOutput, int size) {
@@ -34,8 +36,9 @@ public class StaticOffHeap {
   @CompilerDirectives.TruffleBoundary
   public static FileOutputStream getGroupByKeyNewDiskBuffer(
       OffHeapGroupByKey offHeapGroupByKey, Node node) {
+    SourceContext sourceContext = RawContext.get(node).getSourceContext();
     File file;
-    file = IOUtils.getScratchFile("groupby.", ".kryo", offHeapGroupByKey.getContext()).toFile();
+    file = IOUtils.getScratchFile("groupby.", ".kryo", sourceContext).toFile();
     offHeapGroupByKey.getSpilledBuffers().add(file);
     try {
       return new FileOutputStream(file);
@@ -48,7 +51,8 @@ public class StaticOffHeap {
   public static FileOutputStream groupByKeysNextFile(
       OffHeapGroupByKeys offHeapGroupByKeys, Node node) {
     File file;
-    file = IOUtils.getScratchFile("orderby.", ".kryo", offHeapGroupByKeys.getContext()).toFile();
+    SourceContext sourceContext = RawContext.get(node).getSourceContext();
+    file = IOUtils.getScratchFile("orderby.", ".kryo", sourceContext).toFile();
     offHeapGroupByKeys.getSpilledBuffers().add(file);
     try {
       return new FileOutputStream(file);
@@ -60,7 +64,8 @@ public class StaticOffHeap {
   @CompilerDirectives.TruffleBoundary
   public static FileOutputStream distinctNextFile(OffHeapDistinct offHeapDistinct, Node node) {
     File file;
-    file = IOUtils.getScratchFile("distinct.", ".kryo", offHeapDistinct.getContext()).toFile();
+    SourceContext sourceContext = RawContext.get(node).getSourceContext();
+    file = IOUtils.getScratchFile("distinct.", ".kryo", sourceContext).toFile();
     offHeapDistinct.getSpilledBuffers().add(file);
     try {
       return new FileOutputStream(file);
@@ -72,5 +77,22 @@ public class StaticOffHeap {
   @CompilerDirectives.TruffleBoundary
   public static void kryoOutputClose(Output kryoOutput) {
     kryoOutput.close();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public static long[] getContextValues(Node node) {
+    SourceContext sourceContext = RawContext.get(node).getSourceContext();
+    long[] contextValues = new long[3];
+    contextValues[0] =
+        sourceContext.settings().getMemorySize("raw.runtime.external.disk-block-max-size");
+    contextValues[1] =
+        (int) sourceContext.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
+    contextValues[2] =
+        (int) sourceContext.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
+    return contextValues;
+  }
+
+  public static SourceContext getContext(Node node) {
+    return RawContext.get(node).getSourceContext();
   }
 }
