@@ -23,7 +23,7 @@ package raw.client.sql
 
 import raw.client.api._
 import raw.creds.api.CredentialsTestContext
-import raw.creds.local.LocalCredentialsService
+import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
 import java.io.ByteArrayOutputStream
@@ -32,10 +32,10 @@ class TestSqlCompilerServiceAirports
     extends RawTestSuite
     with SettingsTestContext
     with TrainingWheelsContext
-    with CredentialsTestContext {
+    with CredentialsTestContext
+    with LocalCredentialsTestContext {
 
   private var compilerService: CompilerService = _
-  private var localCredentialsService: LocalCredentialsService = _
 
   private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
@@ -53,25 +53,14 @@ class TestSqlCompilerServiceAirports
 
   override def beforeAll(): Unit = {
     super.beforeAll()
-    property("raw.creds.impl", "local")
-    localCredentialsService = new LocalCredentialsService()
-    setCredentials(localCredentialsService)
     compilerService = new SqlCompilerService(None)
   }
 
   override def afterAll(): Unit = {
-    println(RawService.services)
     if (compilerService != null) {
       compilerService.stop()
       compilerService = null
     }
-    println(RawService.services.size())
-    if (localCredentialsService != null) {
-      RawUtils.withSuppressNonFatalException(localCredentialsService.stop())
-      localCredentialsService = null
-    }
-    println(RawService.services.size())
-    RawService.services.clear()
     super.afterAll()
   }
 

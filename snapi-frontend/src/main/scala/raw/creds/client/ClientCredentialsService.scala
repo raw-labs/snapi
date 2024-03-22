@@ -41,6 +41,23 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
 
   private val client = new ClientCredentials(serverAddress)
 
+  private val dbCacheLoader = new CacheLoader[AuthenticatedUser, String]() {
+    override def load(user: AuthenticatedUser): String = {
+      // Directly call the provisioning method on the client
+      logger.debug(s"Retrieving user database for $user from origin server")
+      client.getUserDb(user)
+    }
+  }
+
+  private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
+    .newBuilder()
+    .maximumSize(settings.getIntOpt(CACHE_FDW_SIZE).getOrElse(DEFAULT_CACHE_FDW_SIZE).toLong)
+    .expireAfterAccess(
+      settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS).toLong,
+      TimeUnit.HOURS
+    )
+    .build(dbCacheLoader)
+
   /** S3 buckets */
 
   override protected def doRegisterS3Bucket(user: AuthenticatedUser, bucket: S3Bucket): Boolean = {
@@ -294,33 +311,14 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
     }
   }
 
-  override def doStop(): Unit = {
-    client.close()
-  }
-
-  // Define the CacheLoader
-  private val dbCacheLoader = new CacheLoader[AuthenticatedUser, String]() {
-    override def load(user: AuthenticatedUser): String = {
-      // Directly call the provisioning method on the client
-      logger.debug(s"Retrieving user database for $user from origin server")
-      client.getUserDb(user)
-    }
-  }
-
-  // Initialize FDW DB LoadingCache
-  private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
-    .newBuilder()
-    .maximumSize(settings.getIntOpt(CACHE_FDW_SIZE).getOrElse(DEFAULT_CACHE_FDW_SIZE).toLong)
-    .expireAfterAccess(
-      settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS).toLong,
-      TimeUnit.HOURS
-    )
-    .build(dbCacheLoader)
-
   override def getUserDb(user: AuthenticatedUser): String = {
     // Retrieve the database name from the cache, provisioning it if necessary
     logger.debug(s"Retrieving user database for $user")
     dbCache.get(user)
+  }
+
+  override def doStop(): Unit = {
+    client.close()
   }
 
 }
