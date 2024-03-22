@@ -41,12 +41,12 @@ public final class RawContext {
 
   private final RawLanguage language;
   private final Env env;
-  private RawSettings rawSettings;
-  private OutputStream output;
-  private AuthenticatedUser user;
-  private String traceId;
-  private String[] scopes;
-  private ProgramEnvironment programEnvironment;
+  private final RawSettings rawSettings;
+  private final OutputStream output;
+  private final AuthenticatedUser user;
+  private final String traceId;
+  private final String[] scopes;
+  private final ProgramEnvironment programEnvironment;
   private final RawFunctionRegistry functionRegistry;
 
   @CompilerDirectives.TruffleBoundary

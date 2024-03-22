@@ -62,4 +62,10 @@ public class FilterComputeNext {
   public int getResultSlot() {
     return resultSlot;
   }
+
+  public boolean hasSameSlots(FilterComputeNext other) {
+    return this.generatorSlot == other.generatorSlot
+        && this.functionSlot == other.functionSlot
+        && this.resultSlot == other.resultSlot;
+  }
 }

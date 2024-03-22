@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap;
 
-import static raw.runtime.truffle.runtime.generator.collection.StaticCollectionMethods.*;
+import static raw.runtime.truffle.runtime.generator.collection.StaticInitializers.*;
 
 import com.esotericsoftware.kryo.io.Output;
 import com.esotericsoftware.kryo.unsafe.UnsafeOutput;

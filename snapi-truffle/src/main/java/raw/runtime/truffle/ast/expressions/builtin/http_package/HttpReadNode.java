@@ -13,16 +13,15 @@
 package raw.runtime.truffle.ast.expressions.builtin.http_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Arrays;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.list.ListNodes;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
@@ -41,29 +40,31 @@ import scala.collection.IndexedSeq;
 @NodeInfo(shortName = "Http.Read")
 @NodeChild(value = "locationObject")
 @NodeChild(value = "statusList")
+@ImportStatic(StaticInitializers.class)
 public abstract class HttpReadNode extends ExpressionNode {
 
   @Specialization
   @TruffleBoundary
-  protected Object doRead(
+  protected static Object doRead(
       LocationObject locationObject,
       Object statusListOption,
+      @Bind("$node") Node thisNode,
       @Cached(inline = true) TryableNullableNodes.IsNullNode isNullNode,
       @Cached(inline = true) ListNodes.SizeNode sizeNode,
       @Cached(inline = true) ListNodes.GetNode getNode,
-      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
+      @Cached(inline = true) RecordNodes.AddPropNode addPropNode,
+      @Cached(value = "getSourceContext(thisNode)", neverDefault = true) SourceContext context) {
     try {
-      SourceContext context = RawContext.get(this).getSourceContext();
       HttpByteStreamLocationBuilder builder = new HttpByteStreamLocationBuilder();
       HttpByteStreamLocation location =
           builder.build(locationObject.getLocationDescription(), context);
       HttpResult result = location.getHttpResult();
-      Object record = RawLanguage.get(this).createPureRecord();
+      Object record = RawLanguage.get(thisNode).createPureRecord();
 
-      if (!isNullNode.execute(this, statusListOption)) {
-        int[] statuses = new int[(int) sizeNode.execute(this, statusListOption)];
+      if (!isNullNode.execute(thisNode, statusListOption)) {
+        int[] statuses = new int[(int) sizeNode.execute(thisNode, statusListOption)];
         for (int i = 0; i < statuses.length; i++) {
-          statuses[i] = (int) getNode.execute(this, statusListOption, i);
+          statuses[i] = (int) getNode.execute(thisNode, statusListOption, i);
         }
         if (Arrays.stream(statuses).noneMatch(status -> status == result.status())) {
           String method =
@@ -82,23 +83,23 @@ public abstract class HttpReadNode extends ExpressionNode {
         }
       }
 
-      addPropNode.execute(this, record, "status", result.status(), false);
+      addPropNode.execute(thisNode, record, "status", result.status(), false);
 
       try (InputStream is = result.is()) {
-        addPropNode.execute(this, record, "data", new BinaryObject(is.readAllBytes()), false);
+        addPropNode.execute(thisNode, record, "data", new BinaryObject(is.readAllBytes()), false);
       }
 
       IndexedSeq<Tuple2<String, String>> headerTuples = result.headers().toIndexedSeq();
       Object[] headers = new Object[result.headers().size()];
 
       for (int i = 0; i < result.headers().size(); i++) {
-        headers[i] = RawLanguage.get(this).createPureRecord();
-        addPropNode.execute(this, headers[i], "_1", headerTuples.apply(i)._1(), false);
-        addPropNode.execute(this, headers[i], "_2", headerTuples.apply(i)._2(), false);
+        headers[i] = RawLanguage.get(thisNode).createPureRecord();
+        addPropNode.execute(thisNode, headers[i], "_1", headerTuples.apply(i)._1(), false);
+        addPropNode.execute(thisNode, headers[i], "_2", headerTuples.apply(i)._2(), false);
       }
 
       ObjectList headersResult = new ObjectList(headers);
-      addPropNode.execute(this, record, "headers", headersResult, false);
+      addPropNode.execute(thisNode, record, "headers", headersResult, false);
 
       return record;
     } catch (LocationException | IOException e) {

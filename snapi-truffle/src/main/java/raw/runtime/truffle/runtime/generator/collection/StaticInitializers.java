@@ -18,6 +18,7 @@ import com.oracle.truffle.api.nodes.Node;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import java.io.OutputStream;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.distinct.OffHeapDistinct;
@@ -26,7 +27,7 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.utils.IOUtils;
 import raw.sources.api.SourceContext;
 
-public class StaticCollectionMethods {
+public class StaticInitializers {
 
   @CompilerDirectives.TruffleBoundary
   public static void kryoWriteInt(Output kryoOutput, int size) {
@@ -79,20 +80,43 @@ public class StaticCollectionMethods {
     kryoOutput.close();
   }
 
+  public static int getKryoOutputBufferSize(Node node) {
+    return (int)
+        RawContext.get(node)
+            .getSourceContext()
+            .settings()
+            .getMemorySize("raw.runtime.kryo.output-buffer-size");
+  }
+
   @CompilerDirectives.TruffleBoundary
   public static long[] getContextValues(Node node) {
     SourceContext sourceContext = RawContext.get(node).getSourceContext();
     long[] contextValues = new long[3];
     contextValues[0] =
         sourceContext.settings().getMemorySize("raw.runtime.external.disk-block-max-size");
-    contextValues[1] =
-        (int) sourceContext.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
+    contextValues[1] = getKryoOutputBufferSize(node);
     contextValues[2] =
         (int) sourceContext.settings().getMemorySize("raw.runtime.kryo.input-buffer-size");
     return contextValues;
   }
 
-  public static SourceContext getContext(Node node) {
+  @CompilerDirectives.TruffleBoundary
+  public static SourceContext getSourceContext(Node node) {
     return RawContext.get(node).getSourceContext();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public static RawContext getRawContext(Node node) {
+    return RawContext.get(node);
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public static OutputStream getOutputStream(Node node) {
+    return RawContext.get(node).getOutput();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public static String[] getScopes(Node node) {
+    return RawContext.get(node).getScopes();
   }
 }

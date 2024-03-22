@@ -12,7 +12,7 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import static raw.runtime.truffle.runtime.generator.collection.StaticCollectionMethods.getContextValues;
+import static raw.runtime.truffle.runtime.generator.collection.StaticInitializers.getContextValues;
 
 import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.frame.VirtualFrame;

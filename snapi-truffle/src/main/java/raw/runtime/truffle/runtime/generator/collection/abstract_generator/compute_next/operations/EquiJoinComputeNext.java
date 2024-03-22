@@ -199,4 +199,12 @@ public class EquiJoinComputeNext {
   public int getMapSlot() {
     return mapSlot;
   }
+
+  public boolean hasSameSlots(EquiJoinComputeNext other) {
+    return this.computeNextSlot == other.computeNextSlot
+        && this.shouldContinueSlot == other.shouldContinueSlot
+        && this.generatorSlot == other.generatorSlot
+        && this.keyFunctionSlot == other.keyFunctionSlot
+        && this.mapSlot == other.mapSlot;
+  }
 }

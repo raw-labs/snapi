@@ -25,7 +25,7 @@ import raw.runtime.truffle.ast.osr.bodies.OSRDistinctGetGeneratorNode;
 import raw.runtime.truffle.ast.osr.bodies.OSROrderByGetGeneratorNode;
 import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
-import raw.runtime.truffle.runtime.generator.collection.StaticCollectionMethods;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
@@ -41,7 +41,7 @@ public class IterableNodes {
   @NodeInfo(shortName = "Iterable.GetGenerator")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(StaticCollectionMethods.class)
+  @ImportStatic(StaticInitializers.class)
   public abstract static class GetGeneratorNode extends Node {
 
     public abstract Object execute(Node node, Object generator);
@@ -190,7 +190,7 @@ public class IterableNodes {
                       collection.getGeneratorSlot(), collection.getOffHeapDistinctSlot())));
     }
 
-    @Specialization(guards = "cachedCollection == collection", limit = "8", unroll = 8)
+    @Specialization(guards = "cachedCollection.hasSameSlots(collection)", limit = "8", unroll = 8)
     static Object getGenerator(
         Node node,
         DistinctCollection collection,
@@ -210,18 +210,18 @@ public class IterableNodes {
             long[] contextValues) {
       OffHeapDistinct index =
           new OffHeapDistinct(
-              cachedCollection.getRowType(),
-              cachedCollection.getFrame(),
+              collection.getRowType(),
+              collection.getFrame(),
               contextValues[0],
               (int) contextValues[1],
               (int) contextValues[2]);
-      Object generator = getGeneratorNode.execute(thisNode, cachedCollection.getIterable());
+      Object generator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, generator);
 
-        MaterializedFrame frame = cachedCollection.getFrame();
-        frame.setObject(cachedCollection.getGeneratorSlot(), generator);
-        frame.setObject(cachedCollection.getOffHeapDistinctSlot(), index);
+        MaterializedFrame frame = collection.getFrame();
+        frame.setObject(collection.getGeneratorSlot(), generator);
+        frame.setObject(collection.getOffHeapDistinctSlot(), index);
 
         loopNode.execute(frame);
       } finally {
@@ -246,7 +246,7 @@ public class IterableNodes {
                       collection.getMapSlot())));
     }
 
-    @Specialization(guards = "cachedCollection == collection", limit = "8", unroll = 8)
+    @Specialization(guards = "cachedCollection.hasSameSlots(collection)", limit = "8", unroll = 8)
     static Object getGenerator(
         Node node,
         GroupByCollection collection,
@@ -264,22 +264,22 @@ public class IterableNodes {
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
         @Cached(value = "getContextValues(thisNode)", dimensions = 1, allowUncached = true)
             long[] contextValues) {
-      MaterializedFrame frame = cachedCollection.getFrame();
+      MaterializedFrame frame = collection.getFrame();
       OffHeapGroupByKey map =
           new OffHeapGroupByKey(
-              cachedCollection.getKeyType(),
-              cachedCollection.getRowType(),
+              collection.getKeyType(),
+              collection.getRowType(),
               new RecordShaper(false),
               contextValues[0],
               (int) contextValues[1],
               (int) contextValues[2]);
-      Object inputGenerator = getGeneratorNode.execute(thisNode, cachedCollection.getIterable());
+      Object inputGenerator = getGeneratorNode.execute(thisNode, collection.getIterable());
       try {
         initNode.execute(thisNode, inputGenerator);
-        frame.setObject(cachedCollection.getGeneratorSlot(), inputGenerator);
-        frame.setObject(cachedCollection.getMapSlot(), map);
-        frame.setObject(cachedCollection.getKeyFunctionSlot(), cachedCollection.getKeyFun());
-        loopNode.execute(cachedCollection.getFrame());
+        frame.setObject(collection.getGeneratorSlot(), inputGenerator);
+        frame.setObject(collection.getMapSlot(), map);
+        frame.setObject(collection.getKeyFunctionSlot(), collection.getKeyFun());
+        loopNode.execute(collection.getFrame());
       } finally {
         closeNode.execute(thisNode, inputGenerator);
       }
@@ -302,7 +302,7 @@ public class IterableNodes {
                       collection.getOffHeapGroupByKeysSlot())));
     }
 
-    @Specialization(guards = "cachedCollection == collection", limit = "8", unroll = 8)
+    @Specialization(guards = "cachedCollection.hasSameSlots(collection)", limit = "8", unroll = 8)
     static Object getGenerator(
         Node node,
         OrderByCollection collection,
@@ -317,24 +317,24 @@ public class IterableNodes {
         @Cached @Cached.Shared("generator") OffHeapNodes.OffHeapGeneratorNode generatorNode,
         @Cached(value = "getContextValues(thisNode)", dimensions = 1, allowUncached = true)
             long[] contextValues) {
-      Object generator = getGeneratorNode.execute(thisNode, cachedCollection.getParentIterable());
+      Object generator = getGeneratorNode.execute(thisNode, collection.getParentIterable());
       OffHeapGroupByKeys groupByKeys =
           new OffHeapGroupByKeys(
-              cachedCollection.getKeyTypes(),
-              cachedCollection.getRowType(),
-              cachedCollection.getKeyOrderings(),
+              collection.getKeyTypes(),
+              collection.getRowType(),
+              collection.getKeyOrderings(),
               contextValues[0],
               (int) contextValues[1],
               (int) contextValues[2]);
       try {
         initNode.execute(thisNode, generator);
 
-        Frame frame = cachedCollection.getFrame();
-        frame.setObject(cachedCollection.getGeneratorSlot(), generator);
-        frame.setObject(cachedCollection.getOffHeapGroupByKeysSlot(), groupByKeys);
-        frame.setObject(cachedCollection.getCollectionSlot(), cachedCollection);
+        Frame frame = collection.getFrame();
+        frame.setObject(collection.getGeneratorSlot(), generator);
+        frame.setObject(collection.getOffHeapGroupByKeysSlot(), groupByKeys);
+        frame.setObject(collection.getCollectionSlot(), collection);
 
-        loopNode.execute(cachedCollection.getFrame());
+        loopNode.execute(collection.getFrame());
       } finally {
         closeNode.execute(thisNode, generator);
       }

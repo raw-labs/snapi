@@ -25,7 +25,6 @@ import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.JoinComputeNext;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.sources.api.SourceContext;
 
 @ExportLibrary(InteropLibrary.class)
 public class JoinCollection implements TruffleObject {
@@ -33,8 +32,9 @@ public class JoinCollection implements TruffleObject {
   final Object rightIterable;
   final Object predicate, remap;
   final Rql2TypeWithProperties rightType;
-  final SourceContext context;
   private final Boolean reshapeBeforePredicate;
+
+  private final int kryoOutputBufferSize;
   private final MaterializedFrame frame;
   private final int computeNextSlot;
   private final int shouldContinueSlot;
@@ -49,7 +49,7 @@ public class JoinCollection implements TruffleObject {
       Object predicate,
       Rql2TypeWithProperties rightType,
       Boolean reshapeBeforePredicate,
-      SourceContext context,
+      int kryoOutputBufferSize,
       MaterializedFrame frame,
       int computeNextSlot,
       int shouldContinueSlot,
@@ -61,7 +61,6 @@ public class JoinCollection implements TruffleObject {
     this.remap = remap;
     this.predicate = predicate;
     this.rightType = rightType;
-    this.context = context;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
     this.frame = frame;
     this.computeNextSlot = computeNextSlot;
@@ -69,6 +68,7 @@ public class JoinCollection implements TruffleObject {
     this.resultSlot = resultSlot;
     this.generatorSlot = generatorSlot;
     this.outputBufferSlot = outputBufferSlot;
+    this.kryoOutputBufferSize = kryoOutputBufferSize;
   }
 
   public Object getGenerator() {
@@ -80,7 +80,7 @@ public class JoinCollection implements TruffleObject {
             predicate,
             reshapeBeforePredicate,
             rightType,
-            context,
+            kryoOutputBufferSize,
             frame,
             computeNextSlot,
             shouldContinueSlot,

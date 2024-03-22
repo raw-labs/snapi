@@ -16,7 +16,6 @@ import com.fasterxml.jackson.core.JsonParser;
 import com.oracle.truffle.api.RootCallTarget;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
-import raw.sources.api.SourceContext;
 
 public class JsonReadComputeNext {
   private final LocationObject locationObject;
@@ -26,10 +25,7 @@ public class JsonReadComputeNext {
   private JsonParser parser;
 
   public JsonReadComputeNext(
-      LocationObject locationObject,
-      String encoding,
-      SourceContext context,
-      RootCallTarget parseNextRootCallTarget) {
+      LocationObject locationObject, String encoding, RootCallTarget parseNextRootCallTarget) {
     this.encoding = encoding;
     this.locationObject = locationObject;
     this.parseNextCallTarget = parseNextRootCallTarget;

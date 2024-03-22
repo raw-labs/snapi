@@ -86,6 +86,12 @@ public class GroupByCollection implements TruffleObject {
     return mapSlot;
   }
 
+  public boolean hasSameSlots(GroupByCollection other) {
+    return this.generatorSlot == other.generatorSlot
+        && this.keyFunctionSlot == other.keyFunctionSlot
+        && this.mapSlot == other.mapSlot;
+  }
+
   // InteropLibrary: Iterable
   @ExportMessage
   boolean hasIterator() {

@@ -65,6 +65,11 @@ public class DistinctCollection implements TruffleObject {
     return offHeapDistinctSlot;
   }
 
+  public boolean hasSameSlots(DistinctCollection other) {
+    return this.generatorSlot == other.generatorSlot
+        && this.offHeapDistinctSlot == other.offHeapDistinctSlot;
+  }
+
   // InteropLibrary: Iterable
 
   @ExportMessage

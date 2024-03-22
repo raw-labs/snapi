@@ -93,6 +93,12 @@ public class OrderByCollection implements TruffleObject {
     return offHeapGroupByKeysSlot;
   }
 
+  public boolean hasSameSlots(OrderByCollection other) {
+    return this.generatorSlot == other.generatorSlot
+        && this.collectionSlot == other.collectionSlot
+        && this.offHeapGroupByKeysSlot == other.offHeapGroupByKeysSlot;
+  }
+
   // InteropLibrary: Iterable
   @ExportMessage
   boolean hasIterator() {

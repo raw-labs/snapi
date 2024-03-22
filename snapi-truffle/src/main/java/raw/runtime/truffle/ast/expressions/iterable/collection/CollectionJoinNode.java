@@ -14,10 +14,11 @@ package raw.runtime.truffle.ast.expressions.iterable.collection;
 
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 
 @NodeInfo(shortName = "Collection.Join")
@@ -32,6 +33,7 @@ import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 @NodeField(name = "resultSlot", type = int.class)
 @NodeField(name = "generatorSlot", type = int.class)
 @NodeField(name = "outputBufferSlot", type = int.class)
+@ImportStatic(StaticInitializers.class)
 public abstract class CollectionJoinNode extends ExpressionNode {
 
   @Idempotent
@@ -56,25 +58,29 @@ public abstract class CollectionJoinNode extends ExpressionNode {
   protected abstract int getOutputBufferSlot();
 
   @Specialization
-  protected Object doJoin(
+  protected static Object doJoin(
       VirtualFrame frame,
       Object leftIterable,
       Object rightIterable,
       Object remap,
-      Object predicate) {
+      Object predicate,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getKryoOutputBufferSize(thisNode)", neverDefault = true)
+          int kryoOutputBufferSize) {
+    CollectionJoinNode joinNode = (CollectionJoinNode) thisNode;
     return new JoinCollection(
         leftIterable,
         rightIterable,
         remap,
         predicate,
-        getRightType(),
-        getReshapeBeforePredicate(),
-        RawContext.get(this).getSourceContext(),
+        joinNode.getRightType(),
+        joinNode.getReshapeBeforePredicate(),
+        kryoOutputBufferSize,
         frame.materialize(),
-        getComputeNextSlot(),
-        getShouldContinueSlot(),
-        getResultSlot(),
-        getGeneratorSlot(),
-        getOutputBufferSlot());
+        joinNode.getComputeNextSlot(),
+        joinNode.getShouldContinueSlot(),
+        joinNode.getResultSlot(),
+        joinNode.getGeneratorSlot(),
+        joinNode.getOutputBufferSlot());
   }
 }
