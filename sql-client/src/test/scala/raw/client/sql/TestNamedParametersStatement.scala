@@ -13,6 +13,7 @@
 package raw.client.sql
 
 import org.bitbucket.inkytonik.kiama.util.Positions
+import raw.client.api.{RawInt, RawString}
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
 import raw.utils._
 
@@ -47,29 +48,13 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     super.afterAll()
   }
 
-  test("bug") { _ =>
-    assume(password != "")
-
-    val code = """-- @type aeroport_id smallint
-      |SELECT :city::json FROM example.airports WHERE  airport_id = :aeroport_id""".stripMargin
-
-    val statement = new NamedParametersPreparedStatement(con, parse(code))
-    val metadata = statement.queryMetadata
-    assert(metadata.isLeft)
-    statement.setString("v1", "Hello!")
-    val rs = statement.executeQuery()
-
-    rs.next()
-    assert(rs.getString("arg") == "Hello!")
-  }
-
   test("single parameter") { _ =>
     assume(password != "")
 
     val code = "SELECT :v1 as arg"
 
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setString("v1", "Hello!")
+    statement.setParam("v1", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()
@@ -81,7 +66,7 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
 
     val code = "SELECT :v::varchar AS greeting;"
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setString("v", "Hello!")
+    statement.setParam("v", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()
@@ -97,8 +82,8 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("v1", "v2"))
 
-    statement.setString("v1", "Lisbon")
-    statement.setInt("v2", 1)
+    statement.setParam("v1", RawString("Lisbon"))
+    statement.setParam("v2", RawInt(1))
     val rs = statement.executeQuery()
     rs.next()
     assert(rs.getString(1) == "Lisbon")
@@ -114,7 +99,7 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
       |*/
       |SELECT :v1 as arg  -- neither this one :bar """.stripMargin
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setString("v1", "Hello!")
+    statement.setParam("v1", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()
@@ -128,7 +113,7 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
     val statement = new NamedParametersPreparedStatement(con, parse(code))
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("bar"))
-    statement.setString("bar", "Hello!")
+    statement.setParam("bar", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()

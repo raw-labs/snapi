@@ -17,7 +17,7 @@ import org.bitbucket.inkytonik.kiama.util.Position
 import raw.client.api._
 import raw.client.sql.antlr4._
 
-import java.sql.{Connection, ResultSet, ResultSetMetaData}
+import java.sql.{Connection, ResultSet, ResultSetMetaData, SQLException}
 import scala.collection.mutable
 
 /* This class is wrapping the PreparedStatement class from the JDBC API.
@@ -42,18 +42,112 @@ private case class ParamLocation(node: SqlBaseNode, jdbcIndex: Int, start: Posit
 class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgramResult) extends StrictLogging {
 
   // the whole code
-  private val sourceCode: String = parsedTree.positions.getStart(parsedTree.tree).get.source.content
 
   // extract the subset of the source code which corresponds to the first statement.
   private val code = {
+    val content = parsedTree.positions.getStart(parsedTree.tree).map(_.source.content)
     val SqlProgramNode(stmt: SqlStatementNode) = parsedTree.tree
-    val strippedCode = for (end <- parsedTree.positions.getFinish(stmt); offset <- end.optOffset)
-      yield sourceCode.take(offset)
-    strippedCode match {
-      case Some(subset) => subset
-      case None =>
-        logger.warn("Couldn't get the statement offset!")
-        sourceCode
+    val strippedCode = for (source <- content; end <- parsedTree.positions.getFinish(stmt); offset <- end.optOffset)
+      yield source.take(offset)
+    strippedCode.get // if ever `strippedCode` is None, that throws and it would file a JIRA crash report
+  }
+
+  private def underline(nodes: Seq[SqlBaseNode]): String => ErrorMessage = { msg: String =>
+    val positions = for (
+      node <- nodes;
+      start <- parsedTree.positions.getStart(node);
+      startPos = ErrorPosition(start.line, start.column);
+      end <- parsedTree.positions.getFinish(node);
+      endPos = ErrorPosition(end.line, end.column)
+    ) yield ErrorRange(startPos, endPos)
+    ErrorMessage(msg, positions.toList, ErrorCode.SqlErrorCode)
+  }
+
+  private def underline(node: SqlBaseNode): String => ErrorMessage = underline(Seq(node))
+
+  private val userSpecifiedTypes: Map[String, Either[ErrorMessage, PostgresType]] = {
+    val allInfo =
+      for ((name, info) <- parsedTree.params; tipe <- info.tipe) yield name -> SqlTypesUtils
+        .jdbcFromParameterType(tipe) // make sure we can find the JDBC enum
+        .right
+        .map(PostgresType(_, nullable = true, tipe)) // make it a postgres type
+        .left
+        .map(underline(info.nodes.collect { case n: SqlParamTypeCommentNode => n }))
+    allInfo.toMap
+  }
+
+  private case class DefaultValue(value: RawValue, tipe: PostgresType)
+
+  private val userSpecifiedDefaultValues: Map[String, Either[ErrorMessage, DefaultValue]] = {
+    val quickStatement = conn.createStatement() // if it throws, that propagates to the top as a JIRA crash report
+    try {
+      val allInfo =
+        for ((paramName, info) <- parsedTree.params; sqlCode <- info.default) yield paramName -> {
+          val selectValue = s"SELECT ($sqlCode)"
+          try {
+            val v = quickStatement.execute(selectValue)
+            assert(v, "default value execute didn't return a ResultSet")
+            val rs = quickStatement.getResultSet
+            try {
+              val metadata = rs.getMetaData
+              val jdbcType =
+                metadata.getColumnType(1) // if it throws, that propagates to the top as a JIRA crash report
+              val pgType =
+                metadata.getColumnTypeName(1) // if it throws, that propagates to the top as a JIRA crash report
+              val inferredType =
+                SqlTypesUtils.validateParamType(PostgresType(jdbcType, nullable = true, typeName = pgType))
+              val checkedType = for (
+                tipe <- inferredType.toOption;
+                maybeSpec <- userSpecifiedTypes.get(paramName);
+                userSpecifiedType <- maybeSpec.toOption
+              ) yield {
+                if (userSpecifiedType == tipe) inferredType
+                else {
+                  val msg = s"${tipe.typeName} doesn't match specified type ${userSpecifiedType.typeName}"
+                  Left(msg)
+                }
+              }
+              val mergedType = checkedType.getOrElse(inferredType)
+              val nodes = info.nodes.collect { case n: SqlParamDefaultCommentNode => n }
+              mergedType.map(t => DefaultValue(asRawValue(rs, t), t)).left.map(underline(nodes))
+            } finally {
+              rs.close()
+            }
+          } catch {
+            case ex: SQLException => Left(
+                underline(info.nodes)(ex.getMessage)
+              ) // TODO: That's where we would catch user visible errors (and others)
+          }
+        }
+      allInfo.toMap
+    } finally {
+      quickStatement.close()
+    }
+  }
+
+  private val declaredTypeInfo: Map[String, Either[ErrorMessage, QueryParamInfo]] =
+    userSpecifiedTypes.mapValues(_.right.map(QueryParamInfo(_, None))) ++
+      userSpecifiedDefaultValues.mapValues(_.right.map(ok => QueryParamInfo(ok.tipe, Some(ok.value))))
+
+  private def asRawValue(rs: ResultSet, postgresType: PostgresType): RawValue = {
+    assert(rs.next(), "rs.next() was false")
+    val value = postgresType.jdbcType match {
+      case java.sql.Types.SMALLINT => RawShort(rs.getShort(1))
+      case java.sql.Types.INTEGER => RawInt(rs.getInt(1))
+      case java.sql.Types.BIGINT => RawLong(rs.getLong(1))
+      case java.sql.Types.DECIMAL => RawDecimal(rs.getBigDecimal(1))
+      case java.sql.Types.FLOAT => RawFloat(rs.getFloat(1))
+      case java.sql.Types.DOUBLE => RawDouble(rs.getDouble(1))
+      case java.sql.Types.DATE => RawDate(rs.getDate(1).toLocalDate)
+      case java.sql.Types.TIME => RawTime(rs.getTime(1).toLocalTime)
+      case java.sql.Types.TIMESTAMP => RawTimestamp(rs.getTimestamp(1).toLocalDateTime)
+      case java.sql.Types.BOOLEAN => RawBool(rs.getBoolean(1))
+      case java.sql.Types.VARCHAR => RawString(rs.getString(1))
+    }
+    if (rs.wasNull()) {
+      RawNull()
+    } else {
+      value
     }
   }
 
@@ -64,14 +158,14 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     allOccurrences.toVector.sortBy(use => parsedTree.positions.getStart(use).map(_.optOffset))
   }
 
-  // map from parameters to their (multiple) use locations.
+  // map from parameter names to their (potentially multiple) use locations.
   private val paramLocations = {
     parsedTree.params.mapValues(p =>
       for (
-        occ <- p.occurrences;
-        start <- parsedTree.positions.getStart(occ);
-        end <- parsedTree.positions.getFinish(occ)
-      ) yield ParamLocation(node = occ, jdbcIndex = orderedParameterUses.indexWhere(_ eq occ) + 1, start, end)
+        use <- p.occurrences;
+        start <- parsedTree.positions.getStart(use);
+        end <- parsedTree.positions.getFinish(use)
+      ) yield ParamLocation(node = use, jdbcIndex = orderedParameterUses.indexWhere(_ eq use) + 1, start, end)
     )
   }
 
@@ -92,9 +186,9 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
         offsets.append((offset, cumulatingOffset))
         buffer.append(code.substring(index, offset))
         // do we have declared type for that parameter
-        val token = parsedTree.params.get(use.name).flatMap(_.tipe) match {
+        val token = declaredTypeInfo.get(use.name) match {
           // if so, force the type by wrapping the question mark in a cast (validate it first)
-          case Some(userType) => vvvParamType(userType).right.map(pgType => s"(?::${pgType.typeName})").getOrElse("?")
+          case Some(entry) => entry.right.map(paramInfo => s"(?::${paramInfo.pgType.typeName})").getOrElse("?")
           // else not
           case _ => "?"
         }
@@ -116,23 +210,16 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
 
   // A data structure for the full query info: parameters that are mapped to their inferred types,
   // and query output type (the query type)
-  case class QueryInfo(parameters: Map[String, PostgresType], outputType: PostgresRowType)
+  case class QueryParamInfo(pgType: PostgresType, default: Option[RawValue])
+
+  case class QueryInfo(parameters: Map[String, QueryParamInfo], outputType: PostgresRowType)
 
   private val stmt = conn.prepareStatement(plainCode) // throws SQLException in case of problem
   private val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
 
   // compute the ErrorRange of a specific node (to underline it)
-  private def errorRange(node: SqlBaseNode): Option[ErrorRange] = {
-    for (
-      start <- parsedTree.positions.getStart(node);
-      startPos = ErrorPosition(start.line, start.column);
-      end <- parsedTree.positions.getFinish(node);
-      endPos = ErrorPosition(end.line, end.column)
-    ) yield ErrorRange(startPos, endPos)
-  }
-
-  def parameterType(p: String): Either[List[ErrorMessage], PostgresType] = {
-    val paramTypes = validateParameterTypes()
+  def parameterInfo(p: String): Either[List[ErrorMessage], QueryParamInfo] = {
+    val paramTypes = collectParamInfo()
     paramTypes(p)
   }
 
@@ -140,7 +227,7 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
   // In case of SQL error, or unsupported JDBC type or..., it returns a list of error messages.
   def queryMetadata: Either[List[ErrorMessage], QueryInfo] = {
     // infer the type
-    val typesStatus = validateParameterTypes()
+    val typesStatus = collectParamInfo()
     val errors = typesStatus.values.collect { case Left(error) => error }.toList
     if (errors.nonEmpty) Left(errors.flatten)
     else {
@@ -148,73 +235,55 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     }
   }
 
-  private def vvvParamType(tipe: String): Either[String, PostgresType] = SqlTypesUtils
-    .jdbcFromParameterType(tipe)
-    .right
-    .map(PostgresType(_, true, tipe))
-    .right
-    .flatMap(SqlTypesUtils.validateParamType)
-
-  private def validateParameterTypes(): Map[String, Either[List[ErrorMessage], PostgresType]] = {
+  private def collectParamInfo(): Map[String, Either[List[ErrorMessage], QueryParamInfo]] = {
     // parameter types are either declared with @type or inferred from their usage in the code
     paramLocations.map {
       case (p, locations) =>
         val isNullable = true
-        val paramInfo = parsedTree.params(p)
+        val parserInfo = parsedTree.params(p)
         // in case of error
-        val errorLocations = (paramInfo.nodes.filter(
-          _.isInstanceOf[SqlParamTypeCommentNode]
-        ) ++ paramInfo.occurrences).flatMap(errorRange).toList
-        val tStatus =
-          if (locations.isEmpty && parsedTree.params(p).tipe.isEmpty) {
-            // the parameter is declared (@param) but has no explicit type, and is never used
-            Left(List(ErrorMessage("cannot guess parameter type", errorLocations, ErrorCode.SqlErrorCode)))
-          } else {
-            parsedTree.params(p).tipe match {
-              case Some(tipe) =>
-                // type is specified by the user, we make sure it's supported
+        val tStatus = declaredTypeInfo.get(p) match {
+          case Some(diagnostic) => diagnostic.left.map(List(_))
+          case None =>
+            // type isn't specified but one can infer from the usage.
+            // all locations the parameter is used are considered
+            val allOptions: Seq[Either[ErrorMessage, QueryParamInfo]] = locations.map { location =>
+              val idx = location.jdbcIndex
+              val jdbc = metadata.getParameterType(idx)
+              val pgTypeName = metadata.getParameterTypeName(idx)
+              SqlTypesUtils
+                .validateParamType(PostgresType(jdbc, isNullable, pgTypeName))
+                .right
+                .map(QueryParamInfo(_, None))
+                .left
+                .map(underline(location.node))
+            }
+            if (allOptions.isEmpty) Left(List(underline(parserInfo.nodes)("cannot guess parameter type")))
+            else {
+              val errors = allOptions.collect { case Left(error) => error }
+              if (errors.nonEmpty) {
+                Left(errors.toList)
+              } else {
+                val typeOptions = allOptions.collect { case Right(t) => t.pgType }
                 SqlTypesUtils
-                  .jdbcFromParameterType(tipe)
+                  .mergePgTypes(typeOptions)
                   .right
-                  .map(PostgresType(_, isNullable, tipe))
+                  .map(QueryParamInfo(_, None)) // wrap it into a single param type
                   .left
-                  .map(msg => List(ErrorMessage(msg, errorLocations, ErrorCode.SqlErrorCode)))
-              case None =>
-                // type isn't specified but one can infer from the usage.
-                // all locations the parameter is used are considered
-                val allOptions: Seq[Either[ErrorMessage, PostgresType]] = locations.map { location =>
-                  val idx = location.jdbcIndex
-                  val jdbc = metadata.getParameterType(idx)
-                  val pgTypeName = metadata.getParameterTypeName(idx)
-                  val useLocation = errorRange(location.node).map(List(_)).getOrElse(errorLocations)
-                  SqlTypesUtils
-                    .validateParamType(PostgresType(jdbc, isNullable, pgTypeName))
-                    .left
-                    .map(msg => ErrorMessage(msg, useLocation, ErrorCode.SqlErrorCode))
-                }
-                assert(allOptions.nonEmpty)
-                val errors = allOptions.collect { case Left(error) => error }
-                if (errors.nonEmpty) {
-                  Left(errors.toList)
-                } else {
-                  val typeOptions = allOptions.collect { case Right(t) => t }
-                  SqlTypesUtils
-                    .mergePgTypes(typeOptions)
-                    .left
-                    .map(message =>
-                      List(
-                        ErrorMessage(
-                          message,
-                          locations
-                            .map(location => ErrorRange(errorPosition(location.start), errorPosition(location.end)))
-                            .toList,
-                          ErrorCode.SqlErrorCode
-                        )
+                  .map(message =>
+                    List(
+                      ErrorMessage(
+                        message,
+                        locations
+                          .map(location => ErrorRange(errorPosition(location.start), errorPosition(location.end)))
+                          .toList,
+                        ErrorCode.SqlErrorCode
                       )
                     )
-                }
+                  )
+              }
             }
-          }
+        }
         p -> tStatus
     }.toMap
   }
@@ -237,69 +306,109 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
 
   def executeQuery(): ResultSet = stmt.executeQuery()
 
+  def executeWith(parameters: Seq[(String, RawValue)]): Either[String, ResultSet] = {
+    val mandatoryParameters = {
+      for (
+        (name, diagnostic) <- collectParamInfo()
+        if diagnostic.exists(info => info.default.isEmpty)
+      ) yield name
+    }
+      .to[mutable.Set]
+    parameters.foreach {
+      case (p, v) =>
+        setParam(p, v)
+        mandatoryParameters.remove(p)
+    }
+    if (mandatoryParameters.nonEmpty) Left(s"no value was specified for ${mandatoryParameters.mkString(", ")}")
+    else Right(stmt.executeQuery())
+  }
+
   def close(): Unit = stmt.close()
 
   private def errorPosition(p: Position): ErrorPosition = ErrorPosition(p.line, p.column)
 
-  // Parameters are considered nullable (null when not specified). The prepared statement is initialized
-  // with nulls on all parameters. When a parameter is set, the null is replaced with the value.
-  for (locations <- paramLocations.valuesIterator; location <- locations) {
-    stmt.setNull(location.jdbcIndex, java.sql.Types.NULL)
+  def setParam(paramName: String, value: RawValue): Unit = {
+    try {
+      value match {
+        case RawNull() => setNull(paramName)
+        case RawByte(v) => setByte(paramName, v)
+        case RawShort(v) => setShort(paramName, v)
+        case RawInt(v) => setInt(paramName, v)
+        case RawLong(v) => setLong(paramName, v)
+        case RawFloat(v) => setFloat(paramName, v)
+        case RawDouble(v) => setDouble(paramName, v)
+        case RawBool(v) => setBoolean(paramName, v)
+        case RawString(v) => setString(paramName, v)
+        case RawDecimal(v) => setBigDecimal(paramName, v)
+        case RawDate(v) => setDate(paramName, java.sql.Date.valueOf(v))
+        case RawTime(v) => setTime(paramName, java.sql.Time.valueOf(v))
+        case RawTimestamp(v) => setTimestamp(paramName, java.sql.Timestamp.valueOf(v))
+        case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) => ???
+        case RawBinary(v) => setBytes(paramName, v)
+        case _ => ???
+      }
+    } catch {
+      case e: NoSuchElementException => logger.warn("Unknown parameter: " + e.getMessage)
+    }
   }
 
-  def setNull(parameter: String): Unit = {
+  for ((p, status) <- userSpecifiedDefaultValues; defaultValue <- status) {
+    setParam(p, defaultValue.value)
+  }
+
+  private def setNull(parameter: String): Unit = {
     for (location <- paramLocations(parameter)) stmt.setNull(location.jdbcIndex, java.sql.Types.NULL)
   }
 
-  def setByte(parameter: String, x: Byte): Unit = {
+  private def setByte(parameter: String, x: Byte): Unit = {
     for (location <- paramLocations(parameter)) stmt.setByte(location.jdbcIndex, x)
   }
 
-  def setShort(parameter: String, x: Short): Unit = {
+  private def setShort(parameter: String, x: Short): Unit = {
     for (location <- paramLocations(parameter)) stmt.setShort(location.jdbcIndex, x)
   }
 
-  def setInt(parameter: String, x: Int): Unit = {
+  private def setInt(parameter: String, x: Int): Unit = {
     for (location <- paramLocations(parameter)) stmt.setInt(location.jdbcIndex, x)
   }
 
-  def setLong(parameter: String, x: Long): Unit = {
+  private def setLong(parameter: String, x: Long): Unit = {
     for (location <- paramLocations(parameter)) stmt.setLong(location.jdbcIndex, x)
   }
 
-  def setFloat(parameter: String, x: Float): Unit = {
+  private def setFloat(parameter: String, x: Float): Unit = {
     for (location <- paramLocations(parameter)) stmt.setFloat(location.jdbcIndex, x)
   }
 
-  def setDouble(parameter: String, x: Double): Unit = {
+  private def setDouble(parameter: String, x: Double): Unit = {
     for (location <- paramLocations(parameter)) stmt.setDouble(location.jdbcIndex, x)
   }
 
-  def setBigDecimal(parameter: String, x: java.math.BigDecimal): Unit = {
+  private def setBigDecimal(parameter: String, x: java.math.BigDecimal): Unit = {
     for (location <- paramLocations(parameter)) stmt.setBigDecimal(location.jdbcIndex, x)
   }
 
-  def setString(parameter: String, x: String): Unit = {
+  private def setString(parameter: String, x: String): Unit = {
     for (location <- paramLocations(parameter)) stmt.setString(location.jdbcIndex, x)
   }
 
-  def setBoolean(parameter: String, x: Boolean): Unit = {
+  private def setBoolean(parameter: String, x: Boolean): Unit = {
     for (location <- paramLocations(parameter)) stmt.setBoolean(location.jdbcIndex, x)
   }
 
-  def setBytes(parameter: String, x: Array[Byte]): Unit = {
+  private def setBytes(parameter: String, x: Array[Byte]): Unit = {
     for (location <- paramLocations(parameter)) stmt.setBytes(location.jdbcIndex, x)
   }
 
-  def setDate(parameter: String, x: java.sql.Date): Unit = {
+  private def setDate(parameter: String, x: java.sql.Date): Unit = {
     for (location <- paramLocations(parameter)) stmt.setDate(location.jdbcIndex, x)
   }
 
-  def setTime(parameter: String, x: java.sql.Time): Unit = {
+  private def setTime(parameter: String, x: java.sql.Time): Unit = {
     for (location <- paramLocations(parameter)) stmt.setTime(location.jdbcIndex, x)
   }
 
-  def setTimestamp(parameter: String, x: java.sql.Timestamp): Unit = {
+  private def setTimestamp(parameter: String, x: java.sql.Timestamp): Unit = {
     for (location <- paramLocations(parameter)) stmt.setTimestamp(location.jdbcIndex, x)
   }
 
