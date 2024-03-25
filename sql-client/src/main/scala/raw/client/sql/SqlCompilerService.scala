@@ -18,6 +18,7 @@ import raw.client.api._
 import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNode, SqlParamUseNode}
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
+import raw.creds.api.CredentialsServiceProvider
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
@@ -26,6 +27,22 @@ import scala.util.control.NonFatal
 
 class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
     extends CompilerService {
+
+  private val credentials = CredentialsServiceProvider(maybeClassLoader)
+
+  private val connectionPool = new SqlConnectionPool(credentials)
+
+  private val metadataBrowsers = {
+    val loader = new CacheLoader[AuthenticatedUser, UserMetadataCache] {
+      override def load(user: AuthenticatedUser): UserMetadataCache =
+        new UserMetadataCache(user, connectionPool, settings)
+    }
+    CacheBuilder
+      .newBuilder()
+      .maximumSize(settings.getInt("raw.client.sql.metadata-cache.size"))
+      .expireAfterAccess(settings.getDuration("raw.client.sql.metadata-cache.duration"))
+      .build(loader)
+  }
 
   override def language: Set[String] = Set("sql")
 
@@ -425,20 +442,9 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
     }
   }
 
-  private val connectionPool = new SqlConnectionPool(settings)
-  private val metadataBrowsers = {
-    val loader = new CacheLoader[AuthenticatedUser, UserMetadataCache] {
-      override def load(user: AuthenticatedUser): UserMetadataCache =
-        new UserMetadataCache(user, connectionPool, settings)
-    }
-    CacheBuilder
-      .newBuilder()
-      .maximumSize(settings.getInt("raw.client.sql.metadata-cache.size"))
-      .expireAfterAccess(settings.getDuration("raw.client.sql.metadata-cache.duration"))
-      .build(loader)
+  override def doStop(): Unit = {
+    credentials.stop()
   }
-
-  override def doStop(): Unit = {}
 
   private def pgRowTypeToIterableType(rowType: PostgresRowType): Either[Seq[String], RawIterableType] = {
     val rowAttrTypes = rowType.columns

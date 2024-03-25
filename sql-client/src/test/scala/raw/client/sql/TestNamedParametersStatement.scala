@@ -14,9 +14,16 @@ package raw.client.sql
 
 import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
+import raw.creds.api.CredentialsTestContext
+import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
-class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
+class TestNamedParametersStatement
+    extends RawTestSuite
+    with SettingsTestContext
+    with TrainingWheelsContext
+    with CredentialsTestContext
+    with LocalCredentialsTestContext {
 
   private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
@@ -36,7 +43,7 @@ class TestNamedParametersStatement extends RawTestSuite with SettingsTestContext
 
   override def beforeAll(): Unit = {
     if (password != "") {
-      val connectionPool = new SqlConnectionPool(settings)
+      val connectionPool = new SqlConnectionPool(credentials)
       con = connectionPool.getConnection(user)
     }
     super.beforeAll()
