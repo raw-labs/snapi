@@ -38,6 +38,10 @@
         </developer>
     </developers>
 
+    <scm>
+        <url>https://github.com/raw-labs/snapi</url>
+    </scm>
+
     <dependencies>
         <dependency>
             <groupId>org.antlr</groupId>
@@ -168,12 +172,11 @@
                     <plugin>
                         <groupId>org.sonatype.plugins</groupId>
                         <artifactId>nexus-staging-maven-plugin</artifactId>
-                        <version>1.6.7</version>
+                        <version>1.6.13</version>
                         <extensions>true</extensions>
                         <configuration>
                             <serverId>ossrh</serverId>
                             <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
-                            <autoReleaseAfterClose>true</autoReleaseAfterClose>
                         </configuration>
                     </plugin>
                 </plugins>
