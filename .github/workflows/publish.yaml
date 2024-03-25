@@ -7,106 +7,213 @@ on:
     tags:
       - "v*.*.*"
 jobs:
-  build:
+  ##build:
+  ##  runs-on: self-hosted
+  ##  container:
+  ##    image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
+  ##    options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser
+  ##    credentials:
+  ##      username: ${{ github.actor }}
+  ##      password: ${{ secrets.READ_PACKAGES }}
+  ##  env:
+  ##    JAVA_OPTS: -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
+  ##    JVM_OPTS:  -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
+  ##  steps:
+  ##  - if: github.event_name != 'repository_dispatch'
+  ##    name: checkout caller ref
+  ##    uses: actions/checkout@v4
+  ##    with:
+  ##      fetch-depth: 0
+  ##  - if: github.event_name == 'repository_dispatch'
+  ##    name: checkout for PR comment
+  ##    uses: actions/checkout@v4
+  ##    with:
+  ##      ref: ${{ github.event.client_payload.pull_request.head.sha }}
+  ##      fetch-depth: 0
+  ##  - name: build all
+  ##    run: ./rebuild.sh
+  ##  - name: sbt ci-release utils
+  ##    run: ./release.sh
+  ##    working-directory: utils
+  ##    env:
+  ##      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  ##      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  ##      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  ##      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  ##      CI_CLEAN: clean
+  ##      CI_RELEASE: publishSigned
+  ##      CI_SNAPSHOT_RELEASE: publish
+  ##  - name: sbt ci-release client
+  ##    run: ./release.sh
+  ##    working-directory: client
+  ##    env:
+  ##      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  ##      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  ##      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  ##      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  ##      CI_CLEAN: clean
+  ##      CI_RELEASE: publishSigned
+  ##      CI_SNAPSHOT_RELEASE: publish
+  ##  - name: sbt ci-release snapi-parser
+  ##    run: ./release.sh
+  ##    working-directory: snapi-parser
+  ##    env:
+  ##      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  ##      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  ##      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  ##      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  ##      CI_CLEAN: clean
+  ##      CI_RELEASE: publishSigned
+  ##      CI_SNAPSHOT_RELEASE: publish
+  ##  - name: sbt ci-release snapi-frontend
+  ##    run: ./release.sh
+  ##    working-directory: snapi-frontend
+  ##    env:
+  ##      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  ##      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  ##      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  ##      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  ##      CI_CLEAN: clean
+  ##      CI_RELEASE: publishSigned
+  ##      CI_SNAPSHOT_RELEASE: publish
+  ##  - name: sbt ci-release snapi-truffle
+  ##    run: ./release.sh
+  ##    working-directory: snapi-truffle
+  ##    env:
+  ##      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  ##      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  ##      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  ##      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  ##      CI_CLEAN: clean
+  ##      CI_RELEASE: publishSigned
+  ##      CI_SNAPSHOT_RELEASE: publish
+  ##  - name: sbt ci-release snapi-client
+  ##    run: ./release.sh
+  ##    working-directory: snapi-client
+  ##    env:
+  ##      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  ##      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  ##      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  ##      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  ##      CI_CLEAN: clean
+  ##      CI_RELEASE: publishSigned
+  ##      CI_SNAPSHOT_RELEASE: publish
+  ##  - name: sbt ci-release sql-client
+  ##    run: ./release.sh
+  ##    working-directory: sql-client
+  ##    env:
+  ##      SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
+  ##      SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
+  ##      PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
+  ##      PGP_SECRET: ${{ secrets.PGP_SECRET }}
+  ##      CI_CLEAN: clean
+  ##      CI_RELEASE: publishSigned
+  ##      CI_SNAPSHOT_RELEASE: publish
+  ##  - name: evaluate produced version
+  ##    shell: bash
+  ##    run: |
+  ##      echo "UTILS_VER=$(cat utils/version)" >> $GITHUB_ENV
+  ##      echo "CLIENT_VER=$(cat client/version)" >> $GITHUB_ENV
+  ##      echo "SNAPI_PARSER_VER=$(cat snapi-parser/version)" >> $GITHUB_ENV
+  ##      echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
+  ##      echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
+  ##      echo "SNAPI_CLIENT=$(cat snapi-client/version)" >> $GITHUB_ENV
+  ##      echo "SQL_CLIENT=$(cat sql-client/version)" >> $GITHUB_ENV
+  ##  - if: github.event_name == 'repository_dispatch'
+  ##    uses: peter-evans/create-or-update-comment@v2
+  ##    with:
+  ##      token: ${{ secrets.RAW_CI_PAT }}
+  ##      repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+  ##      comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+  ##      body: |
+  ##        > will publish utils version: ${{ env.UTILS_VER  }}
+  ##        > will publish client version: ${{ env.CLIENT_VER }}
+  ##        > will publish snapi-parser version: ${{ env.SNAPI_PARSER_VER }}
+  ##        > will publish snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
+  ##        > will publish snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}
+  ##        > will publish snapi-client version: ${{ env.SNAPI_CLIENT }}
+  ##        > will publish sql-client version: ${{ env.SQL_CLIENT }}
+  ##      reactions: rocket
+  ##  - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
+  ##    uses: peter-evans/repository-dispatch@v2
+  ##    with:
+  ##      token: ${{ secrets.RAW_CI_PAT }}
+  ##      event-type: release
+  ##      client-payload: '{"ref": "${{ github.ref }}", "tag": "${{ github.ref_name }}"}'
+  ##  - if: success() && github.event_name == 'repository_dispatch'
+  ##    uses: peter-evans/create-or-update-comment@v2
+  ##    with:
+  ##      token: ${{ secrets.RAW_CI_PAT }}
+  ##      repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+  ##      comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+  ##      body: |
+  ##        > published
+  ##        > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) success :heavy_check_mark:
+  ##      reactions: hooray
+  ##  - if: failure() && github.event_name == 'repository_dispatch'
+  ##    uses: peter-evans/create-or-update-comment@v2
+  ##    with:
+  ##      token: ${{ secrets.RAW_CI_PAT }}
+  ##      repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
+  ##      comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
+  ##      body: |
+  ##        > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed :x:
+  ##      reactions: confused
+
+  publish-snapi-parser:
     runs-on: self-hosted
-    container:
-      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
-      options: --user 1001 --cpus 6 --memory 32g -e HOME=/home/sbtuser
-      credentials:
-        username: ${{ github.actor }}
-        password: ${{ secrets.READ_PACKAGES }}
-    env:
-      JAVA_OPTS: -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
-      JVM_OPTS:  -Xms2048M -Xmx2048M -Xss6M -XX:ReservedCodeCacheSize=256M -Dfile.encoding=UTF-8
     steps:
     - if: github.event_name != 'repository_dispatch'
       name: checkout caller ref
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         fetch-depth: 0
     - if: github.event_name == 'repository_dispatch'
       name: checkout for PR comment
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
       with:
         ref: ${{ github.event.client_payload.pull_request.head.sha }}
         fetch-depth: 0
-    - name: build all
-      run: ./rebuild.sh
-    - name: sbt ci-release utils
-      run: ./release.sh
-      working-directory: utils
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release client
-      run: ./release.sh
-      working-directory: client
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release snapi-frontend
-      run: ./release.sh
-      working-directory: snapi-frontend
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release snapi-truffle
-      run: ./release.sh
-      working-directory: snapi-truffle
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release snapi-client
-      run: ./release.sh
-      working-directory: snapi-client
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release sql-client
-      run: ./release.sh
-      working-directory: sql-client
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: evaluate produced version
+    - name: sdkman java install
+      id: sdkman
       shell: bash
       run: |
-        echo "UTILS_VER=$(cat utils/version)" >> $GITHUB_ENV
-        echo "CLIENT_VER=$(cat client/version)" >> $GITHUB_ENV
-        echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
-        echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
-        echo "SNAPI_CLIENT=$(cat snapi-client/version)" >> $GITHUB_ENV
-        echo "SQL_CLIENT=$(cat sql-client/version)" >> $GITHUB_ENV
+        export SDKMAN_DIR="$HOME/.sdkman"
+        [ ! -f "$SDKMAN_DIR/bin/sdkman-init.sh" ] && curl -s "https://get.sdkman.io?rcupdate=false" | bash
+        source $HOME/.sdkman/bin/sdkman-init.sh
+        yes n | sdk install java 21-graalce || true
+        sdk use java 21-graalce
+        echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+    - uses: stCarolas/setup-maven@v5
+      with:
+        maven-version: 3.9.6
+    - uses: crazy-max/ghaction-import-gpg@v6
+      with:
+        gpg_private_key: ${{ secrets.PGP_SECRET }}
+        passphrase: ${{ secrets.PGP_PASSPHRASE }}
+    - uses: s4u/maven-settings-action@v3.0.0
+      with:
+        servers: |
+          [{
+            "id": "ossrh",
+            "username": "${{ secrets.SONATYPE_TOKEN_USER }}",
+            "password": "${{ secrets.SONATYPE_TOKEN }}"
+          }]
+        properties: |
+          [{
+            "key": "gpg.keyname",
+            "value": "${{ secrets.GPG_KEYNAME }}"
+          }]
+    - name: debug
+      run: |
+        cat ~/.m2/settings.xml
+        gpg --list-secret-keys --keyid-format=long
+    - name: publish
+      working-directory: snapi-parser
+      run: |
+        VERSION=$(git describe --tags | sed 's/^v//;s/-\([0-9]*\)-g/+\1-/')
+        mvn clean deploy -Drevision=$VERSION -P dev,deploy
+        echo SNAPI_PARSER_VER="${VERSION}" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v2
       with:
@@ -114,12 +221,7 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > will publish utils version: ${{ env.UTILS_VER  }}
-          > will publish client version: ${{ env.CLIENT_VER }}
-          > will publish snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
-          > will publish snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}
-          > will publish snapi-client version: ${{ env.SNAPI_CLIENT }}
-          > will publish sql-client version: ${{ env.SQL_CLIENT }}
+          > will publish snapi-parser version: ${{ env.SNAPI_PARSER_VER }}
         reactions: rocket
     - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       uses: peter-evans/repository-dispatch@v2
