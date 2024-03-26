@@ -127,15 +127,6 @@ jobs:
         token: ${{ secrets.RAW_CI_PAT }}
         event-type: release
         client-payload: '{"ref": "${{ github.ref }}", "tag": "${{ github.ref_name }}"}'
-    - if: success() && github.event_name == 'repository_dispatch'
-      uses: peter-evans/create-or-update-comment@v4
-      with:
-        token: ${{ secrets.RAW_CI_PAT }}
-        repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-        comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
-        body: |
-          > run [${{ github.run_id }}/${{ env.GITHUB_JOB }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) success :heavy_check_mark:
-        reactions: hooray
     - if: failure() && github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v4
       with:
@@ -143,7 +134,8 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > run [${{ github.run_id }}/${{ env.GITHUB_JOB }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed :x:
+          > something went wrong with `publish-snapi-components`
+          > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed :x:
         reactions: confused
 
   publish-snapi-parser:
@@ -211,21 +203,6 @@ jobs:
         body: |
           > published snapi-parser version: ${{ env.SNAPI_PARSER_VER }}
         reactions: rocket
-    - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
-      uses: peter-evans/repository-dispatch@v3
-      with:
-        token: ${{ secrets.RAW_CI_PAT }}
-        event-type: release
-        client-payload: '{"ref": "${{ github.ref }}", "tag": "${{ github.ref_name }}"}'
-    - if: success() && github.event_name == 'repository_dispatch'
-      uses: peter-evans/create-or-update-comment@v4
-      with:
-        token: ${{ secrets.RAW_CI_PAT }}
-        repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
-        comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
-        body: |
-          > run [${{ github.run_id }}/${{ env.GITHUB_JOB }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) success :heavy_check_mark:
-        reactions: hooray
     - if: failure() && github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v4
       with:
@@ -233,5 +210,6 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > run [${{ github.run_id }}/${{ env.GITHUB_JOB }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed :x:
+          > something went wrong with `publish-snapi-parser`
+          > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) :x:
         reactions: confused

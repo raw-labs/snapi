@@ -13,12 +13,9 @@ object Dependencies {
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
-
   val aws =
-    "software.amazon.awssdk" % "s3" % "2.20.162" excludeAll(
-      ExclusionRule(organization = "commons-logging", name = "commons-logging"),
-      //ExclusionRule(organization = "org.apache.httpcomponents", name = "httpcore")
-      )
+    "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
+
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
   val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
@@ -32,8 +29,6 @@ object Dependencies {
   val commonsCodec = "commons-codec" % "commons-codec" % "1.16.0"
 
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
-
-  val apacheHttpCore = "org.apache.httpcomponents.core5" % "httpcore5" % "5.2.1"
 
   val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5"
 

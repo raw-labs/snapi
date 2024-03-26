@@ -137,7 +137,7 @@ outputVersion := {
 
 // Publish settings
 Test / publishArtifact := true
-// Useful for debugging
+// Useful for debugging 
 Test / packageSrc / publishArtifact := true
 
 Compile / packageSrc / publishArtifact := true
@@ -151,7 +151,6 @@ libraryDependencies ++= Seq(
   commonsLang,
   commonsText,
   apacheHttpClient,
-  apacheHttpCore,
   icuDeps,
   woodstox,
   kiama,

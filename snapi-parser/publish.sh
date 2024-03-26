@@ -10,4 +10,4 @@ cd "$SCRIPT_HOME"
 
 VERSION=$(git describe --tags | sed 's/^v//;s/-\([0-9]*\)-g/+\1-/')
 mvn clean deploy -Pdev,deploy -Drevision=$VERSION
-echo "${VERSION}" > version
+echo "${VERSION}-SNAPSHOT" > version
