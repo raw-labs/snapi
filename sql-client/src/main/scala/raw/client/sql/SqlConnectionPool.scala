@@ -14,13 +14,15 @@ package raw.client.sql
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.creds.api.CredentialsService
-import raw.utils.{AuthenticatedUser, RawSettings}
+import raw.utils.{AuthenticatedUser, RawService, RawSettings, RawUtils}
 
 import java.sql.SQLException
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
-class SqlConnectionPool(credentialsService: CredentialsService)(implicit settings: RawSettings) extends StrictLogging {
+class SqlConnectionPool(credentialsService: CredentialsService)(implicit settings: RawSettings)
+    extends RawService
+    with StrictLogging {
 
   // One pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
@@ -33,14 +35,16 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
   def getConnection(user: AuthenticatedUser): java.sql.Connection = {
     val db = credentialsService.getUserDb(user)
     logger.debug(s"Got database $db for user $user")
-    getConnection(user, db)
+    getConnection(db)
   }
 
   @throws[SQLException]
-  def getConnection(user: AuthenticatedUser, db: String): java.sql.Connection = {
-    val userPool = pools.get(db) match {
-      case Some(pool) => pool
+  private def getConnection(db: String): java.sql.Connection = {
+    val pool = pools.get(db) match {
+      case Some(existingPool) => existingPool
       case None =>
+        // Create a pool and store it in `pools`.
+        logger.info(s"Creating a SQL connection pool for database $db")
         val config = new HikariConfig()
         config.setJdbcUrl(s"jdbc:postgresql://$dbHost:$dbPort/$db")
         config.setMaximumPoolSize(settings.getInt("raw.client.sql.pool.max-connections"))
@@ -56,7 +60,13 @@ class SqlConnectionPool(credentialsService: CredentialsService)(implicit setting
         pools.put(db, pool)
         pool
     }
-    userPool.getConnection
+    pool.getConnection
   }
 
+  override def doStop(): Unit = {
+    for ((db, pool) <- pools) {
+      logger.info(s"Shutting down SQL connection pool for database $db")
+      RawUtils.withSuppressNonFatalException(pool.close())
+    }
+  }
 }

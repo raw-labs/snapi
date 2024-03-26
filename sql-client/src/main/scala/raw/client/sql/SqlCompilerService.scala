@@ -443,6 +443,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
   }
 
   override def doStop(): Unit = {
+    connectionPool.stop()
     credentials.stop()
   }
 

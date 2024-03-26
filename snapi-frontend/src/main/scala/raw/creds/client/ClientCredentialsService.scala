@@ -14,13 +14,7 @@ package raw.creds.client
 
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
-import raw.creds.client.ClientCredentialsService.{
-  CACHE_FDW_EXPIRY_IN_HOURS,
-  CACHE_FDW_SIZE,
-  DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS,
-  DEFAULT_CACHE_FDW_SIZE,
-  SERVER_ADDRESS
-}
+import raw.creds.client.ClientCredentialsService.{CACHE_FDW_EXPIRY, CACHE_FDW_SIZE, SERVER_ADDRESS}
 import raw.rest.client.APIException
 import raw.utils.{AuthenticatedUser, RawSettings}
 
@@ -30,9 +24,7 @@ import java.util.concurrent.TimeUnit
 object ClientCredentialsService {
   private val SERVER_ADDRESS = "raw.creds.client.server-address"
   private val CACHE_FDW_SIZE = "raw.creds.client.fdw-db-cache.size"
-  private val DEFAULT_CACHE_FDW_SIZE = 1000
-  private val CACHE_FDW_EXPIRY_IN_HOURS = "raw.creds.client.fdw-db-cache.expiry-in-hours"
-  private val DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS = 1
+  private val CACHE_FDW_EXPIRY = "raw.creds.client.fdw-db-cache.expiry"
 }
 
 class ClientCredentialsService(implicit settings: RawSettings) extends CredentialsService {
@@ -51,11 +43,8 @@ class ClientCredentialsService(implicit settings: RawSettings) extends Credentia
 
   private val dbCache: LoadingCache[AuthenticatedUser, String] = CacheBuilder
     .newBuilder()
-    .maximumSize(settings.getIntOpt(CACHE_FDW_SIZE).getOrElse(DEFAULT_CACHE_FDW_SIZE).toLong)
-    .expireAfterAccess(
-      settings.getIntOpt(CACHE_FDW_EXPIRY_IN_HOURS).getOrElse(DEFAULT_CACHE_FDW_EXPIRY_IN_HOURS).toLong,
-      TimeUnit.HOURS
-    )
+    .maximumSize(settings.getInt(CACHE_FDW_SIZE).toLong)
+    .expireAfterAccess(settings.getDuration(CACHE_FDW_EXPIRY))
     .build(dbCacheLoader)
 
   /** S3 buckets */
