@@ -9,16 +9,13 @@ object Dependencies {
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
   val rawSnapiParserVersion = IO.read(new File("../snapi-parser/version")).trim
-  val rawSnapiParser = "com.raw-labs" % "raw-snapi-parser" % rawSnapiParserVersion
+  val rawSnapiParser = "com.raw-labs" %% "raw-snapi-parser" % rawSnapiParserVersion
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
-
   val aws =
-    "software.amazon.awssdk" % "s3" % "2.20.162" excludeAll(
-      ExclusionRule(organization = "commons-logging", name = "commons-logging"),
-      //ExclusionRule(organization = "org.apache.httpcomponents", name = "httpcore")
-      )
+    "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
+
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
   val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
