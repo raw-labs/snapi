@@ -9,6 +9,5 @@ sdk use java 21-graalce
 cd "$SCRIPT_HOME"
 
 VERSION=$(git describe --tags | sed 's/^v//;s/-\([0-9]*\)-g/+\1-/')
-export MAVEN_OPTS="--add-opens=java.base/java.util=ALL-UNNAMED"
-mvn nexus-staging:release -Pdev,deploy -Drevision=$VERSION -Dchangelist=
+mvn clean deploy -Pdev,deploy -Drevision=$VERSION -Dchangelist=
 echo "${VERSION}" > version
