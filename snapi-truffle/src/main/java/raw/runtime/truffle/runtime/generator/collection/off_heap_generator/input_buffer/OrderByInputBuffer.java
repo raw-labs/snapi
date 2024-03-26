@@ -13,6 +13,7 @@
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.input_buffer;
 
 import com.esotericsoftware.kryo.io.Input;
+import com.oracle.truffle.api.CompilerDirectives;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.order_by.OffHeapGroupByKeys;
 
 public class OrderByInputBuffer {
@@ -32,6 +33,7 @@ public class OrderByInputBuffer {
     this.keys = keys;
   }
 
+  @CompilerDirectives.TruffleBoundary
   public void setItemsLeftFromInput() {
     itemsLeft = input.readInt();
   }

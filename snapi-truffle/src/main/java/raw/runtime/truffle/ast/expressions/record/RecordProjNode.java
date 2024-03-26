@@ -18,7 +18,6 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Project")
 @NodeChild("receiverNode")
@@ -27,17 +26,15 @@ public abstract class RecordProjNode extends ExpressionNode {
 
   @Specialization
   protected Object readMember(
-      RecordObject record,
-      String key,
-      @Cached(inline = true) RecordNodes.ReadByKeyNode readByKeyNode) {
-    return readByKeyNode.execute(this, record, key);
+      Object record, String key, @Cached(inline = true) RecordNodes.GetValueNode getValueNode) {
+    return getValueNode.execute(this, record, key);
   }
 
   @Specialization
   protected Object readMember(
-      RecordObject record,
+      Object record,
       int index,
-      @Cached(inline = true) RecordNodes.ReadIndexNode readIndexNode) {
-    return readIndexNode.execute(this, record, index - 1);
+      @Cached(inline = true) RecordNodes.GetValueByIndexNode getValueByIndexNode) {
+    return getValueByIndexNode.execute(this, record, index - 1);
   }
 }

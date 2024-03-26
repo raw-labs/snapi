@@ -81,7 +81,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return analyzer.tipe(e);
     }
 
-    protected RawLanguage getLanguage() {
+    public RawLanguage getLanguage() {
         return this.rawLanguage;
     }
 
@@ -112,7 +112,7 @@ public class SnapiTruffleEmitter extends TruffleEmitter {
         return frameDescriptorBuilder.build();
     }
 
-    private FrameDescriptor.Builder getFrameDescriptorBuilder() {
+    public FrameDescriptor.Builder getFrameDescriptorBuilder() {
         return frameDescriptorBuilderScope.get(0);
     }
 

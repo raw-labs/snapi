@@ -12,7 +12,9 @@
 
 package raw.runtime.truffle;
 
-import com.typesafe.config.ConfigFactory;
+import com.oracle.truffle.api.CompilerDirectives;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 import raw.compiler.base.CompilerContext;
 import raw.creds.api.CredentialsService;
@@ -22,16 +24,19 @@ import raw.inferrer.api.InferrerServiceProvider;
 import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
+import raw.utils.RawUtils;
 import scala.Some;
+import scala.runtime.BoxedUnit;
 
 public class RawLanguageCache {
 
   private final ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
-  public final RawSettings rawSettings =
-      new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
-  public final CredentialsService credentialsService =
-      CredentialsServiceProvider.apply(classLoader, rawSettings);
+  private final Object activeContextsLock = new Object();
+  private final Set<RawContext> activeContexts = new HashSet<RawContext>();
+
+  private final ConcurrentHashMap<RawSettings, CredentialsService> credentialsCache =
+      new ConcurrentHashMap<>();
 
   private final ConcurrentHashMap<AuthenticatedUser, Value> map = new ConcurrentHashMap<>();
 
@@ -59,7 +64,12 @@ public class RawLanguageCache {
     }
   }
 
-  private Value get(AuthenticatedUser user) {
+  @CompilerDirectives.TruffleBoundary
+  private Value get(AuthenticatedUser user, RawSettings rawSettings) {
+    // Create services on-demand.
+    CredentialsService credentialsService =
+        credentialsCache.computeIfAbsent(
+            rawSettings, k -> CredentialsServiceProvider.apply(classLoader, rawSettings));
     return map.computeIfAbsent(
         user,
         k -> {
@@ -78,27 +88,61 @@ public class RawLanguageCache {
         });
   }
 
-  public SourceContext getSourceContext(AuthenticatedUser user) {
-    return get(user).getSourceContext();
+  public SourceContext getSourceContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return get(user, rawSettings).getSourceContext();
   }
 
-  public CompilerContext getCompilerContext(AuthenticatedUser user) {
-    return get(user).getCompilerContext();
+  public CompilerContext getCompilerContext(AuthenticatedUser user, RawSettings rawSettings) {
+    return get(user, rawSettings).getCompilerContext();
   }
 
-  public InferrerService getInferrer(AuthenticatedUser user) {
-    return get(user).getInferrer();
+  public InferrerService getInferrer(AuthenticatedUser user, RawSettings rawSettings) {
+    return get(user, rawSettings).getInferrer();
   }
 
-  public void reset() {
-    // Close all inferrer services and credential services.
-    map.values()
-        .forEach(
-            v -> {
-              v.getInferrer().stop();
-              v.getSourceContext().credentialsService().stop();
-            });
-    map.clear();
-    credentialsService.stop();
+  @CompilerDirectives.TruffleBoundary
+  public void incrementContext(RawContext context) {
+    synchronized (activeContextsLock) {
+      activeContexts.add(context);
+    }
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public void releaseContext(RawContext context) {
+    synchronized (activeContextsLock) {
+      activeContexts.remove(context);
+      if (activeContexts.isEmpty()) {
+        // Close all inferrer services and credential services.
+        map.values()
+            .forEach(
+                v -> {
+                  RawUtils.withSuppressNonFatalException(
+                      () -> {
+                        v.getInferrer().stop();
+                        return BoxedUnit.UNIT;
+                      },
+                      true);
+                  RawUtils.withSuppressNonFatalException(
+                      () -> {
+                        v.getSourceContext().credentialsService().stop();
+                        return BoxedUnit.UNIT;
+                      },
+                      true);
+                });
+        map.clear();
+        credentialsCache
+            .values()
+            .forEach(
+                v -> {
+                  RawUtils.withSuppressNonFatalException(
+                      () -> {
+                        v.stop();
+                        return BoxedUnit.UNIT;
+                      },
+                      true);
+                });
+        credentialsCache.clear();
+      }
+    }
   }
 }

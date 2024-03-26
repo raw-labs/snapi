@@ -18,12 +18,17 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.OutputStream;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
-import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 @NodeInfo(shortName = "Binary.NullableWrite")
 public class NullableBinaryWriterNode extends StatementNode {
 
   @Child private DirectCallNode innerWriter;
+
+  @Child
+  private TryableNullableNodes.IsNullNode isNullNode =
+      TryableNullableNodesFactory.IsNullNodeGen.create();
 
   public NullableBinaryWriterNode(ProgramStatementNode innerWriter) {
     this.innerWriter = DirectCallNode.create(innerWriter.getCallTarget());
@@ -34,7 +39,7 @@ public class NullableBinaryWriterNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object nullable = args[0];
     OutputStream output = (OutputStream) args[1];
-    if (Nullable.isNotNull(nullable)) {
+    if (!isNullNode.execute(this, nullable)) {
       // the nullable is defined, write its bytes using the inner writer (the plain binary
       // writer)
       innerWriter.call(nullable, output);

@@ -15,12 +15,17 @@ package raw.runtime.truffle.ast.expressions.binary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.primitives.NullObject;
-import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 public final class OrNode extends ExpressionNode {
 
   @Child private ExpressionNode leftNode;
   @Child private ExpressionNode rightNode;
+
+  @Child
+  private TryableNullableNodes.IsNullNode isNullNode =
+      TryableNullableNodesFactory.IsNullNodeGen.create();
 
   public OrNode(ExpressionNode leftNode, ExpressionNode rightNode) {
     this.leftNode = leftNode;
@@ -50,7 +55,7 @@ public final class OrNode extends ExpressionNode {
 
   private Boolean getOperand(ExpressionNode node, VirtualFrame frame) {
     Object value = node.executeGeneric(frame);
-    if (Nullable.isNotNull(value)) {
+    if (!isNullNode.execute(this, value)) {
       return (Boolean) value;
     } else {
       return null;

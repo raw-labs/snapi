@@ -18,19 +18,21 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleUnexpectedNullException;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.UnsafeGet")
 @NodeChild("option")
 @ImportStatic(Nullable.class)
 public abstract class OptionUnsafeGetNode extends ExpressionNode {
-  @Specialization(guards = "isNotNull(option)")
-  protected Object doObjectIsNotNull(Object option) {
-    return option;
-  }
 
   @Specialization(guards = "isNull(option)")
-  protected Object doObject(Object option) {
+  protected Object doObject(NullObject option) {
     throw new RawTruffleUnexpectedNullException(this);
+  }
+
+  @Specialization(guards = "!isNull(option)")
+  protected Object doObjectIsNotNull(Object option) {
+    return option;
   }
 }

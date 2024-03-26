@@ -24,7 +24,7 @@ trait BenTest extends CompilerTestContext {
     _ should evaluateTo("Math.Sin(3.14)")
   )
   test("""let r = Json.Parse("{\"a\": 12, \"b\": 3.14}", type any) in Math.Sin(r.a)""")(
-    _ should runErrorAs("Type cast error")
+    _ should evaluateTo("Math.Sin(12)")
   )
   test(
     """let r = Json.Parse("{\"a\": 12, \"b\": 3.14}", type any) in Math.Sin(Type.CastAny(type double, Type.CastAny(type record(a: any), r).a))"""

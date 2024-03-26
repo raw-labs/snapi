@@ -863,6 +863,7 @@ trait CsvEntryExtensionHelper extends EntryExtensionHelper {
             case _: Rql2NumberType => Right(x)
             case _: Rql2BoolType => Right(x)
             case _: Rql2TemporalType => Right(x)
+            case _: Rql2UndefinedType => Right(x)
             case _ => Left(Seq(UnsupportedType(x.tipe, x.tipe, None)))
           }
         }

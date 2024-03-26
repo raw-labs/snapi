@@ -31,6 +31,7 @@ import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.DateTimeFormatCache;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.exceptions.csv.CsvExpectedNothingException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.*;
@@ -444,6 +445,32 @@ public class RawTruffleCsvParser {
         throw new CsvParserRawTruffleException(
             String.format("cannot parse '%s' as a bool", text), this, stream, location);
       }
+    } catch (IOException ex) {
+      throw new CsvReaderRawTruffleException(stream, ex, location);
+    }
+  }
+
+  @TruffleBoundary
+  Object getOptionUndefined(ExpressionNode location) {
+    try {
+      String text = jacksonParser.getText();
+      String normalized = text.toLowerCase().strip();
+      for (String nullToken : nulls) {
+        if (normalized.equals(nullToken)) {
+          return NullObject.INSTANCE;
+        }
+      }
+      throw new CsvExpectedNothingException(text, this, stream, location);
+    } catch (IOException ex) {
+      throw new CsvReaderRawTruffleException(stream, ex, location);
+    }
+  }
+
+  @TruffleBoundary
+  Object getUndefined(ExpressionNode location) {
+    try {
+      String text = jacksonParser.getText();
+      throw new CsvExpectedNothingException(text, this, stream, location);
     } catch (IOException ex) {
       throw new CsvReaderRawTruffleException(stream, ex, location);
     }

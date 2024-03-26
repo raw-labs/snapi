@@ -39,12 +39,8 @@ public class TruffleStrictArgsTestEntry extends StrictArgsTestEntry
         arg(args, "r")
             .orElse(
                 new RecordBuildNode(
-                    new ExpressionNode[] {
-                      new StringNode("a"),
-                      new LongNode("0"),
-                      new StringNode("b"),
-                      new FloatNode("0")
-                    }));
+                    new ExpressionNode[] {new LongNode("0"), new FloatNode("0")},
+                    new String[] {"a", "b"}));
     return new PlusNode(
         FloatFromNodeGen.create(
             new PlusNode(

@@ -12,22 +12,38 @@
 
 package raw.compiler.snapi.truffle.builtin.collection_extension;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.List;
 import raw.compiler.base.source.Type;
+import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.ExistsCollectionEntry;
-import raw.compiler.rql2.source.FunType;
 import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionExistsNodeGen;
+import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionExistsNode;
 
 public class TruffleExistsCollectionEntry extends ExistsCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    FunType funType = (FunType) args.get(1).type();
-
-    return CollectionExistsNodeGen.create(args.get(0).exprNode(), args.get(1).exprNode());
+  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
+    int generatorSlot =
+        builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+    int functionSlot =
+        builder.addSlot(FrameSlotKind.Object, "function", "a slot to store the function of osr");
+    int predicateResultSlot =
+        builder.addSlot(
+            FrameSlotKind.Boolean,
+            "predicateResult",
+            "a slot to store the result of applying the function");
+    return new CollectionExistsNode(
+        truffleArgs.get(0).exprNode(),
+        truffleArgs.get(1).exprNode(),
+        generatorSlot,
+        functionSlot,
+        predicateResultSlot);
   }
 }

@@ -152,7 +152,8 @@ case class ExternalConnectorCredentialId(name: String, connectorType: AbstractCo
 @JsonSubTypes(
   Array(
     new JsonType(value = classOf[SalesforceConnectorType], name = "SALESFORCE"),
-    new JsonType(value = classOf[JiraConnectorType], name = "JIRA")
+    new JsonType(value = classOf[JiraConnectorType], name = "JIRA"),
+    new JsonType(value = classOf[GithubConnectorType], name = "GITHUB")
   )
 )
 trait AbstractConnectorType {
@@ -164,12 +165,16 @@ case class SalesforceConnectorType() extends AbstractConnectorType {
 case class JiraConnectorType() extends AbstractConnectorType {
   override def repr: String = "JIRA"
 }
+case class GithubConnectorType() extends AbstractConnectorType {
+  override def repr: String = "GITHUB"
+}
 
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, include = JsonTypeInfo.As.PROPERTY, property = "connectorType")
 @JsonSubTypes(
   Array(
     new JsonType(value = classOf[ExternalConnectorSalesforceCredential], name = "SALESFORCE"),
-    new JsonType(value = classOf[ExternalConnectorJiraCredential], name = "JIRA")
+    new JsonType(value = classOf[ExternalConnectorJiraCredential], name = "JIRA"),
+    new JsonType(value = classOf[ExternalConnectorGithubCredential], name = "GITHUB")
   )
 )
 sealed trait ExternalConnectorCredential extends Credential {
@@ -208,6 +213,14 @@ final case class ExternalConnectorJiraCredential(
     tokenType: TokenType
 ) extends ExternalConnectorCredential {
   override def connectorType: AbstractConnectorType = JiraConnectorType()
+  override def sensitiveFields: List[String] = List("token")
+}
+
+final case class ExternalConnectorGithubCredential(
+    baseUrl: String,
+    token: String
+) extends ExternalConnectorCredential {
+  override def connectorType: AbstractConnectorType = GithubConnectorType()
   override def sensitiveFields: List[String] = List("token")
 }
 

@@ -15,25 +15,30 @@ package raw.compiler.snapi.truffle.builtin.record_extension;
 import java.util.List;
 import raw.compiler.base.source.Type;
 import raw.compiler.rql2.builtin.RecordBuildEntry;
+import raw.compiler.rql2.source.Rql2AttrType;
 import raw.compiler.rql2.source.Rql2RecordType;
 import raw.compiler.snapi.truffle.TruffleArg;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.literals.StringNode;
 import raw.runtime.truffle.ast.expressions.record.RecordBuildNode;
+import scala.collection.JavaConverters;
 
 public class TruffleRecordBuildEntry extends RecordBuildEntry implements TruffleEntryExtension {
   @Override
   public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
     Rql2RecordType recordType = (Rql2RecordType) type;
-    ExpressionNode[] keyTypePairs = new ExpressionNode[recordType.atts().size() * 2];
 
-    for (int i = 0; i < recordType.atts().size(); i++) {
-      keyTypePairs[i * 2] = new StringNode(recordType.atts().apply(i).idn());
-      keyTypePairs[i * 2 + 1] = args.get(i).exprNode();
-    }
+    String[] fieldNames =
+        JavaConverters.asJavaCollection(recordType.atts()).stream()
+            .map(a -> (Rql2AttrType) a)
+            .map(Rql2AttrType::idn)
+            .toList()
+            .toArray(new String[0]);
 
-    return new RecordBuildNode(keyTypePairs);
+    ExpressionNode[] values =
+        args.stream().map(a -> ((TruffleArg) a).exprNode()).toArray(ExpressionNode[]::new);
+
+    return new RecordBuildNode(values, fieldNames);
   }
 }

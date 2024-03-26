@@ -12,43 +12,77 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.nodes.ExplodeLoop;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
+import java.util.List;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.record.RecordNodes;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "Record.Concat")
 @NodeChild("record1")
 @NodeChild("record2")
+@ImportStatic(RecordStaticInitializers.class)
 public abstract class RecordConcatNode extends ExpressionNode {
 
+  public static boolean hasDuplicateKeysBetween(Object[] keys1, Object[] keys2) {
+    List<Object> list = new ArrayList<>(List.of(keys1));
+    list.addAll(List.of(keys2));
+    return list.size() != list.stream().distinct().count();
+  }
+
   @Specialization
-  protected Object doConcat(
+  @ExplodeLoop
+  protected static Object doConcat(
       Object rec1,
       Object rec2,
-      @Cached(inline = true) RecordNodes.WriteIndexNode writeIndexNode,
-      @Cached(inline = true) RecordNodes.ReadIndexNode readIndexNode) {
-    RecordObject newRecord = RawLanguage.get(this).createRecord();
-    RecordObject record1 = (RecordObject) rec1;
-    RecordObject record2 = (RecordObject) rec2;
-    String[] keys1 = record1.keys();
-    String[] keys2 = record2.keys();
-    int length1 = keys1.length;
-    int length2 = keys2.length;
-    String member;
-    for (int i = 0; i < length1; i++) {
-      member = keys1[i];
-      writeIndexNode.execute(this, newRecord, i, member, readIndexNode.execute(this, record1, i));
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getCachedLanguage(thisNode)", neverDefault = true) RawLanguage lang,
+      @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode1,
+      @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode2,
+      @Cached(value = "getKeysNode1.execute(thisNode, rec1)", neverDefault = true, dimensions = 1)
+          Object[] objKeys1,
+      @Cached(value = "getKeysNode2.execute(thisNode, rec2)", neverDefault = true, dimensions = 1)
+          Object[] objKeys2,
+      @Cached(value = "getValueNode(objKeys1.length)", neverDefault = true)
+          RecordNodes.GetValueNode[] getValueNode1,
+      @Cached(value = "getValueNode(objKeys2.length)", neverDefault = true)
+          RecordNodes.GetValueNode[] getValueNode2,
+      @Cached(value = "getAddPropNode(objKeys1.length)", neverDefault = true)
+          RecordNodes.AddPropNode[] addPropNode1,
+      @Cached(value = "getAddPropNode(objKeys2.length)", neverDefault = true)
+          RecordNodes.AddPropNode[] addPropNode2,
+      @Cached(value = "hasDuplicateKeysBetween(objKeys1, objKeys2)", neverDefault = false)
+          boolean hasDuplicateKeys) {
+
+    Object result;
+    if (hasDuplicateKeys) {
+      result = lang.createDuplicateKeyRecord();
+    } else {
+      result = lang.createPureRecord();
     }
-    for (int i = 0; i < length2; i++) {
-      member = keys2[i];
-      writeIndexNode.execute(
-          this, newRecord, i + length1, member, readIndexNode.execute(this, record2, i));
+
+    for (int i = 0; i < objKeys1.length; i++) {
+      addPropNode1[i].execute(
+          thisNode,
+          result,
+          objKeys1[i],
+          getValueNode1[i].execute(thisNode, rec1, objKeys1[i]),
+          hasDuplicateKeys);
     }
-    return newRecord;
+
+    for (int i = 0; i < objKeys2.length; i++) {
+      addPropNode2[i].execute(
+          thisNode,
+          result,
+          objKeys2[i],
+          getValueNode2[i].execute(thisNode, rec2, objKeys2[i]),
+          hasDuplicateKeys);
+    }
+
+    return result;
   }
 }

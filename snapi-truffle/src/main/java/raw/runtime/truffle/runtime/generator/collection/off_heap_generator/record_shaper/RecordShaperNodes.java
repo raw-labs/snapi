@@ -12,20 +12,12 @@
 
 package raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.GenerateInline;
-import com.oracle.truffle.api.dsl.GenerateUncached;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 
 public class RecordShaperNodes {
   @NodeInfo(shortName = "RecordShaper.MakeRow")
@@ -35,22 +27,24 @@ public class RecordShaperNodes {
 
     public abstract Object execute(Node node, Object shaper, Object key, Object[] values);
 
+    public static RawLanguage getRawLanguage(Node node) {
+      return RawLanguage.get(node);
+    }
+
     @Specialization(guards = {"shaper != null", "!shaper.forList()"})
     static Object makeRowCollection(
         Node node,
         RecordShaper shaper,
         Object key,
         Object[] values,
-        @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
-      RecordObject record = shaper.getLanguage().createRecord();
-      try {
-        records.writeMember(record, "key", key);
-        records.writeMember(record, "group", new ObjectList(values).toIterable());
-      } catch (UnsupportedMessageException
-          | UnknownIdentifierException
-          | UnsupportedTypeException e) {
-        throw new RawTruffleInternalErrorException(e);
-      }
+        @Bind("$node") Node thisNode,
+        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
+      Object record = language.createPureRecord();
+      addPropNode1.execute(thisNode, record, "key", key, false);
+      addPropNode2.execute(thisNode, record, "group", new ObjectList(values).toIterable(), false);
+
       return record;
     }
 
@@ -60,16 +54,13 @@ public class RecordShaperNodes {
         RecordShaper shaper,
         Object key,
         Object[] values,
-        @CachedLibrary(limit = "3") @Cached.Shared("records") InteropLibrary records) {
-      RecordObject record = shaper.getLanguage().createRecord();
-      try {
-        records.writeMember(record, "key", key);
-        records.writeMember(record, "group", new ObjectList(values));
-      } catch (UnsupportedMessageException
-          | UnknownIdentifierException
-          | UnsupportedTypeException e) {
-        throw new RawTruffleInternalErrorException(e);
-      }
+        @Bind("$node") Node thisNode,
+        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode1,
+        @Cached @Cached.Exclusive RecordNodes.AddPropNode addPropNode2) {
+      Object record = language.createPureRecord();
+      addPropNode1.execute(node, record, "key", key, false);
+      addPropNode2.execute(node, record, "group", new ObjectList(values), false);
       return record;
     }
 
