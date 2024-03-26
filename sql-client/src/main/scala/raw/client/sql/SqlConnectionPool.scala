@@ -20,7 +20,9 @@ import java.sql.SQLException
 import java.util.concurrent.TimeUnit
 import scala.collection.mutable
 
-class SqlConnectionPool(credentialsService: CredentialsService)(implicit settings: RawSettings) extends RawService with StrictLogging {
+class SqlConnectionPool(credentialsService: CredentialsService)(implicit settings: RawSettings)
+    extends RawService
+    with StrictLogging {
 
   // One pool of connections per DB (which means per user).
   private val pools = mutable.Map.empty[String, HikariDataSource]
