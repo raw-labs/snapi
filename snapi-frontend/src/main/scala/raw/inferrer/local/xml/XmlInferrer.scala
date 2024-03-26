@@ -71,7 +71,7 @@ class XmlInferrer(implicit protected val sourceContext: SourceContext)
       val result = xmlReader.uniquifyTemporalFormats(innerType)
       // If multiple top-level XML documents, make it a collection.
       val tipe = if (count > 1) SourceCollectionType(result.cleanedType, false) else result.cleanedType
-      XmlInputFormatDescriptor(tipe, xmlReader.hasNext(), result.timeFormat, result.dateFormat, result.timestampFormat)
+      XmlInputFormatDescriptor(tipe, xmlReader.sampled, result.timeFormat, result.dateFormat, result.timestampFormat)
     } catch {
       case ex: XMLStreamException =>
         val col = ex.getLocation.getColumnNumber
