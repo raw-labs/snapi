@@ -151,7 +151,6 @@ libraryDependencies ++= Seq(
   commonsLang,
   commonsText,
   apacheHttpClient,
-  apacheHttpCore,
   icuDeps,
   woodstox,
   kiama,

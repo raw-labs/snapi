@@ -33,8 +33,6 @@ object Dependencies {
 
   val apacheHttpClient = "org.apache.httpcomponents.client5" % "httpclient5" % "5.2.1"
 
-  val apacheHttpCore = "org.apache.httpcomponents.core5" % "httpcore5" % "5.2.1"
-
   val dropboxSDK = "com.dropbox.core" % "dropbox-core-sdk" % "5.4.5"
 
   val postgresqlDeps = "org.postgresql" % "postgresql" % "42.5.4"
