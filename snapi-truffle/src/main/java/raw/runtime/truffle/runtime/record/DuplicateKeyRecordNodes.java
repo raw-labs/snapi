@@ -38,20 +38,6 @@ public class DuplicateKeyRecordNodes {
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
         Object key,
-        boolean item,
-        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
-      int keysSize = duplicateKeyRecord.getKeySize();
-      valuesLibrary.putInt(duplicateKeyRecord, keysSize, item ? 1 : 0);
-      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, BOOLEAN_TYPE);
-      duplicateKeyRecord.addKey(key);
-      return duplicateKeyRecord;
-    }
-
-    @Specialization(limit = "3")
-    static DuplicateKeyRecord exec(
-        Node node,
-        DuplicateKeyRecord duplicateKeyRecord,
-        Object key,
         byte item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
@@ -204,23 +190,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isBoolean(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
-    static boolean getBoolean(
-        Node node,
-        DuplicateKeyRecord duplicateKeyRecord,
-        Object key,
-        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
-      try {
-        int idx = duplicateKeyRecord.getKeyIndex(key);
-        return valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1) == 1;
-      } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
-      }
-    }
-
-    @Specialization(
-        limit = "3",
-        guards = "isByte(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+        guards = "isByte(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 7))")
     static byte getByte(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
@@ -236,7 +206,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isShort(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+        guards = "isShort(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 7))")
     static short getShort(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
@@ -252,7 +222,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isInt(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+        guards = "isInt(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 7))")
     static int getInt(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
@@ -268,7 +238,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isLong(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+        guards = "isLong(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 7))")
     static long getLong(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
@@ -284,7 +254,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isFloat(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+        guards = "isFloat(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 7))")
     static double getFloat(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
@@ -300,7 +270,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isDouble(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+        guards = "isDouble(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 7))")
     static double getDouble(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
