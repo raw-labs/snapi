@@ -22,13 +22,21 @@
 package raw.client.sql
 
 import raw.client.api._
+import raw.creds.api.CredentialsTestContext
+import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
 import java.io.ByteArrayOutputStream
 
-class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
+class TestSqlCompilerServiceAirports
+    extends RawTestSuite
+    with SettingsTestContext
+    with TrainingWheelsContext
+    with CredentialsTestContext
+    with LocalCredentialsTestContext {
 
   private var compilerService: CompilerService = _
+
   private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
@@ -46,7 +54,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   override def beforeAll(): Unit = {
     super.beforeAll()
     compilerService = new SqlCompilerService(None)
-
   }
 
   override def afterAll(): Unit = {
