@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -36,6 +37,12 @@ public class JoinCollection implements TruffleObject {
   final SourceContext context;
   final RawLanguage language;
   private final Boolean reshapeBeforePredicate;
+  private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int resultSlot;
+  private final int generatorSlot;
+  private final int outputBufferSlot;
 
   public JoinCollection(
       Object leftIterable,
@@ -45,7 +52,13 @@ public class JoinCollection implements TruffleObject {
       Rql2TypeWithProperties rightType,
       Boolean reshapeBeforePredicate,
       SourceContext context,
-      RawLanguage language) {
+      RawLanguage language,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int resultSlot,
+      int generatorSlot,
+      int outputBufferSlot) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;
@@ -54,6 +67,12 @@ public class JoinCollection implements TruffleObject {
     this.context = context;
     this.language = language;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
+    this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.resultSlot = resultSlot;
+    this.generatorSlot = generatorSlot;
+    this.outputBufferSlot = outputBufferSlot;
   }
 
   public Object getGenerator() {
@@ -66,7 +85,13 @@ public class JoinCollection implements TruffleObject {
             reshapeBeforePredicate,
             rightType,
             context,
-            language));
+            language,
+            frame,
+            computeNextSlot,
+            shouldContinueSlot,
+            resultSlot,
+            generatorSlot,
+            outputBufferSlot));
   }
 
   // InteropLibrary: Iterable

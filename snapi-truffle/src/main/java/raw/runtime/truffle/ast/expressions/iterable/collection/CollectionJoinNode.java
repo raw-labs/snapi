@@ -16,11 +16,13 @@ import com.oracle.truffle.api.dsl.Idempotent;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.NodeField;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.JoinCollection;
 
 @NodeInfo(shortName = "Collection.Join")
@@ -40,7 +42,20 @@ public abstract class CollectionJoinNode extends ExpressionNode {
 
   @Specialization
   protected Object doJoin(
-      Object leftIterable, Object rightIterable, Object remap, Object predicate) {
+      VirtualFrame frame,
+      Object leftIterable,
+      Object rightIterable,
+      Object remap,
+      Object predicate) {
+    int computeNextSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
+    int shouldContinueSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.SHOULD_CONTINUE_SLOT);
+    int resultSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.RESULT_SLOT);
+    int generatorSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+    int outputBufferSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.OUTPUT_BUFFER_SLOT);
     return new JoinCollection(
         leftIterable,
         rightIterable,
@@ -49,6 +64,12 @@ public abstract class CollectionJoinNode extends ExpressionNode {
         getRightType(),
         getReshapeBeforePredicate(),
         RawContext.get(this).getSourceContext(),
-        RawLanguage.get(this));
+        RawLanguage.get(this),
+        frame.materialize(),
+        computeNextSlot,
+        shouldContinueSlot,
+        resultSlot,
+        generatorSlot,
+        outputBufferSlot);
   }
 }

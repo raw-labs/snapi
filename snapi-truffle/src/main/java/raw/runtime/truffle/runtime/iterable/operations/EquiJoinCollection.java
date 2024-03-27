@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -35,6 +36,12 @@ public class EquiJoinCollection implements TruffleObject {
   final Rql2TypeWithProperties keyType;
   private final RawLanguage language;
   private final SourceContext context;
+  private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
 
   public EquiJoinCollection(
       Object leftIterable,
@@ -46,7 +53,13 @@ public class EquiJoinCollection implements TruffleObject {
       Rql2TypeWithProperties keyType,
       Object reshapeFun,
       RawLanguage language,
-      SourceContext context) {
+      SourceContext context,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;
@@ -57,6 +70,12 @@ public class EquiJoinCollection implements TruffleObject {
     this.reshapeFun = reshapeFun;
     this.language = language;
     this.context = context;
+    this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+    this.mapSlot = mapSlot;
   }
 
   public Object getGenerator() {
@@ -71,7 +90,13 @@ public class EquiJoinCollection implements TruffleObject {
             keyType,
             reshapeFun,
             language,
-            context));
+            context,
+            frame,
+            computeNextSlot,
+            shouldContinueSlot,
+            generatorSlot,
+            keyFunctionSlot,
+            mapSlot));
   }
 
   @ExportMessage

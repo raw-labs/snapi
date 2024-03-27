@@ -17,10 +17,13 @@ import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.interop.*;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.File;
@@ -30,6 +33,11 @@ import java.io.FileOutputStream;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.*;
+import raw.runtime.truffle.ast.osr.conditions.OSRCollectionFilterConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRFromBodyConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionAuxNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -46,8 +54,6 @@ import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_h
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable.sources.EmptyCollection;
-import raw.runtime.truffle.runtime.kryo.KryoNodes;
-import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.record.RecordObject;
 import raw.runtime.truffle.tryable_nullable.TryableNullable;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
@@ -243,26 +249,37 @@ public class ComputeNextNodes {
       throw new BreakException();
     }
 
+    public static LoopNode getFilterLoopNode(FilterComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRCollectionFilterConditionNode(
+                      computeNext.getGeneratorSlot(), computeNext.getResultSlot()),
+                  new OSRCollectionFilterBodyNode(
+                      computeNext.getGeneratorSlot(),
+                      computeNext.getFunctionSlot(),
+                      computeNext.getResultSlot())));
+    }
+
     @Specialization
     static Object next(
         Node node,
         FilterComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("executeOne")
-            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-      while (hasNextNode.execute(thisNode, computeNext.getParent())) {
-        Object v = nextNode.execute(thisNode, computeNext.getParent());
-        Boolean isPredicateTrue = null;
-        isPredicateTrue =
-            TryableNullable.handlePredicate(
-                functionExecuteOneNode.execute(thisNode, computeNext.getPredicate(), v), false);
-        if (isPredicateTrue) {
-          return v;
-        }
+        @Cached(
+                value = "getFilterLoopNode(computeNext)",
+                inline = false,
+                allowUncached = true,
+                neverDefault = true)
+            LoopNode loopNode) {
+      Frame frame = computeNext.getFrame();
+      frame.setAuxiliarySlot(computeNext.getResultSlot(), null);
+      loopNode.execute(computeNext.getFrame());
+      Object result = frame.getAuxiliarySlot(computeNext.getResultSlot());
+      if (result == null) {
+        throw new BreakException();
       }
-      throw new BreakException();
+      return result;
     }
 
     @Specialization
@@ -365,62 +382,36 @@ public class ComputeNextNodes {
       }
     }
 
+    public static LoopNode getEquiJoinNextLoopNode(EquiJoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRFromBodyConditionNode(computeNext.getShouldContinueSlot()),
+                  new OSREquiJoinNextBodyNode(
+                      computeNext.getComputeNextSlot(), computeNext.getShouldContinueSlot())));
+    }
+
     @Specialization
     static Object next(
         Node node,
         EquiJoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached OperatorNodes.CompareNode compareKey,
-        @Cached @Cached.Shared("executeTwo")
-            FunctionExecuteNodes.FunctionExecuteTwo functionExecuteTwoNode) {
+        @Cached(
+                value = "getEquiJoinNextLoopNode(computeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode,
+        @Cached FunctionExecuteNodes.FunctionExecuteTwo functionExecuteTwoNode) {
 
       assert (computeNext.getLeftMapGenerator() != null);
       assert (computeNext.getRightMapGenerator() != null);
 
-      // keep iterating until we find matching keys
-      while (computeNext.getLeftKey() == null || computeNext.getRightKey() == null) {
-        if (computeNext.getLeftKey() == null) {
-          if (hasNextNode.execute(thisNode, computeNext.getLeftMapGenerator())) {
-            computeNext.setLeftEntry(
-                (Object[]) nextNode.execute(thisNode, computeNext.getLeftMapGenerator()));
-            computeNext.setLeftKey(computeNext.getLeftEntry()[0]);
-          } else {
-            throw new BreakException();
-          }
-        }
+      Frame frame = computeNext.getFrame();
 
-        if (computeNext.getRightKey() == null) {
-          if (hasNextNode.execute(thisNode, computeNext.getRightMapGenerator())) {
-            computeNext.setRightEntry(
-                (Object[]) nextNode.execute(thisNode, computeNext.getRightMapGenerator()));
-            computeNext.setRightKey(computeNext.getRightEntry()[0]);
-          } else {
-            throw new BreakException();
-          }
-        }
+      frame.setAuxiliarySlot(computeNext.getComputeNextSlot(), computeNext);
+      frame.setAuxiliarySlot(computeNext.getShouldContinueSlot(), true);
 
-        int compare =
-            compareKey.execute(thisNode, computeNext.getLeftKey(), computeNext.getRightKey());
-        // if keys aren't equal, reset the smallest of both (it will be read in the next
-        // iteration and
-        // will be larger)
-        if (compare < 0) {
-          computeNext.setLeftKey(null);
-        } else if (compare > 0) {
-          computeNext.setRightKey(null);
-        } else {
-          // keys are equal, prepare to do the cartesian product between both.
-          // leftRows and rightRows are the arrays of rows with the same key.
-          // We'll iterate over them to produce the cartesian product.
-          computeNext.setLeftRows((Object[]) computeNext.getLeftEntry()[1]);
-          computeNext.setRightRows((Object[]) computeNext.getRightEntry()[1]);
-          computeNext.setLeftIndex(0);
-          computeNext.setRightIndex(0);
-          break;
-        }
-      }
+      loopNode.execute(computeNext.getFrame());
 
       // record to return
       Object joinedRow = null;
@@ -460,84 +451,31 @@ public class ComputeNextNodes {
       }
     }
 
+    public static LoopNode getJoinNextLoopNode(JoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRFromBodyConditionNode(computeNext.getShouldContinueSlot()),
+                  new OSRJoinNextBodyNode(
+                      computeNext.getComputeNextSlot(),
+                      computeNext.getShouldContinueSlot(),
+                      computeNext.getResultSlot())));
+    }
+
     @Specialization
     static Object next(
         Node node,
         JoinComputeNext computeNext,
-        @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached KryoNodes.KryoReadNode kryoReadNode,
-        @Cached @Cached.Shared("executeOne") FunctionExecuteNodes.FunctionExecuteOne executeOneNode,
-        @Cached @Cached.Shared("executeTwo")
-            FunctionExecuteNodes.FunctionExecuteTwo executeTwoNode) {
-      Object row = null;
-
-      while (row == null) {
-        if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
-          if (computeNext.getLeftRow() == null) {
-            if (hasNextNode.execute(thisNode, computeNext.getLeftGen())) {
-              computeNext.setLeftRow(nextNode.execute(thisNode, computeNext.getLeftGen()));
-            } else {
-              // end of left, nothing else to read
-              throw new BreakException();
-            }
-          }
-          if (computeNext.getKryoRight() == null) {
-            computeNext.setKryoRight(createInput(computeNext.getDiskRight(), thisNode));
-            computeNext.setReadRight(0);
-          }
-          if (computeNext.getRightRow() == null) {
-            if (computeNext.getReadRight() < computeNext.getSpilledRight()) {
-              computeNext.setRightRow(
-                  kryoReadNode.execute(
-                      thisNode,
-                      computeNext.getLanguage(),
-                      computeNext.getKryoRight(),
-                      computeNext.getRightRowType()));
-              boolean pass;
-              if (computeNext.getReshapeBeforePredicate()) {
-                row =
-                    executeTwoNode.execute(
-                        thisNode,
-                        computeNext.getRemap(),
-                        computeNext.getLeftRow(),
-                        computeNext.getRightRow());
-                pass =
-                    TryableNullable.handlePredicate(
-                        executeOneNode.execute(thisNode, computeNext.getPredicate(), row), false);
-                if (!pass) row = null;
-              } else {
-                pass =
-                    TryableNullable.handlePredicate(
-                        executeTwoNode.execute(
-                            thisNode,
-                            computeNext.getPredicate(),
-                            computeNext.getLeftRow(),
-                            computeNext.getRightRow()),
-                        false);
-                if (pass)
-                  row =
-                      executeTwoNode.execute(
-                          thisNode,
-                          computeNext.getRemap(),
-                          computeNext.getLeftRow(),
-                          computeNext.getRightRow());
-              }
-
-              computeNext.setReadRight(computeNext.getReadRight() + 1);
-              computeNext.setRightRow(null);
-            } else {
-              // end of right, reset currentLeft to make sure we try another round
-              computeNext.setLeftRow(null);
-              computeNext.getKryoRight().close();
-              computeNext.setRightRow(null);
-              computeNext.setKryoRight(null);
-            }
-          }
-        }
-      }
-      return row;
+        @Cached(
+                value = "getJoinNextLoopNode(computeNext)",
+                inline = false,
+                allowUncached = true,
+                neverDefault = true)
+            LoopNode loopNode) {
+      computeNext.getFrame().setAuxiliarySlot(computeNext.getComputeNextSlot(), computeNext);
+      computeNext.getFrame().setAuxiliarySlot(computeNext.getShouldContinueSlot(), true);
+      loopNode.execute(computeNext.getFrame());
+      return computeNext.getFrame().getAuxiliarySlot(computeNext.getResultSlot());
     }
   }
 
@@ -694,6 +632,9 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode) {
       initNode.execute(thisNode, computeNext.getParent());
+      Frame frame = computeNext.getFrame();
+      frame.setAuxiliarySlot(computeNext.getGeneratorSlot(), computeNext.getParent());
+      frame.setAuxiliarySlot(computeNext.getFunctionSlot(), computeNext.getPredicate());
     }
 
     @Specialization
@@ -734,31 +675,43 @@ public class ComputeNextNodes {
       initNode2.execute(thisNode, computeNext.getParent2());
     }
 
+    public static LoopNode getEquiJoinInitLoopNode(EquiJoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionAuxNode(computeNext.getGeneratorSlot()),
+                  new OSRCollectionEquiJoinInitBodyNode(
+                      computeNext.getGeneratorSlot(),
+                      computeNext.getKeyFunctionSlot(),
+                      computeNext.getMapSlot())));
+    }
+
     @Specialization
     static void init(
         Node node,
         EquiJoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
+        @Cached(
+                value = "getEquiJoinInitLoopNode(computeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode1,
+        @Cached(
+                value = "getEquiJoinInitLoopNode(computeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode2,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGenerator,
         @Cached(inline = false) @Cached.Shared("init1")
             GeneratorNodes.GeneratorInitNode initLeftNode,
         @Cached(inline = false) @Cached.Shared("init2")
             GeneratorNodes.GeneratorInitNode initRightNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextLeftNode,
-        @SuppressWarnings("truffle-sharing") @Cached
-            GeneratorNodes.GeneratorHasNextNode hasNextRightNode,
-        @Cached(inline = false) @Cached.Shared("next1")
-            GeneratorNodes.GeneratorNextNode nextLeftNode,
-        @SuppressWarnings("truffle-sharing") @Cached(inline = false)
-            GeneratorNodes.GeneratorNextNode nextRightNode,
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeLeftNode,
         @SuppressWarnings("truffle-sharing") @Cached
             GeneratorNodes.GeneratorCloseNode closeRightNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putLeftNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putRightNode,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorLeft,
-        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight,
-        @Cached FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+        @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight) {
+      Frame frame = computeNext.getFrame();
       // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
       OffHeapGroupByKey leftMap =
           new OffHeapGroupByKey(
@@ -770,17 +723,15 @@ public class ComputeNextNodes {
       Object leftGenerator = getGenerator.execute(thisNode, computeNext.getLeftIterable());
       try {
         initLeftNode.execute(thisNode, leftGenerator);
-        while (hasNextLeftNode.execute(thisNode, leftGenerator)) {
-          Object leftItem = nextLeftNode.execute(thisNode, leftGenerator);
-          Object leftKey =
-              functionExecuteOneNode.execute(thisNode, computeNext.getLeftKeyF(), leftItem);
-          putLeftNode.execute(thisNode, leftMap, leftKey, leftItem);
-        }
+        frame.setAuxiliarySlot(computeNext.getMapSlot(), leftMap);
+        frame.setAuxiliarySlot(computeNext.getGeneratorSlot(), leftGenerator);
+        frame.setAuxiliarySlot(computeNext.getKeyFunctionSlot(), computeNext.getLeftKeyF());
+        loopNode1.execute(computeNext.getFrame());
       } finally {
         closeLeftNode.execute(thisNode, leftGenerator);
       }
       computeNext.setLeftMapGenerator(offHeapGeneratorLeft.execute(thisNode, leftMap));
-      initRightNode.execute(thisNode, computeNext.getLeftMapGenerator());
+      initLeftNode.execute(thisNode, computeNext.getLeftMapGenerator());
 
       // same with right side
       OffHeapGroupByKey rightMap =
@@ -793,12 +744,10 @@ public class ComputeNextNodes {
       Object rightGenerator = getGenerator.execute(thisNode, computeNext.getRightIterable());
       try {
         initRightNode.execute(thisNode, rightGenerator);
-        while (hasNextRightNode.execute(thisNode, rightGenerator)) {
-          Object rightItem = nextRightNode.execute(thisNode, rightGenerator);
-          Object rightKey =
-              functionExecuteOneNode.execute(thisNode, computeNext.getRightKeyF(), rightItem);
-          putRightNode.execute(thisNode, rightMap, rightKey, rightItem);
-        }
+        frame.setAuxiliarySlot(computeNext.getMapSlot(), rightMap);
+        frame.setAuxiliarySlot(computeNext.getGeneratorSlot(), rightGenerator);
+        frame.setAuxiliarySlot(computeNext.getKeyFunctionSlot(), computeNext.getRightKeyF());
+        loopNode2.execute(computeNext.getFrame());
       } finally {
         closeRightNode.execute(thisNode, rightGenerator);
       }
@@ -817,33 +766,46 @@ public class ComputeNextNodes {
       }
     }
 
+    public static LoopNode getJoinInitLoopNode(JoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionAuxNode(computeNext.getGeneratorSlot()),
+                  new OSRCollectionJoinInitBodyNode(
+                      computeNext.getGeneratorSlot(),
+                      computeNext.getComputeNextSlot(),
+                      computeNext.getOutputBufferSlot())));
+    }
+
     @Specialization
     static void init(
         Node node,
         JoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
+        @Cached(
+                value = "getJoinInitLoopNode(computeNext)",
+                inline = false,
+                allowUncached = true,
+                neverDefault = true)
+            LoopNode loopNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached KryoNodes.KryoWriteNode kryoWrite) {
-      // initialize left
-      computeNext.setLeftGen(getGeneratorNode.execute(thisNode, computeNext.getLeftIterable()));
-      initNode.execute(thisNode, computeNext.getLeftGen());
-
+        @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode) {
       // save right to disk
       Object rightGen = getGeneratorNode.execute(thisNode, computeNext.getRightIterable());
       try (Output buffer = createOutput(computeNext, thisNode)) {
         initNode.execute(thisNode, rightGen);
-        while (hasNextNode.execute(thisNode, rightGen)) {
-          Object row = nextNode.execute(thisNode, rightGen);
-          kryoWrite.execute(thisNode, buffer, computeNext.getRightRowType(), row);
-          computeNext.setSpilledRight(computeNext.getSpilledRight() + 1);
-        }
+        Frame frame = computeNext.getFrame();
+        frame.setAuxiliarySlot(computeNext.getGeneratorSlot(), rightGen);
+        frame.setAuxiliarySlot(computeNext.getOutputBufferSlot(), buffer);
+        frame.setAuxiliarySlot(computeNext.getComputeNextSlot(), computeNext);
+        loopNode.execute(computeNext.getFrame());
       } finally {
         closeNode.execute(thisNode, rightGen);
       }
+      // initialize left
+      computeNext.setLeftGen(getGeneratorNode.execute(thisNode, computeNext.getLeftIterable()));
+      initNode.execute(thisNode, computeNext.getLeftGen());
     }
   }
 

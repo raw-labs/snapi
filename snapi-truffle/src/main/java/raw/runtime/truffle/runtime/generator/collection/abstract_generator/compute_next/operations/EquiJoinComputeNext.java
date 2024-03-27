@@ -12,6 +12,7 @@
 
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.RawLanguage;
 import raw.sources.api.SourceContext;
@@ -30,6 +31,12 @@ public class EquiJoinComputeNext {
   private int leftIndex = -1, rightIndex = -1;
   private Object leftKey = null, rightKey = null;
   private Object[] leftRows = null, rightRows = null;
+  private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
 
   public EquiJoinComputeNext(
       Object leftIterable,
@@ -41,7 +48,13 @@ public class EquiJoinComputeNext {
       Rql2TypeWithProperties keyType,
       Object mkJoinedRecord,
       RawLanguage language,
-      SourceContext context) {
+      SourceContext context,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot) {
     this.leftIterable = leftIterable;
     this.leftKeyF = leftKeyF;
     this.leftRowType = leftRowType;
@@ -52,6 +65,12 @@ public class EquiJoinComputeNext {
     this.mkJoinedRecord = mkJoinedRecord;
     this.language = language;
     this.context = context;
+    this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+    this.mapSlot = mapSlot;
   }
 
   public Object getLeftIterable() {
@@ -172,5 +191,29 @@ public class EquiJoinComputeNext {
 
   public void setRightRows(Object[] rightRows) {
     this.rightRows = rightRows;
+  }
+
+  public MaterializedFrame getFrame() {
+    return frame;
+  }
+
+  public int getComputeNextSlot() {
+    return computeNextSlot;
+  }
+
+  public int getShouldContinueSlot() {
+    return shouldContinueSlot;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getKeyFunctionSlot() {
+    return keyFunctionSlot;
+  }
+
+  public int getMapSlot() {
+    return mapSlot;
   }
 }

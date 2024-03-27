@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -29,12 +30,15 @@ import raw.sources.api.SourceContext;
 public class OrderByCollection implements TruffleObject {
   final Object parentIterable;
   final Object[] keyFunctions;
-
   final int[] keyOrderings;
   final Rql2TypeWithProperties[] keyTypes;
   final Rql2TypeWithProperties rowType;
   private final RawLanguage language;
   private final SourceContext context;
+  private final MaterializedFrame frame;
+  private final int generatorSlot;
+  private final int collectionSlot;
+  private final int offHeapGroupByKeysSlot;
 
   public OrderByCollection(
       Object iterable,
@@ -43,7 +47,11 @@ public class OrderByCollection implements TruffleObject {
       Rql2TypeWithProperties[] keyTypes,
       Rql2TypeWithProperties rowType,
       RawLanguage language,
-      SourceContext context) {
+      SourceContext context,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int collectionSlot,
+      int offHeapGroupByKeysSlot) {
     this.parentIterable = iterable;
     this.keyFunctions = keyFunctions;
     this.keyOrderings = keyOrderings;
@@ -51,6 +59,10 @@ public class OrderByCollection implements TruffleObject {
     this.rowType = rowType;
     this.language = language;
     this.context = context;
+    this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.collectionSlot = collectionSlot;
+    this.offHeapGroupByKeysSlot = offHeapGroupByKeysSlot;
   }
 
   public Object getParentIterable() {
@@ -79,6 +91,22 @@ public class OrderByCollection implements TruffleObject {
 
   public RawLanguage getLang() {
     return language;
+  }
+
+  public MaterializedFrame getFrame() {
+    return frame;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getCollectionSlot() {
+    return collectionSlot;
+  }
+
+  public int getOffHeapGroupByKeysSlot() {
+    return offHeapGroupByKeysSlot;
   }
 
   // InteropLibrary: Iterable

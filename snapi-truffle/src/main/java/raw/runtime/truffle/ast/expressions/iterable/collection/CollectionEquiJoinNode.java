@@ -18,6 +18,7 @@ import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
+import raw.runtime.truffle.ast.osr.AuxiliarySlots;
 import raw.runtime.truffle.runtime.iterable.operations.EquiJoinCollection;
 
 @NodeInfo(shortName = "Collection.EquiJoin")
@@ -60,6 +61,15 @@ public class CollectionEquiJoinNode extends ExpressionNode {
     Object rightIterable = right.executeGeneric(frame);
     Object rightKeyF = rightKeyFun.executeGeneric(frame);
     Object remapF = remapFun.executeGeneric(frame);
+    int computeNextSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.COMPUTE_NEXT_SLOT);
+    int shouldContinueSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.SHOULD_CONTINUE_SLOT);
+    int generatorSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.GENERATOR_SLOT);
+    int keyFunctionSlot =
+        frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.FUNCTION_SLOT);
+    int mapSlot = frame.getFrameDescriptor().findOrAddAuxiliarySlot(AuxiliarySlots.MAP_SLOT);
     return new EquiJoinCollection(
         leftIterable,
         leftKeyF,
@@ -70,6 +80,12 @@ public class CollectionEquiJoinNode extends ExpressionNode {
         keyType,
         remapF,
         RawLanguage.get(this),
-        RawContext.get(this).getSourceContext());
+        RawContext.get(this).getSourceContext(),
+        frame.materialize(),
+        computeNextSlot,
+        shouldContinueSlot,
+        generatorSlot,
+        keyFunctionSlot,
+        mapSlot);
   }
 }
