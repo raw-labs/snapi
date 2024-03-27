@@ -39,8 +39,40 @@ public class PureRecordNodes {
         Node node,
         PureRecord pureRecord,
         Object key,
+        boolean item,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      valuesLibrary.putInt(pureRecord, key, item ? 1 : 0);
+      valuesLibrary.setPropertyFlags(pureRecord, key, INT_TYPE);
+    }
+
+    @Specialization(limit = "3")
+    static void exec(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
+        byte item,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      valuesLibrary.putInt(pureRecord, key, item);
+      valuesLibrary.setPropertyFlags(pureRecord, key, BYTE_TYPE);
+    }
+
+    @Specialization(limit = "3")
+    static void exec(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
+        short item,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      valuesLibrary.putInt(pureRecord, key, item);
+      valuesLibrary.setPropertyFlags(pureRecord, key, SHORT_TYPE);
+    }
+
+    @Specialization(limit = "3")
+    static void exec(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
         int item,
-        @Bind("$node") Node thisNode,
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putInt(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, INT_TYPE);
@@ -52,7 +84,6 @@ public class PureRecordNodes {
         PureRecord pureRecord,
         Object key,
         long item,
-        @Bind("$node") Node thisNode,
         @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putLong(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, LONG_TYPE);
@@ -63,8 +94,18 @@ public class PureRecordNodes {
         Node node,
         PureRecord pureRecord,
         Object key,
+        float item,
+        @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
+      valuesLibrary.putDouble(pureRecord, key, item);
+      valuesLibrary.setPropertyFlags(pureRecord, key, FLOAT_TYPE);
+    }
+
+    @Specialization(limit = "3")
+    static void exec(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
         double item,
-        @Bind("$node") Node thisNode,
         @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putDouble(pureRecord, key, item);
       valuesLibrary.setPropertyFlags(pureRecord, key, DOUBLE_TYPE);
@@ -76,7 +117,6 @@ public class PureRecordNodes {
         PureRecord pureRecord,
         Object key,
         Object item,
-        @Bind("$node") Node thisNode,
         @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putWithFlags(pureRecord, key, item, OBJECT_TYPE);
     }
@@ -201,7 +241,52 @@ public class PureRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isInt(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 5))")
+        guards = "isBoolean(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 8))")
+    static boolean getBoolean(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        return valuesLibrary.getIntOrDefault(pureRecord, key, -1) == 1;
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isByte(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 8))")
+    static byte getByte(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        return (byte) valuesLibrary.getIntOrDefault(pureRecord, key, -1);
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isShort(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 8))")
+    static short getShort(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        return (short) valuesLibrary.getIntOrDefault(pureRecord, key, -1);
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isInt(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 8))")
     static int getInt(
         Node node,
         PureRecord pureRecord,
@@ -216,7 +301,7 @@ public class PureRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isLong(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 5))")
+        guards = "isLong(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 8))")
     static long getLong(
         Node node,
         PureRecord pureRecord,
@@ -231,7 +316,22 @@ public class PureRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isDouble(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 5))")
+        guards = "isFloat(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 8))")
+    static float getFloat(
+        Node node,
+        PureRecord pureRecord,
+        Object key,
+        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        return (float) valuesLibrary.getDoubleOrDefault(pureRecord, key, -1);
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isDouble(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 8))")
     static double getDouble(
         Node node,
         PureRecord pureRecord,

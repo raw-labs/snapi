@@ -38,6 +38,48 @@ public class DuplicateKeyRecordNodes {
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
         Object key,
+        boolean item,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      int keysSize = duplicateKeyRecord.getKeySize();
+      valuesLibrary.putInt(duplicateKeyRecord, keysSize, item ? 1 : 0);
+      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, BOOLEAN_TYPE);
+      duplicateKeyRecord.addKey(key);
+      return duplicateKeyRecord;
+    }
+
+    @Specialization(limit = "3")
+    static DuplicateKeyRecord exec(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
+        byte item,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      int keysSize = duplicateKeyRecord.getKeySize();
+      valuesLibrary.putInt(duplicateKeyRecord, keysSize, item);
+      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, BYTE_TYPE);
+      duplicateKeyRecord.addKey(key);
+      return duplicateKeyRecord;
+    }
+
+    @Specialization(limit = "3")
+    static DuplicateKeyRecord exec(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
+        short item,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      int keysSize = duplicateKeyRecord.getKeySize();
+      valuesLibrary.putInt(duplicateKeyRecord, keysSize, item);
+      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, SHORT_TYPE);
+      duplicateKeyRecord.addKey(key);
+      return duplicateKeyRecord;
+    }
+
+    @Specialization(limit = "3")
+    static DuplicateKeyRecord exec(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
         int item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
@@ -57,6 +99,20 @@ public class DuplicateKeyRecordNodes {
       int keysSize = duplicateKeyRecord.getKeySize();
       valuesLibrary.putLong(duplicateKeyRecord, keysSize, item);
       valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, LONG_TYPE);
+      duplicateKeyRecord.addKey(key);
+      return duplicateKeyRecord;
+    }
+
+    @Specialization(limit = "3")
+    static DuplicateKeyRecord exec(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
+        float item,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      int keysSize = duplicateKeyRecord.getKeySize();
+      valuesLibrary.putDouble(duplicateKeyRecord, keysSize, item);
+      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, FLOAT_TYPE);
       duplicateKeyRecord.addKey(key);
       return duplicateKeyRecord;
     }
@@ -148,7 +204,55 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isInt(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 5))")
+        guards = "isBoolean(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+    static boolean getBoolean(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        int idx = duplicateKeyRecord.getKeyIndex(key);
+        return valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1) == 1;
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isByte(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+    static byte getByte(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        int idx = duplicateKeyRecord.getKeyIndex(key);
+        return (byte) valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1);
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isShort(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+    static short getShort(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        int idx = duplicateKeyRecord.getKeyIndex(key);
+        return (short) valuesLibrary.getIntOrDefault(duplicateKeyRecord, idx, -1);
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isInt(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
     static int getInt(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
@@ -164,7 +268,7 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isLong(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 5))")
+        guards = "isLong(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
     static long getLong(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
@@ -180,7 +284,23 @@ public class DuplicateKeyRecordNodes {
 
     @Specialization(
         limit = "3",
-        guards = "isDouble(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 5))")
+        guards = "isFloat(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
+    static double getFloat(
+        Node node,
+        DuplicateKeyRecord duplicateKeyRecord,
+        Object key,
+        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
+      try {
+        int idx = duplicateKeyRecord.getKeyIndex(key);
+        return (float) valuesLibrary.getDoubleOrDefault(duplicateKeyRecord, idx, -1);
+      } catch (UnexpectedResultException e) {
+        throw new RawTruffleInternalErrorException("Unexpected result", e);
+      }
+    }
+
+    @Specialization(
+        limit = "3",
+        guards = "isDouble(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 8))")
     static double getDouble(
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,

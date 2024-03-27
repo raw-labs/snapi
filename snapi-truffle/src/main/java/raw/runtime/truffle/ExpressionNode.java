@@ -102,7 +102,7 @@ public abstract class ExpressionNode extends StatementNode {
     return RawTypesGen.expectPureRecord(executeGeneric(virtualFrame));
   }
 
-  public DuplicateKeyRecord executeConcatRecord(VirtualFrame virtualFrame)
+  public DuplicateKeyRecord executeDuplicateKey(VirtualFrame virtualFrame)
       throws UnexpectedResultException {
     return RawTypesGen.expectDuplicateKeyRecord(executeGeneric(virtualFrame));
   }
