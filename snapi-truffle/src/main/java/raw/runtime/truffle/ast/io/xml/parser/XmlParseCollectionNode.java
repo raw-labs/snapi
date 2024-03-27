@@ -52,6 +52,6 @@ public class XmlParseCollectionNode extends ExpressionNode {
     RawTruffleXmlParserSettings settings =
         new RawTruffleXmlParserSettings(dateFormat, timeFormat, datetimeFormat);
     SourceContext context = RawContext.get(this).getSourceContext();
-    return new XmlParseCollection(text, context, parseNextRootCallTarget, settings);
+    return new XmlParseCollection(text, parseNextRootCallTarget, settings);
   }
 }

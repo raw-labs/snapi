@@ -29,8 +29,8 @@ public class JdbcQueryNode extends ExpressionNode {
   @Child private ExpressionNode locationExp;
   @Child private ExpressionNode queryExp;
   private final RootCallTarget makeRowCallTarget;
-
   private final JdbcExceptionHandler exceptionHandler;
+  private final SourceContext context = RawContext.get(this).getSourceContext();
 
   public JdbcQueryNode(
       ExpressionNode locationExp,
@@ -47,7 +47,6 @@ public class JdbcQueryNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     LocationObject dbLocation = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String query = (String) this.queryExp.executeGeneric(virtualFrame);
-    SourceContext context = RawContext.get(this).getSourceContext();
     return new JdbcQueryCollection(dbLocation, query, context, makeRowCallTarget, exceptionHandler);
   }
 }

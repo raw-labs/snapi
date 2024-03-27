@@ -12,13 +12,12 @@
 
 package raw.runtime.truffle.ast.expressions.option;
 
-import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.dsl.ImportStatic;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 
 @NodeInfo(shortName = "Option.FlatMap")
@@ -27,16 +26,17 @@ import raw.runtime.truffle.tryable_nullable.Nullable;
 @ImportStatic(Nullable.class)
 public abstract class OptionFlatMapNode extends ExpressionNode {
 
-  @Specialization(guards = "isNotNull(option)")
-  protected Object notNullFlatMap(
-      Object option,
-      Object function,
-      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    return functionExecuteOneNode.execute(this, function, option);
+  @Specialization(guards = "isNull(option)")
+  protected static Object exec(NullObject option, Object function) {
+    return option;
   }
 
-  @Specialization(guards = "isNull(option)")
-  protected Object optionFlatMap(Object option, Object function) {
-    return option;
+  @Specialization(guards = "!isNull(option)")
+  protected static Object exec(
+      Object option,
+      Object function,
+      @Bind("this") Node thisNode,
+      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+    return functionExecuteOneNode.execute(thisNode, function, option);
   }
 }

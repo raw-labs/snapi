@@ -14,9 +14,6 @@ package raw.runtime.truffle.ast.io.json.writer.internal;
 
 import com.fasterxml.jackson.core.JsonGenerator;
 import com.oracle.truffle.api.frame.VirtualFrame;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import raw.runtime.truffle.StatementNode;
@@ -26,28 +23,26 @@ import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 public class RecordWriteJsonNode extends StatementNode {
 
   @Children private DirectCallNode[] childDirectCalls;
 
-  @Child private InteropLibrary interops = InteropLibrary.getFactory().createDispatched(2);
-
   @Child
   private JsonWriteNodes.WriteStartObjectJsonWriterNode writeStartObjectNode =
-      JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.getUncached();
+      JsonWriteNodesFactory.WriteStartObjectJsonWriterNodeGen.create();
 
   @Child
   private JsonWriteNodes.WriteEndObjectJsonWriterNode writeEndObjectNode =
-      JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.getUncached();
+      JsonWriteNodesFactory.WriteEndObjectJsonWriterNodeGen.create();
 
   @Child
   private JsonWriteNodes.WriteFieldNameJsonWriterNode writeFieldNameNode =
-      JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.getUncached();
+      JsonWriteNodesFactory.WriteFieldNameJsonWriterNodeGen.create();
 
-  @Child
-  private RecordNodes.ReadIndexNode readIndexNode = RecordNodesFactory.ReadIndexNodeGen.create();
+  @Child private RecordNodes.GetKeysNode getKeysNode = RecordNodesFactory.GetKeysNodeGen.create();
+
+  @Child RecordNodes.GetValueNode getValueNode = RecordNodesFactory.GetValueNodeGen.create();
 
   public RecordWriteJsonNode(ProgramStatementNode[] childProgramStatementNode) {
     this.childDirectCalls = new DirectCallNode[childProgramStatementNode.length];
@@ -62,21 +57,20 @@ public class RecordWriteJsonNode extends StatementNode {
   public void executeVoid(VirtualFrame frame) {
     try {
       Object[] args = frame.getArguments();
-      RecordObject record = (RecordObject) args[0];
+      Object record = args[0];
       JsonGenerator gen = (JsonGenerator) args[1];
-      Object keys = interops.getMembers(record);
+      Object[] keys = getKeysNode.execute(this, record);
       Object item;
 
       writeStartObjectNode.execute(this, gen);
       for (int i = 0; i < childDirectCalls.length; i++) {
-        String member = (String) interops.readArrayElement(keys, i);
-        item = readIndexNode.execute(this, record, i);
-        writeFieldNameNode.execute(this, member, gen);
+        item = getValueNode.execute(this, record, (String) keys[i]);
+        writeFieldNameNode.execute(this, (String) keys[i], gen);
         childDirectCalls[i].call(item, gen);
       }
       writeEndObjectNode.execute(this, gen);
 
-    } catch (RuntimeException | UnsupportedMessageException | InvalidArrayIndexException e) {
+    } catch (RuntimeException e) {
       throw new RawTruffleInternalErrorException(e, this);
     }
   }

@@ -14,6 +14,7 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
@@ -26,10 +27,27 @@ import raw.runtime.truffle.runtime.iterable.IterableNodes;
 public class FilterCollection implements TruffleObject {
   private final Object parentIterable;
   private final Object predicate;
+  private final MaterializedFrame frame;
 
-  public FilterCollection(Object iterable, Object predicate) {
+  private final int generatorSlot;
+
+  private final int functionSlot;
+
+  private final int resultSlot;
+
+  public FilterCollection(
+      Object iterable,
+      Object predicate,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int functionSlot,
+      int resultSlot) {
     this.parentIterable = iterable;
     this.predicate = predicate;
+    this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.functionSlot = functionSlot;
+    this.resultSlot = resultSlot;
   }
 
   public Object getParentIterable() {
@@ -38,6 +56,22 @@ public class FilterCollection implements TruffleObject {
 
   public Object getPredicate() {
     return predicate;
+  }
+
+  public MaterializedFrame getFrame() {
+    return frame;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getFunctionSlot() {
+    return functionSlot;
+  }
+
+  public int getResultSlot() {
+    return resultSlot;
   }
 
   // InteropLibrary: Iterable

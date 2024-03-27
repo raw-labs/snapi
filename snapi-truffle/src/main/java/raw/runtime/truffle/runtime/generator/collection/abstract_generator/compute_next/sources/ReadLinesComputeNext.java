@@ -29,10 +29,12 @@ public class ReadLinesComputeNext {
     this.stream = stream;
   }
 
+  @TruffleBoundary
   public void init() {
     this.reader = new BufferedReader(stream.getReader());
   }
 
+  @TruffleBoundary
   public void close() {
     IOUtils.closeQuietly(reader);
   }

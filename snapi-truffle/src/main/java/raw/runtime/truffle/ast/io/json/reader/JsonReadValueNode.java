@@ -37,8 +37,7 @@ public class JsonReadValueNode extends ExpressionNode {
   @Child private DirectCallNode childDirectCall;
 
   @Child
-  private InitJsonParserNode initParserNode =
-      JsonParserNodesFactory.InitJsonParserNodeGen.getUncached();
+  private InitJsonParserNode initParserNode = JsonParserNodesFactory.InitJsonParserNodeGen.create();
 
   @Child
   private CloseJsonParserNode closeParserNode =
@@ -47,6 +46,8 @@ public class JsonReadValueNode extends ExpressionNode {
   @Child
   private NextTokenJsonParserNode nextTokenNode =
       JsonParserNodesFactory.NextTokenJsonParserNodeGen.create();
+
+  private final SourceContext sourceContext = RawContext.get(this).getSourceContext();
 
   private JsonParser parser;
 
@@ -63,8 +64,7 @@ public class JsonReadValueNode extends ExpressionNode {
       LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
       String encoding = (String) encodingExp.executeGeneric(virtualFrame);
 
-      SourceContext context = RawContext.get(this).getSourceContext();
-      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
+      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, sourceContext);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
 
       parser = initParserNode.execute(this, stream);

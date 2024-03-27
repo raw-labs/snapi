@@ -37,6 +37,8 @@ public class XmlReadValueNode extends ExpressionNode {
 
   @Child private DirectCallNode childDirectCall;
 
+  private final SourceContext sourceContext = RawContext.get(this).getSourceContext();
+
   public XmlReadValueNode(
       ExpressionNode locationExp,
       ExpressionNode encodingExp,
@@ -58,9 +60,8 @@ public class XmlReadValueNode extends ExpressionNode {
     try {
       LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
       String encoding = (String) encodingExp.executeGeneric(virtualFrame);
-      SourceContext context = RawContext.get(this).getSourceContext();
-
-      TruffleInputStream truffleInputStream = new TruffleInputStream(locationObject, context);
+      TruffleInputStream truffleInputStream =
+          new TruffleInputStream(locationObject, this.sourceContext);
       TruffleCharInputStream stream = new TruffleCharInputStream(truffleInputStream, encoding);
       String dateFormat = (String) dateFormatExp.executeGeneric(virtualFrame);
       String timeFormat = (String) timeFormatExp.executeGeneric(virtualFrame);

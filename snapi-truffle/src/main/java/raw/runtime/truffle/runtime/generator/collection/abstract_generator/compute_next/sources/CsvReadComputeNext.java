@@ -17,12 +17,10 @@ import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParser;
 import raw.runtime.truffle.ast.io.csv.reader.parser.RawTruffleCsvParserSettings;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
-import raw.sources.api.SourceContext;
 
 public class CsvReadComputeNext {
   private final LocationObject location;
   private final RootCallTarget rowParserCallTarget;
-  private final SourceContext context;
   private final String encoding;
   private final RawTruffleCsvParserSettings settings;
   private TruffleCharInputStream stream;
@@ -30,11 +28,9 @@ public class CsvReadComputeNext {
 
   public CsvReadComputeNext(
       LocationObject location,
-      SourceContext context,
       RootCallTarget rowParserCallTarget,
       String encoding,
       RawTruffleCsvParserSettings settings) {
-    this.context = context;
     this.location = location;
     this.rowParserCallTarget = rowParserCallTarget;
     this.encoding = encoding;
@@ -55,10 +51,6 @@ public class CsvReadComputeNext {
 
   public RootCallTarget getRowParserCallTarget() {
     return rowParserCallTarget;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public String getEncoding() {

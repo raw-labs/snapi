@@ -13,15 +13,15 @@
 package raw.runtime.truffle.ast.expressions.builtin.binary_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.InputStream;
 import org.apache.commons.io.IOUtils;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.primitives.BinaryObject;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
@@ -30,12 +30,15 @@ import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Binary.Read")
 @NodeChild(value = "binary")
+@ImportStatic(StaticInitializers.class)
 public abstract class BinaryReadNode extends ExpressionNode {
 
   @Specialization
   @TruffleBoundary
-  protected Object doExecute(LocationObject locationObject) {
-    SourceContext context = RawContext.get(this).getSourceContext();
+  protected Object doExecute(
+      LocationObject locationObject,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getSourceContext(thisNode)", neverDefault = true) SourceContext context) {
     InputStream stream = null;
     try {
       stream = (new TruffleInputStream(locationObject, context)).getInputStream();

@@ -17,7 +17,6 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import java.io.ByteArrayInputStream;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
 import raw.runtime.truffle.runtime.kryo.KryoNodesFactory;
 
@@ -35,7 +34,7 @@ public class KryoFromNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     byte[] binary = (byte[]) valueNode.executeGeneric(virtualFrame);
     Input input = new Input(new ByteArrayInputStream(binary));
-    Object object = reader.execute(this, RawLanguage.get(this), input, t);
+    Object object = reader.execute(this, input, t);
     input.close();
     return object;
   }

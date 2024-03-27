@@ -12,19 +12,30 @@
 
 package raw.compiler.snapi.truffle.builtin.collection_extension;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.List;
 import raw.compiler.base.source.Type;
+import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.CountCollectionEntry;
 import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionCountNodeGen;
+import raw.runtime.truffle.ast.expressions.aggregation.AggregateSingleNode;
+import raw.runtime.truffle.ast.expressions.aggregation.Aggregations;
 
 public class TruffleCountCollectionEntry extends CountCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
-    return CollectionCountNodeGen.create(args.get(0).exprNode());
+  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
+    int generatorSlot =
+        builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+    int resultSlot =
+        builder.addSlot(FrameSlotKind.Object, "result", "a slot to store the result of osr");
+    return new AggregateSingleNode(
+        truffleArgs.get(0).exprNode(), Aggregations.COUNT, generatorSlot, resultSlot);
   }
 }

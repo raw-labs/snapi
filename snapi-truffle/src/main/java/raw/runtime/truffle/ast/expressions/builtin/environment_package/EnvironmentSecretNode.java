@@ -12,23 +12,28 @@
 
 package raw.runtime.truffle.ast.expressions.builtin.environment_package;
 
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.NoSuchElementException;
 import raw.creds.api.Secret;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 @NodeInfo(shortName = "Environment.Secret")
 @NodeChild(value = "key")
+@ImportStatic(StaticInitializers.class)
 public abstract class EnvironmentSecretNode extends ExpressionNode {
 
   @Specialization
-  protected Object doSecret(String key) {
+  protected static Object doSecret(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context) {
     try {
-      Secret v = RawContext.get(this).getSecret(key);
+      Secret v = context.getSecret(key);
       return v.value();
     } catch (NoSuchElementException e) {
       return new ErrorObject("could not find secret " + key);

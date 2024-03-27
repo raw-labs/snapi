@@ -21,12 +21,17 @@ import java.io.IOException;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 @NodeInfo(shortName = "NullableWriteCsv")
 public class NullableWriteCsvNode extends StatementNode {
 
   @Child private DirectCallNode valueWriter;
+
+  @Child
+  private TryableNullableNodes.IsNullNode isNullNode =
+      TryableNullableNodesFactory.IsNullNodeGen.create();
 
   public NullableWriteCsvNode(ProgramStatementNode valueWriter) {
     this.valueWriter = DirectCallNode.create(valueWriter.getCallTarget());
@@ -36,7 +41,7 @@ public class NullableWriteCsvNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object nullable = args[0];
     CsvGenerator generator = (CsvGenerator) args[1];
-    if (Nullable.isNotNull(nullable)) {
+    if (!isNullNode.execute(this, nullable)) {
       valueWriter.call(nullable, generator);
     } else {
       doWriteNull(generator);

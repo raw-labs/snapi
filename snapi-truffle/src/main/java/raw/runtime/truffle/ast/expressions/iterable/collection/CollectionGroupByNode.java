@@ -12,15 +12,11 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import com.oracle.truffle.api.dsl.Idempotent;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 
 @NodeInfo(shortName = "Collection.GroupBy")
@@ -28,6 +24,9 @@ import raw.runtime.truffle.runtime.iterable.operations.GroupByCollection;
 @NodeChild("keyFun")
 @NodeField(name = "keyType", type = Rql2TypeWithProperties.class)
 @NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
+@NodeField(name = "generatorSlot", type = int.class)
+@NodeField(name = "functionSlot", type = int.class)
+@NodeField(name = "mapSlot", type = int.class)
 public abstract class CollectionGroupByNode extends ExpressionNode {
 
   @Idempotent
@@ -36,14 +35,25 @@ public abstract class CollectionGroupByNode extends ExpressionNode {
   @Idempotent
   protected abstract Rql2TypeWithProperties getRowType();
 
+  @Idempotent
+  protected abstract int getGeneratorSlot();
+
+  @Idempotent
+  protected abstract int getFunctionSlot();
+
+  @Idempotent
+  protected abstract int getMapSlot();
+
   @Specialization
-  protected Object doGroup(Object iterable, Object keyFun) {
+  protected Object doGroup(VirtualFrame frame, Object iterable, Object keyFun) {
     return new GroupByCollection(
         iterable,
         keyFun,
         getKeyType(),
         getRowType(),
-        RawLanguage.get(this),
-        RawContext.get(this).getSourceContext());
+        frame.materialize(),
+        getGeneratorSlot(),
+        getFunctionSlot(),
+        getMapSlot());
   }
 }

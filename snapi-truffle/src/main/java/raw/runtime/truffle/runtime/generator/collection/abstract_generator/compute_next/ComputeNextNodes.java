@@ -17,21 +17,27 @@ import com.esotericsoftware.kryo.io.Output;
 import com.fasterxml.jackson.core.JsonToken;
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.RootCallTarget;
+import com.oracle.truffle.api.Truffle;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.frame.Frame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
+import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.io.csv.reader.CsvParserNodes;
 import raw.runtime.truffle.ast.io.json.reader.JsonParserNodes;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.*;
+import raw.runtime.truffle.ast.osr.conditions.OSRCollectionFilterConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRFromBodyConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.runtime.exceptions.BreakException;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvReaderRawTruffleException;
@@ -40,19 +46,20 @@ import raw.runtime.truffle.runtime.exceptions.xml.XmlParserRawTruffleException;
 import raw.runtime.truffle.runtime.exceptions.xml.XmlReaderRawTruffleException;
 import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations.*;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.*;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.iterable.sources.EmptyCollection;
-import raw.runtime.truffle.runtime.kryo.KryoNodes;
-import raw.runtime.truffle.runtime.operators.OperatorNodes;
-import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.utils.IOUtils;
 import raw.runtime.truffle.utils.RawTruffleStringCharStream;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
 import raw.runtime.truffle.utils.TruffleInputStream;
+import raw.sources.api.SourceContext;
 
 public class ComputeNextNodes {
 
@@ -176,8 +183,8 @@ public class ComputeNextNodes {
         UnionComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode) {
       Object currentGenerator;
@@ -243,26 +250,36 @@ public class ComputeNextNodes {
       throw new BreakException();
     }
 
-    @Specialization
+    public static LoopNode getFilterLoopNode(FilterComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRCollectionFilterConditionNode(
+                      computeNext.getGeneratorSlot(), computeNext.getResultSlot()),
+                  new OSRCollectionFilterBodyNode(
+                      computeNext.getGeneratorSlot(),
+                      computeNext.getFunctionSlot(),
+                      computeNext.getResultSlot())));
+    }
+
+    @Specialization(guards = "cachedComputeNext.hasSameSlots(computeNext)", limit = "8", unroll = 8)
     static Object next(
         Node node,
         FilterComputeNext computeNext,
-        @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("executeOne")
-            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-      while (hasNextNode.execute(thisNode, computeNext.getParent())) {
-        Object v = nextNode.execute(thisNode, computeNext.getParent());
-        Boolean isPredicateTrue = null;
-        isPredicateTrue =
-            TryableNullable.handlePredicate(
-                functionExecuteOneNode.execute(thisNode, computeNext.getPredicate(), v), false);
-        if (isPredicateTrue) {
-          return v;
-        }
+        @Cached("computeNext") FilterComputeNext cachedComputeNext,
+        @Cached(
+                value = "getFilterLoopNode(cachedComputeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode) {
+      Frame frame = computeNext.getFrame();
+      frame.setObject(computeNext.getResultSlot(), null);
+      loopNode.execute(computeNext.getFrame());
+      Object result = frame.getObject(computeNext.getResultSlot());
+      if (result == null) {
+        throw new BreakException();
       }
-      throw new BreakException();
+      return result;
     }
 
     @Specialization
@@ -270,8 +287,8 @@ public class ComputeNextNodes {
         Node node,
         TakeComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode) {
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode) {
       if (computeNext.getCurrentCount() < computeNext.getTakeCount()
           && hasNextNode.execute(thisNode, computeNext.getParent())) {
         computeNext.incrementCurrentCount();
@@ -285,7 +302,7 @@ public class ComputeNextNodes {
         Node node,
         TransformComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached @Cached.Shared("executeOne")
             FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
@@ -304,12 +321,13 @@ public class ComputeNextNodes {
         UnnestComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
         @Cached @Cached.Shared("close") GeneratorNodes.GeneratorCloseNode closeNode,
         @Cached @Cached.Shared("executeOne")
-            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+            FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode,
+        @Cached TryableNullableNodes.GetOrElseNode getOrElseNode) {
       Object next = null;
 
       while (next == null) {
@@ -325,7 +343,8 @@ public class ComputeNextNodes {
                   nextNode.execute(thisNode, computeNext.getParent()));
           // the function result could be tryable/nullable. If error/null,
           // we replace it by an empty collection.
-          Object iterable = TryableNullable.getOrElse(functionResult, EmptyCollection.INSTANCE);
+          Object iterable =
+              getOrElseNode.execute(thisNode, functionResult, EmptyCollection.INSTANCE);
           computeNext.setCurrentGenerator(getGeneratorNode.execute(thisNode, iterable));
           initNode.execute(thisNode, computeNext.getCurrentGenerator());
         }
@@ -339,88 +358,66 @@ public class ComputeNextNodes {
       return next;
     }
 
-    @Specialization
-    static Object next(
-        Node node,
-        ZipComputeNext computeNext,
-        @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode1,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode2,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode1,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode2,
-        @CachedLibrary(limit = "5") InteropLibrary records) {
-      try {
-        if (hasNextNode1.execute(thisNode, computeNext.getParent1())
-            && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
-          RecordObject record = computeNext.getLanguage().createRecord();
-          records.writeMember(record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()));
-          records.writeMember(record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()));
-          return record;
-        }
-        throw new BreakException();
-      } catch (UnsupportedMessageException
-          | UnknownIdentifierException
-          | UnsupportedTypeException e) {
-        throw new RawTruffleInternalErrorException(e);
-      }
+    public static RawLanguage getRawLanguage(Node node) {
+      return RawLanguage.get(node);
     }
 
     @Specialization
     static Object next(
         Node node,
+        ZipComputeNext computeNext,
+        @Bind("$node") Node thisNode,
+        @Cached(value = "getRawLanguage(thisNode)", allowUncached = true) RawLanguage language,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode1,
+        @Cached @Cached.Exclusive GeneratorNodes.GeneratorHasNextNode hasNextNode2,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode1,
+        @Cached(inline = false) @Cached.Exclusive GeneratorNodes.GeneratorNextNode nextNode2,
+        @Cached RecordNodes.AddPropNode addPropNode1,
+        @Cached RecordNodes.AddPropNode addPropNode2) {
+      if (hasNextNode1.execute(thisNode, computeNext.getParent1())
+          && hasNextNode2.execute(thisNode, computeNext.getParent2())) {
+        Object record = language.createPureRecord();
+        addPropNode1.execute(
+            thisNode, record, "_1", nextNode1.execute(thisNode, computeNext.getParent1()), false);
+
+        addPropNode2.execute(
+            thisNode, record, "_2", nextNode2.execute(thisNode, computeNext.getParent2()), false);
+        return record;
+      }
+      throw new BreakException();
+    }
+
+    public static LoopNode getEquiJoinNextLoopNode(EquiJoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRFromBodyConditionNode(computeNext.getShouldContinueSlot()),
+                  new OSREquiJoinNextBodyNode(
+                      computeNext.getComputeNextSlot(), computeNext.getShouldContinueSlot())));
+    }
+
+    @Specialization(guards = "cachedComputeNext.hasSameSlots(computeNext)", limit = "8", unroll = 8)
+    static Object next(
+        Node node,
         EquiJoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached OperatorNodes.CompareNode compareKey,
-        @Cached @Cached.Shared("executeTwo")
-            FunctionExecuteNodes.FunctionExecuteTwo functionExecuteTwoNode) {
+        @Cached("computeNext") EquiJoinComputeNext cachedComputeNext,
+        @Cached(
+                value = "getEquiJoinNextLoopNode(cachedComputeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode,
+        @Cached FunctionExecuteNodes.FunctionExecuteTwo functionExecuteTwoNode) {
 
       assert (computeNext.getLeftMapGenerator() != null);
       assert (computeNext.getRightMapGenerator() != null);
 
-      // keep iterating until we find matching keys
-      while (computeNext.getLeftKey() == null || computeNext.getRightKey() == null) {
-        if (computeNext.getLeftKey() == null) {
-          if (hasNextNode.execute(thisNode, computeNext.getLeftMapGenerator())) {
-            computeNext.setLeftEntry(
-                (Object[]) nextNode.execute(thisNode, computeNext.getLeftMapGenerator()));
-            computeNext.setLeftKey(computeNext.getLeftEntry()[0]);
-          } else {
-            throw new BreakException();
-          }
-        }
+      Frame frame = computeNext.getFrame();
 
-        if (computeNext.getRightKey() == null) {
-          if (hasNextNode.execute(thisNode, computeNext.getRightMapGenerator())) {
-            computeNext.setRightEntry(
-                (Object[]) nextNode.execute(thisNode, computeNext.getRightMapGenerator()));
-            computeNext.setRightKey(computeNext.getRightEntry()[0]);
-          } else {
-            throw new BreakException();
-          }
-        }
+      frame.setObject(computeNext.getComputeNextSlot(), computeNext);
+      frame.setBoolean(computeNext.getShouldContinueSlot(), true);
 
-        int compare =
-            compareKey.execute(thisNode, computeNext.getLeftKey(), computeNext.getRightKey());
-        // if keys aren't equal, reset the smallest of both (it will be read in the next
-        // iteration and
-        // will be larger)
-        if (compare < 0) {
-          computeNext.setLeftKey(null);
-        } else if (compare > 0) {
-          computeNext.setRightKey(null);
-        } else {
-          // keys are equal, prepare to do the cartesian product between both.
-          // leftRows and rightRows are the arrays of rows with the same key.
-          // We'll iterate over them to produce the cartesian product.
-          computeNext.setLeftRows((Object[]) computeNext.getLeftEntry()[1]);
-          computeNext.setRightRows((Object[]) computeNext.getRightEntry()[1]);
-          computeNext.setLeftIndex(0);
-          computeNext.setRightIndex(0);
-          break;
-        }
-      }
+      loopNode.execute(computeNext.getFrame());
 
       // record to return
       Object joinedRow = null;
@@ -460,84 +457,31 @@ public class ComputeNextNodes {
       }
     }
 
-    @Specialization
+    public static LoopNode getJoinNextLoopNode(JoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRFromBodyConditionNode(computeNext.getShouldContinueSlot()),
+                  new OSRJoinNextBodyNode(
+                      computeNext.getComputeNextSlot(),
+                      computeNext.getShouldContinueSlot(),
+                      computeNext.getResultSlot())));
+    }
+
+    @Specialization(guards = "cachedComputeNext.hasSameSlots(computeNext)", limit = "8", unroll = 8)
     static Object next(
         Node node,
         JoinComputeNext computeNext,
-        @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("hasNext2") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next2") GeneratorNodes.GeneratorNextNode nextNode,
-        @Cached KryoNodes.KryoReadNode kryoReadNode,
-        @Cached @Cached.Shared("executeOne") FunctionExecuteNodes.FunctionExecuteOne executeOneNode,
-        @Cached @Cached.Shared("executeTwo")
-            FunctionExecuteNodes.FunctionExecuteTwo executeTwoNode) {
-      Object row = null;
-
-      while (row == null) {
-        if (computeNext.getLeftRow() == null || computeNext.getRightRow() == null) {
-          if (computeNext.getLeftRow() == null) {
-            if (hasNextNode.execute(thisNode, computeNext.getLeftGen())) {
-              computeNext.setLeftRow(nextNode.execute(thisNode, computeNext.getLeftGen()));
-            } else {
-              // end of left, nothing else to read
-              throw new BreakException();
-            }
-          }
-          if (computeNext.getKryoRight() == null) {
-            computeNext.setKryoRight(createInput(computeNext.getDiskRight(), thisNode));
-            computeNext.setReadRight(0);
-          }
-          if (computeNext.getRightRow() == null) {
-            if (computeNext.getReadRight() < computeNext.getSpilledRight()) {
-              computeNext.setRightRow(
-                  kryoReadNode.execute(
-                      thisNode,
-                      computeNext.getLanguage(),
-                      computeNext.getKryoRight(),
-                      computeNext.getRightRowType()));
-              boolean pass;
-              if (computeNext.getReshapeBeforePredicate()) {
-                row =
-                    executeTwoNode.execute(
-                        thisNode,
-                        computeNext.getRemap(),
-                        computeNext.getLeftRow(),
-                        computeNext.getRightRow());
-                pass =
-                    TryableNullable.handlePredicate(
-                        executeOneNode.execute(thisNode, computeNext.getPredicate(), row), false);
-                if (!pass) row = null;
-              } else {
-                pass =
-                    TryableNullable.handlePredicate(
-                        executeTwoNode.execute(
-                            thisNode,
-                            computeNext.getPredicate(),
-                            computeNext.getLeftRow(),
-                            computeNext.getRightRow()),
-                        false);
-                if (pass)
-                  row =
-                      executeTwoNode.execute(
-                          thisNode,
-                          computeNext.getRemap(),
-                          computeNext.getLeftRow(),
-                          computeNext.getRightRow());
-              }
-
-              computeNext.setReadRight(computeNext.getReadRight() + 1);
-              computeNext.setRightRow(null);
-            } else {
-              // end of right, reset currentLeft to make sure we try another round
-              computeNext.setLeftRow(null);
-              computeNext.getKryoRight().close();
-              computeNext.setRightRow(null);
-              computeNext.setKryoRight(null);
-            }
-          }
-        }
-      }
-      return row;
+        @Cached("computeNext") JoinComputeNext cachedComputeNext,
+        @Cached(
+                value = "getJoinNextLoopNode(cachedComputeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode) {
+      computeNext.getFrame().setObject(computeNext.getComputeNextSlot(), computeNext);
+      computeNext.getFrame().setBoolean(computeNext.getShouldContinueSlot(), true);
+      loopNode.execute(computeNext.getFrame());
+      return computeNext.getFrame().getObject(computeNext.getResultSlot());
     }
   }
 
@@ -548,6 +492,7 @@ public class ComputeNextNodes {
   @NodeInfo(shortName = "Generator.Init")
   @GenerateUncached
   @GenerateInline
+  @ImportStatic(StaticInitializers.class)
   public abstract static class InitNode extends Node {
 
     public abstract void execute(Node node, Object computeNext);
@@ -561,10 +506,12 @@ public class ComputeNextNodes {
         CsvReadComputeNext computeNext,
         @Bind("$node") Node thisNode,
         @Cached @Cached.Shared("initCsv") CsvParserNodes.InitCsvParserNode initParser,
-        @Cached @Cached.Shared("closeCsv") CsvParserNodes.CloseCsvParserNode closeParser) {
+        @Cached @Cached.Shared("closeCsv") CsvParserNodes.CloseCsvParserNode closeParser,
+        @Cached(value = "getSourceContext(thisNode)", allowUncached = true, neverDefault = true)
+            SourceContext sourceContext) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocation(), computeNext.getContext());
+            new TruffleInputStream(computeNext.getLocation(), sourceContext);
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
@@ -614,10 +561,12 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached JsonParserNodes.InitJsonParserNode initParser,
         @Cached JsonParserNodes.CloseJsonParserNode closeParser,
-        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken) {
+        @Cached JsonParserNodes.NextTokenJsonParserNode nextToken,
+        @Cached(value = "getSourceContext(thisNode)", allowUncached = true, neverDefault = true)
+            SourceContext sourceContext) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocationObject(), computeNext.getContext());
+            new TruffleInputStream(computeNext.getLocationObject(), sourceContext);
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(initParser.execute(thisNode, computeNext.getStream()));
@@ -667,10 +616,15 @@ public class ComputeNextNodes {
     }
 
     @Specialization
-    static void init(Node node, XmlReadComputeNext computeNext) {
+    static void init(
+        Node node,
+        XmlReadComputeNext computeNext,
+        @Bind("$node") Node thisNode,
+        @Cached(value = "getSourceContext(thisNode)", allowUncached = true, neverDefault = true)
+            SourceContext sourceContext) {
       try {
         TruffleInputStream truffleInputStream =
-            new TruffleInputStream(computeNext.getLocationObject(), computeNext.getContext());
+            new TruffleInputStream(computeNext.getLocationObject(), sourceContext);
         computeNext.setStream(
             new TruffleCharInputStream(truffleInputStream, computeNext.getEncoding()));
         computeNext.setParser(
@@ -694,6 +648,9 @@ public class ComputeNextNodes {
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode) {
       initNode.execute(thisNode, computeNext.getParent());
+      Frame frame = computeNext.getFrame();
+      frame.setObject(computeNext.getGeneratorSlot(), computeNext.getParent());
+      frame.setObject(computeNext.getFunctionSlot(), computeNext.getPredicate());
     }
 
     @Specialization
@@ -734,71 +691,85 @@ public class ComputeNextNodes {
       initNode2.execute(thisNode, computeNext.getParent2());
     }
 
-    @Specialization
+    public static LoopNode getEquiJoinInitLoopNode(EquiJoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionNode(computeNext.getGeneratorSlot()),
+                  new OSRCollectionEquiJoinInitBodyNode(
+                      computeNext.getGeneratorSlot(),
+                      computeNext.getKeyFunctionSlot(),
+                      computeNext.getMapSlot())));
+    }
+
+    @Specialization(guards = "cachedComputeNext.hasSameSlots(computeNext)", limit = "8", unroll = 8)
     static void init(
         Node node,
         EquiJoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
+        @Cached("computeNext") EquiJoinComputeNext cachedComputeNext,
+        @Cached(
+                value = "getEquiJoinInitLoopNode(cachedComputeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode1,
+        @Cached(
+                value = "getEquiJoinInitLoopNode(cachedComputeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode2,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGenerator,
         @Cached(inline = false) @Cached.Shared("init1")
             GeneratorNodes.GeneratorInitNode initLeftNode,
         @Cached(inline = false) @Cached.Shared("init2")
             GeneratorNodes.GeneratorInitNode initRightNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextLeftNode,
-        @SuppressWarnings("truffle-sharing") @Cached
-            GeneratorNodes.GeneratorHasNextNode hasNextRightNode,
-        @Cached(inline = false) @Cached.Shared("next1")
-            GeneratorNodes.GeneratorNextNode nextLeftNode,
-        @SuppressWarnings("truffle-sharing") @Cached(inline = false)
-            GeneratorNodes.GeneratorNextNode nextRightNode,
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeLeftNode,
         @SuppressWarnings("truffle-sharing") @Cached
             GeneratorNodes.GeneratorCloseNode closeRightNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putLeftNode,
-        @Cached OffHeapNodes.OffHeapGroupByPutNode putRightNode,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorLeft,
         @Cached OffHeapNodes.OffHeapGeneratorNode offHeapGeneratorRight,
-        @Cached FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
+        @Cached(value = "getContextValues(thisNode)", dimensions = 1, allowUncached = true)
+            long[] contextValues) {
+      Frame frame = computeNext.getFrame();
       // left side (get a generator, then fill a map, set leftMapGenerator to the map generator)
       OffHeapGroupByKey leftMap =
           new OffHeapGroupByKey(
               computeNext.getKeyType(),
               computeNext.getLeftRowType(),
-              computeNext.getLanguage(),
-              computeNext.getContext(),
-              null);
+              null,
+              contextValues[0],
+              (int) contextValues[1],
+              (int) contextValues[2]);
+
       Object leftGenerator = getGenerator.execute(thisNode, computeNext.getLeftIterable());
       try {
         initLeftNode.execute(thisNode, leftGenerator);
-        while (hasNextLeftNode.execute(thisNode, leftGenerator)) {
-          Object leftItem = nextLeftNode.execute(thisNode, leftGenerator);
-          Object leftKey =
-              functionExecuteOneNode.execute(thisNode, computeNext.getLeftKeyF(), leftItem);
-          putLeftNode.execute(thisNode, leftMap, leftKey, leftItem);
-        }
+        frame.setObject(computeNext.getMapSlot(), leftMap);
+        frame.setObject(computeNext.getGeneratorSlot(), leftGenerator);
+        frame.setObject(computeNext.getKeyFunctionSlot(), computeNext.getLeftKeyF());
+        loopNode1.execute(computeNext.getFrame());
       } finally {
         closeLeftNode.execute(thisNode, leftGenerator);
       }
       computeNext.setLeftMapGenerator(offHeapGeneratorLeft.execute(thisNode, leftMap));
-      initRightNode.execute(thisNode, computeNext.getLeftMapGenerator());
+      initLeftNode.execute(thisNode, computeNext.getLeftMapGenerator());
 
       // same with right side
       OffHeapGroupByKey rightMap =
           new OffHeapGroupByKey(
               computeNext.getKeyType(),
               computeNext.getRightRowType(),
-              computeNext.getLanguage(),
-              computeNext.getContext(),
-              null);
+              null,
+              contextValues[0],
+              (int) contextValues[1],
+              (int) contextValues[2]);
       Object rightGenerator = getGenerator.execute(thisNode, computeNext.getRightIterable());
       try {
         initRightNode.execute(thisNode, rightGenerator);
-        while (hasNextRightNode.execute(thisNode, rightGenerator)) {
-          Object rightItem = nextRightNode.execute(thisNode, rightGenerator);
-          Object rightKey =
-              functionExecuteOneNode.execute(thisNode, computeNext.getRightKeyF(), rightItem);
-          putRightNode.execute(thisNode, rightMap, rightKey, rightItem);
-        }
+        frame.setObject(computeNext.getMapSlot(), rightMap);
+        frame.setObject(computeNext.getGeneratorSlot(), rightGenerator);
+        frame.setObject(computeNext.getKeyFunctionSlot(), computeNext.getRightKeyF());
+        loopNode2.execute(computeNext.getFrame());
       } finally {
         closeRightNode.execute(thisNode, rightGenerator);
       }
@@ -817,33 +788,52 @@ public class ComputeNextNodes {
       }
     }
 
-    @Specialization
+    public static LoopNode getJoinInitLoopNode(JoinComputeNext computeNext) {
+      return Truffle.getRuntime()
+          .createLoopNode(
+              new OSRGeneratorNode(
+                  new OSRHasNextConditionNode(computeNext.getGeneratorSlot()),
+                  new OSRCollectionJoinInitBodyNode(
+                      computeNext.getGeneratorSlot(),
+                      computeNext.getComputeNextSlot(),
+                      computeNext.getOutputBufferSlot())));
+    }
+
+    @Specialization(guards = "cachedComputeNext.hasSameSlots(computeNext)", limit = "8", unroll = 8)
     static void init(
         Node node,
         JoinComputeNext computeNext,
         @Bind("$node") Node thisNode,
+        @Cached("computeNext") JoinComputeNext cachedComputeNext,
+        @Cached(
+                value = "getJoinInitLoopNode(cachedComputeNext)",
+                inline = false,
+                allowUncached = true)
+            LoopNode loopNode,
         @Cached @Cached.Shared("getGenerator") IterableNodes.GetGeneratorNode getGeneratorNode,
         @Cached(inline = false) @Cached.Shared("init") GeneratorNodes.GeneratorInitNode initNode,
-        @Cached @Cached.Shared("hasNext1") GeneratorNodes.GeneratorHasNextNode hasNextNode,
-        @Cached(inline = false) @Cached.Shared("next1") GeneratorNodes.GeneratorNextNode nextNode,
         @Cached @Cached.Shared("close1") GeneratorNodes.GeneratorCloseNode closeNode,
-        @Cached KryoNodes.KryoWriteNode kryoWrite) {
-      // initialize left
-      computeNext.setLeftGen(getGeneratorNode.execute(thisNode, computeNext.getLeftIterable()));
-      initNode.execute(thisNode, computeNext.getLeftGen());
+        @Cached(value = "getSourceContext(thisNode)", allowUncached = true)
+            SourceContext sourceContext) {
+
+      computeNext.setDiskRight(
+          IOUtils.getScratchFile("cartesian.", ".kryo", sourceContext).toFile());
 
       // save right to disk
       Object rightGen = getGeneratorNode.execute(thisNode, computeNext.getRightIterable());
       try (Output buffer = createOutput(computeNext, thisNode)) {
         initNode.execute(thisNode, rightGen);
-        while (hasNextNode.execute(thisNode, rightGen)) {
-          Object row = nextNode.execute(thisNode, rightGen);
-          kryoWrite.execute(thisNode, buffer, computeNext.getRightRowType(), row);
-          computeNext.setSpilledRight(computeNext.getSpilledRight() + 1);
-        }
+        Frame frame = computeNext.getFrame();
+        frame.setObject(computeNext.getGeneratorSlot(), rightGen);
+        frame.setObject(computeNext.getOutputBufferSlot(), buffer);
+        frame.setObject(computeNext.getComputeNextSlot(), computeNext);
+        loopNode.execute(computeNext.getFrame());
       } finally {
         closeNode.execute(thisNode, rightGen);
       }
+      // initialize left
+      computeNext.setLeftGen(getGeneratorNode.execute(thisNode, computeNext.getLeftIterable()));
+      initNode.execute(thisNode, computeNext.getLeftGen());
     }
   }
 

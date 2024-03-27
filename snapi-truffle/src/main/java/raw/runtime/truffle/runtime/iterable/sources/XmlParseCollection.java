@@ -24,7 +24,6 @@ import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.XmlParseComputeNext;
-import raw.sources.api.SourceContext;
 
 @ExportLibrary(InteropLibrary.class)
 public class XmlParseCollection implements TruffleObject {
@@ -33,10 +32,7 @@ public class XmlParseCollection implements TruffleObject {
   private final RawTruffleXmlParserSettings settings;
 
   public XmlParseCollection(
-      String text,
-      SourceContext context,
-      RootCallTarget parseNextRootCallTarget,
-      RawTruffleXmlParserSettings settings) {
+      String text, RootCallTarget parseNextRootCallTarget, RawTruffleXmlParserSettings settings) {
     this.text = text;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
     this.settings = settings;

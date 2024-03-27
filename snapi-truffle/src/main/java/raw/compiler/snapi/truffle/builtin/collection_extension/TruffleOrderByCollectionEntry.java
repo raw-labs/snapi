@@ -12,55 +12,79 @@
 
 package raw.compiler.snapi.truffle.builtin.collection_extension;
 
+import com.oracle.truffle.api.frame.FrameDescriptor;
+import com.oracle.truffle.api.frame.FrameSlotKind;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import raw.compiler.base.source.Type;
+import raw.compiler.rql2.api.Rql2Arg;
 import raw.compiler.rql2.builtin.OrderByCollectionEntry;
 import raw.compiler.rql2.source.FunType;
 import raw.compiler.rql2.source.Rql2IterableType;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.compiler.snapi.truffle.TruffleArg;
+import raw.compiler.snapi.truffle.TruffleEmitter;
 import raw.compiler.snapi.truffle.TruffleEntryExtension;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.expressions.iterable.collection.CollectionOrderByNode;
 
 public class TruffleOrderByCollectionEntry extends OrderByCollectionEntry
     implements TruffleEntryExtension {
   @Override
-  public ExpressionNode toTruffle(Type type, List<TruffleArg> args, RawLanguage rawLanguage) {
+  public ExpressionNode toTruffle(Type type, List<Rql2Arg> args, TruffleEmitter emitter) {
+    List<TruffleArg> truffleArgs = rql2argsToTruffleArgs(args, emitter);
+    FrameDescriptor.Builder builder = emitter.getFrameDescriptorBuilder();
+
+    int generatorSlot =
+        builder.addSlot(FrameSlotKind.Object, "generator", "a slot to store the generator of osr");
+    int collectionSlot =
+        builder.addSlot(
+            FrameSlotKind.Object, "collection", "a slot to store the collection of osr");
+    int offHeapGroupByKeysSlot =
+        builder.addSlot(
+            FrameSlotKind.Object,
+            "offHeapGroupByKeys",
+            "a slot to store the offHeapGroupByKeys of osr");
+
     AtomicInteger index = new AtomicInteger();
 
     index.set(0);
     ExpressionNode[] keyFunctions =
-        args.stream()
+        truffleArgs.stream()
             .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
-            .map(a -> args.get(a + 1).exprNode())
+            .map(a -> truffleArgs.get(a + 1).exprNode())
             .toArray(ExpressionNode[]::new);
 
     index.set(0);
     Rql2TypeWithProperties[] keyTypes =
-        args.stream()
+        truffleArgs.stream()
             .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 0)
-            .map(a -> (Rql2TypeWithProperties) ((FunType) args.get(a + 1).type()).r())
+            .map(a -> (Rql2TypeWithProperties) ((FunType) truffleArgs.get(a + 1).type()).r())
             .toArray(Rql2TypeWithProperties[]::new);
 
     index.set(0);
     ExpressionNode[] orderings =
-        args.stream()
+        truffleArgs.stream()
             .skip(1)
             .map(a -> index.getAndIncrement())
             .filter(a -> a % 2 == 1)
-            .map(a -> args.get(a + 1).exprNode())
+            .map(a -> truffleArgs.get(a + 1).exprNode())
             .toArray(ExpressionNode[]::new);
     Rql2TypeWithProperties valueType =
-        (Rql2TypeWithProperties) ((Rql2IterableType) args.get(0).type()).innerType();
+        (Rql2TypeWithProperties) ((Rql2IterableType) truffleArgs.get(0).type()).innerType();
 
     return new CollectionOrderByNode(
-        args.get(0).exprNode(), keyFunctions, orderings, keyTypes, valueType);
+        truffleArgs.get(0).exprNode(),
+        keyFunctions,
+        orderings,
+        keyTypes,
+        valueType,
+        generatorSlot,
+        collectionSlot,
+        offHeapGroupByKeysSlot);
   }
 }

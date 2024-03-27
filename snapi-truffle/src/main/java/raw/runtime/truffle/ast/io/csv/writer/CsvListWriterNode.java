@@ -44,6 +44,7 @@ public class CsvListWriterNode extends StatementNode {
 
   private final String[] columnNames;
   private final String lineSeparator;
+  private final OutputStream os;
 
   public CsvListWriterNode(
       ExpressionNode dataNode,
@@ -54,12 +55,12 @@ public class CsvListWriterNode extends StatementNode {
     itemWriter = DirectCallNode.create(writeRootCallTarget);
     this.columnNames = columnNames;
     this.lineSeparator = lineSeparator;
+    this.os = RawContext.get(this).getOutput();
   }
 
   @Override
   public void executeVoid(VirtualFrame frame) {
-    try (OutputStream os = RawContext.get(this).getOutput();
-        CsvGenerator gen = createGenerator(os)) {
+    try (CsvGenerator gen = createGenerator(os)) {
       ObjectList list = (ObjectList) dataNode.executeGeneric(frame);
       long size = sizeNode.execute(this, list);
       for (long i = 0; i < size; i++) {

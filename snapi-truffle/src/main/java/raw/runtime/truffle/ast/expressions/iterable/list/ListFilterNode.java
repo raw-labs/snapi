@@ -12,54 +12,122 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.nodes.Node;
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
+import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.ast.TypeGuards;
-import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodes;
+import raw.runtime.truffle.ast.expressions.iterable.ArrayOperationNodesFactory;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRListFilterBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRToArrayBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRIsLessThanSizeConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 import raw.runtime.truffle.runtime.list.*;
-import raw.runtime.truffle.tryable_nullable.TryableNullable;
 
-@ImportStatic(value = TypeGuards.class)
 @NodeInfo(shortName = "List.Filter")
-@NodeChild("list")
-@NodeChild("function")
-public abstract class ListFilterNode extends ExpressionNode {
+public class ListFilterNode extends ExpressionNode {
 
-  @Specialization
-  protected static RawArrayList doFilter(
-      Object list,
-      Object function,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode generatorHasNextNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorNextNode generatorNextNode,
-      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode generatorCloseNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorInitNode generatorInitNode,
-      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode) {
-    ArrayList<Object> llist = new ArrayList<>();
-    Object iterable = toIterableNode.execute(thisNode, list);
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
+  @Child private ExpressionNode listNode;
+  @Child private ExpressionNode functionNode;
+  @Child private LoopNode filterLoopNode;
+  @Child private LoopNode toArrayLoopNode;
+
+  @Child
+  private GeneratorNodes.GeneratorInitNode generatorInitNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
+
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
+
+  @Child
+  private ListNodes.ToIterableNode toIterableNode = ListNodesFactory.ToIterableNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorCloseNode generatorCloseNode =
+      GeneratorNodesFactory.GeneratorCloseNodeGen.create();
+
+  @Child
+  ArrayOperationNodes.ArrayBuildNode arrayBuildNode =
+      ArrayOperationNodesFactory.ArrayBuildNodeGen.create();
+
+  @Child
+  ArrayOperationNodes.ArrayBuildListNode arrayBuildListNode =
+      ArrayOperationNodesFactory.ArrayBuildListNodeGen.create();
+
+  private final Rql2Type resultType;
+
+  private final int generatorSlot;
+  private final int functionSlot;
+  private final int llistSlot;
+  private final int currentIdxSlot;
+  private final int listSizeSlot;
+  private final int resultSlot;
+
+  public ListFilterNode(
+      ExpressionNode listNode,
+      ExpressionNode functionNode,
+      Rql2Type resultType,
+      int generatorSlot,
+      int functionSlot,
+      int listSlot,
+      int currentIdxSlot,
+      int listSizeSlot,
+      int resultSlot) {
+    this.resultType = resultType;
+    this.listNode = listNode;
+    this.functionNode = functionNode;
+    this.generatorSlot = generatorSlot;
+    this.functionSlot = functionSlot;
+    this.llistSlot = listSlot;
+    this.currentIdxSlot = currentIdxSlot;
+    this.listSizeSlot = listSizeSlot;
+    this.resultSlot = resultSlot;
+    this.filterLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRHasNextConditionNode(generatorSlot),
+                    new OSRListFilterBodyNode(generatorSlot, functionSlot, listSlot)));
+    toArrayLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRIsLessThanSizeConditionNode(currentIdxSlot, listSizeSlot),
+                    new OSRToArrayBodyNode(resultType, listSlot, currentIdxSlot, resultSlot)));
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object list = listNode.executeGeneric(frame);
+    Object function = functionNode.executeGeneric(frame);
+    Object iterable = toIterableNode.execute(this, list);
+    Object generator = getGeneratorNode.execute(this, iterable);
     try {
-      generatorInitNode.execute(thisNode, generator);
-      while (generatorHasNextNode.execute(thisNode, generator)) {
-        Object v = generatorNextNode.execute(thisNode, generator);
-        Boolean predicate = null;
-        predicate =
-            TryableNullable.handlePredicate(
-                functionExecuteOneNode.execute(thisNode, function, v), false);
-        if (predicate) {
-          llist.add(v);
-        }
-      }
-      return new RawArrayList(llist);
+      generatorInitNode.execute(this, generator);
+      frame.setObject(generatorSlot, generator);
+      frame.setObject(functionSlot, function);
+      frame.setObject(llistSlot, new ArrayList<>());
+      filterLoopNode.execute(frame);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(llistSlot);
+      int size = llist.size();
+      frame.setObject(resultSlot, arrayBuildNode.execute(this, resultType, size));
+      frame.setInt(currentIdxSlot, 0);
+      frame.setInt(listSizeSlot, size);
+      frame.setObject(llistSlot, llist);
+      toArrayLoopNode.execute(frame);
+      return arrayBuildListNode.execute(this, frame.getObject(resultSlot));
     } finally {
-      generatorCloseNode.execute(thisNode, generator);
+      generatorCloseNode.execute(this, generator);
     }
   }
 }

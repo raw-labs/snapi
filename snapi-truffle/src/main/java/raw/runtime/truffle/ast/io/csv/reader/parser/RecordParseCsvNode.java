@@ -16,23 +16,26 @@ import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.Arrays;
+import java.util.List;
 import raw.compiler.rql2.source.Rql2AttrType;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseCsv")
 public class RecordParseCsvNode extends ExpressionNode {
 
-  @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
-  @Children private DirectCallNode[] childDirectCalls;
+  @Children private final DirectCallNode[] childDirectCalls;
 
   private final Rql2AttrType[] columns;
+
+  private final boolean hasDuplicateKeys;
+  private final RawLanguage language = RawLanguage.get(this);
 
   public RecordParseCsvNode(ProgramExpressionNode[] columnParsers, Rql2AttrType[] columns) {
     this.columns = columns;
@@ -40,6 +43,14 @@ public class RecordParseCsvNode extends ExpressionNode {
     for (int i = 0; i < columnParsers.length; i++) {
       this.childDirectCalls[i] = DirectCallNode.create(columnParsers[i].getCallTarget());
     }
+    addPropNode = new RecordNodes.AddPropNode[columns.length];
+    for (int i = 0; i < columns.length; i++) {
+      addPropNode[i] = RecordNodesFactory.AddPropNodeGen.create();
+    }
+
+    List<String> keys = Arrays.stream(columns).map(Rql2AttrType::idn).toList();
+
+    hasDuplicateKeys = keys.size() != keys.stream().distinct().count();
   }
 
   @Override
@@ -48,12 +59,17 @@ public class RecordParseCsvNode extends ExpressionNode {
     Object[] args = frame.getArguments();
     RawTruffleCsvParser parser = (RawTruffleCsvParser) args[0];
     assert (parser.startingNewLine(this));
-    RecordObject record = RawLanguage.get(this).createRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
     for (int i = 0; i < columns.length; i++) {
       String fieldName = columns[i].idn();
       parser.getNextField();
       Object value = childDirectCalls[i].call(parser);
-      writeIndexNode.execute(this, record, i, fieldName, value);
+      addPropNode[i].execute(this, record, fieldName, value, hasDuplicateKeys);
     }
     parser.finishLine(this);
     return record;

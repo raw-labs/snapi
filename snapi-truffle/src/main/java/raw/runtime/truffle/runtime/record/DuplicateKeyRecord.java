@@ -12,47 +12,80 @@
 
 package raw.runtime.truffle.runtime.record;
 
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
-import com.oracle.truffle.api.interop.*;
+import com.oracle.truffle.api.interop.InteropLibrary;
+import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.DynamicObjectLibrary;
 import com.oracle.truffle.api.object.Shape;
-import java.util.*;
+import java.util.Arrays;
+import java.util.Vector;
 import raw.runtime.truffle.RawLanguage;
 import raw.utils.RecordFieldsNaming;
 
 @ExportLibrary(InteropLibrary.class)
-public final class RecordObject implements TruffleObject {
+public class DuplicateKeyRecord extends DynamicObject implements TruffleObject {
+  private final Vector<Object> keys = new Vector<>();
+  private final Vector<Object> cachedDistinctKeys = new Vector<>();
+  private boolean distinctValid = false;
 
-  public final Vector<String> keys = new Vector<>();
-  private final Vector<String> distinctKeys;
-  private boolean validDistinctKeys = true;
-  public final DynamicObject values;
-
-  public RecordObject(Shape shape) {
-    this.values = new RecordStorageObject(shape);
-    this.distinctKeys = new Vector<>();
+  public DuplicateKeyRecord(Shape shape) {
+    super(shape);
+    updateDistinctKeys();
   }
 
-  private Vector<String> getDistinctKeys() {
-    if (!validDistinctKeys) {
-      refreshDistinctKeys();
-      validDistinctKeys = true;
+  @CompilerDirectives.TruffleBoundary
+  private void updateDistinctKeys() {
+    cachedDistinctKeys.clear();
+    Vector<String> ks = new Vector<>();
+    for (Object key : keys) {
+      ks.add((String) key);
     }
-    return distinctKeys;
+    cachedDistinctKeys.addAll(RecordFieldsNaming.makeDistinct(ks));
+    distinctValid = true;
   }
 
-  @TruffleBoundary
-  public void refreshDistinctKeys() {
-    distinctKeys.clear();
-    distinctKeys.addAll(RecordFieldsNaming.makeDistinct(keys));
+  public Object[] getDistinctKeys() {
+    if (!distinctValid) {
+      updateDistinctKeys();
+    }
+    return cachedDistinctKeys.toArray();
+  }
+
+  public boolean keyExist(Object key) {
+    return keys.contains(key);
+  }
+
+  public int getKeySize() {
+    return keys.size();
+  }
+
+  @CompilerDirectives.TruffleBoundary
+  public void addKey(Object key) {
+    keys.add(key);
+    distinctValid = false;
+  }
+
+  public void removeKey(int index) {
+    keys.remove(index);
+    distinctValid = false;
+  }
+
+  public int getKeyIndex(Object key) {
+    if (!distinctValid) {
+      updateDistinctKeys();
+    }
+    return cachedDistinctKeys.indexOf(key);
+  }
+
+  public Object[] getKeys() {
+    return keys.toArray();
   }
 
   @ExportMessage
@@ -75,54 +108,16 @@ public final class RecordObject implements TruffleObject {
     return true;
   }
 
-  public String[] keys() {
-    // Non-interop API. Return possibly duplicate keys.
-    return keys.toArray(new String[0]);
-  }
-
   @ExportMessage
   Object getMembers(@SuppressWarnings("unused") boolean includeInternal) {
     // This is the interop API, we return distinct keys.
-    return new Keys(getDistinctKeys().toArray());
-  }
-
-  @ExportLibrary(InteropLibrary.class)
-  static final class Keys implements TruffleObject {
-
-    private final Object[] keys;
-
-    Keys(Object[] keys) {
-      this.keys = keys;
-    }
-
-    @ExportMessage
-    Object readArrayElement(long index) throws InvalidArrayIndexException {
-      if (!isArrayElementReadable(index)) {
-        throw InvalidArrayIndexException.create(index);
-      }
-      return keys[(int) index];
-    }
-
-    @ExportMessage
-    boolean hasArrayElements() {
-      return true;
-    }
-
-    @ExportMessage
-    long getArraySize() {
-      return keys.length;
-    }
-
-    @ExportMessage
-    boolean isArrayElementReadable(long index) {
-      return index >= 0 && index < keys.length;
-    }
+    return new KeysObject(getDistinctKeys());
   }
 
   @ExportMessage(name = "isMemberReadable")
   @ExportMessage(name = "isMemberModifiable")
   boolean existsMember(String member) {
-    return getDistinctKeys().contains(member);
+    return Arrays.asList(getDistinctKeys()).contains(member);
   }
 
   @ExportMessage
@@ -136,16 +131,12 @@ public final class RecordObject implements TruffleObject {
   }
 
   @ExportMessage
-  Object readMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary)
-      throws UnknownIdentifierException {
+  Object readMember(
+      String name,
+      @Cached(inline = true) DuplicateKeyRecordNodes.GetValueNode getValueNode,
+      @Bind("$node") Node thisNode) {
     // Interop API, we assume the searched key should be found in the distinct keys.
-    int idx = getDistinctKeys().indexOf(name);
-    Object result = valuesLibrary.getOrDefault(values, idx, null);
-    if (result == null) {
-      /* Property does not exist. */
-      throw UnknownIdentifierException.create(name);
-    }
-    return result;
+    return getValueNode.execute(thisNode, this, name);
   }
 
   // adds a value by key only (auto-increment the index)
@@ -161,16 +152,16 @@ public final class RecordObject implements TruffleObject {
       String name,
       Object value,
       @Bind("$node") Node thisNode,
-      @Cached(inline = true) RecordNodes.AddByKeyNode addByKey) {
-    addByKey.execute(thisNode, this, name, value);
+      @Cached(inline = true) DuplicateKeyRecordNodes.AddPropNode addPropNode) {
+    // this returns a value but we don't use it (we are immutable)
+    addPropNode.execute(thisNode, this, name, value);
   }
 
   @ExportMessage
-  void removeMember(String name, @CachedLibrary("this.values") DynamicObjectLibrary valuesLibrary) {
-    valuesLibrary.removeKey(values, name);
-  }
-
-  void invalidateDistinctKeys() {
-    validDistinctKeys = false;
+  void removeMember(
+      String name,
+      @Bind("$node") Node thisNode,
+      @Cached(inline = true) RecordNodes.RemovePropNode removePropNode) {
+    removePropNode.execute(thisNode, this, name);
   }
 }

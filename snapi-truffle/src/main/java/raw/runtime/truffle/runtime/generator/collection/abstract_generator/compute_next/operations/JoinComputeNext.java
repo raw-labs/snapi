@@ -13,33 +13,33 @@
 package raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.operations;
 
 import com.esotericsoftware.kryo.io.Input;
-import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.CompilerDirectives.CompilationFinal;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import java.io.File;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.utils.IOUtils;
-import raw.sources.api.SourceContext;
 
 public class JoinComputeNext {
+  @CompilationFinal private File diskRight;
+  private final int kryoOutputBufferSize;
   protected final Object leftIterable;
   protected final Object rightIterable;
   private Object leftGen = null;
   private final Object remap;
   private final Object predicate;
-
   private Object leftRow = null;
   private Object rightRow = null;
   Input kryoRight = null;
-  private final int kryoOutputBufferSize;
   private final Rql2TypeWithProperties rightRowType; // grouped key and value types.
   private int spilledRight = 0;
   private int readRight = 0;
-  private final File diskRight;
   private final Boolean reshapeBeforePredicate;
+  private final MaterializedFrame frame;
+  private final int computeNextSlot;
+  private final int shouldContinueSlot;
+  private final int resultSlot;
+  private final int generatorSlot;
+  private final int outputBufferSlot;
 
-  private final RawLanguage language;
-
-  @TruffleBoundary // Needed because of SourceContext
   public JoinComputeNext(
       Object leftIterable,
       Object rightIterable,
@@ -47,18 +47,26 @@ public class JoinComputeNext {
       Object predicate,
       Boolean reshapeBeforePredicate,
       Rql2TypeWithProperties rightRowType,
-      SourceContext context,
-      RawLanguage language) {
+      int kryoOutputBufferSize,
+      MaterializedFrame frame,
+      int computeNextSlot,
+      int shouldContinueSlot,
+      int resultSlot,
+      int generatorSlot,
+      int outputBufferSlot) {
     this.leftIterable = leftIterable;
     this.rightIterable = rightIterable;
     this.remap = remap;
     this.predicate = predicate;
-    this.kryoOutputBufferSize =
-        (int) context.settings().getMemorySize("raw.runtime.kryo.output-buffer-size");
-    this.language = language;
     this.rightRowType = rightRowType;
     this.reshapeBeforePredicate = reshapeBeforePredicate;
-    this.diskRight = IOUtils.getScratchFile("cartesian.", ".kryo", context).toFile();
+    this.frame = frame;
+    this.computeNextSlot = computeNextSlot;
+    this.shouldContinueSlot = shouldContinueSlot;
+    this.resultSlot = resultSlot;
+    this.generatorSlot = generatorSlot;
+    this.outputBufferSlot = outputBufferSlot;
+    this.kryoOutputBufferSize = kryoOutputBufferSize;
   }
 
   public Object getLeftIterable() {
@@ -137,11 +145,43 @@ public class JoinComputeNext {
     return diskRight;
   }
 
+  public void setDiskRight(File diskRight) {
+    this.diskRight = diskRight;
+  }
+
   public Boolean getReshapeBeforePredicate() {
     return reshapeBeforePredicate;
   }
 
-  public RawLanguage getLanguage() {
-    return language;
+  public MaterializedFrame getFrame() {
+    return frame;
+  }
+
+  public int getComputeNextSlot() {
+    return computeNextSlot;
+  }
+
+  public int getShouldContinueSlot() {
+    return shouldContinueSlot;
+  }
+
+  public int getResultSlot() {
+    return resultSlot;
+  }
+
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getOutputBufferSlot() {
+    return outputBufferSlot;
+  }
+
+  public boolean hasSameSlots(JoinComputeNext other) {
+    return this.computeNextSlot == other.computeNextSlot
+        && this.shouldContinueSlot == other.shouldContinueSlot
+        && this.resultSlot == other.resultSlot
+        && this.generatorSlot == other.generatorSlot
+        && this.outputBufferSlot == other.outputBufferSlot;
   }
 }

@@ -13,6 +13,7 @@
 package raw.runtime.truffle;
 
 import com.oracle.truffle.api.CallTarget;
+import com.oracle.truffle.api.CompilerDirectives;
 import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.instrumentation.ProvidedTags;
 import com.oracle.truffle.api.instrumentation.StandardTags;
@@ -41,7 +42,8 @@ import raw.compiler.snapi.truffle.compiler.TruffleEmit;
 import raw.inferrer.api.InferrerService;
 import raw.runtime.RuntimeContext;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
+import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.sources.api.SourceContext;
 import raw.utils.AuthenticatedUser;
 import raw.utils.RawSettings;
@@ -73,7 +75,19 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   private static final RawSettings defaultRawSettings =
       new RawSettings(ConfigFactory.load(), ConfigFactory.empty());
 
-  private final Shape initialRecordShape = Shape.newBuilder().build();
+  private final Shape pureRecordShape = Shape.newBuilder().build();
+  private final Shape duplicateKeyRecordShape = Shape.newBuilder().build();
+
+  // The bellow methods are used to create new instances of the record classes.
+  // This instances must have common ancestor, so we create them with the same shape.
+  // This is a common pattern in Truffle, due to the way the object model works.
+  public PureRecord createPureRecord() {
+    return new PureRecord(pureRecordShape);
+  }
+
+  public DuplicateKeyRecord createDuplicateKeyRecord() {
+    return new DuplicateKeyRecord(duplicateKeyRecordShape);
+  }
 
   @Override
   protected final RawContext createContext(Env env) {
@@ -97,11 +111,6 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
   }
 
   private final InteropLibrary bindings = InteropLibrary.getFactory().createDispatched(1);
-
-  // FIXME (msb): Why is this here?
-  public RecordObject createRecord() {
-    return new RecordObject(initialRecordShape);
-  }
 
   @Override
   protected OptionDescriptors getOptionDescriptors() {
@@ -187,6 +196,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
               (Class<raw.compiler.base.PipelinedPhase<SourceProgram>>)
                   (Class<?>) ImplicitCasts.class));
 
+  @CompilerDirectives.TruffleBoundary
   SourceProgram transpile(SourceProgram root, ProgramContext programContext) {
     if (phases.isEmpty()) {
       // No phases in compiler
@@ -200,6 +210,7 @@ public final class RawLanguage extends TruffleLanguage<RawContext> {
     }
   }
 
+  @CompilerDirectives.TruffleBoundary
   private Phase<SourceProgram> buildPipeline(
       Phase<SourceProgram> init, ProgramContext programContext) {
     Phase<SourceProgram> cur = init;

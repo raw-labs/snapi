@@ -17,12 +17,10 @@ import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParser;
 import raw.runtime.truffle.ast.io.xml.parser.RawTruffleXmlParserSettings;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.utils.TruffleCharInputStream;
-import raw.sources.api.SourceContext;
 
 public class XmlReadComputeNext {
   private final LocationObject locationObject;
   protected final RootCallTarget parseNextRootCallTarget;
-  private final SourceContext context;
   private final String encoding;
   private RawTruffleXmlParser parser;
   private final RawTruffleXmlParserSettings settings;
@@ -32,11 +30,9 @@ public class XmlReadComputeNext {
   public XmlReadComputeNext(
       LocationObject locationObject,
       String encoding,
-      SourceContext context,
       RootCallTarget parseNextRootCallTarget,
       RawTruffleXmlParserSettings settings) {
     this.encoding = encoding;
-    this.context = context;
     this.settings = settings;
     this.locationObject = locationObject;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
@@ -56,10 +52,6 @@ public class XmlReadComputeNext {
 
   public RootCallTarget getParseNextRootCallTarget() {
     return parseNextRootCallTarget;
-  }
-
-  public SourceContext getContext() {
-    return context;
   }
 
   public String getEncoding() {
