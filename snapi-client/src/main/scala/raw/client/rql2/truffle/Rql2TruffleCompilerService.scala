@@ -182,7 +182,7 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
               formattedDecls,
               maybeType.map { t =>
                 rql2TypeToRawType(t) match {
-                  case Some(rawType) => rawType
+                  case Some(rawType) => DeclDescription(None, rawType, None)
                   case None => return GetProgramDescriptionFailure(
                       List(ErrorMessage(UnsupportedType.message, List.empty, UnsupportedType.code))
                     )
