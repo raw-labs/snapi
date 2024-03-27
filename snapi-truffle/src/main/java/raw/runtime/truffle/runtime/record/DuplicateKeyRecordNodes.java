@@ -94,20 +94,6 @@ public class DuplicateKeyRecordNodes {
         Node node,
         DuplicateKeyRecord duplicateKeyRecord,
         Object key,
-        float item,
-        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
-      int keysSize = duplicateKeyRecord.getKeySize();
-      valuesLibrary.putDouble(duplicateKeyRecord, keysSize, item);
-      valuesLibrary.setPropertyFlags(duplicateKeyRecord, keysSize, FLOAT_TYPE);
-      duplicateKeyRecord.addKey(key);
-      return duplicateKeyRecord;
-    }
-
-    @Specialization(limit = "3")
-    static DuplicateKeyRecord exec(
-        Node node,
-        DuplicateKeyRecord duplicateKeyRecord,
-        Object key,
         double item,
         @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
       int keysSize = duplicateKeyRecord.getKeySize();
@@ -247,22 +233,6 @@ public class DuplicateKeyRecordNodes {
       try {
         int idx = duplicateKeyRecord.getKeyIndex(key);
         return valuesLibrary.getLongOrDefault(duplicateKeyRecord, idx, -1);
-      } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
-      }
-    }
-
-    @Specialization(
-        limit = "3",
-        guards = "isFloat(valuesLibrary.getPropertyFlagsOrDefault(duplicateKeyRecord, key, 7))")
-    static double getFloat(
-        Node node,
-        DuplicateKeyRecord duplicateKeyRecord,
-        Object key,
-        @CachedLibrary("duplicateKeyRecord") DynamicObjectLibrary valuesLibrary) {
-      try {
-        int idx = duplicateKeyRecord.getKeyIndex(key);
-        return (float) valuesLibrary.getDoubleOrDefault(duplicateKeyRecord, idx, -1);
       } catch (UnexpectedResultException e) {
         throw new RawTruffleInternalErrorException("Unexpected result", e);
       }

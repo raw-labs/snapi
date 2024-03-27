@@ -83,17 +83,6 @@ public class PureRecordNodes {
         Node node,
         PureRecord pureRecord,
         Object key,
-        float item,
-        @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
-      valuesLibrary.putDouble(pureRecord, key, item);
-      valuesLibrary.setPropertyFlags(pureRecord, key, FLOAT_TYPE);
-    }
-
-    @Specialization(limit = "3")
-    static void exec(
-        Node node,
-        PureRecord pureRecord,
-        Object key,
         double item,
         @CachedLibrary("pureRecord") @Cached.Exclusive DynamicObjectLibrary valuesLibrary) {
       valuesLibrary.putDouble(pureRecord, key, item);
@@ -283,21 +272,6 @@ public class PureRecordNodes {
         @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
       try {
         return valuesLibrary.getLongOrDefault(pureRecord, key, -1);
-      } catch (UnexpectedResultException e) {
-        throw new RawTruffleInternalErrorException("Unexpected result", e);
-      }
-    }
-
-    @Specialization(
-        limit = "3",
-        guards = "isFloat(valuesLibrary.getPropertyFlagsOrDefault(pureRecord, key, 7))")
-    static float getFloat(
-        Node node,
-        PureRecord pureRecord,
-        Object key,
-        @CachedLibrary("pureRecord") DynamicObjectLibrary valuesLibrary) {
-      try {
-        return (float) valuesLibrary.getDoubleOrDefault(pureRecord, key, -1);
       } catch (UnexpectedResultException e) {
         throw new RawTruffleInternalErrorException("Unexpected result", e);
       }
