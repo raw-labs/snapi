@@ -371,8 +371,8 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == airportType
     )
@@ -416,8 +416,8 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == airportType
     )
@@ -455,8 +455,8 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == airportType
     )
@@ -605,8 +605,8 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == RawIterableType(
         RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
@@ -651,8 +651,8 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == RawIterableType(
         RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
@@ -681,8 +681,8 @@ class TestSqlCompilerServiceAirports
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == RawIterableType(
         RawRecordType(
