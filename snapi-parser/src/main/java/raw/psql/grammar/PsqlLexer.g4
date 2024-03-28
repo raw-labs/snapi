@@ -9,6 +9,8 @@ QUOTE: '\'';
 DOT: '.';
 STAR: '*';
 COMMA: ',';
+L_SQ_BRACKET: '[';
+R_SQ_BRACKET: ']';
 L_PAREN: '(';
 R_PAREN: ')';
 SEMICOLON: ';';
@@ -998,11 +1000,12 @@ ML_PARAM_KW: '@param';
 ML_RETURN_KW: '@return';
 ML_UNKNOWN_TOKEN: '@' .*?;
 ML_WORD: ML_W+ '(' .*? ')' | ML_W+;
-ML_W: ([a-zA-Z0-9]+ | '!' | '@' | '#' | '$' | '%' | '^' | '&' | '*' | '_' | '+' | '\'' | '"' | '`' | '.' | '-' | ',' | ':');
+fragment ML_W: ([a-zA-Z0-9]+ | '!' | '@' | '#' | '$' | '%' | '^' | '&'  | '_' | '+' | '\'' | '"' | '`' | '.' | '-' | ',' | ':' | '/');
 
 ML_WS : [ \t\r\n]+ -> skip;
 
 MULTI_LINE_COMMENT_END: '*/' -> popMode;
+ML_STAR: '*';
 
 mode INSIDE_UNKNOWN_WORD;
 

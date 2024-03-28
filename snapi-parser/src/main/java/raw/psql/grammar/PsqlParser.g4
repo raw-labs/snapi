@@ -53,29 +53,33 @@ multiline_value_comment: multiline_param_comment            #multilineParamComme
                        | multiline_normal_comment_value     #multilineNormalComment
                        ;
 
-multiline_param_comment: ML_PARAM_KW (ML_WORD)+
+multiline_param_comment: ML_PARAM_KW (multiline_word_or_star)+
                        ;
 
-multiline_type_comment: ML_TYPE_KW (ML_WORD)+
+multiline_type_comment: ML_TYPE_KW (multiline_word_or_star)+
                       ;
 
-multiline_default_comment: ML_DEFAULT_KW ML_WORD ML_WORD
+multiline_default_comment: ML_DEFAULT_KW multiline_word_or_star multiline_word_or_star
                          ;
 
-multiline_return_comment: ML_RETURN_KW (ML_WORD)+
+multiline_return_comment: ML_RETURN_KW (multiline_word_or_star)+
                         ;
 
-multiline_unknown_type_comment: ML_UNKNOWN_TOKEN (ML_WORD)*
+multiline_unknown_type_comment: ML_UNKNOWN_TOKEN (multiline_word_or_star)*
                               ;
 
-multiline_normal_comment_value: (ML_WORD)+
+multiline_normal_comment_value: (multiline_word_or_star)+
                       ;
 
+multiline_word_or_star: ML_WORD | ML_STAR;
+
 stmt: L_PAREN stmt R_PAREN   #parenStmt
+    | L_SQ_BRACKET stmt R_SQ_BRACKET   #parenStmtSqureBr
     | (stmt_items)+          #stmtItems
     ;
 
 stmt_items: L_PAREN stmt R_PAREN                                                #nestedStmt
+          | L_SQ_BRACKET stmt R_SQ_BRACKET                                      #nestedStmtSqureBr
           | stmt_items (COMMA stmt_items)+                                      #commaSeparated
           | proj                                                                #projStmt
           | literal                                                             #literalStmt
