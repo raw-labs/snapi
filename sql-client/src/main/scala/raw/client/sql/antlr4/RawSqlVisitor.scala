@@ -362,12 +362,12 @@ class RawSqlVisitor(
 
   override def visitMultiline_param_comment(ctx: PsqlParser.Multiline_param_commentContext): SqlBaseNode = Option(ctx)
     .map(context => {
-      if (context.ML_WORD(0) == null) {
+      if (context.multiline_word_or_star(0) == null) {
         addError("Missing parameter name for syntax @param <name> <description>", context)
         SqlErrorNode()
       } else {
-        val name = context.ML_WORD(0).getText
-        val description = context.ML_WORD().asScala.drop(1).map(_.getText).mkString(" ")
+        val name = context.multiline_word_or_star(0).getText
+        val description = context.multiline_word_or_star().asScala.drop(1).map(_.getText).mkString(" ")
         val paramDefComment = SqlParamDefCommentNode(name, description)
         positionsWrapper.setPosition(ctx, paramDefComment)
 
@@ -392,15 +392,15 @@ class RawSqlVisitor(
 
   override def visitMultiline_type_comment(ctx: PsqlParser.Multiline_type_commentContext): SqlBaseNode = Option(ctx)
     .map(context => {
-      if (context.ML_WORD(0) == null) {
+      if (context.multiline_word_or_star(0) == null) {
         addError("Missing name for syntax @type <name> <type>", context)
         SqlErrorNode()
-      } else if (context.ML_WORD.size() <= 1) {
+      } else if (context.multiline_word_or_star.size() <= 1) {
         addError("Missing type name for syntax @type <name> <type>", context)
         SqlErrorNode()
       } else {
-        val name = context.ML_WORD(0).getText.trim
-        val tipe = context.ML_WORD.asScala.tail.map(_.getText.trim).mkString(" ")
+        val name = context.multiline_word_or_star(0).getText.trim
+        val tipe = context.multiline_word_or_star.asScala.tail.map(_.getText.trim).mkString(" ")
         val paramTypeComment = SqlParamTypeCommentNode(name, tipe)
         positionsWrapper.setPosition(ctx, paramTypeComment)
 
@@ -426,15 +426,15 @@ class RawSqlVisitor(
     ctx
   )
     .map(context => {
-      if (context.ML_WORD(0) == null) {
+      if (context.multiline_word_or_star(0) == null) {
         addError("Missing name for syntax @default <name> <value>", context)
         SqlErrorNode()
-      } else if (context.ML_WORD(1) == null) {
+      } else if (context.multiline_word_or_star(1) == null) {
         addError("Missing default value for syntax @default <name> <value>", context)
         SqlErrorNode()
       } else {
-        val name = context.ML_WORD(0).getText
-        val defaultValue = context.ML_WORD(1).getText
+        val name = context.multiline_word_or_star(0).getText
+        val defaultValue = context.multiline_word_or_star(1).getText
         val paramDefaultComment = SqlParamDefaultCommentNode(name, defaultValue)
         positionsWrapper.setPosition(ctx, paramDefaultComment)
 
@@ -467,11 +467,11 @@ class RawSqlVisitor(
     ctx
   )
     .map(context => {
-      if (context.ML_WORD(0) == null) {
+      if (context.multiline_word_or_star(0) == null) {
         addError("Missing description for syntax @return <description>", context)
         SqlErrorNode()
       } else {
-        val description = context.ML_WORD().asScala.map(_.getText).mkString(" ")
+        val description = context.multiline_word_or_star().asScala.map(_.getText).mkString(" ")
         val paramReturnsComment = SqlParamReturnsCommentNode(description)
         positionsWrapper.setPosition(ctx, paramReturnsComment)
 
@@ -517,6 +517,14 @@ class RawSqlVisitor(
     .getOrElse(SqlErrorNode())
 
   override def visitParenStmt(ctx: PsqlParser.ParenStmtContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.stmt()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+  override def visitParenStmtSqureBr(ctx: PsqlParser.ParenStmtSqureBrContext): SqlBaseNode = Option(ctx)
+    .flatMap(context => Option(context.stmt()).map(visit))
+    .getOrElse(SqlErrorNode())
+
+  override def visitNestedStmtSqureBr(ctx: PsqlParser.NestedStmtSqureBrContext): SqlBaseNode = Option(ctx)
     .flatMap(context => Option(context.stmt()).map(visit))
     .getOrElse(SqlErrorNode())
 
@@ -754,5 +762,8 @@ class RawSqlVisitor(
     throw new AssertionError(assertionMessage)
 
   override def visitNon_reserved_keyword(ctx: PsqlParser.Non_reserved_keywordContext): SqlBaseNode =
+    throw new AssertionError(assertionMessage)
+
+  override def visitMultiline_word_or_star(ctx: PsqlParser.Multiline_word_or_starContext): SqlBaseNode =
     throw new AssertionError(assertionMessage)
 }
