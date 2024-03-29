@@ -12,17 +12,19 @@
 
 package raw.runtime.truffle.ast.expressions.tryable;
 
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.tryable_nullable.Tryable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 
 @NodeInfo(shortName = "Tryable.GetFailure")
 @NodeChild("tryable")
 public abstract class TryableGetFailureNode extends ExpressionNode {
   @Specialization
-  protected String getFailure(Object tryable) {
-    return Tryable.getFailure(tryable);
+  protected String getFailure(
+      Object tryable, @Cached(inline = true) TryableNullableNodes.GetErrorNode getFailureNode) {
+    return getFailureNode.execute(this, tryable);
   }
 }

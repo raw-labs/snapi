@@ -28,12 +28,9 @@ public class ZipCollection implements TruffleObject {
   final Object parentIterable1;
   final Object parentIterable2;
 
-  final RawLanguage language;
-
   public ZipCollection(Object iterable1, Object iterable2, RawLanguage language) {
     this.parentIterable1 = iterable1;
     this.parentIterable2 = iterable2;
-    this.language = language;
   }
 
   public Object getParentIterable1() {
@@ -42,10 +39,6 @@ public class ZipCollection implements TruffleObject {
 
   public Object getParentIterable2() {
     return parentIterable2;
-  }
-
-  public RawLanguage getLang() {
-    return language;
   }
 
   @ExportMessage

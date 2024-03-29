@@ -10,15 +10,12 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.record;
+package raw.runtime.truffle.ast.expressions.aggregation;
 
-import com.oracle.truffle.api.object.DynamicObject;
-import com.oracle.truffle.api.object.Shape;
-
-// This is an implementation of `DynamicObject` used as an internal storage of our RecordObject.
-class RecordStorageObject extends DynamicObject {
-
-  protected RecordStorageObject(Shape shape) {
-    super(shape);
-  }
+public class Aggregations {
+  public static final byte COUNT = 0;
+  public static final byte MAX = 1;
+  public static final byte MIN = 2;
+  public static final byte SUM = 3;
+  public static final byte LAST = 4;
 }

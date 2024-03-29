@@ -13,19 +13,25 @@
 package raw.runtime.truffle.ast.expressions.builtin.environment_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Bind;
+import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.dsl.ImportStatic;
 import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.list.ObjectList;
 
 @NodeInfo(shortName = "Environment.Scopes")
+@ImportStatic(StaticInitializers.class)
 public abstract class EnvironmentScopesNode extends ExpressionNode {
 
   @Specialization
   @TruffleBoundary
-  protected Object doScopes() {
-    String[] bl = RawContext.get(this).getScopes();
-    return new ObjectList(bl);
+  protected static Object doScopes(
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getScopes(thisNode)", neverDefault = true, dimensions = 1) String[] scopes) {
+    return new ObjectList(scopes);
   }
 }

@@ -10,20 +10,20 @@
  * licenses/APL.txt.
  */
 
-package raw.runtime.truffle.runtime.aggregation.aggregator;
+package raw.runtime.truffle.ast.expressions.aggregation;
 
 import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.runtime.operators.OperatorNodes;
 import raw.runtime.truffle.runtime.primitives.NullObject;
-import raw.runtime.truffle.tryable_nullable.Nullable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 
 public class AggregatorNodes {
   @NodeInfo(shortName = "Aggregator.Zero")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(Aggregators.class)
+  @ImportStatic(Aggregations.class)
   public abstract static class Zero extends Node {
 
     public abstract Object execute(Node node, byte aggregatorType);
@@ -47,12 +47,17 @@ public class AggregatorNodes {
     static Object sumZero(Node node, byte aggregatorType) {
       return NullObject.INSTANCE;
     }
+
+    @Specialization(guards = "aggregatorType == LAST")
+    static Object sumLast(Node node, byte aggregatorType) {
+      return NullObject.INSTANCE;
+    }
   }
 
   @NodeInfo(shortName = "Aggregator.Merge")
   @GenerateUncached
   @GenerateInline
-  @ImportStatic(Aggregators.class)
+  @ImportStatic(Aggregations.class)
   public abstract static class Merge extends Node {
 
     public abstract Object execute(Node node, byte aggregatorType, Object current, Object next);
@@ -69,9 +74,10 @@ public class AggregatorNodes {
         Object current,
         Object next,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("isNull") TryableNullableNodes.IsNullNode isNullNode,
         @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
-      if (Nullable.isNotNull(current)) {
-        if (Nullable.isNotNull(next)) {
+      if (!isNullNode.execute(thisNode, current)) {
+        if (!isNullNode.execute(thisNode, next)) {
           // if both are defined, pick the largest
           if (compare.execute(thisNode, current, next) > 0) {
             return current;
@@ -95,9 +101,10 @@ public class AggregatorNodes {
         Object current,
         Object next,
         @Bind("$node") Node thisNode,
+        @Cached @Cached.Shared("isNull") TryableNullableNodes.IsNullNode isNullNode,
         @Cached @Cached.Shared("compare") OperatorNodes.CompareNode compare) {
-      if (Nullable.isNotNull(current)) {
-        if (Nullable.isNotNull(next)) {
+      if (!isNullNode.execute(thisNode, current)) {
+        if (!isNullNode.execute(thisNode, next)) {
           // if both are defined, pick the smallest
           if (compare.execute(thisNode, current, next) < 0) {
             return current;
@@ -123,6 +130,11 @@ public class AggregatorNodes {
         @Bind("$node") Node thisNode,
         @Cached OperatorNodes.AddNode add) {
       return add.execute(thisNode, current, next);
+    }
+
+    @Specialization(guards = "aggregatorType == LAST")
+    static Object mergeLast(Node node, byte aggregatorType, Object current, Object next) {
+      return next;
     }
   }
 }

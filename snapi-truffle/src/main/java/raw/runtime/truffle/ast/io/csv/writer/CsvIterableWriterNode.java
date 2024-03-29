@@ -62,6 +62,8 @@ public class CsvIterableWriterNode extends StatementNode {
   private final String[] columnNames;
   private final String lineSeparator;
 
+  private final OutputStream os = RawContext.get(this).getOutput();
+
   public CsvIterableWriterNode(
       ExpressionNode dataNode,
       RootCallTarget writeRootCallTarget,
@@ -77,8 +79,7 @@ public class CsvIterableWriterNode extends StatementNode {
   public void executeVoid(VirtualFrame frame) {
     Object iterable = dataNode.executeGeneric(frame);
     Object generator = getGeneratorNode.execute(this, iterable);
-    try (OutputStream os = RawContext.get(this).getOutput();
-        CsvGenerator gen = createGenerator(os)) {
+    try (CsvGenerator gen = createGenerator(os)) {
       generatorInitNode.execute(this, generator);
       while (generatorHasNextNode.execute(this, generator)) {
         Object item = generatorNextNode.execute(this, generator);

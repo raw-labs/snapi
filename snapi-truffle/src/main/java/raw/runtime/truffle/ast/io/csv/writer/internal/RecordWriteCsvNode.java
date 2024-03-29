@@ -17,7 +17,6 @@ import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.nodes.DirectCallNode;
 import com.oracle.truffle.api.nodes.ExplodeLoop;
@@ -27,14 +26,15 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
+import raw.runtime.truffle.runtime.record.RecordNodesFactory;
 
 @NodeInfo(shortName = "RecordWriteCsv")
 public class RecordWriteCsvNode extends StatementNode {
 
   @Children private DirectCallNode[] valueWriter;
 
-  @Child private InteropLibrary records = InteropLibrary.getFactory().createDispatched(3);
+  @Child private RecordNodes.GetValueNode getValue = RecordNodesFactory.GetValueNodeGen.create();
 
   @Child private InteropLibrary keysArrays = InteropLibrary.getFactory().createDispatched(1);
 
@@ -48,7 +48,7 @@ public class RecordWriteCsvNode extends StatementNode {
   @ExplodeLoop
   public void executeVoid(VirtualFrame frame) {
     Object[] args = frame.getArguments();
-    RecordObject record = (RecordObject) args[0];
+    Object record = args[0];
     CsvGenerator generator = (CsvGenerator) args[1];
     try {
       Object keys = keysArrays.getMembers(record);
@@ -56,13 +56,11 @@ public class RecordWriteCsvNode extends StatementNode {
       doStartRow(generator);
       for (int idx = 0; idx < nFields; idx++) {
         String fieldName = (String) keysArrays.readArrayElement(keys, idx);
-        Object value = records.readMember(record, fieldName);
+        Object value = getValue.execute(this, record, fieldName);
         valueWriter[idx].call(value, generator);
       }
       doEndRow(generator);
-    } catch (UnsupportedMessageException
-        | InvalidArrayIndexException
-        | UnknownIdentifierException e) {
+    } catch (UnsupportedMessageException | InvalidArrayIndexException e) {
       throw new RawTruffleInternalErrorException(e, this);
     }
   }

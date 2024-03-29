@@ -14,32 +14,35 @@ package raw.runtime.truffle.runtime.iterable.operations;
 
 import com.oracle.truffle.api.dsl.Bind;
 import com.oracle.truffle.api.dsl.Cached;
+import com.oracle.truffle.api.frame.MaterializedFrame;
 import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
-import raw.sources.api.SourceContext;
 
 @ExportLibrary(InteropLibrary.class)
 public class DistinctCollection implements TruffleObject {
   final Object iterable;
-
-  final RawLanguage language;
-
   final Rql2TypeWithProperties rowType;
-  private final SourceContext context;
+  private final MaterializedFrame frame;
+  private final int generatorSlot;
+  private final int offHeapDistinctSlot;
 
   public DistinctCollection(
-      Object iterable, Rql2TypeWithProperties vType, RawLanguage language, SourceContext context) {
+      Object iterable,
+      Rql2TypeWithProperties vType,
+      MaterializedFrame frame,
+      int generatorSlot,
+      int offHeapDistinctSlot) {
     this.iterable = iterable;
-    this.language = language;
     this.rowType = vType;
-    this.context = context;
+    this.frame = frame;
+    this.generatorSlot = generatorSlot;
+    this.offHeapDistinctSlot = offHeapDistinctSlot;
   }
 
   public Object getIterable() {
@@ -50,12 +53,21 @@ public class DistinctCollection implements TruffleObject {
     return rowType;
   }
 
-  public SourceContext getContext() {
-    return context;
+  public MaterializedFrame getFrame() {
+    return frame;
   }
 
-  public RawLanguage getLang() {
-    return language;
+  public int getGeneratorSlot() {
+    return generatorSlot;
+  }
+
+  public int getOffHeapDistinctSlot() {
+    return offHeapDistinctSlot;
+  }
+
+  public boolean hasSameSlots(DistinctCollection other) {
+    return this.generatorSlot == other.generatorSlot
+        && this.offHeapDistinctSlot == other.offHeapDistinctSlot;
   }
 
   // InteropLibrary: Iterable
