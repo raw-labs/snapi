@@ -49,7 +49,7 @@ trait RD5893Test extends CompilerTestContext {
 
   test(
     """Xml.InferAndRead("https://rawlabs-public-test-data.s3.eu-west-1.amazonaws.com/SSO/su-d-05.04-kbob-01.xml")"""
-  )(it => it should run)
+  )(it => it should runErrorAs("duplicate field: @value-type"))
 
   val xmlType = """record(
     |    `@version`: double,
@@ -390,7 +390,7 @@ trait RD5893Test extends CompilerTestContext {
     |                                    record(
     |                                        `@style-name`: string,
     |                                        `@value-type`: string,
-    |                                        `@value-type`: string,
+    |                                        // `@value-type`: string, duplicate field isn't supported (RD-10801)
     |                                        p: collection(
     |                                            record(
     |                                                span: collection(
@@ -414,7 +414,7 @@ trait RD5893Test extends CompilerTestContext {
     |                                    `@style-name`: string,
     |                                    `@number-columns-repeated`: int,
     |                                    `@value-type`: string,
-    |                                    `@value-type`: string,
+    |                                    // `@value-type`: string, duplicate field isn't supported (RD-10801)
     |                                    p: collection(
     |                                        record(
     |                                            s: record(`@c`: int),

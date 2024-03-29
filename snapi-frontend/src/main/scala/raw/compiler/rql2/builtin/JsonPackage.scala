@@ -13,7 +13,7 @@
 package raw.compiler.rql2.builtin
 
 import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
-import raw.compiler.base.errors.{ErrorCompilerMessage, UnsupportedType}
+import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2._
@@ -118,28 +118,30 @@ class InferAndReadJsonEntry extends SugarEntryExtension with JsonEntryExtensionH
     }
   }
 
-  override def returnType(
+  override def returnTypeErrorList(
+      node: BaseNode,
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
+    val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
+    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InputFormatDescriptor] =
+      getJsonInferrerProperties(mandatoryArgs, optionalArgs)
+        .flatMap(programContext.infer)
+        .left
+        .map(error => Seq(InvalidSemantic(node, error)))
     for (
-      inferrerProperties <- getJsonInferrerProperties(mandatoryArgs, optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      descriptor <- inferenceDiagnostic;
       TextInputStreamFormatDescriptor(
         _,
         _,
         JsonInputFormatDescriptor(inferredType, sampled, _, _, _)
-      ) = inputFormatDescriptor
-    ) yield {
-      val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
-      val makeNullables = preferNulls && sampled
-      val makeTryables = sampled
-
-      inferTypeToRql2Type(inferredType, makeNullables, makeTryables) match {
-        case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
-        case other => addProp(other, Rql2IsTryableTypeProperty())
-      }
+      ) = descriptor;
+      rql2Type = inferTypeToRql2Type(inferredType, makeNullable = preferNulls && sampled, makeTryable = sampled);
+      okType <- validateInferredJsonType(rql2Type, node)
+    ) yield okType match {
+      case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
+      case other => addProp(other, Rql2IsTryableTypeProperty())
     }
   }
 
@@ -278,7 +280,7 @@ class ReadJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
-    validateJsonType(t).right.map {
+    validateUserJsonType(t).right.map {
       case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
       case t => addProp(t, Rql2IsTryableTypeProperty())
     }
@@ -351,31 +353,31 @@ class InferAndParseJsonEntry extends SugarEntryExtension with JsonEntryExtension
     }
   }
 
-  override def returnType(
+  override def returnTypeErrorList(
+      node: BaseNode,
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = {
-
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val (locationArg, _) = InMemoryLocationValueBuilder.build(mandatoryArgs)
-
+    val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
+    val inferenceDiagnostic: Either[Seq[ErrorCompilerMessage], InputFormatDescriptor] =
+      getJsonInferrerProperties(Seq(locationArg), optionalArgs)
+        .flatMap(programContext.infer)
+        .left
+        .map(error => Seq(InvalidSemantic(node, error)))
     for (
-      inferrerProperties <- getJsonInferrerProperties(Seq(locationArg), optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      descriptor <- inferenceDiagnostic;
       TextInputStreamFormatDescriptor(
         _,
         _,
         JsonInputFormatDescriptor(inferredType, sampled, _, _, _)
-      ) = inputFormatDescriptor
-    ) yield {
-      val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
-      val makeNullables = preferNulls && sampled
-      val makeTryables = sampled
-
-      inferTypeToRql2Type(inferredType, makeNullables, makeTryables) match {
-        case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
-        case other => addProp(other, Rql2IsTryableTypeProperty())
-      }
+      ) = descriptor;
+      rql2Type = inferTypeToRql2Type(inferredType, makeNullable = preferNulls && sampled, makeTryable = sampled);
+      okType <- validateInferredJsonType(rql2Type, node)
+    ) yield okType match {
+      case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
+      case other => addProp(other, Rql2IsTryableTypeProperty())
     }
   }
 
@@ -517,7 +519,7 @@ class ParseJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
       varArgs: Seq[Arg]
   )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
     val t = mandatoryArgs(1).t
-    validateJsonType(t).right.map {
+    validateUserJsonType(t).right.map {
       case Rql2IterableType(rowType, _) => Rql2IterableType(rowType)
       case other => other
     }
@@ -556,11 +558,8 @@ class PrintJsonEntry extends EntryExtension with JsonEntryExtensionHelper {
   )(implicit programContext: ProgramContext): Either[String, Type] = {
     // Here we validate the type of the argument, and always return a string
     val data = mandatoryArgs.head
-    validateJsonType(data.t).right.map(_ => Rql2StringType()).left.map { errors =>
-      errors
-        .map { case UnsupportedType(_, t, _) => s"unsupported type ${SourcePrettyPrinter.format(t)}" }
-        .mkString(", ")
-    }
+    if (JsonPackage.outputWriteSupport(data.t)) Right(Rql2StringType())
+    else Left(s"unsupported type ${SourcePrettyPrinter.format(data.t)}")
   }
 
 }
@@ -582,18 +581,39 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
     )
   }
 
-  protected def validateJsonType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
-    case _: Rql2LocationType => Left(Seq(UnsupportedType(t, t, None)))
+  // validates the type as entered by the user. We have the possibility to flag the error on the specific
+  // type nodes.
+  protected def validateUserJsonType(t: Type): Either[Seq[UnsupportedType], Type] = validateJsonType(t).left.map(
+    unsupportedTypes => unsupportedTypes.map { case (t, explanation) => UnsupportedType(t, t, None, explanation) }
+  )
+
+  // validates the type as forged from the inferred one. We cannot flag the error on the types, since they're not
+  // in the tree. Instead, flag the reader node.
+  protected def validateInferredJsonType(t: Type, reader: BaseNode): Either[Seq[UnsupportedType], Type] =
+    validateJsonType(t).left.map(unsupportedTypes =>
+      unsupportedTypes.map { case (t, explanation) => UnsupportedType(reader, t, None, explanation) }
+    )
+
+  private def validateJsonType(t: Type): Either[Seq[(Type, Option[String])], Type] = t match {
+    case _: Rql2LocationType => Left(Seq((t, None)))
     case Rql2RecordType(atts, props) =>
-      val validation = atts
-        .map(x => validateJsonType(x.tipe))
-      val errors = validation
-        .collect { case Left(error) => error }
-      if (errors.nonEmpty) Left(errors.flatten)
-      else {
-        val attTypes = validation.collect { case Right(t) => t }
-        val validAttributes = atts.zip(attTypes).map { case (a, validType) => Rql2AttrType(a.idn, validType) }
-        Right(Rql2RecordType(validAttributes, props))
+      val duplicates = atts.groupBy(_.idn).mapValues(_.size).collect { case (field, n) if n > 1 => field }
+      if (duplicates.nonEmpty) {
+        val explanation =
+          if (duplicates.size == 1) s"duplicate field: ${duplicates.head}"
+          else s"duplicate fields: ${duplicates.mkString(", ")}"
+        Left(Seq((t, Some(explanation))))
+      } else {
+        val validation = atts
+          .map(x => validateJsonType(x.tipe))
+        val errors = validation
+          .collect { case Left(error) => error }
+        if (errors.nonEmpty) Left(errors.flatten)
+        else {
+          val attTypes = validation.collect { case Right(t) => t }
+          val validAttributes = atts.zip(attTypes).map { case (a, validType) => Rql2AttrType(a.idn, validType) }
+          Right(Rql2RecordType(validAttributes, props))
+        }
       }
     case Rql2IterableType(innerType, props) =>
       validateJsonType(innerType).right.map(validType => Rql2IterableType(validType, props))
@@ -619,7 +639,7 @@ trait JsonEntryExtensionHelper extends EntryExtensionHelper {
       }
     case t: Rql2PrimitiveType => Right(t)
     case t: Rql2UndefinedType => Right(t)
-    case t => Left(Seq(UnsupportedType(t, t, None)))
+    case t => Left(Seq((t, None)))
   }
 
 }
