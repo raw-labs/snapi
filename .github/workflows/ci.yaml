@@ -7,7 +7,7 @@ on:
       - client/**
       - snapi-client/**
       - snapi-frontend/**
-      - snapi-parser/**
+      - parsers/**
       - snapi-truffle/**
       - python-client/**
       - sql-client/**

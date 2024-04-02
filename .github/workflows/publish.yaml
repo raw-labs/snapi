@@ -138,7 +138,7 @@ jobs:
           > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) failed :x:
         reactions: confused
 
-  publish-snapi-parser:
+  publish-parsers:
     runs-on: self-hosted
     steps:
     - if: github.event_name != 'repository_dispatch'
@@ -184,13 +184,13 @@ jobs:
           }]
     - if: github.event_name == 'repository_dispatch'
       name: publish to snapshots repo
-      working-directory: snapi-parser
+      working-directory: parsers
       run: |
         ./publish.sh
         echo SNAPI_PARSER_VER="$(cat version)" >> $GITHUB_ENV
     - if: github.event_name != 'repository_dispatch'
       name: release
-      working-directory: snapi-parser
+      working-directory: parsers
       run: |
         ./release.sh
         echo SNAPI_PARSER_VER="$(cat version)" >> $GITHUB_ENV
@@ -201,7 +201,7 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > published snapi-parser version: ${{ env.SNAPI_PARSER_VER }}
+          > published parsers version: ${{ env.SNAPI_PARSER_VER }}
         reactions: rocket
     - if: failure() && github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v4
@@ -210,6 +210,6 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > something went wrong with `publish-snapi-parser`
+          > something went wrong with `publish-parsers`
           > run [${{ github.run_id }}](${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}) :x:
         reactions: confused

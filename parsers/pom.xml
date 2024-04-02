@@ -4,7 +4,7 @@
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>com.raw-labs</groupId>
-    <artifactId>raw-snapi-parser</artifactId>
+    <artifactId>raw-parsers</artifactId>
 
     <version>${revision}${changelist}</version>
     <packaging>jar</packaging>
