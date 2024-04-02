@@ -9,16 +9,16 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val rawSnapiParserVersion = (XML.loadFile(new File("../snapi-parser/pom.xml")) \ "version").text.trim
+  val rawSnapiParserVersion = (XML.loadFile(new File("../snapi-parser/pom.xml")) \ "properties" \ "revision").text.trim
   val rawSnapiParser = "com.raw-labs" % "raw-snapi-parser" % rawSnapiParserVersion
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
 
 
   val aws =
-    "software.amazon.awssdk" % "s3" % "2.20.69" excludeAll(
+    "software.amazon.awssdk" % "s3" % "2.20.162" excludeAll(
       ExclusionRule(organization = "commons-logging", name = "commons-logging"),
-      ExclusionRule(organization = "org.apache.httpcomponents", name = "httpcore")
+      //ExclusionRule(organization = "org.apache.httpcomponents", name = "httpcore")
       )
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
 
