@@ -16,33 +16,9 @@ import com.oracle.truffle.api.dsl.*;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
-import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.ComputeNextNodes;
 import raw.runtime.truffle.runtime.kryo.KryoNodes;
 
 public class InputBufferNodes {
-  @NodeInfo(shortName = "InputBuffer.Close")
-  @GenerateUncached
-  @GenerateInline
-  public abstract static class InputBufferCloseNode extends Node {
-
-    public abstract void execute(Node node, Object generator);
-
-    @Specialization
-    static void close(
-        Node node,
-        GroupByInputBuffer buffer,
-        @Cached @Cached.Shared("close") ComputeNextNodes.CloseNode closeNode) {
-      buffer.getInput().close();
-    }
-
-    @Specialization
-    static void close(
-        Node node,
-        OrderByInputBuffer buffer,
-        @Cached @Cached.Shared("close") ComputeNextNodes.CloseNode closeNode) {
-      buffer.getInput().close();
-    }
-  }
 
   @NodeInfo(shortName = "InputBuffer.HeadKey")
   @GenerateUncached
@@ -56,15 +32,12 @@ public class InputBufferNodes {
         Node node,
         GroupByInputBuffer buffer,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
+        @Cached @Cached.Exclusive KryoNodes.KryoReadNode kryoRead) {
       // read the next key (if it is null, otherwise keep the current one).
       if (buffer.getKey() == null) {
         buffer.setKey(
             kryoRead.execute(
-                thisNode,
-                buffer.getOffHeapGroupByKey().getLanguage(),
-                buffer.getInput(),
-                buffer.getOffHeapGroupByKey().getKeyType()));
+                thisNode, buffer.getInput(), buffer.getOffHeapGroupByKey().getKeyType()));
         buffer.setItemsLeftFromInput();
       }
       return buffer.getKey();
@@ -75,18 +48,13 @@ public class InputBufferNodes {
         Node node,
         OrderByInputBuffer buffer,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
+        @Cached @Cached.Exclusive KryoNodes.KryoReadNode kryoRead) {
       // read the next key (if it is null, otherwise keep the current one).
       if (buffer.getKeys() == null) {
         Rql2TypeWithProperties[] keyTypes = buffer.getOffHeapGroupByKey().getKeyTypes();
         Object[] keys = new Object[keyTypes.length];
         for (int i = 0; i < keyTypes.length; i++) {
-          keys[i] =
-              kryoRead.execute(
-                  thisNode,
-                  buffer.getOffHeapGroupByKey().getLanguage(),
-                  buffer.getInput(),
-                  keyTypes[i]);
+          keys[i] = kryoRead.execute(thisNode, buffer.getInput(), keyTypes[i]);
         }
         buffer.setKeys(keys);
         buffer.setItemsLeftFromInput();
@@ -107,16 +75,13 @@ public class InputBufferNodes {
         Node node,
         GroupByInputBuffer buffer,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
+        @Cached @Cached.Exclusive KryoNodes.KryoReadNode kryoRead) {
       buffer.decreaseItemsLeft();
       if (buffer.getItemsLeft() == 0) {
         buffer.setKey(null);
       }
       return kryoRead.execute(
-          thisNode,
-          buffer.getOffHeapGroupByKey().getLanguage(),
-          buffer.getInput(),
-          buffer.getOffHeapGroupByKey().getKeyType());
+          thisNode, buffer.getInput(), buffer.getOffHeapGroupByKey().getRowType());
     }
 
     @Specialization
@@ -124,16 +89,13 @@ public class InputBufferNodes {
         Node node,
         OrderByInputBuffer buffer,
         @Bind("$node") Node thisNode,
-        @Cached @Cached.Shared("kryoRead") KryoNodes.KryoReadNode kryoRead) {
+        @Cached @Cached.Exclusive KryoNodes.KryoReadNode kryoRead) {
       buffer.decreaseItemsLeft();
       if (buffer.getItemsLeft() == 0) {
         buffer.setKeys(null);
       }
       return kryoRead.execute(
-          thisNode,
-          buffer.getOffHeapGroupByKey().getLanguage(),
-          buffer.getInput(),
-          buffer.getOffHeapGroupByKey().getRowType());
+          thisNode, buffer.getInput(), buffer.getOffHeapGroupByKey().getRowType());
     }
   }
 }

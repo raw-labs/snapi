@@ -360,6 +360,14 @@ class ClientCredentials(serverAddress: URI)(implicit settings: RawSettings) exte
     restClient.doJsonPost[List[String]]("2/secrets/list", ListSecretCredentials(user), withAuth = false)
   }
 
+  def getUserDb(user: AuthenticatedUser): String = {
+    restClient.doJsonPost[String](
+      "2/fdw/provision",
+      ProvisionFdwDbCredentials(user),
+      withAuth = false
+    )
+  }
+
   def close(): Unit = {
     restClient.close()
   }

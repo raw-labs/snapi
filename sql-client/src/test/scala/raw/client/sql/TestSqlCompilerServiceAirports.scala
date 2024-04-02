@@ -22,13 +22,21 @@
 package raw.client.sql
 
 import raw.client.api._
+import raw.creds.api.CredentialsTestContext
+import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
 import java.io.ByteArrayOutputStream
 
-class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestContext with TrainingWheelsContext {
+class TestSqlCompilerServiceAirports
+    extends RawTestSuite
+    with SettingsTestContext
+    with TrainingWheelsContext
+    with CredentialsTestContext
+    with LocalCredentialsTestContext {
 
   private var compilerService: CompilerService = _
+
   private val database = sys.env.getOrElse("FDW_DATABASE", "raw")
   private val hostname = sys.env.getOrElse("FDW_HOSTNAME", "localhost")
   private val port = sys.env.getOrElse("FDW_HOSTNAME", "5432")
@@ -46,7 +54,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
   override def beforeAll(): Unit = {
     super.beforeAll()
     compilerService = new SqlCompilerService(None)
-
   }
 
   override def afterAll(): Unit = {
@@ -57,13 +64,49 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     super.afterAll()
   }
 
+  test("""SELECT COUNT(*) FROM example.airports
+    |WHERE :city::json IS NULL
+    |   OR :city::integer != 3
+    |   OR :city::xml IS NULL""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val v = compilerService.validate(t.q, environment)
+    assert(v.messages.size == 2)
+    assert(v.messages(0).positions(0).begin.line == 2) // first error is about json (one position, the :city::json)
+    assert(v.messages(1).positions(0).begin.line == 4) // second error is about xml (one position, the :city::xml)
+  // :city::integer is valid
+  }
+
+  test("""-- @type v double precisionw
+    |SELECT :v FROM example.airports where city = :city""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(2, 48))
+    // the typo in type declaration doesn't block hover info about a correct one
+    assert(hover.completion.contains(TypeCompletion("city", "varchar")))
+
+  }
+  ignore("""select * from public."B """.stripMargin) { t => }
+
   // Quoted value
-  test("""select * from public."B """.stripMargin) { t =>
+  test("""select * from exam""".stripMargin) { t =>
     assume(password != "")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "B", Pos(1, 24))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(1, 19))
     assert(
-      completion.completions.toSet === Set(LetBindCompletion("BLABLABLA", "table"))
+      completion.completions.toSet === Set(LetBindCompletion("example", "schema"))
+    )
+  }
+
+  // Quoted value
+  ignore("""do something to see if a schema has the same name as a column and it still works""") { t =>
+    assume(password != "")
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "c", Pos(1, 19)) // right after 'm'
+    assert(
+      completion.completions.toSet === Set(LetBindCompletion("example", "schema"))
     )
   }
 
@@ -106,8 +149,10 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     )
   }
 
+  // it parses AND as a field of ai.ANDairports
   test("""SELECT * FROM example.airports
-    |WHERE airports.
+    |WHERE ai.
+    |AND   airports.
     |""".stripMargin) { t =>
     assume(password != "")
 
@@ -122,6 +167,39 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
       )
     )
 
+    // The calls to the dotAutoComplete have to point to the place before the dot
+    val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(3, 15))
+    assert(
+      dotCompletion.completions.toSet === airportColumns
+    )
+  }
+
+  test("""SELECT * FROM example.airports
+    |WHERE ai.
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 16))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("airport_id", "integer"),
+        LetBindCompletion("airports", "table")
+      )
+    )
+
+  }
+
+  test("""SELECT * FROM example.airports
+    |WHERE airports.
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 16))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
     val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
     assert(
@@ -154,7 +232,7 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
 
   // Quoted identifiers
   test("""SELECT * FROM "example"."airports"
-    |WHERE "airports".
+    |WHERE "ai
     |""".stripMargin) { t =>
     assume(password != "")
 
@@ -168,6 +246,17 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
         LetBindCompletion("airports", "table")
       )
     )
+  }
+
+  // Quoted identifiers
+  test("""SELECT * FROM "example"."airports"
+    |WHERE "airports".
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 17))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
     // The calls to the dotAutoComplete have to point to the place before the dot
     val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 17))
     assert(
@@ -197,14 +286,6 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val hover = compilerService.hover(t.q, environment, Pos(1, 16))
     assert(hover.completion.contains(TypeCompletion("example", "schema")))
-    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
-    assert(
-      completion.completions.toSet === Set(
-        LetBindCompletion("airport_id", "integer"),
-        LetBindCompletion("airports", "table")
-      )
-    )
-
     // The calls to the dotAutoComplete have to point to the place before the dot
     val dotCompletion = compilerService.dotAutoComplete(t.q, environment, Pos(2, 15))
     assert(
@@ -223,6 +304,25 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
         LetBindCompletion("city", "character varying")
       )
     )
+  }
+
+  // Upper case
+  test("""SELECT * FROM EXAMPLE.AIRPORTS
+    |WHERE AI.
+    |""".stripMargin) { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 16))
+    assert(hover.completion.contains(TypeCompletion("example", "schema")))
+    val completion = compilerService.wordAutoComplete(t.q, environment, "", Pos(2, 9))
+    assert(
+      completion.completions.toSet === Set(
+        LetBindCompletion("airport_id", "integer"),
+        LetBindCompletion("airports", "table")
+      )
+    )
+
   }
 
   // Wrong case with quotes (should not find a match)
@@ -271,8 +371,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == airportType
     )
@@ -316,8 +416,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == airportType
     )
@@ -355,8 +455,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == airportType
     )
@@ -390,10 +490,10 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(v.messages.nonEmpty)
     val GetProgramDescriptionFailure(errors) = compilerService.getProgramDescription(t.q, environment)
     assert(errors.size === 1)
-    assert(errors.head.message === "a parameter cannot be both string and int")
-    assert(errors.head.positions(0).begin === ErrorPosition(1, 45 + 1)) // after the colon, on 'p'
+    assert(errors.head.message === "a parameter cannot be both varchar and integer")
+    assert(errors.head.positions(0).begin === ErrorPosition(1, 45))
     assert(errors.head.positions(0).end === ErrorPosition(1, 51)) // a, r, a, m  = 4 chars + 1
-    assert(errors.head.positions(1).begin === ErrorPosition(1, 69 + 1)) // after the colon, on 'p'
+    assert(errors.head.positions(1).begin === ErrorPosition(1, 69))
     assert(errors.head.positions(1).end === ErrorPosition(1, 75)) //
   }
 
@@ -441,10 +541,10 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     assert(executionErrors.exists(error => expectedErrors.forall(error.message.contains)))
   }
 
-  test("SELECT * FROM wrong.table") { t =>
+  test("SELECT * FROM wrong.relation") { t =>
     assume(password != "")
 
-    val expectedErrors = Set("relation \"wrong.table\" does not exist", "Did you forget to add credentials?")
+    val expectedErrors = Set("relation \"wrong.relation\" does not exist", "Did you forget to add credentials?")
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
     val v = compilerService.validate(t.q, environment)
     val failures = v.messages.collect { case errorMessage: ErrorMessage => errorMessage }
@@ -505,8 +605,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == RawIterableType(
         RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
@@ -551,8 +651,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val v = compilerService.validate(t.q, withCity)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, withCity)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == RawIterableType(
         RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
@@ -581,8 +681,8 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     val v = compilerService.validate(t.q, environment)
     assert(v.messages.isEmpty)
     val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, environment)
-    assert(description.maybeType.isEmpty)
-    val List(main) = description.decls("main")
+    assert(description.decls.isEmpty)
+    val Some(main) = description.maybeRunnable
     assert(
       main.outType == RawIterableType(
         RawRecordType(
@@ -627,4 +727,78 @@ class TestSqlCompilerServiceAirports extends RawTestSuite with SettingsTestConte
     LetBindCompletion("longitude", "numeric"),
     LetBindCompletion("city", "character varying")
   )
+
+  test("""SELECT COUNT(*) FROM example.airports;""") { t =>
+    assume(password != "")
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    val noParam = ProgramEnvironment(
+      user,
+      None,
+      Set.empty,
+      Map("output-format" -> "json")
+    )
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+    assert(baos.toString() == """[{"count":8107}]""")
+  }
+
+  test( // RD-10505
+    """SELECT COUNT(*) FROM example.airports;
+      |-- nothing here
+      |""".stripMargin
+  ) { t =>
+    assume(password != "")
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    val noParam = ProgramEnvironment(
+      user,
+      None,
+      Set.empty,
+      Map("output-format" -> "json")
+    )
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+    assert(baos.toString() == """[{"count":8107}]""")
+  }
+
+  test( // RD-10505
+    """
+      |SELECT COUNT(*) FROM example.airports;
+      |
+      |-- @param name Name of the client.
+      |""".stripMargin
+  ) { t =>
+    assume(password != "")
+    val baos = new ByteArrayOutputStream()
+    baos.reset()
+    val noParam = ProgramEnvironment(
+      user,
+      None,
+      Set.empty,
+      Map("output-format" -> "json")
+    )
+    assert(compilerService.execute(t.q, noParam, None, baos) == ExecutionSuccess)
+    assert(baos.toString() == """[{"count":8107}]""")
+  }
+
+  // #RD-10612: hovering on a parameter name doesn't return the parameter type + fails internally
+  // The problem is because we are at the limit of the token and we returned an empty list.
+  // However, because of the function SqlCodeUtils.identifiers right now it returns an identifier with an empty string.
+  // The state machine in that function bails out because it finds the ':' at the start of the string.
+  test("SELECT :v > 12 AS column") { t =>
+    assume(password != "")
+
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover = compilerService.hover(t.q, environment, Pos(1, 10))
+    assert(hover.completion.contains(TypeCompletion("v", "integer"))) // postgres type
+
+  }
+
+  test("SELECT :city > 12, city FROM example.airports WHERE airport_id = :city LIMIT 2 ") { t =>
+    assume(password != "")
+    val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+    val hover1 = compilerService.hover(t.q, environment, Pos(1, 11))
+    assert(hover1.completion.contains(TypeCompletion("city", "integer"))) // has to be the Postgres type
+    val hover2 = compilerService.hover(t.q, environment, Pos(1, 20))
+    assert(hover2.completion.contains(TypeCompletion("city", "character varying")))
+  }
 }

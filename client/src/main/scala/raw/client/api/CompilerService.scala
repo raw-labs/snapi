@@ -30,62 +30,69 @@ final class CompilerServiceException(
 
   def this(t: Throwable, debugInfo: List[(String, String)]) = this(t.getMessage, debugInfo, t)
 
+  def this(t: Throwable, environment: ProgramEnvironment) =
+    this(t.getMessage, CompilerService.getDebugInfo(environment))
+
+  def this(t: Throwable) = this(t.getMessage, cause = t)
+
 }
 
 object CompilerService {
 
-  private var engine: Engine = _
-  private var engineCount = 0
-  private val engineLock = new Object
+  private val enginesLock = new Object
+  private val enginesCache = mutable.HashMap[RawSettings, Engine]()
 
-  private def getEngine(implicit settings: RawSettings): Engine = {
-    engineLock.synchronized {
-      if (engine == null) {
-        val options = new java.util.HashMap[String, String]()
-        if (settings.onTrainingWheels) {
-//          options.put("engine.CompileImmediately", "true")
-          //          options.put("engine.TraceCompilation", "true")
-          //          options.put("engine.BackgroundCompilation", "false")
-//          options.put("engine.CompilationFailureAction", "Throw")
-          //      options.put("engine.CompilationFailureAction", "Diagnose")
-          //      options.put("compiler.LogInlinedTargets", "true")
-          //  "-Dpolyglotimpl.CompilationFailureAction=Throw",
-          //  "-Dpolyglotimpl.TreatPerformanceWarningsAsErrors=false",
-          //  "-Dpolyglotimpl.CompilationExceptionsAreFatal=true",
-          //  "-Dpolyglotimpl.BackgroundCompilation=false",
-          //  "-Dpolyglotimpl.TraceCompilationDetails=true",
-          //  "-Dpolyglotimpl.TraceInlining=true"
-          //  "-Dgraal.Dump=Truffle:2",
-          //  "-Dgraal.DumpPath=/tmp/graal_dumps",
-          //  "-Dgraal.PrintGraph=Network",
-          // https://www.graalvm.org/latest/graalvm-as-a-platform/language-implementation-framework/Options/
-        }
-        engine = Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+  // Return engine and a flag indicating if the engine was created.
+  def getEngine()(implicit settings: RawSettings): (Engine, Boolean) = {
+    enginesLock.synchronized {
+      enginesCache.get(settings) match {
+        case Some(engine) =>
+          // Re-using an engine someone else create before. This typically happens on staged compilation.
+          (engine, false)
+        case None =>
+          // First time creating an engine for this settings.
+          val options = new java.util.HashMap[String, String]()
+          if (settings.onTrainingWheels) {
+            // Refer to settings at:
+            // https://www.graalvm.org/latest/graalvm-as-a-platform/language-implementation-framework/Options/
+            //          options.put("engine.CompileImmediately", "true")
+            //          options.put("engine.TraceCompilation", "true")
+            //          options.put("engine.BackgroundCompilation", "false")
+            //          options.put("engine.CompilationFailureAction", "Throw")
+            //          options.put("engine.CompilationFailureAction", "Diagnose")
+            //          options.put("compiler.LogInlinedTargets", "true")
+          }
+          val engine = Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+          enginesCache.put(settings, engine)
+          (engine, true)
       }
-      engineCount += 1
-      engine
     }
   }
 
-  private def releaseEngine(): Unit = {
-    engineLock.synchronized {
-      engineCount -= 1
-      if (engineCount == 0) {
-        engine.close(true)
-        engine = null
-      }
+  def releaseEngine()(implicit settings: RawSettings): Unit = {
+    enginesLock.synchronized {
+      enginesCache.remove(settings).foreach(engine => engine.close(true))
     }
+  }
+
+  def getDebugInfo(environment: ProgramEnvironment): List[(String, String)] = {
+    List(
+      "Trace ID" -> environment.maybeTraceId.getOrElse("<undefined>"),
+      "Arguments" -> environment.maybeArguments
+        .map(args => args.map { case (k, v) => s"$k -> $v" }.mkString("\n"))
+        .getOrElse("<undefined>"),
+      "User" -> environment.user.toString,
+      "Scopes" -> environment.scopes.mkString(","),
+      "Options" -> environment.options.map { case (k, v) => s"$k -> $v" }.mkString("\n")
+      //"Settings" -> runtimeContext.settings.toString
+    )
   }
 
 }
 
 trait CompilerService extends RawService {
 
-  import CompilerService._
-
   implicit protected def settings: RawSettings
-
-  protected lazy val engine: Engine = getEngine
 
   def language: Set[String]
 
@@ -288,10 +295,6 @@ trait CompilerService extends RawService {
           RawLocation(LocationDescription(url, settings.toMap))
       }
     }
-  }
-
-  override def doStop(): Unit = {
-    releaseEngine()
   }
 
 }

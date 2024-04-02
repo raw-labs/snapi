@@ -12,45 +12,59 @@
 
 package raw.runtime.truffle.ast.expressions.record;
 
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.*;
-import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
+import java.util.ArrayList;
+import java.util.List;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 
 @NodeInfo(shortName = "Record.RemoveField")
 @NodeChild("record")
 @NodeChild("dropKey")
+@ImportStatic(RecordStaticInitializers.class)
 public abstract class RecordRemoveFieldNode extends ExpressionNode {
 
-  @Specialization(limit = "3")
-  protected Object doRemoveField(
-      RecordObject record,
-      String dropKey,
-      @CachedLibrary("record") InteropLibrary records,
-      @CachedLibrary(limit = "2") InteropLibrary libraries) {
-    RecordObject newRecord = RawLanguage.get(this).createRecord();
-    try {
-      Object keys = records.getMembers(record);
-      long length = libraries.getArraySize(keys);
-      String member;
-      for (int i = 0; i < length; i++) {
-        member = (String) libraries.readArrayElement(keys, i);
-        if (member.equals(dropKey)) {
-          continue;
-        }
-        libraries.writeMember(newRecord, member, records.readMember(record, member));
-      }
-      return newRecord;
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException
-        | InvalidArrayIndexException e) {
-      throw new RawTruffleInternalErrorException(e, this);
+  public static boolean hasDuplicateKeysWithoutKey(Object[] keys, Object key) {
+    List<Object> list = new ArrayList<>(List.of(keys));
+    list.remove(key);
+    return list.size() != list.stream().distinct().count();
+  }
+
+  @Specialization
+  protected static Object doRemoveField(
+      Object record,
+      Object dropKey,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getCachedLanguage(thisNode)", neverDefault = true) RawLanguage lang,
+      @Cached(inline = true) RecordNodes.GetKeysNode getKeysNode,
+      @Cached(value = "getKeysNode.execute(thisNode, record)", neverDefault = true, dimensions = 1)
+          Object[] objKeys,
+      @Cached(value = "hasDuplicateKeysWithoutKey(objKeys, dropKey)", neverDefault = false)
+          boolean hasDuplicateKeys,
+      @Cached(value = "getValueNode(objKeys.length)", neverDefault = true)
+          RecordNodes.GetValueNode[] getValueNode,
+      @Cached(value = "getAddPropNode(objKeys.length)", neverDefault = true)
+          RecordNodes.AddPropNode[] addPropNode) {
+    Object result;
+    if (hasDuplicateKeys) {
+      result = lang.createDuplicateKeyRecord();
+    } else {
+      result = lang.createPureRecord();
     }
+
+    for (int i = 0; i < objKeys.length; i++) {
+      if (!objKeys[i].equals(dropKey)) {
+        addPropNode[i].execute(
+            thisNode,
+            result,
+            objKeys[i],
+            getValueNode[i].execute(thisNode, record, objKeys[i]),
+            hasDuplicateKeys);
+      }
+    }
+    return result;
   }
 }

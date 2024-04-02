@@ -23,6 +23,7 @@ import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
 import java.util.Iterator;
 import java.util.Objects;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapIterator;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.list.StringList;
 
@@ -31,13 +32,12 @@ import raw.runtime.truffle.runtime.list.StringList;
 @ExportLibrary(InteropLibrary.class)
 public class OrderByMemoryGenerator implements TruffleObject {
   private final OffHeapGroupByKeys offHeapGroupByKeys;
-
-  private final Iterator<Object[]> keysIterator; // the iterator from the in-memory map keys.
+  private final TreeMapIterator nodeIterator; // the iterator from the in-memory map keys.
   private Iterator<Object> values = null; // the current iterator over the grouped rows
 
   public OrderByMemoryGenerator(OffHeapGroupByKeys offHeapGroupByKeys) {
     this.offHeapGroupByKeys = offHeapGroupByKeys;
-    this.keysIterator = offHeapGroupByKeys.getMemMap().keySet().iterator();
+    this.nodeIterator = offHeapGroupByKeys.getMemMap().iterator();
   }
 
   public void setValues(Iterator<Object> values) {
@@ -48,8 +48,8 @@ public class OrderByMemoryGenerator implements TruffleObject {
     return offHeapGroupByKeys;
   }
 
-  public Iterator<Object[]> getKeysIterator() {
-    return keysIterator;
+  public TreeMapIterator getNodeIterator() {
+    return nodeIterator;
   }
 
   public Iterator<Object> getValues() {

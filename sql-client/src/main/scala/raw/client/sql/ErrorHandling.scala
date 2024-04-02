@@ -30,7 +30,7 @@ object ErrorHandling extends StrictLogging {
     asMessage(source, message)
   }
 
-  def asMessage(source: String, message: String): List[ErrorMessage] = {
+  private def asMessage(source: String, message: String): List[ErrorMessage] = {
     val fullRange = {
       val lines = source.split("\n")
       val nLines = lines.length

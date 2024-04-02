@@ -12,6 +12,8 @@
 
 package raw.runtime.truffle.ast.io.xml.parser;
 
+import static raw.runtime.truffle.ast.expressions.record.RecordStaticInitializers.hasDuplicateKeys;
+
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.DirectCallNode;
@@ -27,15 +29,13 @@ import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.NullObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.runtime.record.RecordNodesFactory;
-import raw.runtime.truffle.runtime.record.RecordObject;
 
 @NodeInfo(shortName = "RecordParseXml")
 public class RecordParseXmlNode extends ExpressionNode {
 
-  @Child
-  private RecordNodes.WriteIndexNode writeIndexNode = RecordNodesFactory.WriteIndexNodeGen.create();
+  @Children private final RecordNodes.AddPropNode[] addPropNode;
 
-  @Children private DirectCallNode[] childDirectCalls;
+  @Children private final DirectCallNode[] childDirectCalls;
 
   // Field name and its index in the childDirectCalls array
   private final int fieldsSize;
@@ -47,6 +47,9 @@ public class RecordParseXmlNode extends ExpressionNode {
   private final Map<String, Integer> collectionsIndex = new HashMap<>();
   private final BitSet refBitSet;
   private final BitSet bitSet;
+  private final boolean hasDuplicateKeys;
+
+  private final RawLanguage language = RawLanguage.get(this);
 
   public RecordParseXmlNode(
       ProgramExpressionNode[] childProgramExpressionNode,
@@ -56,6 +59,7 @@ public class RecordParseXmlNode extends ExpressionNode {
     this.fields = fieldNames;
     this.fieldsSize = childProgramExpressionNode.length;
     this.childDirectCalls = new DirectCallNode[this.fieldsSize];
+    this.addPropNode = new RecordNodes.AddPropNode[this.fieldsSize];
     refBitSet = new BitSet(this.fieldsSize);
     for (int index = 0; index < this.fieldsSize; index++) {
       String fieldName = fieldNames[index];
@@ -73,8 +77,11 @@ public class RecordParseXmlNode extends ExpressionNode {
         collectionsIndex.put(fieldName, index);
         refBitSet.set(index);
       }
+      this.addPropNode[index] = RecordNodesFactory.AddPropNodeGen.create();
     }
     bitSet = new BitSet();
+
+    hasDuplicateKeys = hasDuplicateKeys(fieldNames);
   }
 
   public Object executeGeneric(VirtualFrame frame) {
@@ -94,7 +101,12 @@ public class RecordParseXmlNode extends ExpressionNode {
     bitSet.or(refBitSet);
 
     // the record to be returned
-    RecordObject record = RawLanguage.get(this).createRecord();
+    Object record;
+    if (hasDuplicateKeys) {
+      record = language.createDuplicateKeyRecord();
+    } else {
+      record = language.createPureRecord();
+    }
 
     Vector<String> attributes = parser.attributes();
     int nAttributes = attributes.size();
@@ -129,18 +141,19 @@ public class RecordParseXmlNode extends ExpressionNode {
     }
     parser.expectEndTag(recordTag);
 
+    String[] keys = getKeySet();
     // processing lists and collections
-    for (String fieldName : collectionValues.keySet()) {
+    for (int i = 0; i < keys.length; i++) {
       // build an object list (for all cases)
-      ArrayList<Object> items = collectionValues.get(fieldName);
+      ArrayList<Object> items = collectionValues.get(keys[i]);
       ObjectList list = new ObjectList(items.toArray());
-      int index = collectionsIndex.get(fieldName);
+      int index = collectionsIndex.get(keys[i]);
       Type fieldType = fieldTypes[index];
       if (fieldType instanceof Rql2IterableType) {
         // if the collection is an iterable, convert the list to an iterable.
-        writeIndexNode.execute(this, record, index, fieldName, list.toIterable());
+        addPropNode[i].execute(this, record, keys[i], list.toIterable(), hasDuplicateKeys);
       } else {
-        writeIndexNode.execute(this, record, index, fieldName, list);
+        addPropNode[i].execute(this, record, keys[i], list, hasDuplicateKeys);
       }
     }
 
@@ -157,7 +170,7 @@ public class RecordParseXmlNode extends ExpressionNode {
             // else a plain
             // null.
             Object nullValue = NullObject.INSTANCE;
-            writeIndexNode.execute(this, record, i, fieldName, nullValue);
+            addPropNode[i].execute(this, record, fieldName, nullValue, hasDuplicateKeys);
           } else {
             missingFields.append(", ");
             missingFields.append(fieldName);
@@ -177,7 +190,12 @@ public class RecordParseXmlNode extends ExpressionNode {
     return record;
   }
 
-  private void parseTagContent(RawTruffleXmlParser parser, String fieldName, RecordObject record) {
+  @TruffleBoundary
+  private String[] getKeySet() {
+    return collectionValues.keySet().toArray(new String[0]);
+  }
+
+  private void parseTagContent(RawTruffleXmlParser parser, String fieldName, Object record) {
     Integer index = fieldsIndex.get(fieldName);
     if (index != null) {
       applyParser(parser, index, fieldName, record);
@@ -187,13 +205,12 @@ public class RecordParseXmlNode extends ExpressionNode {
     }
   }
 
-  private void applyParser(
-      RawTruffleXmlParser parser, int index, String fieldName, RecordObject record) {
+  private void applyParser(RawTruffleXmlParser parser, int index, String fieldName, Object record) {
     Object value = childDirectCalls[index].call(parser);
     storeFieldValue(fieldName, index, value, record);
   }
 
-  private void storeFieldValue(String fieldName, int index, Object value, RecordObject record) {
+  private void storeFieldValue(String fieldName, int index, Object value, Object record) {
     ArrayList<Object> collectionField = collectionValues.get(fieldName);
     if (collectionField != null) {
       // if the field is a collection or a list, add the item to the list instead writing it
@@ -201,7 +218,7 @@ public class RecordParseXmlNode extends ExpressionNode {
       // record.
       collectionField.add(value);
     } else {
-      writeIndexNode.execute(this, record, index, fieldName, value);
+      addPropNode[index].execute(this, record, fieldName, value, hasDuplicateKeys);
       bitSet.set(index);
     }
   }

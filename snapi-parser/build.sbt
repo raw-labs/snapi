@@ -139,6 +139,13 @@ val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
 
 generateParser := {
 
+  // List of output paths
+  val basePath: String = s"${baseDirectory.value}/src/main/java"
+  val parsers = List(
+    (s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
+    (s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql")
+  )
+
   def deleteRecursively(file: File): Unit = {
     if (file.isDirectory) {
       file.listFiles.foreach(deleteRecursively)
@@ -148,45 +155,48 @@ generateParser := {
     }
   }
 
-  val basePath: String = s"${baseDirectory.value}/src/main/java"
-
-  val outputPath: String = s"${baseDirectory.value}/src/main/java/raw/compiler/rql2/generated"
-
-  val file = new File(outputPath)
-  if (file.exists()) {
-    deleteRecursively(file)
-  }
-
-  val packageName: String = "raw.compiler.rql2.generated"
-
-  val jarName = "antlr-4.12.0-complete.jar"
-
-  val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
-
   val s: TaskStreams = streams.value
-  val output = new StringBuilder
-  val logger = ProcessLogger(
-    (o: String) => output.append(o + "\n"), // for standard output
-    (e: String) => output.append(e + "\n") // for standard error
-  )
 
-  val grammarPath = s"$basePath/raw/parser/grammar"
+  parsers.foreach(parser => {
 
-  val lexerResult = s"$command  $grammarPath/SnapiLexer.g4".!(logger)
-  if (lexerResult == 0) {
-    s.log.info("Lexer code generated successfully")
-  } else {
-    s.log.error("Lexer code generation failed with exit code " + lexerResult)
-    s.log.error("Output:\n" + output.toString)
-  }
+    val outputPath = parser._1
 
-  val parserResult = s"$command $grammarPath/SnapiParser.g4".!(logger)
-  if (parserResult == 0) {
-    s.log.info("Parser code generated successfully")
-  } else {
-    s.log.error("Parser code generation failed with exit code " + lexerResult)
-    s.log.error("Output:\n" + output.toString)
-  }
+    val file = new File(outputPath)
+    if (file.exists()) {
+      deleteRecursively(file)
+    }
+
+    val packageName: String = parser._2
+
+    val jarName = "antlr-4.12.0-complete.jar"
+
+    val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
+
+    val output = new StringBuilder
+    val logger = ProcessLogger(
+      (o: String) => output.append(o + "\n"), // for standard output
+      (e: String) => output.append(e + "\n") // for standard error
+    )
+
+    val grammarPath = parser._3
+    val grammarName = parser._4
+
+    val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
+    if (lexerResult == 0) {
+      s.log.info("Lexer code generated successfully")
+    } else {
+      s.log.error("Lexer code generation failed with exit code " + lexerResult)
+      s.log.error("Output:\n" + output.toString)
+    }
+
+    val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
+    if (parserResult == 0) {
+      s.log.info("Parser code generated successfully")
+    } else {
+      s.log.error("Parser code generation failed with exit code " + lexerResult)
+      s.log.error("Output:\n" + output.toString)
+    }
+  })
 }
 
 Compile / compile := (Compile / compile).dependsOn(generateParser).value

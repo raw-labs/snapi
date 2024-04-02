@@ -57,3 +57,5 @@ final case class RegisterSecretCredential(user: AuthenticatedUser, credential: S
 final case class GetSecretCredential(user: AuthenticatedUser, name: String)
 final case class ListSecretCredentials(user: AuthenticatedUser)
 final case class UnregisterSecretCredential(user: AuthenticatedUser, name: String)
+
+final case class ProvisionFdwDbCredentials(user: AuthenticatedUser)

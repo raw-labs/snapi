@@ -25,13 +25,14 @@ import com.oracle.truffle.api.nodes.NodeInfo;
 import java.io.IOException;
 import java.io.OutputStream;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 
 @NodeInfo(shortName = "Json.Write")
 @NodeChild(value = "value", type = ExpressionNode.class)
 @NodeField(name = "childCallTarget", type = RootCallTarget.class)
+@ImportStatic(StaticInitializers.class)
 public abstract class JsonWriterNode extends StatementNode {
 
   protected abstract RootCallTarget getChildCallTarget();
@@ -41,9 +42,9 @@ public abstract class JsonWriterNode extends StatementNode {
       Object value,
       @Bind("$node") Node thisNode,
       @Cached(inline = true) JsonWriteNodes.InitGeneratorJsonWriterNode initGeneratorNode,
-      @Cached("create(getChildCallTarget())") DirectCallNode childDirectCall) {
-    try (OutputStream os = RawContext.get(this).getOutput();
-        JsonGenerator gen = initGeneratorNode.execute(this, os)) {
+      @Cached("create(getChildCallTarget())") DirectCallNode childDirectCall,
+      @Cached(value = "getOutputStream(thisNode)", neverDefault = true) OutputStream outputStream) {
+    try (JsonGenerator gen = initGeneratorNode.execute(this, outputStream)) {
       childDirectCall.call(value, gen);
     } catch (IOException e) {
       throw new RawTruffleRuntimeException(e.getMessage(), e, thisNode);

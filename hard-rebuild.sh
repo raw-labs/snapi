@@ -10,10 +10,6 @@ cd ../client
 rm -rf target/
 sbt clean publishLocal
 
-cd ../sql-client
-rm -rf target/
-sbt clean publishLocal
-
 cd ../snapi-parser
 rm -rf target/
 sbt clean publishLocal
@@ -27,6 +23,10 @@ rm -rf target/
 sbt clean runJavaAnnotationProcessor publishLocal
 
 cd ../snapi-client
+rm -rf target/
+sbt clean publishLocal
+
+cd ../sql-client
 rm -rf target/
 sbt clean publishLocal
 

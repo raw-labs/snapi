@@ -14,7 +14,7 @@ package raw.client.api
 
 final case class ProgramDescription(
     decls: Map[String, List[DeclDescription]],
-    maybeType: Option[RawType],
+    maybeRunnable: Option[DeclDescription],
     comment: Option[String]
 )
 

@@ -42,4 +42,9 @@ public final class ProgramExpressionNode extends RootNode {
   public Object execute(VirtualFrame frame) {
     return bodyNode.executeGeneric(frame);
   }
+
+  @Override
+  public String toString() {
+    return bodyNode.toString();
+  }
 }

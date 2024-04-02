@@ -19,8 +19,10 @@ module raw.sql.client {
   requires com.fasterxml.jackson.core;
   requires com.fasterxml.jackson.databind;
   requires raw.client;
+  requires raw.snapi.parser;
   requires java.sql;
   requires com.zaxxer.hikari;
+  requires raw.snapi.frontend;
 
   provides raw.client.api.CompilerServiceBuilder with
       raw.client.sql.SqlCompilerServiceBuilder;

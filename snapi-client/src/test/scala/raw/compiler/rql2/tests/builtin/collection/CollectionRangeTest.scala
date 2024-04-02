@@ -21,6 +21,10 @@ trait CollectionRangeTest extends CompilerTestContext {
   test("""Long.Range(0, 10)""")(_ should evaluateTo("[0L,1L,2L,3L,4L,5L,6L,7L,8L,9L]"))
   test("""Long.Range(0, 1)""")(_ should evaluateTo("[0L]"))
 
+  test("""Collection.Filter(Long.Range(0, 1000000), x -> x == 999999)""")(
+    _ should evaluateTo("Collection.Build(999999L)")
+  )
+
   // end = start
   test("""Long.Range(0, 0)""")(_ should evaluateTo("[]"))
   test("""Long.Range(12, 12)""")(_ should evaluateTo("[]"))
