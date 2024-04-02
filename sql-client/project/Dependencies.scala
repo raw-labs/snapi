@@ -1,5 +1,4 @@
 import sbt._
-import scala.xml.XML
 
 object Dependencies {
 
@@ -9,7 +8,7 @@ object Dependencies {
   val rawSnapiFrontendVersion = IO.read(new File("../snapi-frontend/version")).trim
   val rawSnapiFrontend = "com.raw-labs" %% "raw-snapi-frontend" % rawSnapiFrontendVersion
 
-  val rawSnapiParserVersion = (XML.loadFile(new File("../snapi-parser/pom.xml")) \ "version").text.trim
+  val rawSnapiParserVersion = IO.read(new File("../snapi-parser/version")).trim
   val rawSnapiParser = "com.raw-labs" % "raw-snapi-parser" % rawSnapiParserVersion
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
