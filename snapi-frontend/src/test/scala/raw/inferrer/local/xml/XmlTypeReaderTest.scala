@@ -56,6 +56,7 @@ class XmlTypeReaderTest extends AnyFunSuite {
       )
     )
     assert(typeReader.atEndOfDocument())
+    assert(typeReader.sampled)
 
     // inferring the full thing, now a type is collection(string nullable)
     typeReader = new InferrerXmlTypeReader(xml, -1)
@@ -68,6 +69,7 @@ class XmlTypeReaderTest extends AnyFunSuite {
       )
     )
     assert(typeReader.atEndOfDocument())
+    assert(typeReader.sampled == false)
   }
 
   test("skip elements inner collection") {
@@ -115,6 +117,7 @@ class XmlTypeReaderTest extends AnyFunSuite {
       )
     )
     assert(typeReader.atEndOfDocument())
+    assert(typeReader.sampled)
 
     // inferring the full thing, now f type is collection(string nullable)
     typeReader = new InferrerXmlTypeReader(xml, -1)
@@ -146,6 +149,7 @@ class XmlTypeReaderTest extends AnyFunSuite {
       )
     )
     assert(typeReader.atEndOfDocument())
+    assert(!typeReader.sampled)
   }
 
   test("infer temporals") {
@@ -164,6 +168,7 @@ class XmlTypeReaderTest extends AnyFunSuite {
     assert(typeReader.atEndOfObj())
     typeReader.skipToNext()
     assert(typeReader.atEndOfDocument())
+    assert(!typeReader.sampled)
   }
 
   test("do not infer temporals if propagated type is a string") {

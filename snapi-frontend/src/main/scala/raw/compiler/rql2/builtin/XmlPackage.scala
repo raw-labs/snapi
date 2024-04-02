@@ -71,6 +71,13 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
         description = """Specifies the encoding of the data.""",
         info = Some("""If the encoding is not specified it is determined automatically.""".stripMargin),
         isOptional = true
+      ),
+      ParamDoc(
+        "preferNulls",
+        typeDoc = TypeDoc(List("bool")),
+        description =
+          """If set to true and during inference the system does read the whole data, marks all fields as nullable. Defaults to true.""",
+        isOptional = true
       )
     ),
     examples = List(ExampleDoc("""Xml.InferAndRead("http://server/file.xml")"""))
@@ -83,12 +90,13 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
     Right(ValueParam(Rql2LocationType()))
   }
 
-  override def optionalParams: Option[Set[String]] = Some(Set("sampleSize", "encoding"))
+  override def optionalParams: Option[Set[String]] = Some(Set("sampleSize", "encoding", "preferNulls"))
 
   override def getOptionalParam(prevMandatoryArgs: Seq[Arg], idn: String): Either[String, Param] = {
     idn match {
       case "sampleSize" => Right(ValueParam(Rql2IntType()))
       case "encoding" => Right(ValueParam(Rql2StringType()))
+      case "preferNulls" => Right(ValueParam(Rql2BoolType()))
     }
   }
 
@@ -103,13 +111,20 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
       TextInputStreamFormatDescriptor(
         _,
         _,
-        XmlInputFormatDescriptor(dataType, _, _, _, _)
+        XmlInputFormatDescriptor(dataType, sampled, _, _, _)
       ) = inputFormatDescriptor
     ) yield {
-      inferTypeToRql2Type(dataType, false, false) match {
+      val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
+      val makeNullables = preferNulls && sampled
+      val makeTryables = sampled
+
+      val t = inferTypeToRql2Type(dataType, makeNullables, makeTryables) match {
         case Rql2IterableType(inner, _) => Rql2IterableType(inner)
         case t => addProp(t, Rql2IsTryableTypeProperty())
       }
+      // validateXmlType changes the type, for instance, it removes the tryable property or type and attributes
+      // So we are running it here
+      validateXmlType(t).right.get
     }
   }
 
@@ -162,16 +177,15 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)]
   ): Either[String, XmlInferrerProperties] = {
-    val r = Right(
+    Right(
       XmlInferrerProperties(
-        getLocationValue(mandatoryArgs(0)),
+        getLocationValue(mandatoryArgs.head),
         optionalArgs.collectFirst { case a if a._1 == "sampleSize" => a._2 }.map(getIntValue),
         optionalArgs
           .collectFirst { case a if a._1 == "encoding" => a._2 }
           .map(v => getEncodingValue(v).fold(err => return Left(err), v => v))
       )
     )
-    r
   }
 
   protected def validateAttributeType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
