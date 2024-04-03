@@ -5,9 +5,10 @@ on:
       - deps/**
       - utils/**
       - client/**
-      - snapi-frontend/**
-      - snapi-truffle/**
       - snapi-client/**
+      - snapi-frontend/**
+      - parsers/**
+      - snapi-truffle/**
       - python-client/**
       - sql-client/**
       - .github/workflows/ci.yaml
