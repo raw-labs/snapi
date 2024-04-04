@@ -1,4 +1,4 @@
-#!/bin/bash -exu
+#!/bin/bash -ex
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
 export COURSIER_PROGRESS=false
@@ -15,7 +15,13 @@ cd "${SCRIPT_HOME}/client"
 ./build.sh
 
 cd "${SCRIPT_HOME}/parsers"
-./build.sh
+if [ "$1" == "--release" ]; then
+    cd "${SCRIPT_HOME}/parsers"
+    ./build.sh --release
+else
+    cd "${SCRIPT_HOME}/parsers"
+    ./build.sh
+fi
 
 cd "${SCRIPT_HOME}/snapi-frontend"
 ./build.sh

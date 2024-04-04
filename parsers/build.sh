@@ -9,5 +9,15 @@ sdk use java 21-graalce
 cd "$SCRIPT_HOME"
 
 VERSION=$(git describe --tags | sed 's/^v//;s/-\([0-9]*\)-g/+\1-/')
-mvn clean install -Drevision=$VERSION
-echo "${VERSION}-SNAPSHOT" > version
+MVN_OPTS="-Drevision=$VERSION"
+VERSION_SUFFIX="-SNAPSHOT"
+for arg in "$@"
+do
+  if [[ $arg == "--release" ]]; then
+    MVN_OPTS="$MVN_OPTS -Dchangelist="
+    VERSION_SUFFIX=""
+    break
+  fi
+done
+mvn clean install $MVN_OPTS
+echo "${VERSION}${VERSION_SUFFIX}" > version
