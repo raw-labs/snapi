@@ -28,5 +28,6 @@ final case class ParamDescription(
     idn: String,
     tipe: RawType,
     defaultValue: Option[RawValue],
+    comment: Option[String],
     required: Boolean
 )

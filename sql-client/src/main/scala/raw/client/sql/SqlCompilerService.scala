@@ -88,14 +88,14 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                   val tableType = pgRowTypeToIterableType(info.outputType)
                   val parameterTypes = parameters
                     .map {
-                      case (name, tipe) => SqlTypesUtils.rawTypeFromPgType(tipe).map { rawType =>
+                      case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.t).map { rawType =>
                           // we ignore tipe.nullable and mark all parameters as nullable
                           val nullableType = rawType match {
                             case RawAnyType() => rawType;
                             case other => other.cloneNullable
                           }
                           // their default value is `null`.
-                          ParamDescription(name, nullableType, Some(RawNull()), false)
+                          ParamDescription(name, nullableType, Some(RawNull()), paramInfo.comment, required = false)
                         }
                     }
                     .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
@@ -358,7 +358,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                 val pstmt = new NamedParametersPreparedStatement(conn, tree)
                 try {
                   pstmt.parameterType(use.name) match {
-                    case Right(tipe) => HoverResponse(Some(TypeCompletion(use.name, tipe.typeName)))
+                    case Right(paramInfo) => HoverResponse(Some(TypeCompletion(use.name, paramInfo.t.typeName)))
                     case Left(_) => HoverResponse(None)
                   }
                 } finally {
