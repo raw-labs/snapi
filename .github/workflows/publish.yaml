@@ -30,8 +30,12 @@ jobs:
       with:
         ref: ${{ github.event.client_payload.pull_request.head.sha }}
         fetch-depth: 0
-    - name: build all
+    - if: github.event_name != 'repository_dispatch'
+      name: build all
       run: ./rebuild.sh --release
+    - if: github.event_name == 'repository_dispatch'
+      name: build all
+      run: ./rebuild.sh
     - name: sbt ci-release utils
       run: ./release.sh
       working-directory: utils
