@@ -68,13 +68,14 @@ language/version
 extensions/version
 utils/version
 client/version
-snapi-client/version
+modules/snapi-client/version
 sql-client/version
-snapi-frontend/version
+modules/snapi-frontend/version
 snapi-truffle/version
-parsers/version
+modules/parsers/version
 python-client/version
-parsers/src/main/java/raw/compiler/rql2/generated
-parsers/src/main/java/raw/client/sql/generated
+
+modules/parsers/src/main/java/raw/compiler/rql2/generated
+modules/parsers/src/main/java/raw/client/sql/generated
 
 **/pom.xml.versionsBackup

@@ -1,3 +1,5 @@
+package snapi.modules.build
+
 import sbt._
 
 object Dependencies {
@@ -8,17 +10,16 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val rawSnapiParserVersion = IO.read(new File("../parsers/version")).trim
-  val rawSnapiParser = "com.raw-labs" % "raw-parsers" % rawSnapiParserVersion
+  val rawParsersVersion = IO.read(new File("./parsers/version")).trim
+  val rawParsers = "com.raw-labs" % "raw-parsers" % rawParsersVersion
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
+  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
 
-  val aws =
-    "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
+
+  val aws = "software.amazon.awssdk" % "s3" % "2.20.69" exclude ("commons-logging", "commons-logging") // spring.jcl is the correct replacement for this one.
 
   val woodstox = "com.fasterxml.woodstox" % "woodstox-core" % "6.5.1"
-
-  val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
 
   val kryo = "com.esotericsoftware" % "kryo" % "5.5.0"
 
@@ -55,5 +56,19 @@ object Dependencies {
   val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4-rawlabs"
 
   val springCore = "org.springframework" % "spring-core" % "5.3.13"
+
+  val truffleCompiler = Seq(
+    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-nfi-libffi" % "23.1.0",
+    "org.graalvm.truffle" % "truffle-runtime" % "23.1.0"
+  )
+
+  val scalaCompiler = Seq(
+    "org.scala-lang" % "scala-compiler" % "2.12.18",
+    "org.scala-lang" % "scala-reflect" % "2.12.18"
+  )
 
 }
