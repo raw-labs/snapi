@@ -35,7 +35,8 @@ object BuildSettings {
     headerSources / excludeFilter := HiddenFileFilter,
     resolvers += Resolver.mavenLocal,
     resolvers += Resolver.sonatypeRepo("releases"),
-    updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
+    updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
+    publish / skip := false
   )
 
   lazy val compileSettings = Seq(
