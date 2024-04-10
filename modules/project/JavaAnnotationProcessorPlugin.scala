@@ -8,7 +8,7 @@ import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
 object JavaAnnotationProcessorPlugin extends AutoPlugin {
   // Task keys
-  val calculateSnapiTruffleClasspath = taskKey[Seq[File]]("Calculate the full classpath for snapi-truffle")
+  val calculateSnapiTruffleClasspath = taskKey[Seq[File]]("Calculate the full classpath")
   val runJavaAnnotationProcessor = taskKey[Unit]("Runs the Java annotation processor")
   val annotationProcessors = settingKey[String]("Annotation processors")
 
@@ -64,11 +64,9 @@ object JavaAnnotationProcessorPlugin extends AutoPlugin {
         throw new RuntimeException("Java annotation processing failed.")
       }
     },
-    // Ensure the annotation processor runs before compile
-    Compile / compile := ((Compile / compile) dependsOn runJavaAnnotationProcessor).value,
-    // Ensure the annotation processor runs before publish tasks
-    Compile / publishLocal := ((Compile / publishLocal) dependsOn runJavaAnnotationProcessor).value,
-    Compile / publish := ((Compile / publish) dependsOn runJavaAnnotationProcessor).value,
-    Compile / publishSigned := ((Compile / publishSigned) dependsOn runJavaAnnotationProcessor).value
+    Compile / compile := {
+      (Compile/ runJavaAnnotationProcessor).value
+      (Compile / compile).value
+    }
   )
 }

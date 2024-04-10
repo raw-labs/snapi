@@ -8,7 +8,7 @@ import scala.sys.process.Process
 
 import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
-ThisBuild / publish / skip := true
+publish / skip := true
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
@@ -71,3 +71,13 @@ lazy val snapiClient = (project in file("snapi-client"))
       rawClient % "compile->compile;test->test"
     )
   )
+
+// Output version to a file
+val outputVersion = taskKey[Unit]("Outputs the version to a file")
+outputVersion := {
+  val versionFile = baseDirectory.value / "version"
+  if (!versionFile.exists()) {
+    IO.touch(versionFile)
+  }
+  IO.write(versionFile, (ThisBuild / version).value)
+}

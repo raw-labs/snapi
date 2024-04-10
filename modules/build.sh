@@ -7,4 +7,4 @@ yes n | sdk install java 21.0.1-graalce || true
 sdk use java 21.0.1-graalce
 
 cd "$SCRIPT_HOME"
-sbt ci-release
+sbt clean outputVersion snapiTruffle/runJavaAnnotationProcessor publishLocal

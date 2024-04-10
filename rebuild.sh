@@ -23,13 +23,7 @@ else
     ./build.sh
 fi
 
-cd "${SCRIPT_HOME}/snapi-frontend"
-./build.sh
-
-cd "${SCRIPT_HOME}/snapi-truffle"
-./build.sh
-
-cd "${SCRIPT_HOME}/snapi-client"
+cd "${SCRIPT_HOME}/modules"
 ./build.sh
 
 cd "${SCRIPT_HOME}/sql-client"

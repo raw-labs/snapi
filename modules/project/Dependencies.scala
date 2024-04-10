@@ -10,7 +10,7 @@ object Dependencies {
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 
-  val rawParsersVersion = IO.read(new File("./parsers/version")).trim
+  val rawParsersVersion = IO.read(new File("../parsers/version")).trim
   val rawParsers = "com.raw-labs" % "raw-parsers" % rawParsersVersion
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
