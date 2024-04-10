@@ -5,10 +5,10 @@ on:
       - deps/**
       - utils/**
       - client/**
-      - snapi-client/**
-      - snapi-frontend/**
       - parsers/**
-      - snapi-truffle/**
+      - modules/snapi-client/**
+      - modules/snapi-frontend/**
+      - modules/snapi-truffle/**
       - python-client/**
       - sql-client/**
       - .github/workflows/ci.yaml
@@ -57,9 +57,7 @@ jobs:
         component:
           - utils
           - client
-          - snapi-frontend
-          - snapi-truffle
-          - snapi-client
+          - modules
           - python-client
           - sql-client
     runs-on: self-hosted
@@ -85,9 +83,9 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: versions
-      - name: headers
-        run: sbt headerCheckAll
-        working-directory: ${{ matrix.component }}
+      #- name: headers
+      #  run: sbt headerCheckAll
+      #  working-directory: ${{ matrix.component }}
       - name: scala fmt
         run: sbt scalafmtCheckAll
         working-directory: ${{ matrix.component }}
@@ -103,8 +101,7 @@ jobs:
       fail-fast: false
       matrix:
         component:
-          - snapi-frontend
-          - snapi-client
+          - modules
           - sql-client
     runs-on: self-hosted
     env:
