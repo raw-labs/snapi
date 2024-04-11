@@ -27,14 +27,6 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
-      - run: |
-          whoami
-          export HOME=/home/sbtuser
-          export SDKMAN_DIR="${HOME}/.sdkman"
-          source ${SDKMAN_DIR}/bin/sdkman-init.sh
-          ls -al ~/.sdkman/candidates/java/
-          sdk use java 21.0.1-graalce
-          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -77,13 +69,14 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - name: sdkman java install
+      - name: sdkman java setup
         id: sdkman
         run: |
-          export SDKMAN_DIR="/home/sbtuser/.sdkman"
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
           source $SDKMAN_DIR/bin/sdkman-init.sh
-          yes n | sdk install java 21-graalce || true
-          sdk use java 21-graalce
+          yes n | sdk install java 21.0.1-graalce || true
+          sdk use java 21.0.1-graalce
           echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - name: download ivy build artifacts
         uses: actions/download-artifact@v4
