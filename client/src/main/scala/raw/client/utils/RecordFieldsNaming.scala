@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package raw.client.utils
 
 import scala.collection.mutable
 

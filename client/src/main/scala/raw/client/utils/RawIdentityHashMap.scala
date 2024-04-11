@@ -10,13 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package raw.client.utils
 
-import scala.collection.JavaConverters._
+// The following is not thread-safe.
+// For thread-safety used SynchronizedHashMap instead.
+class RawIdentityHashMap[K <: AnyRef, V <: AnyRef] {
 
-class RawSynchronizedHashMap[K <: AnyRef, V <: AnyRef] {
-
-  private val map = new java.util.concurrent.ConcurrentHashMap[K, V]()
+  private val map = new java.util.IdentityHashMap[K, V]()
 
   def contains(key: K): Boolean = map.containsKey(key)
 
@@ -38,21 +38,17 @@ class RawSynchronizedHashMap[K <: AnyRef, V <: AnyRef] {
   }
 
   def getOrElseUpdate(key: K, defaultValue: => V): V = {
-    def func(key: K): V = defaultValue
-    map.computeIfAbsent(key, func)
+    var v = map.get(key)
+    if (v == null) {
+      v = defaultValue
+      map.put(key, v)
+      v
+    }
+    v
   }
 
   def hasValue(value: V): Boolean = {
     map.containsValue(value)
-  }
-
-  def remove(key: K): Option[V] = {
-    val v = map.remove(key)
-    Option(v)
-  }
-
-  def entries: Iterable[(K, V)] = {
-    map.entrySet().asScala.map(e => (e.getKey, e.getValue))
   }
 
 }

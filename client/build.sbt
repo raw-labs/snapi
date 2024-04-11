@@ -138,12 +138,24 @@ outputVersion := {
 
 // Publish settings
 Test / publishArtifact := true
-// Useful for debugging 
+// Useful for debugging
 Test / packageSrc / publishArtifact := true
 
 Compile / packageSrc / publishArtifact := true
 // When doing publishLocal, also publish to the local maven repository and generate the version number file.
-publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)).value
+publishLocal := (publishLocal dependsOn outputVersion).value
 
-// Dependencies
-libraryDependencies ++= Seq(rawUtils % "compile->compile;test->test", trufflePolyglot)
+libraryDependencies ++= Seq(
+  trufflePolyglot,
+  scalaLogging,
+  logbackClassic,
+  guava,
+  scalaJava8Compat,
+  typesafeConfig,
+  loki4jAppender,
+  commonsIO,
+  commonsText,
+  scalatest % Test
+) ++
+  slf4j ++
+  jacksonDeps

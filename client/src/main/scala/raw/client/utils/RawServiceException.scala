@@ -10,8 +10,6 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package raw.client.utils
 
-final case class Uid(uid: String) extends AnyVal {
-  override def toString: String = uid
-}
+class RawServiceException(message: String, cause: Throwable = null) extends RawException(message, cause)

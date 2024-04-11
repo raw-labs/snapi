@@ -17,12 +17,23 @@ module raw.client {
   requires com.fasterxml.jackson.databind;
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.core;
-  requires raw.utils;
+  requires com.fasterxml.jackson.scala;
+  requires org.apache.commons.io;
+  requires org.apache.commons.text;
+  requires typesafe.config;
+  requires typesafe.scalalogging;
+  requires ch.qos.logback.classic;
+  requires com.google.common;
+  requires jul.to.slf4j;
 
   exports raw.client.api;
   exports raw.client.writers;
+  exports raw.client.utils;
 
   opens raw.client.api to
+      com.fasterxml.jackson.databind;
+
+  opens raw.client.utils to
       com.fasterxml.jackson.databind;
 
   uses raw.client.api.CompilerServiceBuilder;
