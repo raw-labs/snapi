@@ -30,6 +30,13 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
+      - run: |
+          whoami
+          ls -al /home/sbtuser/.sdkman/candidates/java/current/bin
+          java -version
+          echo $PATH
+          echo $SHELL
+          sdk use java 21.0.1-graalce
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -98,12 +105,7 @@ jobs:
         run: sbt javafmtCheckAll
         working-directory: ${{ matrix.component }}
       - name: doc
-        shell: bash
-        run: |
-          whoami
-          echo $PATH
-          sdk use java 21.0.1-graalce
-          sbt doc
+        run: sbt doc
         working-directory: ${{ matrix.component }}
   tests:
     needs: build
