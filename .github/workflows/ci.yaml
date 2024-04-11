@@ -32,7 +32,6 @@ jobs:
           export SDKMAN_DIR="${HOME}/.sdkman"
           source ${SDKMAN_DIR}/bin/sdkman-init.sh
           ls -al ~/.sdkman/candidates/java/
-          yes n | sdk install java 21-graalce || true
           sdk use java 21-graalce
           echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v4
