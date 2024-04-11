@@ -95,7 +95,10 @@ jobs:
         run: sbt javafmtCheckAll
         working-directory: ${{ matrix.component }}
       - name: doc
+        shell: bash
         run: |
+          whoami
+          echo $PATH
           sdk use java 21.0.1-graalce
           sbt doc
         working-directory: ${{ matrix.component }}
