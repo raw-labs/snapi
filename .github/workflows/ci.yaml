@@ -20,9 +20,6 @@ env:
 jobs:
   build:
     runs-on: self-hosted
-    defaults:
-      run:
-        shell: bash
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
       options: --user 1001
@@ -30,13 +27,7 @@ jobs:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
-      - run: |
-          whoami
-          ls -al /home/sbtuser/.sdkman/candidates/java/current/bin
-          java -version
-          echo $PATH
-          echo $SHELL
-          sdk use java 21.0.1-graalce
+      - run: echo $SHELL
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -81,6 +72,16 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
+      - name: sdkman java install
+        id: sdkman
+        shell: bash
+        run: |
+          export SDKMAN_DIR="$HOME/.sdkman"
+          [ ! -f "$SDKMAN_DIR/bin/sdkman-init.sh" ] && curl -s "https://get.sdkman.io?rcupdate=false" | bash
+          source $HOME/.sdkman/bin/sdkman-init.sh
+          yes n | sdk install java 21-graalce || true
+          sdk use java 21-graalce
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - name: download ivy build artifacts
         uses: actions/download-artifact@v4
         with:
