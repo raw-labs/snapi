@@ -33,7 +33,7 @@ jobs:
           export SDKMAN_DIR="${HOME}/.sdkman"
           source ${SDKMAN_DIR}/bin/sdkman-init.sh
           ls -al ~/.sdkman/candidates/java/
-          sdk use java 21-graalce
+          sdk use java 21.0.1-graalce
           echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v4
         with:
