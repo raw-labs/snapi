@@ -3,8 +3,8 @@ SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 [ "$CI" == "true" ] && { export MAVEN_CLI_OPTS="-B";}
 . ~/.sdkman/bin/sdkman-init.sh
 
-yes n | sdk install java 21-graalce || true
-sdk use java 21-graalce
+yes n | sdk install java 21.0.1-graalce || true
+sdk use java 21.0.1-graalce
 
 cd "$SCRIPT_HOME"
 
