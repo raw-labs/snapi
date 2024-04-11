@@ -78,3 +78,6 @@ modules/parsers/src/main/java/raw/compiler/rql2/generated
 modules/parsers/src/main/java/raw/client/sql/generated
 
 **/pom.xml.versionsBackup
+
+# Temp
+utils/

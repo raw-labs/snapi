@@ -53,9 +53,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     commonSettings,
     snapiTruffleCompileSettings,
     testSettings,
-    libraryDependencies ++= Seq(
-      rawUtils % "compile->compile;test->test"
-      ) ++ truffleCompiler ++ scalaCompiler,
+    libraryDependencies ++= truffleCompiler ++ scalaCompiler,
   )
 
 lazy val snapiClient = (project in file("snapi-client"))
