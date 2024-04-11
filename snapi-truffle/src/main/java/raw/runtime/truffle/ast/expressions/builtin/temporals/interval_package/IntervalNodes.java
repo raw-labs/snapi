@@ -208,11 +208,12 @@ public class IntervalNodes {
 
       double totalDays = yearsInDays + monthsInDays + 7 * interval.getWeeks() + interval.getDays();
 
-      return 24 * 3600000 * (long) totalDays
-          + 3600000 * (long) interval.getHours()
-          + 60000 * (long) interval.getMinutes()
-          + 1000 * (long) interval.getSeconds()
-          + interval.getMillis();
+      return (long)
+          (24 * 3600000 * totalDays
+              + 3600000 * interval.getHours()
+              + 60000 * interval.getMinutes()
+              + 1000 * interval.getSeconds()
+              + interval.getMillis());
     }
   }
 
