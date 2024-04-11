@@ -66,9 +66,7 @@ object BuildSettings {
     Compile / doc / sources := {
       (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
     },
-    Compile / packageSrc / publishArtifact := true,
-    // Set the options used for generating scaladoc independently of compilation.
-    Compile / doc / scalacOptions := Seq("-groups", "-implicits")
+    Compile / packageSrc / publishArtifact := true
   )
 
   lazy val snapiClientCompileSettings = compileSettings ++ Seq(
