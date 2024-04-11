@@ -3,27 +3,21 @@
 
 # virtual machine crash logs, see http://www.java.com/en/download/help/error_hotspot.xml
 hs_err_pid*
-
 # IntelliJ
 out/
-
 # BSP and Metals
 .bsp/
 .metals/
-
  Covers JetBrains IDEs: IntelliJ, RubyMine, PhpStorm, AppCode, PyCharm, CLion, Android Studio and WebStorm
 # Reference: https://intellij-support.jetbrains.com/hc/en-us/articles/206544839
-
 # User-specific stuff
 .idea/**/workspace.xml
 .idea/**/tasks.xml
 .idea/**/usage.statistics.xml
 .idea/**/dictionaries
 .idea/**/shelf
-
 # Generated files
 .idea/**/contentModel.xml
-
 # Sensitive or high-churn files
 .idea/**/dataSources/
 .idea/**/dataSources.ids
@@ -32,38 +26,27 @@ out/
 .idea/**/dynamic.xml
 .idea/**/uiDesigner.xml
 .idea/**/dbnavigator.xml
-
 .env
-
 # Gradle
 .idea/**/gradle.xml
 .idea/**/libraries
 .idea
-
 **.classpath
-
 # Python
 **__pycache__
 **.pyc
-
 # MacOS
 **.DS_Store
-
 .vault_pass
 .pre-commit-config.yaml
 .editorconfig
-
 .vscode/
-
 *.tar.gz
 *.tgz
-
 **/graal_dumps/
-
 target/
 /.project
 *.iml
-
 language/version
 extensions/version
 client/version
@@ -71,13 +54,11 @@ modules/snapi-client/version
 sql-client/version
 modules/snapi-frontend/version
 snapi-truffle/version
-modules/parsers/version
+parsers/version
 python-client/version
-
+modules/version
 modules/parsers/src/main/java/raw/compiler/rql2/generated
 modules/parsers/src/main/java/raw/client/sql/generated
-
 **/pom.xml.versionsBackup
-
 # Temp
 utils/

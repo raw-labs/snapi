@@ -14,7 +14,7 @@ package raw.compiler.rql2.tests.output
 
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.compiler.utils._
-import raw.utils._
+import raw.client.utils._
 
 import java.nio.file.Files
 
