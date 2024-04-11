@@ -28,8 +28,9 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - run: |
-          export SDKMAN_DIR="/home/sbtuser/.sdkman"
-          source $SDKMAN_DIR/bin/sdkman-init.sh
+          export HOME=/home/sbtuser
+          export SDKMAN_DIR="${HOME}/.sdkman"
+          source ${SDKMAN_DIR}/bin/sdkman-init.sh
           yes n | sdk install java 21-graalce || true
           sdk use java 21-graalce
           echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
