@@ -28,6 +28,7 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - run: |
+          whoami
           export HOME=/home/sbtuser
           export SDKMAN_DIR="${HOME}/.sdkman"
           source ${SDKMAN_DIR}/bin/sdkman-init.sh
