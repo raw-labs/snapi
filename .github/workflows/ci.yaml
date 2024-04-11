@@ -22,11 +22,17 @@ jobs:
     runs-on: self-hosted
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
-      options: --user 1001 -e HOME=/home/sbtuser
+      options: --user 1001
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
     steps:
+      - run: |
+          export SDKMAN_DIR="/home/sbtuser/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 21-graalce || true
+          sdk use java 21-graalce
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
@@ -65,7 +71,7 @@ jobs:
     runs-on: self-hosted
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
-      options: --user 1001 -e HOME=/home/sbtuser
+      options: --user 1001
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.READ_PACKAGES }}
@@ -73,10 +79,9 @@ jobs:
       - uses: actions/checkout@v4
       - name: sdkman java install
         id: sdkman
-        shell: bash
         run: |
-          export SDKMAN_DIR="$HOME/.sdkman"
-          source $HOME/.sdkman/bin/sdkman-init.sh
+          export SDKMAN_DIR="/home/sbtuser/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
           yes n | sdk install java 21-graalce || true
           sdk use java 21-graalce
           echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
