@@ -27,7 +27,7 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.sources.api.SourceContext;
 import raw.sources.jdbc.api.JdbcLocationProvider;
-import raw.utils.RawException;
+import raw.client.utils.RawException;
 
 public class JdbcQuery {
 

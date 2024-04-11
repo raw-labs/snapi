@@ -15,7 +15,7 @@ package raw.compiler.rql2.api
 import org.scalatest.BeforeAndAfterAll
 import raw.client.api.CompilerServiceProvider
 import raw.client.rql2.api.Rql2CompilerService
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 
 trait Rql2CompilerServiceTestContext extends BeforeAndAfterAll {
   this: RawTestSuite =>

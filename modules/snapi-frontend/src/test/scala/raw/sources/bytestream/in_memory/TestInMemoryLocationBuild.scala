@@ -12,7 +12,7 @@
 
 package raw.sources.bytestream.in_memory
 
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 import raw.sources.api._
 import raw.client.api._
 

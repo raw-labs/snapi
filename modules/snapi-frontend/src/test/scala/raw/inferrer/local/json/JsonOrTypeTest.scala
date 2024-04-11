@@ -18,7 +18,7 @@ import raw.creds.api.CredentialsTestContext
 import raw.inferrer.api._
 import raw.inferrer.local.LocalInferrerTestContext
 import raw.sources.api.SourceContext
-import raw.utils._
+import raw.client.utils._
 
 import java.io.StringReader
 

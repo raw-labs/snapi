@@ -3,7 +3,6 @@ on:
   pull_request:
     paths:
       - deps/**
-      - utils/**
       - client/**
       - parsers/**
       - modules/snapi-client/**
@@ -55,7 +54,6 @@ jobs:
       fail-fast: false
       matrix:
         component:
-          - utils
           - client
           - modules
           - python-client

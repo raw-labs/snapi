@@ -4,9 +4,6 @@ import sbt._
 
 object Dependencies {
 
-  val rawUtilsVersion = IO.read(new File("../utils/version")).trim
-  val rawUtils = "com.raw-labs" %% "raw-utils" % rawUtilsVersion
-
   val rawClientVersion = IO.read(new File("../client/version")).trim
   val rawClient = "com.raw-labs" %% "raw-client" % rawClientVersion
 

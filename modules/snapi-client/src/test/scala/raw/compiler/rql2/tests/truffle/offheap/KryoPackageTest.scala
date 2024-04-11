@@ -40,7 +40,7 @@ class KryoPackageTest extends TruffleCompilerTestContext with TableDrivenPropert
 
   test("all") { _ =>
     forAll(cases) { (value, tpe) =>
-      raw.utils.TestData(s"""let n: $tpe = $value in Kryo.Decode(Kryo.Encode(n), type $tpe)""") should evaluateTo(value)
+      raw.client.utils.TestData(s"""let n: $tpe = $value in Kryo.Decode(Kryo.Encode(n), type $tpe)""") should evaluateTo(value)
     }
   }
 

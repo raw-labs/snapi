@@ -16,7 +16,7 @@ import org.apache.commons.lang3.StringUtils
 import org.bitbucket.inkytonik.kiama.rewriting.Rewriter.{everywhere, query}
 import raw.compiler.base.source._
 import raw.compiler.common.source.ErrorType
-import raw.utils._
+import raw.client.utils._
 
 abstract class Tree[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](
     protected val originalRoot: P,

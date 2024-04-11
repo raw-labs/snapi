@@ -12,6 +12,6 @@
 
 package raw.sources.api
 
-import raw.utils.RawException
+import raw.client.utils.RawException
 
 class LocationException(message: String, cause: Throwable = null) extends RawException(message, cause)

@@ -19,7 +19,7 @@ import raw.inferrer.local.text.TextLineIterator
 import raw.inferrer.api._
 import raw.sources.bytestream.api.SeekableInputStream
 import raw.sources.api.{Encoding, SourceContext}
-import raw.utils.RawException
+import raw.client.utils.RawException
 
 import scala.util.control.NonFatal
 

@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import raw.inferrer.api._
 import raw.inferrer.local.json.JsonInferrer
 import raw.sources.api.SourceContext
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import raw.client.utils.{RawTestSuite, SettingsTestContext}
 
 import java.io.StringReader
 class RD10260 extends RawTestSuite with SettingsTestContext with StrictLogging {

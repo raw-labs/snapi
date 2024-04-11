@@ -14,7 +14,7 @@ package raw.compiler.base.source
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.compiler.base.{Keywords, PrettyPrinter, SyntaxAnalyzer}
-import raw.utils._
+import raw.client.utils._
 
 import scala.language.implicitConversions
 

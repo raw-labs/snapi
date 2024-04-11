@@ -14,7 +14,7 @@ package raw.client.sql
 import com.typesafe.scalalogging.StrictLogging
 import com.zaxxer.hikari.{HikariConfig, HikariDataSource}
 import raw.creds.api.CredentialsService
-import raw.utils.{AuthenticatedUser, RawService, RawSettings, RawUtils}
+import raw.client.utils.{AuthenticatedUser, RawService, RawSettings, RawUtils}
 
 import java.sql.SQLException
 import java.util.concurrent.TimeUnit

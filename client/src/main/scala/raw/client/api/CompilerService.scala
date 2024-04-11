@@ -14,7 +14,7 @@ package raw.client.api
 
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import org.graalvm.polyglot.{Engine, Value}
-import raw.utils.{RawException, RawService, RawSettings}
+import raw.client.utils.{RawException, RawService, RawSettings}
 
 import java.io.OutputStream
 import scala.collection.mutable

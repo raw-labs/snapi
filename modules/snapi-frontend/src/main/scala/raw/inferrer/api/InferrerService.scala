@@ -12,7 +12,7 @@
 
 package raw.inferrer.api
 
-import raw.utils.{RawException, RawService}
+import raw.client.utils.{RawException, RawService}
 
 trait InferrerService extends RawService {
 

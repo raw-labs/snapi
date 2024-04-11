@@ -13,7 +13,7 @@
 package raw.compiler.rql2.tests.spec
 
 import org.scalatest.prop.TableDrivenPropertyChecks
-import raw.utils.TestData
+import raw.client.utils.TestData
 import raw.compiler.rql2.tests.CompilerTestContext
 
 trait UnaryExpNegTest extends CompilerTestContext with TableDrivenPropertyChecks {

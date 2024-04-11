@@ -15,7 +15,7 @@ package raw.client.rql2.truffle
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import org.graalvm.polyglot.Value
 import raw.compiler.rql2.Rql2TypeUtils
-import raw.utils.RecordFieldsNaming
+import raw.client.utils.RecordFieldsNaming
 import raw.compiler.rql2.source._
 
 import java.io.{IOException, OutputStream}

@@ -13,7 +13,7 @@
 package raw.client.rql2.truffle
 
 import raw.client.api.{CompilerService, CompilerServiceBuilder}
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 class Rql2TruffleCompilerServiceBuilder extends CompilerServiceBuilder {
   override def language: Set[String] = Rql2TruffleCompilerService.language

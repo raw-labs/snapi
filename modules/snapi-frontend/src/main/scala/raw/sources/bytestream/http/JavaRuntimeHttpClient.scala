@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.hc.core5.net.URIBuilder
 import raw.sources.api.LocationException
 import raw.sources.bytestream.api._
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import java.io.{IOException, InputStream}
 import java.net._

@@ -13,7 +13,7 @@
 package raw.sources.jdbc.sqlite
 
 import raw.sources.jdbc.api._
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import java.nio.file.{InvalidPathException, Path}
 import java.sql.SQLException

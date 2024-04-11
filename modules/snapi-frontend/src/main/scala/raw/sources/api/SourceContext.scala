@@ -12,7 +12,7 @@
 
 package raw.sources.api
 
-import raw.utils.{AuthenticatedUser, RawSettings}
+import raw.client.utils.{AuthenticatedUser, RawSettings}
 import raw.creds.api.CredentialsService
 import raw.sources.bytestream.api.ByteStreamLocationBuilder
 import raw.sources.filesystem.api.FileSystemLocationBuilder

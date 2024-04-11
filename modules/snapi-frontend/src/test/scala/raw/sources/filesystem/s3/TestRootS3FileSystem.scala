@@ -13,7 +13,7 @@
 package raw.sources.filesystem.s3
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import raw.client.utils.{RawTestSuite, SettingsTestContext}
 import raw.creds.api.S3Bucket
 import raw.creds.s3.S3TestCreds
 

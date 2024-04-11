@@ -12,7 +12,7 @@
 
 package raw.creds.local
 
-import raw.utils.AuthenticatedUser
+import raw.client.utils.AuthenticatedUser
 import raw.creds.api._
 
 class LocalCredentialsService extends CredentialsService {

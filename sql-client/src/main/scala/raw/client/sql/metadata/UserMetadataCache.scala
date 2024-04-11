@@ -16,7 +16,7 @@ import com.google.common.cache.{CacheBuilder, CacheLoader}
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.sql.antlr4.{SqlIdentifierNode, SqlIdnNode, SqlProjNode}
 import raw.client.sql.{SqlConnectionPool, SqlIdentifier}
-import raw.utils.{AuthenticatedUser, RawSettings}
+import raw.client.utils.{AuthenticatedUser, RawSettings}
 
 case class IdentifierInfo(name: Seq[SqlIdentifier], tipe: String)
 

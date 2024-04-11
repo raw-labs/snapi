@@ -20,7 +20,7 @@ import org.springframework.util.AntPathMatcher
 import raw.creds.api.{BasicAuth, BearerToken, NewHttpAuth}
 import raw.sources.bytestream.api.{DelegatingSeekableInputStream, GenericSkippableInputStream, SeekableInputStream}
 import raw.sources.filesystem.api._
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import java.io.InputStream
 import scala.collection.JavaConverters._

@@ -16,7 +16,7 @@ import java.io.Closeable
 import java.sql.{Connection, DriverManager, ResultSet}
 import java.util.concurrent.{Executors, TimeUnit}
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import scala.collection.mutable
 

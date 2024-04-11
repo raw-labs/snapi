@@ -16,7 +16,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.bitbucket.inkytonik.kiama.parsing._
 import org.bitbucket.inkytonik.kiama.util._
 import raw.compiler.base.source._
-import raw.utils._
+import raw.client.utils._
 
 import scala.util.matching.Regex
 

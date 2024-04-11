@@ -14,7 +14,7 @@ package raw.creds.client
 
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.hc.core5.http.HttpStatus
-import raw.utils.{AuthenticatedUser, RawSettings}
+import raw.client.utils.{AuthenticatedUser, RawSettings}
 import raw.creds.api._
 import raw.creds.protocol._
 import raw.rest.client.{ClientAPIException, RestClient}

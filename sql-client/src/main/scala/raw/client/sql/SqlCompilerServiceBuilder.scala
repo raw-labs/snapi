@@ -13,7 +13,7 @@
 package raw.client.sql
 
 import raw.client.api.{CompilerService, CompilerServiceBuilder}
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 class SqlCompilerServiceBuilder extends CompilerServiceBuilder {
   override def language: Set[String] = Set("sql")

@@ -12,7 +12,7 @@
 
 package raw.sources.filesystem.api
 
-import raw.utils.RawException
+import raw.client.utils.RawException
 
 import raw.sources.api.{LocationProvider, SourceContext}
 import raw.client.api.LocationDescription

@@ -13,7 +13,7 @@
 package raw.creds.protocol
 
 import raw.creds.api._
-import raw.utils.AuthenticatedUser
+import raw.client.utils.AuthenticatedUser
 
 final case class RegisterNewHttpCredential(user: AuthenticatedUser, name: String, token: NewHttpCredential)
 final case class GetNewHttpCredential(user: AuthenticatedUser, name: String)

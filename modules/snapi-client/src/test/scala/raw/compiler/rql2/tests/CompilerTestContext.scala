@@ -21,7 +21,7 @@ import raw.client.rql2.api._
 import raw.compiler.base.source.{BaseProgram, Type}
 import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
 import raw.inferrer.local.LocalInferrerTestContext
-import raw.utils._
+import raw.client.utils._
 
 import java.io.{ByteArrayOutputStream, FileWriter}
 import java.nio.charset.{Charset, StandardCharsets}

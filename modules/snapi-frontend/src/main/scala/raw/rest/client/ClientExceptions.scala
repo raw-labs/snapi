@@ -12,7 +12,7 @@
 
 package raw.rest.client
 
-import raw.utils.RawException
+import raw.client.utils.RawException
 import raw.rest.common.RestError
 
 /**

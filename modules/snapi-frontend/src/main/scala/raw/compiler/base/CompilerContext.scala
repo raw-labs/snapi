@@ -17,7 +17,7 @@ import com.typesafe.scalalogging.StrictLogging
 import raw.sources.api.SourceContext
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.inferrer.api.{InferrerException, InferrerProperties, InferrerService, InputFormatDescriptor}
-import raw.utils._
+import raw.client.utils._
 
 import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
 import scala.concurrent.ExecutionException

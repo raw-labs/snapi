@@ -14,7 +14,7 @@ package raw.client.sql
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api.{ErrorMessage, ErrorPosition, ErrorRange}
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import java.sql.SQLException
 

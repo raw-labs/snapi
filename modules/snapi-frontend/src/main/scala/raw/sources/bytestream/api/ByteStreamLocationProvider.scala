@@ -13,7 +13,7 @@
 package raw.sources.bytestream.api
 
 import raw.client.api.LocationDescription
-import raw.utils.RawException
+import raw.client.utils.RawException
 import raw.sources.api._
 
 object ByteStreamLocationProvider extends LocationProvider {

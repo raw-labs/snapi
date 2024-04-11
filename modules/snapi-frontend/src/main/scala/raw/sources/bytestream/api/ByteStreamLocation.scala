@@ -17,7 +17,7 @@ import java.nio.charset.{Charset, StandardCharsets}
 import java.nio.file.Path
 import org.apache.commons.io.ByteOrderMark
 import org.apache.commons.io.input.BOMInputStream
-import raw.utils.RawException
+import raw.client.utils.RawException
 import raw.sources.api._
 
 import scala.util.control.NonFatal

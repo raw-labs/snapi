@@ -25,7 +25,7 @@ import raw.sources.api.Location;
 import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.FileSystemLocation;
 import raw.sources.filesystem.api.FileSystemLocationProvider;
-import raw.utils.RawException;
+import raw.client.utils.RawException;
 import scala.collection.IndexedSeq;
 
 @NodeInfo(shortName = "String.Read")

@@ -13,7 +13,7 @@
 package raw.creds.local
 
 import raw.creds.api.CredentialsService
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 class LocalCredentialsServiceBuilder extends raw.creds.api.CredentialsServiceBuilder {
 

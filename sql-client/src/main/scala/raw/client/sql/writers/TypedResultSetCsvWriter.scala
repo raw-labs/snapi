@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.{JsonEncoding, JsonParser}
 import com.fasterxml.jackson.dataformat.csv.CsvGenerator.Feature.STRICT_CHECK_FOR_QUOTING
 import com.fasterxml.jackson.dataformat.csv.{CsvFactory, CsvSchema}
 import raw.client.api._
-import raw.utils.RecordFieldsNaming
+import raw.client.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet

@@ -21,7 +21,7 @@ import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.generated.{SnapiParser, SnapiParserBaseVisitor}
 import raw.compiler.rql2.source.{LetDecl, _}
-import raw.utils.RawUtils
+import raw.client.utils.RawUtils
 
 import scala.collection.JavaConverters._
 import scala.util.Try

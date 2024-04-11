@@ -13,7 +13,7 @@
 package raw.compiler.base
 
 import raw.runtime.RuntimeContext
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 import raw.client.api.CompilerService
 
 /**

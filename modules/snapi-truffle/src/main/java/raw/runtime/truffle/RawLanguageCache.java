@@ -22,9 +22,9 @@ import raw.creds.api.CredentialsServiceProvider;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
 import raw.sources.api.SourceContext;
-import raw.utils.AuthenticatedUser;
-import raw.utils.RawSettings;
-import raw.utils.RawUtils;
+import raw.client.utils.AuthenticatedUser;
+import raw.client.utils.RawSettings;
+import raw.client.utils.RawUtils;
 import scala.Some;
 import scala.runtime.BoxedUnit;
 

@@ -13,7 +13,7 @@
 package raw.creds.client
 
 import com.typesafe.scalalogging.StrictLogging
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 import raw.creds.api.CredentialsServiceBuilder
 
 class ClientCredentialsServiceBuilder extends CredentialsServiceBuilder with StrictLogging {

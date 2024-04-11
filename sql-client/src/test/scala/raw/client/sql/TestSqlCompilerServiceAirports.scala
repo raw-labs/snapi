@@ -24,7 +24,7 @@ package raw.client.sql
 import raw.client.api._
 import raw.creds.api.CredentialsTestContext
 import raw.creds.local.LocalCredentialsTestContext
-import raw.utils._
+import raw.client.utils._
 
 import java.io.ByteArrayOutputStream
 

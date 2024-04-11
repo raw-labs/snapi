@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.tests.builtin
 
-import raw.utils.TestData
+import raw.client.utils.TestData
 import raw.compiler.rql2.tests.CompilerTestContext
 import raw.sources.bytestream.api.HttpLocationsTestContext
 

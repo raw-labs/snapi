@@ -40,7 +40,7 @@ import raw.compiler.rql2.source.{
   Rql2StringType,
   Rql2TypeProperty
 }
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 
 class OldFrontendSyntaxAnalyzerTest extends RawTestSuite {
 

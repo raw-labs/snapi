@@ -16,7 +16,7 @@ import org.bitbucket.inkytonik.kiama.util.Positions
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
 import raw.creds.api.CredentialsTestContext
 import raw.creds.local.LocalCredentialsTestContext
-import raw.utils._
+import raw.client.utils._
 
 class TestNamedParametersStatement
     extends RawTestSuite

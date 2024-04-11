@@ -24,7 +24,7 @@ import raw.creds.api._
 import raw.sources.api.{LocationException, SourceContext}
 import raw.sources.bytestream.api.ByteStreamLocationBuilder
 import raw.sources.bytestream.http.oauth2clients.Auth0OAuth2Client
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import java.io.IOException
 import java.net.{HttpURLConnection, MalformedURLException, URISyntaxException}

@@ -19,7 +19,7 @@ import raw.inferrer.api._
 import raw.inferrer.local._
 import raw.sources.api._
 import raw.sources.bytestream.api.SeekableInputStream
-import raw.utils.RawException
+import raw.client.utils.RawException
 
 import scala.collection.mutable.ArrayBuffer
 import scala.util.control.NonFatal

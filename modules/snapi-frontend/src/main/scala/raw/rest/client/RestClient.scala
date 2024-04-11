@@ -27,7 +27,7 @@ import org.apache.hc.core5.http.io.{HttpClientResponseHandler, SocketConfig}
 import org.apache.hc.core5.net.URIBuilder
 import org.apache.hc.core5.util.Timeout
 import raw.auth.api.{ForbiddenException, GenericAuthException, TokenProvider, UnauthorizedException}
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 import raw.rest.common._
 
 import java.io.{IOException, InterruptedIOException}

@@ -27,7 +27,7 @@ import org.apache.hc.core5.net.URIBuilder
 import org.apache.hc.core5.util.{TimeValue, Timeout}
 import raw.sources.api.LocationException
 import raw.sources.bytestream.api._
-import raw.utils._
+import raw.client.utils._
 
 import java.io.{ByteArrayInputStream, IOException, InputStream}
 import java.net._

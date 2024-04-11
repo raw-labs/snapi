@@ -13,7 +13,7 @@
 package raw.creds.api
 
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{AuthenticatedUser, RawTestSuite, RawUtils, SettingsTestContext}
+import raw.client.utils.{AuthenticatedUser, RawTestSuite, RawUtils, SettingsTestContext}
 
 import java.time.temporal.ChronoUnit
 import scala.collection.mutable

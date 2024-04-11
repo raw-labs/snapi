@@ -21,7 +21,7 @@ import raw.sources.api.Encoding;
 import raw.sources.api.SourceContext;
 import raw.sources.bytestream.api.ByteStreamLocation;
 import raw.sources.bytestream.api.ByteStreamLocationProvider;
-import raw.utils.RawException;
+import raw.client.utils.RawException;
 import scala.util.Either;
 
 public class TruffleInputStream {

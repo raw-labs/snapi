@@ -14,7 +14,6 @@ module raw.snapi.client {
   requires scala.library;
   requires org.slf4j;
   requires org.graalvm.polyglot;
-  requires raw.utils;
   requires com.fasterxml.jackson.dataformat.csv;
   requires com.fasterxml.jackson.core;
   requires raw.client;

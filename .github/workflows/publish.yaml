@@ -36,17 +36,6 @@ jobs:
     - if: github.event_name == 'repository_dispatch'
       name: build all
       run: ./rebuild.sh
-    - name: sbt ci-release utils
-      run: ./release.sh
-      working-directory: utils
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release client
       run: ./release.sh
       working-directory: client
@@ -105,7 +94,6 @@ jobs:
     - name: evaluate produced version
       shell: bash
       run: |
-        echo "UTILS_VER=$(cat utils/version)" >> $GITHUB_ENV
         echo "CLIENT_VER=$(cat client/version)" >> $GITHUB_ENV
         echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
         echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
@@ -118,7 +106,6 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > published utils version: ${{ env.UTILS_VER  }}
           > published client version: ${{ env.CLIENT_VER }}
           > published snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
           > published snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}

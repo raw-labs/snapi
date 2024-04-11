@@ -14,7 +14,7 @@ package raw.sources.filesystem.api
 
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import raw.client.utils.{RawTestSuite, SettingsTestContext}
 
 trait TestFileSystems extends SettingsTestContext with BeforeAndAfterAll with StrictLogging {
   this: RawTestSuite =>

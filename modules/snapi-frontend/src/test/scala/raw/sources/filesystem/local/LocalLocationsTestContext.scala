@@ -12,7 +12,7 @@
 
 package raw.sources.filesystem.local
 
-import raw.utils._
+import raw.client.utils._
 
 import java.io.File
 import java.nio.file.Path

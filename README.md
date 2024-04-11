@@ -237,7 +237,7 @@ Here is an overview of each component:
 * `snapi-client`: This implements the `client` interface using the Snapi Truffle backend engine.
 * `python-client`: This is an early-preview of the Python support for the [RAW Platform](https://www.raw-labs.com/). Effectively, it implements `client` interface using the [GraalPy][https://github.com/oracle/graalpython) implementation.
 * `launcher`: A simple CLI implementation against the `client` interface. By default it runs with the Snapi language.
-* `utils: Some common utils shared among components.
+
 
 ## IntelliJ
 

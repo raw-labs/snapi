@@ -22,7 +22,7 @@ import raw.inferrer.api.{
 }
 import raw.sources.api.SourceContext
 import raw.sources.filesystem.local.LocalLocationsTestContext
-import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
+import raw.client.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 import raw.sources.filesystem.local.LocalPath
 
 class RD3852 extends RawTestSuite with SettingsTestContext with StrictLogging with LocalLocationsTestContext {

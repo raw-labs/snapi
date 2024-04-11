@@ -49,7 +49,7 @@ import raw.client.api.{
   ValidateResponse
 }
 import raw.client.writers.{PolyglotBinaryWriter, PolyglotCsvWriter, PolyglotJsonWriter, PolyglotTextWriter}
-import raw.utils.{RawSettings, RawUtils}
+import raw.client.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 

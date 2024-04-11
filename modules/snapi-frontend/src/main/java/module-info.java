@@ -63,7 +63,6 @@ module raw.snapi.frontend {
   requires org.postgresql.jdbc;
   requires com.microsoft.sqlserver.jdbc;
   requires mysql.connector.j;
-  requires raw.utils;
   requires raw.client;
   requires raw.snapi.parser;
 

@@ -14,7 +14,7 @@ package raw.inferrer.local
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.client.api._
-import raw.utils._
+import raw.client.utils._
 import raw.inferrer.api._
 import raw.sources.api._
 import raw.sources.filesystem.local.LocalPath

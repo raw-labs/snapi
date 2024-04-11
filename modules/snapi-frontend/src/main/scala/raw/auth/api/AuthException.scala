@@ -12,7 +12,7 @@
 
 package raw.auth.api
 
-import raw.utils.RawServiceException
+import raw.client.utils.RawServiceException
 
 abstract class AuthException(message: String, cause: Throwable = null)
     extends RawServiceException(s"authentication error: $message", cause)

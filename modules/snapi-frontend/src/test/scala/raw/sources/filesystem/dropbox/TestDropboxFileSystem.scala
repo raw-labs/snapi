@@ -12,7 +12,7 @@
 
 package raw.sources.filesystem.dropbox
 
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 import raw.creds.dropbox.DropboxTestCreds
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
 

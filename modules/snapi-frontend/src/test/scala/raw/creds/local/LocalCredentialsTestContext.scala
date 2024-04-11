@@ -13,7 +13,7 @@
 package raw.creds.local
 
 import org.scalatest.BeforeAndAfterAll
-import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
+import raw.client.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 import raw.creds.api.CredentialsTestContext
 
 trait LocalCredentialsTestContext extends BeforeAndAfterAll {

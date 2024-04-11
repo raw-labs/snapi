@@ -12,7 +12,7 @@
 
 package raw.auth.api
 
-import raw.utils._
+import raw.client.utils._
 
 trait AuthTestUsers {
   this: RawTestSuite with SettingsTestContext =>

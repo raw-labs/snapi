@@ -12,7 +12,7 @@
 
 package raw.creds.api
 
-import raw.utils.{AuthenticatedUser, RawService}
+import raw.client.utils.{AuthenticatedUser, RawService}
 import raw.creds.api.CredentialsService.{bucketNameRegex, credNamePattern}
 
 object CredentialsService {

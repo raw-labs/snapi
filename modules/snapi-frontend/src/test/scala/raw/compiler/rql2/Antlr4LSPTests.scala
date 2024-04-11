@@ -32,7 +32,7 @@ import raw.compiler.rql2.source.{
   Rql2Program,
   TypeExp
 }
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 
 class Antlr4LSPTests extends RawTestSuite {
   val triple = "\"\"\""

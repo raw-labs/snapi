@@ -18,7 +18,7 @@ import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
 import raw.compiler.rql2.{Keywords, Rql2TypeUtils}
-import raw.utils._
+import raw.client.utils._
 
 import scala.collection.mutable
 

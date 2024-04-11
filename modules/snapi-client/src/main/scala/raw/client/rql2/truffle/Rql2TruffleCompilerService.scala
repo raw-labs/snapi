@@ -33,7 +33,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.inferrer.api.InferrerServiceProvider
 import raw.runtime._
 import raw.sources.api.SourceContext
-import raw.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, RawUtils}
+import raw.client.utils.{AuthenticatedUser, RawConcurrentHashMap, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 import scala.util.control.NonFatal

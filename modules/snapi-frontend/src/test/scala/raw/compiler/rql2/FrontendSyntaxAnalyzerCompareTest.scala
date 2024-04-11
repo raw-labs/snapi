@@ -16,7 +16,7 @@ import org.bitbucket.inkytonik.kiama.rewriting.Cloner.{everywhere, query}
 import raw.compiler.common.source.{Exp, SourceNode}
 import raw.compiler.rql2.antlr4.Antlr4SyntaxAnalyzer
 import raw.compiler.rql2.source.TypeExp
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 
 class FrontendSyntaxAnalyzerCompareTest extends RawTestSuite {
   val triple = "\"\"\""

@@ -45,8 +45,8 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.sources.api.SourceContext;
-import raw.utils.AuthenticatedUser;
-import raw.utils.RawSettings;
+import raw.client.utils.AuthenticatedUser;
+import raw.client.utils.RawSettings;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(

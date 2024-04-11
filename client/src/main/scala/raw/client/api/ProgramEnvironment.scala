@@ -12,7 +12,7 @@
 
 package raw.client.api
 
-import raw.utils.AuthenticatedUser
+import raw.client.utils.AuthenticatedUser
 
 final case class ProgramEnvironment(
     user: AuthenticatedUser,

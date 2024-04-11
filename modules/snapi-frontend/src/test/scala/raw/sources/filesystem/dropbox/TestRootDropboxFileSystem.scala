@@ -14,7 +14,7 @@ package raw.sources.filesystem.dropbox
 
 import com.typesafe.scalalogging.StrictLogging
 import raw.creds.dropbox.DropboxTestCreds
-import raw.utils.{RawTestSuite, SettingsTestContext}
+import raw.client.utils.{RawTestSuite, SettingsTestContext}
 
 class TestRootDropboxFileSystem extends RawTestSuite with DropboxTestCreds with SettingsTestContext with StrictLogging {
 

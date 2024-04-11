@@ -12,7 +12,7 @@
 
 package raw.creds.dropbox
 
-import raw.utils.Uid
+import raw.client.utils.Uid
 import scala.util.Random
 import raw.creds.api._
 

@@ -13,7 +13,7 @@
 package raw.sources.filesystem.local
 
 import java.io.File
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}
 
 import java.nio.file.Files

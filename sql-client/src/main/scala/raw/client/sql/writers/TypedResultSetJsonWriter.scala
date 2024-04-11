@@ -16,7 +16,7 @@ import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import com.fasterxml.jackson.databind.{JsonNode, ObjectMapper}
 import raw.client.api._
 import raw.client.sql.SqlIntervals.{intervalToString, parseInterval}
-import raw.utils.RecordFieldsNaming
+import raw.client.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet

@@ -15,7 +15,7 @@ package raw.sources.filesystem.local
 import org.springframework.util.AntPathMatcher
 import raw.sources.bytestream.api.{DelegatingSeekableInputStream, SeekableInputStream}
 import raw.sources.filesystem.api._
-import raw.utils._
+import raw.client.utils._
 
 import java.io._
 import java.nio.file._

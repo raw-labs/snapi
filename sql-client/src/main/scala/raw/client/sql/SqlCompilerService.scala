@@ -19,7 +19,7 @@ import raw.client.sql.antlr4.{ParseProgramResult, RawSqlSyntaxAnalyzer, SqlIdnNo
 import raw.client.sql.metadata.UserMetadataCache
 import raw.client.sql.writers.{TypedResultSetCsvWriter, TypedResultSetJsonWriter}
 import raw.creds.api.CredentialsServiceProvider
-import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
+import raw.client.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 import java.sql.{ResultSet, SQLException, SQLTimeoutException}

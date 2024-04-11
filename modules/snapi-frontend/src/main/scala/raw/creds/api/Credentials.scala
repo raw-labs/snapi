@@ -14,7 +14,7 @@ package raw.creds.api
 
 import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
-import raw.utils.Uid
+import raw.client.utils.Uid
 
 import java.time.Instant
 import java.util.Locale

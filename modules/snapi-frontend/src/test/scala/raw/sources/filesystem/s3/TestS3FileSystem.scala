@@ -12,7 +12,7 @@
 
 package raw.sources.filesystem.s3
 
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 import raw.creds.api.S3Bucket
 import raw.creds.s3.S3TestCreds
 import raw.sources.filesystem.api.{FileSystem, TestFileSystems}

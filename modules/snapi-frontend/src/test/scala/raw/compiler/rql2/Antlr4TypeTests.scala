@@ -36,7 +36,7 @@ import raw.compiler.rql2.source.{
   Rql2TypeProperty,
   Rql2UndefinedType
 }
-import raw.utils.RawTestSuite
+import raw.client.utils.RawTestSuite
 
 class Antlr4TypeTests extends RawTestSuite {
 

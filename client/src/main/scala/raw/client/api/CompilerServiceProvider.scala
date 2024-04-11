@@ -12,7 +12,7 @@
 
 package raw.client.api
 
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import java.util.ServiceLoader
 import scala.collection.JavaConverters._

@@ -13,7 +13,7 @@
 package raw.runtime
 
 import raw.sources.api.SourceContext
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 import raw.client.api._
 
 import java.time.{LocalDateTime, ZoneId}

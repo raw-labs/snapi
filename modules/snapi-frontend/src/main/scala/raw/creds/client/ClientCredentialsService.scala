@@ -16,7 +16,7 @@ import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.creds.api._
 import raw.creds.client.ClientCredentialsService.{CACHE_FDW_EXPIRY, CACHE_FDW_SIZE, SERVER_ADDRESS}
 import raw.rest.client.APIException
-import raw.utils.{AuthenticatedUser, RawSettings}
+import raw.client.utils.{AuthenticatedUser, RawSettings}
 
 import java.net.URI
 import java.util.concurrent.TimeUnit

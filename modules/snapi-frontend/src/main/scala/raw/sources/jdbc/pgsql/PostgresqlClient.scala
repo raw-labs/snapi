@@ -17,7 +17,7 @@ import org.postgresql.util.PSQLException
 import java.util.concurrent.TimeUnit
 import raw.creds.api.PostgresqlCredential
 import raw.sources.jdbc.api._
-import raw.utils.RawSettings
+import raw.client.utils.RawSettings
 
 import java.net.{SocketTimeoutException, UnknownHostException}
 import scala.util.control.NonFatal

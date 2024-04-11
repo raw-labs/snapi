@@ -17,7 +17,7 @@ import raw.client.api._
 import raw.compiler.base.errors.CompilationMessageMapper
 import raw.compiler.base.source._
 import raw.compiler.rql2.antlr4.ParseProgramResult
-import raw.utils._
+import raw.client.utils._
 
 abstract class TreeWithPositions[N <: BaseNode: Manifest, P <: N: Manifest, E <: N: Manifest](
     val originalSource: String,

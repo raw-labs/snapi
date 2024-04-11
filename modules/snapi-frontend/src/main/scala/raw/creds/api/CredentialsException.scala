@@ -12,7 +12,7 @@
 
 package raw.creds.api
 
-import raw.utils.RawServiceException
+import raw.client.utils.RawServiceException
 
 class CredentialsException(message: String, cause: Throwable = null)
     extends RawServiceException(s"credentials error: $message", cause)

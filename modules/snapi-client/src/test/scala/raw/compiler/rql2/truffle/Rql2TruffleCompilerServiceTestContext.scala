@@ -15,7 +15,7 @@ package raw.compiler.rql2.truffle
 import org.graalvm.polyglot.Engine
 import raw.client.rql2.truffle.Rql2TruffleCompilerService
 import raw.compiler.rql2.api.Rql2CompilerServiceTestContext
-import raw.utils.{RawTestSuite, RawUtils, SettingsTestContext}
+import raw.client.utils.{RawTestSuite, RawUtils, SettingsTestContext}
 
 trait Rql2TruffleCompilerServiceTestContext extends Rql2CompilerServiceTestContext {
   this: RawTestSuite with SettingsTestContext =>

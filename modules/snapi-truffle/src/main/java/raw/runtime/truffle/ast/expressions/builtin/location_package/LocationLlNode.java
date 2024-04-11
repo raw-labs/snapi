@@ -31,7 +31,7 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.*;
-import raw.utils.RawException;
+import raw.client.utils.RawException;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
 

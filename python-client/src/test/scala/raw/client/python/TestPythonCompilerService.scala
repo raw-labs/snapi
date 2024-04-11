@@ -13,7 +13,7 @@
 package raw.client.python
 
 import raw.client.api.{CompilerService, EvalSuccess, ExecutionSuccess, ProgramEnvironment, RawInt, RawIntType}
-import raw.utils.{InteractiveUser, RawTestSuite, SettingsTestContext, TrainingWheelsContext, Uid}
+import raw.client.utils.{InteractiveUser, RawTestSuite, SettingsTestContext, TrainingWheelsContext, Uid}
 
 import java.io.ByteArrayOutputStream
 
