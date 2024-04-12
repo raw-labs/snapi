@@ -12,4 +12,4 @@ rm -rfv test-results
 mkdir -p test-results
 
 set -x
-sbt test
+sbt snapiTruffle/runJavaAnnotationProcessor test
