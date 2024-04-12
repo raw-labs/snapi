@@ -71,6 +71,15 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
+      - name: sdkman java setup
+        id: sdkman
+        run: |
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 21.0.1-graalce || true
+          sdk use java 21.0.1-graalce
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - name: download ivy build artifacts
         uses: actions/download-artifact@v4
         with:

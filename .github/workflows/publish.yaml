@@ -163,8 +163,8 @@ jobs:
         export SDKMAN_DIR="$HOME/.sdkman"
         [ ! -f "$SDKMAN_DIR/bin/sdkman-init.sh" ] && curl -s "https://get.sdkman.io?rcupdate=false" | bash
         source $HOME/.sdkman/bin/sdkman-init.sh
-        yes n | sdk install java 21-graalce || true
-        sdk use java 21-graalce
+        yes n | sdk install java 21.0.1-graalce || true
+        sdk use java 21.0.1-graalce
         echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
     - uses: stCarolas/setup-maven@v5
       with:
