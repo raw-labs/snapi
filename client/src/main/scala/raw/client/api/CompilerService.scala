@@ -293,7 +293,7 @@ trait CompilerService extends RawService {
             settings.put(LocationSettingKey(key), value)
           }
           RawLocation(LocationDescription(url, settings.toMap))
-        case _ => throw new AssertionError(s" $t is not triable and is not nullable.")
+        case _ => throw new UnsupportedValueType(t)
       }
     }
   }
