@@ -72,8 +72,9 @@ modules/snapi-client/version
 sql-client/version
 modules/snapi-frontend/version
 snapi-truffle/version
-modules/parsers/version
 python-client/version
+modules/version
+parsers/version
 
 modules/parsers/src/main/java/raw/compiler/rql2/generated
 modules/parsers/src/main/java/raw/client/sql/generated
