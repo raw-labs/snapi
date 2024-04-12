@@ -16,15 +16,15 @@ import com.oracle.truffle.api.CompilerDirectives;
 import java.util.HashSet;
 import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
+import raw.client.utils.AuthenticatedUser;
+import raw.client.utils.RawSettings;
+import raw.client.utils.RawUtils;
 import raw.compiler.base.CompilerContext;
 import raw.creds.api.CredentialsService;
 import raw.creds.api.CredentialsServiceProvider;
 import raw.inferrer.api.InferrerService;
 import raw.inferrer.api.InferrerServiceProvider;
 import raw.sources.api.SourceContext;
-import raw.client.utils.AuthenticatedUser;
-import raw.client.utils.RawSettings;
-import raw.client.utils.RawUtils;
 import scala.Some;
 import scala.runtime.BoxedUnit;
 

@@ -19,6 +19,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import raw.client.api.LocationDescription;
+import raw.client.utils.RawException;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcExceptionHandler;
 import raw.runtime.truffle.runtime.exceptions.rdbms.JdbcReaderRawTruffleException;
 import raw.runtime.truffle.runtime.primitives.DateObject;
@@ -27,7 +28,6 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.sources.api.SourceContext;
 import raw.sources.jdbc.api.JdbcLocationProvider;
-import raw.client.utils.RawException;
 
 public class JdbcQuery {
 

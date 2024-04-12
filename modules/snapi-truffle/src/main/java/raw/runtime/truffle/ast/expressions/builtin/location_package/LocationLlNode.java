@@ -19,6 +19,7 @@ import com.oracle.truffle.api.dsl.Specialization;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
+import raw.client.utils.RawException;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
@@ -31,7 +32,6 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.sources.api.SourceContext;
 import raw.sources.filesystem.api.*;
-import raw.client.utils.RawException;
 import scala.Tuple2;
 import scala.collection.IndexedSeq;
 

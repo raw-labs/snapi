@@ -29,6 +29,8 @@ import java.util.*;
 import java.util.stream.Collectors;
 import org.graalvm.options.OptionDescriptors;
 import raw.client.api.*;
+import raw.client.utils.AuthenticatedUser;
+import raw.client.utils.RawSettings;
 import raw.compiler.base.CompilerContext;
 import raw.compiler.base.InitPhase;
 import raw.compiler.base.Phase;
@@ -45,8 +47,6 @@ import raw.runtime.truffle.runtime.exceptions.RawTruffleValidationException;
 import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
 import raw.runtime.truffle.runtime.record.PureRecord;
 import raw.sources.api.SourceContext;
-import raw.client.utils.AuthenticatedUser;
-import raw.client.utils.RawSettings;
 import scala.collection.JavaConverters;
 
 @TruffleLanguage.Registration(
