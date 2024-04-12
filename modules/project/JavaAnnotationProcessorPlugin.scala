@@ -67,7 +67,7 @@ object JavaAnnotationProcessorPlugin extends AutoPlugin {
     Compile / compile := {
       (Compile/ runJavaAnnotationProcessor).value
       (Compile / compile).value
-    }
+    },
     Test / compile := {
       (Test / runJavaAnnotationProcessor).value
       (Test / compile).value
