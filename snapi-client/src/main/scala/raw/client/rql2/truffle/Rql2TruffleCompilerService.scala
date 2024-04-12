@@ -163,7 +163,8 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
                   case TreeDeclDescription(Some(params), outType, comment) =>
                     val formattedParams = params.map {
                       case TreeParamDescription(idn, tipe, required) => rql2TypeToRawType(tipe) match {
-                          case Some(rawType) => ParamDescription(idn, rawType, None, required)
+                          case Some(rawType) =>
+                            ParamDescription(idn, rawType, defaultValue = None, comment = None, required)
                           case None => return GetProgramDescriptionFailure(
                               List(ErrorMessage(UnsupportedType.message, List.empty, UnsupportedType.code))
                             )

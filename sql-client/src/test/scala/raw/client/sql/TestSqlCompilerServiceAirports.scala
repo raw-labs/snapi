@@ -674,7 +674,8 @@ class TestSqlCompilerServiceAirports
     assert(baos.toString() == """[{"count":3}]""")
   }
 
-  test("""SELECT DATE '2002-01-01' - :s::int AS x -- RD-10538""") { t =>
+  test("""-- @param s just an int
+    |SELECT DATE '2002-01-01' - :s::int AS x -- RD-10538""".stripMargin) { t =>
     assume(password != "")
 
     val environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
@@ -696,7 +697,11 @@ class TestSqlCompilerServiceAirports
         false
       )
     )
-    assert(main.params.contains(Vector(ParamDescription("s", RawIntType(true, false), Some(RawNull()), false))))
+    assert(
+      main.params.contains(
+        Vector(ParamDescription("s", RawIntType(true, false), Some(RawNull()), Some("just an int"), false))
+      )
+    )
     val baos = new ByteArrayOutputStream()
     assert(
       compilerService.execute(

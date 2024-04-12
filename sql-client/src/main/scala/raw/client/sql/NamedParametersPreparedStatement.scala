@@ -116,7 +116,8 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
 
   // A data structure for the full query info: parameters that are mapped to their inferred types,
   // and query output type (the query type)
-  case class QueryInfo(parameters: Map[String, PostgresType], outputType: PostgresRowType)
+  case class ParamInfo(t: PostgresType, comment: Option[String])
+  case class QueryInfo(parameters: Map[String, ParamInfo], outputType: PostgresRowType)
 
   private val stmt = conn.prepareStatement(plainCode) // throws SQLException in case of problem
   private val metadata = stmt.getParameterMetaData // throws SQLException in case of problem
@@ -131,7 +132,7 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     ) yield ErrorRange(startPos, endPos)
   }
 
-  def parameterType(p: String): Either[List[ErrorMessage], PostgresType] = {
+  def parameterType(p: String): Either[List[ErrorMessage], ParamInfo] = {
     val paramTypes = validateParameterTypes()
     paramTypes(p)
   }
@@ -155,7 +156,7 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
     .right
     .flatMap(SqlTypesUtils.validateParamType)
 
-  private def validateParameterTypes(): Map[String, Either[List[ErrorMessage], PostgresType]] = {
+  private def validateParameterTypes(): Map[String, Either[List[ErrorMessage], ParamInfo]] = {
     // parameter types are either declared with @type or inferred from their usage in the code
     paramLocations.map {
       case (p, locations) =>
@@ -166,7 +167,7 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
           _.isInstanceOf[SqlParamTypeCommentNode]
         ) ++ paramInfo.occurrences).flatMap(errorRange).toList
         val tStatus =
-          if (locations.isEmpty && parsedTree.params(p).tipe.isEmpty) {
+          if (locations.isEmpty && paramInfo.tipe.isEmpty) {
             // the parameter is declared (@param) but has no explicit type, and is never used
             Left(List(ErrorMessage("cannot guess parameter type", errorLocations, ErrorCode.SqlErrorCode)))
           } else {
@@ -176,7 +177,7 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
                 SqlTypesUtils
                   .jdbcFromParameterType(tipe)
                   .right
-                  .map(PostgresType(_, isNullable, tipe))
+                  .map(t => ParamInfo(PostgresType(t, isNullable, tipe), paramInfo.description))
                   .left
                   .map(msg => List(ErrorMessage(msg, errorLocations, ErrorCode.SqlErrorCode)))
               case None =>
@@ -200,6 +201,8 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
                   val typeOptions = allOptions.collect { case Right(t) => t }
                   SqlTypesUtils
                     .mergePgTypes(typeOptions)
+                    .right
+                    .map(t => ParamInfo(t, paramInfo.description))
                     .left
                     .map(message =>
                       List(
