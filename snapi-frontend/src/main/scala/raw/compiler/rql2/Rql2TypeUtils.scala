@@ -158,6 +158,9 @@ trait Rql2TypeUtils {
         case Rql2ListType(inner, _) => RawListType(convert(inner), nullable, triable)
         case Rql2IterableType(inner, _) => RawIterableType(convert(inner), nullable, triable)
         case Rql2OrType(ors, _) => RawOrType(ors.map(convert), nullable, triable)
+        case ExpType(inner) => RawExpType(convert(inner))
+        case FunType(ms, os, r, _) =>
+          RawFunType(ms.map(convert), os.map(x => RawFunOptParamType(x.i, convert(x.t))), convert(r))
         case _ => throw new IllegalArgumentException()
       }
     }

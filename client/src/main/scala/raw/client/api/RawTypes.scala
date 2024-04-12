@@ -148,7 +148,7 @@ final case class RawExpType(innerType: RawType) extends RawType {
 }
 
 final case class RawFunOptParamType(idn: String, tipe: RawType)
-final case class RawFunType(ms: Vector[RawType], os: Vector[RawFunOptParamType]) extends RawType {
+final case class RawFunType(ms: Vector[RawType], os: Vector[RawFunOptParamType], r: RawType) extends RawType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType =
     throw new AssertionError("unsupported operation")
 
