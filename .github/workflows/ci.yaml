@@ -100,7 +100,13 @@ jobs:
         run: sbt javafmtCheckAll
         working-directory: ${{ matrix.component }}
       - name: doc
-        run: sbt doc
+        run: |
+          if [ ${{ matrix.component }} == "modules" ]
+          then
+            sbt snapiTruffle/runJavaAnnotationProcessor doc
+          else
+            sbt doc
+          fi
         working-directory: ${{ matrix.component }}
   tests:
     needs: build
