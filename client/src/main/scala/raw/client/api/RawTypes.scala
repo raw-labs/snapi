@@ -38,7 +38,9 @@ import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
     new JsonType(value = classOf[RawRecordType], name = "record"),
     new JsonType(value = classOf[RawListType], name = "list"),
     new JsonType(value = classOf[RawIterableType], name = "iterable"),
-    new JsonType(value = classOf[RawOrType], name = "or")
+    new JsonType(value = classOf[RawOrType], name = "or"),
+    new JsonType(value = classOf[RawExpType], name = "expectedType"),
+    new JsonType(value = classOf[RawFunType], name = "functionType")
   )
 )
 sealed abstract class RawType {
@@ -134,4 +136,23 @@ final case class RawIterableType(innerType: RawType, nullable: Boolean, triable:
 
 final case class RawOrType(ors: Vector[RawType], nullable: Boolean, triable: Boolean) extends RawType {
   override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType = RawOrType(ors, nullable, triable)
+}
+
+final case class RawExpType(innerType: RawType) extends RawType {
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType =
+    throw new AssertionError("unsupported operation")
+
+  override def nullable: Boolean = false
+
+  override def triable: Boolean = false
+}
+
+final case class RawFunOptParamType(idn: String, tipe: RawType)
+final case class RawFunType(ms: Vector[RawType], os: Vector[RawFunOptParamType]) extends RawType {
+  override def cloneWithFlags(nullable: Boolean, triable: Boolean): RawType =
+    throw new AssertionError("unsupported operation")
+
+  override def nullable: Boolean = false
+
+  override def triable: Boolean = false
 }
