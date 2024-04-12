@@ -211,6 +211,12 @@ trait Rql2TypeUtils {
       case RawIterableType(innerType, nullable, triable) =>
         Rql2IterableType(rawTypeToRql2Type(innerType), flags(nullable, triable))
       case RawOrType(ors, nullable, triable) => Rql2OrType(ors.map(rawTypeToRql2Type).to, flags(nullable, triable))
+      case RawExpType(innerType) => ExpType(rawTypeToRql2Type(innerType))
+      case RawFunType(ms, os, r) => FunType(
+          ms.map(rawTypeToRql2Type),
+          os.map(x => FunOptTypeParam(x.idn, rawTypeToRql2Type(x.tipe))),
+          rawTypeToRql2Type(r)
+        )
     }
   }
 
