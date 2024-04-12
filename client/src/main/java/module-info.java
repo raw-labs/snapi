@@ -32,7 +32,6 @@ module raw.client {
 
   opens raw.client.api to
       com.fasterxml.jackson.databind;
-
   opens raw.client.utils to
       com.fasterxml.jackson.databind;
 
