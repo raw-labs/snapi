@@ -1,4 +1,4 @@
-#!/bin/bash -ex
+#!/bin/bash -e
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 [ "$CI" == "true" ] && { export HOME=/home/sbtuser; }
 . ~/.sdkman/bin/sdkman-init.sh
@@ -11,4 +11,5 @@ cd "${SCRIPT_HOME}"
 rm -rfv test-results
 mkdir -p test-results
 
+set -x
 sbt test
