@@ -160,7 +160,6 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
                     val formattedParams = params.map {
                       case TreeParamDescription(idn, tipe, required) =>
                         ParamDescription(idn, rql2TypeToRawType(tipe), defaultValue = None, comment = None, required)
-
                     }
                     DeclDescription(Some(formattedParams), rql2TypeToRawType(outType), comment)
                 }
