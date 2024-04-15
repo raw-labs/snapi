@@ -95,7 +95,13 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                             case other => other.cloneNullable
                           }
                           // their default value is `null`.
-                          ParamDescription(name, nullableType, Some(RawNull()), paramInfo.comment, required = false)
+                          ParamDescription(
+                            name,
+                            Some(nullableType),
+                            Some(RawNull()),
+                            paramInfo.comment,
+                            required = false
+                          )
                         }
                     }
                     .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
@@ -111,7 +117,7 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
                       // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
                       val ok = ProgramDescription(
                         Map.empty,
-                        Some(DeclDescription(Some(ps.toVector), iterableType, None)),
+                        Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
                         None
                       )
                       GetProgramDescriptionSuccess(ok)
