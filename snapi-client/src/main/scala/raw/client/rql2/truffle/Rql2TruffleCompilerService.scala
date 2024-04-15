@@ -215,7 +215,6 @@ class Rql2TruffleCompilerService(engineDefinition: (Engine, Boolean), maybeClass
           val rawValue = polyglotValueToRawValue(polyglotValue, tipe)
           EvalSuccess(rawValue)
         } catch {
-          case ex: UnsupportedValueType => EvalRuntimeFailure("Unsupported value type " + ex.tipe)
           case ex: PolyglotException =>
             // (msb): The following are various "hacks" to ensure the inner language InterruptException propagates "out".
             // Unfortunately, I do not find a more reliable alternative; the branch that does seem to work is the one
