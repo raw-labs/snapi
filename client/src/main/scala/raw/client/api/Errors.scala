@@ -92,5 +92,3 @@ final case class ErrorPosition(line: Int, column: Int)
  * The message can be safely shared with the user.
  */
 sealed class CompilerException(message: String, cause: Throwable = null) extends RawException(message, cause)
-
-class UnsupportedValueType(val tipe: RawType) extends CompilerException("Unsupported value type")

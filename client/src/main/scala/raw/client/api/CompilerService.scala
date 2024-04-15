@@ -293,7 +293,6 @@ trait CompilerService extends RawService {
             settings.put(LocationSettingKey(key), value)
           }
           RawLocation(LocationDescription(url, settings.toMap))
-        case _ => throw new UnsupportedValueType(t)
       }
     }
   }
