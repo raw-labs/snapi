@@ -134,7 +134,7 @@ outputVersion := {
 
 // Publish settings
 Test / publishArtifact := true
-// Useful for debugging 
+// Useful for debugging
 Test / packageSrc / publishArtifact := true
 
 Compile / packageSrc / publishArtifact := true
@@ -145,7 +145,7 @@ publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)
 libraryDependencies ++= Seq(
   rawClient % "compile->compile;test->test",
   rawSnapiFrontend % "compile->compile;test->test",
-  rawSnapiParser % "compile->compile;test->test",
+  rawSqlParser % "compile->compile;test->test",
   kiama,
   postgresqlDeps,
   hikariCP)
