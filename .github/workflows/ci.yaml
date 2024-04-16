@@ -57,6 +57,8 @@ jobs:
         component:
           - utils
           - client
+          - snapi-parser
+          - sql-parser
           - snapi-frontend
           - snapi-truffle
           - snapi-client

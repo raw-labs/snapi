@@ -8,8 +8,8 @@ object Dependencies {
   val rawSnapiFrontendVersion = IO.read(new File("../snapi-frontend/version")).trim
   val rawSnapiFrontend = "com.raw-labs" %% "raw-snapi-frontend" % rawSnapiFrontendVersion
 
-  val rawSnapiParserVersion = IO.read(new File("../parsers/version")).trim
-  val rawSnapiParser = "com.raw-labs" % "raw-parsers" % rawSnapiParserVersion
+  val rawSqlParserVersion = IO.read(new File("../sql-parser/version")).trim
+  val rawSqlParser = "com.raw-labs" % "raw-sql-parser" % rawSqlParserVersion
 
   val kiamaVersion = IO.read(new File("../deps/kiama/version")).trim
   val kiama = "org.bitbucket.inkytonik.kiama" %% "kiama" % kiamaVersion
