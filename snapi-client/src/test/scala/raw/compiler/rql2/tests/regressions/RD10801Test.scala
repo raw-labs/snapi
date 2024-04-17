@@ -44,18 +44,30 @@ trait RD10801Test extends CompilerTestContext {
     |v1,v2,v3,v4,v5,v6
     |v1,v2,v3,v4,v5,v6""".stripMargin
   private val rd10801Csv = tempFile(csvContent, "csv")
-  test(s"""Csv.InferAndParse($qqq$csvContent$qqq)""".stripMargin)(_ should run)
+  test(s"""Csv.InferAndParse($qqq$csvContent$qqq)""".stripMargin)(_ should evaluateTo("""[
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"},
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"}
+    |]""".stripMargin))
   test(
     s"""Csv.Parse($qqq$csvContent$qqq, type collection(record(f1: string, f2: string, f3: string, dup: string, f5: string, dup: string)),
-      |     delimiter = ",")""".stripMargin
-  )(_ should run)
+      |     delimiter = ",", skip = 1)""".stripMargin
+  )(_ should evaluateTo("""[
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"},
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"}
+    |]""".stripMargin))
 
-  test(snapi"""Csv.InferAndRead($qqq$rd10801Csv$qqq)""".stripMargin)(_ should run)
+  test(snapi"""Csv.InferAndRead($qqq$rd10801Csv$qqq)""".stripMargin)(_ should evaluateTo("""[
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"},
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"}
+    |]""".stripMargin))
   test(
     snapi"""Csv.Read($qqq$rd10801Csv$qqq,
       |type collection(record(f1: string, f2: string, f3: string, dup: string, f5: string, dup: string)),
-      |delimiter = ",")""".stripMargin
-  )(_ should run)
+      |delimiter = ",", skip = 1)""".stripMargin
+  )(_ should evaluateTo("""[
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"},
+    |  {f1: "v1", f2: "v2", f3: "v3", dup: "v4", f5: "v5", dup: "v6"}
+    |]""".stripMargin))
 
   test(
     s"""Xml.Parse($qqq<?xml version="1.0"?><nothing/>$qqq, type record(nothing: collection(record(a: (int) -> float, b: int, c: int))))"""
