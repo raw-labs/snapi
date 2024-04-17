@@ -1,0 +1,182 @@
+import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
+import sbt.Keys._
+import sbt._
+
+import java.time.Year
+
+import raw.build.Dependencies._
+import raw.build.BuildSettings._
+
+import java.io.IOException
+import scala.sys.process._
+
+import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
+
+publish / skip := true
+
+ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
+ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
+ThisBuild / sonatypeProfileName := "com.raw-labs"
+
+val generateSnapiParser = taskKey[Unit]("Generated antlr4 base SNAPI parser and lexer")
+val generateSqlParser = taskKey[Unit]("Generated antlr4 base SQL parser and lexer")
+
+lazy val utils = (project in file("utils"))
+  .settings(
+    commonSettings,
+    scalaCompileSettings,
+    testSettings,
+    libraryDependencies ++= Seq(
+      scalaLogging,
+      logbackClassic,
+      guava,
+      scalaJava8Compat,
+      typesafeConfig,
+      loki4jAppender,
+      commonsIO,
+      commonsText,
+      scalatest % Test
+    ) ++
+      slf4j ++
+      jacksonDeps
+  )
+
+lazy val client = (project in file("client"))
+  .dependsOn(
+    utils % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    scalaCompileSettings,
+    testSettings,
+    libraryDependencies += trufflePolyglot
+  )
+
+lazy val snapiParser = (project in file("snapi-parser"))
+  .dependsOn(
+    utils % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    commonCompileSettings,
+    Compile / doc := { file("/dev/null") },
+    compileOrder := CompileOrder.JavaThenScala,
+    libraryDependencies ++= Seq(
+      antlr4Runtime
+    ),
+    generateSnapiParser := {
+      // List of output paths
+      val basePath: String = s"${baseDirectory.value}/src/main/java"
+      val parsers = List(
+        (s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
+      )
+      def deleteRecursively(file: File): Unit = {
+        if (file.isDirectory) {
+          file.listFiles.foreach(deleteRecursively)
+        }
+        if (file.exists && !file.delete()) {
+          throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
+        }
+      }
+      val s: TaskStreams = streams.value
+      parsers.foreach(parser => {
+        val outputPath = parser._1
+        val file = new File(outputPath)
+        if (file.exists()) {
+          deleteRecursively(file)
+        }
+        val packageName: String = parser._2
+        val jarName = "antlr-4.12.0-complete.jar"
+        val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
+        val output = new StringBuilder
+        val logger = ProcessLogger(
+          (o: String) => output.append(o + "\n"), // for standard output
+          (e: String) => output.append(e + "\n") // for standard error
+        )
+        val grammarPath = parser._3
+        val grammarName = parser._4
+        val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
+        if (lexerResult == 0) {
+          s.log.info("Lexer code generated successfully")
+        } else {
+          s.log.error("Lexer code generation failed with exit code " + lexerResult)
+          s.log.error("Output:\n" + output.toString)
+        }
+        val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
+        if (parserResult == 0) {
+          s.log.info("Parser code generated successfully")
+        } else {
+          s.log.error("Parser code generation failed with exit code " + lexerResult)
+          s.log.error("Output:\n" + output.toString)
+        }
+      })
+    },
+    Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value
+  )
+
+//lazy val snapiFrontend = (project in file("snapi-frontend"))
+//  .dependsOn(
+//    utils % "compile->compile;test->test",
+//    snapiParser % "compile->compile;test->test"
+//  )
+//  .settings(
+//    commonSettings,
+//    snapiFrontendCompileSettings,
+//    testSettings,
+//    libraryDependencies ++= Seq(
+//      commonsLang,
+//      commonsText,
+//      apacheHttpClient,
+//      icuDeps,
+//      woodstox,
+//      kiama,
+//      dropboxSDK,
+//      aws,
+//      jwtApi,
+//      jwtImpl,
+//      jwtCore,
+//      postgresqlDeps,
+//      mysqlDeps,
+//      mssqlDeps,
+//      snowflakeDeps,
+//      commonsCodec,
+//      springCore,
+//      kryo
+//    ) ++
+//      poiDeps
+//  )
+//
+//lazy val snapiTruffle = (project in file("snapi-truffle"))
+//  .dependsOn(
+//    utils % "compile->compile;test->test",
+//    snapiFrontend % "compile->compile;test->test"
+//  )
+//  .enablePlugins(JavaAnnotationProcessorPlugin)
+//  .settings(
+//    commonSettings,
+//    snapiTruffleCompileSettings,
+//    testSettings,
+//    libraryDependencies ++= truffleCompiler ++ scalaCompiler,
+//  )
+//
+//lazy val snapiClient = (project in file("snapi-client"))
+//  .dependsOn(
+//    client % "compile->compile;test->test",
+//    snapiFrontend % "compile->compile;test->test",
+//    snapiTruffle % "compile->compile;test->test"
+//  )
+//  .settings(
+//    commonSettings,
+//    snapiClientCompileSettings,
+//    testSettings
+//  )
+//
+//// Output version to a file
+//val outputVersion = taskKey[Unit]("Outputs the version to a file")
+//outputVersion := {
+//  val versionFile = baseDirectory.value / "version"
+//  if (!versionFile.exists()) {
+//    IO.touch(versionFile)
+//  }
+//  IO.write(versionFile, (ThisBuild / version).value)
+//}
