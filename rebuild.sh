@@ -14,14 +14,11 @@ cd "${SCRIPT_HOME}/utils"
 cd "${SCRIPT_HOME}/client"
 ./build.sh
 
-cd "${SCRIPT_HOME}/parsers"
-if [ "$1" == "--release" ]; then
-    cd "${SCRIPT_HOME}/parsers"
-    ./build.sh --release
-else
-    cd "${SCRIPT_HOME}/parsers"
-    ./build.sh
-fi
+cd "${SCRIPT_HOME}/snapi-parser"
+./build.sh
+
+cd "${SCRIPT_HOME}/sql-parser"
+./build.sh
 
 cd "${SCRIPT_HOME}/snapi-frontend"
 ./build.sh

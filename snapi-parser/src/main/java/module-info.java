@@ -12,7 +12,6 @@
 
 module raw.snapi.parser {
   exports raw.compiler.rql2.generated;
-  exports raw.client.sql.generated;
 
   requires org.antlr.antlr4.runtime;
 }

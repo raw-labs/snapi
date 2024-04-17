@@ -72,9 +72,12 @@ snapi-client/version
 sql-client/version
 snapi-frontend/version
 snapi-truffle/version
-parsers/version
+sql-parser/version
+snapi-parser/version
 python-client/version
-parsers/src/main/java/raw/compiler/rql2/generated
-parsers/src/main/java/raw/client/sql/generated
+
+snapi-parser/src/main/java/raw/compiler/rql2/generated
+sql-parser/src/main/java/raw/client/sql/generated
 
 **/pom.xml.versionsBackup
+

@@ -1,7 +1,14 @@
-import Dependencies.*
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport.*
-import sbt.*
 import sbt.Keys.*
+import sbt.*
+
+import java.time.Year
+import Dependencies.*
+
+import java.io.IOException
+import scala.sys.process.*
+
+import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 
@@ -29,7 +36,7 @@ organizationName := "RAW Labs SA"
 
 organizationHomepage := Some(url("https://www.raw-labs.com/"))
 
-name := "raw-sql-client"
+name := "raw-sql-parser"
 
 developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs")))
 
@@ -45,8 +52,6 @@ headerLicense := Some(HeaderLicense.Custom(licenseHeader))
 
 headerSources / excludeFilter := HiddenFileFilter
 
-scalaVersion := "2.12.18"
-
 javacOptions ++= Seq(
   "-source",
   "21",
@@ -54,27 +59,11 @@ javacOptions ++= Seq(
   "21"
 )
 
-scalacOptions ++= Seq(
-  "-feature",
-  "-unchecked",
-  // When compiling in encrypted drives in Linux, the max size of a name is reduced to around 140.
-  "-Xmax-classfile-name",
-  "140",
-  "-deprecation",
-  "-Xlint:-stars-align,-missing-interpolator,_",
-  "-Ywarn-dead-code",
-  // Fix for false warning of unused implicit arguments in traits/interfaces.
-  "-Ywarn-macros:after",
-  "-Ypatmat-exhaust-depth",
-  "160",
-  // Warnings as errors.
-  "-Xfatal-warnings"
-)
-
 // Use cached resolution of dependencies
 updateOptions := updateOptions.in(Global).value.withCachedResolution(true)
 
-compileOrder := CompileOrder.ScalaThenJava
+// Needed for JPMS to work.
+compileOrder := CompileOrder.JavaThenScala
 
 // Doc generation breaks with Java files
 Compile / doc / sources := {
@@ -83,6 +72,9 @@ Compile / doc / sources := {
 Test / doc / sources := {
   (Compile / doc / sources).value.filterNot(_.getName.endsWith(".java"))
 }
+
+// Skipping javadoc generation for antlr4 broken links
+Compile / doc := { file("/dev/null") } // for Unix-like systems
 
 // Add all the classpath to the module path.
 Compile / javacOptions ++= Seq(
@@ -96,7 +88,7 @@ Compile / javacOptions ++= Seq(
 Test / fork := true
 
 Test / javaOptions ++= {
-  import scala.collection.JavaConverters.*
+  import scala.collection.JavaConverters._
   val props = System.getProperties
   props
     .stringPropertyNames()
@@ -114,8 +106,7 @@ Test / javaOptions ++= Seq(
   // Limit overall memory and force crashing hard and early.
   // Useful for debugging memleaks.
   "-Xmx8G",
-  "-XX:+CrashOnOutOfMemoryError",
-  "-Dpolyglotimpl.CompilationFailureAction=Throw"
+  "-XX:+CrashOnOutOfMemoryError"
 )
 
 // Add dependency resolvers
@@ -138,16 +129,77 @@ Test / publishArtifact := true
 Test / packageSrc / publishArtifact := true
 
 Compile / packageSrc / publishArtifact := true
-// When doing publishLocal, also publish to the local maven repository and generate the version number file.
-publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, publishM2)).value
 
 // Dependencies
 libraryDependencies ++= Seq(
-  rawClient % "compile->compile;test->test",
-  rawSnapiFrontend % "compile->compile;test->test",
-  rawSqlParser % "compile->compile;test->test",
-  kiama,
-  postgresqlDeps,
-  hikariCP)
+  "org.antlr" % "antlr4-runtime" % "4.12.0"
+)
 
-Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.sql.client")
+val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
+
+generateParser := {
+
+  // List of output paths
+  val basePath: String = s"${baseDirectory.value}/src/main/java"
+  val parsers = List(
+    (s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql"),
+  )
+
+  def deleteRecursively(file: File): Unit = {
+    if (file.isDirectory) {
+      file.listFiles.foreach(deleteRecursively)
+    }
+    if (file.exists && !file.delete()) {
+      throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
+    }
+  }
+
+  val s: TaskStreams = streams.value
+
+  parsers.foreach(parser => {
+
+    val outputPath = parser._1
+
+    val file = new File(outputPath)
+    if (file.exists()) {
+      deleteRecursively(file)
+    }
+
+    val packageName: String = parser._2
+
+    val jarName = "antlr-4.12.0-complete.jar"
+
+    val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
+
+    val output = new StringBuilder
+    val logger = ProcessLogger(
+      (o: String) => output.append(o + "\n"), // for standard output
+      (e: String) => output.append(e + "\n") // for standard error
+    )
+
+    val grammarPath = parser._3
+    val grammarName = parser._4
+
+    val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
+    if (lexerResult == 0) {
+      s.log.info("Lexer code generated successfully")
+    } else {
+      s.log.error("Lexer code generation failed with exit code " + lexerResult)
+      s.log.error("Output:\n" + output.toString)
+    }
+
+    val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
+    if (parserResult == 0) {
+      s.log.info("Parser code generated successfully")
+    } else {
+      s.log.error("Parser code generation failed with exit code " + lexerResult)
+      s.log.error("Output:\n" + output.toString)
+    }
+  })
+}
+
+Compile / compile := (Compile / compile).dependsOn(generateParser).value
+
+publishLocal := (publishLocal dependsOn Def.sequential(outputVersion, generateParser, publishM2)).value
+publish := (publish dependsOn Def.sequential(outputVersion, generateParser)).value
+publishSigned := (publishSigned dependsOn Def.sequential(outputVersion, generateParser)).value
