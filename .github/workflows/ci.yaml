@@ -54,6 +54,15 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
+      - name: sdkman java setup
+        id: sdkman
+        run: |
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 21.0.1-graalce || true
+          sdk use java 21.0.1-graalce
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - name: download ivy build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -93,6 +102,15 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
+      - name: sdkman java setup
+        id: sdkman
+        run: |
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 21.0.1-graalce || true
+          sdk use java 21.0.1-graalce
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
       - uses: oNaiPs/secrets-to-env-action@v1.5
         with:
           secrets: ${{ toJSON(secrets) }}
@@ -106,10 +124,6 @@ jobs:
         with:
           name: m2
           path: /home/sbtuser/.m2/repository
-      - name: download versions
-        uses: actions/download-artifact@v4
-        with:
-          name: versions
       - name: test
         run:  sbt ${{ matrix.component }}/test
         working-directory: ${{ matrix.component }}
