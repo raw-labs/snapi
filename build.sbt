@@ -138,6 +138,7 @@ lazy val snapiParser = (project in file("snapi-parser"))
     },
     Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value,
     Compile / doc := (Compile / doc).dependsOn(generateSnapiParser).value,
+    Test / compile := (Test / compile).dependsOn(generateSnapiParser).value,
     publish := (publish dependsOn(generateSnapiParser)).value,
     publishLocal := (publishLocal dependsOn(generateSnapiParser)).value,
     publishSigned := (publishSigned dependsOn(generateSnapiParser)).value
@@ -245,6 +246,7 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     },
     Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value,
     Compile / doc := (Compile / doc).dependsOn(runJavaAnnotationProcessor).value,
+    Test / compile := (Test / compile).dependsOn(runJavaAnnotationProcessor).value,
     publish := (publish dependsOn(runJavaAnnotationProcessor)).value,
     publishLocal := (publishLocal dependsOn(runJavaAnnotationProcessor)).value,
     publishSigned := (publishSigned dependsOn(runJavaAnnotationProcessor)).value,
@@ -323,6 +325,7 @@ lazy val sqlParser = (project in file("sql-parser"))
     },
     Compile / compile := (Compile / compile).dependsOn(generateSqlParser).value,
     Compile / doc := (Compile / doc).dependsOn(generateSqlParser).value,
+    Test / compile := (Test / compile).dependsOn(generateSqlParser).value,
     publish := (publish dependsOn(generateSqlParser)).value,
     publishLocal := (publishLocal dependsOn(generateSqlParser)).value,
     publishSigned := (publishSigned dependsOn(generateSqlParser)).value
