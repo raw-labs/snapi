@@ -86,6 +86,7 @@ object BuildSettings {
       updatedOptions
     },
   )
+
   lazy val snapiClientCompileSettings = scalaCompileSettings ++ Seq(
     scalacOptions := {
       val baseOptions = scalacOptions.value

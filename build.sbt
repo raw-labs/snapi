@@ -50,7 +50,6 @@ lazy val client = (project in file("client"))
   )
 
 val generateSnapiParser = taskKey[Unit]("Generated antlr4 base SNAPI parser and lexer")
-val generateSqlParser = taskKey[Unit]("Generated antlr4 base SQL parser and lexer")
 
 lazy val snapiParser = (project in file("snapi-parser"))
   .settings(
@@ -225,4 +224,82 @@ lazy val snapiClient = (project in file("snapi-client"))
     commonSettings,
     snapiClientCompileSettings,
     testSettings
+  )
+
+val generateSqlParser = taskKey[Unit]("Generated antlr4 base SQL parser and lexer")
+
+lazy val sqlParser = (project in file("sql-parser"))
+  .settings(
+    commonSettings,
+    commonCompileSettings,
+    Compile / doc := { file("/dev/null") },
+    compileOrder := CompileOrder.JavaThenScala,
+    libraryDependencies ++= Seq(
+      antlr4Runtime
+    ),
+    generateSqlParser := {
+      // List of output paths
+      val basePath: String = s"${baseDirectory.value}/src/main/java"
+      val parsers = List(
+        (s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql"),
+      )
+      def deleteRecursively(file: File): Unit = {
+        if (file.isDirectory) {
+          file.listFiles.foreach(deleteRecursively)
+        }
+        if (file.exists && !file.delete()) {
+          throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
+        }
+      }
+      val s: TaskStreams = streams.value
+      parsers.foreach(parser => {
+        val outputPath = parser._1
+        val file = new File(outputPath)
+        if (file.exists()) {
+          deleteRecursively(file)
+        }
+        val packageName: String = parser._2
+        val jarName = "antlr-4.12.0-complete.jar"
+        val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
+        val output = new StringBuilder
+        val logger = ProcessLogger(
+          (o: String) => output.append(o + "\n"), // for standard output
+          (e: String) => output.append(e + "\n") // for standard error
+        )
+        val grammarPath = parser._3
+        val grammarName = parser._4
+        val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
+        if (lexerResult == 0) {
+          s.log.info("Lexer code generated successfully")
+        } else {
+          s.log.error("Lexer code generation failed with exit code " + lexerResult)
+          s.log.error("Output:\n" + output.toString)
+        }
+        val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
+        if (parserResult == 0) {
+          s.log.info("Parser code generated successfully")
+        } else {
+          s.log.error("Parser code generation failed with exit code " + lexerResult)
+          s.log.error("Output:\n" + output.toString)
+        }
+      })
+    },
+    Compile / compile := (Compile / compile).dependsOn(generateSqlParser).value
+  )
+
+lazy val sqlClient = (project in file("sql-client"))
+  .dependsOn(
+    client % "compile->compile;test->test",
+    snapiFrontend % "compile->compile;test->test",
+    sqlParser % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    snapiClientCompileSettings,
+    testSettings,
+    libraryDependencies ++= Seq(
+      kiama,
+      postgresqlDeps,
+      hikariCP
+    )
   )

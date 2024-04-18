@@ -90,4 +90,6 @@ object Dependencies {
     "org.scala-lang" % "scala-reflect" % "2.12.18"
   )
 
+  // from sql-client
+  val hikariCP = "com.zaxxer" % "HikariCP" % "5.1.0"
 }
