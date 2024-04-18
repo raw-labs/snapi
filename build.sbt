@@ -53,9 +53,6 @@ lazy val client = (project in file("client"))
   )
 
 lazy val snapiParser = (project in file("snapi-parser"))
-  .dependsOn(
-    utils % "compile->compile;test->test"
-  )
   .settings(
     commonSettings,
     commonCompileSettings,
@@ -114,38 +111,39 @@ lazy val snapiParser = (project in file("snapi-parser"))
     Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value
   )
 
-//lazy val snapiFrontend = (project in file("snapi-frontend"))
-//  .dependsOn(
-//    utils % "compile->compile;test->test",
-//    snapiParser % "compile->compile;test->test"
-//  )
-//  .settings(
-//    commonSettings,
-//    snapiFrontendCompileSettings,
-//    testSettings,
-//    libraryDependencies ++= Seq(
-//      commonsLang,
-//      commonsText,
-//      apacheHttpClient,
-//      icuDeps,
-//      woodstox,
-//      kiama,
-//      dropboxSDK,
-//      aws,
-//      jwtApi,
-//      jwtImpl,
-//      jwtCore,
-//      postgresqlDeps,
-//      mysqlDeps,
-//      mssqlDeps,
-//      snowflakeDeps,
-//      commonsCodec,
-//      springCore,
-//      kryo
-//    ) ++
-//      poiDeps
-//  )
-//
+lazy val snapiFrontend = (project in file("snapi-frontend"))
+  .dependsOn(
+    utils % "compile->compile;test->test",
+    client % "compile->compile;test->test",
+    snapiParser % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    nonStrictScalaCompileSettings,
+    testSettings,
+    libraryDependencies ++= Seq(
+      commonsLang,
+      commonsText,
+      apacheHttpClient,
+      icuDeps,
+      woodstox,
+      kiama,
+      dropboxSDK,
+      aws,
+      jwtApi,
+      jwtImpl,
+      jwtCore,
+      postgresqlDeps,
+      mysqlDeps,
+      mssqlDeps,
+      snowflakeDeps,
+      commonsCodec,
+      springCore,
+      kryo
+    ) ++
+      poiDeps
+  )
+
 //lazy val snapiTruffle = (project in file("snapi-truffle"))
 //  .dependsOn(
 //    utils % "compile->compile;test->test",

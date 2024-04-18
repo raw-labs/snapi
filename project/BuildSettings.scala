@@ -76,6 +76,16 @@ object BuildSettings {
     compileOrder := CompileOrder.ScalaThenJava,
   )
 
+  lazy val nonStrictScalaCompileSettings = scalaCompileSettings ++ Seq(
+    scalacOptions := {
+      val baseOptions = scalacOptions.value
+      val updatedOptions = baseOptions.map {
+        case "-Xfatal-warnings" => ""
+        case other => other
+      }
+      updatedOptions
+    },
+  )
   lazy val snapiClientCompileSettings = scalaCompileSettings ++ Seq(
     scalacOptions := {
       val baseOptions = scalacOptions.value
@@ -87,10 +97,6 @@ object BuildSettings {
     },
   )
 
-  lazy val snapiFrontendCompileSettings = scalaCompileSettings ++ Seq(
-    scalacOptions += "-Xlint:-stars-align,_",
-    compileOrder := CompileOrder.ScalaThenJava,
-  )
 
   lazy val snapiTruffleCompileSettings = scalaCompileSettings ++ Seq(
     scalacOptions += "-Xlint:-stars-align,_",
