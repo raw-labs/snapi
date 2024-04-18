@@ -99,7 +99,6 @@ object BuildSettings {
 
 
   lazy val snapiTruffleCompileSettings = scalaCompileSettings ++ Seq(
-    scalacOptions += "-Xlint:-stars-align,_",
     compileOrder := CompileOrder.JavaThenScala,
     Compile / unmanagedSourceDirectories += baseDirectory.value / "target" / "java-processed-sources",
     Compile / unmanagedResourceDirectories += baseDirectory.value / "target" / "java-processed-sources" / "META-INF",

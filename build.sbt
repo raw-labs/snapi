@@ -18,9 +18,6 @@ ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 ThisBuild / sonatypeProfileName := "com.raw-labs"
 
-val generateSnapiParser = taskKey[Unit]("Generated antlr4 base SNAPI parser and lexer")
-val generateSqlParser = taskKey[Unit]("Generated antlr4 base SQL parser and lexer")
-
 lazy val utils = (project in file("utils"))
   .settings(
     commonSettings,
@@ -51,6 +48,9 @@ lazy val client = (project in file("client"))
     testSettings,
     libraryDependencies += trufflePolyglot
   )
+
+val generateSnapiParser = taskKey[Unit]("Generated antlr4 base SNAPI parser and lexer")
+val generateSqlParser = taskKey[Unit]("Generated antlr4 base SQL parser and lexer")
 
 lazy val snapiParser = (project in file("snapi-parser"))
   .settings(
@@ -144,18 +144,76 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
       poiDeps
   )
 
-//lazy val snapiTruffle = (project in file("snapi-truffle"))
-//  .dependsOn(
-//    utils % "compile->compile;test->test",
-//    snapiFrontend % "compile->compile;test->test"
-//  )
-//  .enablePlugins(JavaAnnotationProcessorPlugin)
-//  .settings(
-//    commonSettings,
-//    snapiTruffleCompileSettings,
-//    testSettings,
-//    libraryDependencies ++= truffleCompiler ++ scalaCompiler,
-//  )
+val calculateClasspath = taskKey[Seq[File]]("Calculate the full classpath")
+val runJavaAnnotationProcessor = taskKey[Unit]("Runs the Java annotation processor")
+
+val annotationProcessors = Seq(
+  "com.oracle.truffle.dsl.processor.TruffleProcessor",
+  "com.oracle.truffle.dsl.processor.verify.VerifyTruffleProcessor",
+  "com.oracle.truffle.dsl.processor.LanguageRegistrationProcessor",
+  "com.oracle.truffle.dsl.processor.InstrumentRegistrationProcessor",
+  "com.oracle.truffle.dsl.processor.OptionalResourceRegistrationProcessor",
+  "com.oracle.truffle.dsl.processor.InstrumentableProcessor",
+  "com.oracle.truffle.dsl.processor.verify.VerifyCompilationFinalProcessor",
+  "com.oracle.truffle.dsl.processor.OptionProcessor"
+).mkString(",")
+
+lazy val snapiTruffle = (project in file("snapi-truffle"))
+  .dependsOn(
+    utils % "compile->compile;test->test",
+    snapiFrontend % "compile->compile;test->test"
+  )
+  .enablePlugins(JavaAnnotationProcessorPlugin)
+  .settings(
+    commonSettings,
+    snapiTruffleCompileSettings,
+    testSettings,
+    libraryDependencies ++= truffleCompiler ++ scalaCompiler,
+    calculateClasspath := {
+      val dependencyFiles = (Compile / dependencyClasspath).value.files
+      val unmanagedFiles = (Compile / unmanagedClasspath).value.files
+      val classesDir = (Compile / classDirectory).value
+      dependencyFiles ++ unmanagedFiles ++ Seq(classesDir)
+    },
+    runJavaAnnotationProcessor := {
+      println("Running Java annotation processor")
+
+      val annotationProcessorJar = baseDirectory.value / "truffle-dsl-processor-23.1.0.jar"
+
+      val javaSources = baseDirectory.value / "src" / "main" / "java"
+      val targetDir = baseDirectory.value / "target" / "java-processed-sources"
+
+      val projectClasspath = calculateClasspath.value.mkString(":")
+
+      val javacOptions = Seq(
+        "javac",
+        "-source",
+        "21",
+        "-target",
+        "21",
+        "-d",
+        targetDir.getAbsolutePath,
+        "--module-path",
+        projectClasspath,
+        "-cp",
+        annotationProcessorJar.getAbsolutePath,
+        "-processor",
+        annotationProcessors,
+        "-proc:only"
+      ) ++ (javaSources ** "*.java").get.map(_.absolutePath)
+
+      // Create the target directory if it doesn't exist
+      targetDir.mkdirs()
+
+      // Execute the Java compiler
+      val result = Process(javacOptions).!
+      if (result != 0) {
+        throw new RuntimeException("Java annotation processing failed.")
+      }
+    },
+    Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value
+  )
+
 //
 //lazy val snapiClient = (project in file("snapi-client"))
 //  .dependsOn(
