@@ -614,7 +614,7 @@ trait JsonPackageTest extends CompilerTestContext {
     snapi"""Json.Read("$xmlFile", type collection(record(name: string, birthYear: int)))"""
   ) { it =>
     it should runErrorAs(
-      s"failed to read JSON (line 1 column 2) (url: file:${xmlFile.toAbsolutePath}): Unexpected character ('<' (code 60)): expected a valid value (JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]"
+      s"failed to read JSON (line 1 column 2) (url: file:${xmlFile.toAbsolutePath}): failed to read JSON (line 1 column 2): Unexpected character ('<' (code 60)): expected a valid value (JSON String, Number (or 'NaN'/'INF'/'+INF'), Array, Object or token 'null', 'true' or 'false')\n at [Source: (InputStreamReader); line: 1, column: 2]"
     )
   }
 

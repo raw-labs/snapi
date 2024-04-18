@@ -58,6 +58,9 @@ public class JsonReaderRawTruffleException extends RawTruffleRuntimeException {
     if (stream != null) {
       sb.append(String.format(" (%s): ", stream.positionDescription()));
     }
+    if (!message.isEmpty()) {
+      sb.append(": ");
+    }
     sb.append(message);
     return sb.toString();
   }
