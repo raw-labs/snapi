@@ -126,7 +126,6 @@ jobs:
           path: /home/sbtuser/.m2/repository
       - name: test
         run:  sbt ${{ matrix.component }}/test
-        working-directory: ${{ matrix.component }}
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
