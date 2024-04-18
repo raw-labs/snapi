@@ -137,7 +137,7 @@ public final class JsonParserNodes {
       try {
         parser.nextToken();
       } catch (IOException e) {
-        throw new JsonReaderRawTruffleException(e.getMessage(), e, thisNode);
+        throw new JsonReaderRawTruffleException(e.getMessage(), parser, null, e, thisNode);
       }
     }
   }
@@ -191,7 +191,7 @@ public final class JsonParserNodes {
         parser.nextToken(); // swallow the next token (swallow closing braces, or int,
         // float, etc.)
       } catch (IOException e) {
-        throw new JsonReaderRawTruffleException(e.getMessage(), e, thisNode);
+        throw new JsonReaderRawTruffleException(e.getMessage(), parser, null, e, thisNode);
       }
     }
   }

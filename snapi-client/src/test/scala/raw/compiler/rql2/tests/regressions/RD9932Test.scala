@@ -23,5 +23,5 @@ trait RD9932Test extends CompilerTestContext {
     |  {"a": 2, "b": "#2", "c": 2.2},
     |  #############################$ttt, 
     |  type collection(record(a: int, b: string, c: double))
-    |)""".stripMargin)(it => it should runErrorAs("GGGG"))
+    |)""".stripMargin)(it => it should runErrorAs("failed to read JSON (line 4 column 4)"))
 }
