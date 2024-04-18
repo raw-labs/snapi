@@ -214,25 +214,15 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value
   )
 
-//
-//lazy val snapiClient = (project in file("snapi-client"))
-//  .dependsOn(
-//    client % "compile->compile;test->test",
-//    snapiFrontend % "compile->compile;test->test",
-//    snapiTruffle % "compile->compile;test->test"
-//  )
-//  .settings(
-//    commonSettings,
-//    snapiClientCompileSettings,
-//    testSettings
-//  )
-//
-//// Output version to a file
-//val outputVersion = taskKey[Unit]("Outputs the version to a file")
-//outputVersion := {
-//  val versionFile = baseDirectory.value / "version"
-//  if (!versionFile.exists()) {
-//    IO.touch(versionFile)
-//  }
-//  IO.write(versionFile, (ThisBuild / version).value)
-//}
+
+lazy val snapiClient = (project in file("snapi-client"))
+  .dependsOn(
+    client % "compile->compile;test->test",
+    snapiFrontend % "compile->compile;test->test",
+    snapiTruffle % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    snapiClientCompileSettings,
+    testSettings
+  )
