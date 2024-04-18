@@ -8,6 +8,9 @@ import raw.build.Dependencies._
 import raw.build.BuildSettings._
 
 import java.io.IOException
+import java.nio.file.{Paths, Files}
+import java.nio.charset.StandardCharsets
+
 import scala.sys.process._
 
 import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
@@ -17,6 +20,32 @@ publish / skip := true
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 ThisBuild / sonatypeProfileName := "com.raw-labs"
+
+val writeVersionToFile = taskKey[Unit]("Writes the project version to a file at the root.")
+
+writeVersionToFile := {
+  val file = (ThisBuild / baseDirectory).value / "version"
+  val versionString = (ThisBuild / version).value
+  IO.write(file, versionString)
+  streams.value.log.info(s"Project version $versionString written to ${file.getPath}")
+}
+
+lazy val root = (project in file("."))
+  .aggregate(
+    utils,
+    client,
+    snapiParser,
+    snapiFrontend,
+    snapiTruffle,
+    snapiClient,
+    sqlParser,
+    sqlClient
+    )
+  .settings(
+    publish := (publish dependsOn(writeVersionToFile)).value,
+    publishLocal := (publishLocal dependsOn(writeVersionToFile)).value,
+    publishSigned := (publishSigned dependsOn(writeVersionToFile)).value
+  )
 
 lazy val utils = (project in file("utils"))
   .settings(

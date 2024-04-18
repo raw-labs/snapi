@@ -33,8 +33,7 @@ jobs:
     - name: build all
       run: ./rebuild.sh
     - name: sbt ci-release utils
-      run: ./release.sh
-      working-directory: utils
+      run: sbt utils/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -44,8 +43,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release client
-      run: ./release.sh
-      working-directory: client
+      run: sbt client/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -55,8 +53,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-parser
-      run: ./release.sh
-      working-directory: snapi-parser
+      run: sbt snapiParser/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -66,8 +63,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release sql-parser
-      run: ./release.sh
-      working-directory: sql-parser
+      run: sbt sqlParser/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -77,8 +73,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-frontend
-      run: ./release.sh
-      working-directory: snapi-frontend
+      run: sbt snapiFrontend/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -88,8 +83,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-truffle
-      run: ./release.sh
-      working-directory: snapi-truffle
+      run: sbt snapiTruffle/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -99,8 +93,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release snapi-client
-      run: ./release.sh
-      working-directory: snapi-client
+      run: sbt snapiClient/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -110,8 +103,7 @@ jobs:
         CI_RELEASE: publishSigned
         CI_SNAPSHOT_RELEASE: publish
     - name: sbt ci-release sql-client
-      run: ./release.sh
-      working-directory: sql-client
+      run: sbt sqlClient/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -122,15 +114,7 @@ jobs:
         CI_SNAPSHOT_RELEASE: publish
     - name: evaluate produced version
       shell: bash
-      run: |
-        echo "UTILS_VER=$(cat utils/version)" >> $GITHUB_ENV
-        echo "CLIENT_VER=$(cat client/version)" >> $GITHUB_ENV
-        echo "SNAPI_PARSER_VER=$(cat snapi-parser/version)" >> $GITHUB_ENV
-        echo "SQL_PARSER_VER=$(cat sql-parser/version)" >> $GITHUB_ENV
-        echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
-        echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
-        echo "SNAPI_CLIENT=$(cat snapi-client/version)" >> $GITHUB_ENV
-        echo "SQL_CLIENT=$(cat sql-client/version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(cat ./version)" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v4
       with:
@@ -138,14 +122,7 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > published utils version: ${{ env.UTILS_VER  }}
-          > published client version: ${{ env.CLIENT_VER }}
-          > published snapi-parser version: ${{ env.SNAPI_PARSER_VER }}
-          > published sql-parser version: ${{ env.SQL_PARSER_VER }}
-          > published snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
-          > published snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}
-          > published snapi-client version: ${{ env.SNAPI_CLIENT }}
-          > published sql-client version: ${{ env.SQL_CLIENT }}
+          > published version: ${{ env.VERSION  }}
         reactions: rocket
     - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       uses: peter-evans/repository-dispatch@v3
