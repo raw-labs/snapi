@@ -1,7 +1,12 @@
 #!/bin/bash -e
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
-./rebuild.sh
+find . -type d -name "target" -exec rm -r {} \; || true
+
+cd "${SCRIPT_HOME}/deps"
+./build.sh
+
+cd "${SCRIPT_HOME}"
 
 export COURSIER_PROGRESS=false
 [ "$CI" == "true" ] && { export HOME=/home/sbtuser; }
@@ -10,4 +15,4 @@ export COURSIER_PROGRESS=false
 yes n | sdk install java 21.0.1-graalce || true
 sdk use java 21.0.1-graalce
 
-sbt publishLocal
+sbt clean publishLocal
