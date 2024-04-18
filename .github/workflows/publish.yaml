@@ -32,7 +32,15 @@ jobs:
         fetch-depth: 0
     - name: build all
       run: ./rebuild.sh
-    - run: sbt ci-release
+    - name: sbt ci-release
+      run: |
+        export HOME="/home/sbtuser"
+        export SDKMAN_DIR="$HOME/.sdkman"
+        source $SDKMAN_DIR/bin/sdkman-init.sh
+        yes n | sdk install java 21.0.1-graalce || true
+        sdk use java 21.0.1-graalce
+        echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+        sbt ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
