@@ -18,6 +18,40 @@ env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
 
 jobs:
+  build-custom-deps:
+    runs-on: self-hosted
+    container:
+      image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
+      options: --user 1001
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.READ_PACKAGES }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: sdkman java setup
+        id: sdkman
+        run: |
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 17.0.5-amzn || true
+          sdk use java 17.0.5-amzn
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+      - name: build custom deps
+        run: ./build.sh
+        working-directory: deps
+      - name: upload ivy build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name:  ivy
+          path: /home/sbtuser/.ivy2/local
+          retention-days: 1
+      - name: upload m2 build artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: m2
+          path: /home/sbtuser/.m2/repository
+          retention-days: 1
   code-checks:
     runs-on: self-hosted
     container:
@@ -28,6 +62,16 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
+      - name: download ivy build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ivy
+          path: /home/sbtuser/.ivy2/local
+      - name: download m2 build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: m2
+          path: /home/sbtuser/.m2/repository
       - name: sdkman java setup
         id: sdkman
         run: |
@@ -65,6 +109,16 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
+      - name: download ivy build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: ivy
+          path: /home/sbtuser/.ivy2/local
+      - name: download m2 build artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: m2
+          path: /home/sbtuser/.m2/repository
       - name: sdkman java setup
         id: sdkman
         run: |
