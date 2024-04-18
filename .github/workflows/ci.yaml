@@ -77,8 +77,11 @@ jobs:
       - uses: oNaiPs/secrets-to-env-action@v1.5
         with:
           secrets: ${{ toJSON(secrets) }}
+      - name: build custom deps
+        run: ./build.sh
+        working-directory: deps
       - name: test
-        run:  sbt ${{ matrix.component }}/test
+        run: sbt ${{ matrix.component }}/test
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
