@@ -107,7 +107,10 @@ lazy val snapiParser = (project in file("snapi-parser"))
         }
       })
     },
-    Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value
+    Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value,
+    publish := (publish dependsOn(generateSnapiParser)).value,
+    publishLocal := (publishLocal dependsOn(generateSnapiParser)).value,
+    publishSigned := (publishSigned dependsOn(generateSnapiParser)).value
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
@@ -210,7 +213,10 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
         throw new RuntimeException("Java annotation processing failed.")
       }
     },
-    Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value
+    Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value,
+    publish := (publish dependsOn(runJavaAnnotationProcessor)).value,
+    publishLocal := (publishLocal dependsOn(runJavaAnnotationProcessor)).value,
+    publishSigned := (publishSigned dependsOn(runJavaAnnotationProcessor)).value,
   )
 
 
@@ -284,7 +290,10 @@ lazy val sqlParser = (project in file("sql-parser"))
         }
       })
     },
-    Compile / compile := (Compile / compile).dependsOn(generateSqlParser).value
+    Compile / compile := (Compile / compile).dependsOn(generateSqlParser).value,
+    publish := (publish dependsOn(generateSqlParser)).value,
+    publishLocal := (publishLocal dependsOn(generateSqlParser)).value,
+    publishSigned := (publishSigned dependsOn(generateSqlParser)).value
   )
 
 lazy val sqlClient = (project in file("sql-client"))

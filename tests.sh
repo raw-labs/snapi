@@ -1,14 +1,17 @@
 #!/bin/bash -ex
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
 
+[ "$CI" == "true" ] && { export HOME=/home/sbtuser; }
+. ~/.sdkman/bin/sdkman-init.sh
+
+yes n | sdk install java 21.0.1-graalce || true
+sdk use java 21.0.1-graalce
+
+rm -rfv test-results
+mkdir -p test-results
+
 # snapi-frontend
-
-cd "${SCRIPT_HOME}"/snapi-frontend
-
-./test.sh
+sbt snapiFrontend/test
 
 # snapi-client
-
-cd "${SCRIPT_HOME}"/snapi-client
-
-./test.sh
+sbt snapiClient/test
