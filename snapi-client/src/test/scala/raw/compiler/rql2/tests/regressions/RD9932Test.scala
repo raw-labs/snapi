@@ -23,5 +23,9 @@ trait RD9932Test extends CompilerTestContext {
     |  {"a": 2, "b": "#2", "c": 2.2},
     |  #############################$ttt, 
     |  type collection(record(a: int, b: string, c: double))
-    |)""".stripMargin)(it => it should runErrorAs("failed to read JSON (line 4 column 4)"))
+    |)""".stripMargin)(it =>
+    it should runErrorAs(
+      "failed to read JSON (line 4 column 4): Unexpected character ('#' (code 35)): expected a valid value"
+    )
+  )
 }
