@@ -12,7 +12,7 @@
 
 package raw.compiler.rql2.builtin
 
-import raw.compiler.base.errors.{ErrorCompilerMessage, UnsupportedType}
+import raw.compiler.base.errors.{ErrorCompilerMessage, InvalidSemantic, UnsupportedType}
 import raw.compiler.base.source.{AnythingType, BaseNode, Type}
 import raw.compiler.common.source._
 import raw.client.api._
@@ -100,32 +100,32 @@ class InferAndReadXmlEntry extends SugarEntryExtension with XmlEntryExtensionHel
     }
   }
 
-  override def returnType(
+  override def returnTypeErrorList(
+      node: BaseNode,
       mandatoryArgs: Seq[Arg],
       optionalArgs: Seq[(String, Arg)],
       varArgs: Seq[Arg]
-  )(implicit programContext: ProgramContext): Either[String, Type] = {
+  )(implicit programContext: ProgramContext): Either[Seq[ErrorCompilerMessage], Type] = {
+    val inferenceDiagnostic = getXmlInferrerProperties(mandatoryArgs, optionalArgs)
+      .flatMap(programContext.infer)
+      .left
+      .map(error => Seq(InvalidSemantic(node, error)))
+    val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue);
+
     for (
-      inferrerProperties <- getXmlInferrerProperties(mandatoryArgs, optionalArgs);
-      inputFormatDescriptor <- programContext.infer(inferrerProperties);
+      descriptor <- inferenceDiagnostic;
       TextInputStreamFormatDescriptor(
         _,
         _,
         XmlInputFormatDescriptor(dataType, sampled, _, _, _)
-      ) = inputFormatDescriptor
-    ) yield {
-      val preferNulls = optionalArgs.collectFirst { case a if a._1 == "preferNulls" => a._2 }.forall(getBoolValue)
-      val makeNullables = preferNulls && sampled
-      val makeTryables = sampled
-
-      val t = inferTypeToRql2Type(dataType, makeNullables, makeTryables) match {
-        case Rql2IterableType(inner, _) => Rql2IterableType(inner)
-        case t => addProp(t, Rql2IsTryableTypeProperty())
-      }
-      // validateXmlType changes the type, for instance, it removes the tryable property or type and attributes
-      // So we are running it here
-      validateXmlType(t).right.get
+      ) = descriptor;
+      rql2Type = inferTypeToRql2Type(dataType, makeNullable = preferNulls && sampled, makeTryable = sampled);
+      okType <- validateXmlType(rql2Type)
+    ) yield okType match {
+      case Rql2IterableType(inner, _) => Rql2IterableType(inner)
+      case t => addProp(t, Rql2IsTryableTypeProperty())
     }
+
   }
 
   override def desugar(
@@ -199,14 +199,24 @@ trait XmlEntryExtensionHelper extends EntryExtensionHelper {
   protected def validateXmlType(t: Type): Either[Seq[UnsupportedType], Type] = t match {
     case _: Rql2LocationType => Left(Seq(UnsupportedType(t, t, None)))
     case t: Rql2RecordType =>
-      val atts = t.atts
-        .map { x =>
-          val validation = if (x.idn.startsWith("@")) validateAttributeType(x.tipe) else validateXmlType(x.tipe)
-          x.idn -> validation
-        }
-      val errors = atts.collect { case (_, Left(error)) => error }
-      if (errors.nonEmpty) Left(errors.flatten)
-      else Right(Rql2RecordType(atts.map(x => Rql2AttrType(x._1, x._2.right.get)), t.props))
+      val duplicates = t.atts.groupBy(_.idn).mapValues(_.size).collect {
+        case (field, n) if n > 1 => field
+      }
+      if (duplicates.nonEmpty) {
+        val explanation =
+          if (duplicates.size == 1) s"duplicate field: ${duplicates.head}"
+          else s"duplicate fields: ${duplicates.mkString(", ")}"
+        Left(Seq(UnsupportedType(t, t, None, Some(explanation))))
+      } else {
+        val atts = t.atts
+          .map { x =>
+            val validation = if (x.idn.startsWith("@")) validateAttributeType(x.tipe) else validateXmlType(x.tipe)
+            x.idn -> validation
+          }
+        val errors = atts.collect { case (_, Left(error)) => error }
+        if (errors.nonEmpty) Left(errors.flatten)
+        else Right(Rql2RecordType(atts.map(x => Rql2AttrType(x._1, x._2.right.get)), t.props))
+      }
     // on list and iterables we are removing the nullability/tryability
     case t: Rql2IterableType => validateXmlType(t.innerType).right.map(inner => Rql2IterableType(inner))
     case t: Rql2ListType => validateXmlType(t.innerType).right.map(inner => Rql2ListType(inner))

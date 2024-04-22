@@ -127,7 +127,13 @@ object MultipleDecl {
  * @param t The type that is unsupported.
  * @param parent The top-level type. (e.g. if collection(int). Set to None if t == parent.
  */
-final case class UnsupportedType(node: BaseNode, t: Type, parent: Option[Type]) extends ErrorCompilerMessage {
+final case class UnsupportedType(
+    node: BaseNode,
+    t: Type,
+    parent: Option[Type],
+    hint: Option[String] = None,
+    suggestions: Seq[String] = Seq.empty
+) extends ErrorCompilerMessage {
   val code: String = UnsupportedType.code
 }
 object UnsupportedType {
