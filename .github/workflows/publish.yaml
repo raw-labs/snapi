@@ -40,7 +40,15 @@ jobs:
         yes n | sdk install java 21.0.1-graalce || true
         sdk use java 21.0.1-graalce
         echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
-        sbt ci-release
+        sbt writeVersionToFile \
+            utils/ci-release \
+            client/ci-release \
+            snapiParser/ci-release \
+            snapiFrontend/ci-release \
+            snapiTruffle/ci-release \
+            snapiClient/ci-release \
+            sqlParser/ci-release \
+            sqlClient/ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
