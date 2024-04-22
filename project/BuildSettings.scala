@@ -39,7 +39,8 @@ object BuildSettings {
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
     updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
     publish / skip := false,
-    publishSigned / skip  := false
+    publishSigned / skip  := false,
+    publishLocal / skip := false
   )
 
   lazy val commonCompileSettings = Seq(
