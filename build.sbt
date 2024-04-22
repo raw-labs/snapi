@@ -31,7 +31,6 @@ writeVersionToFile := {
   streams.value.log.info(s"Project version $versionString written to ${file.getPath}")
 }
 
-//fake commit
 lazy val root = (project in file("."))
   .aggregate(
     utils,
