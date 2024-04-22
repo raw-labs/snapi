@@ -15,10 +15,6 @@ import scala.sys.process._
 
 import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
-publish / skip := true
-publishSigned / skip  := true
-publishLocal / skip := true
-
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
 ThisBuild / sonatypeProfileName := "com.raw-labs"
@@ -46,7 +42,10 @@ lazy val root = (project in file("."))
   .settings(
     publish := (publish dependsOn(writeVersionToFile)).value,
     publishLocal := (publishLocal dependsOn(writeVersionToFile)).value,
-    publishSigned := (publishSigned dependsOn(writeVersionToFile)).value
+    publishSigned := (publishSigned dependsOn(writeVersionToFile)).value,
+    publish / skip := true,
+    publishSigned / skip  := true,
+    publishLocal / skip := true
   )
 
 lazy val utils = (project in file("utils"))
