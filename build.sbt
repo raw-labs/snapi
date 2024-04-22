@@ -32,8 +32,8 @@ writeVersionToFile := {
   streams.value.log.info(s"Project version $versionString written to ${file.getPath}")
 }
 
-publish := (publish dependsOn(writeVersionToFile)).value,
-publishLocal := (publishLocal dependsOn(writeVersionToFile)).value,
+publish := (publish dependsOn(writeVersionToFile)).value
+publishLocal := (publishLocal dependsOn(writeVersionToFile)).value
 publishSigned := (publishSigned dependsOn(writeVersionToFile)).value
 
 lazy val utils = (project in file("utils"))
