@@ -5,6 +5,7 @@ import sbt._
 
 import de.heikoseeberger.sbtheader.HeaderPlugin.autoImport._
 import java.time.Year
+import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
 object BuildSettings {
   lazy val licenseHeader = """Copyright 2024 RAW Labs S.A.
@@ -37,7 +38,9 @@ object BuildSettings {
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
     resolvers ++= Resolver.sonatypeOssRepos("releases"),
     updateOptions := updateOptions.in(Global).value.withCachedResolution(true),
-    publish / skip := false
+    publish / skip := false,
+    publishSigned / skip  := false,
+    publishLocal / skip := false
   )
 
   lazy val commonCompileSettings = Seq(

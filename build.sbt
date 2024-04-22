@@ -16,6 +16,8 @@ import scala.sys.process._
 import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
 publish / skip := true
+publishSigned / skip  := true
+publishLocal / skip := true
 
 ThisBuild / sonatypeCredentialHost := "s01.oss.sonatype.org"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
