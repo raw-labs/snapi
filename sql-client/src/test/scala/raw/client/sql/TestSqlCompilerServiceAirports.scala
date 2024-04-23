@@ -374,7 +374,7 @@ class TestSqlCompilerServiceAirports
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
-      main.outType == airportType
+      main.outType.get == airportType
     )
     assert(main.params.contains(Vector.empty))
     val baos = new ByteArrayOutputStream()
@@ -419,12 +419,12 @@ class TestSqlCompilerServiceAirports
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
-      main.outType == airportType
+      main.outType.get == airportType
     )
     val Some(Vector(param)) = main.params
     assert(!param.required)
     assert(param.idn == "city")
-    assert(param.tipe == RawStringType(true, false))
+    assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.contains(RawNull()))
     val baos = new ByteArrayOutputStream()
     assert(
@@ -458,12 +458,12 @@ class TestSqlCompilerServiceAirports
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
-      main.outType == airportType
+      main.outType.get == airportType
     )
     val Some(Vector(param)) = main.params
     assert(!param.required)
     assert(param.idn == "city")
-    assert(param.tipe == RawStringType(true, false))
+    assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.contains(RawNull()))
     val baos = new ByteArrayOutputStream()
     assert(
@@ -608,7 +608,7 @@ class TestSqlCompilerServiceAirports
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
-      main.outType == RawIterableType(
+      main.outType.get == RawIterableType(
         RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
         false,
         false
@@ -617,7 +617,7 @@ class TestSqlCompilerServiceAirports
     val Some(Vector(param)) = main.params
     assert(!param.required)
     assert(param.idn == "name")
-    assert(param.tipe == RawStringType(true, false))
+    assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.contains(RawNull()))
     val baos = new ByteArrayOutputStream()
     baos.reset()
@@ -654,7 +654,7 @@ class TestSqlCompilerServiceAirports
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
-      main.outType == RawIterableType(
+      main.outType.get == RawIterableType(
         RawRecordType(Vector(RawAttrType("count", RawLongType(true, false))), false, false),
         false,
         false
@@ -663,7 +663,7 @@ class TestSqlCompilerServiceAirports
     val Some(Vector(param)) = main.params
     assert(!param.required)
     assert(param.idn == "name")
-    assert(param.tipe == RawStringType(true, false))
+    assert(param.tipe.get == RawStringType(true, false))
     assert(param.defaultValue.contains(RawNull()))
     val baos = new ByteArrayOutputStream()
     baos.reset()
@@ -685,7 +685,7 @@ class TestSqlCompilerServiceAirports
     assert(description.decls.isEmpty)
     val Some(main) = description.maybeRunnable
     assert(
-      main.outType == RawIterableType(
+      main.outType.get == RawIterableType(
         RawRecordType(
           Vector(
             RawAttrType("x", RawDateType(true, false))
@@ -699,7 +699,7 @@ class TestSqlCompilerServiceAirports
     )
     assert(
       main.params.contains(
-        Vector(ParamDescription("s", RawIntType(true, false), Some(RawNull()), Some("just an int"), false))
+        Vector(ParamDescription("s", Some(RawIntType(true, false)), Some(RawNull()), Some("just an int"), false))
       )
     )
     val baos = new ByteArrayOutputStream()
