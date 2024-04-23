@@ -179,13 +179,13 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       ParamDoc(
         "args",
         TypeDoc(List("list")),
-        "The query parameters arguments for the HTTP request. Parameters are URL-encoded automatically.",
+        "The query parameters arguments for the HTTP request. Parameters are URL-encoded automatically. Any key/value pair with a null key or value will be omitted and won't be included in the URL parameters.",
         isOptional = true
       ),
       ParamDoc(
         "headers",
         TypeDoc(List("list")),
-        "The HTTP headers to include in the request.",
+        "The HTTP headers to include in the request. Any key/value pair with a null key or value will be omitted and won't be included in the request headers.",
         isOptional = true
       ),
       ParamDoc("expectedStatus", TypeDoc(List("list")), "The list of expected statuses.", isOptional = true)
