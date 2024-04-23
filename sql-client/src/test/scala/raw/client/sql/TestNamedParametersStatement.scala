@@ -13,6 +13,7 @@
 package raw.client.sql
 
 import org.bitbucket.inkytonik.kiama.util.Positions
+import raw.client.api.{RawInt, RawString}
 import raw.client.sql.antlr4.RawSqlSyntaxAnalyzer
 import raw.creds.api.CredentialsTestContext
 import raw.creds.local.LocalCredentialsTestContext
@@ -60,7 +61,7 @@ class TestNamedParametersStatement
     val code = "SELECT :v1 as arg"
 
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setString("v1", "Hello!")
+    statement.setParam("v1", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()
@@ -72,7 +73,7 @@ class TestNamedParametersStatement
 
     val code = "SELECT :v::varchar AS greeting;"
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setString("v", "Hello!")
+    statement.setParam("v", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()
@@ -88,8 +89,8 @@ class TestNamedParametersStatement
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("v1", "v2"))
 
-    statement.setString("v1", "Lisbon")
-    statement.setInt("v2", 1)
+    statement.setParam("v1", RawString("Lisbon"))
+    statement.setParam("v2", RawInt(1))
     val rs = statement.executeQuery()
     rs.next()
     assert(rs.getString(1) == "Lisbon")
@@ -105,7 +106,7 @@ class TestNamedParametersStatement
       |*/
       |SELECT :v1 as arg  -- neither this one :bar """.stripMargin
     val statement = new NamedParametersPreparedStatement(con, parse(code))
-    statement.setString("v1", "Hello!")
+    statement.setParam("v1", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()
@@ -119,7 +120,7 @@ class TestNamedParametersStatement
     val statement = new NamedParametersPreparedStatement(con, parse(code))
     val metadata = statement.queryMetadata.right.get
     assert(metadata.parameters.keys == Set("bar"))
-    statement.setString("bar", "Hello!")
+    statement.setParam("bar", RawString("Hello!"))
     val rs = statement.executeQuery()
 
     rs.next()
