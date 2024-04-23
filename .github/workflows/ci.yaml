@@ -2,12 +2,15 @@ name: CI
 on:
   pull_request:
     paths:
+      - build.sbt
+      - project/**
       - deps/**
       - utils/**
       - client/**
-      - snapi-frontend/**
-      - snapi-truffle/**
       - snapi-client/**
+      - snapi-frontend/**
+      - parsers/**
+      - snapi-truffle/**
       - python-client/**
       - sql-client/**
       - .github/workflows/ci.yaml
@@ -17,7 +20,7 @@ env:
   SBT_OPTS : -Dsbt.log.noformat=true -Xss2m -Xms1g
 
 jobs:
-  build:
+  build-custom-deps:
     runs-on: self-hosted
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
@@ -27,9 +30,18 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-      - run: ./rebuild.sh
+      - name: sdkman java setup
+        id: sdkman
+        run: |
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 17.0.5-amzn || true
+          sdk use java 17.0.5-amzn
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+      - name: build custom deps
+        run: ./build.sh
+        working-directory: deps
       - name: upload ivy build artifacts
         uses: actions/upload-artifact@v4
         with:
@@ -42,25 +54,8 @@ jobs:
           name: m2
           path: /home/sbtuser/.m2/repository
           retention-days: 1
-      - name: upload versions
-        uses: actions/upload-artifact@v4
-        with:
-          name: versions
-          path: ./**/version
-          retention-days: 1
   code-checks:
-    needs: build
-    strategy:
-      fail-fast: false
-      matrix:
-        component:
-          - utils
-          - client
-          - snapi-frontend
-          - snapi-truffle
-          - snapi-client
-          - python-client
-          - sql-client
+    needs: build-custom-deps
     runs-on: self-hosted
     container:
       image: ghcr.io/raw-labs/raw-scala-runner:21.0.0-ol9-20230919_scala2.12.18_sbt1.9.6
@@ -80,31 +75,32 @@ jobs:
         with:
           name: m2
           path: /home/sbtuser/.m2/repository
-      - name: download versions
-        uses: actions/download-artifact@v4
-        with:
-          name: versions
-      - name: headers
-        run: sbt headerCheckAll
-        working-directory: ${{ matrix.component }}
+      - name: sdkman java setup
+        id: sdkman
+        run: |
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 21.0.1-graalce || true
+          sdk use java 21.0.1-graalce
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+      ##- name: headers
+      ##  run: sbt headerCheckAll
       - name: scala fmt
         run: sbt scalafmtCheckAll
-        working-directory: ${{ matrix.component }}
       - name: java fmt
         run: sbt javafmtCheckAll
-        working-directory: ${{ matrix.component }}
       - name: doc
         run: sbt doc
-        working-directory: ${{ matrix.component }}
   tests:
-    needs: build
+    needs: build-custom-deps
     strategy:
       fail-fast: false
       matrix:
         component:
-          - snapi-frontend
-          - snapi-client
-          - sql-client
+          - snapiFrontend
+          - snapiClient
+          - sqlClient
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
@@ -117,9 +113,6 @@ jobs:
         password: ${{ secrets.READ_PACKAGES }}
     steps:
       - uses: actions/checkout@v4
-      - uses: oNaiPs/secrets-to-env-action@v1.5
-        with:
-          secrets: ${{ toJSON(secrets) }}
       - name: download ivy build artifacts
         uses: actions/download-artifact@v4
         with:
@@ -130,30 +123,22 @@ jobs:
         with:
           name: m2
           path: /home/sbtuser/.m2/repository
-      - name: download versions
-        uses: actions/download-artifact@v4
-        with:
-          name: versions
-      - name: test
+      - name: sdkman java setup
+        id: sdkman
         run: |
-          test_version=$(cat ./version)
-          echo "Testing ${{ matrix.component }} version: $test_version"
-          ./test.sh
-        working-directory: ${{ matrix.component }}
+          export HOME="/home/sbtuser"
+          export SDKMAN_DIR="$HOME/.sdkman"
+          source $SDKMAN_DIR/bin/sdkman-init.sh
+          yes n | sdk install java 21.0.1-graalce || true
+          sdk use java 21.0.1-graalce
+          echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+      - uses: oNaiPs/secrets-to-env-action@v1.5
+        with:
+          secrets: ${{ toJSON(secrets) }}
+      - name: test
+        run: sbt ${{ matrix.component }}/test
       - uses: mikepenz/action-junit-report@v4
         if: success() || failure()
         with:
           report_paths: ./**/test-reports/*.xml
           detailed_summary: true
-      - uses: actions/upload-artifact@v3
-        with:
-          name: executor-logs
-          path: test-results/executor-logs
-          retention-days: 4
-          if-no-files-found: ignore
-      - uses: actions/upload-artifact@v3
-        with:
-          name: heap-dumps
-          path: test-results/heap-dumps
-          retention-days: 4
-          if-no-files-found: ignore

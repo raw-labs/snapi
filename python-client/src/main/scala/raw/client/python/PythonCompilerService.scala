@@ -12,7 +12,7 @@
 
 package raw.client.python
 
-import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source, Value}
+import org.graalvm.polyglot.{Context, Engine, PolyglotAccess, PolyglotException, Source, Value}
 import raw.client.api.{
   AutoCompleteResponse,
   CompilerService,
@@ -53,8 +53,22 @@ import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 
-class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
-    extends CompilerService {
+class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader] = None)(
+    implicit protected val settings: RawSettings
+) extends CompilerService {
+
+  private val (engine, initedEngine) = engineDefinition
+
+  // The default constructor allows an Engine to be specified, plus a flag to indicate whether it was created here
+  // or externally. That's necessary for the test framework.
+  // This is actually the "default constructor" which obtains a new engine or reuses an existing one.
+  // Note that the engine will be released when the service is stopped only IF this auxiliary constructor created it.
+  // Otherwise, we expect the external party - e.g. the test framework - to close it.
+  // Refer to Rql2TruffleCompilerServiceTestContext to see the engine being created and released from the test
+  // framework, so that every test suite instance has a fresh engine.
+  def this(maybeClassLoader: Option[ClassLoader] = None)(implicit settings: RawSettings) = {
+    this(CompilerService.getEngine, maybeClassLoader)
+  }
 
   override def language: Set[String] = Set("python")
 
@@ -292,6 +306,12 @@ class PythonCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implic
 
   override def aiValidate(source: String, environment: ProgramEnvironment): ValidateResponse = {
     ValidateResponse(List.empty)
+  }
+
+  override def doStop(): Unit = {
+    if (initedEngine) {
+      CompilerService.releaseEngine
+    }
   }
 
   private def buildTruffleContext(

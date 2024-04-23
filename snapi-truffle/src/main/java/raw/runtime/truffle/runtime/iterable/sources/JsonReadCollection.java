@@ -24,31 +24,24 @@ import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.AbstractGenerator;
 import raw.runtime.truffle.runtime.generator.collection.abstract_generator.compute_next.sources.JsonReadComputeNext;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.api.SourceContext;
 
 @ExportLibrary(InteropLibrary.class)
 public class JsonReadCollection implements TruffleObject {
   private final LocationObject locationObject;
   private final RootCallTarget parseNextRootCallTarget;
 
-  private final SourceContext context;
-
   private final String encoding;
 
   public JsonReadCollection(
-      LocationObject locationObject,
-      String encoding,
-      SourceContext context,
-      RootCallTarget parseNextRootCallTarget) {
+      LocationObject locationObject, String encoding, RootCallTarget parseNextRootCallTarget) {
     this.locationObject = locationObject;
     this.parseNextRootCallTarget = parseNextRootCallTarget;
-    this.context = context;
     this.encoding = encoding;
   }
 
   public AbstractGenerator getGenerator() {
     return new AbstractGenerator(
-        new JsonReadComputeNext(locationObject, encoding, context, parseNextRootCallTarget));
+        new JsonReadComputeNext(locationObject, encoding, parseNextRootCallTarget));
   }
 
   // InteropLibrary: Iterable

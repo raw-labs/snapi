@@ -14,19 +14,20 @@ package raw.client.api
 
 final case class ProgramDescription(
     decls: Map[String, List[DeclDescription]],
-    maybeType: Option[RawType],
+    maybeRunnable: Option[DeclDescription],
     comment: Option[String]
 )
 
 final case class DeclDescription(
     params: Option[Vector[ParamDescription]],
-    outType: RawType,
+    outType: Option[RawType],
     comment: Option[String]
 )
 
 final case class ParamDescription(
     idn: String,
-    tipe: RawType,
+    tipe: Option[RawType],
     defaultValue: Option[RawValue],
+    comment: Option[String],
     required: Boolean
 )

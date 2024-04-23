@@ -16,11 +16,9 @@ import com.oracle.truffle.api.RootCallTarget;
 import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.ProgramExpressionNode;
 import raw.runtime.truffle.runtime.iterable.sources.JsonReadCollection;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
-import raw.sources.api.SourceContext;
 
 @NodeInfo(shortName = "Json.ReadCollection")
 public class JsonReadCollectionNode extends ExpressionNode {
@@ -41,8 +39,6 @@ public class JsonReadCollectionNode extends ExpressionNode {
   public Object executeGeneric(VirtualFrame virtualFrame) {
     LocationObject locationObject = (LocationObject) locationExp.executeGeneric(virtualFrame);
     String encoding = (String) encodingExp.executeGeneric(virtualFrame);
-
-    SourceContext context = RawContext.get(this).getSourceContext();
-    return new JsonReadCollection(locationObject, encoding, context, rootCallTarget);
+    return new JsonReadCollection(locationObject, encoding, rootCallTarget);
   }
 }

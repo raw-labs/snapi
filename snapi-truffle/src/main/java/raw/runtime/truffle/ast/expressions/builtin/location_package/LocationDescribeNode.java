@@ -13,13 +13,9 @@
 package raw.runtime.truffle.ast.expressions.builtin.location_package;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
+import com.oracle.truffle.api.dsl.Cached;
 import com.oracle.truffle.api.dsl.NodeChild;
 import com.oracle.truffle.api.dsl.Specialization;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.interop.UnsupportedTypeException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -32,12 +28,11 @@ import raw.inferrer.api.*;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.list.ObjectList;
 import raw.runtime.truffle.runtime.primitives.ErrorObject;
 import raw.runtime.truffle.runtime.primitives.LocationObject;
 import raw.runtime.truffle.runtime.primitives.NullObject;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.utils.RawException;
 import scala.Some;
 
@@ -52,7 +47,7 @@ public abstract class LocationDescribeNode extends ExpressionNode {
   protected Object doDescribe(
       LocationObject locationObject,
       int sampleSize,
-      @CachedLibrary(limit = "5") InteropLibrary records) {
+      @Cached(inline = true) RecordNodes.AddPropNode addPropNode) {
     InferrerService inferrer = RawContext.get(this).getInferrer();
     try {
       // In scala implementation interpreter there is a sample size argument
@@ -170,34 +165,34 @@ public abstract class LocationDescribeNode extends ExpressionNode {
 
       String formattedType = SourcePrettyPrinter$.MODULE$.format(rql2Type);
 
-      RecordObject record = RawLanguage.get(this).createRecord();
+      Object record = RawLanguage.get(this).createPureRecord();
 
-      records.writeMember(record, "format", format);
-      records.writeMember(record, "comment", comment);
-      records.writeMember(record, "type", formattedType);
+      addPropNode.execute(this, record, "format", format, false);
+      addPropNode.execute(this, record, "comment", comment, false);
+      addPropNode.execute(this, record, "type", formattedType, false);
 
-      Object[] propRecords = new RecordObject[properties.size()];
+      Object[] propRecords = new Object[properties.size()];
       // properties
       List<String> keyList = new ArrayList<>(properties.keySet());
       for (int i = 0; i < keyList.size(); i++) {
-        RecordObject rec = RawLanguage.get(this).createRecord();
-        records.writeMember(rec, "name", keyList.get(i));
+        Object rec = RawLanguage.get(this).createPureRecord();
+        addPropNode.execute(this, rec, "name", keyList.get(i), false);
         if (properties.containsKey(keyList.get(i))) {
-          records.writeMember(rec, "value", properties.get(keyList.get(i)));
+          addPropNode.execute(this, rec, "value", properties.get(keyList.get(i)), false);
         } else {
-          records.writeMember(rec, "value", NullObject.INSTANCE);
+          addPropNode.execute(this, rec, "value", NullObject.INSTANCE, false);
         }
         propRecords[i] = rec;
       }
       ObjectList propList = new ObjectList(propRecords);
-      records.writeMember(record, "properties", propList);
 
-      records.writeMember(record, "is_collection", isCollection);
+      addPropNode.execute(this, record, "properties", propList, false);
+      addPropNode.execute(this, record, "is_collection", isCollection, false);
 
       // columns
       if (flatten instanceof Rql2RecordType) {
         Rql2RecordType rql2RecordType = (Rql2RecordType) flatten;
-        Object[] columnRecords = new RecordObject[rql2RecordType.atts().length()];
+        Object[] columnRecords = new Object[rql2RecordType.atts().length()];
         for (int i = 0; i < rql2RecordType.atts().length(); i++) {
           String typeStr;
           boolean isNullable;
@@ -205,14 +200,16 @@ public abstract class LocationDescribeNode extends ExpressionNode {
               (Rql2TypeWithProperties) rql2RecordType.atts().apply(i).tipe();
           typeStr = SourcePrettyPrinter$.MODULE$.format(fieldType);
           isNullable = fieldType.props().contains(Rql2IsNullableTypeProperty.apply());
-          RecordObject column = RawLanguage.get(this).createRecord();
-          records.writeMember(column, "col_name", rql2RecordType.atts().apply(i).idn());
-          records.writeMember(column, "col_type", typeStr);
-          records.writeMember(column, "nullable", isNullable);
+          Object column = RawLanguage.get(this).createPureRecord();
+
+          addPropNode.execute(
+              this, column, "col_name", rql2RecordType.atts().apply(i).idn(), false);
+          addPropNode.execute(this, column, "col_type", typeStr, false);
+          addPropNode.execute(this, column, "nullable", isNullable, false);
           columnRecords[i] = column;
         }
         ObjectList columnList = new ObjectList(columnRecords);
-        records.writeMember(record, "columns", columnList);
+        addPropNode.execute(this, record, "columns", columnList, false);
       } else {
         String typeStr;
         boolean isNullable = false;
@@ -225,22 +222,17 @@ public abstract class LocationDescribeNode extends ExpressionNode {
         } else {
           typeStr = SourcePrettyPrinter$.MODULE$.format(flatten);
         }
-        RecordObject column = RawLanguage.get(this).createRecord();
-        records.writeMember(column, "col_name", NullObject.INSTANCE);
-        records.writeMember(column, "col_type", typeStr);
-        records.writeMember(column, "nullable", isNullable);
+        Object column = RawLanguage.get(this).createPureRecord();
+        addPropNode.execute(this, column, "col_name", NullObject.INSTANCE, false);
+        addPropNode.execute(this, column, "col_type", typeStr, false);
+        addPropNode.execute(this, column, "nullable", isNullable, false);
         ObjectList columnList = new ObjectList(new Object[] {column});
-        records.writeMember(record, "columns", columnList);
+        addPropNode.execute(this, record, "columns", columnList, false);
       }
-      records.writeMember(record, "sampled", sampled);
-
+      addPropNode.execute(this, record, "sampled", sampled, false);
       return record;
     } catch (RawException ex) {
       return new ErrorObject(ex.getMessage());
-    } catch (UnsupportedMessageException
-        | UnknownIdentifierException
-        | UnsupportedTypeException ex) {
-      throw new RawTruffleInternalErrorException(ex);
     } finally {
       inferrer.stop();
     }

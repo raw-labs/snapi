@@ -12,28 +12,36 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.collection;
 
-import com.oracle.truffle.api.dsl.Idempotent;
-import com.oracle.truffle.api.dsl.NodeChild;
-import com.oracle.truffle.api.dsl.NodeField;
-import com.oracle.truffle.api.dsl.Specialization;
+import com.oracle.truffle.api.dsl.*;
+import com.oracle.truffle.api.frame.VirtualFrame;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
 import raw.runtime.truffle.runtime.iterable.operations.DistinctCollection;
 
 @NodeInfo(shortName = "Collection.Distinct")
 @NodeChild("input")
 @NodeField(name = "valueType", type = Rql2TypeWithProperties.class)
+@NodeField(name = "generatorSlot", type = int.class)
+@NodeField(name = "offHeapDistinctSlot", type = int.class)
 public abstract class CollectionDistinctNode extends ExpressionNode {
 
   @Idempotent
   protected abstract Rql2TypeWithProperties getValueType();
 
+  @Idempotent
+  protected abstract int getGeneratorSlot();
+
+  @Idempotent
+  protected abstract int getOffHeapDistinctSlot();
+
   @Specialization
-  protected Object doDistinct(Object iterable) {
+  protected Object doDistinct(VirtualFrame frame, Object iterable) {
     return new DistinctCollection(
-        iterable, getValueType(), RawLanguage.get(this), RawContext.get(this).getSourceContext());
+        iterable,
+        getValueType(),
+        frame.materialize(),
+        getGeneratorSlot(),
+        getOffHeapDistinctSlot());
   }
 }

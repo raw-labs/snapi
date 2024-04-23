@@ -14,25 +14,22 @@ package raw.runtime.truffle.runtime.operators;
 
 import com.oracle.truffle.api.CompilerDirectives.TruffleBoundary;
 import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.interop.InteropLibrary;
-import com.oracle.truffle.api.interop.InvalidArrayIndexException;
-import com.oracle.truffle.api.interop.UnknownIdentifierException;
-import com.oracle.truffle.api.interop.UnsupportedMessageException;
-import com.oracle.truffle.api.library.CachedLibrary;
 import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import raw.runtime.truffle.ast.expressions.builtin.temporals.interval_package.IntervalNodes;
-import raw.runtime.truffle.runtime.exceptions.RawTruffleInternalErrorException;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
 import raw.runtime.truffle.runtime.primitives.*;
-import raw.runtime.truffle.runtime.record.RecordObject;
+import raw.runtime.truffle.runtime.record.DuplicateKeyRecord;
+import raw.runtime.truffle.runtime.record.PureRecord;
+import raw.runtime.truffle.runtime.record.RecordNodes;
 import raw.runtime.truffle.tryable_nullable.Nullable;
 import raw.runtime.truffle.tryable_nullable.Tryable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
 
 public class OperatorNodes {
 
@@ -51,6 +48,32 @@ public class OperatorNodes {
         @Bind("$node") Node thisNode,
         @Cached(inline = true) CompareNode compare) {
       return compare.execute(thisNode, left, right);
+    }
+  }
+
+  @NodeInfo(shortName = "Operator.CompareKeys")
+  @GenerateUncached
+  @GenerateInline
+  public abstract static class CompareKeys extends Node {
+
+    public abstract int execute(Node node, Object[] left, Object[] right, int[] orderings);
+
+    @Specialization
+    static int doKeys(
+        Node node,
+        Object[] left,
+        Object[] right,
+        int[] orderings,
+        @Bind("$node") Node thisNode,
+        @Cached CompareNode compare) {
+
+      for (int i = 0; i < left.length; i++) {
+        int result = compare.execute(thisNode, left[i], right[i]);
+        if (result != 0) {
+          return result * orderings[i];
+        }
+      }
+      return 0;
     }
   }
 
@@ -164,54 +187,85 @@ public class OperatorNodes {
       return compareNode.execute(thisNode, left, right);
     }
 
-    @Specialization(limit = "3")
+    @Specialization
     static int doRecord(
         Node node,
-        RecordObject left,
-        RecordObject right,
+        PureRecord left,
+        PureRecord right,
         @Bind("$node") Node thisNode,
         @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
-        @CachedLibrary("left") InteropLibrary lefts,
-        @CachedLibrary(limit = "3") InteropLibrary arrays,
-        @CachedLibrary("right") InteropLibrary rights) {
-      try {
-        Object leftKeys = lefts.getMembers(left);
-        long leftSize = arrays.getArraySize(leftKeys);
-        Object rightKeys = rights.getMembers(right);
-        long rightSize = arrays.getArraySize(rightKeys);
-        if (leftSize > rightSize) {
-          return 1;
-        } else if (leftSize < rightSize) {
-          return -1;
-        }
-        for (int i = 0; i < leftSize; i++) {
-          String leftKey = (String) arrays.readArrayElement(leftKeys, i);
-          String rightKey = (String) arrays.readArrayElement(rightKeys, i);
-          int result = compare.execute(thisNode, leftKey, rightKey);
-          if (result != 0) {
-            return result;
-          }
-          Object leftValue = lefts.readMember(left, leftKey);
-          Object rightValue = rights.readMember(right, rightKey);
-          result = compare.execute(thisNode, leftValue, rightValue);
-          if (result != 0) {
-            return result;
-          }
-        }
-        return 0;
-      } catch (InvalidArrayIndexException
-          | UnsupportedMessageException
-          | UnknownIdentifierException e) {
-        throw new RawTruffleInternalErrorException(e);
+        @Cached @Cached.Shared("getKey") RecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("getValue") RecordNodes.GetValueNode getValueNode) {
+      Object[] leftKeys = getKeysNode.execute(thisNode, left);
+      Object[] rightKeys = getKeysNode.execute(thisNode, right);
+      if (leftKeys.length > rightKeys.length) {
+        return 1;
+      } else if (leftKeys.length < rightKeys.length) {
+        return -1;
       }
+      for (int i = 0; i < leftKeys.length; i++) {
+        String leftKey = (String) leftKeys[i];
+        String rightKey = (String) rightKeys[i];
+        int result = compare.execute(thisNode, leftKey, rightKey);
+        if (result != 0) {
+          return result;
+        }
+        Object leftValue = getValueNode.execute(thisNode, left, leftKey);
+        Object rightValue = getValueNode.execute(thisNode, right, rightKey);
+        result = compare.execute(thisNode, leftValue, rightValue);
+        if (result != 0) {
+          return result;
+        }
+      }
+      return 0;
     }
 
-    @Specialization(guards = {"isFailure(left) || isFailure(right)"})
-    static int doTryable(Node node, Object left, Object right) {
-      boolean leftIsFailure = Tryable.isFailure(left);
-      boolean rightIsFailure = Tryable.isFailure(right);
+    @Specialization
+    static int doRecord(
+        Node node,
+        DuplicateKeyRecord left,
+        DuplicateKeyRecord right,
+        @Bind("$node") Node thisNode,
+        @Cached(inline = false) @Cached.Shared("compare") CompareNode compare,
+        @Cached @Cached.Shared("getKey") RecordNodes.GetKeysNode getKeysNode,
+        @Cached @Cached.Shared("getValue") RecordNodes.GetValueNode getValueNode) {
+      Object[] leftKeys = getKeysNode.execute(thisNode, left);
+      Object[] rightKeys = getKeysNode.execute(thisNode, right);
+      if (leftKeys.length > rightKeys.length) {
+        return 1;
+      } else if (leftKeys.length < rightKeys.length) {
+        return -1;
+      }
+      for (int i = 0; i < leftKeys.length; i++) {
+        String leftKey = (String) leftKeys[i];
+        String rightKey = (String) rightKeys[i];
+        int result = compare.execute(thisNode, leftKey, rightKey);
+        if (result != 0) {
+          return result;
+        }
+        Object leftValue = getValueNode.execute(thisNode, left, leftKey);
+        Object rightValue = getValueNode.execute(thisNode, right, rightKey);
+        result = compare.execute(thisNode, leftValue, rightValue);
+        if (result != 0) {
+          return result;
+        }
+      }
+      return 0;
+    }
+
+    @Specialization(guards = {"isError(left) || isError(right)"})
+    static int doTryable(
+        Node node,
+        Object left,
+        Object right,
+        @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.GetErrorNode getErrorNode) {
+      boolean leftIsFailure = Tryable.isError(left);
+      boolean rightIsFailure = Tryable.isError(right);
       if (leftIsFailure && rightIsFailure) {
-        return Tryable.getFailure(left).compareTo(Tryable.getFailure(right));
+        return getErrorNode
+            .execute(thisNode, left)
+            .compareTo(getErrorNode.execute(thisNode, right));
       }
       if (leftIsFailure) {
         return -1;
@@ -339,12 +393,17 @@ public class OperatorNodes {
       }
     }
 
-    @Specialization(guards = {"isFailure(left) || isFailure(right)"})
-    static Object doTryable(Node node, Object left, Object right) {
-      if (Tryable.isFailure(left)) {
-        throw new RawTruffleRuntimeException(Tryable.getFailure(left));
+    @Specialization(guards = {"isError(left) || isError(right)"})
+    static Object doTryable(
+        Node node,
+        Object left,
+        Object right,
+        @Bind("$node") Node thisNode,
+        @Cached TryableNullableNodes.GetErrorNode getErrorNode) {
+      if (Tryable.isError(left)) {
+        throw new RawTruffleRuntimeException(getErrorNode.execute(thisNode, left));
       } else {
-        throw new RawTruffleRuntimeException(Tryable.getFailure(right));
+        throw new RawTruffleRuntimeException(getErrorNode.execute(thisNode, right));
       }
     }
   }

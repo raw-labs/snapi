@@ -17,7 +17,6 @@ import com.oracle.truffle.api.TruffleLanguage;
 import com.oracle.truffle.api.TruffleLanguage.Env;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.nodes.Node;
-import java.io.Closeable;
 import java.io.OutputStream;
 import java.util.Objects;
 import raw.client.api.*;
@@ -38,27 +37,38 @@ import scala.collection.immutable.Seq;
 import scala.collection.immutable.Seq$;
 import scala.collection.immutable.Set;
 
-public final class RawContext implements Closeable {
+public final class RawContext {
 
   private final RawLanguage language;
   private final Env env;
-  private OutputStream output;
-  private AuthenticatedUser user;
-  private String traceId;
-  private String[] scopes;
-  private ProgramEnvironment programEnvironment;
+  private final RawSettings rawSettings;
+  private final OutputStream output;
+  private final AuthenticatedUser user;
+  private final String traceId;
+  private final String[] scopes;
+  private final ProgramEnvironment programEnvironment;
   private final RawFunctionRegistry functionRegistry;
 
+  @CompilerDirectives.TruffleBoundary
   public RawContext(RawLanguage language, Env env) {
     this.language = language;
     this.env = env;
     this.output = env.out();
 
+    String rawSettingsConfigString = env.getOptions().get(RawOptions.RAW_SETTINGS_KEY);
+    // If settings were passed as Engine options, used those as our settings.
+    // Otherwise, default to the settings from the language, which are obtained from the system.
+    if (rawSettingsConfigString.isEmpty()) {
+      this.rawSettings = language.getDefaultRawSettings();
+    } else {
+      // Settings were serialized as a string, so we need to parse them.
+      // This is mostly required by the test suite.
+      this.rawSettings = new RawSettings(rawSettingsConfigString);
+    }
+
     // Set user from environment variable.
     String uid = Objects.toString(env.getEnvironment().get("RAW_USER"), "");
     this.user = new InteractiveUser(uid, uid, uid, (Seq<String>) Seq$.MODULE$.empty());
-
-    ClassLoader classLoader = RawLanguage.class.getClassLoader();
 
     // Set traceId from environment variable.
     String traceId = Objects.toString(env.getEnvironment().get("RAW_TRACE_ID"), "");
@@ -107,10 +117,6 @@ public final class RawContext implements Closeable {
     return env;
   }
 
-  public RawSettings getRawSettings() {
-    return language.getRawSettings();
-  }
-
   public ProgramEnvironment getProgramEnvironment() {
     return programEnvironment;
   }
@@ -120,7 +126,7 @@ public final class RawContext implements Closeable {
   }
 
   public InferrerService getInferrer() {
-    return language.getInferrer(getUser());
+    return language.getInferrer(getUser(), rawSettings);
   }
 
   public OutputStream getOutput() {
@@ -129,9 +135,14 @@ public final class RawContext implements Closeable {
 
   @CompilerDirectives.TruffleBoundary
   public SourceContext getSourceContext() {
-    return language.getSourceContext(getUser());
+    return language.getSourceContext(getUser(), rawSettings);
   }
 
+  public RawSettings getSettings() {
+    return rawSettings;
+  }
+
+  @CompilerDirectives.TruffleBoundary
   public Secret getSecret(String key) {
     if (user == null) {
       throw new RawTruffleRuntimeException("User not set");
@@ -160,10 +171,5 @@ public final class RawContext implements Closeable {
    */
   public TruffleObject getPolyglotBindings() {
     return (TruffleObject) env.getPolyglotBindings();
-  }
-
-  @Override
-  public void close() {
-    // Nothing to do.
   }
 }

@@ -27,8 +27,9 @@ trait ErrorsPrettyPrinter extends base.source.SourcePrettyPrinter {
     case UnknownDecl(i, hints, suggestions) =>
       handleHintsAndSuggestions(text(i.idn) <+> "is not declared", hints, suggestions)
     case MultipleDecl(i) => text(i.idn) <+> "is declared more than once"
-    case UnsupportedType(_, NotValueType(), _) => "non-executable query"
-    case UnsupportedType(_, _, _) => "unsupported type"
+    case UnsupportedType(_, NotValueType(), _, _, _) => "non-executable query"
+    case UnsupportedType(_, _, _, hints, suggestions) =>
+      handleHintsAndSuggestions("unsupported type", hints, suggestions)
     case ExternalError(_, lang, errors) => lang <+> "error: " <+> ssep(errors.map(executorErrorToDoc).to, ",")
     // Warnings
     case MissingSecretWarning(_, reason) => reason

@@ -1,30 +1,17 @@
-#!/bin/bash -exu
+#!/bin/bash -e
 SCRIPT_HOME="$(cd "$(dirname "$0")"; pwd)"
-
-export COURSIER_PROGRESS=false
 
 find . -type d -name "target" -exec rm -r {} \; || true
 
 cd "${SCRIPT_HOME}/deps"
 ./build.sh
 
-cd "${SCRIPT_HOME}/utils"
-./build.sh
+export COURSIER_PROGRESS=false
+[ "$CI" == "true" ] && { export HOME=/home/sbtuser; }
+. ~/.sdkman/bin/sdkman-init.sh
 
-cd "${SCRIPT_HOME}/client"
-./build.sh
+yes n | sdk install java 21.0.1-graalce || true
+sdk use java 21.0.1-graalce
 
-cd "${SCRIPT_HOME}/snapi-parser"
-./build.sh
-
-cd "${SCRIPT_HOME}/snapi-frontend"
-./build.sh
-
-cd "${SCRIPT_HOME}/snapi-truffle"
-./build.sh
-
-cd "${SCRIPT_HOME}/snapi-client"
-./build.sh
-
-cd "${SCRIPT_HOME}/sql-client"
-./build.sh
+cd "${SCRIPT_HOME}"
+sbt clean compile

@@ -18,14 +18,17 @@ import com.oracle.truffle.api.interop.InteropLibrary;
 import com.oracle.truffle.api.interop.TruffleObject;
 import com.oracle.truffle.api.interop.UnknownIdentifierException;
 import com.oracle.truffle.api.interop.UnsupportedMessageException;
+import com.oracle.truffle.api.library.CachedLibrary;
+import com.oracle.truffle.api.nodes.Node;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import raw.compiler.rql2.source.Rql2Type;
 import raw.runtime.truffle.ExpressionNode;
 import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.ast.TypeGuards;
+import raw.runtime.truffle.runtime.generator.collection.StaticInitializers;
 import raw.runtime.truffle.runtime.primitives.*;
 
-@ImportStatic(value = TypeGuards.class)
+@ImportStatic(value = {TypeGuards.class, StaticInitializers.class})
 @NodeInfo(shortName = "Environment.Parameter")
 @NodeChild(value = "key")
 @NodeField(name = "paramType", type = Rql2Type.class)
@@ -34,81 +37,199 @@ public abstract class EnvironmentParameterNode extends ExpressionNode {
   @Idempotent
   protected abstract Rql2Type getParamType();
 
-  @Child private InteropLibrary bindings = insert(InteropLibrary.getFactory().createDispatched(1));
-
-  private Object getParam(String key) {
-    TruffleObject polyglotBindings = RawContext.get(this).getPolyglotBindings();
+  @Specialization(guards = {"isByteKind(getParamType())"})
+  protected byte getByte(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
     assert bindings.hasMembers(polyglotBindings);
     try {
-      return bindings.readMember(polyglotBindings, key);
+      return (byte) bindings.readMember(polyglotBindings, key);
     } catch (UnsupportedMessageException | UnknownIdentifierException e) {
       throw new RuntimeException(e);
     }
   }
 
-  @Specialization(guards = {"isByteKind(getParamType())"})
-  protected byte getByte(String key) {
-    return (byte) getParam(key);
-  }
-
   @Specialization(guards = {"isShortKind(getParamType())"})
-  protected short getShort(String key) {
-    return (short) getParam(key);
+  protected short getShort(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (short) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isIntKind(getParamType())"})
-  protected int getInt(String key) {
-    return (int) getParam(key);
+  protected int getInt(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (int) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isLongKind(getParamType())"})
-  protected long getLong(String key) {
-    return (long) getParam(key);
+  protected long getLong(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (long) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isFloatKind(getParamType())"})
-  protected float getFloat(String key) {
-    return (float) getParam(key);
+  protected float getFloat(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (float) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isDoubleKind(getParamType())"})
-  protected Double getDouble(String key) {
-    return (double) getParam(key);
+  protected Double getDouble(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (double) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isDecimalKind(getParamType())"})
-  protected DecimalObject getDecimal(String key) {
-    return (DecimalObject) getParam(key);
+  protected DecimalObject getDecimal(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (DecimalObject) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isBooleanKind(getParamType())"})
-  protected boolean getBool(String key) {
-    return (boolean) getParam(key);
+  protected boolean getBool(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (boolean) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isStringKind(getParamType())"})
-  protected String getString(String key) {
-    return (String) getParam(key);
+  protected String getString(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (String) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isDateKind(getParamType())"})
-  protected DateObject getDate(String key) {
-    return (DateObject) getParam(key);
+  protected DateObject getDate(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (DateObject) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isTimeKind(getParamType())"})
-  protected TimeObject getTime(String key) {
-    return (TimeObject) getParam(key);
+  protected TimeObject getTime(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (TimeObject) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isTimestampKind(getParamType())"})
-  protected TimestampObject getTimestamp(String key) {
-    return (TimestampObject) getParam(key);
+  protected TimestampObject getTimestamp(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (TimestampObject) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   @Specialization(guards = {"isIntervalKind(getParamType())"})
   @TruffleBoundary
-  protected IntervalObject getInterval(String key) {
-    return (IntervalObject) getParam(key);
+  protected IntervalObject getInterval(
+      String key,
+      @Bind("$node") Node thisNode,
+      @Cached(value = "getRawContext(thisNode)", neverDefault = true) RawContext context,
+      @CachedLibrary(limit = "3") @Cached.Shared("interop") InteropLibrary bindings) {
+    TruffleObject polyglotBindings = context.getPolyglotBindings();
+    assert bindings.hasMembers(polyglotBindings);
+    try {
+      return (IntervalObject) bindings.readMember(polyglotBindings, key);
+    } catch (UnsupportedMessageException | UnknownIdentifierException e) {
+      throw new RuntimeException(e);
+    }
   }
 }

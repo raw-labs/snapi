@@ -20,7 +20,8 @@ import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodes;
 import raw.runtime.truffle.ast.io.json.writer.JsonWriteNodesFactory;
-import raw.runtime.truffle.tryable_nullable.Tryable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 @NodeInfo(shortName = "TryableWriteJson")
 public class TryableWriteJsonNode extends StatementNode {
@@ -31,6 +32,14 @@ public class TryableWriteJsonNode extends StatementNode {
   JsonWriteNodes.WriteStringJsonWriterNode writeString =
       JsonWriteNodesFactory.WriteStringJsonWriterNodeGen.create();
 
+  @Child
+  private TryableNullableNodes.IsErrorNode isErrorNode =
+      TryableNullableNodesFactory.IsErrorNodeGen.create();
+
+  @Child
+  private TryableNullableNodes.GetErrorNode getErrorNode =
+      TryableNullableNodesFactory.GetErrorNodeGen.create();
+
   public TryableWriteJsonNode(ProgramStatementNode childProgramStatementNode) {
     this.childDirectCall = DirectCallNode.create(childProgramStatementNode.getCallTarget());
   }
@@ -40,10 +49,10 @@ public class TryableWriteJsonNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object tryable = args[0];
     JsonGenerator gen = (JsonGenerator) args[1];
-    if (Tryable.isSuccess(tryable)) {
+    if (!isErrorNode.execute(this, tryable)) {
       childDirectCall.call(tryable, gen);
     } else {
-      writeString.execute(this, Tryable.getFailure(tryable), gen);
+      writeString.execute(this, getErrorNode.execute(this, tryable), gen);
     }
   }
 }

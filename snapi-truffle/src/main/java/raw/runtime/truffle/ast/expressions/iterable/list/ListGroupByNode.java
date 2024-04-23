@@ -12,85 +12,144 @@
 
 package raw.runtime.truffle.ast.expressions.iterable.list;
 
-import com.oracle.truffle.api.dsl.*;
-import com.oracle.truffle.api.nodes.Node;
+import static raw.runtime.truffle.runtime.generator.collection.StaticInitializers.getContextValues;
+
+import com.oracle.truffle.api.Truffle;
+import com.oracle.truffle.api.frame.VirtualFrame;
+import com.oracle.truffle.api.nodes.LoopNode;
 import com.oracle.truffle.api.nodes.NodeInfo;
 import java.util.ArrayList;
 import raw.compiler.rql2.source.Rql2TypeWithProperties;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.RawContext;
-import raw.runtime.truffle.RawLanguage;
-import raw.runtime.truffle.runtime.function.FunctionExecuteNodes;
+import raw.runtime.truffle.ast.osr.OSRGeneratorNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRListEquiJoinInitBodyNode;
+import raw.runtime.truffle.ast.osr.bodies.OSRListFromBodyNode;
+import raw.runtime.truffle.ast.osr.conditions.OSRHasNextConditionNode;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
+import raw.runtime.truffle.runtime.generator.collection.GeneratorNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodes;
+import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.OffHeapNodesFactory;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.off_heap.group_by.OffHeapGroupByKey;
 import raw.runtime.truffle.runtime.generator.collection.off_heap_generator.record_shaper.RecordShaper;
 import raw.runtime.truffle.runtime.iterable.IterableNodes;
+import raw.runtime.truffle.runtime.iterable.IterableNodesFactory;
 import raw.runtime.truffle.runtime.list.ListNodes;
-import raw.runtime.truffle.runtime.list.ObjectList;
-import raw.runtime.truffle.runtime.record.RecordObject;
-import raw.sources.api.SourceContext;
+import raw.runtime.truffle.runtime.list.ListNodesFactory;
+import raw.runtime.truffle.runtime.list.RawArrayList;
 
 @NodeInfo(shortName = "List.GroupBy")
-@NodeChild("input")
-@NodeChild("keyFun")
-@NodeField(name = "keyType", type = Rql2TypeWithProperties.class)
-@NodeField(name = "rowType", type = Rql2TypeWithProperties.class)
-public abstract class ListGroupByNode extends ExpressionNode {
+public class ListGroupByNode extends ExpressionNode {
 
-  @Idempotent
-  public abstract Rql2TypeWithProperties getKeyType();
+  @Child private ExpressionNode inputNode;
+  @Child private ExpressionNode keyFunNode;
+  @Child private LoopNode equiJoinInitLoopNode;
+  @Child private LoopNode listFromLoopNode;
 
-  @Idempotent
-  public abstract Rql2TypeWithProperties getRowType();
+  @Child
+  private GeneratorNodes.GeneratorInitNode generatorInitNode =
+      GeneratorNodesFactory.GeneratorInitNodeGen.create();
 
-  static final int LIB_LIMIT = 2;
+  @Child
+  private IterableNodes.GetGeneratorNode getGeneratorNode =
+      IterableNodesFactory.GetGeneratorNodeGen.create();
 
-  @Specialization
-  protected static Object doGroup(
-      Object input,
-      Object keyFun,
-      @Bind("this") Node thisNode,
-      @Cached(inline = true) IterableNodes.GetGeneratorNode getGeneratorNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorInitNode initNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorNextNode nextNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorHasNextNode hasNextNode,
-      @Cached(inline = true) GeneratorNodes.GeneratorCloseNode closeNode,
-      @Cached(inline = true) OffHeapNodes.OffHeapGroupByPutNode putNode,
-      @Cached(inline = true) OffHeapNodes.OffHeapGeneratorNode generatorNode,
-      @Cached(inline = true) FunctionExecuteNodes.FunctionExecuteOne functionExecuteOneNode,
-      @Cached(inline = true) ListNodes.ToIterableNode toIterableNode) {
-    Object iterable = toIterableNode.execute(thisNode, input);
-    SourceContext context = RawContext.get(thisNode).getSourceContext();
+  @Child
+  private ListNodes.ToIterableNode toIterableNode = ListNodesFactory.ToIterableNodeGen.create();
+
+  @Child
+  private GeneratorNodes.GeneratorCloseNode generatorCloseNode =
+      GeneratorNodesFactory.GeneratorCloseNodeGen.create();
+
+  @Child
+  OffHeapNodes.OffHeapGeneratorNode generatorNode =
+      OffHeapNodesFactory.OffHeapGeneratorNodeGen.create();
+
+  private final Rql2TypeWithProperties rowType;
+  private final Rql2TypeWithProperties keyType;
+
+  private final int generatorSlot;
+  private final int keyFunctionSlot;
+  private final int mapSlot;
+  private final int listSlot;
+  private final long maxSize;
+  private final int kryoOutputBufferSize;
+  private final int kryoInputBufferSize;
+
+  public ListGroupByNode(
+      ExpressionNode inputNode,
+      ExpressionNode keyFunNode,
+      Rql2TypeWithProperties rowType,
+      Rql2TypeWithProperties keyType,
+      int generatorSlot,
+      int keyFunctionSlot,
+      int mapSlot,
+      int listSlot) {
+    this.inputNode = inputNode;
+    this.keyFunNode = keyFunNode;
+    this.rowType = rowType;
+    this.keyType = keyType;
+
+    this.generatorSlot = generatorSlot;
+    this.keyFunctionSlot = keyFunctionSlot;
+
+    this.mapSlot = mapSlot;
+    this.listSlot = listSlot;
+    this.equiJoinInitLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRHasNextConditionNode(this.generatorSlot),
+                    new OSRListEquiJoinInitBodyNode(
+                        this.generatorSlot, this.keyFunctionSlot, this.mapSlot)));
+
+    this.listFromLoopNode =
+        Truffle.getRuntime()
+            .createLoopNode(
+                new OSRGeneratorNode(
+                    new OSRHasNextConditionNode(this.generatorSlot),
+                    new OSRListFromBodyNode(this.generatorSlot, this.listSlot)));
+
+    long[] contextValues = getContextValues(this);
+    this.maxSize = contextValues[0];
+    this.kryoOutputBufferSize = (int) contextValues[1];
+    this.kryoInputBufferSize = (int) contextValues[2];
+  }
+
+  @Override
+  public Object executeGeneric(VirtualFrame frame) {
+    Object input = inputNode.executeGeneric(frame);
+    Object keyFun = keyFunNode.executeGeneric(frame);
+    Object iterable = toIterableNode.execute(this, input);
     OffHeapGroupByKey map =
         new OffHeapGroupByKey(
-            ((ListGroupByNode) thisNode).getKeyType(),
-            ((ListGroupByNode) thisNode).getRowType(),
-            RawLanguage.get(thisNode),
-            context,
-            new RecordShaper(RawLanguage.get(thisNode), true));
-    Object generator = getGeneratorNode.execute(thisNode, iterable);
+            this.keyType,
+            this.rowType,
+            new RecordShaper(true),
+            this.maxSize,
+            this.kryoOutputBufferSize,
+            this.kryoInputBufferSize);
+    Object generator = getGeneratorNode.execute(this, iterable);
+
     try {
-      initNode.execute(thisNode, generator);
-      while (hasNextNode.execute(thisNode, generator)) {
-        Object v = nextNode.execute(thisNode, generator);
-        Object key = functionExecuteOneNode.execute(thisNode, keyFun, v);
-        putNode.execute(thisNode, map, key, v);
-      }
+      generatorInitNode.execute(this, generator);
+      frame.setObject(generatorSlot, generator);
+      frame.setObject(keyFunctionSlot, keyFun);
+      frame.setObject(mapSlot, map);
+      equiJoinInitLoopNode.execute(frame);
     } finally {
-      closeNode.execute(thisNode, generator);
+      generatorCloseNode.execute(this, generator);
     }
-    ArrayList<RecordObject> items = new ArrayList<>();
-    Object mapGenerator = generatorNode.execute(thisNode, map);
+    Object mapGenerator = generatorNode.execute(this, map);
     try {
-      initNode.execute(thisNode, mapGenerator);
-      while (hasNextNode.execute(thisNode, mapGenerator)) {
-        RecordObject record = (RecordObject) nextNode.execute(thisNode, mapGenerator);
-        items.add(record);
-      }
+      generatorInitNode.execute(this, mapGenerator);
+      frame.setObject(generatorSlot, mapGenerator);
+      frame.setObject(listSlot, new ArrayList<>());
+      listFromLoopNode.execute(frame);
+      @SuppressWarnings("unchecked")
+      ArrayList<Object> llist = (ArrayList<Object>) frame.getObject(listSlot);
+      return new RawArrayList(llist);
     } finally {
-      closeNode.execute(thisNode, mapGenerator);
+      generatorCloseNode.execute(this, mapGenerator);
     }
-    return new ObjectList(items.toArray());
   }
 }

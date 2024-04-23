@@ -21,24 +21,24 @@ import com.oracle.truffle.api.interop.UnsupportedMessageException;
 import com.oracle.truffle.api.library.ExportLibrary;
 import com.oracle.truffle.api.library.ExportMessage;
 import com.oracle.truffle.api.nodes.Node;
-import java.util.Iterator;
 import java.util.Objects;
+import raw.runtime.truffle.runtime.data_structures.treemap.TreeMapIterator;
 import raw.runtime.truffle.runtime.generator.collection.GeneratorNodes;
 import raw.runtime.truffle.runtime.list.StringList;
 
 @ExportLibrary(InteropLibrary.class)
 public class GroupByMemoryGenerator implements TruffleObject {
-  private final Iterator<Object> keys;
+  private final TreeMapIterator iterator;
 
   private final OffHeapGroupByKey offHeapGroupByKey;
 
   public GroupByMemoryGenerator(OffHeapGroupByKey offHeapGroupByKey) {
-    keys = offHeapGroupByKey.getMemMap().keySet().iterator();
+    iterator = offHeapGroupByKey.getMemMap().iterator();
     this.offHeapGroupByKey = offHeapGroupByKey;
   }
 
-  public Iterator<Object> getKeys() {
-    return keys;
+  public TreeMapIterator getTreeNodesIterator() {
+    return iterator;
   }
 
   public OffHeapGroupByKey getOffHeapGroupByKey() {

@@ -21,6 +21,7 @@ import raw.runtime.truffle.RawContext;
 import raw.runtime.truffle.runtime.function.Closure;
 import raw.runtime.truffle.runtime.function.Function;
 import raw.runtime.truffle.runtime.function.Lambda;
+import raw.runtime.truffle.runtime.function.RawFunctionRegistry;
 
 public final class MethodNode extends ExpressionNode {
 
@@ -34,6 +35,7 @@ public final class MethodNode extends ExpressionNode {
   private final String name;
   private final boolean hasFreeVars;
   private final boolean hasOptionalArgs;
+  private final RawFunctionRegistry functionRegistry = RawContext.get(this).getFunctionRegistry();
 
   public MethodNode(
       String name, Function f, ExpressionNode[] defaultArgumentExps, boolean hasFreeVars) {
@@ -71,7 +73,7 @@ public final class MethodNode extends ExpressionNode {
       }
       // Only put actual methods in registry
       if (name != null) {
-        RawContext.get(this).getFunctionRegistry().register(name, function);
+        functionRegistry.register(name, function);
       }
     }
     return function;

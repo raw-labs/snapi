@@ -14,10 +14,10 @@ package raw.compiler.rql2.source
 
 import org.bitbucket.inkytonik.kiama.output.{LeftAssoc, NonAssoc, PrettyExpression, RightAssoc}
 import org.bitbucket.inkytonik.kiama.util.Trampolines.Done
-import org.bitbucket.inkytonik.kiama.util.{Position, Positions}
+import org.bitbucket.inkytonik.kiama.util.{Position, Positions, StringSource}
 import raw.compiler.base.source.BaseNode
+import raw.compiler.rql2.antlr4.{CommentsAntlrSyntaxAnalyzer, NodeComments}
 import raw.compiler.rql2.builtin.{ListPackageBuilder, RecordPackageBuilder}
-import raw.compiler.rql2.{CommentsSyntaxAnalyzer, NodeComments}
 
 import java.util
 import scala.collection.JavaConverters._
@@ -79,11 +79,18 @@ class SourceCommentsPrettyPrinter(maybeIndent: Option[Int] = None, maybeWidth: O
   })
 
   def prettyCode(code: String): Either[(String, Position), String] = {
+    nodeComments.clear()
+    usedComments.clear()
+    val parser = new CommentsAntlrSyntaxAnalyzer(new Positions(), true, nodeComments)
+    val result = parser.parse(code)
+    if (result.errors.nonEmpty) {
+      val msg = result.errors.head.message
+      val begin = result.errors.head.positions.head.begin
+      val pos = Position(begin.line, begin.column, StringSource(code))
+      Left((msg, pos))
+    } else {
+      val r = format(result.tree)
 
-    val parser = new CommentsSyntaxAnalyzer(new Positions(), nodeComments)
-
-    parser.parse(code).right.map { program =>
-      val r = format(program)
       // checking if all comments were used
       val diff = nodeComments.keySet().asScala.diff(usedComments.toSet)
       if (diff.nonEmpty) {
@@ -91,7 +98,7 @@ class SourceCommentsPrettyPrinter(maybeIndent: Option[Int] = None, maybeWidth: O
         logger.warn(s"Not all comments were used: ${strDiff.mkString(",")}")
         throw new AssertionError(s"Not all comments were used: ${strDiff.mkString(",")}")
       }
-      r
+      Right(r)
     }
 
   }

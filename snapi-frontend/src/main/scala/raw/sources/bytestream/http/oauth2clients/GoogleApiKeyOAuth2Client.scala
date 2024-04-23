@@ -71,7 +71,7 @@ class GoogleApiKeyOAuth2Client extends OAuth2Client with StrictLogging {
         .replace("-----END PRIVATE KEY-----", "")
         .replaceAll("\\s+", "")
 
-      val pkcs8EncodedBytes = Base64.getDecoder().decode(cleaned)
+      val pkcs8EncodedBytes = Base64.getDecoder().decode(cleaned.replaceAll("\"\"", ""))
 
       val keySpec = new PKCS8EncodedKeySpec(pkcs8EncodedBytes)
       val kf = KeyFactory.getInstance("RSA");

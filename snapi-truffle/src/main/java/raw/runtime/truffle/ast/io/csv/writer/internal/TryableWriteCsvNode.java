@@ -21,12 +21,21 @@ import java.io.IOException;
 import raw.runtime.truffle.StatementNode;
 import raw.runtime.truffle.ast.ProgramStatementNode;
 import raw.runtime.truffle.runtime.exceptions.csv.CsvWriterRawTruffleException;
-import raw.runtime.truffle.tryable_nullable.Tryable;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodes;
+import raw.runtime.truffle.tryable_nullable.TryableNullableNodesFactory;
 
 @NodeInfo(shortName = "TryableWriteCsv")
 public class TryableWriteCsvNode extends StatementNode {
 
   @Child private DirectCallNode valueWriter;
+
+  @Child
+  private TryableNullableNodes.IsErrorNode isErrorNode =
+      TryableNullableNodesFactory.IsErrorNodeGen.create();
+
+  @Child
+  private TryableNullableNodes.GetErrorNode getFailureNode =
+      TryableNullableNodesFactory.GetErrorNodeGen.create();
 
   public TryableWriteCsvNode(ProgramStatementNode valueWriter) {
     this.valueWriter = DirectCallNode.create(valueWriter.getCallTarget());
@@ -36,10 +45,10 @@ public class TryableWriteCsvNode extends StatementNode {
     Object[] args = frame.getArguments();
     Object tryable = args[0];
     CsvGenerator generator = (CsvGenerator) args[1];
-    if (Tryable.isSuccess(tryable)) {
+    if (!isErrorNode.execute(this, tryable)) {
       valueWriter.call(tryable, generator);
     } else {
-      doWriteError(Tryable.getFailure(tryable), generator);
+      doWriteError(getFailureNode.execute(this, tryable), generator);
     }
   }
 
