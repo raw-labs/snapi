@@ -942,4 +942,12 @@ class TestSqlCompilerServiceAirports
     val hover2 = compilerService.hover(t.q, asJson(), Pos(1, 20))
     assert(hover2.completion.contains(TypeCompletion("city", "character varying")))
   }
+
+  // RD-10865 (mistakenly passing snapi code)
+  test("""[{a: 12}, null]""".stripMargin) { t =>
+    assume(password != "")
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.exists(_.message contains "the input does not form a valid statement or expression"))
+  }
+
 }
