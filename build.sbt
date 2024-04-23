@@ -263,7 +263,7 @@ lazy val snapiClient = (project in file("snapi-client"))
   )
   .settings(
     commonSettings,
-    snapiClientCompileSettings,
+    missingInterpolatorCompileSettings,
     testSettings
   )
 
@@ -341,11 +341,23 @@ lazy val sqlClient = (project in file("sql-client"))
   )
   .settings(
     commonSettings,
-    snapiClientCompileSettings,
+    missingInterpolatorCompileSettings,
     testSettings,
     libraryDependencies ++= Seq(
       kiama,
       postgresqlDeps,
       hikariCP
     )
+  )
+
+lazy val pythonClient = (project in file("python-client"))
+  .dependsOn(
+    client % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    missingInterpolatorCompileSettings,
+    testSettings,
+    Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client"),
+    libraryDependencies += "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
   )

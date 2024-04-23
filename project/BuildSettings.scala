@@ -90,7 +90,7 @@ object BuildSettings {
     },
   )
 
-  lazy val snapiClientCompileSettings = scalaCompileSettings ++ Seq(
+  lazy val missingInterpolatorCompileSettings = scalaCompileSettings ++ Seq(
     scalacOptions := {
       val baseOptions = scalacOptions.value
       val updatedOptions = baseOptions.map {
