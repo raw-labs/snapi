@@ -21,7 +21,10 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(impl
   def eval(source: String, tipe: raw.client.api.RawType, environment: raw.client.api.ProgramEnvironment): raw.client.api.EvalResponse = ???
     
 
-  def execute(source: String, environment: raw.client.api.ProgramEnvironment, maybeDecl: Option[String], outputStream: java.io.OutputStream): raw.client.api.ExecutionResponse = ???
+  def execute(source: String, environment: raw.client.api.ProgramEnvironment, maybeDecl: Option[String], outputStream: java.io.OutputStream): raw.client.api.ExecutionResponse = {
+    logger.debug("execute")
+    ???
+  }
     
 
   def formatCode(source: String, environment: raw.client.api.ProgramEnvironment, maybeIndent: Option[Int], maybeWidth: Option[Int]): raw.client.api.FormatCodeResponse = ???
