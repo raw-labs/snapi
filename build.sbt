@@ -8,7 +8,7 @@ import raw.build.Dependencies._
 import raw.build.BuildSettings._
 
 import java.io.IOException
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
 import java.nio.charset.StandardCharsets
 
 import scala.sys.process._
@@ -37,15 +37,16 @@ lazy val root = (project in file("."))
     snapiTruffle,
     snapiClient,
     sqlParser,
-    sqlClient
-    )
+    sqlClient,
+    jinjaSqlClient
+  )
   .settings(
     commonSettings,
-    publish := (publish dependsOn(writeVersionToFile)).value,
-    publishLocal := (publishLocal dependsOn(writeVersionToFile)).value,
-    publishSigned := (publishSigned dependsOn(writeVersionToFile)).value,
+    publish := (publish dependsOn writeVersionToFile).value,
+    publishLocal := (publishLocal dependsOn writeVersionToFile).value,
+    publishSigned := (publishSigned dependsOn writeVersionToFile).value,
     publish / skip := true,
-    publishSigned / skip  := true,
+    publishSigned / skip := true,
     publishLocal / skip := true
   )
 
@@ -95,7 +96,12 @@ lazy val snapiParser = (project in file("snapi-parser"))
       // List of output paths
       val basePath: String = s"${baseDirectory.value}/src/main/java"
       val parsers = List(
-        (s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
+        (
+          s"$basePath/raw/compiler/rql2/generated",
+          "raw.compiler.rql2.generated",
+          s"$basePath/raw/snapi/grammar",
+          "Snapi"
+        )
       )
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
@@ -141,9 +147,9 @@ lazy val snapiParser = (project in file("snapi-parser"))
     Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value,
     Compile / doc := (Compile / doc).dependsOn(generateSnapiParser).value,
     Test / compile := (Test / compile).dependsOn(generateSnapiParser).value,
-    publish := (publish dependsOn(generateSnapiParser)).value,
-    publishLocal := (publishLocal dependsOn(generateSnapiParser)).value,
-    publishSigned := (publishSigned dependsOn(generateSnapiParser)).value
+    publish := (publish dependsOn generateSnapiParser).value,
+    publishLocal := (publishLocal dependsOn generateSnapiParser).value,
+    publishSigned := (publishSigned dependsOn generateSnapiParser).value
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
@@ -249,11 +255,10 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value,
     Compile / doc := (Compile / doc).dependsOn(runJavaAnnotationProcessor).value,
     Test / compile := (Test / compile).dependsOn(runJavaAnnotationProcessor).value,
-    publish := (publish dependsOn(runJavaAnnotationProcessor)).value,
-    publishLocal := (publishLocal dependsOn(runJavaAnnotationProcessor)).value,
-    publishSigned := (publishSigned dependsOn(runJavaAnnotationProcessor)).value,
+    publish := (publish dependsOn runJavaAnnotationProcessor).value,
+    publishLocal := (publishLocal dependsOn runJavaAnnotationProcessor).value,
+    publishSigned := (publishSigned dependsOn runJavaAnnotationProcessor).value
   )
-
 
 lazy val snapiClient = (project in file("snapi-client"))
   .dependsOn(
@@ -282,7 +287,7 @@ lazy val sqlParser = (project in file("sql-parser"))
       // List of output paths
       val basePath: String = s"${baseDirectory.value}/src/main/java"
       val parsers = List(
-        (s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql"),
+        (s"$basePath/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql")
       )
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
@@ -328,9 +333,9 @@ lazy val sqlParser = (project in file("sql-parser"))
     Compile / compile := (Compile / compile).dependsOn(generateSqlParser).value,
     Compile / doc := (Compile / doc).dependsOn(generateSqlParser).value,
     Test / compile := (Test / compile).dependsOn(generateSqlParser).value,
-    publish := (publish dependsOn(generateSqlParser)).value,
-    publishLocal := (publishLocal dependsOn(generateSqlParser)).value,
-    publishSigned := (publishSigned dependsOn(generateSqlParser)).value
+    publish := (publish dependsOn generateSqlParser).value,
+    publishLocal := (publishLocal dependsOn generateSqlParser).value,
+    publishSigned := (publishSigned dependsOn generateSqlParser).value
   )
 
 lazy val sqlClient = (project in file("sql-client"))
@@ -360,4 +365,15 @@ lazy val pythonClient = (project in file("python-client"))
     testSettings,
     Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.client"),
     libraryDependencies += "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
+  )
+
+lazy val jinjaSqlClient = (project in file("jinja-sql-client"))
+  .dependsOn(
+    client % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    snapiClientCompileSettings,
+    testSettings,
+    libraryDependencies ++= Seq()
   )
