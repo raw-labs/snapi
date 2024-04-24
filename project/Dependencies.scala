@@ -92,4 +92,6 @@ object Dependencies {
 
   // from sql-client
   val hikariCP = "com.zaxxer" % "HikariCP" % "5.1.0"
+
+  val jinjava = "com.hubspot.jinjava" % "jinjava" % "2.7.2-rawlabs" exclude("com.google.code.findbugs", "annotations")
 }
