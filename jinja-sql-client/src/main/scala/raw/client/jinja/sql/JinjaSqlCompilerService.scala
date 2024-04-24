@@ -1,8 +1,9 @@
 package raw.client.jinja.sql
 
 import raw.client.api._
+import raw.utils.RawSettings
 
-class JinjaSqlCompilerService extends CompilerService {
+class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings) extends CompilerService {
   
 
   /** As seen from class JinjaSqlCompilerService, the missing signatures are as follows.
@@ -36,10 +37,7 @@ class JinjaSqlCompilerService extends CompilerService {
     
 
   def rename(source: String, environment: raw.client.api.ProgramEnvironment, position: raw.client.api.Pos): raw.client.api.RenameResponse = ???
-    
 
-  implicit protected def settings: raw.utils.RawSettings = ???
-    
 
   def validate(source: String, environment: raw.client.api.ProgramEnvironment): raw.client.api.ValidateResponse = ???
     
