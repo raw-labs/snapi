@@ -53,7 +53,7 @@ import raw.utils.{RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
 
-class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader] = None)(
+class PythonCompilerService(engineDefinition: (Engine, Boolean), maybeClassLoader: Option[ClassLoader])(
     implicit protected val settings: RawSettings
 ) extends CompilerService {
 

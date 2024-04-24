@@ -102,6 +102,7 @@ jobs:
           - snapiFrontend
           - snapiClient
           - sqlClient
+          - pythonClient
     runs-on: self-hosted
     env:
       SBT_FORK_OUTPUT_DIR : test-results
