@@ -8,22 +8,12 @@ import java.time.Year
 import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
 
 object BuildSettings {
-  lazy val licenseHeader = """Copyright 2024 RAW Labs S.A.
-
-  Use of this software is governed by the Business Source License
-  included in the file licenses/BSL.txt.
-
-  As of the Change Date specified in that file, in accordance with
-  the Business Source License, use of this software will be governed
-  by the Apache License, Version 2.0, included in the file
-  licenses/APL.txt."""
-
   lazy val commonSettings = Seq(
     name := "raw-" + baseDirectory.value.getName,
-    headerLicense := Some(HeaderLicense.Custom(licenseHeader)),
     homepage := Some(url("https://www.raw-labs.com/")),
     organization := "com.raw-labs",
     organizationName := "RAW Labs SA",
+    startYear := Some(2023),
     organizationHomepage := Some(url("https://www.raw-labs.com/")),
     developers := List(Developer("raw-labs", "RAW Labs", "engineering@raw-labs.com", url("https://github.com/raw-labs"))),
     licenses := List(
@@ -31,8 +21,6 @@ object BuildSettings {
         "https://raw.githubusercontent.com/raw-labs/snapi/main/licenses/BSL.txt"
       ).toURL
     ),
-    startYear := Some(2023),
-    headerLicense := Some(HeaderLicense.Custom(licenseHeader)),
     headerSources / excludeFilter := HiddenFileFilter,
     resolvers += Resolver.mavenLocal,
     resolvers ++= Resolver.sonatypeOssRepos("snapshots"),
