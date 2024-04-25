@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2.google
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
@@ -19,7 +19,8 @@ import com.typesafe.scalalogging.StrictLogging
 import pdi.jwt.{Jwt, JwtAlgorithm, JwtClaim}
 import org.apache.hc.core5.http.HttpHeaders
 import raw.creds.api.CredentialsException
-import raw.sources.bytestream.http.oauth2clients.OAuth2Client.{httpClient, mapper, ofFormData, readTimeout}
+import raw.creds.oauth2.api.{OAuth2Client, RenewedAccessToken}
+import raw.utils.RawSettings
 
 import java.io.IOException
 import java.net.URI
@@ -31,21 +32,25 @@ import java.security.spec.{InvalidKeySpecException, PKCS8EncodedKeySpec}
 import java.time.Instant
 import java.util.Base64
 
-@JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
-case class GoogleAuth2TokenResponse(
-    accessToken: String,
-    expiresIn: Int,
-    tokenType: String,
-    refreshToken: Option[String]
-)
+object GoogleApiKeyOAuth2Client {
 
-class GoogleApiKeyOAuth2Client extends OAuth2Client with StrictLogging {
+  @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
+  private case class GoogleAuth2TokenResponse(
+      accessToken: String,
+      expiresIn: Int,
+      tokenType: String,
+      refreshToken: Option[String]
+  )
 
-  /**
-   * Executes the OAuth2 refresh token flow to obtain a new access token. Implementation is specific to the provider.
-   */
-  override def newAccessTokenFromRefreshToken(refreshToken: String, options: Map[String, String]): RenewedAccessToken =
-    throw new UnsupportedOperationException("Google-api refresh tokens are not supported.")
+}
+
+class GoogleApiKeyOAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
+
+  import GoogleApiKeyOAuth2Client._
+
+  override def supportsRefreshToken: Boolean = false
+
+  override def supportsClientCredentials: Boolean = true
 
   /**
    * Executes the OAuth2 client credentials flow to obtain a new access token. Implementation is specific to the provider.
@@ -71,7 +76,7 @@ class GoogleApiKeyOAuth2Client extends OAuth2Client with StrictLogging {
         .replace("-----END PRIVATE KEY-----", "")
         .replaceAll("\\s+", "")
 
-      val pkcs8EncodedBytes = Base64.getDecoder().decode(cleaned.replaceAll("\"\"", ""))
+      val pkcs8EncodedBytes = Base64.getDecoder().decode(cleaned)
 
       val keySpec = new PKCS8EncodedKeySpec(pkcs8EncodedBytes)
       val kf = KeyFactory.getInstance("RSA");

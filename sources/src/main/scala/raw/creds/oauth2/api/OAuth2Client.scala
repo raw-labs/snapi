@@ -10,28 +10,35 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2.api
 
 import com.fasterxml.jackson.annotation.{JsonSetter, Nulls}
 import com.fasterxml.jackson.databind.{DeserializationFeature, ObjectMapper}
 import com.fasterxml.jackson.module.scala.{ClassTagExtensions, DefaultScalaModule}
 import com.typesafe.scalalogging.StrictLogging
+import raw.utils.{RawService, RawSettings}
 
 import java.net.URLEncoder
 import java.net.http.{HttpClient, HttpRequest}
 import java.nio.charset.StandardCharsets
-import java.time.{Duration, Instant}
 
-object OAuth2Client extends StrictLogging {
-  val connectTimeout = Duration.ofSeconds(20)
-  val readTimeout = Duration.ofSeconds(20)
+abstract class OAuth2Client(implicit settings: RawSettings) extends RawService with StrictLogging {
 
-  val mapper = new ObjectMapper with ClassTagExtensions
+  protected val connectTimeout = settings.getDuration("raw.creds.oauth2.connect-timeout")
+
+  protected val readTimeout = settings.getDuration("raw.creds.oauth2.read-timeout")
+
+  protected val mapper = new ObjectMapper with ClassTagExtensions
   mapper.registerModule(DefaultScalaModule)
   mapper.setDefaultSetterInfo(JsonSetter.Value.forValueNulls(Nulls.AS_EMPTY))
   mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false)
 
-  def ofFormData(data: Map[String, String]): HttpRequest.BodyPublisher = {
+  protected val httpClient = HttpClient.newBuilder
+    .connectTimeout(connectTimeout)
+    .version(HttpClient.Version.HTTP_1_1)
+    .build
+
+  protected def ofFormData(data: Map[String, String]): HttpRequest.BodyPublisher = {
     val builder = new StringBuffer()
     for ((key, value) <- data) {
       if (builder.length() != 0) builder.append('&')
@@ -43,26 +50,21 @@ object OAuth2Client extends StrictLogging {
     HttpRequest.BodyPublishers.ofString(builder.toString())
   }
 
-  // Shared by all OAuth2 clients
-  val httpClient = HttpClient.newBuilder
-    .connectTimeout(connectTimeout)
-    .version(HttpClient.Version.HTTP_1_1)
-    .build
-}
+  override def doStop(): Unit = {
+    httpClient.close()
+  }
 
-final case class RenewedAccessToken(
-    accessToken: String,
-    expiresBy: Instant,
-    scopes: Seq[String],
-    refreshToken: Option[String]
-)
+  // Custom header required in the access token.
+  def customHeader: Option[String] = None
 
-trait OAuth2Client {
+  def supportsRefreshToken: Boolean = false
+
+  def supportsClientCredentials: Boolean = false
 
   /**
    *  Executes the OAuth2 refresh token flow to obtain a new access token. Implementation is specific to the provider.
    */
-  def newAccessTokenFromRefreshToken(refreshToken: String, options: Map[String, String]): RenewedAccessToken
+  def newAccessTokenFromRefreshToken(refreshToken: String, options: Map[String, String]): RenewedAccessToken = ???
 
   /**
    *  Executes the OAuth2 client credentials flow to obtain a new access token. Implementation is specific to the provider.
@@ -71,5 +73,6 @@ trait OAuth2Client {
       clientId: String,
       clientSecret: String,
       options: Map[String, String]
-  ): RenewedAccessToken
+  ): RenewedAccessToken = ???
+
 }

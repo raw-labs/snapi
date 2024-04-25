@@ -25,6 +25,7 @@ module raw.snapi.truffle {
   requires com.ctc.wstx;
   requires raw.utils;
   requires raw.client;
+  requires raw.sources;
   requires raw.snapi.frontend;
 
   // Indirect dependencies
