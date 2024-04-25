@@ -28,7 +28,7 @@ import java.net.http.{HttpRequest, HttpResponse}
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 
-object LinkedInOauth2Client {
+object LinkedInOAuth2Client {
   private val CLIENT_ID_KEY = "client_id"
   private val CLIENT_SECRET_KEY = "client_secret"
 
@@ -42,9 +42,9 @@ object LinkedInOauth2Client {
 
 }
 
-class LinkedInOauth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
+class LinkedInOAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
 
-  import LinkedInOauth2Client._
+  import LinkedInOAuth2Client._
 
   override def supportsRefreshToken: Boolean = true
 

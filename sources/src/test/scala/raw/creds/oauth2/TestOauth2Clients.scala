@@ -10,14 +10,21 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2
 
 import com.typesafe.scalalogging.StrictLogging
 import org.scalatest.funsuite.AnyFunSuite
 import raw.creds.api.{ClientCredentialsCredential, NewHttpCredential, TokenCredential}
 import raw.creds.http.OAuth2TestCreds
+import raw.creds.oauth2.api._
+import raw.creds.oauth2.auth0._
+import raw.creds.oauth2.linkedin._
+import raw.creds.oauth2.twitter._
+import raw.creds.oauth2.zoho._
+import raw.creds.oauth2.google._
+import raw.utils.SettingsTestContext
 
-class TestOauth2Clients extends AnyFunSuite with StrictLogging with OAuth2TestCreds {
+class TestOauth2Clients extends AnyFunSuite with StrictLogging with SettingsTestContext with OAuth2TestCreds {
 
   def testTokenFromClient(client: OAuth2Client, credential: NewHttpCredential) = {
     val token = credential match {
@@ -35,19 +42,19 @@ class TestOauth2Clients extends AnyFunSuite with StrictLogging with OAuth2TestCr
   }
 
   test("auth0 client credentials") {
-    testTokenFromClient(new Auth0OAuth2Client(), auth0ClientCreds)
+    testTokenFromClient(new Auth0OAuth2Client, auth0ClientCreds)
   }
 
   test("linkedin renew token") {
-    testTokenFromClient(new LinkedInOauth2Client(), linkedInTokenCredentials)
+    testTokenFromClient(new LinkedInOAuth2Client, linkedInTokenCredentials)
   }
 
   test("twitter client credentials get token") {
-    testTokenFromClient(new TwitterOauth2Client(), twitterClientCredential)
+    testTokenFromClient(new TwitterOAuth2Client, twitterClientCredential)
   }
 
   test("zoho refresh token") {
-    testTokenFromClient(new ZohoOauth2Client, zohoTokenCredentials)
+    testTokenFromClient(new ZohoOAuth2Client, zohoTokenCredentials)
   }
 
   test("google api credentials") {

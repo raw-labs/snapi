@@ -30,8 +30,8 @@ import java.time.Instant
 
 object Auth0OAuth2Client {
   // Required options that must be provided by the user
-  private val AUDIENCE_KEY = "audience"
-  private val BASE_URL_KEY = "base_url"
+  val AUDIENCE_KEY = "audience"
+  val BASE_URL_KEY = "base_url"
 
   @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
   private case class Auth0TokenResponse(
