@@ -1,11 +1,12 @@
 package raw.client.jinja.sql
 
-import raw.client.api._
-
+import raw.client.api.{CompilerService, CompilerServiceBuilder}
+import raw.utils.RawSettings
 
 class JinjaSqlCompilerServiceBuilder extends CompilerServiceBuilder {
+  override def language: Set[String] = Set("jinja-sql")
 
-  def build(maybeClassLoader: Option[ClassLoader])(implicit settings: raw.utils.RawSettings): raw.client.api.CompilerService = new JinjaSqlCompilerService(maybeClassLoader)
+  override def build(maybeClassLoader: Option[ClassLoader])(implicit settings: RawSettings): CompilerService =
+    new JinjaSqlCompilerService(maybeClassLoader)
 
-  def language: Set[String] = Set("jinja-sql")
 }

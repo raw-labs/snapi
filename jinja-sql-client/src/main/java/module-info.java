@@ -1,10 +1,8 @@
-import raw.client.jinja.sql.JinjaSqlCompilerServiceBuilder;
+module raw.client.jinja.sql {
+  requires scala.library;
+  requires raw.client;
+  requires jinjava;
 
-module raw.client.jinja {
-    requires scala.library;
-    requires raw.client;
-
-    provides raw.client.api.CompilerServiceBuilder with
-            JinjaSqlCompilerServiceBuilder;
-
+  provides raw.client.api.CompilerServiceBuilder with
+      raw.client.jinja.sql.JinjaSqlCompilerServiceBuilder;
 }
