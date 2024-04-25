@@ -72,6 +72,10 @@ class RawSqlVisitor(
     Option(ctx).flatMap(context => Option(context.code()).map(codeCtx => visit(codeCtx))).getOrElse(SqlErrorNode())
   }
 
+  override protected def defaultResult(): SqlErrorNode = {
+    SqlErrorNode();
+  }
+
   override def visitCode(ctx: PsqlParser.CodeContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val statement = Option(context.stmt())
