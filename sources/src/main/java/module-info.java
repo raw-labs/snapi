@@ -82,7 +82,6 @@ module raw.sources {
       com.fasterxml.jackson.databind;
 
   uses raw.creds.api.CredentialsServiceBuilder;
-
   uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
 
   provides raw.sources.bytestream.api.ByteStreamLocationBuilder with
@@ -128,5 +127,4 @@ module raw.sources {
       raw.sources.jdbc.snowflake.SnowflakeTableLocationBuilder,
       raw.sources.jdbc.sqlite.SqliteTableLocationBuilder,
       raw.sources.jdbc.sqlserver.SqlServerTableLocationBuilder;
-
 }
