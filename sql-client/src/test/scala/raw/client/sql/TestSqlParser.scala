@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RAW Labs S.A.
+ * Copyright 2024 RAW Labs S.A.
  *
  * Use of this software is governed by the Business Source License
  * included in the file licenses/BSL.txt.
@@ -378,32 +378,32 @@ class TestSqlParser extends AnyFunSuite {
   }
 
   test("Test complex ChatGPT generated query") {
-    val code = """SELECT 
+    val code = """SELECT
       |    p.project_name,
       |    SUM(e.salary) AS total_salary,
       |    COUNT(DISTINCT e.department_id) AS unique_departments
-      |FROM 
+      |FROM
       |    projects p
-      |INNER JOIN 
+      |INNER JOIN
       |    employee_project ep ON p.project_id = ep.project_id
-      |INNER JOIN 
+      |INNER JOIN
       |    employees e ON e.employee_id = ep.employee_id
-      |WHERE 
+      |WHERE
       |    p.project_id IN (
-      |        SELECT 
+      |        SELECT
       |            ep_inner.project_id
-      |        FROM 
+      |        FROM
       |            employee_project ep_inner
-      |        JOIN 
+      |        JOIN
       |            employees e_inner ON ep_inner.employee_id = e_inner.employee_id
-      |        GROUP BY 
+      |        GROUP BY
       |            ep_inner.project_id
-      |        HAVING 
+      |        HAVING
       |            COUNT(DISTINCT e_inner.department_id) > 1
       |    )
-      |GROUP BY 
+      |GROUP BY
       |    p.project_name
-      |ORDER BY 
+      |ORDER BY
       |    total_salary DESC;""".stripMargin
     val result = doTest(code)
     assert(result.isSuccess)
@@ -528,7 +528,7 @@ class TestSqlParser extends AnyFunSuite {
   test("Test mock sql query with comments") {
     val code = """SELECT
       |    -- Identifier, which comes from "generate_series"
-      |    s as id, 
+      |    s as id,
       |    -- Pick a random first name from 'firstnames' array
       |    arrays.firstnames[trunc(random() * ARRAY_LENGTH(arrays.firstnames, 1) + 1)] AS firstname,
       |    -- Pick a random middle name character
