@@ -83,4 +83,33 @@ public class Jdbc {
     };
     return new ProgramExpressionNode(lang, frameDescriptor, node);
   }
+
+  static private ProgramExpressionNode columnReaderByIndex(int index, Type t, , RawLanguage lang) {
+    FrameDescriptor frameDescriptor = new FrameDescriptor();
+    ExpressionNode node = switch (t){
+      case Rql2TypeWithProperties r when r.props().contains(tryable) -> {
+        ProgramExpressionNode inner = columnReaderByIndex(index,r.cloneAndRemoveProp(tryable),lang);
+        yield new TryableReadJdbcQuery(inner, colName);
+      }
+      case Rql2TypeWithProperties r when r.props().contains(nullable) -> {
+        ProgramExpressionNode inner = columnReader(colName,r.cloneAndRemoveProp(nullable),lang);
+        yield new NullableReadJdbcQuery(inner, colName);
+      }
+      case Rql2ByteType ignored ->  new ByteReadJdbcQuery(colName);
+      case Rql2ShortType ignored ->  new ShortReadJdbcQuery(colName);
+      case Rql2IntType ignored ->  new IntReadJdbcQuery(colName);
+      case Rql2LongType ignored ->  new LongReadJdbcQuery(colName);
+      case Rql2FloatType ignored ->  new FloatReadJdbcQuery(colName);
+      case Rql2DoubleType ignored ->  new DoubleReadJdbcQuery(colName);
+      case Rql2DecimalType ignored ->  new DecimalReadJdbcQuery(colName);
+      case Rql2StringType ignored ->  new StringReadJdbcQuery(colName);
+      case Rql2DateType ignored ->  new DateReadJdbcQuery(colName);
+      case Rql2TimeType ignored ->  new TimeReadJdbcQuery(colName);
+      case Rql2TimestampType ignored ->  new TimestampReadJdbcQuery(colName);
+      case Rql2BoolType ignored ->  new BoolReadJdbcQuery(colName);
+      case Rql2BinaryType ignored ->  new BinaryReadJdbcQuery(colName);
+      default -> throw new RawTruffleInternalErrorException();
+    };
+    return new ProgramExpressionNode(lang, frameDescriptor, node);
+  }
 }

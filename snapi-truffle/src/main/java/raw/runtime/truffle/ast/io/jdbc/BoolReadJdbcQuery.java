@@ -19,15 +19,18 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.BoolRead")
 public class BoolReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+    private final String colName;
 
-  public BoolReadJdbcQuery(String idx) {
-    this.idx = idx;
-  }
+    private final int index;
 
-  public Object executeGeneric(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getBool(idx, this);
-  }
+    public BoolReadJdbcQuery(String colname, int index) {
+        this.colName = colname;
+        this.index = index;
+    }
+
+    public Object executeGeneric(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        return rs.getBool(index, colName, this);
+    }
 }
