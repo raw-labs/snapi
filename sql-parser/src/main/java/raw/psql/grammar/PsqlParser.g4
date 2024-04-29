@@ -10,8 +10,9 @@ comment: singleline_comment
        | multiline_comment
        ;
 
-singleline_comment: LINE_COMMENT_START singleline_value_comment (SL_LINE_COMMENT_END | EOF)
-                   ;
+singleline_comment: LINE_COMMENT_START singleline_value_comment SL_LINE_COMMENT_END # singleLineComment
+                  | LINE_COMMENT_START singleline_value_comment EOF                 # singleLineCommentEOF
+                  ;
 
 singleline_value_comment: singleline_param_comment          #singleParamComment
                         | singleline_type_comment           #singleTypeComment
@@ -28,7 +29,7 @@ singleline_param_comment:  SL_PARAM_KW (SL_WORD)+ (SL_LINE_COMMENT_END LINE_COMM
 singleline_type_comment: SL_TYPE_KW (SL_WORD)+
                    ;
 
-singleline_default_comment: SL_DEFAULT_KW SL_WORD SL_WORD
+singleline_default_comment: SL_DEFAULT_KW (SL_WORD)+
                       ;
 
 singleline_return_comment: SL_RETURN_KW (SL_WORD)+  (SL_LINE_COMMENT_END LINE_COMMENT_START SL_SPACES singleline_normal_comment_value)*

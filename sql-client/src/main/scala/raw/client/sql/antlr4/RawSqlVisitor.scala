@@ -72,6 +72,10 @@ class RawSqlVisitor(
     Option(ctx).flatMap(context => Option(context.code()).map(codeCtx => visit(codeCtx))).getOrElse(SqlErrorNode())
   }
 
+  override protected def defaultResult(): SqlErrorNode = {
+    SqlErrorNode();
+  }
+
   override def visitCode(ctx: PsqlParser.CodeContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val statement = Option(context.stmt())
@@ -117,10 +121,18 @@ class RawSqlVisitor(
     }
     .getOrElse(SqlErrorNode())
 
-  override def visitSingleline_comment(ctx: PsqlParser.Singleline_commentContext): SqlBaseNode = Option(ctx)
+  override def visitSingleLineComment(ctx: PsqlParser.SingleLineCommentContext): SqlBaseNode = Option(ctx)
     .map { context =>
       val singleLineComment = SqlSingleLineCommentNode(visit(context.singleline_value_comment()))
       positionsWrapper.setPosition(ctx, singleLineComment)
+      singleLineComment
+    }
+    .getOrElse(SqlErrorNode())
+
+  override def visitSingleLineCommentEOF(ctx: PsqlParser.SingleLineCommentEOFContext): SqlBaseNode = Option(ctx)
+    .map { context =>
+      val singleLineComment = SqlSingleLineCommentNode(visit(context.singleline_value_comment()))
+      positionsWrapper.setPosition(ctx.getStart, ctx.singleline_value_comment().getStop, singleLineComment)
       singleLineComment
     }
     .getOrElse(SqlErrorNode())
@@ -233,12 +245,12 @@ class RawSqlVisitor(
       if (context.SL_WORD(0) == null) {
         addError("Missing name for syntax @default <name> <value>", context)
         SqlErrorNode()
-      } else if (context.SL_WORD(1) == null) {
+      } else if (context.SL_WORD.size() <= 1) {
         addError("Missing default value for syntax @default <name> <value>", context)
         SqlErrorNode()
       } else {
         val name = context.SL_WORD(0).getText.trim
-        val defaultValue = context.SL_WORD(1).getText.trim
+        val defaultValue = context.SL_WORD.asScala.tail.map(_.getText.trim).mkString(" ")
         val paramDefaultComment = SqlParamDefaultCommentNode(name, defaultValue)
         positionsWrapper.setPosition(ctx, paramDefaultComment)
 
@@ -510,8 +522,10 @@ class RawSqlVisitor(
         )
         .getOrElse(Vector.empty)
         .toVector
+      val last = ctx.stmt_items().getLast.getStop
+      val first = ctx.getStart
       val stmt = SqlStatementNode(statements)
-      positionsWrapper.setPosition(ctx, stmt)
+      positionsWrapper.setPosition(first, last, stmt)
       stmt
     }
     .getOrElse(SqlErrorNode())

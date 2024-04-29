@@ -32,86 +32,15 @@ jobs:
         fetch-depth: 0
     - name: build all
       run: ./rebuild.sh
-    - name: sbt ci-release utils
-      run: ./release.sh
-      working-directory: utils
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release client
-      run: ./release.sh
-      working-directory: client
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release snapi-parser
-      run: ./release.sh
-      working-directory: snapi-parser
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release sql-parser
-      run: ./release.sh
-      working-directory: sql-parser
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release snapi-frontend
-      run: ./release.sh
-      working-directory: snapi-frontend
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release snapi-truffle
-      run: ./release.sh
-      working-directory: snapi-truffle
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release snapi-client
-      run: ./release.sh
-      working-directory: snapi-client
-      env:
-        SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
-        SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
-        PGP_PASSPHRASE: ${{ secrets.PGP_PASSPHRASE }}
-        PGP_SECRET: ${{ secrets.PGP_SECRET }}
-        CI_CLEAN: clean
-        CI_RELEASE: publishSigned
-        CI_SNAPSHOT_RELEASE: publish
-    - name: sbt ci-release sql-client
-      run: ./release.sh
-      working-directory: sql-client
+    - name: sbt ci-release
+      run: |
+        export HOME="/home/sbtuser"
+        export SDKMAN_DIR="$HOME/.sdkman"
+        source $SDKMAN_DIR/bin/sdkman-init.sh
+        yes n | sdk install java 21.0.1-graalce || true
+        sdk use java 21.0.1-graalce
+        echo "$SDKMAN_DIR/candidates/java/current/bin" >> $GITHUB_PATH
+        sbt ci-release
       env:
         SONATYPE_USERNAME: ${{ secrets.SONATYPE_USERNAME }}
         SONATYPE_PASSWORD: ${{ secrets.SONATYPE_PASSWORD }}
@@ -122,15 +51,7 @@ jobs:
         CI_SNAPSHOT_RELEASE: publish
     - name: evaluate produced version
       shell: bash
-      run: |
-        echo "UTILS_VER=$(cat utils/version)" >> $GITHUB_ENV
-        echo "CLIENT_VER=$(cat client/version)" >> $GITHUB_ENV
-        echo "SNAPI_PARSER_VER=$(cat snapi-parser/version)" >> $GITHUB_ENV
-        echo "SQL_PARSER_VER=$(cat sql-parser/version)" >> $GITHUB_ENV
-        echo "SNAPI_FRONTEND_VER=$(cat snapi-frontend/version)" >> $GITHUB_ENV
-        echo "SNAPI_TRUFFLE_VER=$(cat snapi-truffle/version)" >> $GITHUB_ENV
-        echo "SNAPI_CLIENT=$(cat snapi-client/version)" >> $GITHUB_ENV
-        echo "SQL_CLIENT=$(cat sql-client/version)" >> $GITHUB_ENV
+      run: echo "VERSION=$(cat ./version)" >> $GITHUB_ENV
     - if: github.event_name == 'repository_dispatch'
       uses: peter-evans/create-or-update-comment@v4
       with:
@@ -138,14 +59,7 @@ jobs:
         repository: ${{ github.event.client_payload.github.payload.repository.full_name }}
         comment-id: ${{ github.event.client_payload.github.payload.comment.id }}
         body: |
-          > published utils version: ${{ env.UTILS_VER  }}
-          > published client version: ${{ env.CLIENT_VER }}
-          > published snapi-parser version: ${{ env.SNAPI_PARSER_VER }}
-          > published sql-parser version: ${{ env.SQL_PARSER_VER }}
-          > published snapi-frontend version: ${{ env.SNAPI_FRONTEND_VER }}
-          > published snapi-truffle version: ${{ env.SNAPI_TRUFFLE_VER }}
-          > published snapi-client version: ${{ env.SNAPI_CLIENT }}
-          > published sql-client version: ${{ env.SQL_CLIENT }}
+          > published version: ${{ env.VERSION  }}
         reactions: rocket
     - if: success() && github.event_name == 'push' && contains(github.ref, 'refs/tags/')
       uses: peter-evans/repository-dispatch@v3

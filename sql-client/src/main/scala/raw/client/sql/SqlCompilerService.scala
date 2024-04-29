@@ -22,7 +22,7 @@ import raw.creds.api.CredentialsServiceProvider
 import raw.utils.{AuthenticatedUser, RawSettings, RawUtils}
 
 import java.io.{IOException, OutputStream}
-import java.sql.{ResultSet, SQLException, SQLTimeoutException}
+import java.sql.ResultSet
 import scala.util.control.NonFatal
 
 class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit protected val settings: RawSettings)
@@ -78,60 +78,59 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       safeParse(source) match {
         case Left(errors) => GetProgramDescriptionFailure(errors)
         case Right(parsedTree) =>
+          val conn = connectionPool.getConnection(environment.user)
           try {
-            val conn = connectionPool.getConnection(environment.user)
-            try {
-              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
-              val description = stmt.queryMetadata match {
-                case Right(info) =>
-                  val parameters = info.parameters
-                  val tableType = pgRowTypeToIterableType(info.outputType)
-                  val parameterTypes = parameters
-                    .map {
-                      case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.t).map { rawType =>
-                          // we ignore tipe.nullable and mark all parameters as nullable
-                          val nullableType = rawType match {
-                            case RawAnyType() => rawType;
-                            case other => other.cloneNullable
-                          }
-                          // their default value is `null`.
-                          ParamDescription(name, nullableType, Some(RawNull()), paramInfo.comment, required = false)
+            val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
+            val description = stmt.queryMetadata match {
+              case Right(info) =>
+                val queryParamInfo = info.parameters
+                val outputType = pgRowTypeToIterableType(info.outputType)
+                val parameterInfo = queryParamInfo
+                  .map {
+                    case (name, paramInfo) => SqlTypesUtils.rawTypeFromPgType(paramInfo.pgType).map { rawType =>
+                        // we ignore tipe.nullable and mark all parameters as nullable
+                        val paramType = rawType match {
+                          case RawAnyType() => rawType;
+                          case other => other.cloneNullable
                         }
-                    }
-                    .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
-                      case (Left(errors), Left(error)) => Left(errors :+ error)
-                      case (_, Left(error)) => Left(Seq(error))
-                      case (Right(params), Right(param)) => Right(params :+ param)
-                      case (errors @ Left(_), _) => errors
-                      case (_, Right(param)) => Right(Seq(param))
-                    }
-                  (tableType, parameterTypes) match {
-                    case (Right(iterableType), Right(ps)) =>
-                      // Regardless if there are parameters, we declare a main function with the output type.
-                      // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
-                      val ok = ProgramDescription(
-                        Map.empty,
-                        Some(DeclDescription(Some(ps.toVector), iterableType, None)),
-                        None
-                      )
-                      GetProgramDescriptionSuccess(ok)
-                    case _ =>
-                      val errorMessages =
-                        tableType.left.getOrElse(Seq.empty) ++ parameterTypes.left.getOrElse(Seq.empty)
-                      GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
+                        ParamDescription(
+                          name,
+                          Some(paramType),
+                          paramInfo.default,
+                          comment = paramInfo.comment,
+                          required = paramInfo.default.isEmpty
+                        )
+                      }
                   }
-                case Left(errors) => GetProgramDescriptionFailure(errors)
-              }
-              stmt.close()
-              description
-            } catch {
-              case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
-            } finally {
-              conn.close()
+                  .foldLeft(Right(Seq.empty): Either[Seq[String], Seq[ParamDescription]]) {
+                    case (Left(errors), Left(error)) => Left(errors :+ error)
+                    case (_, Left(error)) => Left(Seq(error))
+                    case (Right(params), Right(param)) => Right(params :+ param)
+                    case (errors @ Left(_), _) => errors
+                    case (_, Right(param)) => Right(Seq(param))
+                  }
+                (outputType, parameterInfo) match {
+                  case (Right(iterableType), Right(ps)) =>
+                    // Regardless if there are parameters, we declare a main function with the output type.
+                    // This permits the publish endpoints from the UI (https://raw-labs.atlassian.net/browse/RD-10359)
+                    val ok = ProgramDescription(
+                      Map.empty,
+                      Some(DeclDescription(Some(ps.toVector), Some(iterableType), None)),
+                      None
+                    )
+                    GetProgramDescriptionSuccess(ok)
+                  case _ =>
+                    val errorMessages = outputType.left.getOrElse(Seq.empty) ++ parameterInfo.left.getOrElse(Seq.empty)
+                    GetProgramDescriptionFailure(treeErrors(parsedTree, errorMessages).toList)
+                }
+              case Left(errors) => GetProgramDescriptionFailure(errors)
             }
+            RawUtils.withSuppressNonFatalException(stmt.close())
+            description
           } catch {
-            case e: SQLException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
-            case e: SQLTimeoutException => GetProgramDescriptionFailure(ErrorHandling.asErrorMessage(source, e))
+            case e: NamedParametersPreparedStatementException => GetProgramDescriptionFailure(e.errors)
+          } finally {
+            RawUtils.withSuppressNonFatalException(conn.close())
           }
       }
     } catch {
@@ -158,38 +157,31 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       safeParse(source) match {
         case Left(errors) => ExecutionValidationFailure(errors)
         case Right(parsedTree) =>
+          val conn = connectionPool.getConnection(environment.user)
           try {
-            val conn = connectionPool.getConnection(environment.user)
+            val pstmt = new NamedParametersPreparedStatement(conn, parsedTree)
             try {
-              val pstmt = new NamedParametersPreparedStatement(conn, parsedTree)
-              try {
-                pstmt.queryMetadata match {
-                  case Right(info) =>
-                    try {
-                      pgRowTypeToIterableType(info.outputType) match {
-                        case Right(tipe) =>
-                          environment.maybeArguments.foreach(array => setParams(pstmt, array))
-                          val r = pstmt.executeQuery()
-                          render(environment, tipe, r, outputStream)
-                        case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
+              pstmt.queryMetadata match {
+                case Right(info) => pgRowTypeToIterableType(info.outputType) match {
+                    case Right(tipe) =>
+                      val arguments = environment.maybeArguments.getOrElse(Array.empty)
+                      pstmt.executeWith(arguments) match {
+                        case Right(r) => render(environment, tipe, r, outputStream)
+                        case Left(error) => ExecutionRuntimeFailure(error)
                       }
-                    } catch {
-                      case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
-                    }
-                  case Left(errors) => ExecutionValidationFailure(errors)
-                }
-              } finally {
-                RawUtils.withSuppressNonFatalException(pstmt.close())
+                    case Left(errors) => ExecutionRuntimeFailure(errors.mkString(", "))
+                  }
+                case Left(errors) => ExecutionValidationFailure(errors)
               }
-            } catch {
-              case e: SQLException => ExecutionValidationFailure(ErrorHandling.asErrorMessage(source, e))
             } finally {
-              conn.close()
+              RawUtils.withSuppressNonFatalException(pstmt.close())
             }
           } catch {
-            case e: SQLException => ExecutionRuntimeFailure(e.getMessage)
-            case e: SQLTimeoutException => ExecutionRuntimeFailure(e.getMessage)
+            case e: NamedParametersPreparedStatementException => ExecutionValidationFailure(e.errors)
+          } finally {
+            RawUtils.withSuppressNonFatalException(conn.close())
           }
+
       }
     } catch {
       case NonFatal(t) => throw new CompilerServiceException(t, environment)
@@ -239,33 +231,6 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       case _ => ExecutionRuntimeFailure("unknown output format")
     }
 
-  }
-
-  private def setParams(statement: NamedParametersPreparedStatement, tuples: Array[(String, RawValue)]): Unit = {
-    tuples.foreach { tuple =>
-      try {
-        tuple match {
-          case (p, RawNull()) => statement.setNull(p)
-          case (p, RawByte(v)) => statement.setByte(p, v)
-          case (p, RawShort(v)) => statement.setShort(p, v)
-          case (p, RawInt(v)) => statement.setInt(p, v)
-          case (p, RawLong(v)) => statement.setLong(p, v)
-          case (p, RawFloat(v)) => statement.setFloat(p, v)
-          case (p, RawDouble(v)) => statement.setDouble(p, v)
-          case (p, RawBool(v)) => statement.setBoolean(p, v)
-          case (p, RawString(v)) => statement.setString(p, v)
-          case (p, RawDecimal(v)) => statement.setBigDecimal(p, v)
-          case (p, RawDate(v)) => statement.setDate(p, java.sql.Date.valueOf(v))
-          case (p, RawTime(v)) => statement.setTime(p, java.sql.Time.valueOf(v))
-          case (p, RawTimestamp(v)) => statement.setTimestamp(p, java.sql.Timestamp.valueOf(v))
-          case (p, RawInterval(years, months, weeks, days, hours, minutes, seconds, millis)) => ???
-          case (p, RawBinary(v)) => statement.setBytes(p, v)
-          case _ => ???
-        }
-      } catch {
-        case e: NoSuchElementException => logger.warn("Unknown parameter: " + e.getMessage)
-      }
-    }
   }
 
   override def formatCode(
@@ -352,23 +317,21 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
               .map { case (names, tipe) => HoverResponse(Some(TypeCompletion(formatIdns(names), tipe))) }
               .getOrElse(HoverResponse(None))
           case use: SqlParamUseNode =>
+            val conn = connectionPool.getConnection(environment.user)
             try {
-              val conn = connectionPool.getConnection(environment.user)
+              val pstmt = new NamedParametersPreparedStatement(conn, tree)
               try {
-                val pstmt = new NamedParametersPreparedStatement(conn, tree)
-                try {
-                  pstmt.parameterType(use.name) match {
-                    case Right(paramInfo) => HoverResponse(Some(TypeCompletion(use.name, paramInfo.t.typeName)))
-                    case Left(_) => HoverResponse(None)
-                  }
-                } finally {
-                  pstmt.close()
+                pstmt.parameterInfo(use.name) match {
+                  case Right(typeInfo) => HoverResponse(Some(TypeCompletion(use.name, typeInfo.pgType.typeName)))
+                  case Left(_) => HoverResponse(None)
                 }
               } finally {
-                conn.close()
+                RawUtils.withSuppressNonFatalException(pstmt.close())
               }
             } catch {
-              case _: SQLException | _: SQLTimeoutException => HoverResponse(None)
+              case _: NamedParametersPreparedStatementException => HoverResponse(None)
+            } finally {
+              RawUtils.withSuppressNonFatalException(conn.close())
             }
         }
         .getOrElse(HoverResponse(None))
@@ -407,30 +370,27 @@ class SqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(implicit 
       safeParse(source) match {
         case Left(errors) => ValidateResponse(errors)
         case Right(parsedTree) =>
+          val conn = connectionPool.getConnection(environment.user)
           try {
-            val conn = connectionPool.getConnection(environment.user)
+            val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
             try {
-              val stmt = new NamedParametersPreparedStatement(conn, parsedTree)
-              try {
-                stmt.queryMetadata match {
-                  case Right(_) => ValidateResponse(List.empty)
-                  case Left(errors) => ValidateResponse(errors)
-                }
-              } finally {
-                stmt.close()
+              stmt.queryMetadata match {
+                case Right(_) => ValidateResponse(List.empty)
+                case Left(errors) => ValidateResponse(errors)
               }
-            } catch {
-              case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
             } finally {
-              conn.close()
+              RawUtils.withSuppressNonFatalException(stmt.close())
             }
           } catch {
-            case e: SQLException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
-            case e: SQLTimeoutException => ValidateResponse(ErrorHandling.asErrorMessage(source, e))
+            case e: NamedParametersPreparedStatementException => ValidateResponse(e.errors)
+          } finally {
+            RawUtils.withSuppressNonFatalException(conn.close())
           }
       }
     } catch {
-      case NonFatal(t) => throw new CompilerServiceException(t, environment)
+      case NonFatal(t) =>
+        logger.debug(t.getMessage)
+        throw new CompilerServiceException(t, environment)
     }
   }
 
