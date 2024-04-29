@@ -24,18 +24,16 @@ public class NullableReadJdbcQuery extends ExpressionNode {
 
   @Child private DirectCallNode innerParse;
   private final int index;
-  private final String colName;
 
-  public NullableReadJdbcQuery(ProgramExpressionNode innerParse, String colName, int idx) {
+  public NullableReadJdbcQuery(ProgramExpressionNode innerParse, int idx) {
     this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
-    this.colName = colName;
     this.index = idx;
   }
 
   public Object executeGeneric(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    if (rs.isNull(index, colName, this)) return NullObject.INSTANCE;
-    else return innerParse.call(rs, index, colName);
+    if (rs.isNull(index, this)) return NullObject.INSTANCE;
+    else return innerParse.call(rs, index);
   }
 }

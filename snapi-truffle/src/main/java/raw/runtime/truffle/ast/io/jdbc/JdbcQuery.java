@@ -92,11 +92,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  byte getByte(int idx, String colName, Node node) {
+  byte getByte(int idx, Node node) {
     try {
       return rs.getByte(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -110,11 +110,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  short getShort(int idx, String colName, Node node) {
+  short getShort(int idx, Node node) {
     try {
       return rs.getShort(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -128,11 +128,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  int getInt(int idx, String colName, Node node) {
+  int getInt(int idx, Node node) {
     try {
       return rs.getInt(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -146,11 +146,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  long getLong(int idx, String colName, Node node) {
+  long getLong(int idx, Node node) {
     try {
       return rs.getLong(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -164,11 +164,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  float getFloat(int idx, String colName, Node node) {
+  float getFloat(int idx, Node node) {
     try {
       return rs.getFloat(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -182,11 +182,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  double getDouble(int idx, String colName, Node node) {
+  double getDouble(int idx, Node node) {
     try {
       return rs.getDouble(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -200,11 +200,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  DecimalObject getDecimal(int idx, String colName, Node node) {
+  DecimalObject getDecimal(int idx, Node node) {
     try {
       return new DecimalObject(rs.getBigDecimal(idx));
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -218,11 +218,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  String getString(int idx, String colName, Node node) {
+  String getString(int idx, Node node) {
     try {
       return rs.getString(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -236,11 +236,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  boolean getBool(int idx, String colName, Node node) {
+  boolean getBool(int idx, Node node) {
     try {
       return rs.getBoolean(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -255,12 +255,12 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  DateObject getDate(int idx, String colName, Node node) {
+  DateObject getDate(int idx, Node node) {
     try {
       java.sql.Date sqlDate = rs.getDate(idx);
       return new DateObject(sqlDate.toLocalDate());
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -275,12 +275,12 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  TimeObject getTime(int idx, String colName, Node node) {
+  TimeObject getTime(int idx, Node node) {
     try {
       java.sql.Time sqlTime = rs.getTime(idx);
       return new TimeObject(sqlTime.toLocalTime());
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -295,12 +295,12 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  TimestampObject getTimestamp(int idx, String colName, Node node) {
+  TimestampObject getTimestamp(int idx, Node node) {
     try {
       java.sql.Timestamp sqlTimestamp = rs.getTimestamp(idx);
       return new TimestampObject(sqlTimestamp.toLocalDateTime());
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -314,11 +314,11 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  byte[] getBytes(int idx, String colName, Node node) {
+  byte[] getBytes(int idx, Node node) {
     try {
       return rs.getBytes(idx);
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 
@@ -333,12 +333,12 @@ public class JdbcQuery {
   }
 
   @TruffleBoundary
-  boolean isNull(int idx, String colName, Node node) {
+  boolean isNull(int idx, Node node) {
     try {
       rs.getObject(idx);
       return rs.wasNull();
     } catch (SQLException e) {
-      throw exceptionHandler.columnParseError(e, colName, node);
+      throw exceptionHandler.columnParseError(e, idx, rs, node);
     }
   }
 

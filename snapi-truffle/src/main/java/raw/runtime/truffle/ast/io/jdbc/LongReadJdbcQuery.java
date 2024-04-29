@@ -20,10 +20,8 @@ import raw.runtime.truffle.ExpressionNode;
 public class LongReadJdbcQuery extends ExpressionNode {
 
   private final int index;
-  private final String colName;
 
-  public LongReadJdbcQuery(String colName, int idx) {
-    this.colName = colName;
+  public LongReadJdbcQuery(int idx) {
     this.index = idx;
   }
 
@@ -35,6 +33,6 @@ public class LongReadJdbcQuery extends ExpressionNode {
   public final long executeLong(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getLong(index, colName, this);
+    return rs.getLong(index, this);
   }
 }

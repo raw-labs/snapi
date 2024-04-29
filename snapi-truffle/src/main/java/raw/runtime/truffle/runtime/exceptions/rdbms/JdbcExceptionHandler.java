@@ -13,6 +13,7 @@
 package raw.runtime.truffle.runtime.exceptions.rdbms;
 
 import com.oracle.truffle.api.nodes.Node;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import raw.runtime.truffle.ast.io.jdbc.JdbcQuery;
 import raw.runtime.truffle.runtime.exceptions.RawTruffleRuntimeException;
@@ -21,6 +22,16 @@ public class JdbcExceptionHandler {
 
   public RawTruffleRuntimeException rewrite(SQLException e, JdbcQuery rs, Node location) {
     return new JdbcReaderRawTruffleException(e.getMessage(), rs, e, location);
+  }
+
+  public RawTruffleRuntimeException columnParseError(
+      SQLException e, int colIndex, ResultSet rs, Node location) {
+    try {
+      String colName = rs.getMetaData().getColumnName(colIndex);
+      return columnParseError(e, colName, location);
+    } catch (SQLException e2) {
+      return new JdbcParserRawTruffleException(e2.getMessage(), e2, location);
+    }
   }
 
   public RawTruffleRuntimeException columnParseError(

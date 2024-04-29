@@ -24,12 +24,10 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 public class TryableReadJdbcQuery extends ExpressionNode {
 
   @Child private DirectCallNode innerParse;
-  private final String colName;
   private final int index;
 
-  public TryableReadJdbcQuery(ProgramExpressionNode innerParse, String colName, int idx) {
+  public TryableReadJdbcQuery(ProgramExpressionNode innerParse, int idx) {
     this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
-    this.colName = colName;
     this.index = idx;
   }
 
@@ -37,7 +35,7 @@ public class TryableReadJdbcQuery extends ExpressionNode {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
     try {
-      return innerParse.call(rs, index, colName);
+      return innerParse.call(rs, index);
     } catch (RawTruffleRuntimeException e) {
       return new ErrorObject(e.getMessage());
     }

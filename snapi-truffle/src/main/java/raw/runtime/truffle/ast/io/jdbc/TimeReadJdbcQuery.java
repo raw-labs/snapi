@@ -20,11 +20,9 @@ import raw.runtime.truffle.runtime.primitives.TimeObject;
 @NodeInfo(shortName = "Time.DateRead")
 public class TimeReadJdbcQuery extends ExpressionNode {
 
-  private final String colName;
   private final int index;
 
-  public TimeReadJdbcQuery(String colName, int idx) {
-    this.colName = colName;
+  public TimeReadJdbcQuery(int idx) {
     this.index = idx;
   }
 
@@ -36,6 +34,6 @@ public class TimeReadJdbcQuery extends ExpressionNode {
   public final TimeObject executeTime(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getTime(index, colName, this);
+    return rs.getTime(index, this);
   }
 }
