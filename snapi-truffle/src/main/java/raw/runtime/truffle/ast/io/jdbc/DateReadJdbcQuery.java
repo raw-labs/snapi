@@ -20,22 +20,22 @@ import raw.runtime.truffle.runtime.primitives.DateObject;
 @NodeInfo(shortName = "Jdbc.DateRead")
 public class DateReadJdbcQuery extends ExpressionNode {
 
-    private final String colName;
-    private final int index;
+  private final String colName;
+  private final int index;
 
-    public DateReadJdbcQuery(String colName, int idx) {
-        this.index = idx;
-        this.colName = colName;
-    }
+  public DateReadJdbcQuery(String colName, int idx) {
+    this.index = idx;
+    this.colName = colName;
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        return this.executeDate(frame);
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    return this.executeDate(frame);
+  }
 
-    @Override
-    public final DateObject executeDate(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        JdbcQuery rs = (JdbcQuery) args[0];
-        return rs.getDate(index, colName, this);
-    }
+  @Override
+  public final DateObject executeDate(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    JdbcQuery rs = (JdbcQuery) args[0];
+    return rs.getDate(index, colName, this);
+  }
 }

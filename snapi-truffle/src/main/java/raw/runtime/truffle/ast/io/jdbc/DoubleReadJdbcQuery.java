@@ -19,22 +19,22 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.DoubleRead")
 public class DoubleReadJdbcQuery extends ExpressionNode {
 
-    private final String colName;
-    private final int index;
+  private final String colName;
+  private final int index;
 
-    public DoubleReadJdbcQuery(String colName, int idx) {
-        this.colName = colName;
-        this.index = idx;
-    }
+  public DoubleReadJdbcQuery(String colName, int idx) {
+    this.colName = colName;
+    this.index = idx;
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        return this.executeDouble(frame);
-    }
+  public Object executeGeneric(VirtualFrame frame) {
+    return this.executeDouble(frame);
+  }
 
-    @Override
-    public final double executeDouble(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        JdbcQuery rs = (JdbcQuery) args[0];
-        return rs.getDouble(index, colName, this);
-    }
+  @Override
+  public final double executeDouble(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    JdbcQuery rs = (JdbcQuery) args[0];
+    return rs.getDouble(index, colName, this);
+  }
 }

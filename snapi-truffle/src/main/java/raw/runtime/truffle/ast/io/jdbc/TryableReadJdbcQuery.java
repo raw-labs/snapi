@@ -23,24 +23,23 @@ import raw.runtime.truffle.runtime.primitives.ErrorObject;
 @NodeInfo(shortName = "TryableReadJdbcQuery")
 public class TryableReadJdbcQuery extends ExpressionNode {
 
-    @Child
-    private DirectCallNode innerParse;
-    private final String colName;
-    private final int index;
+  @Child private DirectCallNode innerParse;
+  private final String colName;
+  private final int index;
 
-    public TryableReadJdbcQuery(ProgramExpressionNode innerParse, String colName, int idx) {
-        this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
-        this.colName = colName;
-        this.index = idx;
-    }
+  public TryableReadJdbcQuery(ProgramExpressionNode innerParse, String colName, int idx) {
+    this.innerParse = DirectCallNode.create(innerParse.getCallTarget());
+    this.colName = colName;
+    this.index = idx;
+  }
 
-    public Object executeGeneric(VirtualFrame frame) {
-        Object[] args = frame.getArguments();
-        JdbcQuery rs = (JdbcQuery) args[0];
-        try {
-            return innerParse.call(rs, index, colName);
-        } catch (RawTruffleRuntimeException e) {
-            return new ErrorObject(e.getMessage());
-        }
+  public Object executeGeneric(VirtualFrame frame) {
+    Object[] args = frame.getArguments();
+    JdbcQuery rs = (JdbcQuery) args[0];
+    try {
+      return innerParse.call(rs, index, colName);
+    } catch (RawTruffleRuntimeException e) {
+      return new ErrorObject(e.getMessage());
     }
+  }
 }
