@@ -376,7 +376,6 @@ lazy val jinjaSqlClient = (project in file("jinja-sql-client"))
     commonSettings,
     missingInterpolatorCompileSettings,
     testSettings,
-    Compile / packageBin / packageOptions += Package.ManifestAttributes("Automatic-Module-Name" -> "raw.python.jinja-sql"),
     libraryDependencies ++= Seq(
       jinjava
     )
