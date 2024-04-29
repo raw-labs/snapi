@@ -21,7 +21,6 @@ import raw.runtime.truffle.runtime.primitives.BinaryObject;
 public class BinaryReadJdbcQuery extends ExpressionNode {
 
   private final String colName;
-
   private final int index;
 
   public BinaryReadJdbcQuery(String colName, int index) {

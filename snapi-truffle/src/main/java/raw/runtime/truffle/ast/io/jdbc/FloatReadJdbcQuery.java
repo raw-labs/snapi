@@ -19,20 +19,22 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.FloatRead")
 public class FloatReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+    private final String colName;
+    private final int index;
 
-  public FloatReadJdbcQuery(String idx) {
-    this.idx = idx;
-  }
+    public FloatReadJdbcQuery(String colName, int idx) {
+        this.colName = colName;
+        this.index = idx;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    return this.executeFloat(frame);
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executeFloat(frame);
+    }
 
-  @Override
-  public final float executeFloat(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getFloat(idx, this);
-  }
+    @Override
+    public final float executeFloat(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        return rs.getFloat(index, colName, this);
+    }
 }

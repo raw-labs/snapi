@@ -19,10 +19,12 @@ import raw.runtime.truffle.ExpressionNode;
 @NodeInfo(shortName = "Jdbc.IntRead")
 public class IntReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+  private final int index;
+  private final String colName;
 
-  public IntReadJdbcQuery(String idx) {
-    this.idx = idx;
+  public IntReadJdbcQuery(String colname, int idx) {
+    this.colName = colname;
+    this.index = idx;
   }
 
   public Object executeGeneric(VirtualFrame frame) {
@@ -33,6 +35,6 @@ public class IntReadJdbcQuery extends ExpressionNode {
   public final int executeInt(VirtualFrame frame) {
     Object[] args = frame.getArguments();
     JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getInt(idx, this);
+    return rs.getInt(index, colName, this);
   }
 }

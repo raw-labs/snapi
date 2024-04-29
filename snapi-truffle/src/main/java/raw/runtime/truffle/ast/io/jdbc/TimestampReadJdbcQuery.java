@@ -20,20 +20,22 @@ import raw.runtime.truffle.runtime.primitives.TimestampObject;
 @NodeInfo(shortName = "Timestamp.DateRead")
 public class TimestampReadJdbcQuery extends ExpressionNode {
 
-  private final String idx;
+    private final String colName;
+    private final int index;
 
-  public TimestampReadJdbcQuery(String idx) {
-    this.idx = idx;
-  }
+    public TimestampReadJdbcQuery(String colName, int idx) {
+        this.colName = colName;
+        this.index = idx;
+    }
 
-  public Object executeGeneric(VirtualFrame frame) {
-    return this.executeTimestamp(frame);
-  }
+    public Object executeGeneric(VirtualFrame frame) {
+        return this.executeTimestamp(frame);
+    }
 
-  @Override
-  public final TimestampObject executeTimestamp(VirtualFrame frame) {
-    Object[] args = frame.getArguments();
-    JdbcQuery rs = (JdbcQuery) args[0];
-    return rs.getTimestamp(idx, this);
-  }
+    @Override
+    public final TimestampObject executeTimestamp(VirtualFrame frame) {
+        Object[] args = frame.getArguments();
+        JdbcQuery rs = (JdbcQuery) args[0];
+        return rs.getTimestamp(index, colName, this);
+    }
 }

@@ -20,7 +20,6 @@ import raw.runtime.truffle.ExpressionNode;
 public class BoolReadJdbcQuery extends ExpressionNode {
 
     private final String colName;
-
     private final int index;
 
     public BoolReadJdbcQuery(String colname, int index) {
