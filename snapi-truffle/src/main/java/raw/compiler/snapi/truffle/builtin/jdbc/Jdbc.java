@@ -88,7 +88,8 @@ public class Jdbc {
             case Rql2TimeType ignored -> new TimeReadJdbcQuery( index);
             case Rql2TimestampType ignored -> new TimestampReadJdbcQuery( index);
             case Rql2BoolType ignored -> new BoolReadJdbcQuery( index);
-            case Rql2BinaryType ignored -> new BinaryReadJdbcQuery( index);
+            case Rql2BinaryType ignored -> new BinaryReadJdbcQuery(index);
+            case Rql2UndefinedType ignored -> new UndefinedReadJdbcQuery( index);
             default -> throw new RawTruffleInternalErrorException();
         };
         return new ProgramExpressionNode(lang, frameDescriptor, node);

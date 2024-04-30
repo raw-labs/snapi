@@ -46,4 +46,55 @@ class RD10855Test extends TruffleCompilerTestContext with RDBMSTestCreds {
     )
   }
 
+// table skippable_types has unsupported types
+//  Column |         Type
+//  --------+-----------------------+-
+//    a      | integer               |
+//    b      | character varying(10) |
+//    c      | smallint              |
+//    d      | bigint                |
+//    e      | numeric(20,4)         |
+//    f      | macaddr               |
+//    g      | cidr                  |
+  test(
+    s"""PostgreSQL.Read(
+       |  "${pgsqlCreds.database}",
+       |  "$pgSchema",
+       |  "skippable_types",
+       |  type collection(record(
+       |      a: int,
+       |      b: string,
+       |      c: int,
+       |      d: long,
+       |      e: double,
+       |      f: undefined,
+       |      g: undefined)),
+       |   host = "${pgsqlCreds.host}",
+       |   username = "${pgsqlCreds.username.get}",
+       |   password = "${pgsqlCreds.password.get}"
+       |)""".stripMargin
+  ) { it =>
+    it should evaluateTo(
+      """[
+        |  {a: 1, b: "hello", c: 2, d: 3, e: 4.4, f: null, g: null}
+        |]""".stripMargin
+    )
+  }
+
+  test(
+    s"""PostgreSQL.InferAndRead(
+       |  "${pgsqlCreds.database}",
+       |  "$pgSchema",
+       |  "skippable_types",
+       |   host = "${pgsqlCreds.host}",
+       |   username = "${pgsqlCreds.username.get}",
+       |   password = "${pgsqlCreds.password.get}"
+       |)""".stripMargin
+  ) { it =>
+    it should evaluateTo(
+      """[
+        |  {a: 1, b: "hello", c: 2, d: 3, e: Decimal.From(4.4), f: null, g: null}
+        |]""".stripMargin
+    )
+  }
 }

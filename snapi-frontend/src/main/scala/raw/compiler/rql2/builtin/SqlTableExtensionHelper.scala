@@ -45,6 +45,7 @@ trait SqlTableExtensionHelper extends EntryExtensionHelper {
           case _: Rql2TimeType => Right(x)
           case _: Rql2TimestampType => Right(x)
           case _: Rql2BinaryType => Right(x)
+          case _: Rql2UndefinedType => Right(x)
           case _ => Left(Seq(UnsupportedType(x.tipe, x.tipe, None)))
         }
       }

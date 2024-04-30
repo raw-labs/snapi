@@ -13,9 +13,8 @@
 package raw.inferrer.local.jdbc
 
 import java.sql.ResultSetMetaData
-
 import com.typesafe.scalalogging.StrictLogging
-import raw.inferrer.api.{SourceAttrType, SourceCollectionType, SourceRecordType, SourceType}
+import raw.inferrer.api.{SourceAttrType, SourceCollectionType, SourceNullType, SourceRecordType, SourceType}
 import raw.sources.jdbc.api.{JdbcLocation, JdbcTableLocation}
 
 import scala.collection.mutable
@@ -44,26 +43,16 @@ class JdbcInferrer extends JdbcTypeToSourceType with StrictLogging {
   }
 
   private def getTypeFromResultSetMetadata(res: ResultSetMetaData): SourceType = {
-    val columns = mutable.ListBuffer[SourceAttrType]()
 
-    val incompatible = mutable.HashMap[String, String]()
-
-    (1 to res.getColumnCount).foreach { n =>
+    val columns = (1 to res.getColumnCount).map { n =>
       val columnName = res.getColumnName(n)
       val columnType = res.getColumnType(n)
       val nullability = res.isNullable(n)
       jdbcColumnToSourceType(columnType, nullability) match {
-        case Some(t) => columns += SourceAttrType(columnName, t)
-        case None => incompatible(columnName) = res.getColumnTypeName(n)
+        case Some(t) => SourceAttrType(columnName, t)
+        case None => SourceAttrType(columnName, SourceNullType())
       }
     }
-
-    // We are removing from the data incompatible types. It would be nice to show warning to the user
-    if (incompatible.nonEmpty) {
-      val errorColumns = incompatible.toSeq.map { case (name, typeName) => s"$name: $typeName" }.mkString(", ")
-      logger.warn(s"columns have unsupported types: $errorColumns")
-    }
-
     SourceCollectionType(SourceRecordType(columns.to, nullable = false), nullable = false)
   }
 
