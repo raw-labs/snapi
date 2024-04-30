@@ -33,4 +33,17 @@ class RD10855Test extends TruffleCompilerTestContext with RDBMSTestCreds {
     )
   }
 
+  test(
+    s"""PostgreSQL.Read("${pgsqlCreds.database}", "$pgSchema", "$pgTable", type collection(record(a: int, b: int, c: double, d: double, x: string, y: string)),
+       |   host = "${pgsqlCreds.host}", username = "${pgsqlCreds.username.get}", password = "${pgsqlCreds.password.get}")""".stripMargin
+  ) { it =>
+    it should evaluateTo(
+      """[
+        |  {a: 1, b: 1, c: 1.5, d: 1.5, x: "x1", y: "y1"},
+        |  {a: 2, b: 2, c: 2.2, d: 2.2, x: "x2", y: "y2"},
+        |  {a: 3, b: null, c: 3.3, d: null, x: "x3", y: null}
+        |]""".stripMargin
+    )
+  }
+
 }
