@@ -37,6 +37,15 @@ public class JdbcQuery {
   private final String url;
 
   @TruffleBoundary
+  public String getDatabaseType(int index, Node node) {
+    try {
+      return rs.getMetaData().getColumnTypeName(index + 1);
+    } catch (SQLException e) {
+      throw exceptionHandler.columnParseError(e, index, rs, node);
+    }
+  }
+
+  @TruffleBoundary
   public JdbcQuery(
       LocationDescription locationDescription,
       String query,

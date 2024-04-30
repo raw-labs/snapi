@@ -14,7 +14,7 @@ package raw.runtime.truffle.ast.io.jdbc;
 
 import com.oracle.truffle.api.frame.VirtualFrame;
 import raw.runtime.truffle.ExpressionNode;
-import raw.runtime.truffle.runtime.primitives.NullObject;
+import raw.runtime.truffle.runtime.primitives.ErrorObject;
 
 public class UndefinedReadJdbcQuery extends ExpressionNode {
   private final int index;
@@ -24,6 +24,9 @@ public class UndefinedReadJdbcQuery extends ExpressionNode {
   }
 
   public Object executeGeneric(VirtualFrame frame) {
-    return NullObject.INSTANCE;
+    Object[] args = frame.getArguments();
+    JdbcQuery rs = (JdbcQuery) args[0];
+    return new ErrorObject(
+        String.format("skipping column of type %s", rs.getDatabaseType(index, this)));
   }
 }

@@ -50,7 +50,9 @@ class JdbcInferrer extends JdbcTypeToSourceType with StrictLogging {
       val nullability = res.isNullable(n)
       jdbcColumnToSourceType(columnType, nullability) match {
         case Some(t) => SourceAttrType(columnName, t)
-        case None => SourceAttrType(columnName, SourceNullType())
+        case None =>
+          logger.warn(s"Unsupported column type $columnType for column $columnName")
+          SourceAttrType(columnName, SourceNullType())
       }
     }
     SourceCollectionType(SourceRecordType(columns.to, nullable = false), nullable = false)
