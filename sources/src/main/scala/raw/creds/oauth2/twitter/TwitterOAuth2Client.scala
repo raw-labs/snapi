@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2.twitter
 
 import com.fasterxml.jackson.core.JsonProcessingException
 
@@ -24,32 +24,31 @@ import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.hc.core5.net.URIBuilder
 import raw.creds.api.CredentialsException
+import raw.creds.oauth2.api.{OAuth2Client, RenewedAccessToken}
 import raw.sources.bytestream.http.HttpClientException
-import raw.sources.bytestream.http.oauth2clients.OAuth2Client.{httpClient, mapper, readTimeout}
+import raw.utils.RawSettings
 
 import java.io.IOException
 
-// Tokens requested using the PKCE flow can have the expiresIn, scope and refreshToken
-@JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
-case class TwitterAuth2TokenResponse(
-    accessToken: String,
-    tokenType: String,
-    expiresIn: Option[Long],
-    scope: Option[String],
-    refreshToken: Option[String]
-)
+object TwitterOAuth2Client {
 
-class TwitterOauth2Client extends OAuth2Client with StrictLogging {
+  // Tokens requested using the PKCE flow can have the expiresIn, scope and refreshToken
+  @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
+  case class TwitterAuth2TokenResponse(
+      accessToken: String,
+      tokenType: String,
+      expiresIn: Option[Long],
+      scope: Option[String],
+      refreshToken: Option[String]
+  )
 
-  /**
-   * Executes the OAuth2 refresh token flow to obtain a new access token. Implementation is specific to the provider.
-   */
-  override def newAccessTokenFromRefreshToken(
-      refreshToken: String,
-      options: Map[String, String]
-  ): RenewedAccessToken = {
-    throw new UnsupportedOperationException("Twitter does not support refresh tokens flow.")
-  }
+}
+class TwitterOAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
+  import TwitterOAuth2Client._
+
+  override def supportsRefreshToken: Boolean = false
+
+  override def supportsClientCredentials: Boolean = true
 
   /**
    * Executes the OAuth2 client credentials flow to obtain a new access token. Implementation is specific to the provider.

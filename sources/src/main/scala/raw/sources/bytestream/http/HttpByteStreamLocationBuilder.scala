@@ -21,9 +21,9 @@ import org.apache.hc.core5.http.HttpHeaders
 import org.apache.hc.core5.net.URIBuilder
 import raw.client.api.LocationDescription
 import raw.creds.api._
+import raw.creds.oauth2.auth0.Auth0OAuth2Client
 import raw.sources.api.{LocationException, SourceContext}
 import raw.sources.bytestream.api.ByteStreamLocationBuilder
-import raw.sources.bytestream.http.oauth2clients.Auth0OAuth2Client
 import raw.utils.RawSettings
 
 import java.io.IOException
@@ -109,6 +109,8 @@ object HttpByteStreamLocationBuilder extends StrictLogging {
       clientSecret: String,
       provider: OAuth2Provider.Value,
       options: Map[String, String]
+  )(
+      implicit settings: RawSettings
   ): String = {
     provider match {
       case OAuth2Provider.Auth0 =>
@@ -156,7 +158,9 @@ class HttpByteStreamLocationBuilder extends ByteStreamLocationBuilder with Stric
       if (authProvider.isDefined) {
         val options = location.getKVSetting("http-auth-options").getOrElse(Array.empty).toMap
         val token =
-          getClientCredsTokenFromProvider(clientId.get, clientSecret.get, OAuth2Provider(authProvider.get), options)
+          getClientCredsTokenFromProvider(clientId.get, clientSecret.get, OAuth2Provider(authProvider.get), options)(
+            sourceContext.settings
+          )
         Some(BearerToken(token, Map.empty))
       } else if (tokenUrl.isDefined) {
         val useBasicAuth = location.getBooleanSetting("http-use-basic-auth").getOrElse(false)

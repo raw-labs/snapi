@@ -8,7 +8,7 @@ import raw.build.Dependencies._
 import raw.build.BuildSettings._
 
 import java.io.IOException
-import java.nio.file.{Paths, Files}
+import java.nio.file.{Files, Paths}
 import java.nio.charset.StandardCharsets
 
 import scala.sys.process._
@@ -31,6 +31,7 @@ writeVersionToFile := {
 lazy val root = (project in file("."))
   .aggregate(
     utils,
+    sources,
     client,
     snapiParser,
     snapiFrontend,
@@ -38,14 +39,14 @@ lazy val root = (project in file("."))
     snapiClient,
     sqlParser,
     sqlClient
-    )
+  )
   .settings(
     commonSettings,
-    publish := (publish dependsOn(writeVersionToFile)).value,
-    publishLocal := (publishLocal dependsOn(writeVersionToFile)).value,
-    publishSigned := (publishSigned dependsOn(writeVersionToFile)).value,
+    publish := (publish dependsOn writeVersionToFile).value,
+    publishLocal := (publishLocal dependsOn writeVersionToFile).value,
+    publishSigned := (publishSigned dependsOn writeVersionToFile).value,
     publish / skip := true,
-    publishSigned / skip  := true,
+    publishSigned / skip := true,
     publishLocal / skip := true
   )
 
@@ -80,6 +81,29 @@ lazy val client = (project in file("client"))
     libraryDependencies += trufflePolyglot
   )
 
+lazy val sources = (project in file("sources"))
+  .dependsOn(
+    client % "compile->compile;test->test"
+  )
+  .settings(
+    commonSettings,
+    nonStrictScalaCompileSettings,
+    testSettings,
+    libraryDependencies ++= Seq(
+      apacheHttpClient,
+      springCore,
+      jwtApi,
+      jwtImpl,
+      jwtCore,
+      dropboxSDK,
+      aws,
+      postgresqlDeps,
+      mysqlDeps,
+      mssqlDeps,
+      snowflakeDeps
+    )
+  )
+
 val generateSnapiParser = taskKey[Unit]("Generated antlr4 base SNAPI parser and lexer")
 
 lazy val snapiParser = (project in file("snapi-parser"))
@@ -95,7 +119,12 @@ lazy val snapiParser = (project in file("snapi-parser"))
       // List of output paths
       val basePath: String = s"${baseDirectory.value}/src/main/java"
       val parsers = List(
-        (s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
+        (
+          s"$basePath/raw/compiler/rql2/generated",
+          "raw.compiler.rql2.generated",
+          s"$basePath/raw/snapi/grammar",
+          "Snapi"
+        )
       )
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
@@ -141,15 +170,16 @@ lazy val snapiParser = (project in file("snapi-parser"))
     Compile / compile := (Compile / compile).dependsOn(generateSnapiParser).value,
     Compile / doc := (Compile / doc).dependsOn(generateSnapiParser).value,
     Test / compile := (Test / compile).dependsOn(generateSnapiParser).value,
-    publish := (publish dependsOn(generateSnapiParser)).value,
-    publishLocal := (publishLocal dependsOn(generateSnapiParser)).value,
-    publishSigned := (publishSigned dependsOn(generateSnapiParser)).value
+    publish := (publish dependsOn generateSnapiParser).value,
+    publishLocal := (publishLocal dependsOn generateSnapiParser).value,
+    publishSigned := (publishSigned dependsOn generateSnapiParser).value
   )
 
 lazy val snapiFrontend = (project in file("snapi-frontend"))
   .dependsOn(
     utils % "compile->compile;test->test",
     client % "compile->compile;test->test",
+    sources % "compile->compile;test->test",
     snapiParser % "compile->compile;test->test"
   )
   .settings(
@@ -159,21 +189,10 @@ lazy val snapiFrontend = (project in file("snapi-frontend"))
     libraryDependencies ++= Seq(
       commonsLang,
       commonsText,
-      apacheHttpClient,
       icuDeps,
       woodstox,
       kiama,
-      dropboxSDK,
-      aws,
-      jwtApi,
-      jwtImpl,
-      jwtCore,
-      postgresqlDeps,
-      mysqlDeps,
-      mssqlDeps,
-      snowflakeDeps,
       commonsCodec,
-      springCore,
       kryo
     ) ++
       poiDeps
@@ -249,11 +268,10 @@ lazy val snapiTruffle = (project in file("snapi-truffle"))
     Compile / compile := (Compile / compile).dependsOn(runJavaAnnotationProcessor).value,
     Compile / doc := (Compile / doc).dependsOn(runJavaAnnotationProcessor).value,
     Test / compile := (Test / compile).dependsOn(runJavaAnnotationProcessor).value,
-    publish := (publish dependsOn(runJavaAnnotationProcessor)).value,
-    publishLocal := (publishLocal dependsOn(runJavaAnnotationProcessor)).value,
-    publishSigned := (publishSigned dependsOn(runJavaAnnotationProcessor)).value,
+    publish := (publish dependsOn runJavaAnnotationProcessor).value,
+    publishLocal := (publishLocal dependsOn runJavaAnnotationProcessor).value,
+    publishSigned := (publishSigned dependsOn runJavaAnnotationProcessor).value
   )
-
 
 lazy val snapiClient = (project in file("snapi-client"))
   .dependsOn(
@@ -282,7 +300,7 @@ lazy val sqlParser = (project in file("sql-parser"))
       // List of output paths
       val basePath: String = s"${baseDirectory.value}/src/main/java"
       val parsers = List(
-        (s"${basePath}/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql"),
+        (s"$basePath/raw/client/sql/generated", "raw.client.sql.generated", s"$basePath/raw/psql/grammar", "Psql")
       )
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
@@ -328,9 +346,9 @@ lazy val sqlParser = (project in file("sql-parser"))
     Compile / compile := (Compile / compile).dependsOn(generateSqlParser).value,
     Compile / doc := (Compile / doc).dependsOn(generateSqlParser).value,
     Test / compile := (Test / compile).dependsOn(generateSqlParser).value,
-    publish := (publish dependsOn(generateSqlParser)).value,
-    publishLocal := (publishLocal dependsOn(generateSqlParser)).value,
-    publishSigned := (publishSigned dependsOn(generateSqlParser)).value
+    publish := (publish dependsOn generateSqlParser).value,
+    publishLocal := (publishLocal dependsOn generateSqlParser).value,
+    publishSigned := (publishSigned dependsOn generateSqlParser).value
   )
 
 lazy val sqlClient = (project in file("sql-client"))
