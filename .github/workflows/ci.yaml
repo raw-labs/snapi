@@ -8,6 +8,7 @@ on:
       - deps/**
       - utils/**
       - client/**
+      - sources/**
       - snapi-client/**
       - snapi-frontend/**
       - parsers/**
@@ -99,6 +100,7 @@ jobs:
       fail-fast: false
       matrix:
         component:
+          - sources
           - snapiFrontend
           - snapiClient
           - sqlClient
