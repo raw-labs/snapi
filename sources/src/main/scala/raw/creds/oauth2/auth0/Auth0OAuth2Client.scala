@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2.auth0
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
@@ -19,6 +19,8 @@ import org.apache.commons.lang3.StringUtils
 import org.apache.hc.core5.http.HttpHeaders
 import org.apache.hc.core5.net.URIBuilder
 import raw.creds.api.CredentialsException
+import raw.creds.oauth2.api.{OAuth2Client, RenewedAccessToken}
+import raw.utils.RawSettings
 
 import java.net.http.HttpRequest.BodyPublishers
 import java.net.http.HttpResponse.BodyHandlers
@@ -41,17 +43,20 @@ object Auth0OAuth2Client {
   )
 
   @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
-  case class Auth0ErrorResponse(error: String, errorDescription: String)
+  private case class Auth0ErrorResponse(error: String, errorDescription: String)
 }
 
-class Auth0OAuth2Client extends OAuth2Client with StrictLogging {
+class Auth0OAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
 
   import Auth0OAuth2Client._
-  import OAuth2Client._
 
   logger.debug("Creating new Auth0 OAuth2 client")
 
-  def newAccessTokenFromClientCredentials(
+  override def supportsRefreshToken: Boolean = false
+
+  override def supportsClientCredentials: Boolean = true
+
+  override def newAccessTokenFromClientCredentials(
       clientId: String,
       clientSecret: String,
       options: Map[String, String]
@@ -122,6 +127,5 @@ class Auth0OAuth2Client extends OAuth2Client with StrictLogging {
         )
     }
   }
-  def newAccessTokenFromRefreshToken(refreshToken: String, options: Map[String, String]): RenewedAccessToken =
-    throw new UnsupportedOperationException("The refresh token flow with Auth0 is not supported.")
+
 }

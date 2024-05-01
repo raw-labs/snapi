@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2.linkedin
 
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
@@ -19,7 +19,8 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.hc.core5.http.HttpHeaders
 import org.apache.hc.core5.net.URIBuilder
 import raw.creds.api.CredentialsException
-import raw.sources.bytestream.http.oauth2clients.OAuth2Client.{httpClient, mapper, ofFormData, readTimeout}
+import raw.creds.oauth2.api.{OAuth2Client, RenewedAccessToken}
+import raw.utils.RawSettings
 
 import java.io.IOException
 import java.net.http.HttpResponse.BodyHandlers
@@ -27,18 +28,27 @@ import java.net.http.{HttpRequest, HttpResponse}
 import java.nio.charset.StandardCharsets
 import java.time.Instant
 
-@JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
-case class LinkedInAuth2TokenResponse(
-    accessToken: String,
-    expiresIn: Int,
-    refreshToken: Option[String],
-    refreshTokenExpiresIn: Option[Int]
-)
+object LinkedInOAuth2Client {
+  private val CLIENT_ID_KEY = "client_id"
+  private val CLIENT_SECRET_KEY = "client_secret"
 
-class LinkedInOauth2Client extends OAuth2Client with StrictLogging {
+  @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
+  private case class LinkedInAuth2TokenResponse(
+      accessToken: String,
+      expiresIn: Int,
+      refreshToken: Option[String],
+      refreshTokenExpiresIn: Option[Int]
+  )
 
-  val CLIENT_ID_KEY = "client_id"
-  val CLIENT_SECRET_KEY = "client_secret"
+}
+
+class LinkedInOAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
+
+  import LinkedInOAuth2Client._
+
+  override def supportsRefreshToken: Boolean = true
+
+  override def supportsClientCredentials: Boolean = false
 
   /**
    * Executes the OAuth2 refresh token flow to obtain a new access token. Implementation is specific to the provider.
@@ -96,12 +106,4 @@ class LinkedInOauth2Client extends OAuth2Client with StrictLogging {
 
   }
 
-  /**
-   * Executes the OAuth2 client credentials flow to obtain a new access token. Implementation is specific to the provider.
-   */
-  override def newAccessTokenFromClientCredentials(
-      clientId: String,
-      clientSecret: String,
-      options: Map[String, String]
-  ): RenewedAccessToken = ???
 }

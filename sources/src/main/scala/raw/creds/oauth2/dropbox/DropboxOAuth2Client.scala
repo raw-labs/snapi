@@ -10,7 +10,7 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2.dropbox
 
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
@@ -18,6 +18,7 @@ import com.typesafe.scalalogging.StrictLogging
 import org.apache.commons.lang3.StringUtils
 import org.apache.hc.core5.http.HttpHeaders
 import raw.creds.api.CredentialsException
+import raw.creds.oauth2.api.{OAuth2Client, RenewedAccessToken}
 import raw.utils.RawSettings
 
 import java.net.URI
@@ -28,22 +29,23 @@ import java.nio.charset.StandardCharsets
 import java.time.Instant
 import scala.compat.java8.OptionConverters.RichOptionalGeneric
 
-@JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
-case class DropboxAuth2TokenResponse(
-    accessToken: String,
-    expiresIn: Int,
-    scopes: String,
-    refreshToken: Option[String]
-)
-
 object DropboxOAuth2Client {
   // TODO (msb): This could be given as an option to the credential and therefore removed from here!
   private val DROPBOX_CLIENT_ID = "raw.sources.dropbox.clientId"
+
+  @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
+  private case class DropboxAuth2TokenResponse(
+      accessToken: String,
+      expiresIn: Int,
+      scopes: String,
+      refreshToken: Option[String]
+  )
+
 }
 
 class DropboxOAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
+
   import DropboxOAuth2Client._
-  import OAuth2Client._
 
   // https://www.dropbox.com/developers/documentation/http/documentation#oauth2-token
   logger.debug("Creating new Dropbox OAuth2 client")
@@ -55,15 +57,14 @@ class DropboxOAuth2Client(implicit settings: RawSettings) extends OAuth2Client w
   private val testAccessUri = new URI("https://api.dropboxapi.com/2/users/get_space_usage")
   // https://www.dropbox.com/developers/documentation/http/documentation#oauth2-token
 
-  def newAccessTokenFromClientCredentials(
-      clientId: String,
-      clientSecret: String,
+  override def supportsRefreshToken: Boolean = true
+
+  override def supportsClientCredentials: Boolean = false
+
+  override def newAccessTokenFromRefreshToken(
+      refreshToken: String,
       options: Map[String, String]
   ): RenewedAccessToken = {
-    throw new UnsupportedOperationException("Dropbox does not support client credentials flow.")
-  }
-
-  def newAccessTokenFromRefreshToken(refreshToken: String, options: Map[String, String]): RenewedAccessToken = {
     // https://www.dropbox.com/developers/documentation/http/documentation#oauth2-token
     val formData = Map(
       "grant_type" -> "refresh_token",
@@ -136,4 +137,5 @@ class DropboxOAuth2Client(implicit settings: RawSettings) extends OAuth2Client w
         )
     }
   }
+
 }

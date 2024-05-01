@@ -10,42 +10,49 @@
  * licenses/APL.txt.
  */
 
-package raw.sources.bytestream.http.oauth2clients
+package raw.creds.oauth2.zoho
 
 import java.io.IOException
 import java.net.http.HttpResponse.BodyHandlers
 import java.net.http.{HttpRequest, HttpResponse}
 import java.nio.charset.StandardCharsets
 import java.time.Instant
-
 import com.fasterxml.jackson.core.JsonProcessingException
 import com.fasterxml.jackson.databind.PropertyNamingStrategy
 import com.fasterxml.jackson.databind.annotation.JsonNaming
 import com.typesafe.scalalogging.StrictLogging
 import org.apache.hc.core5.net.URIBuilder
 import raw.creds.api.CredentialsException
-import raw.sources.bytestream.http.oauth2clients.OAuth2Client.{httpClient, mapper, readTimeout}
+import raw.creds.oauth2.api.{OAuth2Client, RenewedAccessToken}
+import raw.utils.RawSettings
 
-@JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
-case class ZohoAuth2TokenResponse(
-    accessToken: String,
-    expiresIn: Int,
-    apiDomain: String,
-    tokenType: String,
-    refreshToken: Option[String],
-    error: Option[String]
-)
+object ZohoOAuth2Client {
 
-@JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
-case class ZohoDeviceCodeResponse(
-    userCode: String,
-    deviceCode: String,
-    verificationUriComplete: String,
-    verificationUrl: String,
-    interval: Int,
-    expiresIn: Int,
-    error: Option[String]
-)
+  private val ACCOUNTS_URL = "accounts_url"
+  private val CLIENT_ID_KEY = "client_id"
+  private val CLIENT_SECRET_KEY = "client_secret"
+
+  @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
+  private case class ZohoAuth2TokenResponse(
+      accessToken: String,
+      expiresIn: Int,
+      apiDomain: String,
+      tokenType: String,
+      refreshToken: Option[String],
+      error: Option[String]
+  )
+
+  @JsonNaming(classOf[PropertyNamingStrategy.SnakeCaseStrategy])
+  case class ZohoDeviceCodeResponse(
+      userCode: String,
+      deviceCode: String,
+      verificationUriComplete: String,
+      verificationUrl: String,
+      interval: Int,
+      expiresIn: Int,
+      error: Option[String]
+  )
+}
 
 /**
  * Zoho oauth client
@@ -54,14 +61,14 @@ case class ZohoDeviceCodeResponse(
  *  flow: https://www.zoho.com/accounts/protocol/oauth/devices/client-protocol-flow.html
  *  validation: https://www.zoho.com/accounts/protocol/oauth/devices/initiation-request.html
  */
-class ZohoOauth2Client extends OAuth2Client with StrictLogging {
-  val ACCOUNTS_URL = "accounts_url"
-  val CLIENT_ID_KEY = "client_id"
-  val CLIENT_SECRET_KEY = "client_secret"
+class ZohoOAuth2Client(implicit settings: RawSettings) extends OAuth2Client with StrictLogging {
 
-  /**
-   * Executes the OAuth2 refresh token flow to obtain a new access token. Implementation is specific to the provider.
-   */
+  import ZohoOAuth2Client._
+
+  override def supportsRefreshToken: Boolean = true
+
+  override def supportsClientCredentials: Boolean = false
+
   override def newAccessTokenFromRefreshToken(
       refreshToken: String,
       options: Map[String, String]
@@ -123,17 +130,6 @@ class ZohoOauth2Client extends OAuth2Client with StrictLogging {
         )
       case ex: IOException => throw new CredentialsException(s"error refreshing zoho token from $accountsUrl", ex)
     }
-  }
-
-  /**
-   * Executes the OAuth2 client credentials flow to obtain a new access token. Implementation is specific to the provider.
-   */
-  override def newAccessTokenFromClientCredentials(
-      clientId: String,
-      clientSecret: String,
-      options: Map[String, String]
-  ): RenewedAccessToken = {
-    throw new UnsupportedOperationException("Zoho does not support client credentials flow.")
   }
 
   def getVerificationUrl(
@@ -223,6 +219,6 @@ class ZohoOauth2Client extends OAuth2Client with StrictLogging {
           ex
         )
     }
-
   }
+
 }

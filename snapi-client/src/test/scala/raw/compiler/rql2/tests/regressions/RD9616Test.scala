@@ -1,5 +1,5 @@
 /*
- * Copyright 2023 RAW Labs S.A.
+ * Copyright 2024 RAW Labs S.A.
  *
  * Use of this software is governed by the Business Source License
  * included in the file licenses/BSL.txt.
@@ -17,11 +17,11 @@ import raw.compiler.rql2.tests.CompilerTestContext
 trait RD9616Test extends CompilerTestContext {
 
   test(
-    """let 
+    """let
       |    date1=Date.Build(2002,1,1),
       |    date2=Date.Build(2002,2,1),
       |    date3=Date.Build(2002,1,31)
-      |in 
+      |in
       |    {Date.Subtract(date2,date1), Date.Subtract(date3,date1)}""".stripMargin
   )(it => it should evaluateTo("{Interval.Build(days=30, hours=10, minutes=30), Interval.Build(days=30)}"))
 
