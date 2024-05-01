@@ -22,7 +22,6 @@ module raw.sql.client {
   requires raw.sql.parser;
   requires java.sql;
   requires com.zaxxer.hikari;
-  requires raw.snapi.frontend;
   requires raw.sources;
 
   provides raw.client.api.CompilerServiceBuilder with
