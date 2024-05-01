@@ -14,7 +14,9 @@ package raw.compiler.rql2.tests.truffle.regressions
 
 import raw.compiler.rql2.truffle.TruffleCompilerTestContext
 import raw.creds.jdbc.RDBMSTestCreds
+import raw.testing.tags.TruffleTests
 
+@TruffleTests
 class RD10855Test extends TruffleCompilerTestContext with RDBMSTestCreds {
 
   // The column y is of type varchar, but we are setting to undefined
