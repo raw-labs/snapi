@@ -39,6 +39,27 @@ class RD10855Test extends TruffleCompilerTestContext with RDBMSTestCreds {
     )
   }
 
+  // As we are getting items by index, we can rename the columns, as long as the types are correct
+  test(
+    s"""PostgreSQL.Read(
+      |  "${pgsqlCreds.database}",
+      |  "rdbmstest",
+      |  "tbl1",
+      |   type collection(record(e: int, f: int, g: double, h: double, xx: string, yy: string)),
+      |   host = "${pgsqlCreds.host}",
+      |   username = "${pgsqlCreds.username.get}",
+      |   password = "${pgsqlCreds.password.get}"
+      |)""".stripMargin
+  ) { it =>
+    it should evaluateTo(
+      """[
+        |  {e: 1, f: 1, g: 1.5, h: 1.5, xx: "x1", yy: "y1"},
+        |  {e: 2, f: 2, g: 2.2, h: 2.2, xx: "x2", yy: "y2"},
+        |  {e: 3, f: null, g: 3.3, h: null, xx: "x3", yy: null}
+        |]""".stripMargin
+    )
+  }
+
   // table skippable_types has unsupported types, field f: macaddr, field g: cidr
   // but are null so no errors will be shown
   test(
