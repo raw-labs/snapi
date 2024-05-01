@@ -79,8 +79,8 @@ class RD10855Test extends TruffleCompilerTestContext with RDBMSTestCreds {
     )
   }
 
-  // Retrieving columns with repeated names
   val ttt = "\"\"\""
+  // Retrieving columns with repeated names
   test(s"""PostgreSQL.InferAndQuery(
     |  "${pgsqlCreds.database}",
     |  ${ttt}SELECT t1.a, t2.a, t1.b, t2.x as b
@@ -95,6 +95,43 @@ class RD10855Test extends TruffleCompilerTestContext with RDBMSTestCreds {
         |  {a: 1, a: 1, b: 1, b: "x1"},
         |  {a: 2, a: 2, b: 2, b: "x2"},
         |  {a: 3, a: 3, b: null, b: "x3"}
+        |]""".stripMargin
+    )
+  }
+
+  // Interval type is not supported, so its skipped
+  test(s"""PostgreSQL.InferAndQuery(
+    |  "${pgsqlCreds.database}",
+    |  "SELECT * FROM rdbmstest.test_types",
+    |   host = "${pgsqlCreds.host}",
+    |   username = "${pgsqlCreds.username.get}",
+    |   password = "${pgsqlCreds.password.get}"
+    |)""".stripMargin) { it =>
+    it should evaluateTo(
+      """[
+        |  {
+        |    smallint1: 1,
+        |    integer1: 2,
+        |    bigint1: 3,
+        |    decimal1: Decimal.From(4.4),
+        |    real1: 5.5f,
+        |    double1: 6.6,
+        |    money1: 7.7,
+        |    varchar1: "string",
+        |    char1: "string    ",
+        |    text1: "string",
+        |    boolean1: true,
+        |    timestamp1: Timestamp.Build(1975, 6, 23, 1, 2, seconds=3),
+        |    date1: Date.Build(1975, 6, 23),
+        |    time1: Time.Build(1, 2, seconds=3),
+        |    interval1: "skipping column of type interval",
+        |    bytea1: "eyJhIjogMTIzNCwgImIiOiBbImhlbGxvIiwgIndvcmxkIl19",
+        |    bit1: null,
+        |    integer_array1: null,
+        |    smallserial1: 0,
+        |    serial1: 0,
+        |    bigserial1: 0
+        |  }
         |]""".stripMargin
     )
   }

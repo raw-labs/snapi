@@ -98,7 +98,9 @@ trait Rql2TypeUtils {
         )
       case SourceBinaryType(n) => wrapProps(Rql2BinaryType(), n || makeNullable, makeTryable)
       case _: SourceNothingType => wrapProps(Rql2UndefinedType(), makeNullable, makeTryable)
-      case _: SourceNullType => wrapProps(Rql2UndefinedType(), true, makeTryable)
+      // (CTM) Null type will be an error if we find a non null value, so we have to make it triable also.
+      // This is because we use it to skipp unsupported types in databases
+      case _: SourceNullType => wrapProps(Rql2UndefinedType(), true, true)
       case _: SourceAnyType => AnyType()
       case SourceOrType(ors) =>
         val options = ors
