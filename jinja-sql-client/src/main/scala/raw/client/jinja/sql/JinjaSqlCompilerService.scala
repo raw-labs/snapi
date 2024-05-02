@@ -12,23 +12,53 @@
 
 package raw.client.jinja.sql
 
-import com.hubspot.jinjava.interpret.TemplateError.{ErrorReason, ErrorType}
-import com.hubspot.jinjava.interpret.{JinjavaInterpreter, TemplateError}
-import com.hubspot.jinjava.lib.fn.ELFunctionDefinition
-import com.hubspot.jinjava.lib.tag.Tag
-import com.hubspot.jinjava.tree.TagNode
-import com.hubspot.jinjava.{Jinjava, JinjavaConfig}
+import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source}
 import raw.client.api._
 import raw.utils.RawSettings
-
-import java.util
-import scala.collection.mutable
 
 class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     implicit protected val settings: RawSettings
 ) extends CompilerService {
 
+  private val JINJA_ERROR = "jinjaError"
+
+  private val (engine, _) = CompilerService.getEngine
   private val sqlCompilerService = CompilerServiceProvider("sql", maybeClassLoader)
+
+  private val pythonCtx = Context
+    .newBuilder("python")
+    .engine(engine)
+    //      .environment("RAW_SETTINGS", settings.renderAsString)
+    //      .environment("RAW_USER", environment.user.uid.toString)
+    //      .environment("RAW_TRACE_ID", environment.user.uid.toString)
+    //      .environment("RAW_SCOPES", environment.scopes.mkString(","))
+    .allowExperimentalOptions(true)
+    .allowPolyglotAccess(PolyglotAccess.ALL)
+    // setting false will deny all privileges unless configured below
+    .allowAllAccess(true)
+    // choose the backend for the POSIX module
+    .option("python.PosixModuleBackend", "java")
+    // equivalent to the Python -B flag
+    .option("python.DontWriteBytecodeFlag", "true")
+    // equivalent to the Python -v flag
+    //    .option("python.VerboseFlag", "true")
+    // log level
+    //    .option("log.python.level", "FINE")
+    // print Python exceptions directly
+    .option("python.AlwaysRunExcepthook", "true")
+    // TODO???
+    .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found/*/**/*/
+    .option("python.Executable", getClass.getClassLoader.getResource("venv/bin/python").getPath)
+    .build()
+
+  private val helper = getClass.getClassLoader.getResource("python/rawjinja.py")
+  private val bindings = {
+    val truffleSource = Source.newBuilder("python", helper).build()
+    pythonCtx.eval(truffleSource)
+    pythonCtx.getBindings("python")
+  }
+  private val apply = bindings.getMember("apply")
+  private val validate = bindings.getMember("validate")
 
   def dotAutoComplete(
       source: String,
@@ -36,112 +66,25 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       position: raw.client.api.Pos
   ): raw.client.api.AutoCompleteResponse = AutoCompleteResponse(Array.empty)
 
-  private val validationConfigBuilder = JinjavaConfig
-    .newBuilder()
-    .withValidationMode(true)
-    .withMaxOutputSize(10000)
-    .withFailOnUnknownTokens(false)
-    .withNestedInterpretationEnabled(false)
-
-  private val validationConfig = validationConfigBuilder.build()
-
-  private val executionConfig = validationConfigBuilder.withFailOnUnknownTokens(true).build()
-
-  private val validateJinjava = new Jinjava(validationConfig)
-  private val executeJinjava = new Jinjava(executionConfig)
-
-  private object FailFunc {
-    def doFail(): String = {
-      "doFail"
-    }
-    def dontFail(): String = {
-      "dontFail"
-    }
-  }
-
-  private class RaiseTag(doRaise: Boolean) extends Tag {
-
-    override def interpret(tagNode: TagNode, interpreter: JinjavaInterpreter): String = {
-      if (doRaise) {
-        val o = interpreter.resolveELExpression(tagNode.getHelpers, tagNode.getLineNumber, tagNode.getStartPosition)
-        val error = new TemplateError(ErrorType.FATAL, ErrorReason.EXCEPTION, o.asInstanceOf[String], null, 0, 0, null)
-        interpreter.addError(error)
-      }
-      s"<$getName>"
-    }
-
-    override def getEndTagName: String = null
-
-    override def getName: String = "raise"
-  }
-
-  private class ParamTag() extends Tag {
-
-    override def interpret(tagNode: TagNode, interpreter: JinjavaInterpreter): String = {
-      s"-- <$getName>"
-    }
-
-    override def getEndTagName: String = null
-
-    override def getName: String = "param"
-  }
-
-  private class TypeTag() extends Tag {
-
-    override def interpret(tagNode: TagNode, interpreter: JinjavaInterpreter): String = {
-      s"-- <$getName>"
-    }
-
-    override def getEndTagName: String = null
-
-    override def getName: String = "type"
-  }
-
-  private class DefaultTag() extends Tag {
-
-    override def interpret(tagNode: TagNode, interpreter: JinjavaInterpreter): String = {
-      s"-- <$getName>"
-    }
-
-    override def getEndTagName: String = null
-
-    override def getName: String = "default"
-  }
-
-  private val doFail = new ELFunctionDefinition("raw", "fail", FailFunc.getClass, "doFail")
-  private val dontFail = new ELFunctionDefinition("raw", "fail", FailFunc.getClass, "dontFail")
-
-  validateJinjava.getGlobalContext.registerFunction(dontFail)
-  executeJinjava.getGlobalContext.registerFunction(doFail)
-
-  validateJinjava.getGlobalContext.registerTag(new RaiseTag(doRaise = false))
-  executeJinjava.getGlobalContext.registerTag(new RaiseTag(doRaise = true))
-  for (tag <- List(new ParamTag(), new DefaultTag(), new TypeTag())) {
-    validateJinjava.registerTag(tag)
-    executeJinjava.registerTag(tag)
-  }
-
   def execute(
       source: String,
       environment: raw.client.api.ProgramEnvironment,
       maybeDecl: Option[String],
       outputStream: java.io.OutputStream
   ): raw.client.api.ExecutionResponse = {
-    logger.debug("execute")
-    val arguments = new util.HashMap[String, Object]()
-    environment.maybeArguments.foreach(_.foreach { case (k, v) => arguments.put(k, rawValueToString(v)) })
-    val result = executeJinjava.renderForResult(source, arguments)
-    if (result.getErrors.isEmpty) {
-      val processed = result.getOutput
-      sqlCompilerService.execute(processed, environment, None, outputStream)
-    } else {
-      ExecutionValidationFailure(asMessages(result.getErrors))
-    }
-  }
-
-  private def rawValueToString(value: RawValue) = value match {
-    case RawString(v) => v
-    case _ => ???
+    val args = new java.util.HashMap[String, String]
+    for (userArgs <- environment.maybeArguments.toArray; (key, RawString(v)) <- userArgs) args.put(key, v)
+    val sqlQuery: String =
+      try {
+        apply.execute(pythonCtx.asValue(source), pythonCtx.asValue(args)).asString
+      } catch {
+        case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
+            case Some(errorMessage) => return ExecutionValidationFailure(List(errorMessage))
+            case None => throw new CompilerServiceException(ex, environment)
+          }
+      }
+    logger.debug(sqlQuery)
+    sqlCompilerService.execute(sqlQuery, environment, None, outputStream)
   }
 
   def eval(
@@ -163,30 +106,30 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       source: String,
       environment: raw.client.api.ProgramEnvironment
   ): raw.client.api.GetProgramDescriptionResponse = {
-    val unknownVariables = mutable.Set.empty[String]
-    validateJinjava.getGlobalContext.setDynamicVariableResolver(v => {
-      unknownVariables.add(v); ""
-    })
-    val result = validateJinjava.renderForResult(source, new java.util.HashMap)
-    if (result.hasErrors) {
-      GetProgramDescriptionFailure(asMessages(result.getErrors))
-    } else {
-      GetProgramDescriptionSuccess(
-        ProgramDescription(
-          Map.empty,
-          Some(
-            DeclDescription(
-              Some(
-                unknownVariables.map(ParamDescription(_, Some(RawStringType(false, false)), None, None, true)).toVector
-              ),
-              Some(RawIterableType(RawAnyType(), false, false)),
-              None
-            )
-          ),
-          None
-        )
-      )
+    val unknownArgs = {
+      try {
+        validate.execute(pythonCtx.asValue(source))
+      } catch {
+        case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
+            case Some(errorMessage) => return GetProgramDescriptionFailure(List(errorMessage))
+            case None => throw new CompilerServiceException(ex, environment)
+          }
+      }
     }
+    assert(unknownArgs.hasArrayElements)
+
+    val args = (0L until unknownArgs.getArraySize)
+      .map(unknownArgs.getArrayElement)
+      .map(_.asString)
+      .toVector
+      .map(s => ParamDescription(s, Some(RawStringType(false, false)), None, None, true))
+    GetProgramDescriptionSuccess(
+      ProgramDescription(
+        Map.empty,
+        Some(DeclDescription(Some(args), Some(RawIterableType(RawAnyType(), false, false)), None)),
+        None
+      )
+    )
   }
 
   def goToDefinition(
@@ -208,23 +151,17 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   ): raw.client.api.RenameResponse = RenameResponse(Array.empty)
 
   def validate(source: String, environment: raw.client.api.ProgramEnvironment): ValidateResponse = {
-    val result = validateJinjava.renderForResult(source, new java.util.HashMap())
-    val errors = asMessages(result.getErrors)
-    ValidateResponse(errors)
-  }
-
-  private def asMessages(errors: util.List[TemplateError]): List[ErrorMessage] = {
-    val errorMessages = mutable.ArrayBuffer.empty[ErrorMessage]
-    errors.forEach { error =>
-      val message = error.getMessage
-      val line = error.getLineno
-      val column = error.getStartPosition
-      val range = ErrorRange(ErrorPosition(line, column), ErrorPosition(line, column + 1))
-      val errorMessage = ErrorMessage(message, List(range), "")
-      errorMessages += errorMessage
+    {
+      try {
+        validate.execute(pythonCtx.asValue(source))
+      } catch {
+        case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
+          case Some(errorMessage) => return ValidateResponse(List(errorMessage))
+          case None => throw new CompilerServiceException(ex, environment)
+        }
+      }
     }
-    errorMessages.toList
-
+    ValidateResponse(List.empty)
   }
 
   def wordAutoComplete(
@@ -238,6 +175,41 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
 
   def doStop(): Unit = {
     sqlCompilerService.stop()
+  }
+
+  private def handlePolyglotException(
+                                       ex: PolyglotException,
+                                       source: String,
+                                       environment: raw.client.api.ProgramEnvironment
+                                     ): Option[ErrorMessage] = {
+    if (ex.isInterrupted || ex.getMessage.startsWith("java.lang.InterruptedException")) {
+      throw new InterruptedException()
+    } else if (ex.getCause.isInstanceOf[InterruptedException]) {
+      throw ex.getCause
+    } else if (ex.isGuestException && !ex.isInternalError) {
+      val guestObject = ex.getGuestObject
+      val isException = guestObject.isException
+      assert(isException, s"$guestObject not an Exception!")
+      val exceptionClass = guestObject.getMetaObject.getMetaSimpleName
+      exceptionClass match {
+        case "TemplateSyntaxError" =>
+          val lineno = guestObject.getMember("lineno").asInt()
+          val message = guestObject.getMember("message").asString()
+          val location = ErrorPosition(lineno, 1)
+          val endLocation = ErrorPosition(lineno, source.split('\n')(lineno - 1).length)
+          val range = ErrorRange(location, endLocation)
+          Some(ErrorMessage(message, List(range), JINJA_ERROR))
+        case "TemplateRuntimeError" =>
+          val message = guestObject.getMember("message").asString()
+          Some(ErrorMessage(message, List.empty, JINJA_ERROR))
+        case "UndefinedError" =>
+          val message = guestObject.getMember("message").asString()
+          Some(ErrorMessage(message, List.empty, JINJA_ERROR))
+        case _ => throw new CompilerServiceException(ex, environment)
+      }
+    } else {
+      throw ex
+    }
   }
 
   def build(maybeClassLoader: Option[ClassLoader])(

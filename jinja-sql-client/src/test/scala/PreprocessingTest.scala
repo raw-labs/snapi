@@ -71,6 +71,18 @@ class PreprocessingTest
     assert(r == ExecutionSuccess)
   }
 
+  test("""SELECT {{ a }} + {{ b }}
+         |""".stripMargin) { q =>
+    val v = compilerService.getProgramDescription(q.q, asJson())
+    assert(v != null)
+  }
+
+  test("""SELECT {{ a + 1 - b }}
+         |""".stripMargin) { q =>
+    val v = compilerService.getProgramDescription(q.q, asJson())
+    assert(v != null)
+  }
+
   test("""SELECT {{ 1 +> 2 }}
     |""".stripMargin) { q =>
     val v = compilerService.validate(q.q, asJson())
@@ -102,7 +114,26 @@ class PreprocessingTest
       baos
     )
     assert(r == ExecutionSuccess)
-    assert(baos.toString == "")
+
+  }
+
+  test(s"""
+          |{% set v = "latitude" if val == "latitude" else "longitude" %}
+          |SELECT {{ key }}, MAX({{ v }}), MIN({{ v }})
+          |FROM example.airports GROUP BY {{ key }}
+          |ORDER BY COUNT(*) {{ order }}
+          |LIMIT 3
+          |""".stripMargin) { q =>
+    val g = compilerService.getProgramDescription(q.q, asJson())
+    assert(g != null)
+    val baos = new ByteArrayOutputStream()
+    val r = compilerService.execute(
+      q.q,
+      asJson(Map("key" -> RawString("country"), "val" -> RawString("latitude"), "order" -> RawString("DESC"))),
+      None,
+      baos
+    )
+    assert(r == ExecutionSuccess)
 
   }
 
@@ -158,6 +189,7 @@ class PreprocessingTest
       baos
     )
     assert(r == ExecutionSuccess)
+    assert(baos.toString() == "")
   }
 
   test("SELECT * FROM example.airports") { q =>
@@ -165,6 +197,20 @@ class PreprocessingTest
     val r = compilerService.execute(q.q, asJson(), None, baos)
     assert(r == ExecutionSuccess)
   }
+
+  // a typo
+  test("SELECT '{{ name }'") { q =>
+    val baos = new ByteArrayOutputStream()
+    val r = compilerService.execute(q.q, asJson(), None, baos)
+    assert(r == ExecutionSuccess)
+  }
+
+  test("SELECT '{{ 12 + name }}'") { q =>
+    val baos = new ByteArrayOutputStream()
+    val r = compilerService.execute(q.q, asJson(), None, baos)
+    assert(r == ExecutionSuccess)
+  }
+
 
   private var compilerService: CompilerService = _
 

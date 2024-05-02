@@ -14,11 +14,7 @@ module raw.client.jinja.sql {
   requires scala.library;
   requires raw.client;
   requires raw.utils;
-  requires jinjava;
   requires org.slf4j;
-
-  opens raw.client.jinja.sql to
-      jinjava;
 
   provides raw.client.api.CompilerServiceBuilder with
       raw.client.jinja.sql.JinjaSqlCompilerServiceBuilder;
