@@ -12,7 +12,8 @@
 
 package raw.client.jinja.sql
 
-import org.graalvm.polyglot.{Context, PolyglotAccess, PolyglotException, Source}
+import org.graalvm.polyglot.io.IOAccess
+import org.graalvm.polyglot.{Context, HostAccess, PolyglotAccess, PolyglotException, Source}
 import raw.client.api._
 import raw.utils.RawSettings
 
@@ -25,34 +26,41 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private val (engine, _) = CompilerService.getEngine
   private val sqlCompilerService = CompilerServiceProvider("sql", maybeClassLoader)
 
-  private val pythonCtx = Context
-    .newBuilder("python")
-    .engine(engine)
-    //      .environment("RAW_SETTINGS", settings.renderAsString)
-    //      .environment("RAW_USER", environment.user.uid.toString)
-    //      .environment("RAW_TRACE_ID", environment.user.uid.toString)
-    //      .environment("RAW_SCOPES", environment.scopes.mkString(","))
-    .allowExperimentalOptions(true)
-    .allowPolyglotAccess(PolyglotAccess.ALL)
-    // setting false will deny all privileges unless configured below
-    .allowAllAccess(true)
-    // choose the backend for the POSIX module
-    .option("python.PosixModuleBackend", "java")
-    // equivalent to the Python -B flag
-    .option("python.DontWriteBytecodeFlag", "true")
-    // equivalent to the Python -v flag
-    //    .option("python.VerboseFlag", "true")
-    // log level
-    //    .option("log.python.level", "FINE")
-    // print Python exceptions directly
-    .option("python.AlwaysRunExcepthook", "true")
-    // TODO???
-    .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found/*/**/*/
-    .option("python.Executable", getClass.getClassLoader.getResource("venv/bin/python").getPath)
-    .build()
+  private val pythonCtx = {
+    val pythonExecutable = getClass.getResource("/venv/bin/python")
+    Context
+      .newBuilder("python")
+      .engine(engine)
+      //      .environment("RAW_SETTINGS", settings.renderAsString)
+      //      .environment("RAW_USER", environment.user.uid.toString)
+      //      .environment("RAW_TRACE_ID", environment.user.uid.toString)
+      //      .environment("RAW_SCOPES", environment.scopes.mkString(","))
+      .allowExperimentalOptions(true)
+      .allowPolyglotAccess(PolyglotAccess.ALL)
+      .allowIO(IOAccess.ALL)
+      .allowHostAccess(HostAccess.ALL)
+      .allowNativeAccess(true)
+      // setting false will deny all privileges unless configured below
+//      .allowAllAccess(true)
+      // choose the backend for the POSIX module
+//      .option("python.PosixModuleBackend", "java")
+      // equivalent to the Python -B flag
+      .option("python.DontWriteBytecodeFlag", "true")
+      // equivalent to the Python -v flag
+          .option("python.VerboseFlag", "true")
+      // log level
+      //    .option("log.python.level", "FINE")
+      // print Python exceptions directly
+//      .option("python.AlwaysRunExcepthook", "true")
+      // TODO???
+      .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found
+      .option("python.Executable", pythonExecutable.getPath)
+      .build()
+  }
 
-  private val helper = getClass.getClassLoader.getResource("python/rawjinja.py")
   private val bindings = {
+    val helper = getClass.getResource("/python/rawjinja.py")
+    logger.info(helper.toString)
     val truffleSource = Source.newBuilder("python", helper).build()
     pythonCtx.eval(truffleSource)
     pythonCtx.getBindings("python")
@@ -156,9 +164,9 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
         validate.execute(pythonCtx.asValue(source))
       } catch {
         case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
-          case Some(errorMessage) => return ValidateResponse(List(errorMessage))
-          case None => throw new CompilerServiceException(ex, environment)
-        }
+            case Some(errorMessage) => return ValidateResponse(List(errorMessage))
+            case None => throw new CompilerServiceException(ex, environment)
+          }
       }
     }
     ValidateResponse(List.empty)
@@ -178,10 +186,10 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   }
 
   private def handlePolyglotException(
-                                       ex: PolyglotException,
-                                       source: String,
-                                       environment: raw.client.api.ProgramEnvironment
-                                     ): Option[ErrorMessage] = {
+      ex: PolyglotException,
+      source: String,
+      environment: raw.client.api.ProgramEnvironment
+  ): Option[ErrorMessage] = {
     if (ex.isInterrupted || ex.getMessage.startsWith("java.lang.InterruptedException")) {
       throw new InterruptedException()
     } else if (ex.getCause.isInstanceOf[InterruptedException]) {

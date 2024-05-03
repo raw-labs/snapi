@@ -15,6 +15,7 @@ module raw.client.jinja.sql {
   requires raw.client;
   requires raw.utils;
   requires org.slf4j;
+  requires org.graalvm.polyglot;
 
   provides raw.client.api.CompilerServiceBuilder with
       raw.client.jinja.sql.JinjaSqlCompilerServiceBuilder;

@@ -293,5 +293,5 @@ lazy val jinjaSqlClient = (project in file("jinja-sql-client"))
     commonSettings,
     missingInterpolatorCompileSettings,
     testSettings,
-    libraryDependencies += "org.graalvm.polyglot" % "python" % "23.1.0" % Provided
+    libraryDependencies += trufflePython
   )

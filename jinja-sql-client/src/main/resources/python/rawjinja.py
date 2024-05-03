@@ -12,7 +12,7 @@ env = Environment()
 
 def apply(code, args):
    template = env.from_string(code)
-   d = dict([(key, args.get(key)) for key in args.keySet()])
+   d = {key: args.get(key) for key in args.keySet()}
    return template.render(d)
 
 def validate(code):

@@ -12,6 +12,7 @@
 
 package raw.client.api
 
+import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 import com.fasterxml.jackson.annotation.{JsonSubTypes, JsonTypeInfo}
 import org.graalvm.polyglot.{Engine, Value}
 import raw.utils.{RawException, RawService, RawSettings}
@@ -19,7 +20,6 @@ import raw.utils.{RawException, RawService, RawSettings}
 import java.io.OutputStream
 import scala.collection.mutable
 import scala.util.control.NonFatal
-import com.fasterxml.jackson.annotation.JsonSubTypes.{Type => JsonType}
 
 // Exception that wraps the underlying error so that it includes the extra debug info.
 final class CompilerServiceException(
@@ -62,7 +62,9 @@ object CompilerService {
             //          options.put("engine.CompilationFailureAction", "Diagnose")
             //          options.put("compiler.LogInlinedTargets", "true")
           }
-          val engine = Engine.newBuilder().allowExperimentalOptions(true).options(options).build()
+          val engine = Engine.newBuilder()
+            .allowExperimentalOptions(true)
+            .options(options).build()
           enginesCache.put(settings, engine)
           (engine, true)
       }
