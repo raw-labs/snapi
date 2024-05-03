@@ -42,9 +42,6 @@ module raw.snapi.frontend {
   requires raw.snapi.parser;
 
   exports raw.auth.api;
-  exports raw.creds.client;
-  exports raw.creds.local;
-  exports raw.creds.protocol;
   exports raw.compiler.base;
   exports raw.compiler.base.errors;
   exports raw.compiler.base.source;
@@ -75,12 +72,6 @@ module raw.snapi.frontend {
 
   provides raw.inferrer.api.InferrerServiceBuilder with
       raw.inferrer.local.LocalInferrerServiceBuilder;
-
-  uses raw.creds.api.CredentialsServiceBuilder;
-
-  provides raw.creds.api.CredentialsServiceBuilder with
-      raw.creds.local.LocalCredentialsServiceBuilder,
-      raw.creds.client.ClientCredentialsServiceBuilder;
 
   uses raw.compiler.rql2.api.PackageExtension;
 

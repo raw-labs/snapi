@@ -61,6 +61,9 @@ module raw.sources {
   requires raw.client;
 
   exports raw.creds.api;
+  exports raw.creds.client;
+  exports raw.creds.local;
+  exports raw.creds.protocol;
   exports raw.sources.api;
   exports raw.sources.bytestream.api;
   exports raw.sources.bytestream.github;
@@ -81,8 +84,13 @@ module raw.sources {
   opens raw.creds.api to
       com.fasterxml.jackson.databind;
 
-  uses raw.creds.api.CredentialsServiceBuilder;
   uses raw.sources.bytestream.api.ByteStreamLocationBuilder;
+
+  uses raw.creds.api.CredentialsServiceBuilder;
+
+  provides raw.creds.api.CredentialsServiceBuilder with
+      raw.creds.local.LocalCredentialsServiceBuilder,
+      raw.creds.client.ClientCredentialsServiceBuilder;
 
   provides raw.sources.bytestream.api.ByteStreamLocationBuilder with
       raw.sources.filesystem.local.LocalFileSystemLocationBuilder,
