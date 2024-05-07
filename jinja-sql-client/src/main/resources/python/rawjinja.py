@@ -1,4 +1,5 @@
 from jinja2 import Environment, meta
+from markupsafe import Markup
 
 class RawJinjaException(Exception):
 
@@ -9,35 +10,38 @@ class RawJinjaException(Exception):
       return self._message
 
 
-class Safe:
-
-    def __init__(self, s):
-        self._value = s
-
-    def value(self):
-        return self._value
-
 def fix(s):
-    print("Fixing: %s" % s)
-    if isinstance(s, Safe):
-        return s.value()
-    else:
+    if isinstance(s, Markup):
+        return s
+    elif isinstance(s, str):
         return "'" + s.replace("'", "''") + "'"
+    else:
+        return s
 
-def do_safe(s):
-    return Safe(s)
+def flag_as_safe(s):
+    return Markup(s)
+
+def flag_as_identifier(s):
+    return Markup('"' + s.replace('"', '""') + '"')
 
 env = Environment(finalize=fix, autoescape=False)
-env.filters['safe'] = do_safe
+env.filters['safe'] = flag_as_safe
+env.filters['identifier'] = flag_as_identifier
 
 def _apply(code, args):
    template = env.from_string(code)
-   return template.render(args)
+   pythonArgs = args
+   for (arg, v) in args.items():
+       print(arg, type(v))
+   return template.render(pythonArgs)
 
 def apply(code, args):
    d = {key: args.get(key) for key in args.keySet()}
-   return _apply(d)
+   return _apply(code, d)
 
 def validate(code):
   tree = env.parse(code)
   return list(meta.find_undeclared_variables(tree))
+
+def metadata_comments(code):
+    return [content for (line, tipe, content) in env.lex(code) if tipe == 'comment']
