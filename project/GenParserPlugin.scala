@@ -1,30 +1,33 @@
 package raw.build
 
-import sbt._
 import sbt.Keys._
-import scala.sys.process._
-
-import java.io.IOException
+import sbt.{ Def, _ }
 
 import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
+import sbt.plugins.JvmPlugin
+import java.io.IOException
+import scala.sys.process._
 
-object Generate extends AutoPlugin {
-  // Task keys
-  val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
 
-  // Automatically enable this plugin (set to noTrigger if you want to enable it manually)
-  override def trigger = noTrigger
+object GenParserPlugin extends AutoPlugin {
+  override def requires = JvmPlugin
+  override def trigger: PluginTrigger = noTrigger
+
+    // Task keys
+  object autoImport {
+    val generateParser = taskKey[Unit]("Generated antlr4 base parser and lexer")
+    val parserDefinitions = settingKey[List[(String, String, String, String)]]("List of parser definitions with output path first followed by the name of the generated package")
+    val javaSrcBasePath = settingKey[String]("Java src relative path")
+  }
+
+  import autoImport._
 
   // Provide default settings
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
+
     generateParser := {
-
-      // List of output paths
-      val basePath: String = s"${baseDirectory.value}/src/main/java"
-      val parsers = List(
-        (s"${basePath}/raw/compiler/rql2/generated", "raw.compiler.rql2.generated", s"$basePath/raw/snapi/grammar", "Snapi"),
-      )
-
+      val basePath: String = javaSrcBasePath.value
+      val parsers = parserDefinitions.value
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
           file.listFiles.foreach(deleteRecursively)
@@ -33,33 +36,23 @@ object Generate extends AutoPlugin {
           throw new IOException(s"Failed to delete ${file.getAbsolutePath}")
         }
       }
-
       val s: TaskStreams = streams.value
-
       parsers.foreach(parser => {
-
         val outputPath = parser._1
-
         val file = new File(outputPath)
         if (file.exists()) {
           deleteRecursively(file)
         }
-
         val packageName: String = parser._2
-
         val jarName = "antlr-4.12.0-complete.jar"
-
         val command: String = s"java -jar $basePath/antlr4/$jarName -visitor -package $packageName -o $outputPath"
-
         val output = new StringBuilder
         val logger = ProcessLogger(
           (o: String) => output.append(o + "\n"), // for standard output
           (e: String) => output.append(e + "\n") // for standard error
         )
-
         val grammarPath = parser._3
         val grammarName = parser._4
-
         val lexerResult = s"$command  $grammarPath/${grammarName}Lexer.g4".!(logger)
         if (lexerResult == 0) {
           s.log.info("Lexer code generated successfully")
@@ -67,7 +60,6 @@ object Generate extends AutoPlugin {
           s.log.error("Lexer code generation failed with exit code " + lexerResult)
           s.log.error("Output:\n" + output.toString)
         }
-
         val parserResult = s"$command $grammarPath/${grammarName}Parser.g4".!(logger)
         if (parserResult == 0) {
           s.log.info("Parser code generated successfully")
@@ -76,6 +68,12 @@ object Generate extends AutoPlugin {
           s.log.error("Output:\n" + output.toString)
         }
       })
-    }
+    },
+    parserDefinitions := List(),
+    javaSrcBasePath := "",
+    Compile / compile := (Compile / compile).dependsOn(generateParser).value,
+    Test / test := (Test / test).dependsOn(generateParser).value,
+    publish := publish.dependsOn(generateParser).value,
+    publishSigned := publishSigned.dependsOn(generateParser).value
   )
 }
