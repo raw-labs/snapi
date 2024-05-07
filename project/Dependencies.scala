@@ -45,15 +45,11 @@ object Dependencies {
 
   val typesafeConfig = "com.typesafe" % "config" % "1.4.2"
 
-
   // from client
   val trufflePolyglot = "org.graalvm.polyglot" % "polyglot" % "23.1.0"
 
-
   // from snapi-parser
   val antlr4Runtime = "org.antlr" % "antlr4-runtime" % "4.12.0"
-
-  val antlr4 = "org.antlr" % "antlr4-maven-plugin" % "4.12.0"
 
   // from snapi-frontend
   val kiamaVersion = IO.read(new File("./deps/kiama/version")).trim

@@ -17,5 +17,6 @@ addSbtPlugin("com.github.sbt" % "sbt-ci-release" % "1.5.12")
 addSbtPlugin("com.github.sbt" % "sbt-dynver" % "5.0.1")
 
 libraryDependencies += "commons-io" % "commons-io" % "2.11.0"
+libraryDependencies += "org.antlr" % "antlr-complete" % "4.12.0" from "https://github.com/antlr/website-antlr4/raw/gh-pages/download/antlr-4.12.0-complete.jar"
 
 addSbtPlugin("com.lightbend.sbt" % "sbt-java-formatter" % "0.8.0")
