@@ -15,13 +15,13 @@ package raw.inferrer.api
 import com.google.common.base.Stopwatch
 import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
 import raw.sources.api.SourceContext
-import raw.utils.{RawException, RawService, RawSettings, RawUtils}
+import raw.utils.{RawException, RawService, RawUtils}
 
 import java.util.concurrent.{ExecutionException, Executors, TimeUnit, TimeoutException}
 
 object InferrerService {
-  private val INFERRER_TIMEOUT = "raw.compiler.inferrer.timeout"
-  private val INFERRER_EXPIRY = "raw.compiler.inferrer.expiry"
+  private val INFERRER_TIMEOUT = "raw.inferrer.timeout"
+  private val INFERRER_EXPIRY = "raw.inferrer.expiry"
 
   private val INFERRER_CACHE_SIZE = "raw.inferrer.cache-size"
 
