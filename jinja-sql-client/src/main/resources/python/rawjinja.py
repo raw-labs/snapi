@@ -32,7 +32,7 @@ def _apply(code, args):
    template = env.from_string(code)
    pythonArgs = args
    for (arg, v) in args.items():
-       print(arg, type(v))
+       print(arg, v.)
    return template.render(pythonArgs)
 
 def apply(code, args):
