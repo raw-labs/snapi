@@ -12,22 +12,10 @@
 
 package raw.compiler.base
 
-import com.google.common.base.Stopwatch
 import com.typesafe.scalalogging.StrictLogging
 import raw.sources.api.SourceContext
-import com.google.common.cache.{CacheBuilder, CacheLoader, LoadingCache}
-import raw.inferrer.api.{InferrerException, InferrerProperties, InferrerService, InputFormatDescriptor}
+import raw.inferrer.api.{InferrerProperties, InferrerService, InputFormatDescriptor}
 import raw.utils._
-
-import java.util.concurrent.{Executors, TimeUnit, TimeoutException}
-import scala.concurrent.ExecutionException
-
-object CompilerContext {
-  private val INFERRER_THREAD_POOL_SIZE = "raw.compiler.inferrer.thread-pool-size"
-  private val INFERRER_TIMEOUT = "raw.compiler.inferrer.timeout"
-  private val INFERRER_CACHE_SIZE = "raw.compiler.inferrer.cache-size"
-  private val INFERRER_EXPIRY = "raw.compiler.inferrer.expiry"
-}
 
 /**
  * Contains state that is shared between different programs.
@@ -42,51 +30,8 @@ class CompilerContext(
     implicit val settings: RawSettings
 ) extends StrictLogging {
 
-  import CompilerContext._
-
-  private val inferrerTimeoutMillis = settings.getDuration(INFERRER_TIMEOUT).toMillis
-  private val inferrerCacheSize = settings.getInt(INFERRER_CACHE_SIZE)
-  private val inferrerExpirySeconds = settings.getDuration(INFERRER_EXPIRY).toSeconds
-
-  private val inferrerThreadPoolSize = settings.getInt(INFERRER_THREAD_POOL_SIZE)
-  private val inferrerThreadPool =
-    Executors.newFixedThreadPool(inferrerThreadPoolSize, RawUtils.newThreadFactory("compiler-context-inferrer"))
-
-  def infer(
-      properties: InferrerProperties
-  ): Either[String, InputFormatDescriptor] = {
-    inferCache.get(properties)
+  def infer(properties: InferrerProperties): Either[String, InputFormatDescriptor] = {
+    inferrer.inferWithExpiry(properties)
   }
-
-  private val inferCache: LoadingCache[InferrerProperties, Either[String, InputFormatDescriptor]] = CacheBuilder
-    .newBuilder()
-    .maximumSize(inferrerCacheSize)
-    .expireAfterAccess(inferrerExpirySeconds, TimeUnit.SECONDS)
-    .build(new CacheLoader[InferrerProperties, Either[String, InputFormatDescriptor]] {
-      def load(properties: InferrerProperties): Either[String, InputFormatDescriptor] = {
-        val inferrerFuture = inferrerThreadPool.submit(() => {
-          try {
-            Right(inferrer.infer(properties))
-          } catch {
-            case ex: InferrerException => Left(ex.getMessage)
-          }
-        })
-
-        try {
-          val start = Stopwatch.createStarted()
-          val r = inferrerFuture.get(inferrerTimeoutMillis, TimeUnit.MILLISECONDS)
-          logger.debug(s"Inferrer done in ${start.elapsed(TimeUnit.MILLISECONDS)} millis.")
-          r
-        } catch {
-          // Note that in InterruptException or TimeoutException, we do not cancel the request.
-          // That's because other independent programs can themselves be waiting on the 'get' and those can succeed
-          // in under 'inferrerTimeoutMillis' because they started a bit later to do .get blocking call.
-          // In any case, this shouldn't be too much of a problem because the LoadingCache ensure that a single request
-          // is running for a single key.
-          case _: TimeoutException => Left("inferrer took too long")
-          case ex: ExecutionException => throw ex.getCause
-        }
-      }
-    })
 
 }

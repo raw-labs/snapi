@@ -15,7 +15,7 @@ package raw.client.writers
 import com.fasterxml.jackson.core.{JsonEncoding, JsonFactory, JsonParser}
 import org.graalvm.polyglot.Value
 import raw.client.api._
-import raw.utils.RecordFieldsNaming
+import raw.client.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.time.format.DateTimeFormatter

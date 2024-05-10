@@ -10,13 +10,13 @@
  * licenses/APL.txt.
  */
 
-package raw.utils
+package raw.client.utils
 
 import scala.collection.mutable
 
 object RecordFieldsNaming {
 
-  // turn a vector of keys into a vector of distinct keys (renaming duplicates to _1, _2)
+  // Turn a vector of keys into a vector of distinct keys (renaming duplicates to _1, _2)
   def makeDistinct(keys: java.util.Vector[String]): java.util.Vector[String] = {
     val distinct = new java.util.Vector[String]
     val keySet = mutable.Map.empty[String, Boolean]

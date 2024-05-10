@@ -21,6 +21,7 @@ module raw.client {
 
   exports raw.client.api;
   exports raw.client.writers;
+  exports raw.client.utils;
 
   opens raw.client.api to
       com.fasterxml.jackson.databind;
