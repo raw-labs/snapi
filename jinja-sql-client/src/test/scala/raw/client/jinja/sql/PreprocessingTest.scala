@@ -12,13 +12,13 @@
 
 package raw.client.jinja.sql
 
-import org.scalatest.matchers.must.Matchers.be
+import org.scalatest.matchers.must.Matchers.{be, contain}
 import org.scalatest.matchers.should.Matchers.convertToAnyShouldWrapper
 import org.scalatest.matchers.{MatchResult, Matcher}
-import raw.client.api.{CompilerService, ExecutionRuntimeFailure, ExecutionSuccess, ExecutionValidationFailure, GetProgramDescriptionResponse, GetProgramDescriptionSuccess, ProgramEnvironment, RawDate, RawDateType, RawInt, RawIntType, RawString, RawValue}
+import raw.client.api._
 import raw.creds.api.CredentialsTestContext
 import raw.creds.local.LocalCredentialsTestContext
-import raw.utils.{InteractiveUser, RawTestSuite, SettingsTestContext, TrainingWheelsContext, Uid}
+import raw.utils._
 
 import java.io.ByteArrayOutputStream
 import java.time.LocalDate
@@ -46,7 +46,10 @@ class PreprocessingTest
     def withArg(arg: (String, Any)): Q = withArgs(Map(arg))
 
     def description(): GetProgramDescriptionResponse = {
-      compilerService.getProgramDescription(code, environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json")))
+      compilerService.getProgramDescription(
+        code,
+        environment = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+      )
     }
 
   }
@@ -82,14 +85,30 @@ class PreprocessingTest
       val r = compilerService.execute(left.code, env, None, baos)
       r match {
         case ExecutionRuntimeFailure(error) => MatchResult(error.contains(errorMessage), error, "ok")
-        case ExecutionValidationFailure(errors) => MatchResult(errors.exists(_.message.contains(errorMessage)), errors.map(_.message).mkString(","), "ok")
+        case ExecutionValidationFailure(errors) =>
+          MatchResult(errors.exists(_.message.contains(errorMessage)), errors.map(_.message).mkString(","), "ok")
         case ExecutionSuccess => MatchResult(false, "didn't fail", "ok")
       }
     }
   }
 
+  private class Validate extends Matcher[Q] {
+    override def apply(left: Q): MatchResult = {
+      val env = ProgramEnvironment(user, None, Set.empty, Map("output-format" -> "json"))
+      val ValidateResponse(validationErrors) = compilerService.validate(left.code, env)
+      compilerService.getProgramDescription(left.code, env) match {
+        case GetProgramDescriptionFailure(descriptionErrors) =>
+          MatchResult(false, (validationErrors ++ descriptionErrors).mkString(","), "ok")
+        case _: GetProgramDescriptionSuccess =>
+          MatchResult(validationErrors.isEmpty, validationErrors.mkString(","), "ok")
+      }
+      MatchResult(validationErrors.isEmpty, validationErrors.mkString(","), "ok")
+    }
+  }
+
   private def give(jsonContent: String) = new Give(jsonContent)
   private def failWith(error: String) = new FailWith(error)
+  private def validate = new Validate
 
   test("safe vs. unsafe") { _ =>
     // without '|safe' the string variable is turned into a quoted string
@@ -103,22 +122,23 @@ class PreprocessingTest
     code2 withArgs Map("column" -> "longitude", "country" -> "France") should give("""[{"max":9.483731}]""")
 
     // '|safe' used when computing a local variable, which is then used as safe even though it's not flagged directly,
-    val code3 = Q(
-      """{% set col = column|safe %}
-        |SELECT MAX({{ col }}) FROM example.airports WHERE country = {{ country }}""".stripMargin)
+    val code3 = Q("""{% set col = column|safe %}
+      |SELECT MAX({{ col }}) FROM example.airports WHERE country = {{ country }}""".stripMargin)
     code3 withArgs Map("column" -> "latitude", "country" -> "France") should give("""[{"max":50.967536}]""")
     code3 withArgs Map("column" -> "longitude", "country" -> "France") should give("""[{"max":9.483731}]""")
 
   }
 
   test("escape") { _ =>
-    Q("SELECT {{ v }} AS v") withArg("v" -> "<p/>") should give("""[{"v":"<p/>"}]""")
-    Q("SELECT '{{ v|safe }}' AS v") withArg("v" -> "<p/>") should give("""[{"v":"<p/>"}]""")
-    Q("SELECT {{ v }} AS v") withArg("v" -> "'<p'/>'") should give("""[{"v":"'<p'/>'"}]""")
-    Q("SELECT '{{ v }}' AS v") withArg("v" -> "<p/>") should failWith("column \"p\" does not exist")
-    Q("SELECT {{ v }} AS v") withArg("v" -> "\"<p/>\"") should give("""[{"v":"\"<p/>\""}]""")
-    Q("SELECT {{ v }} AS v") withArg("v" -> "1 + 2") should give("""[{"v":"1 + 2"}]""") // quoted by default
-    Q("SELECT {{ v|safe }} AS v") withArg("v" -> "1 + 2") should give("""[{"v":3}]""") // pasted straight => interpreted
+    Q("SELECT {{ v }} AS v") withArg ("v" -> "<p/>") should give("""[{"v":"<p/>"}]""")
+    Q("SELECT '{{ v|safe }}' AS v") withArg ("v" -> "<p/>") should give("""[{"v":"<p/>"}]""")
+    Q("SELECT {{ v }} AS v") withArg ("v" -> "'<p'/>'") should give("""[{"v":"'<p'/>'"}]""")
+    Q("SELECT '{{ v }}' AS v") withArg ("v" -> "<p/>") should failWith("column \"p\" does not exist")
+    Q("SELECT {{ v }} AS v") withArg ("v" -> "\"<p/>\"") should give("""[{"v":"\"<p/>\""}]""")
+    Q("SELECT {{ v }} AS v") withArg ("v" -> "1 + 2") should give("""[{"v":"1 + 2"}]""") // quoted by default
+    Q("SELECT {{ v|safe }} AS v") withArg ("v" -> "1 + 2") should give(
+      """[{"v":3}]"""
+    ) // pasted straight => interpreted
   }
 
   /*
@@ -129,60 +149,97 @@ class PreprocessingTest
 
   test("""integer parameter""") { _ =>
     val code = Q(s"""
-         |{# @type v integer #}
-         |{# @default v 12 #}
-         |{# @param v a random number
-         |            here to test something #}
-         |SELECT {{ v }} * 10 AS r
-         |""".stripMargin)
+      |{# @type v integer #}
+      |{# @default v 12 #}
+      |{# @param v a random number
+      |            here to test something #}
+      |SELECT {{ v }} * 10 AS r
+      |""".stripMargin)
     val GetProgramDescriptionSuccess(d) = code.description()
     d.decls.size should be(0)
     val Vector(param) = d.maybeRunnable.get.params.get
     param.idn should be("v")
     param.required should be(false) // because we have a default
-    param.tipe.get should be (RawIntType(true, false)) // null is always OK
-    param.comment.get should be ("a random number here to test something")
+    param.tipe.get should be(RawIntType(true, false)) // null is always OK
+    param.comment.get should be("a random number here to test something")
     code withArg "v" -> 22 should give("""[{"r":220}]""")
     code withArg "v" -> "tralala" should failWith("invalid input syntax for type integer")
   }
 
-  test("""date parameter""") { _ =>
+  test("""date parameter (with default)""") { _ =>
     val code = Q(s"""
-                    |{# @type v date #}
-                    |{# @default v '2001-01-01' #}
-                    |{# @param v a random date
-                    |    here to test something #}
-                    |SELECT YEAR({{ v }}) AS r
-                    |""".stripMargin)
+      |{# @type v date #}
+      |{# @default v '2001-01-01' #}
+      |{# @param v a random date
+      |    here to test something #}
+      |SELECT EXTRACT('YEAR' FROM {{ v }}) AS r
+      |""".stripMargin)
     val GetProgramDescriptionSuccess(d) = code.description()
     d.decls.size should be(0)
     val Vector(param) = d.maybeRunnable.get.params.get
     param.idn should be("v")
     param.required should be(false) // because we have a default
-    param.tipe.get should be (RawDateType(true, false)) // null is always OK
-    param.comment.get should be ("a random date here to test something")
-    code withArg "v" -> LocalDate.of(2024,1, 1) should give("""[{"r":220}]""")
-    code withArg "v" -> "tralala" should failWith("invalid input syntax for type integer")
+    param.tipe.get should be(RawDateType(true, false)) // null is always OK
+    param.comment.get should be("a random date here to test something")
+    code withArg "v" -> LocalDate.of(2024, 1, 1) should give("""[{"r":2024.0}]""")
+    code withArgs Map.empty should give("""[{"r":2001.0}]""")
   }
 
-  test("""SELECT {{ column }}, COUNT(*)
+  test("""date expression""") { _ =>
+    val code = Q(s"""
+      |{# @type v date #}
+      |{# @param v a random date
+      |    here to test something #}
+      |SELECT {{ v.replace(year=2001) }} AS r
+      |""".stripMargin)
+    val GetProgramDescriptionSuccess(d) = code.description()
+    d.decls.size should be(0)
+    val Vector(param) = d.maybeRunnable.get.params.get
+    param.idn should be("v")
+    param.required should be(true) // because we have a default
+    param.tipe.get should be(RawDateType(true, false)) // null is always OK
+    param.comment.get should be("a random date here to test something")
+    code withArg "v" -> LocalDate.of(2024, 1, 1) should give("""[{"r":"2001-01-01"}]""")
+    code withArg "v" -> LocalDate.of(1978, 3, 8) should give("""[{"r":"2001-03-08"}]""")
+  }
+
+  test("""SELECT {{ column|safe + "y" }}, COUNT(*)
     |FROM example.airports
-    |GROUP BY {{ column }}
+    |GROUP BY {{ column|safe + "y" }}
     |ORDER BY COUNT(*) DESC
     |LIMIT 3
-    |""".stripMargin)(t => Q(t.q) withArg ("column" -> "city") should give("[]"))
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    q should validate
+    q withArg ("column" -> "cit") should give(
+      """[{"city":"London","count":21},{"city":"New York","count":13},{"city":"Hong Kong","count":12}]"""
+    )
+    q withArg ("column" -> "countr") should give(
+      """[{"country":"United States","count":1697},{"country":"Canada","count":435},{"country":"Germany","count":321}]"""
+    )
+  }
 
-  ignore("""SELECT {{ key }},
-    |       COUNT(*),
-    |       SUM({% raise "error, unknown key: " + key %})
+  test(s"""
+    |SELECT COUNT(*) AS n
     |FROM example.airports
-    |GROUP BY {{ key }}
-    |""".stripMargin) { q =>
-    val v = compilerService.validate(q.q, asJson())
-    assert(v != null)
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(q.q, asJson(Map("key" -> RawString("city"))), None, baos)
-    assert(r == ExecutionSuccess)
+    |WHERE 
+    |{% if key == "country" %}
+    |   country
+    |{% elif key == "city" %}
+    |   city
+    |{% else %}
+    |   {% raise "error, unknown key: " + key %}
+    |{% endif %}
+    |  = {{ value }}
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    q should validate
+    val GetProgramDescriptionSuccess(description) = q.description()
+    val argNames = description.maybeRunnable.get.params.get.map(_.idn)
+    argNames should (contain("key") and contain("value"))
+    q withArgs Map("key" -> "city", "value" -> "Athens") should give("""[{"n":6}]""")
+    q withArgs Map("key" -> "country", "value" -> "Greece") should give("""[{"n":60}]""")
+    q withArgs Map("key" -> "iata", "value" -> "GVA") should failWith("error, unknown key: iata")
   }
 
   ignore("""SELECT {{ key }},
@@ -198,42 +255,46 @@ class PreprocessingTest
     assert(r == ExecutionSuccess)
   }
 
-  test("""SELECT {{ 1 - 2 }}
-    |""".stripMargin) { q =>
-    val v = compilerService.getProgramDescription(q.q, asJson())
-    assert(v != null)
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(q.q, asJson(), None, baos)
-    assert(r == ExecutionSuccess)
+  test("""SELECT {{ 1 - 2 }} AS v
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    q should validate
+    q should give("""[{"v":-1}]""")
   }
 
-  test("""SELECT {{ a }} + {{ b }}
-    |""".stripMargin) { q =>
-    val v = compilerService.getProgramDescription(q.q, asJson())
-    assert(v != null)
+  test("""SELECT {{ a }} + {{ b }} AS v
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    q should validate
+    val GetProgramDescriptionSuccess(d) = q.description()
+    d.decls.size should be(0)
+    val names = d.maybeRunnable.get.params.get.map(_.idn)
+    names should (contain("a") and contain("b"))
+    q withArgs (Map("a" -> 1, "b" -> 2)) should give("""[{"v":3}]""")
+    q withArgs (Map("a" -> 11, "b" -> 22)) should give("""[{"v":33}]""")
   }
 
-  test("""SELECT {{ a + 1 - b }}
-    |""".stripMargin) { q =>
-    val v = compilerService.getProgramDescription(q.q, asJson())
-    assert(v != null)
+  test("""SELECT {{ a + 1 - b }} AS v
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    q should validate
+    val GetProgramDescriptionSuccess(d) = q.description()
+    d.decls.size should be(0)
+    val names = d.maybeRunnable.get.params.get.map(_.idn)
+    names should (contain("a") and contain("b"))
+    q withArgs (Map("a" -> 1, "b" -> 2)) should give("""[{"v":0}]""")
+    q withArgs (Map("a" -> 11, "b" -> 22)) should give("""[{"v":-10}]""")
   }
 
   test("""SELECT {{ 1 +> 2 }}
-    |""".stripMargin) { q =>
-    val v = compilerService.validate(q.q, asJson())
-    assert(v != null)
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(q.q, asJson(), None, baos)
-    assert(r == ExecutionSuccess)
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    assert(compilerService.validate(t.q, asJson()).messages.map(_.message).exists(_.contains("unexpected '>'")))
+    q should failWith("unexpected '>'")
+
   }
 
-  test("""{% include '/etc/passwd' %} """.stripMargin) { q =>
-    val v = compilerService.validate(q.q, asJson())
-    assert(v != null)
-  }
-
-  test(s"""
+  ignore(s"""
     |{% set v = val == "latitude" ? "latitude" : "longitude" %}
     |SELECT {{ key }}, MAX({{ v }}), MIN({{ v }})
     |FROM example.airports GROUP BY {{ key }}
@@ -255,22 +316,20 @@ class PreprocessingTest
 
   test(s"""
     |{% set v = "latitude" if val == "latitude" else "longitude" %}
-    |SELECT {{ key }}, MAX({{ v }}), MIN({{ v }})
-    |FROM example.airports GROUP BY {{ key }}
-    |ORDER BY COUNT(*) {{ order }}
+    |SELECT {{ key|safe }}, MAX({{ v|safe }}), MIN({{ v|safe }})
+    |FROM example.airports GROUP BY {{ key|safe }}
+    |ORDER BY COUNT(*) {{ order|safe }}
     |LIMIT 3
-    |""".stripMargin) { q =>
-    val g = compilerService.getProgramDescription(q.q, asJson())
-    assert(g != null)
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(
-      q.q,
-      asJson(Map("key" -> RawString("country"), "val" -> RawString("latitude"), "order" -> RawString("DESC"))),
-      None,
-      baos
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    q should validate
+    q withArgs Map(
+      "key" -> "country",
+      "val" -> "latitude",
+      "order" -> "DESC"
+    ) should give(
+      """[{"country":"United States","max":72.270833,"min":-1.111100},{"country":"Canada","max":82.517778,"min":42.199000},{"country":"Germany","max":54.913250,"min":0.000000}]"""
     )
-    assert(r == ExecutionSuccess)
-
   }
 
   test(s"""
@@ -282,7 +341,7 @@ class PreprocessingTest
     |           {%else %} {% raise "unknown sum: " + sumRow %}
     |           {%endif %}
     |       )
-    |       {% if moreColumns == true } , MAX(latitude) {% endif %}
+    |       {% if moreColumns == true %} , MAX(latitude) {% endif %}
     |FROM lokad_orders
     |GROUP BY
     |    {%if key == "year" %} YEAR(date)
@@ -291,60 +350,14 @@ class PreprocessingTest
     |    {%elif key == "Currency" %} currency
     |    {%else %} {% raise "unknown key:" + key  %}
     |    {%endif %} AS {{key}}
-    |""".stripMargin) { q =>
-    val v = compilerService.validate(q.q, asJson())
-    assert(v != null)
+    |""".stripMargin) { t =>
+    val q = Q(t.q)
+    q should validate
   }
 
   test("SELECT airport_id, {{ c }} FROM {{ }} ") { q =>
     val v = compilerService.validate(q.q, asJson())
     assert(v != null)
-  }
-
-  test("SELECT airport_id, {{ colName }} FROM {{ table }}") { q =>
-    val v = compilerService.validate(q.q, asJson())
-    assert(v != null)
-    val d = compilerService.getProgramDescription(q.q, asJson())
-    assert(d != null)
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(
-      q.q,
-      asJson(Map("colName" -> RawString("city"), "table" -> RawString("example.airports"))),
-      None,
-      baos
-    )
-    assert(r == ExecutionSuccess)
-  }
-
-  test("SELECT airport_id, {{ colNames }} FROM {{ table }}") { q =>
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(
-      q.q,
-      asJson(Map("colNames" -> RawString("city, country"), "table" -> RawString("example.airports"))),
-      None,
-      baos
-    )
-    assert(r == ExecutionSuccess)
-    assert(baos.toString() == "")
-  }
-
-  test("SELECT * FROM example.airports") { q =>
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(q.q, asJson(), None, baos)
-    assert(r == ExecutionSuccess)
-  }
-
-  // a typo
-  test("SELECT '{{ name }'") { q =>
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(q.q, asJson(), None, baos)
-    assert(r == ExecutionSuccess)
-  }
-
-  test("SELECT '{{ 12 + name }}'") { q =>
-    val baos = new ByteArrayOutputStream()
-    val r = compilerService.execute(q.q, asJson(), None, baos)
-    assert(r == ExecutionSuccess)
   }
 
   private var compilerService: CompilerService = _

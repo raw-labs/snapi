@@ -62,9 +62,11 @@ object CompilerService {
             //          options.put("engine.CompilationFailureAction", "Diagnose")
             //          options.put("compiler.LogInlinedTargets", "true")
           }
-          val engine = Engine.newBuilder()
+          val engine = Engine
+            .newBuilder()
             .allowExperimentalOptions(true)
-            .options(options).build()
+            .options(options)
+            .build()
           enginesCache.put(settings, engine)
           (engine, true)
       }

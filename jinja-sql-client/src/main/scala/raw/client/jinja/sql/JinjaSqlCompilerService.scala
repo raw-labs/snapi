@@ -13,8 +13,7 @@
 package raw.client.jinja.sql
 
 import org.graalvm.polyglot.io.IOAccess
-import org.graalvm.polyglot.proxy.ProxyDate
-import org.graalvm.polyglot.{Context, HostAccess, PolyglotAccess, PolyglotException, Source, Value}
+import org.graalvm.polyglot._
 import raw.client.api._
 import raw.utils.RawSettings
 
@@ -40,6 +39,8 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .allowPolyglotAccess(PolyglotAccess.ALL)
       .allowIO(IOAccess.ALL)
       .allowHostAccess(HostAccess.ALL)
+      .allowHostClassLoading(true)
+      .allowHostClassLookup(_ => true)
       .allowNativeAccess(true)
       // setting false will deny all privileges unless configured below
 //      .allowAllAccess(true)
@@ -83,24 +84,29 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       outputStream: java.io.OutputStream
   ): raw.client.api.ExecutionResponse = {
     val args = new java.util.HashMap[String, Object]
-    for (userArgs <- environment.maybeArguments.toArray; (key, v) <- userArgs) args.put(key, rawValueToPolyglot(v))
-    val sqlQuery: String =
-      try {
-        apply.execute(pythonCtx.asValue(source), args).asString
-      } catch {
-        case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
-            case Some(errorMessage) => return ExecutionValidationFailure(List(errorMessage))
-            case None => throw new CompilerServiceException(ex, environment)
+    codeArgs(source, environment) match {
+      case Left(errorMessages) => ExecutionRuntimeFailure(errorMessages.map(_.message).mkString(","))
+      case Right(params) =>
+        for (p <- params; value <- p.defaultValue) args.put(p.idn, rawValueToPolyglot(value))
+        for (userArgs <- environment.maybeArguments.toArray; (key, v) <- userArgs) args.put(key, rawValueToPolyglot(v))
+        val sqlQuery: String =
+          try {
+            apply.execute(pythonCtx.asValue(source), args).asString
+          } catch {
+            case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
+                case Some(errorMessage) => return ExecutionValidationFailure(List(errorMessage))
+                case None => throw new CompilerServiceException(ex, environment)
+              }
           }
-      }
-    logger.debug(sqlQuery)
-    sqlCompilerService.execute(sqlQuery, environment, None, outputStream)
+        logger.debug(sqlQuery)
+        sqlCompilerService.execute(sqlQuery, environment, None, outputStream)
+    }
   }
 
   private def rawValueToPolyglot(value: RawValue) = value match {
     case RawString(s) => Value.asValue(s)
     case RawInt(i) => Value.asValue(i)
-    case RawDate(d) => ProxyDate.from(d)
+    case RawDate(d) => Value.asValue(d)
     case _ => ???
   }
 
@@ -119,16 +125,16 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       maybeWidth: Option[Int]
   ): raw.client.api.FormatCodeResponse = FormatCodeResponse(None)
 
-  def getProgramDescription(
+  private def codeArgs(
       source: String,
       environment: raw.client.api.ProgramEnvironment
-  ): raw.client.api.GetProgramDescriptionResponse = {
+  ): Either[List[ErrorMessage], Vector[ParamDescription]] = {
     val unknownArgs = {
       try {
         validate.execute(pythonCtx.asValue(source))
       } catch {
         case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
-            case Some(errorMessage) => return GetProgramDescriptionFailure(List(errorMessage))
+            case Some(errorMessage) => return Left(List(errorMessage))
             case None => throw new CompilerServiceException(ex, environment)
           }
       }
@@ -139,7 +145,8 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .map(unknownArgs.getArrayElement)
       .map(_.asString)
       .toVector
-      .map(s => s -> ParamDescription(s, Some(RawStringType(false, false)), None, None, true)).toMap
+      .map(s => s -> ParamDescription(s, Some(RawStringType(false, false)), None, None, true))
+      .toMap
 
     val sqlArgs = {
       val comments = Value.asValue(metadataComments.execute(pythonCtx.asValue(source)))
@@ -152,17 +159,27 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       sqlCompilerService.getProgramDescription(sqlCode, environment) match {
         case GetProgramDescriptionSuccess(programDescription) =>
           programDescription.maybeRunnable.get.params.get.map(p => p.idn -> p).toMap
-        case failure: GetProgramDescriptionFailure => return failure
+        case failure: GetProgramDescriptionFailure => return Left(failure.errors)
       }
     }
-    val allArgs = (args ++ sqlArgs).values.toVector
-    GetProgramDescriptionSuccess(
-      ProgramDescription(
-        Map.empty,
-        Some(DeclDescription(Some(allArgs), Some(RawIterableType(RawAnyType(), false, false)), None)),
-        None
-      )
-    )
+    Right((args ++ sqlArgs).values.toVector)
+
+  }
+
+  def getProgramDescription(
+      source: String,
+      environment: raw.client.api.ProgramEnvironment
+  ): raw.client.api.GetProgramDescriptionResponse = {
+    codeArgs(source, environment) match {
+      case Left(errorMessages) => GetProgramDescriptionFailure(errorMessages)
+      case Right(allArgs) => GetProgramDescriptionSuccess(
+          ProgramDescription(
+            Map.empty,
+            Some(DeclDescription(Some(allArgs), Some(RawIterableType(RawAnyType(), false, false)), None)),
+            None
+          )
+        )
+    }
   }
 
   def goToDefinition(
