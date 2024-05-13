@@ -89,7 +89,7 @@ object GenParserPlugin extends AutoPlugin {
   //Ensure ANTLR JAR is downloaded if not present
   def ensureAntlrJarAvailable(jarPath: String, expectedChecksum: String, maxRetries: Int = 3): Unit = {
     val jarFile = new File(jarPath)
-    if (!jarFile.exists() && !verifyChecksum(jarFile, expectedChecksum)) {
+    if (!jarFile.exists() || !verifyChecksum(jarFile, expectedChecksum)) {
       val jarName = jarFile.getName
       val url = s"https://github.com/antlr/website-antlr4/raw/gh-pages/download/$jarName"
       breakable {
