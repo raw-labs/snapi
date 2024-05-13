@@ -20,6 +20,7 @@ import raw.client.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import scala.annotation.tailrec
 
@@ -112,7 +113,8 @@ class TypedResultSetJsonWriter(os: OutputStream, maxRows: Option[Long]) {
         val date = v.getDate(i).toLocalDate
         gen.writeString(dateFormatter.format(date))
       case _: RawTimeType =>
-        val time = v.getTime(i).toLocalTime
+        val sqlTime = v.getTime(i)
+        val time = LocalTime.ofNanoOfDay(sqlTime.getTime * 1000000)
         val formatted = timeFormatter.format(time)
         gen.writeString(formatted)
       case _: RawTimestampType =>
