@@ -46,6 +46,7 @@ import org.bitbucket.inkytonik.kiama.util.Position
 import org.postgresql.util.PSQLException
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData}
+import java.time.LocalTime
 import scala.collection.mutable
 
 class NamedParametersPreparedStatementException(val errors: List[ErrorMessage]) extends Exception
@@ -493,7 +494,7 @@ class NamedParametersPreparedStatement(
         case RawString(v) => setString(paramName, v)
         case RawDecimal(v) => setBigDecimal(paramName, v)
         case RawDate(v) => setDate(paramName, java.sql.Date.valueOf(v))
-        case RawTime(v) => setTime(paramName, java.sql.Time.valueOf(v))
+        case RawTime(v) => setTime(paramName, new java.sql.Time(v.toNanoOfDay / 1000000))
         case RawTimestamp(v) => setTimestamp(paramName, java.sql.Timestamp.valueOf(v))
         case RawInterval(years, months, weeks, days, hours, minutes, seconds, millis) => ???
         case RawBinary(v) => setBytes(paramName, v)
@@ -624,7 +625,7 @@ class NamedParametersPreparedStatement(
       case java.sql.Types.FLOAT => RawFloat(rs.getFloat(1))
       case java.sql.Types.DOUBLE => RawDouble(rs.getDouble(1))
       case java.sql.Types.DATE => RawDate(rs.getDate(1).toLocalDate)
-      case java.sql.Types.TIME => RawTime(rs.getTime(1).toLocalTime)
+      case java.sql.Types.TIME => RawTime(LocalTime.ofNanoOfDay(rs.getTime(1).getTime * 1000000))
       case java.sql.Types.TIMESTAMP => RawTimestamp(rs.getTimestamp(1).toLocalDateTime)
       case java.sql.Types.BOOLEAN => RawBool(rs.getBoolean(1))
       case java.sql.Types.VARCHAR => RawString(rs.getString(1))

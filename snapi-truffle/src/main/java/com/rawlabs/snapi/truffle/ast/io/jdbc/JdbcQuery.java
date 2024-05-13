@@ -173,7 +173,8 @@ public class JdbcQuery {
   TimeObject getTime(String colName, Node node) {
     try {
       java.sql.Time sqlTime = rs.getTime(colName);
-      return new TimeObject(sqlTime.toLocalTime());
+      LocalTime localTime = LocalTime.ofNanoOfDay(sqlTime.getTime() * 1000000);
+      return new TimeObject(localTime);
     } catch (SQLException e) {
       throw exceptionHandler.columnParseError(e, colName, node);
     }
