@@ -29,13 +29,15 @@ object GenParserPlugin extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[_]] = Seq(
 
     generateParser := {
+      val s: TaskStreams = streams.value
+
       val basePath: String = javaSrcBasePath.value
       val parsers = parserDefinitions.value
 
       // Ensure antlr jar is available
       val antlrJarPath = (ThisBuild / baseDirectory).value / "antlr-4.12.0-complete.jar"
       val antlrJarChecksum = "88f18a2bfac0dde1009eda5c7dce358a52877faef7868f56223a5bcc15329e43"
-      ensureAntlrJarAvailable(antlrJarPath.toString(), antlrJarChecksum)
+      ensureAntlrJarAvailable(antlrJarPath.toString(), antlrJarChecksum, s)
 
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
@@ -46,7 +48,6 @@ object GenParserPlugin extends AutoPlugin {
         }
       }
 
-      val s: TaskStreams = streams.value
       parsers.foreach(parser => {
         val outputPath = parser._1
         val file = new File(outputPath)
@@ -87,7 +88,7 @@ object GenParserPlugin extends AutoPlugin {
   )
 
   //Ensure ANTLR JAR is downloaded if not present
-  def ensureAntlrJarAvailable(jarPath: String, expectedChecksum: String, maxRetries: Int = 3): Unit = {
+  def ensureAntlrJarAvailable(jarPath: String, expectedChecksum: String, s: TaskStreams, maxRetries: Int = 3): Unit = {
     val jarFile = new File(jarPath)
     if (!jarFile.exists() || !verifyChecksum(jarFile, expectedChecksum)) {
       val jarName = jarFile.getName
@@ -95,19 +96,19 @@ object GenParserPlugin extends AutoPlugin {
       breakable {
         for (attempt <- 1 to maxRetries) {
           try {
-            println(s"Attempt $attempt: Downloading $jarName...")
+            s.log.info(s"Attempt $attempt: Downloading $jarName...")
             new URI(url).toURL() #> jarFile !!
 
             if (verifyChecksum(jarFile, expectedChecksum)) {
-              println("JAR downloaded and checksum verified successfully.")
+              s.log.info("JAR downloaded and checksum verified successfully.")
               break
             } else {
-              println("Checksum verification failed, retrying...")
+              s.log.warn("Checksum verification failed, retrying...")
               jarFile.delete()
             }
           } catch {
             case ex: Exception =>
-              println(s"Failed to download the file: ${ex.getMessage}")
+              s.log.error(s"Failed to download the file: ${ex.getMessage}")
               if (attempt == maxRetries) {
                 throw new IllegalStateException("Max retries reached, unable to download the file.")
               }
@@ -115,7 +116,7 @@ object GenParserPlugin extends AutoPlugin {
         }
       }
     } else {
-      println("JAR already present and checksum verified successfully.")
+      s.log.info("JAR already present and checksum verified successfully.")
     }
   }
 

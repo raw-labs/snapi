@@ -30,13 +30,27 @@ object CopyrightHeader extends AutoPlugin {
   override def projectSettings: Seq[Def.Setting[_]] = Def.settings(headerMappingSettings, additional)
 
   def additional: Seq[Def.Setting[_]] =
-    Def.settings(Compile / compile := {
-      (Compile / headerCreate).value
-      (Compile / compile).value
-    }, Test / compile := {
-      (Test / headerCreate).value
-      (Test / compile).value
-    })
+    Def.settings(
+      Compile / compile := {
+        (Compile / headerCreate).value
+        (Compile / compile).value
+      },
+      Test / compile := {
+        (Test / headerCreate).value
+        (Test / compile).value
+      },
+      Compile / headerSources := {
+        (Compile / headerSources).value.filterNot(file =>
+          file.getPath.contains("/generated/")
+        )
+      },
+      Test / headerSources := {
+        (Test / headerSources).value.filterNot(file =>
+          file.getPath.contains("/generated/")
+        )
+      }
+    )
+
 
   def header: String = {
     val currentYear = "2024"
