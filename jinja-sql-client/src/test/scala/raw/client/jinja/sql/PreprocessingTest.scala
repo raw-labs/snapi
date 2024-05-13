@@ -21,7 +21,7 @@ import raw.creds.local.LocalCredentialsTestContext
 import raw.utils._
 
 import java.io.ByteArrayOutputStream
-import java.time.LocalDate
+import java.time.{LocalDate, LocalDateTime, LocalTime}
 
 class PreprocessingTest
     extends RawTestSuite
@@ -60,6 +60,8 @@ class PreprocessingTest
         case s: String => RawString(s)
         case i: Int => RawInt(i)
         case d: LocalDate => RawDate(d)
+        case v: LocalDateTime => RawTimestamp(v)
+        case v: LocalTime => RawTime(v)
       }.toArray
       val env = ProgramEnvironment(user, Some(rawArgs), Set.empty, Map("output-format" -> "json"))
       val baos = new ByteArrayOutputStream()
@@ -183,6 +185,44 @@ class PreprocessingTest
     param.comment.get should be("a random date here to test something")
     code withArg "v" -> LocalDate.of(2024, 1, 1) should give("""[{"r":2024.0}]""")
     code withArgs Map.empty should give("""[{"r":2001.0}]""")
+  }
+
+  test("""timestamp parameter (with default)""") { _ =>
+    val code = Q(s"""
+                    |{# @type v timestamp #}
+                    |{# @default v '2001-01-01 12:34:56.099' #}
+                    |{# @param v a random timestamp
+                    |    here to test something #}
+                    |SELECT {{ v }} AS r
+                    |""".stripMargin)
+    val GetProgramDescriptionSuccess(d) = code.description()
+    d.decls.size should be(0)
+    val Vector(param) = d.maybeRunnable.get.params.get
+    param.idn should be("v")
+    param.required should be(false) // because we have a default
+    param.tipe.get should be(RawTimestampType(true, false)) // null is always OK
+    param.comment.get should be("a random timestamp here to test something")
+    code withArg "v" -> LocalDateTime.of(2024, 1, 1,1,1,1,3309000) should give("""[{"r":"2024-01-01T01:01:01.003"}]""")
+    code withArgs Map.empty should give("""[{"r":"2001-01-01T12:34:56.099"}]""")
+  }
+
+  test("""time parameter (with default)""") { _ =>
+    val code = Q(s"""
+                    |{# @type v time #}
+                    |{# @default v '12:34:56.099' #}
+                    |{# @param v a random time
+                    |    here to test something #}
+                    |SELECT {{ v }} AS r
+                    |""".stripMargin)
+    val GetProgramDescriptionSuccess(d) = code.description()
+    d.decls.size should be(0)
+    val Vector(param) = d.maybeRunnable.get.params.get
+    param.idn should be("v")
+    param.required should be(false) // because we have a default
+    param.tipe.get should be(RawTimeType(true, false)) // null is always OK
+    param.comment.get should be("a random time here to test something")
+    code withArg "v" -> LocalTime.of(1,1,1,3309000) should give("""[{"r":"01:01:01.003"}]""")
+    code withArgs Map.empty should give("""[{"r":"12:34:56.099"}]""")
   }
 
   test("""date expression""") { _ =>

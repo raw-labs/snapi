@@ -47,7 +47,9 @@ object Dependencies {
 
   // from client
   val trufflePolyglot = "org.graalvm.polyglot" % "polyglot" % "24.0.1"
-  val trufflePython = "org.graalvm.polyglot" % "python-community" % "24.0.1"
+  val trufflePython = "org.graalvm.python" % "python-language" % "24.0.1"
+  val pythonEmbedding = "org.graalvm.python" % "python-embedding" % "24.0.1"
+  val pythonResources = "org.graalvm.python" % "python-resources" % "24.0.1"
 
   // from snapi-parser
   val antlr4Runtime = "org.antlr" % "antlr4-runtime" % "4.12.0"

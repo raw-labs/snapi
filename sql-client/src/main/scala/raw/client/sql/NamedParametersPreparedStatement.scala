@@ -19,6 +19,7 @@ import raw.client.api._
 import raw.client.sql.antlr4._
 
 import java.sql.{Connection, ResultSet, ResultSetMetaData}
+import java.time.{LocalDateTime, LocalTime}
 import scala.collection.mutable
 
 /* This class is wrapping the PreparedStatement class from the JDBC API.
@@ -545,8 +546,8 @@ class NamedParametersPreparedStatement(conn: Connection, parsedTree: ParseProgra
       case java.sql.Types.FLOAT => RawFloat(rs.getFloat(1))
       case java.sql.Types.DOUBLE => RawDouble(rs.getDouble(1))
       case java.sql.Types.DATE => RawDate(rs.getDate(1).toLocalDate)
-      case java.sql.Types.TIME => RawTime(rs.getTime(1).toLocalTime)
-      case java.sql.Types.TIMESTAMP => RawTimestamp(rs.getTimestamp(1).toLocalDateTime)
+      case java.sql.Types.TIME => RawTime(rs.getObject(1, classOf[LocalTime]))
+      case java.sql.Types.TIMESTAMP => RawTimestamp(rs.getObject(1, classOf[LocalDateTime]))
       case java.sql.Types.BOOLEAN => RawBool(rs.getBoolean(1))
       case java.sql.Types.VARCHAR => RawString(rs.getString(1))
     }

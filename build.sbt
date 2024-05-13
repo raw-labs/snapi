@@ -293,5 +293,5 @@ lazy val jinjaSqlClient = (project in file("jinja-sql-client"))
     commonSettings,
     missingInterpolatorCompileSettings,
     testSettings,
-    libraryDependencies += trufflePython
+    libraryDependencies ++= Seq(trufflePython, pythonEmbedding, pythonResources)
   )

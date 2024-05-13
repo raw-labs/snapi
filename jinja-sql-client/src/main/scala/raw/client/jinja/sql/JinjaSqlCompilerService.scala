@@ -12,8 +12,8 @@
 
 package raw.client.jinja.sql
 
-import org.graalvm.polyglot.io.IOAccess
 import org.graalvm.polyglot._
+import org.graalvm.polyglot.io.IOAccess
 import raw.client.api._
 import raw.utils.RawSettings
 
@@ -27,7 +27,8 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private val sqlCompilerService = CompilerServiceProvider("sql", maybeClassLoader)
 
   private val pythonCtx = {
-    val pythonExecutable = getClass.getResource("/venv/bin/python")
+    val graalpyExecutable = "/Users/bgaidioz/tmp/jinja-pyenv/bin/graalpy"
+    logger.info("pythonExecutable:" + graalpyExecutable)
     Context
       .newBuilder("python")
       .engine(engine)
@@ -42,21 +43,10 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .allowHostClassLoading(true)
       .allowHostClassLookup(_ => true)
       .allowNativeAccess(true)
-      // setting false will deny all privileges unless configured below
-//      .allowAllAccess(true)
-      // choose the backend for the POSIX module
-      .option("python.PosixModuleBackend", "java")
-      // equivalent to the Python -B flag
       .option("python.DontWriteBytecodeFlag", "true")
-      // equivalent to the Python -v flag
-      .option("python.VerboseFlag", "true")
-      // log level
-      //    .option("log.python.level", "FINE")
-      // print Python exceptions directly
-//      .option("python.AlwaysRunExcepthook", "true")
-      // TODO???
+//      .option("python.VerboseFlag", "true").option("log.python.level", "FINE")
       .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found
-      .option("python.Executable", pythonExecutable.getPath)
+      .option("python.Executable", graalpyExecutable)
       .build()
   }
 
@@ -104,9 +94,16 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   }
 
   private def rawValueToPolyglot(value: RawValue) = value match {
-    case RawString(s) => Value.asValue(s)
+    case RawShort(v) => Value.asValue(v)
     case RawInt(i) => Value.asValue(i)
+    case RawLong(v) => Value.asValue(v)
+    case RawFloat(v) => Value.asValue(v)
+    case RawDouble(v) => Value.asValue(v)
+    case RawBool(v) => Value.asValue(v)
+    case RawString(s) => Value.asValue(s)
     case RawDate(d) => Value.asValue(d)
+    case RawTime(v) => Value.asValue(v)
+    case RawTimestamp(v) => Value.asValue(v)
     case _ => ???
   }
 
