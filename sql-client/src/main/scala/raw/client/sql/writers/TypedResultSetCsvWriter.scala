@@ -20,6 +20,7 @@ import raw.client.utils.RecordFieldsNaming
 
 import java.io.{IOException, OutputStream}
 import java.sql.ResultSet
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import scala.annotation.tailrec
 
@@ -113,7 +114,8 @@ class TypedResultSetCsvWriter(os: OutputStream, lineSeparator: String) {
         val date = v.getDate(i).toLocalDate
         gen.writeString(dateFormatter.format(date))
       case _: RawTimeType =>
-        val time = v.getTime(i).toLocalTime
+        val sqlTime = v.getTime(i)
+        val time = LocalTime.ofNanoOfDay(sqlTime.getTime * 1000000)
         val formatter = if (time.getNano > 0) timeFormatter else timeFormatterNoMs
         val formatted = formatter.format(time)
         gen.writeString(formatted)
