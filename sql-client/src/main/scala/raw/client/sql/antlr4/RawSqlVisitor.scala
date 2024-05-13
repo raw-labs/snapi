@@ -441,12 +441,12 @@ class RawSqlVisitor(
       if (context.multiline_word_or_star(0) == null) {
         addError("Missing name for syntax @default <name> <value>", context)
         SqlErrorNode()
-      } else if (context.multiline_word_or_star(1) == null) {
+      } else if (context.multiline_word_or_star.size() <= 1) {
         addError("Missing default value for syntax @default <name> <value>", context)
         SqlErrorNode()
       } else {
         val name = context.multiline_word_or_star(0).getText
-        val defaultValue = context.multiline_word_or_star(1).getText
+        val defaultValue = context.multiline_word_or_star.asScala.tail.map(_.getText.trim).mkString(" ")
         val paramDefaultComment = SqlParamDefaultCommentNode(name, defaultValue)
         positionsWrapper.setPosition(ctx, paramDefaultComment)
 
