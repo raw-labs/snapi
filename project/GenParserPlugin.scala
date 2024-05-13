@@ -2,13 +2,15 @@ package raw.build
 
 import sbt.Keys._
 import sbt.{Def, _}
+import sbt.plugins.JvmPlugin
 
 import com.jsuereth.sbtpgp.PgpKeys.{publishSigned}
-import sbt.plugins.JvmPlugin
-import java.io.{File, IOException}
+import java.io.{File, FileInputStream, IOException}
 import java.net.URL
+import java.security.MessageDigest
+import scala.util.control.Breaks._
 
-import sys.process._
+import scala.sys.process._
 
 object GenParserPlugin extends AutoPlugin {
   override def requires = JvmPlugin
@@ -32,7 +34,8 @@ object GenParserPlugin extends AutoPlugin {
 
       // Ensure antlr jar is available
       val antlrJarPath = (ThisBuild / baseDirectory).value / "antlr-4.12.0-complete.jar"
-      ensureAntlrJarAvailable(antlrJarPath.toString())
+      val antlrJarChecksum = "88f18a2bfac0dde1009eda5c7dce358a52877faef7868f56223a5bcc15329e43"
+      ensureAntlrJarAvailable(antlrJarPath.toString(), antlrJarChecksum)
 
       def deleteRecursively(file: File): Unit = {
         if (file.isDirectory) {
@@ -84,11 +87,49 @@ object GenParserPlugin extends AutoPlugin {
   )
 
   //Ensure ANTLR JAR is downloaded if not present
-  def ensureAntlrJarAvailable(jarPath: String): Unit = {
+  def ensureAntlrJarAvailable(jarPath: String, expectedChecksum: String, maxRetries: Int = 3): Unit = {
     val jarFile = new File(jarPath)
-    if (!jarFile.exists()) {
+    if (!jarFile.exists() && !verifyChecksum(jarFile, expectedChecksum)) {
       val jarName = jarFile.getName
-      new URL(s"https://github.com/antlr/website-antlr4/raw/gh-pages/download/$jarName") #> new File(jarPath) !!
+      val url = s"https://github.com/antlr/website-antlr4/raw/gh-pages/download/$jarName"
+      breakable {
+        for (attempt <- 1 to maxRetries) {
+          try {
+            println(s"Attempt $attempt: Downloading $jarName...")
+            new URI(url).toURL() #> jarFile !!
+
+            if (verifyChecksum(jarFile, expectedChecksum)) {
+              println("JAR downloaded and checksum verified successfully.")
+              break
+            } else {
+              println("Checksum verification failed, retrying...")
+              jarFile.delete()
+            }
+          } catch {
+            case ex: Exception =>
+              println(s"Failed to download the file: ${ex.getMessage}")
+              if (attempt == maxRetries) {
+                throw new IllegalStateException("Max retries reached, unable to download the file.")
+              }
+          }
+        }
+      }
+    } else {
+      println("JAR already present and checksum verified successfully.")
     }
   }
+
+    def verifyChecksum(file: File, expectedChecksum: String): Boolean = {
+      val buffer = new Array[Byte](64)
+      val sha256 = MessageDigest.getInstance("SHA-256")
+      val fis = new FileInputStream(file)
+
+      Stream.continually(fis.read(buffer)).takeWhile(_ != -1).foreach { read =>
+        sha256.update(buffer, 0, read)
+      }
+      fis.close()
+
+      val fileChecksum = sha256.digest().map("%02x".format(_)).mkString
+      fileChecksum.equalsIgnoreCase(expectedChecksum)
+    }
 }
