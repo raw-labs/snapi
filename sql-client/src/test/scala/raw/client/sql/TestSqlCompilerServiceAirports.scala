@@ -639,6 +639,19 @@ class TestSqlCompilerServiceAirports
     assert(executionErrors.forall(err => expectedErrors.exists(err.message.contains)))
   }
 
+  test("""/* @default a 1 + 1 */
+    |SELECT :a + :a AS v""".stripMargin) { t =>
+    assume(password != "")
+    val v = compilerService.validate(t.q, asJson())
+    assert(v.messages.isEmpty, v.messages.mkString(","))
+    val GetProgramDescriptionSuccess(description) = compilerService.getProgramDescription(t.q, asJson())
+    assert(!description.maybeRunnable.get.params.get.head.required)
+    assert(description.maybeRunnable.get.params.get.head.defaultValue.contains(RawInt(2)))
+    val baos = new ByteArrayOutputStream()
+    assert(compilerService.execute(t.q, asJson(), None, baos) == ExecutionSuccess)
+    assert(baos.toString() == """[{"v":4}]""")
+  }
+
   test("SELECT * FROM wrong.relation") { t =>
     assume(password != "")
 
