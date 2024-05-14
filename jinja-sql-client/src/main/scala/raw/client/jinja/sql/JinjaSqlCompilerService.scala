@@ -27,7 +27,7 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private val sqlCompilerService = CompilerServiceProvider("sql", maybeClassLoader)
 
   private val pythonCtx = {
-    val graalpyExecutable = "/Users/bgaidioz/tmp/jinja-pyenv/bin/graalpy"
+    val graalpyExecutable = settings.getString("raw.client.jinja-sql.graalpy")
     logger.info("pythonExecutable:" + graalpyExecutable)
     Context
       .newBuilder("python")
