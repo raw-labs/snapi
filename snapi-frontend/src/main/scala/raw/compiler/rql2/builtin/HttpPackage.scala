@@ -103,7 +103,8 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       ExampleDoc(
         s"""Http.${method.capitalize}(
           |  "https://www.somewhere.com/something",
-          |  headers = [{ "Content-Type", "application/json"}],
+          |  headers = [{"Content-Type", "application/json"}],
+          |  args = [{"download", "true"}],
           |  bodyString = Json.Print({name: "john", age: 35})
           |)""".stripMargin
       )
@@ -179,13 +180,17 @@ abstract class HttpCallEntry(method: String) extends EntryExtension {
       ParamDoc(
         "args",
         TypeDoc(List("list")),
-        "The query parameters arguments for the HTTP request. Parameters are URL-encoded automatically. Any key/value pair with a null key or value will be omitted and won't be included in the URL parameters.",
+        """The query parameters arguments for the HTTP request.
+          |<br/>Parameters are a list of tuples (string, string) e.g. `[{"name", "john"}, {"age", "22"}]`. They are URL-encoded automatically.
+          |Any key/value pair with a null key or value will be omitted and won't be included in the URL parameters.""".stripMargin,
         isOptional = true
       ),
       ParamDoc(
         "headers",
         TypeDoc(List("list")),
-        "The HTTP headers to include in the request. Any key/value pair with a null key or value will be omitted and won't be included in the request headers.",
+        """The HTTP headers to include in the request.
+          |<br/>Headers are a list of tuples (string, string) e.g. `[{"Authorization", "Bearer 1234"}, {"Accept", "application/json"}]`.
+          |Any key/value pair with a null key or value will be omitted and won't be included in the request headers.""".stripMargin,
         isOptional = true
       ),
       ParamDoc("expectedStatus", TypeDoc(List("list")), "The list of expected statuses.", isOptional = true)
