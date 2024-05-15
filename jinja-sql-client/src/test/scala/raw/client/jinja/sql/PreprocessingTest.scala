@@ -395,6 +395,16 @@ class PreprocessingTest
     q should validate
   }
 
+  test("scopes") { _ =>
+    val q = Q("SELECT {{ environment.scopes|length }} AS n")
+    q should give("""[{"n":0}]""")
+  }
+
+  test("secret") { _ =>
+    val q = Q("""SELECT {{ environment.secret("blah")}} AS n""")
+    q should give("""[{"n":null}]""")
+  }
+
   test("SELECT airport_id, {{ c }} FROM {{ }} ") { q =>
     val v = compilerService.validate(q.q, asJson())
     assert(v != null)

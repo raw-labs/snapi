@@ -14,6 +14,7 @@ module raw.client.jinja.sql {
   requires scala.library;
   requires raw.client;
   requires raw.utils;
+  requires raw.sources;
   requires org.slf4j;
   requires org.graalvm.polyglot;
 

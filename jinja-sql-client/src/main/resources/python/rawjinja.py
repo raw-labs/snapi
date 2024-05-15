@@ -49,51 +49,71 @@ class RawJinjaException(Exception):
    def message(self):
       return self._message
 
-def fix(val):
-    if isinstance(val, Markup):
-        return val
-    elif isinstance(val, str):
-        return "'" + val.replace("'", "''") + "'"
-    elif isinstance(val, RawDate):
-        return "make_date(%d,%d,%d)" % (val.year, val.month, val.day)
-    elif isinstance(val, RawTime):
-        return "make_time(%d,%d,%d + %d / 1000000.0)" % (val.hour, val.minute, val.second, val.microsecond)
-    elif isinstance(val, RawTimestamp):
-        return "make_timestamp(%d,%d,%d,%d,%d,%f)" % (val.year, val.month, val.day, val.hour, val.minute, val.second + val.microsecond / 1000000.0)
-    else:
-        return val
+class RawEnvironment:
 
-def flag_as_safe(s):
-    return Markup(s)
+    def __init__(self, scopes, getSecret):
+        self.scopes = [s for s in scopes.iterator()]
+        self._getSecret = lambda s: getSecret.apply(s)
 
-def flag_as_identifier(s):
-    return Markup('"' + s.replace('"', '""') + '"')
+    def secret(self,s):
+        return self._getSecret(s)
 
-env = Environment(finalize=fix, autoescape=False, extensions=[RaiseExtension])
-env.filters['safe'] = flag_as_safe
-env.filters['identifier'] = flag_as_identifier
+class RawJinja:
 
-def _apply(code, args):
-   template = env.from_string(code)
-   return template.render(args)
+    def __init__(self):
+        self._env = Environment(finalize=lambda x: self.fix(x), autoescape=False, extensions=[RaiseExtension])
+        self._env.filters['safe'] = self.flag_as_safe
+        self._env.filters['identifier'] = self.flag_as_identifier
 
-def apply(code, args):
-   d = {key: _toPython(args.get(key)) for key in args.keySet()}
-   return _apply(code, d)
+    def fix(self, val):
+        if isinstance(val, Markup):
+            return val
+        elif isinstance(val, str):
+            return "'" + val.replace("'", "''") + "'"
+        elif isinstance(val, RawDate):
+            return "make_date(%d,%d,%d)" % (val.year, val.month, val.day)
+        elif isinstance(val, RawTime):
+            return "make_time(%d,%d,%d + %d / 1000000.0)" % (val.hour, val.minute, val.second, val.microsecond)
+        elif isinstance(val, RawTimestamp):
+            return "make_timestamp(%d,%d,%d,%d,%d,%f)" % (val.year, val.month, val.day, val.hour, val.minute, val.second + val.microsecond / 1000000.0)
+        elif isinstance(val, list):
+            items = ["(" + self.fix(i) + ")" for i in val]
+            return "(VALUES " + ",".join(items) + ")"
+        elif val is None:
+            return "NULL"
+        else:
+            return val
 
-def _toPython(arg):
-    if isinstance(arg, javaLocalDateClass):
-        return RawDate(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth())
-    if isinstance(arg, javaLocalTimeClass):
-        return RawTime(arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano() / 1000))
-    if isinstance(arg, javaLocalDateTimeClass):
-        return RawTimestamp(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth(),
-                        arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano()/ 1000))
-    return arg
+    def flag_as_safe(self, s):
+        return Markup(s)
 
-def validate(code):
-  tree = env.parse(code)
-  return list(meta.find_undeclared_variables(tree))
+    def flag_as_identifier(self, s):
+        return Markup('"' + s.replace('"', '""') + '"')
 
-def metadata_comments(code):
-    return [content for (line, tipe, content) in env.lex(code) if tipe == 'comment']
+
+    def _apply(self, code, args):
+       template = self._env.from_string(code)
+       return template.render(args)
+
+    def apply(self, code, environment, args):
+       d = {key: self._toPython(args.get(key)) for key in args.keySet()}
+       print(dir(environment))
+       d['environment'] = RawEnvironment(environment.scopes(), environment.secret())
+       return self._apply(code, d)
+
+    def _toPython(self, arg):
+        if isinstance(arg, javaLocalDateClass):
+            return RawDate(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth())
+        if isinstance(arg, javaLocalTimeClass):
+            return RawTime(arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano() / 1000))
+        if isinstance(arg, javaLocalDateTimeClass):
+            return RawTimestamp(arg.getYear(), arg.getMonthValue(), arg.getDayOfMonth(),
+                            arg.getHour(), arg.getMinute(), arg.getSecond(), int(arg.getNano()/ 1000))
+        return arg
+
+    def validate(self, code):
+      tree = self._env.parse(code)
+      return list(meta.find_undeclared_variables(tree))
+
+    def metadata_comments(self, code):
+        return [content for (line, tipe, content) in self._env.lex(code) if tipe == 'comment']

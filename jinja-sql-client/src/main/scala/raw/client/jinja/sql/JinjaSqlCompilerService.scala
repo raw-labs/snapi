@@ -15,6 +15,7 @@ package raw.client.jinja.sql
 import org.graalvm.polyglot._
 import org.graalvm.polyglot.io.IOAccess
 import raw.client.api._
+import raw.creds.api.CredentialsServiceProvider
 import raw.utils.RawSettings
 
 class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
@@ -54,6 +55,8 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     builder.build()
   }
 
+  private val credentials = CredentialsServiceProvider(maybeClassLoader)
+
   private val bindings = {
     val helper = getClass.getResource("/python/rawjinja.py")
     logger.info(helper.toString)
@@ -61,15 +64,21 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
     pythonCtx.eval(truffleSource)
     pythonCtx.getBindings("python")
   }
-  private val apply = bindings.getMember("apply")
-  private val validate = bindings.getMember("validate")
-  private val metadataComments = bindings.getMember("metadata_comments")
+
+  private val rawjinjaClass = bindings.getMember("RawJinja")
+  assert(rawjinjaClass.canInstantiate)
+  private val rawJinja = rawjinjaClass.newInstance()
+  private val apply = rawJinja.getMember("apply")
+  private val validate = rawJinja.getMember("validate")
+  private val metadataComments = rawJinja.getMember("metadata_comments")
 
   def dotAutoComplete(
       source: String,
       environment: raw.client.api.ProgramEnvironment,
       position: raw.client.api.Pos
   ): raw.client.api.AutoCompleteResponse = AutoCompleteResponse(Array.empty)
+
+  class Env(val scopes: Value, val secret: String => String) {}
 
   def execute(
       source: String,
@@ -83,9 +92,15 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       case Right(params) =>
         for (p <- params; value <- p.defaultValue) args.put(p.idn, rawValueToPolyglot(value))
         for (userArgs <- environment.maybeArguments.toArray; (key, v) <- userArgs) args.put(key, rawValueToPolyglot(v))
+        val scopes = new java.util.ArrayList[String]
+        environment.scopes.foreach(scopes.add)
+        val env = new Env(
+          Value.asValue(scopes),
+          (secret: String) => credentials.getSecret(environment.user, secret).map(_.value).orNull
+        )
         val sqlQuery: String =
           try {
-            apply.execute(pythonCtx.asValue(source), args).asString
+            apply.execute(pythonCtx.asValue(source), env, args).asString
           } catch {
             case ex: PolyglotException => handlePolyglotException(ex, source, environment) match {
                 case Some(errorMessage) => return ExecutionValidationFailure(List(errorMessage))
