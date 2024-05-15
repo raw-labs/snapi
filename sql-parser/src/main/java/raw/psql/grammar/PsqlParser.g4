@@ -60,7 +60,7 @@ multiline_param_comment: ML_PARAM_KW (multiline_word_or_star)+
 multiline_type_comment: ML_TYPE_KW (multiline_word_or_star)+
                       ;
 
-multiline_default_comment: ML_DEFAULT_KW multiline_word_or_star multiline_word_or_star
+multiline_default_comment: ML_DEFAULT_KW (multiline_word_or_star)+
                          ;
 
 multiline_return_comment: ML_RETURN_KW (multiline_word_or_star)+
