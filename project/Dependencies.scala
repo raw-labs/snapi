@@ -80,12 +80,12 @@ object Dependencies {
   val jwtCore = "com.github.jwt-scala" %% "jwt-core" % "9.4.4-rawlabs"
   val springCore = "org.springframework" % "spring-core" % "5.3.13"
   val truffleCompiler = Seq(
-    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-api" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-compiler" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-nfi" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-nfi-libffi" % "23.1.0",
-    "org.graalvm.truffle" % "truffle-runtime" % "23.1.0"
+    "org.graalvm.truffle" % "truffle-api" % "24.0.1",
+    "org.graalvm.truffle" % "truffle-api" % "24.0.1",
+    "org.graalvm.truffle" % "truffle-compiler" % "24.0.1",
+    "org.graalvm.truffle" % "truffle-nfi" % "24.0.1",
+    "org.graalvm.truffle" % "truffle-nfi-libffi" % "24.0.1",
+    "org.graalvm.truffle" % "truffle-runtime" % "24.0.1"
   )
   val scalaCompiler = Seq(
     "org.scala-lang" % "scala-compiler" % "2.12.18",

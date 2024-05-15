@@ -27,7 +27,8 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
   private val sqlCompilerService = CompilerServiceProvider("sql", maybeClassLoader)
 
   private val pythonCtx = {
-    val graalpyExecutable = settings.getString("raw.client.jinja-sql.graalpy")
+    val graalpyExecutable = settings.getString("raw.client.jinja-sql.graalpy.executable")
+    val graalpyHome = settings.getString("raw.client.jinja-sql.graalpy.home")
     logger.info("pythonExecutable:" + graalpyExecutable)
     Context
       .newBuilder("python")
@@ -44,8 +45,9 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       .allowHostClassLookup(_ => true)
       .allowNativeAccess(true)
       .option("python.DontWriteBytecodeFlag", "true")
-//      .option("python.VerboseFlag", "true").option("log.python.level", "FINE")
+      .option("python.VerboseFlag", "true").option("log.python.level", "FINE")
       .option("python.ForceImportSite", "true") // otherwise jinja2 isn't found
+      .option("python.PythonHome", graalpyHome)
       .option("python.Executable", graalpyExecutable)
       .build()
   }
@@ -240,6 +242,13 @@ class JinjaSqlCompilerService(maybeClassLoader: Option[ClassLoader] = None)(
       val exceptionClass = guestObject.getMetaObject.getMetaSimpleName
       exceptionClass match {
         case "TemplateSyntaxError" =>
+          val lineno = guestObject.getMember("lineno").asInt()
+          val message = guestObject.getMember("message").asString()
+          val location = ErrorPosition(lineno, 1)
+          val endLocation = ErrorPosition(lineno, source.split('\n')(lineno - 1).length)
+          val range = ErrorRange(location, endLocation)
+          Some(ErrorMessage(message, List(range), JINJA_ERROR))
+        case "TemplateAssertionError" =>
           val lineno = guestObject.getMember("lineno").asInt()
           val message = guestObject.getMember("message").asString()
           val location = ErrorPosition(lineno, 1)
